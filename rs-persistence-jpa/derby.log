@@ -1,6 +1,0 @@
-----------------------------------------------------------------
-2010-06-09 12:17:37.894 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-0129-1ca4-ecfe-000004b39d08
-on database directory /Users/bimschas/Coding/testbed-runtime/rs-persistence-jpa/target/PersistenceDB  
-
-Database Class Loader started - derby.database.classpath=''

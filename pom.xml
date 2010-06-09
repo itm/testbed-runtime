@@ -35,41 +35,38 @@
 
 	<modules>
 
-		<module>node-api</module>
+		<module>rs/rs-api</module>
+		<module>rs/rs-cmdline</module>
+		<module>rs/rs-dummy</module>
+		<module>rs/rs-federator</module>
+		<module>rs/rs-singleurnprefix</module>
+		<module>rs/rs-persistence</module>
+		<module>rs/rs-persistence-gcal</module>
+		<module>rs/rs-persistence-inmemory</module>
+		<module>rs/rs-persistence-jpa</module>
 
-		<module>rs-api</module>
-		<module>rs-cmdline</module>
-		<module>rs-dummy</module>
-		<module>rs-federator</module>
-		<module>rs-singleurnprefix</module>
-		<module>rs-persistence</module>
-		<module>rs-persistence-gcal</module>
-		<module>rs-persistence-inmemory</module>
-		<module>rs-persistence-jpa</module>
+		<module>iwsn/runtime</module>
+		<module>iwsn/runtime.cmdline</module>
+		<module>iwsn/runtime.portal</module>
+		<module>iwsn/runtime.wsn-app</module>
+		<module>iwsn/runtime.xml-testbed-factory</module>
+		<module>iwsn/wsn-api</module>
+		<module>iwsn/wsn-api-client</module>
+		<module>iwsn/wsn-device-drivers</module>
+		<module>iwsn/wsn-federator</module>
 
-		<module>runtime</module>
-		<module>runtime.cmdline</module>
-		<module>runtime.portal</module>
-		<module>runtime.wsn-app</module>
-		<module>runtime.xml-testbed-factory</module>
-
-		<module>snaa-api</module>
-		<module>snaa-cmdline-client</module>
-		<module>snaa-cmdline-server</module>
-		<module>snaa-dummy</module>
-		<module>snaa-federator</module>
-		<module>snaa-shibboleth</module>
-		<module>snaa-jaaslogin</module>
-		<module>snaa-wisebed</module>
+		<module>snaa/snaa-api</module>
+		<module>snaa/snaa-cmdline-client</module>
+		<module>snaa/snaa-cmdline-server</module>
+		<module>snaa/snaa-dummy</module>
+		<module>snaa/snaa-federator</module>
+		<module>snaa/snaa-shibboleth</module>
+		<module>snaa/snaa-jaaslogin</module>
+		<module>snaa/snaa-wisebed</module>
+		
 		<module>shibboauth</module>
-
 		<module>util</module>
-
-		<module>wsn-api</module>
-		<module>wsn-api-client</module>
-		<module>wsn-device-drivers</module>
-		<module>wsn-federator</module>
-
+		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
 
