@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://testbed.wisebed.eu/api/snaa/v1/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             targetNamespace="http://testbed.wisebed.eu/api/snaa/v1/"
+             name="SNAAService">
+
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://testbed.wisebed.eu/api/snaa/v1/"
+                        schemaLocation="SNAATypes.xsd"/>
+        </xsd:schema>
+    </types>
+
+    <message name="authenticate">
+        <part name="parameters" element="tns:authenticate"/>
+    </message>
+    <message name="authenticateResponse">
+        <part name="parameters" element="tns:authenticateResponse"/>
+    </message>
+    <message name="AuthenticationExceptionException">
+        <part name="fault" element="tns:AuthenticationFault"/>
+    </message>
+    <message name="SNAAExceptionException">
+        <part name="fault" element="tns:SNAAFault"/>
+    </message>
+    <message name="isAuthorized">
+        <part name="parameters" element="tns:isAuthorized"/>
+    </message>
+    <message name="isAuthorizedResponse">
+        <part name="parameters" element="tns:isAuthorizedResponse"/>
+    </message>
+
+    <portType name="SNAA">
+        <operation name="authenticate">
+            <input message="tns:authenticate"/>
+            <output message="tns:authenticateResponse"/>
+            <fault message="tns:AuthenticationExceptionException" name="AuthenticationExceptionException"/>
+            <fault message="tns:SNAAExceptionException" name="SNAAExceptionException"/>
+        </operation>
+        <operation name="isAuthorized">
+            <input message="tns:isAuthorized"/>
+            <output message="tns:isAuthorizedResponse"/>
+            <fault message="tns:SNAAExceptionException" name="SNAAExceptionException"/>
+        </operation>
+    </portType>
+
+    <binding name="SNAAPortBinding" type="tns:SNAA">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="authenticate">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+            <fault name="AuthenticationExceptionException">
+                <soap:fault name="AuthenticationExceptionException" use="literal"/>
+            </fault>
+            <fault name="SNAAExceptionException">
+                <soap:fault name="SNAAExceptionException" use="literal"/>
+            </fault>
+        </operation>
+        <operation name="isAuthorized">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+            <fault name="SNAAExceptionException">
+                <soap:fault name="SNAAExceptionException" use="literal"/>
+            </fault>
+        </operation>
+    </binding>
+
+    <service name="SNAAService">
+        <port name="SNAAPort" binding="tns:SNAAPortBinding">
+            <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+        </port>
+    </service>
+
+</definitions>

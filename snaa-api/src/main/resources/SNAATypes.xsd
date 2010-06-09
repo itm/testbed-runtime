@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://testbed.wisebed.eu/api/snaa/v1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://testbed.wisebed.eu/api/snaa/v1/" version="1.0">
+	<xs:element name="AuthenticationFault" type="tns:AuthenticationException"/>
+	<xs:element name="SNAAFault" type="tns:SNAAException"/>
+	<xs:element name="authenticate" type="tns:authenticate"/>
+	<xs:element name="authenticateResponse" type="tns:authenticateResponse"/>
+	<xs:element name="isAuthorized" type="tns:isAuthorized"/>
+	<xs:element name="isAuthorizedResponse" type="tns:isAuthorizedResponse"/>
+	<xs:complexType name="SNAAException">
+		<xs:sequence>
+			<xs:element name="message" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AuthenticationException">
+		<xs:sequence>
+			<xs:element name="message" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="authenticate">
+		<xs:sequence>
+			<xs:element name="authenticationData" type="tns:authenticationTriple" nillable="false" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="authenticationTriple">
+		<xs:sequence>
+			<xs:element name="password" type="xs:string"/>
+			<xs:element name="urnPrefix" type="xs:string"/>
+			<xs:element name="username" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="secretAuthenticationKey">
+		<xs:sequence>
+			<xs:element name="username" type="xs:string"/>
+			<xs:element name="secretAuthenticationKey" type="xs:string"/>
+			<xs:element name="urnPrefix" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="action">
+		<xs:sequence>
+			<xs:element name="action" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="isAuthorizedResponse">
+		<xs:sequence>
+			<xs:element name="authorization" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="isAuthorized">
+		<xs:sequence>
+			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false" maxOccurs="unbounded"/>
+			<xs:element name="action" type="tns:action"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="authenticateResponse">
+		<xs:sequence>
+			<xs:element name="secretAuthenticationKey" type="tns:secretAuthenticationKey" nillable="false" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

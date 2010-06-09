@@ -1,0 +1,126 @@
+/**********************************************************************************************************************
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * All rights reserved.                                                                                               *
+ *                                                                                                                    *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
+ * following conditions are met:                                                                                      *
+ *                                                                                                                    *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
+ *   disclaimer.                                                                                                      *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ *   products derived from this software without specific prior written permission.                                   *
+ *                                                                                                                    *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
+ **********************************************************************************************************************/
+
+package de.uniluebeck.itm.wisebed.cmdlineclient;
+
+import bsh.EvalError;
+import bsh.Interpreter;
+import org.apache.commons.cli.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class WisebedBeanShellClient {
+	private static final Logger log = Logger.getLogger(WisebedBeanShellClient.class);
+
+	private static List<String> importsForBeanShell = new ArrayList<String>();
+
+	static {
+		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.WSNServiceHelper;");
+		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.RSServiceHelper;");
+		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
+		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v211.*;");
+		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
+		importsForBeanShell.add("import java.util.concurrent.TimeUnit;"); 
+	}
+
+	
+	/**
+	 * @param args
+	 * @throws EvalError
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	public static void main(String[] args) throws FileNotFoundException, IOException, EvalError {
+		File beanShellFile = null;
+
+		// create the command line parser
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
+		options.addOption("f", "file", true, "The bean shell script to execute");
+		options.addOption("v", "verbose", false, "Verbose logging output");
+		options.addOption("h", "help", false, "Help output");
+
+		try {
+			CommandLine line = parser.parse(options, args);
+
+			if (line.hasOption('v'))
+				Logger.getRootLogger().setLevel(Level.DEBUG);
+
+			if (line.hasOption('h'))
+				usage(options);
+
+			log.debug("Option for -f: " + line.getOptionValue('f'));
+
+			if (line.hasOption('f'))
+				beanShellFile = new File(line.getOptionValue('f'));
+			else
+				throw new Exception("Please supply -f");
+
+		} catch (Exception e) {
+			log.fatal("Invalid command line: " + e, e);
+			usage(options);
+		}
+
+		// Run the bean shell file
+		Interpreter i = new Interpreter();
+
+		// Add a logger
+		Logger bshLogger = Logger.getLogger("BeanShellScript");
+		log.debug("Adding logger to beanshell, use 'log' variable, api is like log4j's");
+		i.set("log", bshLogger);
+
+		// Add a helper
+		BeanShellHelper helper = new BeanShellHelper();
+		log.debug("Adding helper to beanshell, use 'helper' variable");
+		i.set("helper", helper);
+		
+		// Add some convenience imports
+		for (String importStatement : importsForBeanShell) {
+			log.debug("Adding the following default import: " + importStatement);
+			i.eval(importStatement);
+		}
+
+		// Run the script
+		try {
+			i.source(beanShellFile.getAbsolutePath());
+		} catch (Exception e) {
+			log.error("Error while running bean shell script: " + e, e);
+			System.exit(1);
+		}
+	}
+
+	private static void usage(Options options) {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp(WisebedBeanShellClient.class.getCanonicalName(), options);
+		System.exit(1);
+	}
+
+}

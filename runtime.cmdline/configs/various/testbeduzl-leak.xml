@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                ~
+  ~ All rights reserved.                                                                                              ~
+  ~                                                                                                                   ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the  ~
+  ~ following conditions are met:                                                                                     ~
+  ~                                                                                                                   ~
+  ~ - Redistributions of source code must retain the above copyright notice, this list of conditions and the following~
+  ~   disclaimer.                                                                                                     ~
+  ~ - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the       ~
+  ~   following disclaimer in the documentation and/or other materials provided with the distribution.                ~
+  ~ - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote
+  ~   products derived from this software without specific prior written permission.                                  ~
+  ~                                                                                                                   ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,~
+  ~ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE     ~
+  ~ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,        ~
+  ~ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE~
+  ~ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF   ~
+  ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  ~
+  ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+
+	<nodes id="opium">
+		<names>
+			<nodename name="urn:wisebed:tubs:401" description="" />
+			<nodename name="urn:wisebed:tubs:402" description="" />
+			<nodename name="urn:wisebed:tubs:403" description="" />
+			<nodename name="urn:wisebed:tubs:404" description="" />
+			<nodename name="urn:wisebed:tubs:405" description="" />
+			<nodename name="urn:wisebed:tubs:406" description="" />
+			<nodename name="urn:wisebed:tubs:407" description="" />
+			<nodename name="urn:wisebed:tubs:408" description="" />
+			<nodename name="urn:wisebed:tubs:409" description="" />
+			<nodename name="urn:wisebed:tubs:410" description="" />
+			<nodename name="urn:wisebed:tubs:411" description="" />
+			<nodename name="urn:wisebed:tubs:412" description="" />
+			<nodename name="urn:wisebed:tubs:413" description="" />
+			<nodename name="urn:wisebed:tubs:414" description="" />
+			<nodename name="urn:wisebed:tubs:415" description="" />
+			<nodename name="urn:wisebed:tubs:416" description="" />
+			<nodename name="urn:wisebed:tubs:417" description="" />
+			<nodename name="urn:wisebed:tubs:418" description="" />
+		</names>
+		<serverconnections>
+			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8081" />
+		</serverconnections>
+		<applications>
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+					<webservice>
+						<urnprefix>urn:wisebed:tubs:</urnprefix>
+						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10011/sessions</sessionmanagementendpointurl>
+						<wsninstancebaseurl>http://daniel-bimschass-macbook-pro.local:10011/</wsninstancebaseurl>
+					</webservice>
+				</portal:portalapp>
+			</application>
+			<application name="CoCoSBackend" factoryclass="de.tubs.cs.ibr.cocos.testbed.TestbedCocosApplicationFactory" />
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<device>
+						<urn>urn:wisebed:tubs:401</urn>
+						<id>420</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:401,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:402</urn>
+						<id>421</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:402,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:403</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:403,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:404</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:404,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:405</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:405,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:406</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:406,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:407</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:407,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:408</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:409,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:410</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:410,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:411</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:411,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:412</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:412,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:413</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:413,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:414</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:414,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:415</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:415,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:416</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:416,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:417</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:417,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:418</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:418,100,SECONDS</serialinterface>
+					</device>
+				</wsn:wsnapp>
+			</application>
+		</applications>
+	</nodes>
+
+	<nodes id="kavakava">
+		<names>
+			<nodename name="urn:wisebed:tubs:419" description="" />
+			<nodename name="urn:wisebed:tubs:420" description="" />
+			<nodename name="urn:wisebed:tubs:421" description="" />
+			<nodename name="urn:wisebed:tubs:422" description="" />
+			<nodename name="urn:wisebed:tubs:423" description="" />
+			<nodename name="urn:wisebed:tubs:424" description="" />
+			<nodename name="urn:wisebed:tubs:425" description="" />
+			<nodename name="urn:wisebed:tubs:426" description="" />
+			<nodename name="urn:wisebed:tubs:427" description="" />
+			<nodename name="urn:wisebed:tubs:428" description="" />
+			<nodename name="urn:wisebed:tubs:429" description="" />
+			<nodename name="urn:wisebed:tubs:430" description="" />
+		</names>
+		<serverconnections>
+			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8082" />
+		</serverconnections>
+		<applications>
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<device>
+						<urn>urn:wisebed:tubs:419</urn>
+						<id>420</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:419,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:420</urn>
+						<id>421</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:420,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:421</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:421,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:422</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:422,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:423</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:423,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:424</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:425,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:426</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:426,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:427</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:427,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:428</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:428,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:429</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:429,100,SECONDS</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:tubs:430</urn>
+						<id>422</id>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:tubs:430,100,SECONDS</serialinterface>
+					</device>
+				</wsn:wsnapp>
+			</application>
+		</applications>
+	</nodes>
+
+</ns2:testbed>
