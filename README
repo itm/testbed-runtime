@@ -9,7 +9,7 @@ WHAT IS 'TESTBED RUNTIME'?
 
 BUILDING
 
-  Testbed Runtime is based on the Apache Maven [2] build system. Clone the project and
+  Testbed Runtime is based on the Apache Maven 2 [2] build system. Clone the project and
   simply run 'mvn package' or 'mvn install' for building.
 
 MODULES
@@ -20,3 +20,8 @@ MODULES
 
 The project is made open-source under the terms of the BSD license, was created and is
 maintained by the Institute of Telematics, University of Luebeck, Germany.
+
+REFERENCES
+
+  [1] http://www.wisebed.eu/
+  [2] http://maven.apache.org/
