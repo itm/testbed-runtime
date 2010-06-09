@@ -1,1 +1,22 @@
-testbed-runtime
+  Testbed Runtime release 0.5
+
+WHAT IS 'TESTBED RUNTIME'?
+ 
+  The Testbed Runtime is a set of programs that together form a wireless sensor networks
+  testbed infrastructure. It implements the APIs defined by the european research project
+  WISEBED [1], namely RS (Reservation System), SNAA (Sensor Network Authentication and
+  Authorization) and iWSN (Wireless Sensor Network API).
+
+BUILDING
+
+  Testbed Runtime is based on the Apache Maven [2] build system. Clone the project and
+  simply run 'mvn package' or 'mvn install' for building.
+
+MODULES
+
+  Testbed Runtime delivers a set of modules that can be independently used from each
+  other (as long as dependencies are met). A description of the individual modules here
+  is yet to be done, stay tuned. 
+
+The project is made open-source under the terms of the BSD license, was created and is
+maintained by the Institute of Telematics, University of Luebeck, Germany.
