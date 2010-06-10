@@ -29,17 +29,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceImpl;
-import eu.wisebed.testbed.api.rs.v1.RSException;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,79 +39,12 @@ import java.util.Properties;
  */
 public class PersistenceModule extends AbstractModule {
 
-	private static final Logger log = LoggerFactory.getLogger(PersistenceModule.class);
-
-    /*  -- old --
-        public static RSPersistence createInstance(String persistenceUnitName) {
-        Injector injector = Guice.createInjector(new PersistenceModule(persistenceUnitName));
-        return injector.getInstance(RSPersistence.class);
-    }*/
-
     public static RSPersistence createInstance(Map properties){
         Injector injector = Guice.createInjector(new PersistenceModule(properties));
         return injector.getInstance(RSPersistence.class);
     }
 
-  /* -- old --
-    //creating RSPersistence-Instance from configFile
-
-    public static RSPersistence createInstanceFromWithConfigFile(String persistenceUnitName, File configFile) throws URISyntaxException, IOException, RSExceptionException {
-
-		// TODO this does not work when built as jar, re-write
-
-		if (!configFile.exists())
-            throw new RSExceptionException("Could not find config-file: \"" + configFile.getAbsolutePath() + "\"", new RSException());
-
-		URL persistenceURL = PersistenceModule.class.getClassLoader().getResource("META-INF/persistence.xml");
-
-        //backup old persistence.xml
-        File existingConfigFile = new File(persistenceURL.toURI());
-        File backUpFile = new File(existingConfigFile.getParent(), "persistence.xml_old");
-        existingConfigFile.renameTo(backUpFile);
-        existingConfigFile = backUpFile;
-
-        //save config-filename
-        String origConfigFileName = configFile.getAbsolutePath();
-        // Copy the config-file as persistence.xml to META-INF-folder.
-        File newConfigFile = new File(existingConfigFile.getParent(), "persistence.xml");
-        configFile.renameTo(newConfigFile);
-        configFile = newConfigFile;
-
-        RSPersistence persistenceInstance = null;
-        try {
-            persistenceInstance = createInstance(persistenceUnitName);
-        }
-        catch (Exception e){
-            restoreConfigFile(configFile, origConfigFileName);
-            restoreExistingConfigFile(existingConfigFile);
-            RSException rsException = new RSException();
-            rsException.setMessage(e.getMessage());
-            throw new RSExceptionException("Exception occured while creating instance of JPA-Persistence", rsException);
-        }
-        //write back persistence-config-file
-        restoreConfigFile(configFile, origConfigFileName);
-        //rename backuped persistence-xml
-        restoreExistingConfigFile(existingConfigFile);
-
-        return persistenceInstance;
-    }
-
-    public static void restoreConfigFile(File configFile, String origConfigFileName){
-        configFile.renameTo(new File(origConfigFileName));
-    }
-
-    public static void restoreExistingConfigFile(File existingConfigFile){
-        existingConfigFile.renameTo(new File(existingConfigFile.getParent(), "persistence.xml"));
-    }
-
-    **/
-
     private Map properties;
-
-    /* --- old ---
-        public PersistenceModule(String persistenceUnitName) {
-        this.persistenceUnitName = persistenceUnitName;
-    }*/
 
     public PersistenceModule(Map properties){
         this.properties = properties;
