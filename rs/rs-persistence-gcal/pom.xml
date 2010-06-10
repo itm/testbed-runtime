@@ -23,69 +23,69 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>de.uniluebeck.itm</groupId>
-        <artifactId>tr</artifactId>
-        <version>0.5</version>
-        <relativePath>../../</relativePath>
-    </parent>
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.5.1</version>
+		<relativePath>../../</relativePath>
+	</parent>
 
-    <artifactId>tr.rs-persistence-gcal</artifactId>
-    <packaging>jar</packaging>
-    <name>TR :: RS Google Calendar Persistence</name>
+	<artifactId>tr.rs-persistence-gcal</artifactId>
+	<packaging>jar</packaging>
+	<name>TR :: RS Google Calendar Persistence</name>
 
-    <dependencies>
+	<dependencies>
 
-        <dependency>
-            <groupId>com.google</groupId>
-            <artifactId>gdata-calendar</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google</groupId>
-            <artifactId>gdata-calendar-meta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google</groupId>
-            <artifactId>gdata-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google</groupId>
-            <artifactId>gdata-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.rs-persistence</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.rs-persistence</artifactId>
-            <scope>test</scope>
-            <version>0.5</version>
-            <classifier>tests</classifier>
-        </dependency>
-        <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-calendar</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-calendar-meta</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-persistence</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-persistence</artifactId>
+			<scope>test</scope>
+			<version>0.5.1</version>
+			<classifier>tests</classifier>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 
 </project>

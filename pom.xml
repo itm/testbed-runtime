@@ -23,14 +23,14 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5</version>
+	<version>0.5.1</version>
 	<name>TR</name>
 
 	<modules>
@@ -63,7 +63,7 @@
 		<module>snaa/snaa-shibboleth</module>
 		<module>snaa/snaa-jaaslogin</module>
 		<module>snaa/snaa-wisebed</module>
-		
+
 		<module>shibboauth</module>
 		<module>util</module>
 		<module>node-api</module>
@@ -355,7 +355,7 @@
 				<artifactId>jtidy</artifactId>
 				<version>4aug2000r7-dev</version>
 			</dependency>
-			
+
 		</dependencies>
 	</dependencyManagement>
 

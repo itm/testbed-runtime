@@ -31,7 +31,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.5</version>
+		<version>0.5.1</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
@@ -80,13 +80,13 @@
 			<artifactId>google-collections</artifactId>
 		</dependency>
 
-<!-- 	
-		<dependency>
-			<groupId>de.tubs.cs.ibr</groupId>
-			<artifactId>CoCoSBackend</artifactId>
-			<version>1.2.1</version>
-		</dependency>
- -->				
+		<!--
+				<dependency>
+					<groupId>de.tubs.cs.ibr</groupId>
+					<artifactId>CoCoSBackend</artifactId>
+					<version>1.2.1</version>
+				</dependency>
+		 -->
 
 	</dependencies>
 

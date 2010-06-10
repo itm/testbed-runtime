@@ -31,7 +31,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.5</version>
+		<version>0.5.1</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
