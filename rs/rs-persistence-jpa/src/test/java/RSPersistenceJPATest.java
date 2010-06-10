@@ -22,11 +22,11 @@
  **********************************************************************************************************************/
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.PersistenceModule;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceImpl;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.TypeConverter;
 import de.uniluebeck.itm.tr.rs.persistence.test.RSPersistenceTest;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
@@ -62,7 +62,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
     public void setUp() throws RSExceptionException, DatatypeConfigurationException {
         super.setUp();
 
-        RSPersistence persistence = PersistenceModule.createInstance(properties);
+        RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties);
         super.setPersistence(persistence);
     }
 
@@ -71,7 +71,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
     public static void main(String[] args) throws Throwable {
 
-        RSPersistence rsPersistence = PersistenceModule.createInstance(properties);
+        RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties);
         String urnPrefix = "de";
 
         Date dateFrom = new Date(System.currentTimeMillis());
@@ -92,7 +92,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData), urnPrefix);
         System.out.println(addKey.getSecretReservationKey() + " added!");
 
-        ((RSPersistenceImpl) rsPersistence).printPersistentReservationData();
+        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
 
         ConfidentialReservationData foundConfidentialReservationData = rsPersistence.getReservation(addKey);
         System.out.println("found Object: " + foundConfidentialReservationData + "for key: " + addKey.getSecretReservationKey());
@@ -103,7 +103,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         ConfidentialReservationData deleteConfidentialReservationData = rsPersistence.deleteReservation(TypeConverter.convert(deleteKey));
         System.out.println("deleted Object: " + deleteConfidentialReservationData + "for key: " + deleteKey.getSecretReservationKey());
 
-        ((RSPersistenceImpl) rsPersistence).printPersistentReservationData();
+        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
 
         GregorianCalendar from = new GregorianCalendar();
         from.setTime(dateFrom);
@@ -111,7 +111,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         Interval interval = new Interval(from.getTimeInMillis(), dateTo.getTime());
         System.out.println(rsPersistence.getReservations(interval));
 
-        ((RSPersistenceImpl) rsPersistence).printPersistentReservationData();
+        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
     }
 
 }

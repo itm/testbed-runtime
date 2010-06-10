@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class RSPersistenceImpl implements RSPersistence {
+public class RSPersistenceJPAImpl implements RSPersistence {
 
 	private static final Logger logger = LoggerFactory.getLogger(RSPersistence.class);
 
@@ -50,14 +50,14 @@ public class RSPersistenceImpl implements RSPersistence {
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
     @Inject
-    public RSPersistenceImpl(@Named("properties") Map properties){
+    public RSPersistenceJPAImpl(@Named("properties") Map properties){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
 		manager = factory.createEntityManager();
     }
 
     /** old
 	@Inject
-	public RSPersistenceImpl(@Named("persistenceUnitName") String persistenceUnitName) {
+	public RSPersistenceJPAImpl(@Named("persistenceUnitName") String persistenceUnitName) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
 		manager = factory.createEntityManager();
 	}**/

@@ -23,12 +23,9 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceImpl;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
+
 import java.util.Map;
 
 /**
@@ -37,23 +34,10 @@ import java.util.Map;
  * Date: 09.04.2010
  * Time: 16:28:09
  */
-public class PersistenceModule extends AbstractModule {
+public class RSPersistenceJPAFactory {
 
-    public static RSPersistence createInstance(Map properties){
-        Injector injector = Guice.createInjector(new PersistenceModule(properties));
-        return injector.getInstance(RSPersistence.class);
-    }
-
-    private Map properties;
-
-    public PersistenceModule(Map properties){
-        this.properties = properties;
-    }
-
-    @Override
-    protected void configure() {
-        bind(Map.class).annotatedWith(Names.named("properties")).toInstance(properties);
-        bind(RSPersistence.class).to(RSPersistenceImpl.class);
-    }
+    public static RSPersistence createInstance(Map properties) {
+		return new RSPersistenceJPAImpl(properties);
+	}
 
 }
