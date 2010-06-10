@@ -281,16 +281,13 @@ public class FederatorInmemoryTest {
                 for (User user : data.getUsers()){
                     ConfidentialReservationData testData = reservationDataMap.get(i);
 
-                    List<String> urns = new LinkedList<String>();
-                    urns.add(user.getUrnPrefix());
-                    testData.getNodeURNs().addAll(urns);
+                    testData.getNodeURNs().clear();
+                    testData.getNodeURNs().addAll(data.getNodeURNs());
 
-                    List<User> users = new LinkedList<User>();
-                    users.add(user);
-                    testData.getUsers().addAll(users);
+                    testData.getUsers().clear();
+                    testData.getUsers().addAll(data.getUsers());
 
-					// TODO fix test
-                    //assertTrue(equals(testData, data));
+                    assertTrue(equals(testData, data));
                 }
             }
         }
