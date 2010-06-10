@@ -47,11 +47,22 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class RSPersistenceJPATest extends RSPersistenceTest {
+    private static Map<String, String> properties = new HashMap<String, String>(){{
+        //Configure Apache
+        put("hibernate.connection.driver_class","org.apache.derby.jdbc.EmbeddedDriver");
+        put("hibernate.connection.url","jdbc:derby:target/default;create=true");
+        put("hibernate.dialect","org.hibernate.dialect.DerbyDialect");
+        //Confiure Hibernate
+        put("hibernate.ddl-generation.output-mode","database");
+        put("hibernate.hbm2ddl.auto","create");
+        put("hibernate.archive.autodetection","class, hbm");
+    }};
 
     @Before
     public void setUp() throws RSExceptionException, DatatypeConfigurationException {
         super.setUp();
-        RSPersistence persistence = PersistenceModule.createInstance("PersistenceDB");
+
+        RSPersistence persistence = PersistenceModule.createInstance(properties);
         super.setPersistence(persistence);
     }
 
@@ -60,7 +71,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
     public static void main(String[] args) throws Throwable {
 
-        RSPersistence rsPersistence = PersistenceModule.createInstance("PersistenceDB");
+        RSPersistence rsPersistence = PersistenceModule.createInstance(properties);
         String urnPrefix = "de";
 
         Date dateFrom = new Date(System.currentTimeMillis());

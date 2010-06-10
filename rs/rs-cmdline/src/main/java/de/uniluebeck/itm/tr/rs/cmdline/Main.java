@@ -159,9 +159,7 @@ public class Main {
 		Endpoint endpoint = Endpoint.create(rs);
 		endpoint.publish(context);
 
-		log
-				.debug("Started single urn prefix RS using persistence " + persistence + " on " + server.getAddress()
-						+ path);
+		log.debug("Started single urn prefix RS using persistence " + persistence + " on " + server.getAddress() + path);
 
 	}
 
@@ -235,16 +233,16 @@ public class Main {
 
 	}
 
-	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix) throws IOException,
-			URISyntaxException, RSExceptionException {
-		String persistenceUnitName = props.getProperty(propsPrefix + ".jpa.persistence-unit.name");
-		if (persistenceUnitName == null) {
-			persistenceUnitName = "PersistenceDB";
-		}
-		String filename = props.getProperty(propsPrefix + ".jpa.configfile");
-		File configFile = new File(filename);
+	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix) throws IOException, RSExceptionException {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (Object key : props.keySet()){
+            if (!((String) key).startsWith(propsPrefix + "." + "properties")) continue;
 
-		return PersistenceModule.createInstanceFromWithConfigFile(persistenceUnitName, configFile);
+            String persistenceKey = ((String) key).replaceAll(propsPrefix + "." + "properties" + ".", "");
+            properties.put(persistenceKey, props.getProperty((String) key));
+        }
+
+		return PersistenceModule.createInstance(properties);
 	}
 
 }

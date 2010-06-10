@@ -38,6 +38,7 @@ import javax.persistence.*;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class RSPersistenceImpl implements RSPersistence {
@@ -48,11 +49,18 @@ public class RSPersistenceImpl implements RSPersistence {
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
+    @Inject
+    public RSPersistenceImpl(@Named("properties") Map properties){
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
+		manager = factory.createEntityManager();
+    }
+
+    /** old
 	@Inject
 	public RSPersistenceImpl(@Named("persistenceUnitName") String persistenceUnitName) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
 		manager = factory.createEntityManager();
-	}
+	}**/
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData, String urnPrefix)
 			throws RSExceptionException {

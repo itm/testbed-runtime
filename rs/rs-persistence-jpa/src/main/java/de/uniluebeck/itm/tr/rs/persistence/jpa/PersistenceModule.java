@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -50,12 +51,20 @@ public class PersistenceModule extends AbstractModule {
 
 	private static final Logger log = LoggerFactory.getLogger(PersistenceModule.class);
 
-    public static RSPersistence createInstance(String persistenceUnitName) {
+    /*  -- old --
+        public static RSPersistence createInstance(String persistenceUnitName) {
         Injector injector = Guice.createInjector(new PersistenceModule(persistenceUnitName));
+        return injector.getInstance(RSPersistence.class);
+    }*/
+
+    public static RSPersistence createInstance(Map properties){
+        Injector injector = Guice.createInjector(new PersistenceModule(properties));
         return injector.getInstance(RSPersistence.class);
     }
 
+  /* -- old --
     //creating RSPersistence-Instance from configFile
+
     public static RSPersistence createInstanceFromWithConfigFile(String persistenceUnitName, File configFile) throws URISyntaxException, IOException, RSExceptionException {
 
 		// TODO this does not work when built as jar, re-write
@@ -105,15 +114,22 @@ public class PersistenceModule extends AbstractModule {
         existingConfigFile.renameTo(new File(existingConfigFile.getParent(), "persistence.xml"));
     }
 
-    private String persistenceUnitName;
+    **/
 
-    public PersistenceModule(String persistenceUnitName) {
+    private Map properties;
+
+    /* --- old ---
+        public PersistenceModule(String persistenceUnitName) {
         this.persistenceUnitName = persistenceUnitName;
+    }*/
+
+    public PersistenceModule(Map properties){
+        this.properties = properties;
     }
 
     @Override
     protected void configure() {
-        bind(String.class).annotatedWith(Names.named("persistenceUnitName")).toInstance(persistenceUnitName);
+        bind(Map.class).annotatedWith(Names.named("properties")).toInstance(properties);
         bind(RSPersistence.class).to(RSPersistenceImpl.class);
     }
 
