@@ -22,7 +22,7 @@
  **********************************************************************************************************************/
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPA;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
@@ -62,7 +62,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
     public void setUp() throws RSExceptionException, DatatypeConfigurationException {
         super.setUp();
 
-        RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties);
+        RSPersistence persistence = RSPersistenceJPA.createInstance(properties);
         super.setPersistence(persistence);
     }
 
@@ -71,7 +71,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
     public static void main(String[] args) throws Throwable {
 
-        RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties);
+        RSPersistence rsPersistence = RSPersistenceJPA.createInstance(properties);
         String urnPrefix = "de";
 
         Date dateFrom = new Date(System.currentTimeMillis());

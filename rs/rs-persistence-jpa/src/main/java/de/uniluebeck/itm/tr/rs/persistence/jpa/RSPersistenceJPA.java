@@ -34,7 +34,7 @@ import java.util.Map;
  * Date: 09.04.2010
  * Time: 16:28:09
  */
-public class RSPersistenceJPAFactory {
+public class RSPersistenceJPA {
 
     public static RSPersistence createInstance(Map properties) {
 		return new RSPersistenceJPAImpl(properties);

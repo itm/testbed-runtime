@@ -31,7 +31,7 @@ import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPA;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import org.apache.commons.cli.*;
@@ -240,7 +240,7 @@ public class Main {
             properties.put(persistenceKey, props.getProperty((String) key));
         }
 
-		return RSPersistenceJPAFactory.createInstance(properties);
+		return RSPersistenceJPA.createInstance(properties);
 	}
 
 }
