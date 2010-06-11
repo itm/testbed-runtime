@@ -1,4 +1,4 @@
-  Testbed Runtime release 0.5.1
+  Testbed Runtime 0.5.2-SNAPSHOT
 
 WHAT IS 'TESTBED RUNTIME'?
  
@@ -6,6 +6,12 @@ WHAT IS 'TESTBED RUNTIME'?
   testbed infrastructure. It implements the APIs defined by the european research project
   WISEBED [1], namely RS (Reservation System), SNAA (Sensor Network Authentication and
   Authorization) and iWSN (Wireless Sensor Network API).
+
+DOCUMENTATION AND ISSUE TRACKING
+
+  All documentation and issue tracking is currently to be found on our project trac [3]
+  installation. Please report bugs there. To get write access to trac please contact
+  Daniel Bimschas (bimschas -at- itm.uni-luebeck.de).
 
 BUILDING
 
@@ -25,3 +31,4 @@ REFERENCES
 
   [1] http://www.wisebed.eu/
   [2] http://maven.apache.org/
+  [3] https://www.itm.uni-luebeck.de/projects/testbed-runtime/
