@@ -111,6 +111,7 @@
 						<urnprefix>urn:wisebed:uzl</urnprefix>
 						<sessionmanagementendpointurl>http://wisebed1.itm.uni-luebeck.de:8888/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://wisebed1.itm.uni-luebeck.de:8888/wsn/</wsninstancebaseurl>
+						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

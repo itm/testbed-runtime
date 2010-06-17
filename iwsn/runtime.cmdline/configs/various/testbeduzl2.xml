@@ -35,6 +35,7 @@
 						<urnprefix>urn:wisebed:testbeduzl2:</urnprefix>
 						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10012/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://daniel-bimschass-macbook-pro.local:10012/wsn/</wsninstancebaseurl>
+						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

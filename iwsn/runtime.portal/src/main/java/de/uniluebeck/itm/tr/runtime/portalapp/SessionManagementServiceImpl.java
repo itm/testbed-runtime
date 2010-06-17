@@ -118,6 +118,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 */
 	private SessionManagementPreconditions preconditions;
 
+	private String wiseML;
+
 	@Inject
 	public SessionManagementServiceImpl(@Named(PortalModule.NAME_URN_PREFIX) String urnPrefix,
 										@Named(PortalModule.NAME_SESSION_MANAGEMENT_ENDPOINT_URL)
@@ -125,12 +127,14 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 										@Named(PortalModule.NAME_WSN_INSTANCE_BASE_URL) String wsnInstanceBaseUrl,
 										@Nullable @Named(PortalModule.NAME_RESERVATION_ENDPOINT_URL)
 										String reservationEndpointUrl,
-										WSNApp wsnApp) throws MalformedURLException {
+										WSNApp wsnApp,
+										@Named(PortalModule.NAME_WISEML) String wiseML) throws MalformedURLException {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(sessionManagementEndpointUrl);
 		checkNotNull(wsnInstanceBaseUrl);
 		checkNotNull(wsnApp);
+		checkNotNull(wiseML);
 
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = new URL(sessionManagementEndpointUrl);
@@ -138,6 +142,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.reservationEndpointUrl = reservationEndpointUrl == null ? null : new URL(reservationEndpointUrl);
 		this.wsnInstanceBaseUrl =
 				new URL(wsnInstanceBaseUrl.endsWith("/") ? wsnInstanceBaseUrl : wsnInstanceBaseUrl + "/");
+		this.wiseML = wiseML;
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
@@ -212,7 +217,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			URL wsnInstanceEndpointUrl = new URL(wsnInstanceBaseUrl + secureIdGenerator.getNextId());
 			URL controllerEndpointUrl = new URL(parameters.getController());
 
-			wsnInstance = new WSNServiceImpl(urnPrefix, wsnInstanceEndpointUrl, controllerEndpointUrl, wsnApp);
+			wsnInstance = new WSNServiceImpl(urnPrefix, wsnInstanceEndpointUrl, controllerEndpointUrl, wsnApp, wiseML);
 
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -268,8 +273,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	@Override
 	public String getNetwork() {
-		// TODO implement
-		throw new RuntimeException("Not yet implemented");
+		// TODO implement run-time generation of WiseML file
+		return wiseML;
 	}
 
 	private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(

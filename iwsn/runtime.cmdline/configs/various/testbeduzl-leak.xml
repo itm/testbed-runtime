@@ -55,6 +55,7 @@
 						<urnprefix>urn:wisebed:tubs:</urnprefix>
 						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://daniel-bimschass-macbook-pro.local:10011/</wsninstancebaseurl>
+						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

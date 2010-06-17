@@ -35,6 +35,7 @@
 						<urnprefix>urn:wisebed:uzl2:</urnprefix>
 						<sessionmanagementendpointurl>http://localhost:10012/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10012/wsn</wsninstancebaseurl>
+						<wisemlfilename>configs/federationdemo/testbeduzl2-wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

@@ -36,6 +36,9 @@ import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 
 
 public class PortalServerFactory implements TestbedApplicationFactory {
@@ -54,11 +57,30 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			String reservationEndpointUrl = portalapp.getWebservice().getReservationendpointurl();
 			String urnPrefix = portalapp.getWebservice().getUrnprefix();
 
+			String wiseMLFilename = portalapp.getWebservice().getWisemlfilename();
+			File wiseMLFile = new File(wiseMLFilename);
+
+			if (!wiseMLFile.exists()) {
+				throw new Exception("WiseML file " + wiseMLFilename + " does not exist!");
+			} else if (wiseMLFile.isDirectory()) {
+				throw new Exception("WiseML file name " + wiseMLFilename + " points to a directory!");
+			} else if (!wiseMLFile.canRead()) {
+				throw new Exception("WiseML file " + wiseMLFilename + " can't be read!");
+			}
+
+			BufferedReader wiseMLFileReader = new BufferedReader(new FileReader(wiseMLFile));
+			StringBuilder wiseMLBuilder = new StringBuilder();
+			while (wiseMLFileReader.ready()) {
+				wiseMLBuilder.append(wiseMLFileReader.readLine());
+			}
+
 			WSNApp wsnApp = Guice.createInjector(new WSNAppModule(testbedRuntime)).getInstance(WSNApp.class);
 
-			SessionManagementService sessionManagementService =
-					Guice.createInjector(new PortalModule(urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl, reservationEndpointUrl, wsnApp))
-							.getInstance(SessionManagementService.class);
+			SessionManagementService sessionManagementService = Guice.createInjector(
+					new PortalModule(
+							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
+							reservationEndpointUrl, wsnApp, wiseMLBuilder.toString())
+					).getInstance(SessionManagementService.class);
 
 			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);
 

@@ -68,6 +68,7 @@ public interface WSNApp extends Service, TestbedApplication {
         void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
 
 		void failure(Exception e);
+
 	}
 
 	/**

@@ -64,6 +64,7 @@
 						<urnprefix>urn:wisebed:uzl:</urnprefix>
 						<sessionmanagementendpointurl>http://tripper.itm.uni-luebeck.de:8080/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://tripper.itm.uni-luebeck.de:8080/wsn/</wsninstancebaseurl>
+						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

@@ -35,6 +35,7 @@
 			<xsd:element name="sessionmanagementendpointurl" type="xsd:string" minOccurs="1" />
 			<xsd:element name="wsninstancebaseurl" type="xsd:string" minOccurs="1" />
 			<xsd:element name="reservationendpointurl" type="xsd:string" minOccurs="0" />
+			<xsd:element name="wisemlfilename" type="xsd:string" minOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:schema>

@@ -106,15 +106,20 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private ControllerHelper controllerHelper;
 
-	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp) {
+	private String wiseML;
+
+	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp,
+						  final String wiseML) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
 		checkNotNull(controllerEndpointUrl);
 		checkNotNull(wsnApp);
+		checkNotNull(wiseML);
 
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
+		this.wiseML = wiseML;
 
 		executorService = Executors.newScheduledThreadPool(5, new NamingThreadFactory("WSNService-Thread %d"));
 		controllerHelper = new ControllerHelper(executorService);
@@ -492,13 +497,9 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public String getNetwork() {
-
 		log.debug("WSNServiceImpl.getNetwork");
-
-		// TODO fundamentals set
-
-		return null; // To change body of implemented methods use File |
-		// Settings | File Templates.
+		// TODO implement run-time generation of WiseML file
+		return wiseML;
 	}
 
 	@Override

@@ -39,6 +39,8 @@ public class PortalModule extends AbstractModule {
 
 	public static final String NAME_URN_PREFIX = "de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_URN_PREFIX";
 
+	public static final String NAME_WISEML = "de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_WISEML";
+
 	public static final String NAME_SESSION_MANAGEMENT_ENDPOINT_URL =
 			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_SESSION_MANAGEMENT_ENDPOINT_URL";
 
@@ -48,20 +50,21 @@ public class PortalModule extends AbstractModule {
 
 	private WSNApp wsnApp;
 
+	private String wiseML;
+
 	private String reservationEndpointUrl;
 
 	private String sessionManagementEndpointUrl;
 
 	public PortalModule(String urnPrefix, String sessionManagementEndpointUrl, String wsnInstanceBaseUrl,
-						String reservationEndpointUrl, WSNApp wsnApp) {
+						String reservationEndpointUrl, WSNApp wsnApp, final String wiseML) {
 
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
 		this.wsnInstanceBaseUrl = wsnInstanceBaseUrl;
 		this.reservationEndpointUrl = reservationEndpointUrl;
-
 		this.wsnApp = wsnApp;
-
+		this.wiseML = wiseML;
 	}
 
 	@Override
@@ -74,6 +77,7 @@ public class PortalModule extends AbstractModule {
 		bind(String.class).annotatedWith(Names.named(NAME_WSN_INSTANCE_BASE_URL)).toInstance(wsnInstanceBaseUrl);
 		bind(String.class).annotatedWith(Names.named(NAME_RESERVATION_ENDPOINT_URL))
 				.toProvider(Providers.of(reservationEndpointUrl));
+		bind(String.class).annotatedWith(Names.named(NAME_WISEML)).toInstance(wiseML);
 
 		bind(SessionManagementService.class).to(SessionManagementServiceImpl.class);
 		bind(ControllerService.class).to(ControllerServiceImpl.class);
