@@ -8,9 +8,9 @@ Testbed Runtime
 
     * Wireless Sensor Network (iWSN) API
 
-    * Reservation System (RS) API
+    * {{{rs.apt}Reservation System (RS) API}}
 
-    * Sensor Network Authentication and Authorization (SNAA) API
+    * {{{snaa.apt}Sensor Network Authentication and Authorization (SNAA) API}}
 
     []
 
