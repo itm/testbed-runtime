@@ -1,126 +1,58 @@
-            ------
-            Testbed Runtime 0.5.2-SNAPSHOT
-            ------
+Testbed Runtime
 
-WHAT IS 'TESTBED RUNTIME'?
+* What is 'Testbed Runtime'?
 
-  The Testbed Runtime is a set of programs that together form a wireless sensor networks
-testbed infrastructure. It implements the APIs defined by the european research project
-{{{http://www.wisebed.eu}WISEBED}}, namely RS (Reservation System), SNAA (Sensor Network Authentication and
-Authorization) and iWSN (Wireless Sensor Network API).
+  Testbed Runtime is a set of programs that together form a <wireless sensor networks testbed
+  infrastructure>. It implements the APIs defined by the european research project
+  {{{http://www.wisebed.eu}WISEBED}}, namely:
 
-ISSUE TRACKING
+    * Wireless Sensor Network (iWSN) API
 
-  All issue tracking is currently to be found on our project
-{{{https://www.itm.uni-luebeck.de/projects/testbed-runtime}trac}} installation. Please report bugs there.
-To get write access to trac please contact {{{mailto:bimschas@itm.uni-luebeck.de}Daniel Bimschas}}.
+    * Reservation System (RS) API
 
-BUILDING
+    * Sensor Network Authentication and Authorization (SNAA) API
 
-  Testbed Runtime is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system. Clone the project and
-simply run '<<mvn package>>'  or '<<mvn install>>' for building.
+    []
 
-MODULES
+* What programs are available?
 
-  Testbed Runtime delivers a set of modules that can be independently used from each
-other (as long as dependencies are met).
+* How to get started?
 
-  * TR :: IWSN
+  Currently, there are two quick start guides for two different scenarios:
 
-    * TR :: Runtime
+  * {{{quick-start-simple.html}The Simple Quickstart Scenario}} -
+    use this for a small-sized WSN testbed with all nodes attached to one central
+    server that exhibits the testbed to the Internet
 
-    * TR :: Runtime Commandline Client
+  * {{{quick-start-complex.html}The Complex Quickstart Scenario}} -
+    use this for a large-sized WSN testbed that contains of:
 
-    * TR :: Runtime Portal Web Services
+    * one central server that exhibits the testbed to the Internet and
 
-    * TR :: Runtime WSN App
+    * several gateway machines to which the sensor nodes/networks are attached
 
-    * TR :: Runtime XML Testbed Factory
+* Source Code and Releases
 
-    * TR :: WSN API
+  Testbed Runtime is hosted on {{github.com}} ({{http://github.com/itm/testbed-runtime}}). There, you can
+  find all released versions of the software, both in binary and source.
 
-    * TR :: WSN API GUI Client
+* Contributing
 
-    * TR :: WSN Device Drivers
+  Contributors are very welcome! For bug reports please use the ticket system in the
+  {{{https://www.itm.uni-luebeck.de/projects/testbed-runtime/}trac}} installation. For
+  contributing code please get a {{{http://github.com}github}} account (if you don't already have one) and contact
+  {{{http://www.itm.uni-luebeck.de/users/bimschas/}Daniel Bimschas}} to him pull your contributions
+  to the master repository or to add you as 'collaborator' to the project to get write access.
 
-    * TR :: WSN Federator
+* Installation
 
-  * TR :: Node API
+  You can obtain the current release with by checking out the source using git {{http://git-scm.com/}}
+  with:
 
-  * TR :: RS
+  <<<git clone http://github.com/itm/testbed-runtime.git yourfolder>>>
 
-    * TR :: RS API
+  After downloading the source code you'll find a sub-folder called <<<testbed-runtime>>>. In this sub-folder
+  you can create a jar file using {{{http://maven.apache.org/}Maven 2}} by running <<<mvn package>>>.
+  You'll find the binaries in the various <<<target>>>-sub-folders of the several modules. That's it.
 
-    * TR :: RS Commandline Server
-
-    * TR :: RS Dummy Implementation
-
-    * TR :: RS Federator
-
-    * TR :: RS Persistence Interface
-
-    * TR :: RS Google Calendar Persistence
-
-    * TR :: RS Persistence In-Memory
-
-    * TR :: RS Persistence JPA
-
-    * TR :: RS Single URN-Prefix
-
-  * TR :: Shibboauth
-
-  * TR :: SNAA
-
-    * TR :: SNAA API
-
-    * TR :: SNAA Commandline Client
-
-    * TR :: SNAA Commandline Server
-
-    * TR :: SNAA Dummy Implementation
-
-    * TR :: SNAA Federator
-
-    * TR :: SNAA JAASLogin
-
-    * TR :: SNAA Shibboleth Implementation
-
-    * TR :: SNAA WISEBED (federator and backend)
-
-  * TR :: Utility Classes
-
-  * TR :: Wisebed Command Line Client
-
-  * WISEML tools
-
-DOCUMENTATION
-
-  * TR :: IWSN <(Not yet available)>
-  ~~TODO
-
-  * TR :: Node API <(Not yet available)>
-  ~~TODO
-
-  * {{{rs.html}TR :: RS}}
-
-  * {{{snaa.html}TR :: SNAA}}
-
-  * TR :: Shibboauth <(Not yet available)>
-  ~~TODO
-
-  * TR :: Utility Classes <(Not yet available)>
-  ~~TODO
-
-  * TR :: Wisebed Command Line Client <(Not yet available)>
-  ~~TODO
-
-  * WISEML tools <(Not yet available)>
-  ~~TODO
-  
-LICENSE
-
-  The project is made open-source under the terms of the BSD license, was created and is
-maintained by the Institute of Telematics, University of Luebeck, Germany.
-
-  Copyright \251 Institute of Telematics, University of Luebeck\                                                  *
-All rights reserved.
+  Alternatively you can also install the modules in your local repository by running <<<mvn install>>>.
