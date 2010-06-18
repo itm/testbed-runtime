@@ -1,3 +1,126 @@
-Testbed Runtime
+            ------
+            Testbed Runtime 0.5.2-SNAPSHOT
+            ------
 
-  Hello, World
+WHAT IS 'TESTBED RUNTIME'?
+
+  The Testbed Runtime is a set of programs that together form a wireless sensor networks
+testbed infrastructure. It implements the APIs defined by the european research project
+{{{http://www.wisebed.eu}WISEBED}}, namely RS (Reservation System), SNAA (Sensor Network Authentication and
+Authorization) and iWSN (Wireless Sensor Network API).
+
+ISSUE TRACKING
+
+  All issue tracking is currently to be found on our project
+{{{https://www.itm.uni-luebeck.de/projects/testbed-runtime}trac}} installation. Please report bugs there.
+To get write access to trac please contact {{{mailto:bimschas@itm.uni-luebeck.de}Daniel Bimschas}}.
+
+BUILDING
+
+  Testbed Runtime is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system. Clone the project and
+simply run '<<mvn package>>'  or '<<mvn install>>' for building.
+
+MODULES
+
+  Testbed Runtime delivers a set of modules that can be independently used from each
+other (as long as dependencies are met).
+
+  * TR :: IWSN
+
+    * TR :: Runtime
+
+    * TR :: Runtime Commandline Client
+
+    * TR :: Runtime Portal Web Services
+
+    * TR :: Runtime WSN App
+
+    * TR :: Runtime XML Testbed Factory
+
+    * TR :: WSN API
+
+    * TR :: WSN API GUI Client
+
+    * TR :: WSN Device Drivers
+
+    * TR :: WSN Federator
+
+  * TR :: Node API
+
+  * TR :: RS
+
+    * TR :: RS API
+
+    * TR :: RS Commandline Server
+
+    * TR :: RS Dummy Implementation
+
+    * TR :: RS Federator
+
+    * TR :: RS Persistence Interface
+
+    * TR :: RS Google Calendar Persistence
+
+    * TR :: RS Persistence In-Memory
+
+    * TR :: RS Persistence JPA
+
+    * TR :: RS Single URN-Prefix
+
+  * TR :: Shibboauth
+
+  * TR :: SNAA
+
+    * TR :: SNAA API
+
+    * TR :: SNAA Commandline Client
+
+    * TR :: SNAA Commandline Server
+
+    * TR :: SNAA Dummy Implementation
+
+    * TR :: SNAA Federator
+
+    * TR :: SNAA JAASLogin
+
+    * TR :: SNAA Shibboleth Implementation
+
+    * TR :: SNAA WISEBED (federator and backend)
+
+  * TR :: Utility Classes
+
+  * TR :: Wisebed Command Line Client
+
+  * WISEML tools
+
+DOCUMENTATION
+
+  * TR :: IWSN <(Not yet available)>
+  ~~TODO
+
+  * TR :: Node API <(Not yet available)>
+  ~~TODO
+
+  * {{{rs.html}TR :: RS}}
+
+  * {{{snaa.html}TR :: SNAA}}
+
+  * TR :: Shibboauth <(Not yet available)>
+  ~~TODO
+
+  * TR :: Utility Classes <(Not yet available)>
+  ~~TODO
+
+  * TR :: Wisebed Command Line Client <(Not yet available)>
+  ~~TODO
+
+  * WISEML tools <(Not yet available)>
+  ~~TODO
+  
+LICENSE
+
+  The project is made open-source under the terms of the BSD license, was created and is
+maintained by the Institute of Telematics, University of Luebeck, Germany.
+
+  Copyright \251 Institute of Telematics, University of Luebeck\                                                  *
+All rights reserved.
