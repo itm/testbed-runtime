@@ -23,9 +23,46 @@ Testbed Runtime Quick Start Simple Scenario
   The following image describes the scenario above in more detail, describing the Web
   Service endpoints and "wirings" involved:
 
+[images/quick-start-simple-details.png] Details of the Simple Quick Start Scenario
+
 * Configuration  
 
 ** Reservation System
+
+  The following listing displays the content of the file <<<configs/quick-start-simple/testbeduzl1.properties>>> that is
+  passed to the reservation system executable:
+
++------------------------------------------+
+config.port = 30011
+
+config.rsnames = testbeduzl1
+
+testbeduzl1.type = singleurnprefix
+testbeduzl1.path = /rs
+testbeduzl1.snaaendpointurl = http://localhost:20011/snaa
+testbeduzl1.urnprefix = urn:wisebed:testbeduzl1:
+
+testbeduzl1.persistence = jpa
+
+testbeduzl1.persistence.properties.hibernate.connection.driver_class = com.mysql.jdbc.Driver
+testbeduzl1.persistence.properties.hibernate.connection.url = jdbc:mysql://localhost:3306/testbeduzl1
+testbeduzl1.persistence.properties.hibernate.connection.password = testbeduzl1
+testbeduzl1.persistence.properties.hibernate.connection.username = testbeduzl1
+testbeduzl1.persistence.properties.hibernate.dialect = org.hibernate.dialect.MySQLDialect
+
+testbeduzl1.persistence.properties.hibernate.ddl-generation.output-mode = database
+testbeduzl1.persistence.properties.hibernate.hbm2ddl.auto = update
+testbeduzl1.persistence.properties.hibernate.archive.autodetection = class, hbm
++------------------------------------------+
+
+  You can start the reservation system by executing the following command:
+
++------------------------------------------+
+java -jar tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/quick-start-simple/testbeduzl1.properties
++------------------------------------------+
+
+  For detailed information on configuring and starting the reservation system please see the
+  {{{rs/rs-cmdline/}Reservation System documentation}}.
 
 ** Sensor Network Authentication and Authorization
 
