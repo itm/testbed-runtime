@@ -46,6 +46,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
+import java.lang.UnsupportedOperationException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -55,8 +56,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.lang.UnsupportedOperationException;
 
 @WebService(serviceName = "WSNService", targetNamespace = Constants.NAMESPACE_WSN_SERVICE, portName = "WSNPort",
 		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE)
@@ -131,126 +130,131 @@ public class WSNServiceImpl implements WSNService {
 
 	}
 
-	private WSNNodeMessageReceiver nodeMessageReceiver = new WSNNodeMessageReceiver() {
-		@Override
-		public void receive(WSNAppMessages.Message wsnMessage) {
+	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
 
+	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
+
+		private DatatypeFactory datatypeFactory;
+
+		private WSNNodeMessageReceiverInternal() {
 			try {
-
-				XMLGregorianCalendar timestamp = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-						wsnMessage.getTimestamp()
-				);
-
-				Message message = new Message();
-				message.setSourceNodeId(wsnMessage.getSourceNodeId());
-				message.setTimestamp(timestamp);
-
-				if (wsnMessage.hasBinaryMessage()) {
-
-					BinaryMessage binaryMessage = new BinaryMessage();
-					binaryMessage.setBinaryData(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
-					binaryMessage.setBinaryType((byte) wsnMessage.getBinaryMessage().getBinaryType());
-
-					message.setBinaryMessage(binaryMessage);
-
-				} else if (wsnMessage.hasTextMessage()) {
-
-					TextMessage textMessage = new TextMessage();
-					textMessage.setMessageLevel(MessageLevel.valueOf(wsnMessage.getTextMessage().getMessageLevel()
-							.toString()
-					)
-					);
-					textMessage.setMsg(wsnMessage.getTextMessage().getMsg());
-
-					message.setTextMessage(textMessage);
-
-				}
-
-				// deliver to controller in every case, he's a promiscuous
-				// listener
-				controllerHelper.receive(message);
-
-				// check if message is a virtual link message
-				boolean isVirtualLinkMessage = wsnMessage.getBinaryMessage() != null
-						&& wsnMessage.getBinaryMessage().hasBinaryData()
-						&& wsnMessage.getBinaryMessage().getBinaryData().toByteArray()[0] == 52;
-
-				if (isVirtualLinkMessage) {
-
-					ByteBuffer buffer = ByteBuffer.wrap(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
-					BinaryMessage binaryMessage = new BinaryMessage();
-					byte[] bytes = new byte[message.getBinaryMessage().getBinaryData().length + 1];
-					final String requestId = secureIdGenerator.getNextId();
-					bytes[0] = 11;
-					bytes[1] = 0;
-					int index = 2;
-					for (int i = 1; i < message.getBinaryMessage().getBinaryData().length; ++i) {
-						bytes[index] = message.getBinaryMessage().getBinaryData()[i];
-						index++;
-					}
-
-					binaryMessage.setBinaryData(bytes);
-					binaryMessage.setBinaryType((byte) (0xFF & 10));
-
-					// check if message is a broadcast or unicast message
-					long destinationNode = 0;
-					try {
-						destinationNode = buffer.getLong(4);
-					} catch (Exception e) {
-						log
-								.warn(
-										"probably node akk message popped up in web service this should never happen. ignoring",
-										e
-								);
-					}
-					boolean isBroadcast = destinationNode == 0xFFFF;
-
-					// send virtual link message to all recipients
-					Map<String, WSN> recipients = new HashMap<String, WSN>();
-
-					if (isBroadcast) {
-
-						ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
-						if (map == null) {
-							log.warn("received virtual link message, but no virtual links defined, ignoring");
-							return;
-						}
-						for (Map.Entry<String, WSN> entry : map.entrySet()) {
-							recipients.put(entry.getKey(), entry.getValue());
-						}
-
-					} else {
-
-						ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
-						for (String targetNode : map.keySet()) {
-
-							String[] split = targetNode.split(":");
-
-							if (Long.parseLong(split[split.length - 1]) == destinationNode) {
-
-								recipients.put(targetNode, map.get(targetNode));
-								break;
-							}
-						}
-					}
-
-					message.setBinaryMessage(binaryMessage);
-					for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
-
-						executorService.execute(new DeliverVirtualLinkMessageRunnable(wsnMessage.getSourceNodeId(),
-								recipient.getKey(), recipient.getValue(), message
-						)
-						);
-					}
-
-				}
-
+				datatypeFactory = DatatypeFactory.newInstance();
 			} catch (DatatypeConfigurationException e) {
 				log.error("" + e, e);
 			}
+		}
+
+		@Override
+		public void receive(WSNAppMessages.Message wsnMessage) {
+
+			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
+
+			Message message = new Message();
+			message.setSourceNodeId(wsnMessage.getSourceNodeId());
+			message.setTimestamp(timestamp);
+
+			if (wsnMessage.hasBinaryMessage()) {
+
+				BinaryMessage binaryMessage = new BinaryMessage();
+				binaryMessage.setBinaryData(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
+				binaryMessage.setBinaryType((byte) wsnMessage.getBinaryMessage().getBinaryType());
+
+				message.setBinaryMessage(binaryMessage);
+
+			} else if (wsnMessage.hasTextMessage()) {
+
+				TextMessage textMessage = new TextMessage();
+				textMessage.setMessageLevel(MessageLevel.valueOf(wsnMessage.getTextMessage().getMessageLevel()
+						.toString()
+				)
+				);
+				textMessage.setMsg(wsnMessage.getTextMessage().getMsg());
+
+				message.setTextMessage(textMessage);
+
+			}
+
+			// check if message is a virtual link message
+			boolean isVirtualLinkMessage = wsnMessage.getBinaryMessage() != null
+					&& wsnMessage.getBinaryMessage().hasBinaryData()
+					&& wsnMessage.getBinaryMessage().getBinaryData().toByteArray()[0] == 52;
+
+			if (!isVirtualLinkMessage) {
+
+				// deliver to controller in every case, he's a promiscuous listener
+				controllerHelper.receive(message);
+
+			} else {
+
+				ByteBuffer buffer = ByteBuffer.wrap(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
+				BinaryMessage binaryMessage = new BinaryMessage();
+				byte[] bytes = new byte[message.getBinaryMessage().getBinaryData().length + 1];
+				bytes[0] = 11;
+				bytes[1] = 0;
+				int index = 2;
+				for (int i = 1; i < message.getBinaryMessage().getBinaryData().length; ++i) {
+					bytes[index] = message.getBinaryMessage().getBinaryData()[i];
+					index++;
+				}
+
+				binaryMessage.setBinaryData(bytes);
+				binaryMessage.setBinaryType((byte) (0xFF & 10));
+
+				// check if message is a broadcast or unicast message
+				long destinationNode = 0;
+				try {
+					destinationNode = buffer.getLong(4);
+				} catch (Exception e) {
+					String msg =
+							"probably node akk message popped up in web service this should never happen. ignoring";
+					log.warn(msg, e);
+				}
+				boolean isBroadcast = destinationNode == 0xFFFF;
+
+				// send virtual link message to all recipients
+				Map<String, WSN> recipients = new HashMap<String, WSN>();
+
+				if (isBroadcast) {
+
+					ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
+					if (map == null) {
+						log.warn("received virtual link message, but no virtual links defined, ignoring");
+						return;
+					}
+					for (Map.Entry<String, WSN> entry : map.entrySet()) {
+						recipients.put(entry.getKey(), entry.getValue());
+					}
+
+				} else {
+
+					ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
+					for (String targetNode : map.keySet()) {
+
+						String[] split = targetNode.split(":");
+
+						if (Long.parseLong(split[split.length - 1]) == destinationNode) {
+
+							recipients.put(targetNode, map.get(targetNode));
+							break;
+						}
+					}
+				}
+
+				message.setBinaryMessage(binaryMessage);
+				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
+
+					executorService.execute(new DeliverVirtualLinkMessageRunnable(
+							wsnMessage.getSourceNodeId(), recipient.getKey(), recipient.getValue(), message
+					)
+					);
+				}
+
+			}
 
 		}
-	};
+	}
+
+	;
 
 	@Override
 	public void start() throws Exception {
