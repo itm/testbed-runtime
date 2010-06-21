@@ -339,12 +339,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			if (!binaryMessage.hasBinaryType()) {
 
-				byte[] requestStatusBytes = buildRequestStatus(0, "Message type missing");
+				/*byte[] requestStatusBytes = buildRequestStatus(0, "Message type missing");
 				testbedRuntime.getUnreliableMessagingService()
 						.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 								requestStatusBytes
 						)
 						);
+				*/
+				log.warn("Message type missing in message {}", message);
 				return;
 
 			} else {
@@ -365,7 +367,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		} else {
 
-			log.error("This case MUST NOT OCCUR or somethings wrong!!!!!!!!!!!!!!!");
+			log.error("This case MUST NOT OCCUR or something is wrong!!!!!!!!!!!!!!!");
 
 		}
 
@@ -376,19 +378,22 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			log.debug("Sent message {} to node", p);
 
 			// send "ack" to reliable messaging
-			testbedRuntime.getUnreliableMessagingService()
+			/*testbedRuntime.getUnreliableMessagingService()
 					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_ACK,
 							buildRequestStatus(1, null)
 					)
 					);
+			*/
 
 		} catch (Exception e) {
-			byte[] requestStatusBytes = buildRequestStatus(0, "Exception while delivering binary message to node");
+			log.error("" + e, e);
+			/*byte[] requestStatusBytes = buildRequestStatus(0, "Exception while delivering binary message to node");
 			testbedRuntime.getUnreliableMessagingService()
 					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 							requestStatusBytes
 					)
 					);
+			*/
 		}
 
 	}

@@ -35,6 +35,7 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
+import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
@@ -173,7 +174,9 @@ class WSNAppImpl implements WSNApp {
 						.mergeFrom(reply)
 						.build();
 
-				log.debug("+++ Received reply after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation), nodeUrn);
+				log.debug("+++ Received reply after {} milliseconds from {}.",
+						(System.currentTimeMillis() - instantiation), nodeUrn
+				);
 
 				callback.receivedRequestStatus(requestStatus);
 
@@ -185,7 +188,9 @@ class WSNAppImpl implements WSNApp {
 		@Override
 		public void failure(Exception exception) {
 
-			log.debug("### Failed after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation), nodeUrn);
+			log.debug("### Failed after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation),
+					nodeUrn
+			);
 
 			callbackError("Communication to node timed out", -1);
 		}
@@ -202,7 +207,9 @@ class WSNAppImpl implements WSNApp {
 					.newBuilder()
 					.setStatus(statusBuilder);
 
-			log.debug("--- Received error after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation), nodeUrn);
+			log.debug("--- Received error after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation),
+					nodeUrn
+			);
 
 			callback.receivedRequestStatus(requestStatusBuilder.build());
 
@@ -224,11 +231,26 @@ class WSNAppImpl implements WSNApp {
 		byte[] bytes = builder.build().toByteArray();
 
 		for (String nodeUrn : nodeUrns) {
-			testbedRuntime.getReliableMessagingService().sendAsync(
-					localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-					System.currentTimeMillis() + MSG_VALIDITY,
-					new RequestStatusCallback(callback, nodeUrn)
-			);
+			try {
+				testbedRuntime.getUnreliableMessagingService().sendAsync(
+						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						System.currentTimeMillis() + MSG_VALIDITY
+				);
+
+				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+						WSNAppMessages.RequestStatus.Status.newBuilder()
+								.setNodeId(nodeUrn)
+								.setValue(1);
+
+				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+						.setStatus(statusBuilder)
+						.build();
+
+				callback.receivedRequestStatus(requestStatus);
+
+			} catch (UnknownNameException e) {
+				callback.failure(e);
+			}
 		}
 	}
 

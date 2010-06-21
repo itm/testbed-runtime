@@ -1,5 +1,5 @@
 
 HtpasswdFile {
 	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
-	htpasswdFile = "configs/federationdemo/testbeduzl1.htpasswd";
+	htpasswdFile = "configs/quick-start-simple/testbeduzl1.htpasswd";
 };

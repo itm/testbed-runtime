@@ -1,0 +1,32 @@
+Testbed Runtime Quick Start Simple Scenario
+
+* Scenario
+
+  The scenario contains a small-sized testbed in which all wireless sensor nodes are
+  attached to the testbed server that exhibits the testbed to the internet:
+
+[images/quick-start-simple.png] Simple Quick Start Scenario
+
+* Components
+
+  For setting up the testbed you'll need several components that, together form a fully
+  functional testbed (according to the specifications of the WISEBED project):
+
+  * Reservation System
+
+  * Sensor Network Authentication and Authorization
+
+  * iWSN
+
+  []
+
+  The following image describes the scenario above in more detail, describing the Web
+  Service endpoints and "wirings" involved:
+
+* Configuration  
+
+** Reservation System
+
+** Sensor Network Authentication and Authorization
+
+** iWSN implementation

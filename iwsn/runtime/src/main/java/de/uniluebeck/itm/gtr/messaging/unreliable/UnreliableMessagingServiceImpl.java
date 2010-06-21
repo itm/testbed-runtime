@@ -37,6 +37,7 @@ import de.uniluebeck.itm.gtr.messaging.MessageTools;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.cache.MessageCache;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
+import de.uniluebeck.itm.gtr.naming.NamingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 
 @Singleton
@@ -77,6 +77,8 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
     };
 
     private ConnectionService connectionService;
+
+	private NamingService namingService;
 
     private MessageEventService messageEventService;
 
@@ -233,7 +235,8 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
      * cache and send them to the appropriate recipients.
      */
     private MessageCache<UnreliableMessagingCacheEntry> messageCache;
-    private ImmutableSet<String> localNodeNames;
+
+	private ImmutableSet<String> localNodeNames;
 
     public void sendAsync(Messages.Msg message) {
 
@@ -258,6 +261,11 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
             messageEventService.received(message);
             return;
         }
+
+		// check if name is known, otherwise discard
+		if (namingService.getEntry(message.getTo()) == null) {
+			throw new UnknownNameException(message.getTo());
+		}
 
         // otherwise put it into the message queue for asynchronous delivery
         UnreliableMessagingCacheEntry entry = new UnreliableMessagingCacheEntry(message,
@@ -298,14 +306,16 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 	@Inject
     public UnreliableMessagingServiceImpl(ConnectionService connectionService,
-                                          MessageEventService messageEventService,
-                                          @Unreliable MessageCache<UnreliableMessagingCacheEntry> messageCache,
-                                          @LocalNodeNames String... localNodeNames) {
+										  MessageEventService messageEventService,
+										  @Unreliable MessageCache<UnreliableMessagingCacheEntry> messageCache,
+										  NamingService namingService,
+										  @LocalNodeNames String... localNodeNames) {
 
         this.connectionService = connectionService;
         this.messageEventService = messageEventService;
         this.messageCache = messageCache;
-        this.localNodeNames = ImmutableSet.of(localNodeNames);
+		this.namingService = namingService;
+		this.localNodeNames = ImmutableSet.of(localNodeNames);
         
     }
 
