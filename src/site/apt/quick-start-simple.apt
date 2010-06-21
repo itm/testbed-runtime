@@ -27,6 +27,10 @@ Testbed Runtime Quick Start Simple Scenario
 
 * Configuration  
 
+** iWSN
+
+  
+
 ** Reservation System
 
   The following listing displays the content of the file <<<configs/quick-start-simple/testbeduzl1.properties>>> that is
@@ -65,5 +69,3 @@ java -jar tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/quick-start-simple
   {{{rs/rs-cmdline/}Reservation System documentation}}.
 
 ** Sensor Network Authentication and Authorization
-
-** iWSN implementation

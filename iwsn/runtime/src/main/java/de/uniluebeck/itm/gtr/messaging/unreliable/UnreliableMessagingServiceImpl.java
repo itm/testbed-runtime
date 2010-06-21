@@ -38,6 +38,7 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.cache.MessageCache;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
 import de.uniluebeck.itm.gtr.naming.NamingService;
+import de.uniluebeck.itm.gtr.routing.RoutingTableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
     private ConnectionService connectionService;
 
-	private NamingService namingService;
+	private RoutingTableService routingTableService;
 
     private MessageEventService messageEventService;
 
@@ -263,7 +264,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
         }
 
 		// check if name is known, otherwise discard
-		if (namingService.getEntry(message.getTo()) == null) {
+		if (routingTableService.getNextHop(message.getTo()) == null) {
 			throw new UnknownNameException(message.getTo());
 		}
 
@@ -308,13 +309,13 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
     public UnreliableMessagingServiceImpl(ConnectionService connectionService,
 										  MessageEventService messageEventService,
 										  @Unreliable MessageCache<UnreliableMessagingCacheEntry> messageCache,
-										  NamingService namingService,
+										  final RoutingTableService routingTableService,
 										  @LocalNodeNames String... localNodeNames) {
 
         this.connectionService = connectionService;
         this.messageEventService = messageEventService;
         this.messageCache = messageCache;
-		this.namingService = namingService;
+		this.routingTableService = routingTableService;
 		this.localNodeNames = ImmutableSet.of(localNodeNames);
         
     }
