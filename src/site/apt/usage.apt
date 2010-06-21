@@ -1,0 +1,23 @@
+Quick Start Tutorials
+
+  Currently, there are two quick start guides for two different scenarios:
+
+  * {{{quick-start-simple.html}The Simple Quickstart Scenario}} -
+    use this for a small-sized WSN testbed with all nodes attached to one central
+    server that exhibits the testbed to the Internet
+
+  * {{{quick-start-complex.html}The Complex Quickstart Scenario}} -
+    use this for a large-sized WSN testbed that consists of:
+
+    * one central server that exhibits the testbed to the Internet and
+
+    * several gateway machines to which the sensor nodes/networks are attached
+
+    []
+
+  []
+
+Detailed Information
+
+  If you want more detailed information on how to use and configure the system please check the individual
+  modules on the navigation to the left.
