@@ -60,13 +60,13 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-persistence</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-persistence</artifactId>
 			<scope>test</scope>
 			<version>0.5.2-SNAPSHOT</version>
 			<classifier>tests</classifier>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.util</artifactId>

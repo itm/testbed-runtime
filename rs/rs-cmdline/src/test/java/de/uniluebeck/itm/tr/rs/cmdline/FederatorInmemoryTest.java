@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.rs.cmdline;
 
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
-import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
+import de.uniluebeck.itm.tr.rs.persistence.test.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.rs.persistence.test.Comparison;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
