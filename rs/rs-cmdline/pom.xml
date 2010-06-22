@@ -86,14 +86,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-			<classifier>tests</classifier>
-		</dependency>
-
-		<dependency>
 			<scope>test</scope>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-cmdline-server</artifactId>
