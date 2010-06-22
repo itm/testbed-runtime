@@ -23,10 +23,10 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 
-import de.uniluebeck.itm.tr.rs.persistence.test.EndpointPropertiesTestMap;
+import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.test.Comparison;
+import de.uniluebeck.itm.tr.rs.persistence.Comparison;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;

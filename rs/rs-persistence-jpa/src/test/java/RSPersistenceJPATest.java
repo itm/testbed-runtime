@@ -28,7 +28,7 @@ import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyIntern
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.TypeConverter;
-import de.uniluebeck.itm.tr.rs.persistence.test.RSPersistenceTest;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;

@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.test.RSPersistenceTest;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import org.junit.Before;
 

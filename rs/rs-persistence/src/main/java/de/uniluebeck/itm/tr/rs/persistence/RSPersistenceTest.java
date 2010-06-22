@@ -21,10 +21,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.rs.persistence.test;
+package de.uniluebeck.itm.tr.rs.persistence;
 
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.test.Comparison;
 import eu.wisebed.testbed.api.rs.v1.*;
 import org.joda.time.Interval;
 import org.junit.Before;

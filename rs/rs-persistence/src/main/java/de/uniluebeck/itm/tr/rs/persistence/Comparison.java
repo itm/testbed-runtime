@@ -21,13 +21,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.rs.persistence.test;
+package de.uniluebeck.itm.tr.rs.persistence;
 
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.User;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
