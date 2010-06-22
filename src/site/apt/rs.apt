@@ -63,9 +63,8 @@ Afterwards you'll find the executable jar in the target directory.
 
   Setting up your RS environment you need to specify a configuration file. There is a sample
 configuration file located in the configs subfolder of the rs-cmdline module including a small
-description of possible properties and their meanings.
-
-  For using your properties file simply add it to the commandline input, e.g. for using the current
+description of possible properties and their meanings.\
+For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
 '<<java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.properties>>'
 

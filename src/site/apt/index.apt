@@ -1,4 +1,4 @@
-Welcome to Testbed Runtime
+Testbed Runtime
 
 * What is 'Testbed Runtime'?
 
@@ -6,7 +6,7 @@ Welcome to Testbed Runtime
   infrastructure>. It implements the APIs defined by the european research project
   {{{http://www.wisebed.eu}WISEBED}}, namely:
 
-    * {{{iwsn/}Wireless Sensor Network (iWSN) API}}
+    * {{{iwsn.html}Wireless Sensor Network (iWSN) API}}
 
     * {{{rs.html}Reservation System (RS) API}}
 
@@ -15,6 +15,21 @@ Welcome to Testbed Runtime
     []
 
 * What programs are available?
+
+* How to get started?
+
+  Currently, there are two quick start guides for two different scenarios:
+
+  * {{{quick-start-simple.html}The Simple Quickstart Scenario}} -
+    use this for a small-sized WSN testbed with all nodes attached to one central
+    server that exhibits the testbed to the Internet
+
+  * {{{quick-start-complex.html}The Complex Quickstart Scenario}} -
+    use this for a large-sized WSN testbed that contains of:
+
+    * one central server that exhibits the testbed to the Internet and
+
+    * several gateway machines to which the sensor nodes/networks are attached
 
 * Source Code and Releases
 
