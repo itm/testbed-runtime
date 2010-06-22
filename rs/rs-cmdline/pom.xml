@@ -85,13 +85,13 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-persistence</artifactId>
 			<scope>test</scope>
 			<version>${project.version}</version>
 			<classifier>tests</classifier>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<scope>test</scope>
