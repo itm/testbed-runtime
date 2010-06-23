@@ -8,32 +8,15 @@ TR :: RS
   The RS (Reservation System) implements a system that is responsible for reserving a set of
 nodes for a period of time for a specific user. This system covers the 3 different implementations:
 
-  * Single URN Prefix
+  * {{{../../rs/rs-singleurnprefix/target/site/index.html}Single URN Prefix}}
 
-  * Federator
+  * {{{../../rs/rs-federator/target/site/index.html}Federator}}
 
-  * Dummy
+  * {{{../../rs/rs-dummy/target/site/index.html}Dummy}}
 
+  It is the implementation of the {{{../../rs/rs-api/target/site/index.html}RS API}}
+  
   []
-
-  <Single URN Prefix>
-
-  The implementation for a single testbed is called "Single URN Prefix" and handles
-reservations for a single testbed which is identified by a URN prefix (e.g., urn:wisebed:uzl:
-for 2 nodes urn:wisebed:uzl:1 and urn:wisebed:uzl:2).
-  This implementation can be configured to use different backend storage systems.
-This currently includes configurable storage in a database system (TR :: RS Persistence JPA),
-in-memory storage (TR :: RS Persistence In-Memory), and a storage backend that uses
-Google Calendar (TR :: RS Google Calendar Persistence) to store its data.
-
- <Federator>
-
-  A federator accepts multiple urn prefixes and delegates the requests to the responsible
-instances, aggregates the results and returns them to the client.
-
- <Dummy>
-
-  The dummy implementation can be used for testing and does not perform any real reservation.
 
   <<BUILDING>>
 

@@ -7,17 +7,13 @@ TR :: IWSN
 
   The IWSN (Wireless Sensor Network) implements two major components:
 
-  * iWSN protocol family
+  * {{{../../iwsn/wsn-federator/target/site/index.html}iWSN Federator}}
 
-  * testbed runtime
+  * {{{../../iwsn/runtime/target/site/index.html}Testbed runtime}}
 
   []
 
-  The testbed runtime creates an overlay network for easy node addressing
-  and message exchange independent from the actual underlying network connections.
-  Nodes are addressed using URN.\
-  This allows for later inclusion of additional networking underlays such as
-  peer-to-peer systems.
+  It is the implementation of the {{{../../iwsn/wsn-api/target/site/index.html}WSN API}}
 
   <<BUILDING>>
 

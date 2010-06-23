@@ -11,10 +11,24 @@ authenticating users and authorizing a set of actions of a specific user.
   The set of implementations allow machine-driven authentication against
 {{{http://shibboleth.internet2.edu}Shibboleth}} federations, all backends of the
 Java Authentication and Authorization API including Kerberos, Unix, Windows, Solaris, PAM,
-Htpasswd files and include two types of federators
-(WISEBED federator, Generic federator, a Dummy module, a command-line client to start
-the servers and a command-line client for authentication.
+Htpasswd files and includes the following modules:
 
+  * {{{../../snaa/snaa-federator/target/site/index.html}Federator}}
+
+  * {{{../../snaa/snaa-dummy/target/site/index.html}Dummy}}
+
+  * {{{../../snaa/snaa-jaaslogin/target/site/index.html}JAAS}}
+
+  * {{{../../snaa/snaa-shibboleth/target/site/index.html}Shibboleth}}
+
+  * {{{../../snaa/snaa-wisebed/target/site/index.html}Wisebed}}
+
+  []
+
+  It is the implementation of the {{{../../snaa/snaa-api/target/site/index.html}SNAA API}}
+
+  It also includes a command-line client to start the servers and a command-line client for authentication.
+  
   The different types of implementations serve several purposes.
 First, they show the APIÕs generality allowing for a wide range of different implementations.
 Second, it gives providers of testbeds the choice amongst several options and they may
