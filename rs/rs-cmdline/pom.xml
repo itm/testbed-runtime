@@ -95,8 +95,6 @@
 
 	<build>
 		<plugins>
-
-			<!--
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin</artifactId>
@@ -112,75 +110,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			-->
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.0</version>
-				<configuration>
-					<repositoryLayout>flat</repositoryLayout>
-					<programs>
-						<program>
-							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
-							<name>rs-cmdline</name>
-						</program>
-					</programs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>assemble</id>
-						<phase>package</phase>
-						<goals>
-							<goal>assemble</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>config</id>
-						<phase>process-resources</phase>
-						<configuration>
-							<tasks>
-								<copy todir="target/appassembler/etc/">
-									<fileset dir="src/main/java/">
-										<include name="log4j.properties" />
-									</fileset>
-								</copy>
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>assembly</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
 
