@@ -3,3 +3,5 @@ TR :: RS Dummy
   <<WHAT IS 'Dummy'>>
 
   The dummy implementation can be used for testing and does not perform any real reservation.
+
+  {{{./apidocs/index.html}javadoc}}

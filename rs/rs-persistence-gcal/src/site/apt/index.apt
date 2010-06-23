@@ -7,3 +7,5 @@ Reservation System with a persistent memory data storage through the
 {{{http://www.google.com/calendar/}Google Calendar}} web application. The configuration happens
 through a properties-file. There is a sample configuration file located in the configs subfolder including a small
 description of possible properties and their meanings.
+
+  {{{./apidocs/index.html}javadoc}}

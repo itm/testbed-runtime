@@ -10,3 +10,5 @@ This currently includes configurable storage in a database system
 ({{{../../../rs-persistence-jpa/target/site/index.html}TR :: RS Persistence JPA}}),
 in-memory storage ({{{../../../rs-persistence-inmemory/target/site/index.html}TR :: RS Persistence In-Memory}}), and a storage backend that uses
 Google Calendar ({{{../../../rs-persistence-gcal/target/site/index.html}TR :: RS Google Calendar Persistence}}) to store its data.
+
+  {{{./apidocs/index.html}javadoc}}
