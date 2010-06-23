@@ -7,3 +7,5 @@ It provides both testbed services and controller API. It connects to two or more
 and exposes a unified view of the resulting federated testbed via its testbed services."
 
   The idea is that a controller can either control a single or a federated testbed without noticing the difference.
+
+  {{{./apidocs/index.html}javadoc}}

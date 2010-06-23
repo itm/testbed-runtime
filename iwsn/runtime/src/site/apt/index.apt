@@ -8,3 +8,5 @@ Nodes are addressed using URN.
 
   This allows for later inclusion of additional networking underlays such as
 peer-to-peer systems.
+
+  {{{./apidocs/index.html}javadoc}}
