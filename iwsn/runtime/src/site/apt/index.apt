@@ -1,0 +1,10 @@
+TR :: Runtime
+
+  <<WHAT IS 'Testbed Runtime'?>>
+
+  The Testbed Runtime creates an overlay network for easy node addressing
+and message exchange independent from the actual underlying network connections.
+Nodes are addressed using URN.
+
+  This allows for later inclusion of additional networking underlays such as
+peer-to-peer systems.

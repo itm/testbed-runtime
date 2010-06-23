@@ -1,6 +1,3 @@
-
-  {{{index.html}\<back\>}}
-
 TR :: SNAA
 
   <<WHAT IS 'SNAA'?>>
@@ -108,5 +105,3 @@ snapshot with the sample-properties file in the configs-folder just call\
   Setting up your SNAA Client environment you just need to add the options to the commandline
 input, e.g. for using the current snapshot with a sample username and password just call\
 '<<java -jar target/tr.snaa-cmdline-client-0.5.2-SNAPSHOT.one-jar.jar -u username -p password>>'  
-
-  {{{index.html}\<back\>}}

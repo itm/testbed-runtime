@@ -1,0 +1,9 @@
+TR :: WSN Federator
+
+  <<WHAT IS 'WSN Federator'?>>
+
+  As in iWSN API defined: "A Federator is a system that federates two or more testbeds.
+It provides both testbed services and controller API. It connects to two or more testbeds via their testbed services,
+and exposes a unified view of the resulting federated testbed via its testbed services."
+
+  The idea is that a controller can either control a single or a federated testbed without noticing the difference.
