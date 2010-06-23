@@ -1,0 +1,8 @@
+TR :: RS Persistence In-Memory
+
+  <<WHAT IS 'RS Persistence In-Memory'>>
+
+  The RS Persistence In-Memory allows you to use the
+Reservation System with a non-persistent in-memory data storage. The configuration happens
+through a properties-file. There is a sample configuration file located in the configs subfolder including a small
+description of possible properties and their meanings.

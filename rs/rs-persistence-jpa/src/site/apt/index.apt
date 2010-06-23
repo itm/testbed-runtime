@@ -1,0 +1,10 @@
+TR :: RS Persistence JPA
+
+  <<WHAT IS 'RS Persistence JPA'>>
+
+  The RS Persistence JPA is the implementation of the
+{{{http://java.sun.com/javaee/technologies/persistence.jsp}Java Persistence API}}. It allows you to use the
+Reservation System with a configurable persistent Database storage. The configuration happens
+through a properties-file. There is a sample configuration file located in the configs subfolder including a small
+description of possible properties and their meanings.
+
