@@ -1,0 +1,8 @@
+TR :: RS Federator
+
+  <<WHAT IS 'Federator'>>
+
+  A federator accepts multiple urn prefixes and delegates the requests to the responsible
+instances, aggregates the results and returns them to the client.
+
+  {{{./apidocs/index.html}javadoc}}

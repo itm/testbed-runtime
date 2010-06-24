@@ -1,23 +1,16 @@
-
-  {{{index.html}\<back\>}}
-
 TR :: IWSN
 
   <<WHAT IS 'IWSN'?>>
 
   The IWSN (Wireless Sensor Network) implements two major components:
 
-  * iWSN protocol family
+  * {{{../../iwsn/wsn-federator/target/site/index.html}iWSN Federator}}
 
-  * testbed runtime
+  * {{{../../iwsn/runtime/target/site/index.html}Testbed runtime}}
 
   []
 
-  The testbed runtime creates an overlay network for easy node addressing
-  and message exchange independent from the actual underlying network connections.
-  Nodes are addressed using URN.\
-  This allows for later inclusion of additional networking underlays such as
-  peer-to-peer systems.
+  It is the implementation of the {{{../../iwsn/wsn-api/target/site/index.html}WSN API}}
 
   <<BUILDING>>
 
@@ -53,5 +46,3 @@ possible properties.\
   For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
 '<<java -jar target/tr.runtime.cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.xml>>'
-
-  {{{index.html}\<back\>}}
