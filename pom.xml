@@ -372,6 +372,10 @@
 			<id>onejar-maven-plugin.googlecode.com</id>
 			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
 		</pluginRepository>
+		<pluginRepository>
+			<id>onejar-maven-plugin-itm-patch</id>
+			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
+		</pluginRepository>
 	</pluginRepositories>
 
 	<repositories>
