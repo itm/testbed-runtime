@@ -31,17 +31,16 @@ import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.tr.XmlTestbedFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.cli.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: bimschas Date: 26.04.2010 Time: 16:50:56 TODO change
  */
 public class Main {
 
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
-	
 	/**
 	 * @param args
 	 *
@@ -67,16 +66,6 @@ public class Main {
 
 	public static Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start(String[] args) throws Exception {
 
-		log.debug("Starting with java.library.path=" + System.getProperty("java.library.path"));
-
-		if (log.isDebugEnabled()) {
-			ClassPathFactory factory = new ClassPathFactory();
-			ClassPath classPath = factory.createFromJVM();
-			for (String packageName : classPath.listResources("")) {
-				log.debug(packageName);
-			}
-		}
-
 		String xmlFile = null;
 		String nodeId = null;
 
@@ -85,8 +74,26 @@ public class Main {
 		Options options = new Options();
 		options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag)");
 		options.addOption("f", "file", true, "The (XML) configuration file");
-		options.addOption("v", "verbose", false, "Verbose logging output");
+		options.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
+		options.addOption("l", "logging", true,
+				"Set logging level (one of [" + Level.TRACE+","+Level.DEBUG + ","+Level.INFO+","+ Level.WARN+","+Level.ERROR+ "])"
+		);
 		options.addOption("h", "help", false, "Help output");
+
+
+		{
+			// configure logging defaults
+			Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"));
+
+			Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
+
+			if (!itmLogger.getAllAppenders().hasMoreElements()) {
+				itmLogger.addAppender(appender);
+				itmLogger.setLevel(Level.WARN);
+			}
+		}
+
+		final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
 		try {
 
@@ -94,6 +101,13 @@ public class Main {
 
 			if (line.hasOption('v')) {
 				Logger.getRootLogger().setLevel(Level.DEBUG);
+			}
+
+			if (line.hasOption('l')) {
+				Level level = Level.toLevel(line.getOptionValue('l'));
+				System.out.println("Setting log level to " + level);
+				Logger.getRootLogger().setLevel(level);
+				Logger.getLogger("de.uniluebeck.itm").setLevel(level);
 			}
 
 			if (line.hasOption('h')) {

@@ -187,7 +187,7 @@
 			</plugin>-->
 
 
-			<plugin>
+			<!--<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
 				<version>1.0</version>
@@ -256,8 +256,36 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
 
+			<plugin>
+				<groupId>org.dstovall</groupId>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.4-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
+							<onejarVersion>0.97-RC4</onejarVersion>
+							<binlibs>
+                                <fileSet>
+                                    <directory>${project.basedir}/src/main/resources</directory>
+                                    <includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.jnilib</include>
+										<include>librxtxSerial.so</include>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+                                    </includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
 	</build>
