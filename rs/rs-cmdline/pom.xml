@@ -95,14 +95,22 @@
 
 	<build>
 		<plugins>
+
+			<!--
+			Using self-patched version of onejar-maven-plugin to support
+			newer version of One-Jar that includes some bug fixes we need.
+			Can be removed later as soon as onejar-maven-plugin supports
+			the newer versions
+			-->
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.3</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.4-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
+							<onejarVersion>0.97-RC8</onejarVersion>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>
@@ -110,6 +118,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 		</plugins>
 	</build>
 
