@@ -11,9 +11,9 @@ nodes for a period of time for a specific user. This system covers the 3 differe
 
   * {{{../../rs/rs-dummy/target/site/index.html}Dummy}}
 
-  It is the implementation of the {{{../../rs/rs-api/target/site/index.html}RS API}}
-  
   []
+  
+  It is the implementation of the {{{../../rs/rs-api/target/site/index.html}RS API}}
 
   <<BUILDING>>
 

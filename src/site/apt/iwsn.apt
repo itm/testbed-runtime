@@ -1,10 +1,10 @@
-TR :: IWSN
+TR :: iWSN
 
-  <<WHAT IS 'IWSN'?>>
+  <<WHAT IS 'iWSN'?>>
 
-  The IWSN (Wireless Sensor Network) implements two major components:
+  The iWSN (Wireless Sensor Network) implements two major components:
 
-  * {{{../../iwsn/wsn-federator/target/site/index.html}iWSN Federator}}
+  * {{{../../iwsn/wsn-federator/target/site/index.html}WSN Federator}}
 
   * {{{../../iwsn/runtime/target/site/index.html}Testbed runtime}}
 
@@ -14,12 +14,12 @@ TR :: IWSN
 
   <<BUILDING>>
 
-  IWSN is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system.
+  iWSN is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system.
 Simply run '<<mvn package>>' or '<<mvn install>>' for building the appropriate module.
 
   <<RUNNING>>
 
-  For executing the IWSN in a commandline environment you'll find the module called
+  For executing the iWSN in a commandline environment you'll find the module called
 'TR :: Runtime Commandline Client' in its subfolder 'runtime.cmdline'.
 Just delegate to the subfolder and call 'mvn package' or 'mvn install'.
 Afterwards you'll find the executable jar in the target directory.
@@ -40,7 +40,7 @@ Afterwards you'll find the executable jar in the target directory.
 
   <Properties file>
 
-  Setting up your IWSN environment you need to specify a configuration file. There is a sample
+  Setting up your iWSN environment you need to specify a configuration file. There is a sample
 configuration file located in the configs subfolder of the runtime.cmdline module including a small
 possible properties.\
   For using your properties file simply add it to the commandline input, e.g. for using the current

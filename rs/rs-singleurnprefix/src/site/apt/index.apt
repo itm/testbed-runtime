@@ -8,7 +8,9 @@ for 2 nodes urn:wisebed:uzl:1 and urn:wisebed:uzl:2).
   This implementation can be configured to use different backend storage systems.
 This currently includes configurable storage in a database system
 ({{{../../../rs-persistence-jpa/target/site/index.html}TR :: RS Persistence JPA}}),
-in-memory storage ({{{../../../rs-persistence-inmemory/target/site/index.html}TR :: RS Persistence In-Memory}}), and a storage backend that uses
+in-memory storage ({{{../../../rs-persistence-inmemory/target/site/index.html}TR :: RS Persistence In-Memory}}) and a storage backend that uses
 Google Calendar ({{{../../../rs-persistence-gcal/target/site/index.html}TR :: RS Google Calendar Persistence}}) to store its data.
+
+[images/single_urn_prefixe.png]
 
   {{{./apidocs/index.html}javadoc}}

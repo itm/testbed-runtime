@@ -1,3 +1,8 @@
 TR :: RS API
 
+  <<WHAT IS 'RS API'?>>
+
+  The RS API is the implementation of the {{{http://www.wisebed.eu/images/stories/deliverables/TR/TR-RS-API-V1.pdf}RS API v1.0}}
+defined by the WISEBED consortium.
+
   {{{./apidocs/index.html}javadoc}}
