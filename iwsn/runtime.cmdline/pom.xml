@@ -22,16 +22,14 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.5.2-SNAPSHOT</version>
+		<version>0.5.3-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
@@ -57,6 +55,15 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.runtime.portal</artifactId>
 		</dependency>
+
+		<!--
+		<dependency>
+			<groupId>de.tubs.cs.ibr</groupId>
+			<artifactId>CoCoSBackend</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		-->
+
 
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -84,27 +91,22 @@
 
 	<build>
 		<plugins>
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>-->
-			<!--<plugin>
+
+			<!--
+			Using self-patched version of onejar-maven-plugin to support
+			newer version of One-Jar that includes some bug fixes we need.
+			Can be removed later as soon as onejar-maven-plugin supports
+			the newer versions
+			-->
+			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.3</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.4</version>
 				<executions>
 					<execution>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-							<onejarVersion>0.97</onejarVersion>
+							<onejarVersion>0.97-RC4</onejarVersion>
 							<binlibs>
                                 <fileSet>
                                     <directory>${project.basedir}/src/main/resources</directory>
@@ -123,141 +125,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>-->
-			<!--<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.0</version>
-				<configuration>
-					<programs>
-						<program>
-							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-							<name>runtime-cmdline</name>
-						</program>
-					</programs>
-					<extraJvmArguments>-Djava.library.path=$BASEDIR/lib</extraJvmArguments>
-				</configuration>
-				<executions>
-					<execution>
-						<id>assemble</id>
-						<phase>package</phase>
-						<goals>
-							<goal>assemble</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>config</id>
-						<phase>process-resources</phase>
-						<configuration>
-							<tasks>
-								<copy todir="target/appassembler/lib/">
-									<fileset dir="src/main/resources/" />
-								</copy>
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>-->
-			<!--<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2-beta-5</version>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>-->
-
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.0</version>
-				<configuration>
-					<repositoryLayout>flat</repositoryLayout>
-					<programs>
-						<program>
-							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-							<name>runtime-cmdline</name>
-						</program>
-					</programs>
-					<extraJvmArguments>-Djava.library.path=$BASEDIR/lib</extraJvmArguments>
-				</configuration>
-				<executions>
-					<execution>
-						<id>assemble</id>
-						<phase>package</phase>
-						<goals>
-							<goal>assemble</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>config</id>
-						<phase>process-resources</phase>
-						<configuration>
-							<tasks>
-								<copy todir="target/appassembler/lib/">
-									<fileset dir="src/main/resources/" />
-								</copy>
-								<copy todir="target/appassembler/etc/">
-									<fileset dir="src/main/java/">
-										<include name="log4j.properties" />
-									</fileset>
-								</copy>
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>assembly</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 
 		</plugins>
 	</build>
