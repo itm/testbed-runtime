@@ -8,4 +8,21 @@ and exposes a unified view of the resulting federated testbed via its testbed se
 
   The idea is that a controller can either control a single or a federated testbed without noticing the difference.
 
+  The WSN federator's main task is to dispatch incoming requests to the corresponding backend WSN instance.
+This is done by splitting a request into multiple sub-requests that only contain data for each backend WSN instance.
+This process is based on the URN-prefixes served by each instance.
+The federator dispatches these requests and returns a request ID to the caller.
+The backend WSN instances then return asynchronous replies to the
+Federator-Controller belonging to the WSN federator instance.
+The Federator-Controller then replaces the request ID with the request ID issued by the WSN federator.
+Hence, the WSN federator passes this its new-ID, old-ID mapping to the Federator-Controller to delegate this task.
+
+[images/wsn_federator_use_case.png]
+
+  <<Figure 1>> demonstrates a use-case where three testbeds (UZL1, UZL2, UZL3) are federated.
+In this example, the testbeds UZL1 and UZL2 are federated using a federator instance and appear as a single testbed (FED2).
+This federated testbed and testbed UZL3 are federated using a second federator instance (FED1).
+Nodes are identified using unique URNs. Each URN consists of a testbed-wide prefix (e.g., urn:wisebed:uzl1:)
+and an ID of the sensor node.
+
   {{{./apidocs/index.html}javadoc}}
