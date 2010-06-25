@@ -1,0 +1,14 @@
+TR :: SNAA WISEBED (federator and backend)
+
+  <<WHAT IS 'SNAA WISEBED (federator and backend)'>>
+
+  For the special case of the WISEBED federation, authentication is performed centrally at the
+federator and authorization is delegated to the local SNAA instances.
+This has the advantage that the credentials are only passed to a single piece of software
+which a user must trust. The central WISEBED federator then uses
+{{{../../../snaa-shibboleth/target/site/index.html}Shibboauth}} to authenticate
+a user to obtain a secret authentication key. All calls to authorize are delegated to the
+backends SNAAs and hence allows owners of the testbeds to implement special
+authorization rules, e.g., based on user attributes such as e-mail domain, group membership, etc.
+
+  {{{./apidocs/index.html}javadoc}}

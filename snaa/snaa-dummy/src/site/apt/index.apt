@@ -1,0 +1,10 @@
+TR :: SNAA Dummy
+
+  <<WHAT IS 'SNAA Dummy'>>
+
+  The Dummy SNAA system returns random secret authentication keys for each input to authenticate and
+returns true for each call to authorize.
+
+  It is therefore most useful for temporary lab installations which are not publicly accessible or for testing.
+
+  {{{./apidocs/index.html}javadoc}}

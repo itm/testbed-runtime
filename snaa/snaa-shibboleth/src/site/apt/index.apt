@@ -1,0 +1,19 @@
+TR :: SNAA Shibboleth Implementation
+
+  <<WHAT IS 'SNAA Shibboleth Implementation'>>
+
+  The Shibboleth SNAA is an implementation of the {{{../../../snaa-api/target/site/index.html}SNAA API}}
+that uses the <<Shibboauth>> software.
+
+  <<Shibboauth>> is written by UZL and is basically a client that allows you to
+use {{{http://shibboleth.internet2.edu}Shibboleth}} to authenticate Web Service invocations
+that imitates a Web Browser session to authenticate against Shibboleth in a machine-driven way.
+
+  For authentication the username must be in the form user@idp-domain-name.
+It works by obtaining a web page from a Shibboleth protected URL. This web page must return the secret authentication
+key for this user as plain text.
+
+  Currently, only a simple authorization exists which always returns true, assuming that every authenticated
+user may reserve and use all resources. In future work, more sophisticated attribute-based authorization modules will be implemented.
+
+  {{{./apidocs/index.html}javadoc}}

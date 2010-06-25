@@ -1,0 +1,13 @@
+TR :: SNAA Federator
+
+  <<WHAT IS 'SNAA Federator'>>
+
+  The SNAA Federator component is a stateless Web Service exposing the {{{../../../snaa-api/target/site/index.html}SNAA API}}.
+It federates a number of backend SNAAs where each backend SNAA may again be a federator.
+Incoming requests are split up into sub-requests where each sub-request only contains the
+information for the respective backend SNAA. These sub-requests are then dispatched to
+the respective backend SNAA in parallel.
+
+  When all forked requests have returned results, they are joined to a single reply and sent back to the original requester. 
+
+  {{{./apidocs/index.html}javadoc}}
