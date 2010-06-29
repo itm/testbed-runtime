@@ -37,7 +37,7 @@
 						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
-						<wisemlfilename>configs/quick-start-complex/testbeduzl1-wiseml.xml</wisemlfilename>
+						<wisemlfilename>configs/quick-start-federator/testbeduzl1-wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>

@@ -22,7 +22,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
 	<setup>
-		<description>The WSN testbed of the University of Lübeck, Germany</description>
+		<description>The WSN testbed of the University of Luebeck, Germany</description>
 		<defaults>
 			<node>
 				<nodeType>iSense</nodeType>
