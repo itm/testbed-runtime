@@ -1,0 +1,5 @@
+
+HtpasswdFile {
+	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
+	htpasswdFile = "configs/quick-start-complex/testbedtubs1.htpasswd";
+};

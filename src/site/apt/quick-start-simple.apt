@@ -14,11 +14,11 @@
   For setting up the testbed you'll need several components that, together form a fully
   functional testbed (according to the specifications of the WISEBED project):
 
-  * {{{rs/}Reservation System}}
+  * {{{rs.html}Reservation System}}
 
-  * {{{snaa/}Sensor Network Authentication and Authorization}}
+  * {{{snaa.html}Sensor Network Authentication and Authorization}}
 
-  * {{{iwsn/}iWSN}}
+  * {{{iwsn.html}iWSN}}
 
   []
 
@@ -149,7 +149,7 @@ target/appassembler/bin/runtime-cmdline -f configs/quick-start-simple/testbeduzl
 +------------------------------------------+
 
   For detailed information on configuring and starting the iWSN system please see the
-  {{{iwsn/}iWSN documentation}}.
+  {{{iwsn.html}iWSN documentation}}.
 
 ** {Sensor Network Authentication and Authorization}
 
@@ -201,7 +201,7 @@ java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
 +------------------------------------------+
 
   For detailed information on configuring and starting the SNAA please see the
-  {{{snaa/snaa-cmdline-server/}SNAA documentation}}.
+  {{{snaa.html}SNAA documentation}}.
 
 ** {Reservation System}
 
@@ -239,4 +239,4 @@ java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -v -f configs/quick-st
 +------------------------------------------+
 
   For detailed information on configuring and starting the reservation system please see the
-  {{{rs/rs-cmdline/}Reservation System documentation}}.
+  {{{rs.html}Reservation System documentation}}.

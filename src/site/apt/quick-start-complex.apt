@@ -1,3 +1,395 @@
-{Quick Start Simple Scenario}
+{Quick Start Complex Scenario}
 
-  TODO
+%{toc|fromDepth=1}
+
+* {Scenario}
+
+  The scenario contains a small-sized testbed in which wireless sensor nodes are
+  attached to gateways and which are then attached to a federator that exhibits the testbed to the internet:
+
+[images/quick-start-complex.png] Complex Quick Start Scenario
+
+* {Components}
+
+  For setting up the testbed you'll need several components that, together form a fully
+  functional testbed (according to the specifications of the WISEBED project):
+
+  * {{{rs.html}Reservation System}}
+
+  * {{{snaa.html}Sensor Network Authentication and Authorization}}
+
+  * {{{iwsn.html}iWSN}}
+
+  []
+
+[images/quick-start-complex-details.png] Details of the Complex Quick Start Scenario
+
+* {Configuration}
+
+** {iWSN}
+
+*** {Gateways}
+
+  The following listing contains the contents of the files <<<iwsn/runtime.cmdline/quick-start-complex/testbeduzl1.xml>>>
+
++------------------------------------------+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+
+	<nodes id="testbeduzl1">
+		<names>
+			<nodename name="urn:wisebed:testbeduzl1:1" description="" />
+			<nodename name="urn:wisebed:testbeduzl1:2" description="" />
+			<nodename name="urn:wisebed:testbeduzl1:3" description="" />
+		</names>
+		<applications>
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+					<webservice>
+						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
+						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
+						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
+						<wisemlfilename>configs/quick-start-complex/testbeduzl1-wiseml.xml</wisemlfilename>
+					</webservice>
+				</portal:portalapp>
+			</application>
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<device>
+						<urn>urn:wisebed:testbeduzl1:1</urn>
+						<id>1</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB1</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbeduzl1:2</urn>
+						<id>2</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB2</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbeduzl1:3</urn>
+						<id>3</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB3</serialinterface>
+					</device>
+				</wsn:wsnapp>
+			</application>
+		</applications>
+	</nodes>
+
+</ns2:testbed>
++------------------------------------------+
+
+  and <<<iwsn/runtime.cmdline/quick-start-complex/testbedtubs1.xml>>> that reflects the scenario described above:
+
++------------------------------------------+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+
+	<nodes id="testbedtubs1">
+		<names>
+			<nodename name="urn:wisebed:testbedtubs1:1" description="" />
+			<nodename name="urn:wisebed:testbedtubs1:2" description="" />
+			<nodename name="urn:wisebed:testbedtubs1:3" description="" />
+		</names>
+		<applications>
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+					<webservice>
+						<urnprefix>urn:wisebed:testbedtubs1:</urnprefix>
+						<sessionmanagementendpointurl>http://localhost:10010/sessions</sessionmanagementendpointurl>
+						<wsninstancebaseurl>http://localhost:10010/wsn</wsninstancebaseurl>
+						<wisemlfilename>configs/quick-start-complex/testbedtubs1-wiseml.xml</wisemlfilename>
+					</webservice>
+				</portal:portalapp>
+			</application>
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<device>
+						<urn>urn:wisebed:testbedtubs1:1</urn>
+						<id>1</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB1</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbedtubs1:2</urn>
+						<id>2</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB2</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbedtubs1:3</urn>
+						<id>3</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB3</serialinterface>
+					</device>
+				</wsn:wsnapp>
+			</application>
+		</applications>
+	</nodes>
+
+</ns2:testbed>
++------------------------------------------+
+
+  The configuration files above itself points to the files
+  <<<iwsn/runtime.cmdline/configs/quick-start-complex/testbeduzl1-wiseml.xml>>>
+
++------------------------------------------+
+<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
+	<setup>
+		<description>The WSN testbed of the University of LŸbeck, Germany</description>
+		<defaults>
+			<node>
+				<nodeType>iSense</nodeType>
+				<capability>
+					<name>temperature</name>
+					<datatype>decimal</datatype>
+					<unit>kelvin</unit>
+					<default>273</default>
+				</capability>
+				<capability>
+					<name>light</name>
+					<datatype>integer</datatype>
+					<unit>lux</unit>
+					<default>0</default>
+				</capability>
+			</node>
+		</defaults>
+		<node id="urn:wisebed:testbeduzl1:1" >
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:2" >
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:3" >
+			<nodeType>iSense</nodeType>
+		</node>
+	</setup>
+</wiseml>
++------------------------------------------+
+
+  and <<<iwsn/runtime.cmdline/configs/quick-start-complex/testbedtubs1-wiseml.xml>>> that contains static WiseML
+  files that are to be returned upon invocation of the <<<getNetwork()>>> method of the WSN API. Below you can
+  see the contents of the files, which are a very basic example of how to do it:
+
++------------------------------------------+
+<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
+	<setup>
+		<description>The WSN testbed of the University of TŸbingen, Germany</description>
+		<defaults>
+			<node>
+				<nodeType>iSense</nodeType>
+				<capability>
+					<name>temperature</name>
+					<datatype>decimal</datatype>
+					<unit>kelvin</unit>
+					<default>273</default>
+				</capability>
+				<capability>
+					<name>light</name>
+					<datatype>integer</datatype>
+					<unit>lux</unit>
+					<default>0</default>
+				</capability>
+			</node>
+		</defaults>
+		<node id="urn:wisebed:testbedtubs1:1" >
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbedtubs1:2" >
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbedtubs1:3" >
+			<nodeType>iSense</nodeType>
+		</node>
+	</setup>
+</wiseml>
++------------------------------------------+
+
+  Assuming you've built from source you can start the iWSN systems by executing the following commands
+  from the <<<iwsn/runtime.cmdline/>>> folder:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/runtime-cmdline
+target/appassembler/bin/runtime-cmdline -f configs/quick-start-complex/testbeduzl1.xml -v -n testbeduzl1
++------------------------------------------+
+
+  and in a separate terminal-window:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/runtime-cmdline
+target/appassembler/bin/runtime-cmdline -f configs/quick-start-complex/testbedtubs1.xml -v -n testbedtubs1
++------------------------------------------+
+
+*** {Federator}
+
+  For federating the 2 gateways together in a wisebed you need to configure the iWSN-Federator.
+  The following listing contains the content of the file <<<iwsn/wsn-federator/quick-start-complex/federator.properties>>>:
+
++------------------------------------------+
+port = 10001
+
+# the path under which the session management federator will be available
+path = /sessions
+
+# optional (reservation system is only used when not empty)
+reservation_endpoint_url = http://localhost:30001/rs
+
+# a comma-separated list of testbeds that are federated by this federator
+federates = testbeduzl1,testbedtubs1
+
+testbedfed2.sessionmanagement_endpoint_url = http://localhost:10011/sessions
+testbedfed2.urnprefixes = urn:wisebed:testbeduzl1:
+
+testbeduzl3.sessionmanagement_endpoint_url = http://localhost:10010/sessions
+testbeduzl3.urnprefixes = urn:wisebed:testbedtubs1:
++------------------------------------------+
+
+  You can start the iWSN federator by executing the following commands
+  from the <<<iwsn/wsn-federator/>>> folder:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/wsn-federator
+target/appassembler/bin/wsn-federator -f configs/quick-start-complex/federator.properties -v
++------------------------------------------+
+
+  For detailed information on configuring and starting the iWSN system please see the
+  {{{iwsn.html}iWSN documentation}}.
+
+** {Sensor Network Authentication and Authorization}
+
+  The following listing contains the contents of the file
+  <<<snaa/snaa-cmdline-server/configs/quick-start-complex/federator.properties>>> that reflects the scenario
+  described above:
+
++------------------------------------------+
+config.port = 20011
+
+config.snaas = testbeduzl1, testbedtubs1, federator
+
+testbeduzl1.type = jaas
+testbeduzl1.urnprefix = urn:wisebed:testbeduzl1:
+testbeduzl1.path = /snaa/uzl1
+testbeduzl1.configfile = configs/quick-start-complex/testbeduzl1.jaas
+testbeduzl1.module = HtpasswdFile
+
+testbedtubs1.type = jaas
+testbedtubs1.urnprefix = urn:wisebed:testbedtubs1:
+testbedtubs1.path = /snaa/tubs1
+testbedtubs1.configfile = configs/quick-start-complex/testbedtubs1.jaas
+testbedtubs1.module = HtpasswdFile
+
+federator.type = federator
+federator.path = /snaa/fedederator
+federator.federates = testbeduzl1, testbedtubs1
+
+federator.testbeduzl1.urnprefixes = urn:wisebed:testbeduzl1:
+federator.testbeduzl1.endpointurl = http://localhost:20011/snaa/uzl1
+
+federator.testbedtubs1.urnprefixes = urn:wisebed:testbedtubs1:
+federator.testbedtubs1.endpointurl = http://localhost:20011/snaa/tubs1
++------------------------------------------+
+
+  The SNAA is configured to use a <<<htpasswd>>>-file for storing authentication credentials. It does so by
+  using the <<<HtpasswdFile>>> module of
+  {{{http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html}JAAS}} which is configured by
+  the file <<<snaa/snaa-cmdline-server/configs/quick-start-complex/testbeduzl1.jaas>>> (parameter <<<configfile>>>):
+
++------------------------------------------+
+HtpasswdFile {
+	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
+	htpasswdFile = "configs/quick-start-simple/testbeduzl1.htpasswd";
+};
++------------------------------------------+
+
+  and the file <<<snaa/snaa-cmdline-server/configs/quick-start-complex/testbedtubs1.jaas>>> (parameter <<<configfile>>>):
+
++------------------------------------------+
+HtpasswdFile {
+	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
+	htpasswdFile = "configs/quick-start-complex/testbedtubs1.htpasswd";
+};
++------------------------------------------+
+
+  The JAAS config files further point to the file
+  <<<snaa/snaa-cmdline-server/configs/quick-start-complex/testbeduzl1.htpasswd>>>:
+
++------------------------------------------+
+testbeduzl1:{SHA}yCfZQuGP9MfQ8oHL66LdOgzttO0=
++------------------------------------------+
+
+  and <<<snaa/snaa-cmdline-server/configs/quick-start-complex/testbedtubs1.htpasswd>>>:
+
++------------------------------------------+
+testbedtubs1:{SHA}
++------------------------------------------+
+
+  which are the regular <<<htpasswd>>> files as also used by Apache HTTPD.
+
+  Assuming you've built from source you can start the SNAA system by executing the following command
+  from the <<<snaa/snaa-cmdline-server/>>> folder:
+
++------------------------------------------+
+java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
+ -f configs/quick-start-complex/federator.properties
++------------------------------------------+
+
+  For detailed information on configuring and starting the SNAA please see the
+  {{{snaa.html}SNAA documentation}}.
+
+** {Reservation System}
+
+  The following listing contains the contents of the file
+  <<<rs/rs-cmdline/configs/quick-start-complex/federator.properties>>> that reflects the scenario described above:
+
++------------------------------------------+
+config.port = 30011
+
+config.rsnames = testbeduzl1, testbedtubs1
+
+testbeduzl1.type = singleurnprefix
+testbeduzl1.path = /rs/uzl1
+testbeduzl1.snaaendpointurl = http://localhost:20011/snaa/uzl1
+testbeduzl1.urnprefix = urn:wisebed:testbeduzl1:
+
+testbeduzl1.persistence = jpa
+
+testbeduzl1.persistence.properties.hibernate.connection.driver_class = com.mysql.jdbc.Driver
+testbeduzl1.persistence.properties.hibernate.connection.url = jdbc:mysql://localhost:3306/testbeduzl1
+testbeduzl1.persistence.properties.hibernate.connection.password = testbeduzl1
+testbeduzl1.persistence.properties.hibernate.connection.username = testbeduzl1
+testbeduzl1.persistence.properties.hibernate.dialect = org.hibernate.dialect.MySQLDialect
+
+testbeduzl1.persistence.properties.hibernate.ddl-generation.output-mode = database
+testbeduzl1.persistence.properties.hibernate.hbm2ddl.auto = update
+testbeduzl1.persistence.properties.hibernate.archive.autodetection = class, hbm
+
+
+testbedtubs1.type = singleurnprefix
+testbedtubs1.path = /rs/tubs1
+testbedtubs1.snaaendpointurl = http://localhost:20011/snaa/tubs1
+testbedtubs1.urnprefix = urn:wisebed:testbedtubs1:
+
+testbedtubs1.persistence = jpa
+
+testbedtubs1.persistence.properties.hibernate.connection.driver_class = com.mysql.jdbc.Driver
+testbedtubs1.persistence.properties.hibernate.connection.url = jdbc:mysql://localhost:3307/testbedtubs1
+testbedtubs1.persistence.properties.hibernate.connection.password = testbedtubs1
+testbedtubs1.persistence.properties.hibernate.connection.username = testbedtubs1
+testbedtubs1.persistence.properties.hibernate.dialect = org.hibernate.dialect.MySQLDialect
+
+testbedtubs1.persistence.properties.hibernate.ddl-generation.output-mode = database
+testbedtubs1.persistence.properties.hibernate.hbm2ddl.auto = update
+testbedtubs1.persistence.properties.hibernate.archive.autodetection = class, hbm
++------------------------------------------+
+
+  Assuming you've built from source you can start the reservation system by executing the following command
+  from the <<<rs/rs-cmdline/>>> folder:
+
++------------------------------------------+
+java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -v -f configs/quick-start-complex/federator.properties
++------------------------------------------+
+
+  For detailed information on configuring and starting the reservation system please see the
+  {{{rs.html}Reservation System documentation}}.
