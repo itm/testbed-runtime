@@ -10,4 +10,12 @@ the respective backend SNAA in parallel.
 
   When all forked requests have returned results, they are joined to a single reply and sent back to the original requester. 
 
+[images/snaa_gen_federator.png]
+
+  Figure 1 shows a use-case for this type of generic federator. Here, two backend testbeds are federated
+which are (not necessarily) part of the WISEBED federation.
+
+  In this example, one testbed uses Shibboleth for authentication and one uses Apache Htpasswd-files.
+One federator instance federates both testbeds and exposes the federation of the two as a single testbed.
+
   {{{./apidocs/index.html}javadoc}}
