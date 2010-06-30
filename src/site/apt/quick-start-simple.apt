@@ -82,7 +82,7 @@ target/appassembler/bin/runtime-cmdline -f configs/quick-start-simple/testbeduzl
   from the <<<snaa/snaa-cmdline-server/>>> folder:
 
 +------------------------------------------+
-java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
+java -jar target/tr.snaa-cmdline-server-0.5.3-SNAPSHOT.one-jar.jar -v \
  -f configs/quick-start-simple/testbeduzl1.properties
 +------------------------------------------+
 
@@ -100,7 +100,7 @@ java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
   from the <<<rs/rs-cmdline/>>> folder:
 
 +------------------------------------------+
-java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -v -f configs/quick-start-simple/testbeduzl1.properties
+java -jar target/tr.rs-cmdline-0.5.3-SNAPSHOT.one-jar.jar -v -f configs/quick-start-simple/testbeduzl1.properties
 +------------------------------------------+
 
   For detailed information on configuring and starting the reservation system please see the

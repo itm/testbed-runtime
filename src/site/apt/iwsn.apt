@@ -45,4 +45,4 @@ configuration file located in the <<<configs>>> subfolder of the runtime.cmdline
 possible properties.\
   For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
-<<<java -jar target/tr.runtime.cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.xml>>>
+<<<java -jar target/tr.runtime.cmdline-0.5.3-SNAPSHOT.one-jar.jar -f configs/sample.xml>>>

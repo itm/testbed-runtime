@@ -116,7 +116,7 @@ target/appassembler/bin/wsn-federator -f configs/quick-start-federator/federator
   from the <<<snaa/snaa-cmdline-server/>>> folder:
 
 +------------------------------------------+
-java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
+java -jar target/tr.snaa-cmdline-server-0.5.3-SNAPSHOT.one-jar.jar -v \
  -f configs/quick-start-federator/federator.properties
 +------------------------------------------+
 
@@ -134,7 +134,7 @@ java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
   from the <<<rs/rs-cmdline/>>> folder:
 
 +------------------------------------------+
-java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -v -f configs/quick-start-federator/federator.properties
+java -jar target/tr.rs-cmdline-0.5.3-SNAPSHOT.one-jar.jar -v -f configs/quick-start-federator/federator.properties
 +------------------------------------------+
 
   For detailed information on configuring and starting the reservation system please see the
