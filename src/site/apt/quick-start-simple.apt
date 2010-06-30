@@ -47,8 +47,7 @@
   from the <<<iwsn/runtime.cmdline/>>> folder:
 
 +------------------------------------------+
-chmod +x target/appassembler/bin/runtime-cmdline
-target/appassembler/bin/runtime-cmdline -f configs/quick-start-simple/testbeduzl1.xml -v -n testbeduzl1
+java -jar target/tr.runtime.cmdline-0.5.3-SNAPSHOT.one-jar.jar -f configs/quick-start-simple/testbeduzl1.xml -v -n testbeduzl1
 +------------------------------------------+
 
   For detailed information on configuring and starting the iWSN system please see the
