@@ -32,113 +32,16 @@
 ** {iWSN}
 
   The following listing contains the contents of the file
-  <<<iwsn/runtime.cmdline/quick-start-simple/testbeduzl1.xml>>> that reflects the scenario described above:
+  <<<iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1.xml>>> that reflects the scenario described above:
 
-+------------------------------------------+
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
-  <nodes id="testbeduzl1">
-    <names>
-      <nodename name="urn:wisebed:testbeduzl1:1" description="" />
-      <nodename name="urn:wisebed:testbeduzl1:2" description="" />
-      <nodename name="urn:wisebed:testbeduzl1:3" description="" />
-      <nodename name="urn:wisebed:testbeduzl1:4" description="" />
-      <nodename name="urn:wisebed:testbeduzl1:5" description="" />
-    </names>
-    <applications>
-      <application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
-        <portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
-          <webservice>
-            <urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
-            <sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
-            <wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
-            <wisemlfilename>configs/quick-start-simple/testbeduzl1-wiseml.xml</wisemlfilename>
-          </webservice>
-        </portal:portalapp>
-      </application>
-      <application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-        <wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-          <device>
-            <urn>urn:wisebed:testbeduzl1:1</urn>
-            <id>1</id>
-            <type>isense</type>
-            <serialinterface>/dev/ttyUSB1</serialinterface>
-          </device>
-          <device>
-            <urn>urn:wisebed:testbeduzl1:2</urn>
-            <id>2</id>
-            <type>isense</type>
-            <serialinterface>/dev/ttyUSB2</serialinterface>
-          </device>
-          <device>
-            <urn>urn:wisebed:testbeduzl1:3</urn>
-            <id>3</id>
-            <type>isense</type>
-            <serialinterface>/dev/ttyUSB3</serialinterface>
-          </device>
-          <device>
-            <urn>urn:wisebed:testbeduzl1:4</urn>
-            <id>4</id>
-            <type>isense</type>
-            <serialinterface>/dev/ttyUSB4</serialinterface>
-          </device>
-          <device>
-            <urn>urn:wisebed:testbeduzl1:5</urn>
-            <id>5</id>
-            <type>isense</type>
-            <serialinterface>/dev/ttyUSB5</serialinterface>
-          </device>
-        </wsn:wsnapp>
-      </application>
-    </applications>
-  </nodes>
-</ns2:testbed>
-+------------------------------------------+
+%{snippet|id=testbeduzl1_Xml|file=iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1.xml}
 
   The configuration file above itself points to the file
   <<<iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1-wiseml.xml>>> that contains a static WiseML
   file that is to be returned upon invocation of the <<<getNetwork()>>> method of the WSN API. Below you can
   see the contents of the file, which is a very basic example of how to do it: 
 
-+------------------------------------------+
-<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
-  <setup>
-    <description>The WSN testbed of the University of Lübeck, Germany</description>
-    <defaults>
-      <node>
-        <nodeType>iSense</nodeType>
-        <capability>
-          <name>temperature</name>
-          <datatype>decimal</datatype>
-          <unit>kelvin</unit>
-          <default>273</default>
-        </capability>
-        <capability>
-          <name>light</name>
-          <datatype>integer</datatype>
-          <unit>lux</unit>
-          <default>0</default>
-        </capability>
-      </node>
-    </defaults>
-    <node id="urn:wisebed:testbeduzl1:1" >
-      <nodeType>iSense</nodeType>
-    </node>
-    <node id="urn:wisebed:testbeduzl1:2" >
-      <nodeType>iSense</nodeType>
-    </node>
-    <node id="urn:wisebed:testbeduzl1:3" >
-      <nodeType>iSense</nodeType>
-    </node>
-    <node id="urn:wisebed:testbeduzl1:4" >
-      <nodeType>iSense</nodeType>
-    </node>
-    <node id="urn:wisebed:testbeduzl1:5" >
-      <nodeType>iSense</nodeType>
-    </node>
-  </setup>
-</wiseml>
-+------------------------------------------+
+%{snippet|id=testbeduzl1_Wiseml|file=iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1-wiseml.xml}
 
   Assuming you've built from source you can start the iWSN system by executing the following commands
   from the <<<iwsn/runtime.cmdline/>>> folder:
@@ -157,17 +60,7 @@ target/appassembler/bin/runtime-cmdline -f configs/quick-start-simple/testbeduzl
   <<<snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.properties>>> that reflects the scenario
   described above:
 
-+------------------------------------------+
-config.port = 20011
-
-config.snaas = testbeduzl1
-
-testbeduzl1.type = jaas
-testbeduzl1.urnprefix = urn:wisebed:testbeduzl1:
-testbeduzl1.path = /snaa
-testbeduzl1.configfile = configs/quick-start-simple/testbeduzl1.jaas
-testbeduzl1.module = HtpasswdFile
-+------------------------------------------+
+%{snippet|id=testbeduzl1_SNAAProperties|file=snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.properties}
 
   The SNAA is configured to use a <<<htpasswd>>>-file for storing authentication credentials. It does so by
   using the <<<HtpasswdFile>>> module of
@@ -175,20 +68,13 @@ testbeduzl1.module = HtpasswdFile
   the file <<<snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.jaas>>> (parameter <<<configfile>>>)
   that has the following contents:
 
-+------------------------------------------+
-HtpasswdFile {
-	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
-	htpasswdFile = "configs/quick-start-simple/testbeduzl1.htpasswd";
-};
-+------------------------------------------+
+%{snippet|id=testbeduzl1_jaas|file=snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.jaas}
 
   The JAAS config file further points to the file
   <<<snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.htpasswd>>> which is a regular
   <<<htpasswd>>> file as also used by Apache HTTPD with the following contents:
 
-+------------------------------------------+
-testbeduzl1:{SHA}yCfZQuGP9MfQ8oHL66LdOgzttO0=
-+------------------------------------------+
+%{snippet|id=testbeduzl1_htpasswd|file=snaa/snaa-cmdline-server/configs/quick-start-simple/testbeduzl1.htpasswd}
 
   You guessed right, the clear-text password is <<<testbeduzl1>>>.
 
@@ -208,28 +94,7 @@ java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -v \
   The following listing contains the contents of the file
   <<<rs/rs-cmdline/configs/quick-start-simple/testbeduzl1.properties>>> that reflects the scenario described above:
 
-+------------------------------------------+
-config.port = 30011
-
-config.rsnames = testbeduzl1
-
-testbeduzl1.type = singleurnprefix
-testbeduzl1.path = /rs
-testbeduzl1.snaaendpointurl = http://localhost:20011/snaa
-testbeduzl1.urnprefix = urn:wisebed:testbeduzl1:
-
-testbeduzl1.persistence = jpa
-
-testbeduzl1.persistence.properties.hibernate.connection.driver_class = com.mysql.jdbc.Driver
-testbeduzl1.persistence.properties.hibernate.connection.url = jdbc:mysql://localhost:3306/testbeduzl1
-testbeduzl1.persistence.properties.hibernate.connection.password = testbeduzl1
-testbeduzl1.persistence.properties.hibernate.connection.username = testbeduzl1
-testbeduzl1.persistence.properties.hibernate.dialect = org.hibernate.dialect.MySQLDialect
-
-testbeduzl1.persistence.properties.hibernate.ddl-generation.output-mode = database
-testbeduzl1.persistence.properties.hibernate.hbm2ddl.auto = update
-testbeduzl1.persistence.properties.hibernate.archive.autodetection = class, hbm
-+------------------------------------------+
+%{snippet|id=testbeduzl1_RSProperties|file=rs/rs-cmdline/configs/quick-start-simple/testbeduzl1.properties}
 
   Assuming you've built from source you can start the reservation system by executing the following command
   from the <<<rs/rs-cmdline/>>> folder:

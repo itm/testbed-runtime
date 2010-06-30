@@ -18,13 +18,13 @@ nodes for a period of time for a specific user. This system covers the 3 differe
   <<BUILDING>>
 
   RS is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system.
-Simply run '<<mvn package>>' or '<<mvn install>>' for building the appropriate module.
+Simply run <<<mvn package>>> or <<<mvn install>>> for building the appropriate module.
 
   <<RUNNING>>
 
   For executing the RS in a commandline environment you'll find the module called
-'TR :: RS Commandline Server' in its subfolder 'rs-cmdline'.
-Just delegate to the subfolder and call 'mvn package' or 'mvn install'.
+<<<TR :: RS Commandline Server>>> in its subfolder <<<rs-cmdline>>>.
+Just delegate to the subfolder and call <<<mvn package>>> or <<<mvn install>>>.
 Afterwards you'll find the executable jar in the target directory.
 
   <Options>
@@ -42,8 +42,8 @@ Afterwards you'll find the executable jar in the target directory.
   <Properties file>
 
   Setting up your RS environment you need to specify a configuration file. There is a sample
-configuration file located in the configs subfolder of the rs-cmdline module including a small
+configuration file located in the <<<configs>>> subfolder of the rs-cmdline module including a small
 description of possible properties and their meanings.\
 For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
-'<<java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.properties>>'
+<<<java -jar target/tr.rs-cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.properties>>>

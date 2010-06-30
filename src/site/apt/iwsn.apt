@@ -15,13 +15,13 @@ TR :: iWSN
   <<BUILDING>>
 
   iWSN is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system.
-Simply run '<<mvn package>>' or '<<mvn install>>' for building the appropriate module.
+Simply run <<<mvn package>>> or <<<mvn install>>> for building the appropriate module.
 
   <<RUNNING>>
 
   For executing the iWSN in a commandline environment you'll find the module called
-'TR :: Runtime Commandline Client' in its subfolder 'runtime.cmdline'.
-Just delegate to the subfolder and call 'mvn package' or 'mvn install'.
+<<<TR :: Runtime Commandline Client>>> in its subfolder <<<runtime.cmdline>>>.
+Just delegate to the subfolder and call <<<mvn package>>> or <<<mvn install>>>.
 Afterwards you'll find the executable jar in the target directory.
 
   <Options>
@@ -41,8 +41,8 @@ Afterwards you'll find the executable jar in the target directory.
   <Properties file>
 
   Setting up your iWSN environment you need to specify a configuration file. There is a sample
-configuration file located in the configs subfolder of the runtime.cmdline module including a small
+configuration file located in the <<<configs>>> subfolder of the runtime.cmdline module including a small
 possible properties.\
   For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
-'<<java -jar target/tr.runtime.cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.xml>>'
+<<<java -jar target/tr.runtime.cmdline-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.xml>>>

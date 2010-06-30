@@ -38,15 +38,15 @@ single testbed to users of the federator.
   <<BUILDING>>
 
   SNAA is based on the {{{http://maven.apache.org/}Apache Maven 2}} build system.
-Simply run '<<mvn package>>' or '<<mvn install>>' for building the appropriate module.
+Simply run <<<mvn package>>> or <<<mvn install>>> for building the appropriate module.
 
   <<RUNNING>>
 
   For executing the SNAA-Server in a commandline environment you'll find a module called
-'TR :: SNAA Commandline Server' in its subfolder 'snaa-cmdline-server'.
+<<<TR :: SNAA Commandline Server>>> in its subfolder <<<snaa-cmdline-server>>>.
 For executing the SNAA-Client you'll find the module
-'TR :: SNAA Commandline Client' in its subfolder 'snaa-cmdline-client'.
-Just delegate to the appropriate subfolder and call '<<mvn package>>' or '<<mvn install>>'.
+<<<TR :: SNAA Commandline Client>>> in its subfolder <<<snaa-cmdline-client>>>.
+Just delegate to the appropriate subfolder and call <<<mvn package>>> or <<<mvn install>>>.
 Afterwards you'll find the executable jar in the target directory.
 
   <Options>
@@ -76,7 +76,7 @@ Afterwards you'll find the executable jar in the target directory.
 *-----------------------+---------------------------------------------------------------------------------+
  -o,--operation \<arg\> | Operation to perform, possible values: \[authenticate, authorize\] (optional)
 *-----------------------+---------------------------------------------------------------------------------+
- -p,--password \<arg\>  | Password ( mandatory)
+ -p,--password \<arg\>  | Password (mandatory)
 *-----------------------+---------------------------------------------------------------------------------+
  -s,--secretauthkey     | Secret auth key for authorization option, defauls to dummy-secret-key (optional)
 *-----------------------+---------------------------------------------------------------------------------+
@@ -98,10 +98,10 @@ configuration file located in the configs subfolder of the 'SNAA Commandline Ser
 possible properties.\
 For using your properties file simply add it to the commandline input, e.g. for using the current
 snapshot with the sample-properties file in the configs-folder just call\
-'<<java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.properties>>'
+<<<java -jar target/tr.snaa-cmdline-server-0.5.2-SNAPSHOT.one-jar.jar -f configs/sample.properties>>>.
 
   * TR :: SNAA Commandline Client
 
   Setting up your SNAA Client environment you just need to add the options to the commandline
 input, e.g. for using the current snapshot with a sample username and password just call\
-'<<java -jar target/tr.snaa-cmdline-client-0.5.2-SNAPSHOT.one-jar.jar -u username -p password>>'  
+<<<java -jar target/tr.snaa-cmdline-client-0.5.2-SNAPSHOT.one-jar.jar -u username -p password>>>.

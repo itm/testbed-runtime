@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                ~
   ~ All rights reserved.                                                                                              ~
@@ -20,42 +21,50 @@
   ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  ~
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<!-- START SNIPPET: testbeduzl1_Wiseml -->
-<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
-	<setup>
-		<description>The WSN testbed of the University of Lübeck, Germany</description>
-		<defaults>
-			<node>
-				<nodeType>iSense</nodeType>
-				<capability>
-					<name>temperature</name>
-					<datatype>decimal</datatype>
-					<unit>kelvin</unit>
-					<default>273</default>
-				</capability>
-				<capability>
-					<name>light</name>
-					<datatype>integer</datatype>
-					<unit>lux</unit>
-					<default>0</default>
-				</capability>
-			</node>
-		</defaults>
-		<node id="urn:wisebed:testbeduzl1:1" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:2" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:3" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:4" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:5" >
-			<nodeType>iSense</nodeType>
-		</node>
-	</setup>
-</wiseml>
-<!-- END SNIPPET: testbeduzl1_Wiseml -->
+<!-- START SNIPPET: testbedtubs1_Xml -->
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+
+	<nodes id="testbedtubs1">
+		<names>
+			<nodename name="urn:wisebed:testbedtubs1:1" description="" />
+			<nodename name="urn:wisebed:testbedtubs1:2" description="" />
+			<nodename name="urn:wisebed:testbedtubs1:3" description="" />
+		</names>
+		<applications>
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+					<webservice>
+						<urnprefix>urn:wisebed:testbedtubs1:</urnprefix>
+						<sessionmanagementendpointurl>http://localhost:10010/sessions</sessionmanagementendpointurl>
+						<wsninstancebaseurl>http://localhost:10010/wsn</wsninstancebaseurl>
+						<wisemlfilename>configs/quick-start-complex/testbedtubs1-wiseml.xml</wisemlfilename>
+					</webservice>
+				</portal:portalapp>
+			</application>
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<device>
+						<urn>urn:wisebed:testbedtubs1:1</urn>
+						<id>1</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB1</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbedtubs1:2</urn>
+						<id>2</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB2</serialinterface>
+					</device>
+					<device>
+						<urn>urn:wisebed:testbedtubs1:3</urn>
+						<id>3</id>
+						<type>isense</type>
+						<serialinterface>/dev/ttyUSB3</serialinterface>
+					</device>
+				</wsn:wsnapp>
+			</application>
+		</applications>
+	</nodes>
+
+</ns2:testbed>
+<!-- END SNIPPET: testbedtubs1_Xml -->
