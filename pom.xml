@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -47,7 +48,7 @@
 		<module>iwsn/runtime</module>
 		<module>iwsn/runtime.cmdline</module>
 		<module>iwsn/runtime.portal</module>
-        <module>iwsn/runtime.socket-connector</module>
+		<module>iwsn/runtime.socket-connector</module>
 		<module>iwsn/runtime.wsn-app</module>
 		<module>iwsn/runtime.xml-testbed-factory</module>
 		<module>iwsn/wsn-api</module>
@@ -66,10 +67,11 @@
 
 		<module>shibboauth</module>
 		<module>util</module>
+		<module>motelist</module>
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
-        
+
 
 	</modules>
 
@@ -99,6 +101,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence-inmemory</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.wiseml</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -204,6 +211,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence-gcal</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.motelist</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
