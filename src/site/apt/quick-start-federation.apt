@@ -1,0 +1,141 @@
+{Quick Start Federation Scenario}
+
+%{toc|fromDepth=1}
+
+* {Scenario}
+
+  The scenario contains a small-sized testbed in which wireless sensor nodes are
+  attached to gateways and which are then attached to a federator that exhibits the testbed to the internet:
+
+[images/quick-start-federator.png] Federation Quick Start Scenario
+
+* {Components}
+
+  For setting up the testbed you'll need several components that, together form a fully
+  functional testbed (according to the specifications of the WISEBED project):
+
+  * {{{rs.html}Reservation System}}
+
+  * {{{snaa.html}Sensor Network Authentication and Authorization}}
+
+  * {{{iwsn.html}iWSN}}
+
+  []
+
+[images/quick-start-federator-details.png] Details of the Federation Quick Start Scenario
+
+* {Configuration}
+
+** {iWSN}
+
+*** {Gateways}
+
+  The following listing contains the contents of the files <<<iwsn/runtime.cmdline/configs/quick-start-federator/testbeduzl1.xml>>>
+
+%{snippet|id=testbeduzl1_Xml|file=iwsn/runtime.cmdline/configs/quick-start-federator/testbeduzl1.xml}
+
+  and <<<iwsn/runtime.cmdline/configs/quick-start-federator/testbedtubs1.xml>>> that reflects the scenario described above:
+
+%{snippet|id=testbedtubs1_Xml|file=iwsn/runtime.cmdline/configs/quick-start-federator/testbedtubs1.xml}
+
+  The configuration files above itself points to the files
+  <<<iwsn/runtime.cmdline/configs/quick-start-federator/testbeduzl1-wiseml.xml>>>
+
+%{snippet|id=testbeduzl1_Wiseml|file=iwsn/runtime.cmdline/configs/quick-start-federator/testbeduzl1-wiseml.xml}
+
+  and <<<iwsn/runtime.cmdline/configs/quick-start-federator/testbedtubs1-wiseml.xml>>> that contains static WiseML
+  files that are to be returned upon invocation of the <<<getNetwork()>>> method of the WSN API. Below you can
+  see the contents of the files, which are a very basic example of how to do it:
+
+%{snippet|id=testbedtubs1_Wiseml|file=iwsn/runtime.cmdline/configs/quick-start-federator/testbedtubs1-wiseml.xml}
+
+  Assuming you've built from source you can start the iWSN systems by executing the following commands
+  from the <<<iwsn/runtime.cmdline/>>> folder:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/runtime-cmdline
+target/appassembler/bin/runtime-cmdline -f configs/quick-start-federator/testbeduzl1.xml -v -n testbeduzl1
++------------------------------------------+
+
+  and:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/runtime-cmdline
+target/appassembler/bin/runtime-cmdline -f configs/quick-start-federator/testbedtubs1.xml -v -n testbedtubs1
++------------------------------------------+
+
+*** {Federator}
+
+  For federating the 2 gateways together in a wisebed you need to configure the iWSN-Federator.
+  The following listing contains the content of the file <<<iwsn/wsn-federator/configs/quick-start-federator/federator.properties>>>:
+
+%{snippet|id=testbed_WSNFederator|file=iwsn/wsn-federator/configs/quick-start-federator/federator.properties}
+
+  You can start the iWSN federator by executing the following commands
+  from the <<<iwsn/wsn-federator/>>> folder:
+
++------------------------------------------+
+chmod +x target/appassembler/bin/wsn-federator
+target/appassembler/bin/wsn-federator -f configs/quick-start-federator/federator.properties -v
++------------------------------------------+
+
+  For detailed information on configuring and starting the iWSN system please see the
+  {{{iwsn.html}iWSN documentation}}.
+
+** {Sensor Network Authentication and Authorization}
+
+  The following listing contains the contents of the file
+  <<<snaa/snaa-cmdline-server/configs/quick-start-federator/federator.properties>>> that reflects the scenario
+  described above:
+
+%{snippet|id=testbed_SNAAProperties|file=snaa/snaa-cmdline-server/configs/quick-start-federator/federator.properties}
+
+  The SNAA is configured to use a <<<htpasswd>>>-file for storing authentication credentials. It does so by
+  using the <<<HtpasswdFile>>> module of
+  {{{http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html}JAAS}} which is configured by
+  the file <<<snaa/snaa-cmdline-server/configs/quick-start-federator/testbeduzl1.jaas>>> (parameter <<<configfile>>>):
+
+%{snippet|id=testbeduzl1_jaas|file=snaa/snaa-cmdline-server/configs/quick-start-federator/testbeduzl1.jaas}
+
+  and the file <<<snaa/snaa-cmdline-server/configs/quick-start-federator/testbedtubs1.jaas>>> (parameter <<<configfile>>>):
+
+%{snippet|id=testbedtubs1_jaas|file=snaa/snaa-cmdline-server/configs/quick-start-federator/testbedtubs1.jaas}
+
+  The JAAS config files further point to the file
+  <<<snaa/snaa-cmdline-server/configs/quick-start-federator/testbeduzl1.htpasswd>>>:
+
+%{snippet|id=testbeduzl1_htpasswd|file=snaa/snaa-cmdline-server/configs/quick-start-federator/testbeduzl1.htpasswd}
+
+  and <<<snaa/snaa-cmdline-server/configs/quick-start-federator/testbedtubs1.htpasswd>>>:
+
+%{snippet|id=testbedtubs1_htpasswd|file=snaa/snaa-cmdline-server/configs/quick-start-federator/testbedtubs1.htpasswd}
+
+  which are the regular <<<htpasswd>>> files as also used by Apache HTTPD.
+
+  Assuming you've built from source you can start the SNAA system by executing the following command
+  from the <<<snaa/snaa-cmdline-server/>>> folder:
+
++------------------------------------------+
+java -jar target/tr.snaa-cmdline-server-0.5.3-SNAPSHOT.one-jar.jar -v \
+ -f configs/quick-start-federator/federator.properties
++------------------------------------------+
+
+  For detailed information on configuring and starting the SNAA please see the
+  {{{snaa.html}SNAA documentation}}.
+
+** {Reservation System}
+
+  The following listing contains the contents of the file
+  <<<rs/rs-cmdline/configs/quick-start-federator/federator.properties>>> that reflects the scenario described above:
+
+%{snippet|id=testbed_RSProperties|file=rs/rs-cmdline/configs/quick-start-federator/federator.properties}
+
+  Assuming you've built from source you can start the reservation system by executing the following command
+  from the <<<rs/rs-cmdline/>>> folder:
+
++------------------------------------------+
+java -jar target/tr.rs-cmdline-0.5.3-SNAPSHOT.one-jar.jar -v -f configs/quick-start-federator/federator.properties
++------------------------------------------+
+
+  For detailed information on configuring and starting the reservation system please see the
+  {{{rs.html}Reservation System documentation}}.

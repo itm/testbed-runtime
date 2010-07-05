@@ -20,10 +20,10 @@
   ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  ~
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<!-- START SNIPPET: testbeduzl1_Wiseml -->
+<!-- START SNIPPET: testbedtubs1_Wiseml -->
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
 	<setup>
-		<description>The WSN testbed of the University of Lübeck, Germany</description>
+		<description>The WSN testbed of the University of Tuebingen, Germany</description>
 		<defaults>
 			<node>
 				<nodeType>iSense</nodeType>
@@ -41,21 +41,15 @@
 				</capability>
 			</node>
 		</defaults>
-		<node id="urn:wisebed:testbeduzl1:1" >
+		<node id="urn:wisebed:testbedtubs1:1" >
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:2" >
+		<node id="urn:wisebed:testbedtubs1:2" >
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:3" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:4" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:5" >
+		<node id="urn:wisebed:testbedtubs1:3" >
 			<nodeType>iSense</nodeType>
 		</node>
 	</setup>
 </wiseml>
-<!-- END SNIPPET: testbeduzl1_Wiseml -->
+<!-- END SNIPPET: testbedtubs1_Wiseml -->

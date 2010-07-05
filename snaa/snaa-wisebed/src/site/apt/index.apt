@@ -11,4 +11,8 @@ a user to obtain a secret authentication key. All calls to authorize are delegat
 backends SNAAs and hence allows owners of the testbeds to implement special
 authorization rules, e.g., based on user attributes such as e-mail domain, group membership, etc.
 
+  Such a scenario is shown in Figure 2.
+
+[images/snaa_wisebed_federator.png]
+
   {{{./apidocs/index.html}javadoc}}

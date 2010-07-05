@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                ~
   ~ All rights reserved.                                                                                              ~
@@ -20,42 +21,21 @@
   ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  ~
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<!-- START SNIPPET: testbeduzl1_Wiseml -->
-<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
-	<setup>
-		<description>The WSN testbed of the University of Lübeck, Germany</description>
-		<defaults>
-			<node>
-				<nodeType>iSense</nodeType>
-				<capability>
-					<name>temperature</name>
-					<datatype>decimal</datatype>
-					<unit>kelvin</unit>
-					<default>273</default>
-				</capability>
-				<capability>
-					<name>light</name>
-					<datatype>integer</datatype>
-					<unit>lux</unit>
-					<default>0</default>
-				</capability>
-			</node>
-		</defaults>
-		<node id="urn:wisebed:testbeduzl1:1" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:2" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:3" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:4" >
-			<nodeType>iSense</nodeType>
-		</node>
-		<node id="urn:wisebed:testbeduzl1:5" >
-			<nodeType>iSense</nodeType>
-		</node>
-	</setup>
-</wiseml>
-<!-- END SNIPPET: testbeduzl1_Wiseml -->
+<!-- START SNIPPET: testbedportal -->
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+
+    <nodes id="portal">
+
+        <application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+            <portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+                <webservice>
+                    <urnprefix>urn:wisebed:</urnprefix>
+                    <sessionmanagementendpointurl>http://localhost:10012/sessions</sessionmanagementendpointurl>
+                    <wsninstancebaseurl>http://localhost:10012/wsn</wsninstancebaseurl>
+                </webservice>
+            </portal:portalapp>
+        </application>
+    </nodes>
+
+</ns2:testbed>
+<!-- END SNIPPET: testbedportal -->
