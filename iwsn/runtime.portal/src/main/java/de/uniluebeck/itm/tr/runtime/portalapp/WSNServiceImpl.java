@@ -134,6 +134,18 @@ public class WSNServiceImpl implements WSNService {
 
 	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
 
+		private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+
+		private static final byte MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+
+		private static final byte NODE_OUTPUT_TEXT = 50;
+
+		private static final byte NODE_OUTPUT_BYTE = 51;
+
+		private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+
+		private static final byte WISELIB_VIRTUAL_LINK_MESSAGE = 11;
+
 		private DatatypeFactory datatypeFactory;
 
 		private WSNNodeMessageReceiverInternal() {
@@ -146,6 +158,11 @@ public class WSNServiceImpl implements WSNService {
 
 		@Override
 		public void receive(WSNAppMessages.Message wsnMessage) {
+
+			/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
+			 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
+			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
+			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
 
 			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
 
@@ -177,7 +194,7 @@ public class WSNServiceImpl implements WSNService {
 			// check if message is a virtual link message
 			boolean isVirtualLinkMessage = wsnMessage.getBinaryMessage() != null
 					&& wsnMessage.getBinaryMessage().hasBinaryData()
-					&& wsnMessage.getBinaryMessage().getBinaryData().toByteArray()[0] == 52;
+					&& wsnMessage.getBinaryMessage().getBinaryData().toByteArray()[0] == NODE_OUTPUT_VIRTUAL_LINK;
 
 			if (!isVirtualLinkMessage) {
 
@@ -186,11 +203,15 @@ public class WSNServiceImpl implements WSNService {
 
 			} else {
 
+				// message is a virtual link message
+
 				ByteBuffer buffer = ByteBuffer.wrap(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
 				BinaryMessage binaryMessage = new BinaryMessage();
 				byte[] bytes = new byte[message.getBinaryMessage().getBinaryData().length + 1];
-				bytes[0] = 11;
-				bytes[1] = 0;
+				bytes[0] = WISELIB_VIRTUAL_LINK_MESSAGE;
+				bytes[1] = 0; // request id according to Node API
+
+				// copy payload (i.e. cut away NODE_OUTPUT_VIRTUAL_LINK in the byte zero)
 				int index = 2;
 				for (int i = 1; i < message.getBinaryMessage().getBinaryData().length; ++i) {
 					bytes[index] = message.getBinaryMessage().getBinaryData()[i];
@@ -198,7 +219,7 @@ public class WSNServiceImpl implements WSNService {
 				}
 
 				binaryMessage.setBinaryData(bytes);
-				binaryMessage.setBinaryType((byte) (0xFF & 10));
+				binaryMessage.setBinaryType(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
 
 				// check if message is a broadcast or unicast message
 				long destinationNode = 0;
