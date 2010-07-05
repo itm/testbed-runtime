@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -48,8 +50,8 @@ public class AsyncJobObserver {
 	 * first checked if the request status for the job is contained here and, in this case, the job will be assumed to be
 	 * completed.
 	 */
-	private TimedCache<String, RequestStatus> unknownRequestStatuses =
-			new TimedCache<String, RequestStatus>(10, TimeUnit.MINUTES);
+	private TimedCache<String, List<RequestStatus>> unknownRequestStatuses =
+			new TimedCache<String, List<RequestStatus>>(10, TimeUnit.MINUTES);
 
 	private final int timeout;
 
@@ -73,15 +75,20 @@ public class AsyncJobObserver {
 		lock.lock();
 		try {
 
-			if (unknownRequestStatuses.containsKey(job.getRequestId())) {
+			jobList.put(job.getRequestId(), job);
+			job.setStartTime(new DateTime());
+
+			for (JobResultListener l : listeners) {
+				job.addListener(l);
+			}
+
+			List<RequestStatus> unknownRequestStatusList = unknownRequestStatuses.get(job.getRequestId());
+
+			if (unknownRequestStatusList != null) {
+				log.trace("Found cached unknown request statuses");
 				unknownRequestStatuses.remove(job.getRequestId());
-			} else {
-
-				jobList.put(job.getRequestId(), job);
-				job.setStartTime(new DateTime());
-
-				for (JobResultListener l : listeners) {
-					job.addListener(l);
+				for (RequestStatus requestStatus : unknownRequestStatusList) {
+					receive(requestStatus);
 				}
 			}
 
@@ -109,7 +116,13 @@ public class AsyncJobObserver {
 
 				}
 			} else {
-				unknownRequestStatuses.put(status.getRequestId(), status);
+				log.trace("Unkown request status received");
+				List<RequestStatus> statusList = unknownRequestStatuses.get(status.getRequestId());
+				if (statusList == null) {
+					statusList = new LinkedList<RequestStatus>();
+					unknownRequestStatuses.put(status.getRequestId(), statusList);
+				}
+				statusList.add(status);
 			}
 
 		} finally {
