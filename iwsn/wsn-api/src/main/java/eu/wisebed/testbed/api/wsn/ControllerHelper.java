@@ -162,9 +162,7 @@ public class ControllerHelper {
 	public void addController(String controllerEndpointUrl) {
 		Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl);
 		synchronized (controllerEndpoints) {
-			if (!controllerEndpoints.containsKey(controllerEndpointUrl)) {
-				controllerEndpoints.put(controllerEndpointUrl, controller);
-			}
+			controllerEndpoints.put(controllerEndpointUrl, controller);
 		}
 	}
 
