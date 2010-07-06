@@ -49,11 +49,13 @@ import static java.lang.Thread.sleep;
  */
 public class MockDevice extends iSenseDeviceImpl {
 
-	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+	public static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+	public static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
 
-	public final static byte NODE_API_VL_MESSAGE = 11;
+	public static final byte MESSAGE_TYPE_MOCK_DEVICE_PING = (byte) 0xFF;
+
+	public static final byte NODE_API_VL_MESSAGE = 11;
 
 	/**
 	 *
@@ -88,7 +90,7 @@ public class MockDevice extends iSenseDeviceImpl {
 			String msg = "MockDevice " + nodeName + " alive since " + interval.toDuration().getStandardSeconds() +
 					" seconds (update #" + (++i) + ")";
 			sendLogMessage(msg);
-			sendBinaryMessage(msg);
+			sendBinaryMessage((byte) 0x00, msg.getBytes());
 		}
 
 	}
@@ -324,6 +326,10 @@ public class MockDevice extends iSenseDeviceImpl {
 
 				}
 			}
+		} else if (p.getType() == MESSAGE_TYPE_MOCK_DEVICE_PING) {
+
+			sendBinaryMessage(MESSAGE_TYPE_MOCK_DEVICE_PING, p.getContent());
+
 		}
 	}
 
@@ -464,10 +470,7 @@ public class MockDevice extends iSenseDeviceImpl {
 
 	}
 
-	private void sendBinaryMessage(final String message) {
-
-		byte binaryType = 0x00;
-		byte[] binaryData = message.getBytes();
+	private void sendBinaryMessage(final byte binaryType, final byte[] binaryData) {
 
 		MessagePacket messagePacket = new MessagePacket(binaryType, binaryData);
 

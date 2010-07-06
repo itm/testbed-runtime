@@ -60,7 +60,7 @@ public class SocketConnectorApplication implements TestbedApplication {
 		@Override
 		public void messageReceived(Messages.Msg msg) {
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType())) {
-				log.debug("Received message from node {}: {}", msg.getFrom(), msg);
+				log.debug("Forwarding message from node {} to connected clients", msg.getFrom());
 				socketServer.sendToClients(msg);
 			}
 		}

@@ -1,11 +1,11 @@
 package de.uniluebeck.itm.tr.runtime.socketconnector.client;
 
+import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.Message;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -18,6 +18,9 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
@@ -41,7 +44,7 @@ public class SocketConnectorClient {
 		this.port = port;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		// set up logging
 		Logging.setLoggingDefaults();
@@ -105,8 +108,66 @@ public class SocketConnectorClient {
 			usage(options);
 		}
 
-		new SocketConnectorClient(ipAddress, port).start();
+		SocketConnectorClient client = new SocketConnectorClient(ipAddress, port);
+		client.start();
+		client.loopMenu();
 
+	}
+
+	private void loopMenu() throws IOException {
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String currentLine;
+
+		printMenu();
+
+		while ((currentLine = reader.readLine()) != null) {
+			if ("1".equals(currentLine)) {
+				pingNode();
+			} else if ("2".equals(currentLine)) {
+				stop();
+				break;
+			} else {
+				System.out.println("Invalid input.");
+			}
+			printMenu();
+		}
+
+	}
+
+	private void pingNode() {
+
+		WSNAppMessages.Message.BinaryMessage.Builder binaryMessageBuilder = WSNAppMessages.Message.BinaryMessage.newBuilder()
+				.setBinaryType(0xFF)
+				.setBinaryData(ByteString.copyFrom("Hello World".getBytes()));
+
+		WSNAppMessages.Message.Builder message = WSNAppMessages.Message.newBuilder()
+				.setBinaryMessage(binaryMessageBuilder)
+				.setSourceNodeId("urn:wisebed:nodeconnector:client:1")
+				.setTimestamp("Nobody cares for this demo purpose");
+
+		WSNAppMessages.OperationInvocation.Builder oiBuilder = WSNAppMessages.OperationInvocation.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
+				.setArguments(message.build().toByteString());
+
+		Messages.Msg msg = Messages.Msg.newBuilder()
+				.setMsgType(WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST)
+				.setFrom("urn:wisebed:nodeconnector:client:1")
+				.setTo("urn:wisebed:testbeduzl1:1")
+				.setPayload(oiBuilder.build().toByteString())
+				.setPriority(1)
+				.setValidUntil(System.currentTimeMillis() + 5000)
+				.build();
+
+		channel.write(msg);
+
+	}
+
+	private void printMenu() {
+		System.out.println("********************************");
+		System.out.println("1 => ping all nodes");
+		System.out.println("2 => quit program");
+		System.out.println("********************************");
 	}
 
 	private SimpleChannelUpstreamHandler upstreamHandler = new SimpleChannelUpstreamHandler() {
@@ -123,8 +184,10 @@ public class SocketConnectorClient {
 					WSNAppMessages.Message.TextMessage textMessage = wsnAppMessage.getTextMessage();
 					WSNAppMessages.Message.MessageLevel messageLevel = textMessage.getMessageLevel();
 					String msg = textMessage.getMsg();
-					log.info("Received sensor node text output with messageLevel=\"{}\" and msg=\"{}\"", messageLevel, msg);
-					
+					log.info("Received sensor node text output with messageLevel=\"{}\" and msg=\"{}\"", messageLevel,
+							msg
+					);
+
 				} else if (wsnAppMessage.hasBinaryMessage()) {
 
 					WSNAppMessages.Message.BinaryMessage binaryMessage = wsnAppMessage.getBinaryMessage();
@@ -180,6 +243,15 @@ public class SocketConnectorClient {
 			log.error("Client connect failed", connectFuture.getCause());
 		}
 
+	}
+
+	private void stop() {
+
+		channel.close().awaitUninterruptibly();
+		channel = null;
+
+		bootstrap.releaseExternalResources();
+		bootstrap = null;
 	}
 
 	private static void usage(Options options) {
