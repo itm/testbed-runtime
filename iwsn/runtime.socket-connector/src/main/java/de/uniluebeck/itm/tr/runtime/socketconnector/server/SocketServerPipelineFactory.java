@@ -21,41 +21,39 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-package de.uniluebeck.itm.tr.runtime.socketconnector;
+package de.uniluebeck.itm.tr.runtime.socketconnector.server;
+
+import de.uniluebeck.itm.gtr.messaging.Messages;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
+import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
+import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
+import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
+
+import static org.jboss.netty.channel.Channels.pipeline;
 
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
+public class SocketServerPipelineFactory implements ChannelPipelineFactory {
 
-/**
- * Created by IntelliJ IDEA. User: bimschas Date: 11.05.2010 Time: 20:32:43 TODO change
- */
-public class SocketConnectorApplication implements TestbedApplication {
+    SocketServer socketServer;
 
-    private SocketServer socketServer;
-
-    private SocketCommunicator communicator;
-
-    public SocketConnectorApplication(TestbedRuntime testbedRuntime, int port) {
-        communicator = new SocketCommunicator(testbedRuntime);
-        socketServer = new SocketServer(communicator,port);
-        communicator.setServer(socketServer);
+    public SocketServerPipelineFactory(SocketServer socketServer) {
+        this.socketServer = socketServer;
     }
 
-    public String getName() {
-        return "Socket-Connector";
-    }
+    public ChannelPipeline getPipeline() throws Exception {
 
-    public void start()
-            throws Exception {
-        communicator.start();
-        socketServer.startUp();
-    }
+		ChannelPipeline p = pipeline();
 
-    public void stop()
-            throws Exception {
-        communicator.stop();
-        socketServer.shutdown();
-    }
+		p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(1048576, 0, 4, 0, 4));
+        p.addLast("protobufEnvelopeMessageDecoder", new ProtobufDecoder(Messages.Msg.getDefaultInstance()));
 
+        p.addLast("frameEncoder", new LengthFieldPrepender(4));
+        p.addLast("protobufEncoder", new ProtobufEncoder());
+
+        p.addLast("handler", socketServer);
+		
+        return p;
+    }
 }

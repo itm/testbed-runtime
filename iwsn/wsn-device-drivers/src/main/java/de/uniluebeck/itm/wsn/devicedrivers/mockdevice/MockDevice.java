@@ -85,9 +85,10 @@ public class MockDevice extends iSenseDeviceImpl {
 		public void run() {
 			DateTime now = new DateTime();
 			Interval interval = new Interval(started, now);
-			sendLogMessage("MockDevice " + nodeName + " alive since " + interval.toDuration()
-					.getStandardSeconds() + " seconds (update #" + (++i) + ")"
-			);
+			String msg = "MockDevice " + nodeName + " alive since " + interval.toDuration().getStandardSeconds() +
+					" seconds (update #" + (++i) + ")";
+			sendLogMessage(msg);
+			sendBinaryMessage(msg);
 		}
 
 	}
@@ -163,7 +164,9 @@ public class MockDevice extends iSenseDeviceImpl {
 		try {
 			this.nodeId = Long.parseLong(nodeNameParts[nodeNameParts.length - 1]);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("The last part of the node URN must be a long value. Failed to parse it...");
+			throw new IllegalArgumentException(
+					"The last part of the node URN must be a long value. Failed to parse it..."
+			);
 		}
 
 		this.aliveTimeout = Long.parseLong(strs[1]);
@@ -185,7 +188,8 @@ public class MockDevice extends iSenseDeviceImpl {
 
 	private void scheduleVirtualLinkRunnable() {
 		this.virtualLinkRunnableFuture = this.executorService
-				.scheduleWithFixedDelay(new VirtualLinkRunnable(), new Random().nextInt((int) aliveTimeout), aliveTimeout,
+				.scheduleWithFixedDelay(new VirtualLinkRunnable(), new Random().nextInt((int) aliveTimeout),
+						aliveTimeout,
 						aliveTimeUnit
 				);
 	}
@@ -455,10 +459,20 @@ public class MockDevice extends iSenseDeviceImpl {
 		System.arraycopy(msgBytes, 0, bytes, 2, msgBytes.length);
 
 		MessagePacket messagePacket = MessagePacket.parse(bytes, 0, bytes.length);
-		log.debug("Emitting message packet: {}", messagePacket);
-
+		log.debug("Emitting textual log message packet: {}", messagePacket);
 		notifyReceivePacket(messagePacket);
 
+	}
+
+	private void sendBinaryMessage(final String message) {
+
+		byte binaryType = 0x00;
+		byte[] binaryData = message.getBytes();
+
+		MessagePacket messagePacket = new MessagePacket(binaryType, binaryData);
+
+		log.debug("Emitting binary data message packet: {}", messagePacket);
+		notifyReceivePacket(messagePacket);
 	}
 
 }

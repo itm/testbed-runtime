@@ -1,6 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck,                                                *
- * Institute of Operating Systems and Computer Networks Algorithms Group  University of Braunschweig                  *                          *
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -10,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,36 +20,25 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-package de.uniluebeck.itm.tr.runtime.socketconnector;
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
-import de.uniluebeck.itm.tr.runtime.socketconnector.xml.Socketconnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
+package de.uniluebeck.itm.tr.util;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-
-/**
- * Created by IntelliJ IDEA. User: bimschas Date: 11.05.2010 Time: 20:33:14 TODO change
- */
-public class SocketConnectorApplicationFactory implements TestbedApplicationFactory {
-    private static final Logger logger = LoggerFactory.getLogger(SocketConnectorApplicationFactory.class);
+import org.apache.log4j.*;
 
 
-    public TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
-        try {
-            JAXBContext context = JAXBContext.newInstance(Socketconnector.class);
-            Socketconnector socketConnectorApp = (Socketconnector) context.createUnmarshaller().unmarshal((Node) configuration);
+public class Logging {
 
-            return new SocketConnectorApplication(testbedRuntime, socketConnectorApp.getPort());
-        } catch (JAXBException e) {
-            logger.error("Error initialising socket connector",e); 
-            return  null;
-        }
-    }
+	public static void setLoggingDefaults() {
 
+		// configure logging defaults
+		Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%-20.20t] %-5p %-20.20C{1} %x - %m%n"));
+
+		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
+
+		if (!itmLogger.getAllAppenders().hasMoreElements()) {
+			itmLogger.addAppender(appender);
+			itmLogger.setLevel(Level.WARN);
+		}
+
+	}
 }

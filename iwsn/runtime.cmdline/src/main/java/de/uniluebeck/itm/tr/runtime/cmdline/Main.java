@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.tr.XmlTestbedFactory;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.cli.*;
 import org.apache.log4j.*;
@@ -47,21 +48,7 @@ public class Main {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-
-		/*try {
-
-			String baseDir = System.getProperty("basedir");
-			String libraryPath = System.getProperty("java.library.path");
-			File libDir = new File(baseDir + File.separator + "lib");
-
-			if (baseDir != null && libDir.isDirectory()) {
-				System.setProperty("java.library.path", libDir + File.separator);
-			}
-
-		} catch (Exception e) {}*/
-
 		start(args);
-
 	}
 
 	public static Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start(String[] args) throws Exception {
@@ -80,18 +67,7 @@ public class Main {
 		);
 		options.addOption("h", "help", false, "Help output");
 
-
-		{
-			// configure logging defaults
-			Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"));
-
-			Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
-
-			if (!itmLogger.getAllAppenders().hasMoreElements()) {
-				itmLogger.addAppender(appender);
-				itmLogger.setLevel(Level.WARN);
-			}
-		}
+		Logging.setLoggingDefaults();
 
 		final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 

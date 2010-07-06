@@ -108,7 +108,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 	};
 
-	private final Set<String> hackyNodeMessageListeners = new HashSet<String>();
+	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
 	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
@@ -133,9 +133,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		log.debug("{} => WSNDeviceAppImpl.executeManagement({})", nodeUrn, management);
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
-			hackyNodeMessageListeners.add(management.getNodeName());
+			nodeMessageListeners.add(management.getNodeName());
 		} else {
-			hackyNodeMessageListeners.remove(management.getNodeName());
+			nodeMessageListeners.remove(management.getNodeName());
 		}
 	}
 
@@ -665,7 +665,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				}
 				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
 			} else {
-				hackyDeliverToNodeMessageReceivers(p);
+				deliverToNodeMessageReceivers(p);
 			}
 
 		}
@@ -709,11 +709,11 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private DatatypeFactory datatypeFactory = null;
 
-	private void hackyDeliverToNodeMessageReceivers(MessagePacket p) {
+	private void deliverToNodeMessageReceivers(MessagePacket p) {
 
-		log.debug("{} => WSNDeviceAppImpl.hackyDeliverToNodeMessageReceivers({})", nodeUrn, p);
+		log.debug("{} => WSNDeviceAppImpl.deliverToNodeMessageReceivers({})", nodeUrn, p);
 
-		if (hackyNodeMessageListeners.size() == 0) {
+		if (nodeMessageListeners.size() == 0) {
 			log.debug("{} => No message listeners registered!", nodeUrn);
 			return;
 		}
@@ -770,7 +770,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		}
 
-		for (String nodeMessageListener : hackyNodeMessageListeners) {
+		for (String nodeMessageListener : nodeMessageListeners) {
 
 			log.debug("{} => Delivering node output to {}", nodeUrn, nodeMessageListener);
 

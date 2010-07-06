@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-package de.uniluebeck.itm.tr.runtime.socketconnector;
+package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 
 import de.uniluebeck.itm.gtr.messaging.Messages;
@@ -35,89 +35,85 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.Executors;
 
-/**
- * Created by IntelliJ IDEA.
- * User: maxpagel
- * Date: 08.02.2010
- * Time: 16:01:41
- */
+
 @ChannelPipelineCoverage("all")
 public class SocketServer extends SimpleChannelUpstreamHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
-    static final ChannelGroup allChannels = new DefaultChannelGroup("sensorMessage-server");
-    private ChannelFactory factory;
-    private SocketCommunicator communicator;
-    private int port;
-    ChannelLocal<String> channelUser;
+	private static final Logger log = LoggerFactory.getLogger(SocketServer.class);
 
-    public SocketServer(SocketCommunicator communicator,int port) {
-        this.communicator = communicator;
-        this.port = port;
-        channelUser = new ChannelLocal<String>();
-    }
+	private final ChannelGroup allChannels = new DefaultChannelGroup("SensorMessage-Server");
 
-    public void startUp() {
-        factory = new NioServerSocketChannelFactory(
-                Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-        ServerBootstrap bootstrap = new ServerBootstrap(factory);
+	private ChannelFactory channelFactory;
 
-        // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory(new SocketServerPipelineFactory(this));
+	private SocketConnectorApplication socketConnectorApplication;
 
-        // Bind and startUp to accept incoming connections.
-        org.jboss.netty.channel.Channel channel = bootstrap.bind(new InetSocketAddress(port));
-        allChannels.add(channel);
-    }
+	private int port;
 
-    public void shutdown() {
-        ChannelGroupFuture future = allChannels.close();
-        future.awaitUninterruptibly();
-        factory.releaseExternalResources();
-    }
+	public SocketServer(final SocketConnectorApplication socketConnectorApplication, final int port) {
+		this.socketConnectorApplication = socketConnectorApplication;
+		this.port = port;
+	}
 
+	public void startUp() {
 
+		// set up server socket
+		channelFactory = new NioServerSocketChannelFactory(
+				Executors.newCachedThreadPool(), Executors.newCachedThreadPool()
+		);
+		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
-    public void handle(Messages.Msg message) {
-        SocketServer.allChannels.write(message);
-    }
+		// Set up the event pipeline channelFactory.
+		bootstrap.setPipelineFactory(new SocketServerPipelineFactory(this));
 
+		// Bind and startUp to accept incoming connections.
+		allChannels.add(bootstrap.bind(new InetSocketAddress(port)));
+	}
 
+	public void shutdown() {
+		ChannelGroupFuture future = allChannels.close();
+		future.awaitUninterruptibly();
+		channelFactory.releaseExternalResources();
+	}
 
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        if(e.getMessage() instanceof Messages.Msg){
-            Messages.Msg msg = (Messages.Msg) e.getMessage();
-            communicator.sendToRuntime(msg);
-        }else{
-            logger.debug("Socket server received unknown msg");
-        }
+	public void sendToClients(Messages.Msg message) {
+		allChannels.write(message);
+	}
 
-    }
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+		log.debug("SocketServer.messageReceived({}, {})", ctx, e);
+		if (e.getMessage() instanceof Messages.Msg) {
+			Messages.Msg msg = (Messages.Msg) e.getMessage();
+			socketConnectorApplication.sendToNode(msg);
+		} else {
+			log.debug("Socket server received unknown msg");
+		}
+		ctx.sendUpstream(e);
+	}
 
+	@Override
+	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+		log.debug("SocketServer.channelOpen({}, {})", ctx, e);
+		allChannels.add(e.getChannel());
+		socketConnectorApplication.registerAsNodeOutputListener();
+		ctx.sendUpstream(e);
+	}
 
-    @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
-        SocketServer.allChannels.add(e.getChannel());
-    }
+	@Override
+	public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+		log.debug("SocketServer.channelClosed({}, {})", ctx, e);
+		if (allChannels.size() == 1) {
+			socketConnectorApplication.unregisterAsNodeOutputListener();
+		}
+		ctx.sendUpstream(e);
+	}
 
-    public static String getHostString(Channel channel) {
-        SocketAddress remoteAddress = channel.getRemoteAddress();
-        if (remoteAddress == null) return null;
-        String address = remoteAddress.toString();
-        if ((remoteAddress instanceof InetSocketAddress)) address =
-                ((InetSocketAddress) remoteAddress).getHostName() + ":" + ((InetSocketAddress) remoteAddress).getPort();
-        if (address.charAt(0) == '/') address = address.substring(1);
-
-        return address;
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-            throws Exception {
-        logger.error("Caught Exception during socket communication ",e.getCause());
-    }
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+		log.error("Caught Exception during socket communication!", e);
+		ctx.sendUpstream(e);
+	}
+	
 }
