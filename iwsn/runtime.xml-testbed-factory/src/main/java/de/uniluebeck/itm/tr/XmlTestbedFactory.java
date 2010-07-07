@@ -61,7 +61,9 @@ public class XmlTestbedFactory {
 		File configFile = new File(configFileStr);
 
 		if (!configFile.exists() || configFile.isDirectory()) {
-			throw new RuntimeException("Config file invalid (!configFile.exists() || configFile.isDirectory()) for " + configFile);
+			throw new RuntimeException(
+					"Config file invalid (!configFile.exists() || configFile.isDirectory()) for " + configFile
+			);
 		}
 
 		Testbed testbed = JAXB.unmarshal(configFile, Testbed.class);
@@ -120,7 +122,7 @@ public class XmlTestbedFactory {
 					}
 
 				} catch (Exception e) {
-					log.debug("Exception while loading application factory class \"" + factoryClass + "\": " + e, e);
+					log.warn("Exception while loading application factory class \"" + factoryClass + "\": " + e, e);
 				}
 
 			}

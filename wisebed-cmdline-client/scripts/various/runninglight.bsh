@@ -1,4 +1,5 @@
 import java.util.*;
+import java.nio.*;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -19,17 +20,11 @@ import de.uniluebeck.itm.tr.util.*;
 // Configuration
 //--------------------------------------------------------------------------
 
-	//Authentication
-		String snaaEndpoint = "http://141.83.151.228:8080/snaa/dummy1";
-
 	//This is the endpoint of our local 
-		String localControllerEndpoint = "http://141.83.90.65:8089/testcontroller";
+		String localControllerEndpoint = "http://opium.itm.uni-luebeck.de:8089/testcontroller";
 	           
 	//The endpoint of the Session Management 
-		String sessionManamentEndpoint = "http://141.83.90.65:8080/sessions/";
-		
-	//The endpoint of the Session Management UZL
-		String sessionManamentEndpointUzl = "http://141.83.151.228:10001/sessions";
+		String sessionManamentEndpointUzl = "http://testbeduzl13.itm.uni-luebeck.de:8888/sessions";
 	
 //--------------------------------------------------------------------------
 // Application logic
@@ -38,7 +33,6 @@ import de.uniluebeck.itm.tr.util.*;
 		secretAuthKeysUzl = helper.generateFakeSNAAAuthentication("urn:wisebed:uzl:","dummy-user","dummy-secret-authentication-key");
 		reservation = helper.generateFakeReservationKeys("urn:wisebed:uzl:","dummy-secret-reservation-key");
 
-		
 	//--------------------------------------------------------------------------
 	// Start local controller instance
 	//--------------------------------------------------------------------------
@@ -94,6 +88,7 @@ import de.uniluebeck.itm.tr.util.*;
 	//--------------------------------------------------------------------------
 
 		// wait to let the backend be fully set up
+		log.info("Waiting 6 seconds for the testbed to set itself up");
 		Thread.sleep(6000);
         
         String [] uzlnodes = new String[] 
@@ -110,57 +105,105 @@ import de.uniluebeck.itm.tr.util.*;
 			"urn:wisebed:uzl:510"
         };
         
+		/*
         jobs.submit( new Job("reset nodes", wsnUzl.resetNodes(Arrays.asList(uzlnodes)), Arrays.asList(uzlnodes), Job.JobType.resetNodes) );
         jobs.join();
         
         Thread.sleep(5000);
+		*/
         
-        for (int nodeIndex=0; nodeIndex<uzlnodes.length; nodeIndex++) {
+
+		for (int loop=0; loop<Integer.MAX_VALUE; loop++) {
+		for (int nodeIndex=0; nodeIndex<uzlnodes.length; nodeIndex++) {
 
         	String node = uzlnodes[nodeIndex];
-
-
+			
 			log.info("+++ Switching on node " + (nodeIndex+1));
         	// switch on node
+
+      		ByteBuffer buffer = ByteBuffer.allocate(26);
+      		buffer.put(new byte[] {
+                0xb,  // VIRTUAL_LINK_MESSAGE
+                0x00, // REQUEST_ID
+                0x00, // RSSI
+                0x00, // LQI
+                0x05  // PAYLOAD_LENGTH
+      		}, 0, 5);
+      		buffer.putLong(501 + nodeIndex);
+      		buffer.put(new byte[] {
+				0x00, // SOURCE_BYTE 0
+				0x00, // SOURCE_BYTE 1
+				0x00, // SOURCE_BYTE 2
+				0x00, // SOURCE_BYTE 3
+				0x00, // SOURCE_BYTE 4
+				0x00, // SOURCE_BYTE 5
+				0x01, // SOURCE_BYTE 6
+				0x91, // SOURCE_BYTE 7
+				0x91, // PAYLOAD ...
+				0x21, // PAYLOAD ...
+				0x15 // PAYLOAD ...
+      		}, 0, 11);
+      		buffer.put((byte)(nodeIndex+1)); // DESTINATION_NODE
+      		buffer.put((byte) 0xFF); // LAMP ON
+
         	BinaryMessage binaryMessage = new BinaryMessage();
 			binaryMessage.setBinaryType((byte) 10);
-			binaryMessage.setBinaryData(new byte[] { 0x91, 0x21, 0x15, (byte) (nodeIndex+1), 0xFF });
+			binaryMessage.setBinaryData(buffer.array());
 
 			Message message = new Message();
-			message.setSourceNodeId("urn:wisebed:uzl:11");
-			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(
-					(GregorianCalendar) GregorianCalendar.getInstance()));
+			message.setSourceNodeId("urn:wisebed:tubs:401");
+			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
 			message.setBinaryMessage(binaryMessage);
 
-			wsnUzl.send(Arrays.asList(new String[]{node}), message);
+			wsnUzl.send(Arrays.asList(new String[] {node}), message);
+			//jobs.submit( new Job("switch on node 501", wsnUzl.send(Arrays.asList(new String[] {"urn:wisebed:uzl:501"}), message), Arrays.asList(new String[]{"urn:wisebed:uzl:501"}), Job.JobType.send));
+			//jobs.join();
 
-        	// wait for 500ms
-        	Thread.sleep(500);
+
+        	// wait for 1000ms
+        	Thread.sleep(1000);
 
 			log.info("--- Switching off node " + (nodeIndex+1));
         	// switch off node
+
+			ByteBuffer buffer = ByteBuffer.allocate(26);
+      		buffer.put(new byte[] {
+                0xb,  // VIRTUAL_LINK_MESSAGE
+                0x00, // REQUEST_ID
+                0x00, // RSSI
+                0x00, // LQI
+                0x05 // PAYLOAD_LENGTH
+      		}, 0, 5);
+      		buffer.putLong(501+nodeIndex);
+      		buffer.put(new byte[] {
+				0x00, // SOURCE_BYTE 0
+				0x00, // SOURCE_BYTE 1
+				0x00, // SOURCE_BYTE 2
+				0x00, // SOURCE_BYTE 3
+				0x00, // SOURCE_BYTE 4
+				0x00, // SOURCE_BYTE 5
+				0x01, // SOURCE_BYTE 6
+				0x91, // SOURCE_BYTE 7
+				0x91, // PAYLOAD ...
+				0x21, // PAYLOAD ...
+				0x15 // PAYLOAD ...
+      		}, 0, 11);
+      		buffer.put((byte)(nodeIndex+1)); // DESTINATION_NODE
+      		buffer.put((byte) 0x00); // LAMP OFF
+
         	BinaryMessage binaryMessage = new BinaryMessage();
 			binaryMessage.setBinaryType((byte) 10);
-			binaryMessage.setBinaryData(new byte[] { 0x91, 0x21, 0x15, (byte) (nodeIndex+1), 0x00 });
+			binaryMessage.setBinaryData(buffer.array());
 
 			Message message = new Message();
-			message.setSourceNodeId("urn:wisebed:uzl:11");
-			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(
-					(GregorianCalendar) GregorianCalendar.getInstance()));
+			message.setSourceNodeId("urn:wisebed:tubs:401");
+			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
 			message.setBinaryMessage(binaryMessage);
 
-			wsnUzl.send(Arrays.asList(new String[]{node}), message);
+			wsnUzl.send(Arrays.asList(new String[] {node}), message);
 
         }
-        
-        // wait 60 seconds
-        Thread.sleep(60000);
-		
-	while(pendingRequests.size() > 0) 
-	{
-		log.debug("Still waiting for all requests to finish (pending: "+pendingRequests.size()+")");
-		synchronized(notifier) { notifier.wait(5000); }
-	}
+        }
 	
 	
 		

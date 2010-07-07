@@ -23,10 +23,16 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 
 
 class InteractionImpl implements Interaction {
+
+	private static final Logger log = LoggerFactory.getLogger(Interaction.class);
 
 	private NodeApi nodeApi;
 
@@ -37,6 +43,17 @@ class InteractionImpl implements Interaction {
 	@Override
 	public void sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload,
 									   NodeApiCallback callback) {
+
+		log.trace(
+				"InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
+				new Object[]{
+						StringUtils.toHexString(RSSI),
+						StringUtils.toHexString(LQI),
+						destination,
+						source,
+						StringUtils.toHexString(payload),
+				}
+		);
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = PacketCreator.Interaction.newVirtualLinkMessagePacket(

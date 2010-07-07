@@ -1,0 +1,37 @@
+<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
+	<setup>
+		<description>The WSN testbed of the University of Lübeck, Germany</description>
+		<defaults>
+			<node>
+				<nodeType>iSense</nodeType>
+				<capability>
+					<name>temperature</name>
+					<datatype>decimal</datatype>
+					<unit>kelvin</unit>
+					<default>273</default>
+				</capability>
+				<capability>
+					<name>light</name>
+					<datatype>integer</datatype>
+					<unit>lux</unit>
+					<default>0</default>
+				</capability>
+			</node>
+		</defaults>
+		<node id="urn:wisebed:testbeduzl1:1">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:2">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:3">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:4">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:testbeduzl1:5">
+			<nodeType>iSense</nodeType>
+		</node>
+	</setup>
+</wiseml>

@@ -1,4 +1,4 @@
-  Testbed Runtime 0.5.2-SNAPSHOT
+  Testbed Runtime
 
 CONTENT
 
@@ -23,7 +23,7 @@ WHAT IS 'SNAA'?
   the servers and a command-line client for authentication.
 
   The different types of implementations serve several purposes.
-  First, they show the APIÕs generality allowing for a wide range of different implementations.
+  First, they show the APIï¿½s generality allowing for a wide range of different implementations.
   Second, it gives providers of testbeds the choice amongst several options and they may
   choose whatever best fits their current infrastructure and purpose of the testbed.
   Third, it demonstrates that the APIs are independent from specific WISEBED technology.

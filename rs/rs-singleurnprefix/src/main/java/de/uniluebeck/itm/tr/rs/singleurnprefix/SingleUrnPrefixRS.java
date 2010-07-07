@@ -275,7 +275,7 @@ public class SingleUrnPrefixRS implements RS {
 	private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
 		String msg = null;
 
-		if (reservation == null) {
+		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
 			msg = "No reservation data supplied.";
 		} else if (reservation.getFrom().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
 			msg = "From time is in the past.";

@@ -49,11 +49,13 @@ import static java.lang.Thread.sleep;
  */
 public class MockDevice extends iSenseDeviceImpl {
 
-	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+	public static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+	public static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
 
-	public final static byte NODE_API_VL_MESSAGE = 11;
+	public static final byte MESSAGE_TYPE_MOCK_DEVICE_PING = (byte) 0xFF;
+
+	public static final byte NODE_API_VL_MESSAGE = 11;
 
 	/**
 	 *
@@ -85,9 +87,10 @@ public class MockDevice extends iSenseDeviceImpl {
 		public void run() {
 			DateTime now = new DateTime();
 			Interval interval = new Interval(started, now);
-			sendLogMessage("MockDevice " + nodeName + " alive since " + interval.toDuration()
-					.getStandardSeconds() + " seconds (update #" + (++i) + ")"
-			);
+			String msg = "MockDevice " + nodeName + " alive since " + interval.toDuration().getStandardSeconds() +
+					" seconds (update #" + (++i) + ")";
+			sendLogMessage(msg);
+			sendBinaryMessage((byte) 0x00, msg.getBytes());
 		}
 
 	}
@@ -163,7 +166,9 @@ public class MockDevice extends iSenseDeviceImpl {
 		try {
 			this.nodeId = Long.parseLong(nodeNameParts[nodeNameParts.length - 1]);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("The last part of the node URN must be a long value. Failed to parse it...");
+			throw new IllegalArgumentException(
+					"The last part of the node URN must be a long value. Failed to parse it..."
+			);
 		}
 
 		this.aliveTimeout = Long.parseLong(strs[1]);
@@ -185,7 +190,8 @@ public class MockDevice extends iSenseDeviceImpl {
 
 	private void scheduleVirtualLinkRunnable() {
 		this.virtualLinkRunnableFuture = this.executorService
-				.scheduleWithFixedDelay(new VirtualLinkRunnable(), new Random().nextInt((int) aliveTimeout), aliveTimeout,
+				.scheduleWithFixedDelay(new VirtualLinkRunnable(), new Random().nextInt((int) aliveTimeout),
+						aliveTimeout,
 						aliveTimeUnit
 				);
 	}
@@ -320,6 +326,10 @@ public class MockDevice extends iSenseDeviceImpl {
 
 				}
 			}
+		} else if (p.getType() == MESSAGE_TYPE_MOCK_DEVICE_PING) {
+
+			sendBinaryMessage(MESSAGE_TYPE_MOCK_DEVICE_PING, p.getContent());
+
 		}
 	}
 
@@ -455,10 +465,17 @@ public class MockDevice extends iSenseDeviceImpl {
 		System.arraycopy(msgBytes, 0, bytes, 2, msgBytes.length);
 
 		MessagePacket messagePacket = MessagePacket.parse(bytes, 0, bytes.length);
-		log.debug("Emitting message packet: {}", messagePacket);
-
+		log.debug("Emitting textual log message packet: {}", messagePacket);
 		notifyReceivePacket(messagePacket);
 
+	}
+
+	private void sendBinaryMessage(final byte binaryType, final byte[] binaryData) {
+
+		MessagePacket messagePacket = new MessagePacket(binaryType, binaryData);
+
+		log.debug("Emitting binary data message packet: {}", messagePacket);
+		notifyReceivePacket(messagePacket);
 	}
 
 }

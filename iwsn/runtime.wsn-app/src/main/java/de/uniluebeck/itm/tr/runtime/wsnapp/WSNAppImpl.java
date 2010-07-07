@@ -59,7 +59,7 @@ class WSNAppImpl implements WSNApp {
 
 	private TestbedRuntime testbedRuntime;
 
-	private ScheduledFuture<?> hackyRegisterNodeMessageReceiverFuture;
+	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
 	@Inject
 	public WSNAppImpl(TestbedRuntime testbedRuntime) {
@@ -72,7 +72,7 @@ class WSNAppImpl implements WSNApp {
 		return WSNApp.class.getSimpleName();
 	}
 
-	private Runnable hackyRegisterNodeMessageReceiverRunnable = new Runnable() {
+	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
 		@Override
 		public void run() {
 
@@ -136,8 +136,8 @@ class WSNAppImpl implements WSNApp {
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
 
 		// periodically register at the node counterpart as listener to receive output from the nodes
-		hackyRegisterNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
-				.scheduleWithFixedDelay(hackyRegisterNodeMessageReceiverRunnable, 5, 30, TimeUnit.SECONDS);
+		registerNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
+				.scheduleWithFixedDelay(registerNodeMessageReceiverRunnable, 5, 30, TimeUnit.SECONDS);
 
 	}
 
@@ -145,7 +145,7 @@ class WSNAppImpl implements WSNApp {
 	public void stop() {
 
 		// stop sending 'register'-messages to node counterpart
-		hackyRegisterNodeMessageReceiverFuture.cancel(false);
+		registerNodeMessageReceiverFuture.cancel(false);
 
 		// stop listening for messages from the nodes
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
@@ -407,16 +407,14 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void addNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
-		// TODO note: this is super-mega-giga-hacky-hardcore-shit
 		log.debug("Adding node message receiver...");
 		wsnNodeMessageReceivers.add(receiver);
 	}
 
 	@Override
 	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
-		// TODO note: this is super-mega-giga-hacky-hardcore-shit
 		while (wsnNodeMessageReceivers.remove(receiver)) {
-			;
+			
 		}
 	}
 
