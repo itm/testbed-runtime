@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.messaging.Messages;
@@ -151,8 +152,17 @@ public class SocketConnectorApplication implements TestbedApplication {
 		}
 	}
 
-	public void sendToNode(final Messages.Msg msg) {
+	public void sendToNode(Messages.Msg msg) {
+		// rebuild message if source node name is different to this host so that nodes can reply to it
+		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
+		if (!localNodeNames.contains(msg.getFrom())) {
+			String localNodeName = localNodeNames.iterator().next();
+			log.debug("SocketConnectorApplication.sendToNode(): Rewriting source address \"{}\" to \"{}\"",
+					msg.getFrom(), localNodeName
+			);
+			msg = Messages.Msg.newBuilder(msg).setFrom(localNodeName).build();
+		}
 		testbedRuntime.getUnreliableMessagingService().sendAsync(msg);
 	}
-	
+
 }
