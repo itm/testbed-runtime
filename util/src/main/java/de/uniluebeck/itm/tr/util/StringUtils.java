@@ -150,4 +150,23 @@ public class StringUtils {
 		return Arrays.toString(list.toArray());
 	}
 
+
+    public static Long hexToLong(String value){
+        if (value.startsWith("0x")) return Long.parseLong(value.substring(2), 16);
+        return Long.parseLong(value, 10);
+    }
+
+    public static boolean hasSuffixOfTypeInt(String value){
+        String[] arr = value.split(":");
+        String suffix = arr[arr.length - 1];
+        try { Integer.parseInt(suffix); }
+        catch (NumberFormatException nfe){ return false; }
+        return true;
+    }
+
+    public static void checkIfSuffixIsInt(String value) throws RuntimeException {
+        if (!StringUtils.hasSuffixOfTypeInt(value))
+            throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
+    }
+
 }

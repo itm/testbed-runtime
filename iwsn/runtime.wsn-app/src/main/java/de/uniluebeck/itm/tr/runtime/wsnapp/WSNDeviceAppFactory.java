@@ -32,6 +32,7 @@ import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Wsnapp;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDevice;
 import org.slf4j.Logger;
@@ -61,12 +62,13 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			MoteList moteList = null;
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
-
-				long id = wsnDevice.getId().longValue();
+				long id = StringUtils.hexToLong(wsnDevice.getId());
 				String serialInterface = wsnDevice.getSerialinterface();
 				String autodetectionMac = wsnDevice.getAutodetectionMac();
 				String type = wsnDevice.getType();
 				String urn = wsnDevice.getUrn();
+                
+                StringUtils.checkIfSuffixIsInt(urn);
 
 				if (serialInterface == null || "".equals(serialInterface)) {
 
