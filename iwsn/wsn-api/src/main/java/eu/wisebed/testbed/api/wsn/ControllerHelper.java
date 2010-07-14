@@ -50,6 +50,10 @@ public class ControllerHelper {
 
 	public static final TimeUnit RETRY_TIMEUNIT = TimeUnit.SECONDS;
 
+	public int getControllerCount() {
+		return controllerEndpoints.size();
+	}
+
 	private abstract class AbstractDeliverRunnable implements Runnable {
 
 		private int retries = 0;

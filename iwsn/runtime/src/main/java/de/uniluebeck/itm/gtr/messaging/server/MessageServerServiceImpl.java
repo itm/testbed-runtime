@@ -26,6 +26,7 @@ package de.uniluebeck.itm.gtr.messaging.server;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.gtr.LocalNodeNames;
@@ -135,7 +136,13 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		}
 	};
 
-	private final ExecutorService messageReaderThreadPool = Executors.newCachedThreadPool(new NamingThreadFactory("MessageServerService-MessageReaderThread %d"));
+	/**
+	 * It should not be necessary to bind the ThreadPoolExecutor to a maximum number of threads as it implicitly will
+	 * only start as many threads as there are connections to this node in the overlay network.
+	 */
+	private final ExecutorService messageReaderThreadPool = Executors.newCachedThreadPool(
+			new ThreadFactoryBuilder().setNameFormat("MessageServerService-MessageReaderThread %d").build()
+	);
 
 	@Inject
 	public MessageServerServiceImpl(MessageEventService messageEventService,

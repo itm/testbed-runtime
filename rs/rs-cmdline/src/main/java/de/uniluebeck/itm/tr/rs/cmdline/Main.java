@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.cmdline;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
@@ -54,6 +54,7 @@ public class Main {
 
 	/**
 	 * @param args
+	 *
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
@@ -71,16 +72,19 @@ public class Main {
 
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption('v'))
+			if (line.hasOption('v')) {
 				Logger.getRootLogger().setLevel(Level.DEBUG);
+			}
 
-			if (line.hasOption('h'))
+			if (line.hasOption('h')) {
 				usage(options);
+			}
 
-			if (line.hasOption('f'))
+			if (line.hasOption('f')) {
 				propertyFile = line.getOptionValue('f');
-			else
+			} else {
 				throw new Exception("Please supply -f");
+			}
 
 		} catch (Exception e) {
 			log.fatal("Invalid command line: " + e, e);
@@ -148,7 +152,8 @@ public class Main {
 			throws Exception {
 
 		String snaaEndpointUrl = props.getProperty(propsPrefix + ".snaaendpointurl",
-				"http://localhost:8080/snaa/dummy1");
+				"http://localhost:8080/snaa/dummy1"
+		);
 
 		RSPersistence persistence = createRSPersistence(props, propsPrefix + ".persistence");
 		SingleUrnPrefixRS rs = new SingleUrnPrefixRS(urnprefix, snaaEndpointUrl, persistence);
@@ -157,7 +162,8 @@ public class Main {
 		Endpoint endpoint = Endpoint.create(rs);
 		endpoint.publish(context);
 
-		log.debug("Started single urn prefix RS using persistence " + persistence + " on " + server.getAddress() + path);
+		log.debug("Started single urn prefix RS using persistence " + persistence + " on " + server.getAddress() + path
+		);
 
 	}
 
@@ -193,7 +199,10 @@ public class Main {
 	private static void startHttpServer(int port) throws Exception {
 
 		server = HttpServer.create(new InetSocketAddress(port), 5);
-		server.setExecutor(Executors.newCachedThreadPool(new NamingThreadFactory("RS-Thread %d")));
+		// limit number of threads to 3 as that should be sufficient for a reservation system ;-)
+		server.setExecutor(Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat("RS-Thread %d").build()
+		));
 		server.start();
 
 	}
@@ -231,14 +240,17 @@ public class Main {
 
 	}
 
-	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix) throws IOException, RSExceptionException {
-        Map<String, String> properties = new HashMap<String, String>();
-        for (Object key : props.keySet()){
-            if (!((String) key).startsWith(propsPrefix + "." + "properties")) continue;
+	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix)
+			throws IOException, RSExceptionException {
+		Map<String, String> properties = new HashMap<String, String>();
+		for (Object key : props.keySet()) {
+			if (!((String) key).startsWith(propsPrefix + "." + "properties")) {
+				continue;
+			}
 
-            String persistenceKey = ((String) key).replaceAll(propsPrefix + "." + "properties" + ".", "");
-            properties.put(persistenceKey, props.getProperty((String) key));
-        }
+			String persistenceKey = ((String) key).replaceAll(propsPrefix + "." + "properties" + ".", "");
+			properties.put(persistenceKey, props.getProperty((String) key));
+		}
 
 		return RSPersistenceJPAFactory.createInstance(properties);
 	}

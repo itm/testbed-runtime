@@ -23,14 +23,17 @@
 
 package de.uniluebeck.itm.gtr.messaging.event;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 class MessageEventServiceImpl extends MessageEventService {
@@ -119,7 +122,13 @@ class MessageEventServiceImpl extends MessageEventService {
 
 	@Override
 	public void start() throws Exception {
-		executorService = Executors.newCachedThreadPool(new NamingThreadFactory("MessageEventService-Thread %d"));
+		executorService = new ThreadPoolExecutor(
+				1,
+				3,
+				60L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(),
+				new ThreadFactoryBuilder().setNameFormat("MessageEventService-Thread %d").build()
+		);
 	}
 
 	@Override

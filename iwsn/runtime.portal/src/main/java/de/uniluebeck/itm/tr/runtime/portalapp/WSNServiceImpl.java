@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
@@ -50,10 +51,7 @@ import java.lang.UnsupportedOperationException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -66,8 +64,22 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
 
-	private final ExecutorService wsnInstanceWebServiceThreadPool = Executors
-			.newCachedThreadPool(new NamingThreadFactory("WSNService-WS-Thread %d"));
+	/**
+	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
+	 * eu.wisebed.testbed.api.wsn.v211.Controller#receive(eu.wisebed.testbed.api.wsn.v211.Message)} or {@link
+	 * eu.wisebed.testbed.api.wsn.v211.Controller#receiveStatus(eu.wisebed.testbed.api.wsn.v211.RequestStatus)} method. The
+	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one controller and, if
+	 * more controllers are attached to the running experiment the maximum thread pool size will be increased. By that, the
+	 * number of threads for web-service calls is bounded by the number of controller endpoints as more threads would not,
+	 * in theory, increase the throughput to the controllers.
+	 */
+	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(
+			1,
+			1,
+			60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>(),
+			new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build()
+	);
 
 	/**
 	 * Used to generate secure non-predictable secure request IDs as used request-response matching identifier.
@@ -334,6 +346,7 @@ public class WSNServiceImpl implements WSNService {
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
 		controllerHelper.addController(controllerEndpointUrl);
+		wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override
@@ -341,6 +354,7 @@ public class WSNServiceImpl implements WSNService {
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
 		controllerHelper.removeController(controllerEndpointUrl);
+		wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override

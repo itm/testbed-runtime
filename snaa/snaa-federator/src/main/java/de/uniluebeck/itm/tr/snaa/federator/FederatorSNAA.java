@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.federator;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.*;
 
@@ -95,8 +95,9 @@ public class FederatorSNAA implements SNAA {
 	 */
 	protected Map<String, Set<String>> prefixSet;
 
-	protected ExecutorService executorService =
-			Executors.newCachedThreadPool(new NamingThreadFactory("FederatorSNAA-Thread %d"));
+	protected ExecutorService executorService = Executors.newCachedThreadPool(
+			new ThreadFactoryBuilder().setNameFormat("FederatorSNAA-Thread %d").build()
+	);
 
 	public FederatorSNAA(Map<String, Set<String>> prefixSet) {
 		super();

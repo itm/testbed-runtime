@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.cmdline.server;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
@@ -45,7 +45,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("restriction")
 public class Server {
@@ -59,11 +61,15 @@ public class Server {
 	private static HttpServer server;
 
 	private enum FederatorType {
+
 		GENERIC, WISEBED
-	};
+	}
+
+	;
 
 	/**
 	 * @param args
+	 *
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
@@ -80,16 +86,19 @@ public class Server {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption('v'))
+			if (line.hasOption('v')) {
 				org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
+			}
 
-			if (line.hasOption('h'))
+			if (line.hasOption('h')) {
 				usage(options);
+			}
 
-			if (line.hasOption('f'))
+			if (line.hasOption('f')) {
 				propertyFile = line.getOptionValue('f');
-			else
+			} else {
 				throw new Exception("Please supply -f");
+			}
 
 		} catch (Exception e) {
 			log.error("Invalid command line: " + e, e);
@@ -128,9 +137,11 @@ public class Server {
 
 				urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
 				String secretAuthkeyUrl = props.getProperty(snaaName + ".secret_user_key_url",
-						shibbolethSecretUserKeyUrl);
+						shibbolethSecretUserKeyUrl
+				);
 				String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-						"eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization");
+						"eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
+				);
 
 				startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, getAuthorizationModule(authorizationClassName));
 
@@ -140,16 +151,20 @@ public class Server {
 				String jaasModuleName = props.getProperty(snaaName + ".module", null);
 				String jaasConfigFile = props.getProperty(snaaName + ".configfile", null);
 				String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-						"eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization");
+						"eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
+				);
 
-				if (jaasConfigFile == null)
+				if (jaasConfigFile == null) {
 					throw new Exception(("Supply a value for " + snaaName + ".configfile"));
+				}
 
-				if (jaasModuleName == null)
+				if (jaasModuleName == null) {
 					throw new Exception(("Supply a value for " + snaaName + ".module"));
+				}
 
 				startJAASSNAA(path, urnprefix, jaasModuleName, jaasConfigFile,
-						getAuthorizationModule(authorizationClassName));
+						getAuthorizationModule(authorizationClassName)
+				);
 
 			} else if ("wisebed-federator".equals(type) || "federator".equals(type)) {
 				FederatorType fedType = FederatorType.GENERIC;
@@ -167,8 +182,12 @@ public class Server {
 				for (String federatedName : federates) {
 
 					Set<String> urnPrefixes = parseCSV(props.getProperty(snaaName + "." + federatedName
-							+ ".urnprefixes"));
-					String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl", shibbolethSecretUserKeyUrl);
+							+ ".urnprefixes"
+					)
+					);
+					String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl",
+							shibbolethSecretUserKeyUrl
+					);
 
 					federatedUrnPrefixes.put(endpointUrl, urnPrefixes);
 
@@ -189,10 +208,11 @@ public class Server {
 	}
 
 	private static void startJAASSNAA(String path, String urnprefix, String jaasModuleName, String jaasConfigFile,
-			IUserAuthorization authorization) {
+									  IUserAuthorization authorization) {
 
 		log.debug("Starting JAAS SNAA, path [" + path + "], prefix[" + urnprefix + "], jaasConfigFile["
-				+ jaasConfigFile + "], jaasModuleName[" + jaasModuleName + "], authorization[" + authorization + "]");
+				+ jaasConfigFile + "], jaasModuleName[" + jaasModuleName + "], authorization[" + authorization + "]"
+		);
 
 		System.setProperty("java.security.auth.login.config", jaasConfigFile);
 
@@ -218,10 +238,11 @@ public class Server {
 	}
 
 	private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL,
-			IUserAuthorization authorization) {
+											IUserAuthorization authorization) {
 
 		log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
-				+ "], authorization[" + authorization + "]");
+				+ "], authorization[" + authorization + "]"
+		);
 
 		Set<String> prefixes = new HashSet<String>();
 		prefixes.add(prefix);
@@ -237,7 +258,7 @@ public class Server {
 	}
 
 	private static void startFederator(FederatorType type, String path, String secretAuthKeyURL,
-			Map<String, Set<String>>... prefixSets) {
+									   Map<String, Set<String>>... prefixSets) {
 
 		// union the prefix sets to one set
 		Map<String, Set<String>> prefixSet = new HashMap<String, Set<String>>();
@@ -248,18 +269,20 @@ public class Server {
 		// Debug
 		{
 			log.debug("Starting Federator with the following prefixes: ");
-			for (Entry<String, Set<String>> entry : prefixSet.entrySet())
+			for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
 				log.debug("Prefix: url=" + entry.getKey() + ", prefixes: "
-						+ Arrays.toString(entry.getValue().toArray()));
+						+ Arrays.toString(entry.getValue().toArray())
+				);
+			}
 		}
 
 		switch (type) {
-		case GENERIC:
-			federator = new FederatorSNAA(prefixSet);
-			break;
-		case WISEBED:
-			federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL);
-			break;
+			case GENERIC:
+				federator = new FederatorSNAA(prefixSet);
+				break;
+			case WISEBED:
+				federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL);
+				break;
 		}
 
 		HttpContext context = server.createContext(path);
@@ -273,7 +296,15 @@ public class Server {
 	private static void startHttpServer(int port) throws Exception {
 
 		server = HttpServer.create(new InetSocketAddress(port), 5);
-		server.setExecutor(Executors.newCachedThreadPool(new NamingThreadFactory("SNAA-Thread %d")));
+		// bind to a maximum of three threads which should be enough for an snaa system
+		server.setExecutor(new ThreadPoolExecutor(
+				1,
+				3,
+				60L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(),
+				new ThreadFactoryBuilder().setNameFormat("SNAA-Thread %d").build()
+		)
+		);
 		server.start();
 
 	}
@@ -298,7 +329,9 @@ public class Server {
 			AuthenticationExceptionException {
 
 		SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/shib1"), new QName(
-				"http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
+				"http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
+		)
+		);
 		SNAA port = service.getPort(SNAA.class);
 
 		AuthenticationTriple auth1 = new AuthenticationTriple();
@@ -320,7 +353,9 @@ public class Server {
 			AuthenticationExceptionException {
 
 		SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/fed1"), new QName(
-				"http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
+				"http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
+		)
+		);
 		SNAA port = service.getPort(SNAA.class);
 
 		List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();

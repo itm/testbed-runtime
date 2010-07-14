@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.rs.federator;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.*;
 import org.slf4j.Logger;
@@ -48,8 +48,12 @@ public class FederatorRS implements RS {
 
 	private static final QName RS_SERVICE_QNAME = new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSService");
 
-	private ExecutorService executorService =
-			Executors.newCachedThreadPool(new NamingThreadFactory("FederatorRS-Thread %d"));
+	/**
+	 *
+	 */
+	private ExecutorService executorService = Executors.newCachedThreadPool(
+			new ThreadFactoryBuilder().setNameFormat("FederatorRS-Thread %d").build()
+	);
 
 	private BiMap<String, Set<String>> prefixSet;
 
