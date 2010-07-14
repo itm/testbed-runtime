@@ -33,7 +33,7 @@
 	<xsd:complexType name="WsnDevice">
 		<xsd:sequence>
 			<xsd:element name="urn" type="xsd:string" />
-			<xsd:element name="id" type="xsd:integer" />
+			<xsd:element name="id" type="xsd:string" />
 			<xsd:element name="type" type="xsd:string" />
 			<xsd:choice>
 				<xsd:element name="serialinterface" type="xsd:string" />

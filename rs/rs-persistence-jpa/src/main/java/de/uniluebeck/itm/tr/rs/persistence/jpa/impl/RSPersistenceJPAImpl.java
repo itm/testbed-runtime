@@ -52,6 +52,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
     @Inject
     public RSPersistenceJPAImpl(@Named("properties") Map properties){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
+        //EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
 		manager = factory.createEntityManager();
     }
 

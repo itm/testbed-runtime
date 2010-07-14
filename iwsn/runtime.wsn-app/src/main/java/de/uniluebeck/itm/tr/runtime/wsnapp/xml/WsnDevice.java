@@ -59,7 +59,7 @@ public class WsnDevice {
 	@XmlElement(required = true)
 	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-30T11:48:09+02:00",
 			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-	protected BigInteger id;
+	protected String id;
 
 	@XmlElement(required = true)
 	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-30T11:48:09+02:00",
@@ -104,7 +104,7 @@ public class WsnDevice {
 	 */
 	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-30T11:48:09+02:00",
 			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-	public BigInteger getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -115,7 +115,7 @@ public class WsnDevice {
 	 */
 	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-30T11:48:09+02:00",
 			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-	public void setId(BigInteger value) {
+	public void setId(String value) {
 		this.id = value;
 	}
 

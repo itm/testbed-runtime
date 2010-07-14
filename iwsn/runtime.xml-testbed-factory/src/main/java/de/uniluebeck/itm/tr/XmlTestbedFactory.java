@@ -31,6 +31,7 @@ import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
 import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Triple;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.xml.*;
@@ -71,6 +72,13 @@ public class XmlTestbedFactory {
 		TestbedRuntime testbedRuntime = null;
 		ImmutableList<TestbedApplication> testbedApplications = null;
 
+        //checking if the nodes suffix is type of Integer
+        for (Node node : testbed.getNodes()){
+            for (NodeName nodeName : node.getNames().getNodename()){
+                StringUtils.checkIfSuffixIsInt(nodeName.getName());
+            }
+        }
+
 		// TODO sanity check for duplicate node names and node ids
 
 		for (Node node : testbed.getNodes()) {
@@ -91,7 +99,7 @@ public class XmlTestbedFactory {
 		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(testbedRuntime, testbedApplications);
 	}
 
-	private ImmutableList<TestbedApplication> configureApplications(TestbedRuntime testbedRuntime,
+    private ImmutableList<TestbedApplication> configureApplications(TestbedRuntime testbedRuntime,
 																	Applications applications) {
 
 		ImmutableList.Builder<TestbedApplication> applicationListBuilder =
