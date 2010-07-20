@@ -103,12 +103,12 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.5</version>
+				<version>1.4.4</version>
 				<executions>
 					<execution>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
-							<onejarVersion>0.97-RC10</onejarVersion>
+							<onejarVersion>0.97-RC8</onejarVersion>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>
