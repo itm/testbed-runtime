@@ -80,17 +80,17 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
-			<version>3.2.2.ga</version>
+			<version>3.5.3-Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-annotations</artifactId>
-			<version>3.2.1.ga</version>
+			<version>3.5.3-Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.2.1.ga</version>
+			<version>3.5.3-Final</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.transaction</groupId>

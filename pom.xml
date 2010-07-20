@@ -399,6 +399,17 @@
 
 	<repositories>
 		<repository>
+			<id>jboss-public-maven-repository</id>
+			<name>JBoss Public Maven Repository</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>google-maven-repository</id>
 			<name>Google Maven Repository</name>
 			<url>http://google-maven-repository.googlecode.com/svn/repository/</url>
