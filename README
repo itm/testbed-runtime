@@ -13,6 +13,11 @@ DOCUMENTATION AND ISSUE TRACKING
   installation. Please report bugs there. To get write access to trac please contact
   Daniel Bimschas (bimschas -at- itm.uni-luebeck.de).
 
+MAILING LIST
+
+  There's a user mailing list (testbed-runtime-users@itm.uni-luebeck.de) you are free
+  to join at [4]. Support will be preferrably given through this list.
+
 BUILDING
 
   Testbed Runtime is based on the Apache Maven 2 [2] build system. Clone the project and
@@ -32,3 +37,4 @@ REFERENCES
   [1] http://www.wisebed.eu/
   [2] http://maven.apache.org/
   [3] https://www.itm.uni-luebeck.de/projects/testbed-runtime/
+  [4] https://www.itm.uni-luebeck.de/cgi-bin/mailman/listinfo/testbed-runtime-users

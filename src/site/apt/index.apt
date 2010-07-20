@@ -48,6 +48,12 @@ Testbed Runtime "${project.version}"
   Testbed Runtime is hosted on {{github.com}} ({{http://github.com/itm/testbed-runtime}}). There, you can
   find all released versions of the software, both in binary and source.
 
+* Mailing List
+
+  There's a user mailing list ({{{mailto:testbed-runtime-users@itm.uni-luebeck.de}testbed-runtime-users@itm.uni-luebeck.de}})
+  you are free to join at {{https://www.itm.uni-luebeck.de/cgi-bin/mailman/listinfo/testbed-runtime-users}}. Support will
+  be preferrably given through this list.
+
 * Contributing
 
   Contributors are very welcome! For bug reports please use the ticket system in the
