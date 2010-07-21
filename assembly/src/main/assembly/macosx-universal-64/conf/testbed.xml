@@ -23,7 +23,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 
-	<nodes id="localhost">
+	<nodes id="192.168.1.100">
 		<names>
 			<nodename name="urn:wisebed:testbeduzl1:1" description="" />
 			<nodename name="urn:wisebed:testbeduzl1:2" description="" />
@@ -38,7 +38,7 @@
 						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
-						<wisemlfilename>../conf/testbeduzl-wiseml.xml</wisemlfilename>
+						<wisemlfilename>../conf/testbed-wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>
@@ -47,32 +47,32 @@
 					<device>
 						<urn>urn:wisebed:testbeduzl1:1</urn>
 						<id>1</id>
-						<type>isense</type>
-						<serialinterface>/dev/ttyUSB1</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:testbeduzl1:1,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:2</urn>
 						<id>2</id>
-						<type>isense</type>
-						<serialinterface>/dev/ttyUSB2</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:testbeduzl1:2,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:3</urn>
 						<id>3</id>
-						<type>isense</type>
-						<serialinterface>/dev/ttyUSB3</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:testbeduzl3:1,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:4</urn>
 						<id>4</id>
-						<type>isense</type>
-						<serialinterface>/dev/ttyUSB4</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:testbeduzl4:1,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:5</urn>
 						<id>5</id>
-						<type>isense</type>
-						<serialinterface>/dev/ttyUSB5</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:testbeduzl5:1,2,SECONDS</serialinterface>
 					</device>
 				</wsn:wsnapp>
 			</application>

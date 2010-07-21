@@ -61,11 +61,11 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			File wiseMLFile = new File(wiseMLFilename);
 
 			if (!wiseMLFile.exists()) {
-				throw new Exception("WiseML file " + wiseMLFilename + " does not exist!");
+				throw new Exception("WiseML file " + wiseMLFile.getAbsolutePath() + " does not exist!");
 			} else if (wiseMLFile.isDirectory()) {
-				throw new Exception("WiseML file name " + wiseMLFilename + " points to a directory!");
+				throw new Exception("WiseML file name " + wiseMLFile.getAbsolutePath() + " points to a directory!");
 			} else if (!wiseMLFile.canRead()) {
-				throw new Exception("WiseML file " + wiseMLFilename + " can't be read!");
+				throw new Exception("WiseML file " + wiseMLFile.getAbsolutePath() + " can't be read!");
 			}
 
 			BufferedReader wiseMLFileReader = new BufferedReader(new FileReader(wiseMLFile));
