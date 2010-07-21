@@ -105,13 +105,13 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.4</version>
+				<version>1.4.5</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-							<onejarVersion>0.97-RC4</onejarVersion>
+							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
 							<binlibs>
