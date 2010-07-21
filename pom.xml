@@ -71,6 +71,7 @@
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
+		<module>wiseml-merger</module>
 
 
 	</modules>
@@ -106,6 +107,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.wiseml</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.wiseml-merger</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
