@@ -90,6 +90,12 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.rs-cmdline</artifactId>
+				<classifier>onejar</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.runtime.xml-testbed-factory</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -135,6 +141,17 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.runtime.cmdline</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.runtime.cmdline</artifactId>
+				<classifier>onejar</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.runtime.portal</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -156,6 +173,12 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.snaa-cmdline-server</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.snaa-cmdline-server</artifactId>
+				<classifier>onejar</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

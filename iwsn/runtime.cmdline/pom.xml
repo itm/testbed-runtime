@@ -108,9 +108,12 @@
 				<version>1.4.4</version>
 				<executions>
 					<execution>
+						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
 							<onejarVersion>0.97-RC4</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
 							<binlibs>
                                 <fileSet>
                                     <directory>${project.basedir}/src/main/resources</directory>

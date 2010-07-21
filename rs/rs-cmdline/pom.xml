@@ -100,22 +100,58 @@
 			Can be removed later as soon as onejar-maven-plugin supports
 			the newer versions
 			-->
-			<plugin>
+			<!--<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
 				<version>1.4.5</version>
 				<executions>
 					<execution>
+						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
 							<onejarVersion>0.97-RC10</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
+			<plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.0</version>        
+        <configuration>
+          <repositoryLayout>flat</repositoryLayout>
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>         
+		  <target>target/appassembler</target>
+          <daemons>
+            <daemon>
+              <id>tr.rs-cmdline</id>
+              <mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
+              <commandLineArguments>
+                <commandLineArgument>start</commandLineArgument>
+              </commandLineArguments>
+              <platforms>
+                <platform>jsw</platform>
+              </platforms>              
+            </daemon>
+          </daemons>
+        </configuration>
+        <executions>
+          <execution>
+            <id>generate-jsw-scripts</id>
+            <phase>package</phase>
+            <goals>
+			  <!--<goal>assemble</goal>-->
+			  <goal>create-repository</goal>
+              <goal>generate-daemons</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 			
 		</plugins>
 	</build>
