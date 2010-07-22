@@ -33,6 +33,7 @@ import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 
 /**
@@ -56,7 +57,7 @@ public class Main {
         // create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag), if not set the canonical hostname of this machine is tried");
+        options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag), if not set autodetect is tried");
         options.addOption("f", "file", true, "The (XML) configuration file");
         options.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
         options.addOption("l", "logging", true,
@@ -95,9 +96,6 @@ public class Main {
 
             if (line.hasOption('n')) {
                 nodeId = line.getOptionValue('n');
-            } else {
-                nodeId = InetAddress.getLocalHost().getCanonicalHostName();
-                log.info("Using canonical hostname \"{}\" to identify node id in configuration file", nodeId);
             }
 
         } catch (Exception e) {
@@ -105,13 +103,19 @@ public class Main {
             usage(options);
         }
 
+        String[] nodeIds;
+        if (nodeId == null) {
+            nodeIds = new String[]{InetAddress.getLocalHost().getCanonicalHostName(), InetAddress.getLocalHost().getHostName()};
+        } else {
+            nodeIds = new String[]{nodeId};
+        }
         XmlTestbedFactory factory = new XmlTestbedFactory();
-        Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeId);
+        Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeIds);
 
         // start the testbed runtime
         log.debug("Starting testbed runtime");
-        
-		final TestbedRuntime runtime = listTuple.getFirst();
+
+        final TestbedRuntime runtime = listTuple.getFirst();
         runtime.startServices();
 
         // start the applications running "on top"
@@ -132,7 +136,7 @@ public class Main {
                     try {
                         testbedApplication.stop();
                     } catch (Exception e) {
-                        log.warn("Caught exception when shutting down testbed runtime application "+testbedApplication.getName()+": {}", e);
+                        log.warn("Caught exception when shutting down testbed runtime application " + testbedApplication.getName() + ": {}", e);
                     }
                 }
                 log.info("Stopped testbed runtime applications!");

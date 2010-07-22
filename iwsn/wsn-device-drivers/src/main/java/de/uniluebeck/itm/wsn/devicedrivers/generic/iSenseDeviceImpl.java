@@ -32,10 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * 
@@ -120,10 +117,26 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * iSenseDeviceListener)
 	 */
 	public void deregisterListener(iSenseDeviceListener listener) {
-		promiscousListeners.remove(listener);
+        removeListenerInternal(promiscousListeners, listener);
 		for (Set<iSenseDeviceListener> ls : listeners.values())
-			ls.remove(listener);
+			removeListenerInternal(ls, listener);
 	}
+
+    /**
+     * Removes a listener from a set by checking for object identity. The remove operation of Java Treeset requires the
+     * listener to implement Comparable which leads to errors if they don't.
+     *
+     * @param set
+     * @param listener
+     */
+    private void removeListenerInternal(Set<iSenseDeviceListener> set, iSenseDeviceListener listener) {
+        Iterator<iSenseDeviceListener> iterator = set.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next() == listener) {
+                iterator.remove();
+            }
+        }
+    }
 
 	// -------------------------------------------------------------------------
 	/*

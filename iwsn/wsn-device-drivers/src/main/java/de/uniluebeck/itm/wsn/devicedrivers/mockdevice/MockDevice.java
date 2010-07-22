@@ -340,8 +340,8 @@ public class MockDevice extends iSenseDeviceImpl {
 
 	@Override
 	public void shutdown() {
-		// nothing to do
-	}
+        aliveRunnableFuture.cancel(true);
+    }
 
 	@Override
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception {
