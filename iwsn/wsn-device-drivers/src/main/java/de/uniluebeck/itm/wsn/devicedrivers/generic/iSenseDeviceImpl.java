@@ -236,12 +236,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public abstract boolean reset() throws Exception;
 
 	// -------------------------------------------------------------------------
-	/**
-	 * 
-	 */
-	public abstract void shutdown();
 
-	// -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 	/**
 	 * 
 	 * @return
