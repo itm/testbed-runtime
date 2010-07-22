@@ -79,7 +79,8 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			SessionManagementService sessionManagementService = Guice.createInjector(
 					new PortalModule(
 							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
-							reservationEndpointUrl, wsnApp, wiseMLBuilder.toString())
+							reservationEndpointUrl, wsnApp, wiseMLBuilder.toString(),
+                            testbedRuntime)
 					).getInstance(SessionManagementService.class);
 
 			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);

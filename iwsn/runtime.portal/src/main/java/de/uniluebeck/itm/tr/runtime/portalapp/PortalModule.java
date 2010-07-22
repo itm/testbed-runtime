@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 
 
@@ -51,13 +52,14 @@ public class PortalModule extends AbstractModule {
 	private WSNApp wsnApp;
 
 	private String wiseML;
+    private TestbedRuntime testbedRuntime;
 
-	private String reservationEndpointUrl;
+    private String reservationEndpointUrl;
 
 	private String sessionManagementEndpointUrl;
 
 	public PortalModule(String urnPrefix, String sessionManagementEndpointUrl, String wsnInstanceBaseUrl,
-						String reservationEndpointUrl, WSNApp wsnApp, final String wiseML) {
+                        String reservationEndpointUrl, WSNApp wsnApp, final String wiseML, TestbedRuntime testbedRuntime) {
 
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
@@ -65,7 +67,8 @@ public class PortalModule extends AbstractModule {
 		this.reservationEndpointUrl = reservationEndpointUrl;
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
-	}
+        this.testbedRuntime = testbedRuntime;
+    }
 
 	@Override
 	protected void configure() {
@@ -82,6 +85,7 @@ public class PortalModule extends AbstractModule {
 		bind(SessionManagementService.class).to(SessionManagementServiceImpl.class);
 		bind(ControllerService.class).to(ControllerServiceImpl.class);
 
+        bind(TestbedRuntime.class).toInstance(testbedRuntime);
 		bind(WSNApp.class).toInstance(wsnApp);
 
 	}
