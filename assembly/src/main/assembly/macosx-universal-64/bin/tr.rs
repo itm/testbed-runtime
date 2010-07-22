@@ -19,12 +19,12 @@
 # Optimized for use with version 3.5.2 of the Wrapper.
 
 # Application
-APP_NAME="tr.runtime.cmdline"
-APP_LONG_NAME="Testbed Runtime iWSN Runtime"
+APP_NAME="tr.rs"
+APP_LONG_NAME="Testbed Runtime Reservation System"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"
-WRAPPER_CONF="../conf/tr.runtime.cmdline-wrapper.conf"
+WRAPPER_CONF="../conf/tr.rs.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
