@@ -47,6 +47,7 @@
 		<module>iwsn/runtime</module>
 		<module>iwsn/runtime.cmdline</module>
 		<module>iwsn/runtime.portal</module>
+        <module>iwsn/runtime.socket-connector</module>
 		<module>iwsn/runtime.wsn-app</module>
 		<module>iwsn/runtime.xml-testbed-factory</module>
 		<module>iwsn/wsn-api</module>
@@ -65,6 +66,7 @@
 
 		<module>shibboauth</module>
 		<module>util</module>
+        <module>motelist</module>
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
