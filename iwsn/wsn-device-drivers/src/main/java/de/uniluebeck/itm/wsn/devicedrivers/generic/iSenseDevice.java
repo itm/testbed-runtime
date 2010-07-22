@@ -171,4 +171,9 @@ public abstract class iSenseDevice {
 	 * @throws Exception 
 	 */
 	public abstract IDeviceBinFile loadBinFile(String fileName) throws Exception;
+
+    /**
+     *
+     */
+    public abstract void shutdown();
 }

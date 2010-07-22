@@ -26,7 +26,7 @@ package de.uniluebeck.itm.gtr;
 import com.google.inject.AbstractModule;
 
 
-class TestbedRuntimeModule extends AbstractModule {
+public class TestbedRuntimeModule extends AbstractModule {
 
 	private String[] localNodeNames;
 

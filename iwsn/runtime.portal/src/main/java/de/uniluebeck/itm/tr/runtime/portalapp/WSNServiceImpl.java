@@ -33,6 +33,10 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.testbed.api.rs.RSServiceHelper;
+import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
+import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
@@ -119,8 +123,12 @@ public class WSNServiceImpl implements WSNService {
 
 	private String wiseML;
 
+    private String urnPrefix;
+
+    private List<String> reservedNodes;
+
 	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp,
-						  final String wiseML) {
+                          final String wiseML, List<String> reservedNodes) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
@@ -140,6 +148,9 @@ public class WSNServiceImpl implements WSNService {
 		this.preconditions = new WSNPreconditions();
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
 
+        this.urnPrefix = urnPrefix;
+
+        this.reservedNodes = reservedNodes;
 	}
 
 	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
@@ -372,7 +383,11 @@ public class WSNServiceImpl implements WSNService {
 		// message.getBinaryMessage() != null &&
 		// message.getBinaryMessage().hasinaryData() &&
 		// message.getBinaryMessage().getBinaryData()[0] == 52;) );
-		try {
+
+        //get only reserved nodes
+        nodeIds = getNodesReserved(nodeIds);
+
+        try {
 			wsnApp.send(new HashSet<String>(nodeIds), convert(message), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
@@ -396,7 +411,18 @@ public class WSNServiceImpl implements WSNService {
 
 	}
 
-	private RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
+    //get current reserved nodes from rs
+    private List<String> getNodesReserved(List<String> nodeIds) {
+        List<String> reservedNodes = new LinkedList<String>();
+        for (String nodeId : nodeIds){
+            if (this.reservedNodes.contains(nodeId)) reservedNodes.add(nodeId);
+            else {log.warn("Node " + nodeId + " not reserved! Message not send.");}
+        }
+   
+        return reservedNodes;
+    }
+
+    private RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
 		RequestStatus retRequestStatus = new RequestStatus();
 		retRequestStatus.setRequestId(requestId);
 		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();
