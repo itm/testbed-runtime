@@ -27,16 +27,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.NamingThreadFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
+import com.sun.istack.internal.Nullable;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
@@ -125,10 +122,19 @@ public class WSNServiceImpl implements WSNService {
 
     private String urnPrefix;
 
-    private List<String> reservedNodes;
+    private Set<String> reservedNodes;
 
+    /**
+     *
+     * @param urnPrefix
+     * @param wsnInstanceEndpointUrl
+     * @param controllerEndpointUrl
+     * @param wsnApp
+     * @param wiseML
+     * @param reservedNodes if not null, passes only reserved nodes, else all nodes will be handled as reserved
+     */
 	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp,
-                          final String wiseML, List<String> reservedNodes) {
+                          final String wiseML, @Nullable Set<String> reservedNodes) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
@@ -384,8 +390,8 @@ public class WSNServiceImpl implements WSNService {
 		// message.getBinaryMessage().hasinaryData() &&
 		// message.getBinaryMessage().getBinaryData()[0] == 52;) );
 
-        //get only reserved nodes
-        nodeIds = getNodesReserved(nodeIds);
+        //check if only reserved nodes
+        checkNodesReserved(nodeIds);
 
         try {
 			wsnApp.send(new HashSet<String>(nodeIds), convert(message), new WSNApp.Callback() {
@@ -411,15 +417,17 @@ public class WSNServiceImpl implements WSNService {
 
 	}
 
-    //get current reserved nodes from rs
-    private List<String> getNodesReserved(List<String> nodeIds) {
-        List<String> reservedNodes = new LinkedList<String>();
-        for (String nodeId : nodeIds){
-            if (this.reservedNodes.contains(nodeId)) reservedNodes.add(nodeId);
-            else {log.warn("Node " + nodeId + " not reserved! Message not send.");}
+    //check current reserved nodes from rs
+    private void checkNodesReserved(List<String> nodeNames) {
+        //check only if nodeIds not null
+        if (nodeNames == null) return;
+        for (String nodeName : nodeNames){
+            if (!this.reservedNodes.contains(nodeName)) log.error("Tried to send Message to Node " + nodeName + "but Node not reserved! Execution aborted!");
         }
-   
-        return reservedNodes;
+    }
+
+    private void checkNodeReserved(String nodeName) {
+        if (!this.reservedNodes.contains(nodeName)) log.error("Tried to send Message to Node " + nodeName + " but Node not reserved! Execution aborted!");
     }
 
     private RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
@@ -468,6 +476,7 @@ public class WSNServiceImpl implements WSNService {
 	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 
 		preconditions.checkAreNodesAliveArguments(nodes);
+        checkNodesReserved(nodes);
 
 		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodes);
 
@@ -500,6 +509,7 @@ public class WSNServiceImpl implements WSNService {
 								@WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
 
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
+        checkNodesReserved(nodeIds);
 
 		log.debug("WSNServiceImpl.flashPrograms");
 
@@ -571,6 +581,7 @@ public class WSNServiceImpl implements WSNService {
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 
 		preconditions.checkResetNodesArguments(nodes);
+        checkNodesReserved(nodes);
 
 		log.debug("WSNServiceImpl.resetNodes");
 
@@ -611,6 +622,8 @@ public class WSNServiceImpl implements WSNService {
 								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
 
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
+        checkNodeReserved(sourceNode);
+        checkNodeReserved(targetNode);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -722,6 +735,8 @@ public class WSNServiceImpl implements WSNService {
 									 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
 
 		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
+        checkNodeReserved(sourceNode);
+        checkNodeReserved(targetNode);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -753,7 +768,8 @@ public class WSNServiceImpl implements WSNService {
 		return requestId;
 	}
 
-	@Override
+
+    @Override
 	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
 
 		preconditions.checkDefineNetworkArguments(newNetwork);
@@ -776,6 +792,7 @@ public class WSNServiceImpl implements WSNService {
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
 
 		preconditions.checkDisableNodeArguments(node);
+        checkNodeReserved(node);
 
 		log.debug("WSNServiceImpl.disableNode");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
@@ -786,6 +803,8 @@ public class WSNServiceImpl implements WSNService {
 									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
+        checkNodeReserved(nodeA);
+        checkNodeReserved(nodeB);
 
 		log.debug("WSNServiceImpl.disablePhysicalLink");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
@@ -795,6 +814,7 @@ public class WSNServiceImpl implements WSNService {
 	public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
 
 		preconditions.checkEnableNodeArguments(node);
+        checkNodeReserved(node);
 
 		log.debug("WSNServiceImpl.enableNode");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
@@ -805,6 +825,8 @@ public class WSNServiceImpl implements WSNService {
 									 @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
 
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
+        checkNodeReserved(nodeA);
+        checkNodeReserved(nodeB);
 
 		log.debug("WSNServiceImpl.enablePhysicalLink");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
@@ -821,6 +843,7 @@ public class WSNServiceImpl implements WSNService {
 			throws UnknownNodeUrnException_Exception {
 
 		preconditions.checkGetNeighbourhoodArguments(node);
+        checkNodeReserved(node);
 
 		log.debug("WSNServiceImpl.getNeighbourhood");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
@@ -832,6 +855,7 @@ public class WSNServiceImpl implements WSNService {
 			throws UnknownNodeUrnException_Exception {
 
 		preconditions.checkGetPropertyValueOfArguments(node, propertyName);
+        checkNodeReserved(node);
 
 		log.debug("WSNServiceImpl.getPropertyValueOf");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
