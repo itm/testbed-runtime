@@ -33,7 +33,6 @@ import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 
 /**
@@ -111,17 +110,37 @@ public class Main {
 
         // start the testbed runtime
         log.debug("Starting testbed runtime");
-        TestbedRuntime runtime = listTuple.getFirst();
+        
+		final TestbedRuntime runtime = listTuple.getFirst();
         runtime.startServices();
 
         // start the applications running "on top"
-        ImmutableList<TestbedApplication> testbedApplications = listTuple.getSecond();
+        final ImmutableList<TestbedApplication> testbedApplications = listTuple.getSecond();
         for (TestbedApplication testbedApplication : testbedApplications) {
             log.debug("Starting application \"{}\"", testbedApplication.getName());
             testbedApplication.start();
         }
 
         log.debug("Up and running. Hooray!");
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                log.info("Received shutdown signal.");
+                log.info("Stopping testbed runtime applications...");
+                for (TestbedApplication testbedApplication : testbedApplications) {
+                    try {
+                        testbedApplication.stop();
+                    } catch (Exception e) {
+                        log.warn("Caught exception when shutting down testbed runtime application "+testbedApplication.getName()+": {}", e);
+                    }
+                }
+                log.info("Stopped testbed runtime applications!");
+                log.info("Stopping testbed runtime...");
+                runtime.stopServices();
+                log.info("Stopped testbed runtime!");
+            }
+        }));
 
         return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(runtime, testbedApplications);
 
@@ -131,6 +150,5 @@ public class Main {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(Main.class.getCanonicalName(), options);
         System.exit(1);
-	}
-
+    }
 }

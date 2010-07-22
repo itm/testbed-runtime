@@ -25,6 +25,7 @@ package de.uniluebeck.itm.gtr.messaging.srmr;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.internal.ImmutableList;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -153,11 +154,14 @@ public class SingleRequestMultiResponseServiceImpl
 	public void removeListener(SingleRequestMultiResponseListener listener) {
 		for (Iterator<Triple<String, String, SingleRequestMultiResponseListener>> iterator =
 				listeners.iterator(); iterator.hasNext();) {
-			Triple<String, String, SingleRequestMultiResponseListener>
-					listenerTriple = iterator.next();
-			if (listenerTriple.getThird() == listener) {
-				iterator.remove();
-			}
+
+            ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
+		    for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
+			    if (t.getThird() != listener) {
+		    		listBuilder.add(t);
+		    	}
+		    }
+		    listeners = listBuilder.build();
 		}
 	}
 
