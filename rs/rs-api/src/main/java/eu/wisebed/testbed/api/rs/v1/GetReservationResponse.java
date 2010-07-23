@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="reservationData" type="{http://testbed.wisebed.eu/api/rs/v1/}confidentialReservationData" maxOccurs="unbounded"/>
+ *         &lt;element name="reservationData" type="{urn:RSService}confidentialReservationData" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

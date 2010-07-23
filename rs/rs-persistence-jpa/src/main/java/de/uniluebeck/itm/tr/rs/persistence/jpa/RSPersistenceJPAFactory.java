@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
- * UserInternal: nr
+ * DataInternal: nr
  * Date: 09.04.2010
  * Time: 16:28:09
  */

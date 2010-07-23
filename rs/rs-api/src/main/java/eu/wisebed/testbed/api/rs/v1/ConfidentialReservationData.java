@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;complexType name="confidentialReservationData">
  *   &lt;complexContent>
- *     &lt;extension base="{http://testbed.wisebed.eu/api/rs/v1/}publicReservationData">
+ *     &lt;extension base="{urn:RSService}publicReservationData">
  *       &lt;sequence>
- *         &lt;element name="users" type="{http://testbed.wisebed.eu/api/rs/v1/}user" maxOccurs="unbounded"/>
+ *         &lt;element name="data" type="{urn:RSService}data" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -30,42 +30,42 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "confidentialReservationData", propOrder = {
-    "users"
+    "data"
 })
 public class ConfidentialReservationData
     extends PublicReservationData
 {
 
     @XmlElement(required = true)
-    protected List<User> users;
+    protected List<Data> data;
 
     /**
-     * Gets the value of the users property.
+     * Gets the value of the data property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the users property.
+     * This is why there is not a <CODE>set</CODE> method for the data property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getUsers().add(newItem);
+     *    getData().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link User }
+     * {@link Data }
      * 
      * 
      */
-    public List<User> getUsers() {
-        if (users == null) {
-            users = new ArrayList<User>();
+    public List<Data> getData() {
+        if (data == null) {
+            data = new ArrayList<Data>();
         }
-        return this.users;
+        return this.data;
     }
 
 }

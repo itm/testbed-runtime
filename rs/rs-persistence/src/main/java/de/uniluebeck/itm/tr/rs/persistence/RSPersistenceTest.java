@@ -59,24 +59,24 @@ public abstract class RSPersistenceTest {
         reservationDataList = new HashMap<Integer, ConfidentialReservationData>();
         //Creating testdata
         for (int i = 0; i < 10; i++) {
-            ConfidentialReservationData data = new ConfidentialReservationData();
+            ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
 
             GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
             gregorianCalendarFrom.setTimeInMillis(from);
             gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT"));
-            data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+            confidentialReservationData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
             GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
             gregorianCalendarTo.setTimeInMillis(to);
             gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT"));
-            data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+            confidentialReservationData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
-            User user = new User();
-			user.setUrnPrefix(urnPrefix);
-			user.setUsername("User "+ i);
-			data.getUsers().add(user);
+            Data data = new Data();
+			data.setUrnPrefix(urnPrefix);
+			data.setUsername("Data "+ i);
+			confidentialReservationData.getData().add(data);
 
-            reservationDataList.put(i, data);
+            reservationDataList.put(i, confidentialReservationData);
         }
     }
 

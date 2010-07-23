@@ -79,10 +79,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
         public void run() {
             try {
                 free(secretReservationKeys);
-            } catch (ExperimentNotRunningException_Exception e1) {
-                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            } catch (UnknownReservationIdException_Exception e1) {
-                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ExperimentNotRunningException_Exception enre) {
+                log.error(enre.getMessage(), enre);
+            } catch (UnknownReservationIdException_Exception urie) {
+                log.error(urie.getMessage(), urie);
             }
             //To change body of implemented methods use File | Settings | File Templates.
         }
@@ -159,6 +159,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
         checkNotNull(wsnInstanceBaseUrl);
         checkNotNull(wsnApp);
         checkNotNull(wiseML);
+        checkNotNull(testbedRuntime);
 
         this.urnPrefix = urnPrefix;
         this.sessionManagementEndpointUrl = new URL(sessionManagementEndpointUrl);
@@ -228,20 +229,19 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		// query reservation system for reservation data if reservation system is to be used (i.e.
 		// reservationEndpointUrl is not null)
         List<ConfidentialReservationData> confidentialReservationDataList = null;
-        List<String> reservedNodes = null;
+        Set<String> reservedNodes = null;
 		if (reservationEndpointUrl != null) {
             //integrate reservation system
             List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
             confidentialReservationDataList = getReservationDataFromRS(keys);
+            reservedNodes = new HashSet<String>();
 
             // assure that wsnInstance creation doesn't happen before reservation time slot
             assertReservationIntervalMet(confidentialReservationDataList);
 
             //get reserved nodes
             for (ConfidentialReservationData data : confidentialReservationDataList){
-                for (String nodeUrn : data.getNodeURNs()){
-                    if (!reservedNodes.contains(nodeUrn)) reservedNodes.add(nodeUrn);
-                }
+                reservedNodes.addAll(data.getNodeURNs());
             }
             // assure that nodes are in TestbedRuntime
             assertNodesInTestbed(reservedNodes, testbedRuntime);
@@ -255,7 +255,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
             }
  		}
         else {
-            log.warn("Warning: No Reservation-System found!");
+            log.info("Information: No Reservation-System found! All existing nodes will be used.");
         }
 
 		try {
@@ -285,10 +285,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	}
 
-    private void assertNodesInTestbed(List<String> reservedNodes, TestbedRuntime testbedRuntime) throws ExperimentNotRunningException_Exception {
-        for (String node : testbedRuntime.getLocalNodeNames()){
-            if (!reservedNodes.contains(node))
-                throw WSNServiceHelper.createExperimentNotRunningException("Node URN " + node + " in RS-ConfidentialReservationData not in testbed-runtime environment.", null);
+    private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) throws ExperimentNotRunningException_Exception {
+        for (String node : reservedNodes){
+            if (!testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node))
+                throw new RuntimeException("Node URN " + node + " in RS-ConfidentialReservationData not in testbed-runtime environment.");
         }
     }
 

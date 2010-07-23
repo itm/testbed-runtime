@@ -24,12 +24,12 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa.impl;
 
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-import eu.wisebed.testbed.api.rs.v1.User;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -63,7 +63,7 @@ public class TypeConverter {
         internal.setFromDate(fromGregorianCalendar.getTimeInMillis());
 
         internal.setNodeURNs(external.getNodeURNs());
-        internal.setUsers(convertExternalToInternal(external.getUsers()));
+        internal.setData(convertExternalToInternal(external.getData()));
 
         GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
         toGregorianCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -72,16 +72,16 @@ public class TypeConverter {
         return internal;
     }
 
-    private static List<UserInternal> convertExternalToInternal(List<User> external) {
-        List<UserInternal> internal = new ArrayList<UserInternal>(external.size());
-        for (User user : external) {
-            internal.add(convert(user));
+    private static List<DataInternal> convertExternalToInternal(List<Data> external) {
+        List<DataInternal> internal = new ArrayList<DataInternal>(external.size());
+        for (Data data : external) {
+            internal.add(convert(data));
         }
         return internal;
     }
 
-    private static UserInternal convert(User external) {
-        return new UserInternal(external.getUrnPrefix(), external.getUsername());
+    private static DataInternal convert(Data external) {
+        return new DataInternal(external.getUrnPrefix(), external.getUsername());
     }
 
     public static ConfidentialReservationData convert(ConfidentialReservationDataInternal internal) throws DatatypeConfigurationException {
@@ -89,20 +89,20 @@ public class TypeConverter {
         external.setFrom(convert(internal.getFromDate()));
         external.getNodeURNs().addAll(internal.getNodeURNs());
         external.setTo(convert(internal.getToDate()));
-        external.getUsers().addAll(convertInternalToExternal(internal.getUsers()));
+        external.getData().addAll(convertInternalToExternal(internal.getData()));
         return external;
     }
 
-    private static List<User> convertInternalToExternal(List<UserInternal> internalList) {
-        List<User> externalList = new ArrayList<User>(internalList.size());
-        for (UserInternal internal : internalList) {
+    private static List<Data> convertInternalToExternal(List<DataInternal> internalList) {
+        List<Data> externalList = new ArrayList<Data>(internalList.size());
+        for (DataInternal internal : internalList) {
             externalList.add(convert(internal));
         }
         return externalList;
     }
 
-    private static User convert(UserInternal internal) {
-		User external = new User();
+    private static Data convert(DataInternal internal) {
+		Data external = new Data();
 		external.setUrnPrefix(internal.getUrnPrefix());
 		external.setUsername(internal.getUsername());
         return external;

@@ -8,17 +8,18 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for user complex type.
+ * <p>Java class for data complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="user">
+ * &lt;complexType name="data">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="urnPrefix" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="username" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="secretReservationKey" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -28,16 +29,19 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "user", propOrder = {
+@XmlType(name = "data", propOrder = {
     "urnPrefix",
-    "username"
+    "username",
+    "secretReservationKey"
 })
-public class User {
+public class Data {
 
     @XmlElement(required = true)
     protected String urnPrefix;
     @XmlElement(required = true)
     protected String username;
+    @XmlElement(required = true)
+    protected String secretReservationKey;
 
     /**
      * Gets the value of the urnPrefix property.
@@ -85,6 +89,30 @@ public class User {
      */
     public void setUsername(String value) {
         this.username = value;
+    }
+
+    /**
+     * Gets the value of the secretReservationKey property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getSecretReservationKey() {
+        return secretReservationKey;
+    }
+
+    /**
+     * Sets the value of the secretReservationKey property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSecretReservationKey(String value) {
+        this.secretReservationKey = value;
     }
 
 }

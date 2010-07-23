@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://testbed.wisebed.eu/api/rs/v1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://testbed.wisebed.eu/api/rs/v1/" name="RSService">
+<definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="urn:RSService" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:RSService" name="RSService">
 	<types>
 		<xsd:schema>
-			<xsd:import namespace="http://testbed.wisebed.eu/api/rs/v1/" schemaLocation="RSTypes.xsd"/>
+			<xsd:import namespace="urn:RSService" schemaLocation="RSTypes.xsd"/>
 		</xsd:schema>
 	</types>
 

@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "urn:RSService")
 public class DummyRS implements RS {
 
 	private Random r = new SecureRandom();

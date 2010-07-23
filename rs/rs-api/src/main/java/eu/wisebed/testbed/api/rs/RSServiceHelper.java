@@ -44,7 +44,7 @@ public class RSServiceHelper {
 	 */
 	public static RS getRSService(String endpointUrl) {
 
-		QName qName = new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSService");
+		QName qName = new QName("urn:RSService", "RSService");
 		URL resource = RSServiceHelper.class.getClassLoader().getResource("RS.wsdl");
 
 		RSService service = new RSService(resource, qName);
