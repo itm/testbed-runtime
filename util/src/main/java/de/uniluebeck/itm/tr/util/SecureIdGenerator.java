@@ -32,26 +32,26 @@ import java.util.Random;
 
 public class SecureIdGenerator {
 
-    private Random random = new SecureRandom();
+	private Random random = new SecureRandom();
 
-    public String getNextId() {
-        try {
+	public String getNextId() {
+		try {
 
-            StringBuilder builder = new StringBuilder();
+			StringBuilder builder = new StringBuilder();
 
-            for (int i = 0; i < 1; i++) {
-                MessageDigest m = MessageDigest.getInstance("MD5");
-                byte[] data = Long.valueOf(random.nextLong()).toString().getBytes();
-                m.update(data, 0, data.length);
-                BigInteger t = new BigInteger(1, m.digest());
-                builder.append(String.format("%1$032X", t));
-            }
+			for (int i = 0; i < 1; i++) {
+				MessageDigest m = MessageDigest.getInstance("MD5");
+				byte[] data = Long.valueOf(random.nextLong()).toString().getBytes();
+				m.update(data, 0, data.length);
+				BigInteger t = new BigInteger(1, m.digest());
+				builder.append(String.format("%1$032X", t));
+			}
 
-            return builder.toString();
+			return builder.toString();
 
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException("NoSuchAlgorithmException while trying to generate an MD5 hash!", nsae);
-        }
-    }
+		} catch (NoSuchAlgorithmException nsae) {
+			throw new RuntimeException("NoSuchAlgorithmException while trying to generate an MD5 hash!", nsae);
+		}
+	}
 
 }

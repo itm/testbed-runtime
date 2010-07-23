@@ -31,13 +31,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Friedemann Wesner
- *
  */
 public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 	private static final Logger log = LoggerFactory.getLogger(TelosbRebootDeviceOperation.class);
 
 	/**
 	 * Constructor
+	 *
 	 * @param device
 	 */
 	public TelosbRebootDeviceOperation(iSenseDeviceImpl device) {
@@ -47,6 +47,7 @@ public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 	/* (non-Javadoc)
 	 * @see ishell.device.iSenseDeviceOperation#getOperation()
 	 */
+
 	@Override
 	public Operation getOperation() {
 		return Operation.RESET;
@@ -55,6 +56,7 @@ public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 	/* (non-Javadoc)
 	 * @see ishell.device.iSenseDeviceOperation#run()
 	 */
+
 	@Override
 	public void run() {
 		try {
@@ -64,7 +66,7 @@ public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 				operationDone(null);
 			}
 		} catch (Exception e) {
-			log.error("Error on rebooting device: "+e, e);
+			log.error("Error on rebooting device: " + e, e);
 			operationDone(null);
 		}
 

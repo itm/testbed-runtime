@@ -31,31 +31,31 @@ import java.util.Random;
 
 public class MessageFilterDrop implements MessageFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(MessageFilterDrop.class);
+	private static final Logger log = LoggerFactory.getLogger(MessageFilterDrop.class);
 
-    private double rate;
+	private double rate;
 
-    private Random random;
+	private Random random;
 
-    public MessageFilterDrop(double rate) {
-        this.rate = rate;
-        this.random = new Random();
-    }
+	public MessageFilterDrop(double rate) {
+		this.rate = rate;
+		this.random = new Random();
+	}
 
-    public Messages.Msg filter(Messages.Msg msg) {
-        if (random.nextDouble() < rate) {
-            log.debug("Dropping {}", msg);
-            return null;
-        }
-        return msg;
-    }
+	public Messages.Msg filter(Messages.Msg msg) {
+		if (random.nextDouble() < rate) {
+			log.debug("Dropping {}", msg);
+			return null;
+		}
+		return msg;
+	}
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("MessageFilterDrop");
-        sb.append("{rate=").append(rate);
-        sb.append('}');
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("MessageFilterDrop");
+		sb.append("{rate=").append(rate);
+		sb.append('}');
+		return sb.toString();
+	}
 }

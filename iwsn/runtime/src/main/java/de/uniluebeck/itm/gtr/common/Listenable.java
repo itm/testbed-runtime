@@ -25,24 +25,24 @@ package de.uniluebeck.itm.gtr.common;
 
 
 /**
- * For classes implementing this interface listeners of type {@link T} can (de-)register as listener. 
+ * For classes implementing this interface listeners of type {@link T} can (de-)register as listener.
  *
  * @param <T> the type of the listener interface
  */
 public interface Listenable<T> {
 
-    /**
-     * Adds a listener.
-     *
-     * @param listener the listener to add
-     */
-    void addListener(T listener);
+	/**
+	 * Adds a listener.
+	 *
+	 * @param listener the listener to add
+	 */
+	void addListener(T listener);
 
-    /**
-     * Removes a listener.
-     *
-     * @param listener the listener to remove
-     */
-    void removeListener(T listener);
+	/**
+	 * Removes a listener.
+	 *
+	 * @param listener the listener to remove
+	 */
+	void removeListener(T listener);
 
 }

@@ -23,21 +23,20 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import de.uniluebeck.itm.tr.util.StringUtils;
-
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.wsn.v211.GetInstance;
 import eu.wisebed.testbed.api.wsn.v211.Message;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class BeanShellHelper {
 
 	public List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String username,
-			String secretAuthenticationKey) {
+																		String secretAuthenticationKey) {
 		List<SecretAuthenticationKey> secretAuthKeys = new ArrayList<SecretAuthenticationKey>();
 
 		SecretAuthenticationKey key = new SecretAuthenticationKey();
@@ -61,7 +60,7 @@ public class BeanShellHelper {
 		return reservations;
 	}
 
-	public List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs( List<SecretAuthenticationKey> snaaKeys) {
+	public List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs(List<SecretAuthenticationKey> snaaKeys) {
 		List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> secretAuthKeys = new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
 
 		for (SecretAuthenticationKey snaaKey : snaaKeys) {
@@ -90,7 +89,7 @@ public class BeanShellHelper {
 	}
 
 	public GetInstance createGetInstance(String controller,
-			Collection<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> secretReservationKeys) {
+										 Collection<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> secretReservationKeys) {
 		GetInstance gi = new GetInstance();
 
 		gi.setController(controller);
@@ -104,28 +103,28 @@ public class BeanShellHelper {
 		b.append("Source [");
 		b.append(msg.getSourceNodeId());
 		b.append("]");
-		
-		if( msg.getTextMessage() != null ) {
+
+		if (msg.getTextMessage() != null) {
 			b.append(", Text [");
 			b.append(msg.getTextMessage().getMsg());
 			b.append("], Level[");
 			b.append(msg.getTextMessage().getMessageLevel());
 			b.append("]");
 		}
-		
-		if( msg.getBinaryMessage() != null ) {
+
+		if (msg.getBinaryMessage() != null) {
 			b.append(", BinaryType[");
 			b.append(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()));
 			b.append("], Binary [");
 			b.append(StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
 			b.append("]");
 		}
-		
+
 		b.append(", Time[");
 		b.append(msg.getTimestamp().toString());
 		b.append("]");
-		
+
 		return b.toString();
 	}
-	
+
 }

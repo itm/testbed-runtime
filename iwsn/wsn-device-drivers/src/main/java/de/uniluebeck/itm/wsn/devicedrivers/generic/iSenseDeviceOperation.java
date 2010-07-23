@@ -28,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author dp
- * 
  */
 public abstract class iSenseDeviceOperation extends Thread {
-	/** Logging */
+	/**
+	 * Logging
+	 */
 	private static final Logger log = LoggerFactory.getLogger(iSenseDeviceOperation.class);
 
 	/** */
@@ -46,52 +46,59 @@ public abstract class iSenseDeviceOperation extends Thread {
 	private iSenseDeviceImpl device;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public abstract Operation getOperation();
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public abstract void run();
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public iSenseDeviceOperation(iSenseDeviceImpl device) {
 		this.device = device;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public final void cancelOperation() {
 		cancelled = true;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public boolean isCancelled() {
 		return cancelled;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public boolean isDone() {
 		return done;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected void operationDone(Object result) {
 		log.debug("Operation is done " + getOperation() + ", result: " + result);
@@ -100,8 +107,9 @@ public abstract class iSenseDeviceOperation extends Thread {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected iSenseDeviceImpl getDevice() {
 		return device;

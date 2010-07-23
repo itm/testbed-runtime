@@ -25,19 +25,19 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class UnexpectedResponseException extends Exception {
 	protected int expectedType = -1;
 
 	protected int receivedType = -1;
-	
+
 	private String msg = null;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param expectedType
 	 * @param receivedType
 	 */
@@ -45,7 +45,7 @@ public class UnexpectedResponseException extends Exception {
 		this.expectedType = expectedType;
 		this.expectedType = receivedType;
 	}
-	
+
 	/**
 	 * @param msg
 	 * @param expectedType
@@ -59,7 +59,7 @@ public class UnexpectedResponseException extends Exception {
 
 	/**
 	 * Returns the expected type
-	 * 
+	 *
 	 * @return
 	 */
 	public int getExpectedType() {
@@ -68,7 +68,7 @@ public class UnexpectedResponseException extends Exception {
 
 	/**
 	 * Returns the receivedType
-	 * 
+	 *
 	 * @return
 	 */
 	public int getReceivedType() {
@@ -78,14 +78,15 @@ public class UnexpectedResponseException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		if (expectedType == -1 || receivedType == -1) {
 			return msg;
 		} else {
-			return String.format(msg + " Expected type: 0x%02x, received type: 0x%02x.",expectedType, receivedType);
+			return String.format(msg + " Expected type: 0x%02x, received type: 0x%02x.", expectedType, receivedType);
 		}
 	}
-	
-	
+
+
 }

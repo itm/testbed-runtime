@@ -26,8 +26,8 @@ package de.uniluebeck.itm.gtr.connection;
 
 public interface ConnectionListener {
 
-    void connectionOpened(Connection connection);
+	void connectionOpened(Connection connection);
 
-    void connectionClosed(Connection connection);
+	void connectionClosed(Connection connection);
 
 }

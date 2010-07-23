@@ -28,33 +28,33 @@ import java.security.Principal;
 
 public class NamedPrincipal implements Principal {
 
-    private String name;
+	private String name;
 
-    public NamedPrincipal(String name) {
-        this.name = name;
-    }
+	public NamedPrincipal(String name) {
+		this.name = name;
+	}
 
-    @Override
-    public String getName() {
-        return name;
-    }
+	@Override
+	public String getName() {
+		return name;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        NamedPrincipal that = (NamedPrincipal) o;
+		NamedPrincipal that = (NamedPrincipal) o;
 
-        if (!name.equals(that.name)) return false;
+		if (!name.equals(that.name)) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
 
 }
 

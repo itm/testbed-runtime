@@ -115,5 +115,5 @@ public class SocketServer extends SimpleChannelUpstreamHandler {
 		log.error("Caught Exception during socket communication!", e);
 		ctx.sendUpstream(e);
 	}
-	
+
 }

@@ -89,7 +89,7 @@ public class Federator {
 		public int port;
 
 		public String path;
-		
+
 		public String sessionmanagementEndpointURL;
 
 		public String reservationEndpointUrl;
@@ -101,7 +101,7 @@ public class Federator {
 			return "Config{" +
 					"port=" + port +
 					", path='" + path + '\'' +
-					", sessionmanagementEndpointURL='" + sessionmanagementEndpointURL + '\''+
+					", sessionmanagementEndpointURL='" + sessionmanagementEndpointURL + '\'' +
 					", reservationEndpointUrl='" + reservationEndpointUrl + '\'' +
 					", federates=" + federates +
 					"}";
@@ -162,9 +162,9 @@ public class Federator {
 			sessionManagementEndpointUrlPrefixSet
 					.put(testbedConfig.sessionManagementEndpointUrl, testbedConfig.urnPrefixes);
 		}
-		
+
 		String localhost = config.sessionmanagementEndpointURL;
-		
+
 		if (localhost == null)
 			localhost = InetAddress.getLocalHost().getHostName();
 

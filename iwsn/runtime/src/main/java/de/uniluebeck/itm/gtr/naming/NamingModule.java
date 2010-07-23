@@ -28,9 +28,9 @@ import com.google.inject.AbstractModule;
 
 public class NamingModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(NamingService.class).to(NamingServiceImpl.class);
-    }
+	@Override
+	protected void configure() {
+		bind(NamingService.class).to(NamingServiceImpl.class);
+	}
 
 }

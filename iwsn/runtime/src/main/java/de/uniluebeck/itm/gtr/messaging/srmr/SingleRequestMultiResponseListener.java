@@ -37,7 +37,6 @@ public interface SingleRequestMultiResponseListener {
 	public interface Responder {
 
 		/**
-		 * 
 		 * @param payload
 		 */
 		void sendResponse(byte[] payload);
@@ -45,7 +44,6 @@ public interface SingleRequestMultiResponseListener {
 	}
 
 	/**
-	 *
 	 * @param msg
 	 * @param responder
 	 */

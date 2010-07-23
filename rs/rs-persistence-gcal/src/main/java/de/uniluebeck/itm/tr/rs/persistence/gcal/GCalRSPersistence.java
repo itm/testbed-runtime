@@ -298,5 +298,5 @@ public class GCalRSPersistence implements RSPersistence {
 		return "GCalRSPersistence{}";
 	}
 
-	
+
 }

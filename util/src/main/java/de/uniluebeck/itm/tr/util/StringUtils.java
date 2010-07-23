@@ -23,21 +23,20 @@
 
 package de.uniluebeck.itm.tr.util;
 
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
 public class StringUtils {
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param jaxbObject
 	 * @return
 	 */
@@ -55,11 +54,11 @@ public class StringUtils {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param jaxbObject
 	 * @return
-	 * @throws JAXBException 
+	 * @throws JAXBException
 	 * @throws Exception
 	 */
 	public static String jaxbMarshalFragment(Object jaxbObject) throws JAXBException {
@@ -72,40 +71,45 @@ public class StringUtils {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(char tmp) {
 		return toHexString((byte) tmp);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte[] tmp) {
 		return toHexString(tmp, 0, tmp.length);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte tmp) {
 		return "0x" + Integer.toHexString(tmp & 0xFF);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte[] tmp, int offset) {
 		return toHexString(tmp, offset, tmp.length - offset);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte[] tmp, int offset, int length) {
 		StringBuffer s = new StringBuffer();
@@ -119,16 +123,18 @@ public class StringUtils {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexStringReverseDirection(byte[] tmp) {
 		return toHexStringReverseDirection(tmp, 0, tmp.length);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexStringReverseDirection(byte[] tmp, int offset, int length) {
 		byte reverse[] = new byte[length];
@@ -151,22 +157,26 @@ public class StringUtils {
 	}
 
 
-    public static Long hexToLong(String value){
-        if (value.startsWith("0x")) return Long.parseLong(value.substring(2), 16);
-        return Long.parseLong(value, 10);
-    }
+	public static Long hexToLong(String value) {
+		if (value.startsWith("0x")) return Long.parseLong(value.substring(2), 16);
+		return Long.parseLong(value, 10);
+	}
 
-    public static boolean hasSuffixOfTypeInt(String value){
-        String[] arr = value.split(":");
-        String suffix = arr[arr.length - 1];
-        try { Integer.parseInt(suffix); }
-        catch (NumberFormatException nfe){ return false; }
-        return true;
-    }
+	public static boolean hasSuffixOfTypeInt(String value) {
+		String[] arr = value.split(":");
+		String suffix = arr[arr.length - 1];
+		try {
+			Integer.parseInt(suffix);
+		}
+		catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
 
-    public static void checkIfSuffixIsInt(String value) throws RuntimeException {
-        if (!StringUtils.hasSuffixOfTypeInt(value))
-            throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
-    }
+	public static void checkIfSuffixIsInt(String value) throws RuntimeException {
+		if (!StringUtils.hasSuffixOfTypeInt(value))
+			throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
+	}
 
 }

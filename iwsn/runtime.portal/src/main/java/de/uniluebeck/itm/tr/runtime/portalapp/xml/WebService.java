@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for WebService complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="WebService">
  *   &lt;complexContent>
@@ -35,163 +35,141 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "WebService", propOrder = {
-    "urnprefix",
-    "sessionmanagementendpointurl",
-    "wsninstancebaseurl",
-    "reservationendpointurl",
-    "wisemlfilename"
+		"urnprefix",
+		"sessionmanagementendpointurl",
+		"wsninstancebaseurl",
+		"reservationendpointurl",
+		"wisemlfilename"
 })
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class WebService {
 
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String urnprefix;
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String sessionmanagementendpointurl;
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String wsninstancebaseurl;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String reservationendpointurl;
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String wisemlfilename;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String urnprefix;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String sessionmanagementendpointurl;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String wsninstancebaseurl;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String reservationendpointurl;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String wisemlfilename;
 
-    /**
-     * Gets the value of the urnprefix property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getUrnprefix() {
-        return urnprefix;
-    }
+	/**
+	 * Gets the value of the urnprefix property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getUrnprefix() {
+		return urnprefix;
+	}
 
-    /**
-     * Sets the value of the urnprefix property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setUrnprefix(String value) {
-        this.urnprefix = value;
-    }
+	/**
+	 * Sets the value of the urnprefix property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setUrnprefix(String value) {
+		this.urnprefix = value;
+	}
 
-    /**
-     * Gets the value of the sessionmanagementendpointurl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getSessionmanagementendpointurl() {
-        return sessionmanagementendpointurl;
-    }
+	/**
+	 * Gets the value of the sessionmanagementendpointurl property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getSessionmanagementendpointurl() {
+		return sessionmanagementendpointurl;
+	}
 
-    /**
-     * Sets the value of the sessionmanagementendpointurl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setSessionmanagementendpointurl(String value) {
-        this.sessionmanagementendpointurl = value;
-    }
+	/**
+	 * Sets the value of the sessionmanagementendpointurl property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setSessionmanagementendpointurl(String value) {
+		this.sessionmanagementendpointurl = value;
+	}
 
-    /**
-     * Gets the value of the wsninstancebaseurl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getWsninstancebaseurl() {
-        return wsninstancebaseurl;
-    }
+	/**
+	 * Gets the value of the wsninstancebaseurl property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getWsninstancebaseurl() {
+		return wsninstancebaseurl;
+	}
 
-    /**
-     * Sets the value of the wsninstancebaseurl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setWsninstancebaseurl(String value) {
-        this.wsninstancebaseurl = value;
-    }
+	/**
+	 * Sets the value of the wsninstancebaseurl property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setWsninstancebaseurl(String value) {
+		this.wsninstancebaseurl = value;
+	}
 
-    /**
-     * Gets the value of the reservationendpointurl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getReservationendpointurl() {
-        return reservationendpointurl;
-    }
+	/**
+	 * Gets the value of the reservationendpointurl property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getReservationendpointurl() {
+		return reservationendpointurl;
+	}
 
-    /**
-     * Sets the value of the reservationendpointurl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setReservationendpointurl(String value) {
-        this.reservationendpointurl = value;
-    }
+	/**
+	 * Sets the value of the reservationendpointurl property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setReservationendpointurl(String value) {
+		this.reservationendpointurl = value;
+	}
 
-    /**
-     * Gets the value of the wisemlfilename property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getWisemlfilename() {
-        return wisemlfilename;
-    }
+	/**
+	 * Gets the value of the wisemlfilename property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getWisemlfilename() {
+		return wisemlfilename;
+	}
 
-    /**
-     * Sets the value of the wisemlfilename property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setWisemlfilename(String value) {
-        this.wisemlfilename = value;
-    }
+	/**
+	 * Sets the value of the wisemlfilename property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setWisemlfilename(String value) {
+		this.wisemlfilename = value;
+	}
 
 }

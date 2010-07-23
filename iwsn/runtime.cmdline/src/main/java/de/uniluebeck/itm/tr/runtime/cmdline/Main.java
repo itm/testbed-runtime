@@ -39,114 +39,114 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 
-    /**
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        start(args);
-    }
+	/**
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+		start(args);
+	}
 
-    public static Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start(String[] args) throws Exception {
+	public static Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start(String[] args) throws Exception {
 
-        String xmlFile = null;
-        String nodeId = null;
+		String xmlFile = null;
+		String nodeId = null;
 
-        // create the command line parser
-        CommandLineParser parser = new PosixParser();
-        Options options = new Options();
-        options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag)");
-        options.addOption("f", "file", true, "The (XML) configuration file");
-        options.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
-        options.addOption("l", "logging", true,
-                "Set logging level (one of [" + Level.TRACE + "," + Level.DEBUG + "," + Level.INFO + "," + Level.WARN + "," + Level.ERROR + "])"
-        );
-        options.addOption("h", "help", false, "Help output");
+		// create the command line parser
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
+		options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag)");
+		options.addOption("f", "file", true, "The (XML) configuration file");
+		options.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
+		options.addOption("l", "logging", true,
+				"Set logging level (one of [" + Level.TRACE + "," + Level.DEBUG + "," + Level.INFO + "," + Level.WARN + "," + Level.ERROR + "])"
+		);
+		options.addOption("h", "help", false, "Help output");
 
-        Logging.setLoggingDefaults();
+		Logging.setLoggingDefaults();
 
-        final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+		final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
-        try {
+		try {
 
-            CommandLine line = parser.parse(options, args);
+			CommandLine line = parser.parse(options, args);
 
-            if (line.hasOption('v')) {
-                Logger.getRootLogger().setLevel(Level.DEBUG);
-            }
+			if (line.hasOption('v')) {
+				Logger.getRootLogger().setLevel(Level.DEBUG);
+			}
 
-            if (line.hasOption('l')) {
-                Level level = Level.toLevel(line.getOptionValue('l'));
-                System.out.println("Setting log level to " + level);
-                Logger.getRootLogger().setLevel(level);
-                Logger.getLogger("de.uniluebeck.itm").setLevel(level);
-            }
+			if (line.hasOption('l')) {
+				Level level = Level.toLevel(line.getOptionValue('l'));
+				System.out.println("Setting log level to " + level);
+				Logger.getRootLogger().setLevel(level);
+				Logger.getLogger("de.uniluebeck.itm").setLevel(level);
+			}
 
-            if (line.hasOption('h')) {
-                usage(options);
-            }
+			if (line.hasOption('h')) {
+				usage(options);
+			}
 
-            if (line.hasOption('f')) {
-                xmlFile = line.getOptionValue('f');
-            } else {
-                throw new Exception("Please supply -f");
-            }
+			if (line.hasOption('f')) {
+				xmlFile = line.getOptionValue('f');
+			} else {
+				throw new Exception("Please supply -f");
+			}
 
-            if (line.hasOption('n')) {
-                nodeId = line.getOptionValue('n');
-            } else {
-                throw new Exception("Please supply -n");
-            }
+			if (line.hasOption('n')) {
+				nodeId = line.getOptionValue('n');
+			} else {
+				throw new Exception("Please supply -n");
+			}
 
-        } catch (Exception e) {
-            log.error("Invalid command line: " + e, e);
-            usage(options);
-        }
+		} catch (Exception e) {
+			log.error("Invalid command line: " + e, e);
+			usage(options);
+		}
 
-        XmlTestbedFactory factory = new XmlTestbedFactory();
-        Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeId);
+		XmlTestbedFactory factory = new XmlTestbedFactory();
+		Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeId);
 
-        // start the testbed runtime
-        log.debug("Starting testbed runtime");
-        final TestbedRuntime runtime = listTuple.getFirst();
-        runtime.startServices();
+		// start the testbed runtime
+		log.debug("Starting testbed runtime");
+		final TestbedRuntime runtime = listTuple.getFirst();
+		runtime.startServices();
 
-        // start the applications running "on top"
-        final ImmutableList<TestbedApplication> testbedApplications = listTuple.getSecond();
-        for (TestbedApplication testbedApplication : testbedApplications) {
-            log.debug("Starting application \"{}\"", testbedApplication.getName());
-            testbedApplication.start();
-        }
+		// start the applications running "on top"
+		final ImmutableList<TestbedApplication> testbedApplications = listTuple.getSecond();
+		for (TestbedApplication testbedApplication : testbedApplications) {
+			log.debug("Starting application \"{}\"", testbedApplication.getName());
+			testbedApplication.start();
+		}
 
-        log.debug("Up and running. Hooray!");
+		log.debug("Up and running. Hooray!");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                log.info("Received shutdown signal.");
-                log.info("Stopping testbed runtime applications...");
-                for (TestbedApplication testbedApplication : testbedApplications) {
-                    try {
-                        testbedApplication.stop();
-                    } catch (Exception e) {
-                        log.warn("Caught exception when shutting down testbed runtime application "+testbedApplication.getName()+": {}", e);
-                    }
-                }
-                log.info("Stopped testbed runtime applications!");
-                log.info("Stopping testbed runtime...");
-                runtime.stopServices();
-                log.info("Stopped testbed runtime!");
-            }
-        }));
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				log.info("Received shutdown signal.");
+				log.info("Stopping testbed runtime applications...");
+				for (TestbedApplication testbedApplication : testbedApplications) {
+					try {
+						testbedApplication.stop();
+					} catch (Exception e) {
+						log.warn("Caught exception when shutting down testbed runtime application " + testbedApplication.getName() + ": {}", e);
+					}
+				}
+				log.info("Stopped testbed runtime applications!");
+				log.info("Stopping testbed runtime...");
+				runtime.stopServices();
+				log.info("Stopped testbed runtime!");
+			}
+		}));
 
-        return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(runtime, testbedApplications);
+		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(runtime, testbedApplications);
 
-    }
+	}
 
-    private static void usage(Options options) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(Main.class.getCanonicalName(), options);
-        System.exit(1);
-    }
+	private static void usage(Options options) {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp(Main.class.getCanonicalName(), options);
+		System.exit(1);
+	}
 
 }

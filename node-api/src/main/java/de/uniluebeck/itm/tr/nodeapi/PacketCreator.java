@@ -45,7 +45,6 @@ public class PacketCreator {
 		 * @param destination destination of the message (id or broadcast)
 		 * @param source	  source of the message
 		 * @param payload	 payload of the virtual message
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, byte RSSI, byte LQI, long destination,
@@ -74,7 +73,6 @@ public class PacketCreator {
 		 * @param destination
 		 * @param source
 		 * @param payload
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, long destination, long source,
@@ -88,7 +86,6 @@ public class PacketCreator {
 		 * @param requestId  the request ID
 		 * @param binaryType
 		 * @param payload
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newByteMessagePacket(int requestId, byte binaryType, byte[] payload) {
@@ -108,7 +105,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param payload
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newFlashProgramPacket(int requestId, byte[] payload) {
@@ -134,7 +130,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetVirtualLinkPacket(int requestId, long destinationNode) {
@@ -156,7 +151,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newDestroyVirtualLinkPacket(int requestId, long destinationNode) {
@@ -177,7 +171,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newEnablePhysicalLinkPacket(int requestId, long nodeB) {
@@ -198,7 +191,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newDisablePhysicalLinkPacket(int requestId, long nodeB) {
@@ -222,7 +214,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param property  request the property specified by this value
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetPropertyValuePacket(int requestId, byte property) {
@@ -241,7 +232,6 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetNeighborhoodPacket(int requestId) {
@@ -263,7 +253,6 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newEnableNodePacket(int requestId) {
@@ -282,7 +271,6 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newDisableNodePacket(int requestId) {
@@ -301,7 +289,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param time
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newResetNodePacket(int requestId, int time) {
@@ -321,7 +308,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param time
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetStartTimePacket(int requestId, int time) {
@@ -341,7 +327,6 @@ public class PacketCreator {
 		 *
 		 * @param requestId	 the request ID
 		 * @param virtualNodeID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetVirtualIDPacket(int requestId, long virtualNodeID) {
@@ -360,7 +345,6 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetIDPacket(int requestId) {
@@ -378,7 +362,6 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 *
 		 * @return
 		 */
 		public static ByteBuffer newAreNodesAlivePacket(int requestId) {

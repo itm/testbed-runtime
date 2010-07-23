@@ -23,27 +23,23 @@
 
 package de.itm.uniluebeck.tr.wiseml;
 
-import java.io.IOException;
+import eu.wisebed.ns.wiseml._1.Trace;
 
 import javax.xml.bind.JAXBException;
-
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.ns.wiseml._1.Data;
-import eu.wisebed.ns.wiseml._1.Trace;
-import eu.wisebed.ns.wiseml._1.Trace.Node;
+import java.io.IOException;
 
 public class TestMain {
 
 	/**
 	 * @param args
-	 * @throws IOException 
-	 * @throws JAXBException 
+	 * @throws IOException
+	 * @throws JAXBException
 	 */
 	public static void main(String[] args) throws IOException, JAXBException {
 		WisemlStreaming wise = new WisemlStreaming(System.out);
 
 		wise.addHeader();
-		
+
 		wise.addFragment("<setup>\n");
 		wise.addFragment("<node id=\"\"/>\n");
 		wise.addFragment("</setup>\n");
@@ -51,12 +47,11 @@ public class TestMain {
 
 		Trace t = new Trace();
 		t.setId("testid");
-		
-		wise.addFragment(t);
-		
 
-		
+		wise.addFragment(t);
+
+
 		wise.close();
-		
+
 	}
 }

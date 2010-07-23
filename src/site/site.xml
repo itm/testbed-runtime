@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="Maven" xmlns="http://maven.apache.org/DECORATION/1.0.0">
 
-	<publishDate position="left" />
-	<version position="right" />
+	<publishDate position="left"/>
+	<version position="right"/>
 
 	<bannerLeft>
 		<name>Testbed Runtime</name>
@@ -12,19 +12,19 @@
 	<body>
 
 		<breadcrumbs>
-			<item name="${project.name}" href="index.html" />
+			<item name="${project.name}" href="index.html"/>
 		</breadcrumbs>
 
 		<menu name="Testbed Runtime">
-			<item name="Introduction" href="index.html" />
-			<item name="Downloads" href="downloads.html" />
+			<item name="Introduction" href="index.html"/>
+			<item name="Downloads" href="downloads.html"/>
 			<item name="Usage / Quick Start" href="usage.html" collapse="true">
-				<item name="Simple Scenario" href="quick-start-simple.html" />
-				<item name="Complex Scenario" href="quick-start-complex.html" />
+				<item name="Simple Scenario" href="quick-start-simple.html"/>
+				<item name="Complex Scenario" href="quick-start-complex.html"/>
 			</item>
 		</menu>
 
-		<menu ref="modules" />
+		<menu ref="modules"/>
 
 		<!--<menu name="Modules">
 			<item name="Reservation System" href="rs/">

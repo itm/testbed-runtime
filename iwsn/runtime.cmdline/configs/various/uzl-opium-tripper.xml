@@ -35,7 +35,7 @@
 			<serverconnection type="tcp" address="opium.itm.uni-luebeck.de:10001"/>
 		</serverconnections>
 		<applications>
-				<application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+			<application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:uzl:opium</urn>
@@ -62,7 +62,8 @@
 				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
 					<webservice>
 						<urnprefix>urn:wisebed:uzl:</urnprefix>
-						<sessionmanagementendpointurl>http://tripper.itm.uni-luebeck.de:8080/sessions</sessionmanagementendpointurl>
+						<sessionmanagementendpointurl>http://tripper.itm.uni-luebeck.de:8080/sessions
+						</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://tripper.itm.uni-luebeck.de:8080/wsn/</wsninstancebaseurl>
 						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>

@@ -865,13 +865,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.stop()", nodeUrn);
 
-        // first stop listening to messages
+		// first stop listening to messages
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
-        // then disconnect from device
+		// then disconnect from device
 		iSenseDevice.deregisterListener(iSenseDeviceListener);
-        iSenseDevice.shutdown();
+		iSenseDevice.shutdown();
 	}
 
 	public boolean isExclusiveOperationRunning() {

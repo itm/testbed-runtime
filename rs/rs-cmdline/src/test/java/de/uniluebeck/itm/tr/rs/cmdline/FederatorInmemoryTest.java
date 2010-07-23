@@ -282,13 +282,14 @@ public class FederatorInmemoryTest {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.setFrom(createXMLGregorianCalendar(1*60*1000));
-			resData.setTo(createXMLGregorianCalendar(5*60*1000));
+			resData.setFrom(createXMLGregorianCalendar(1 * 60 * 1000));
+			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
 			resData.getNodeURNs().add("urn:wisebed1:testbed1");
 			rsFederator.makeReservation(authData, resData);
 			fail("Should have raised an RSExceptionException");
 		}
-		catch (RSExceptionException e) {}
+		catch (RSExceptionException e) {
+		}
 		//testing if makeReservation on empty authenticationData and reservation-data returns empty SecretReservationKey-list
 		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 		ConfidentialReservationData resData = new ConfidentialReservationData();

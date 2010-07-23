@@ -8,20 +8,20 @@
 
 package eu.wisebed.ns.wiseml._1;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Generated;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * <p>Java class for link.properties complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="link.properties">
  *   &lt;complexContent>
@@ -36,137 +36,121 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "link.properties", propOrder = {
-    "encrypted",
-    "virtual",
-    "rssi",
-    "capability"
+		"encrypted",
+		"virtual",
+		"rssi",
+		"capability"
 })
 @XmlSeeAlso({
-    eu.wisebed.ns.wiseml._1.Setup.Link.class
+		eu.wisebed.ns.wiseml._1.Setup.Link.class
 })
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class LinkProperties {
 
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Boolean encrypted;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Boolean virtual;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Rssi rssi;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected List<Capability> capability;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Boolean encrypted;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Boolean virtual;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Rssi rssi;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected List<Capability> capability;
 
-    /**
-     * Gets the value of the encrypted property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Boolean isEncrypted() {
-        return encrypted;
-    }
+	/**
+	 * Gets the value of the encrypted property.
+	 *
+	 * @return possible object is
+	 *         {@link Boolean }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Boolean isEncrypted() {
+		return encrypted;
+	}
 
-    /**
-     * Sets the value of the encrypted property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setEncrypted(Boolean value) {
-        this.encrypted = value;
-    }
+	/**
+	 * Sets the value of the encrypted property.
+	 *
+	 * @param value allowed object is
+	 *              {@link Boolean }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setEncrypted(Boolean value) {
+		this.encrypted = value;
+	}
 
-    /**
-     * Gets the value of the virtual property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Boolean isVirtual() {
-        return virtual;
-    }
+	/**
+	 * Gets the value of the virtual property.
+	 *
+	 * @return possible object is
+	 *         {@link Boolean }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Boolean isVirtual() {
+		return virtual;
+	}
 
-    /**
-     * Sets the value of the virtual property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setVirtual(Boolean value) {
-        this.virtual = value;
-    }
+	/**
+	 * Sets the value of the virtual property.
+	 *
+	 * @param value allowed object is
+	 *              {@link Boolean }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setVirtual(Boolean value) {
+		this.virtual = value;
+	}
 
-    /**
-     * Gets the value of the rssi property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Rssi }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Rssi getRssi() {
-        return rssi;
-    }
+	/**
+	 * Gets the value of the rssi property.
+	 *
+	 * @return possible object is
+	 *         {@link Rssi }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Rssi getRssi() {
+		return rssi;
+	}
 
-    /**
-     * Sets the value of the rssi property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Rssi }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setRssi(Rssi value) {
-        this.rssi = value;
-    }
+	/**
+	 * Sets the value of the rssi property.
+	 *
+	 * @param value allowed object is
+	 *              {@link Rssi }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setRssi(Rssi value) {
+		this.rssi = value;
+	}
 
-    /**
-     * Gets the value of the capability property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the capability property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getCapability().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Capability }
-     * 
-     * 
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public List<Capability> getCapability() {
-        if (capability == null) {
-            capability = new ArrayList<Capability>();
-        }
-        return this.capability;
-    }
+	/**
+	 * Gets the value of the capability property.
+	 * <p/>
+	 * <p/>
+	 * This accessor method returns a reference to the live list,
+	 * not a snapshot. Therefore any modification you make to the
+	 * returned list will be present inside the JAXB object.
+	 * This is why there is not a <CODE>set</CODE> method for the capability property.
+	 * <p/>
+	 * <p/>
+	 * For example, to add a new item, do as follows:
+	 * <pre>
+	 *    getCapability().add(newItem);
+	 * </pre>
+	 * <p/>
+	 * <p/>
+	 * <p/>
+	 * Objects of the following type(s) are allowed in the list
+	 * {@link Capability }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public List<Capability> getCapability() {
+		if (capability == null) {
+			capability = new ArrayList<Capability>();
+		}
+		return this.capability;
+	}
 
 }

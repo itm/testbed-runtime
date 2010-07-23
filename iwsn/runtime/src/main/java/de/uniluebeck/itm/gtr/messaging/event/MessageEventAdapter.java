@@ -33,16 +33,16 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
  */
 public class MessageEventAdapter implements MessageEventListener {
 
-    @Override
-    public void messageSent(Messages.Msg msg) {
-    }
+	@Override
+	public void messageSent(Messages.Msg msg) {
+	}
 
-    @Override
-    public void messageDropped(Messages.Msg msg) {
-    }
+	@Override
+	public void messageDropped(Messages.Msg msg) {
+	}
 
-    @Override
-    public void messageReceived(Messages.Msg msg) {
-    }
+	@Override
+	public void messageReceived(Messages.Msg msg) {
+	}
 
 }

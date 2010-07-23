@@ -26,14 +26,15 @@
 
 	<nodes id="testbeduzl2">
 		<names>
-			<nodename name="urn:wisebed:testbeduzl2:2" description="" />
+			<nodename name="urn:wisebed:testbeduzl2:2" description=""/>
 		</names>
 		<applications>
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
 				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
 					<webservice>
 						<urnprefix>urn:wisebed:testbeduzl2:</urnprefix>
-						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10012/sessions</sessionmanagementendpointurl>
+						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10012/sessions
+						</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://daniel-bimschass-macbook-pro.local:10012/wsn/</wsninstancebaseurl>
 						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>

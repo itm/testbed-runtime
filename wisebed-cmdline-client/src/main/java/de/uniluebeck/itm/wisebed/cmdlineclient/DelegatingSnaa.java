@@ -29,7 +29,7 @@ import java.util.List;
 
 public class DelegatingSnaa implements SNAA {
 	private SNAA delegate;
-	
+
 	private DelegatingSnaa(SNAA delegate) {
 		this.delegate = delegate;
 	}

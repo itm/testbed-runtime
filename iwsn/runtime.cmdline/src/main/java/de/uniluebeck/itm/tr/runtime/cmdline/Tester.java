@@ -65,7 +65,7 @@ public class Tester {
 		boolean executeSendMessage = true;
 		boolean executeAreNodesAlive = true;
 		boolean executeResetNodes = true;
-		
+
 		Set<String> nodeUrns = new HashSet<String>();
 		nodeUrns.add("3a");
 
@@ -168,7 +168,7 @@ public class Tester {
 		// =============================== are nodes alive? ===============================
 
 		if (executeAreNodesAlive) {
-			
+
 			log.debug("### About to execute ARE NODES ALIVE OPERATION");
 			Thread.sleep(1000);
 
@@ -195,7 +195,7 @@ public class Tester {
 		// =============================== reset nodes ===============================
 
 		if (executeResetNodes) {
-			
+
 			log.debug("### About to execute RESET NODES OPERATION");
 			Thread.sleep(1000);
 

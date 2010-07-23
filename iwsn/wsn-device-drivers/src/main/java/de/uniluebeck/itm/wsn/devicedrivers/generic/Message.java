@@ -24,17 +24,15 @@
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
-
 /**
- * 
  * @author dp
- * 
  */
 public interface Message {
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public byte[] getContent();
 

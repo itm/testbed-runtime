@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for interpolation.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ * <p/>
  * <pre>
  * &lt;simpleType name="interpolation">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}token">
@@ -30,40 +30,39 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
  */
 @XmlType(name = "interpolation")
 @XmlEnum
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public enum Interpolation {
 
-    @XmlEnumValue("none")
-    NONE("none"),
-    @XmlEnumValue("linear")
-    LINEAR("linear"),
-    @XmlEnumValue("polynomial")
-    POLYNOMIAL("polynomial"),
-    @XmlEnumValue("cubic")
-    CUBIC("cubic"),
-    @XmlEnumValue("spline")
-    SPLINE("spline");
-    private final String value;
+	@XmlEnumValue("none")
+	NONE("none"),
+	@XmlEnumValue("linear")
+	LINEAR("linear"),
+	@XmlEnumValue("polynomial")
+	POLYNOMIAL("polynomial"),
+	@XmlEnumValue("cubic")
+	CUBIC("cubic"),
+	@XmlEnumValue("spline")
+	SPLINE("spline");
+	private final String value;
 
-    Interpolation(String v) {
-        value = v;
-    }
+	Interpolation(String v) {
+		value = v;
+	}
 
-    public String value() {
-        return value;
-    }
+	public String value() {
+		return value;
+	}
 
-    public static Interpolation fromValue(String v) {
-        for (Interpolation c: Interpolation.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+	public static Interpolation fromValue(String v) {
+		for (Interpolation c : Interpolation.values()) {
+			if (c.value.equals(v)) {
+				return c;
+			}
+		}
+		throw new IllegalArgumentException(v);
+	}
 
 }

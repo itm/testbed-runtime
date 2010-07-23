@@ -28,9 +28,9 @@ import com.google.inject.AbstractModule;
 
 public class CommonModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(SchedulerService.class).to(SchedulerServiceImpl.class);
-    }
+	@Override
+	protected void configure() {
+		bind(SchedulerService.class).to(SchedulerServiceImpl.class);
+	}
 
 }

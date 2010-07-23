@@ -25,8 +25,8 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class RamReadFailedException extends Exception {
 

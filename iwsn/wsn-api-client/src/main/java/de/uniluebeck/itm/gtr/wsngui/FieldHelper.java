@@ -42,80 +42,80 @@ import java.util.List;
  */
 public class FieldHelper {
 
-    public static class XMLGregorianCalendarDateChooserPanel extends DateChooserPanel {
+	public static class XMLGregorianCalendarDateChooserPanel extends DateChooserPanel {
 
-        public XMLGregorianCalendar getValue() throws DatatypeConfigurationException {
-            Date date = getDate();
-            GregorianCalendar gregorianCalendar = new GregorianCalendar();
-            gregorianCalendar.setTime(date);
-            XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-            return calendar;
-        }
+		public XMLGregorianCalendar getValue() throws DatatypeConfigurationException {
+			Date date = getDate();
+			GregorianCalendar gregorianCalendar = new GregorianCalendar();
+			gregorianCalendar.setTime(date);
+			XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+			return calendar;
+		}
 
-    }
+	}
 
-    public static class EnumJComboBox<T extends Enum<T>> extends JComboBox {
+	public static class EnumJComboBox<T extends Enum<T>> extends JComboBox {
 
-        private Class<T> enumClass;
+		private Class<T> enumClass;
 
-        public EnumJComboBox(Class<T> enumClass) {
-            super(enumClass.getEnumConstants());
-            this.enumClass = enumClass;
-        }
+		public EnumJComboBox(Class<T> enumClass) {
+			super(enumClass.getEnumConstants());
+			this.enumClass = enumClass;
+		}
 
-        public T getValue() {
-            return (T) getSelectedItem();
-        }
+		public T getValue() {
+			return (T) getSelectedItem();
+		}
 
-    }
+	}
 
-    public static class ByteArrayJTextArea extends JTextArea {
+	public static class ByteArrayJTextArea extends JTextArea {
 
-        public byte[] getValue(int base) {
-            return new BigInteger(getText(), base).toByteArray();
-        }
+		public byte[] getValue(int base) {
+			return new BigInteger(getText(), base).toByteArray();
+		}
 
-    }
+	}
 
-    public static class ByteJTextField extends JTextField {
+	public static class ByteJTextField extends JTextField {
 
-        public byte getValue(int base) {
-            return new BigInteger(getText(), base).toByteArray()[0];
-        }
+		public byte getValue(int base) {
+			return new BigInteger(getText(), base).toByteArray()[0];
+		}
 
-    }
+	}
 
-    public static class StringListJTextField extends JTextField {
+	public static class StringListJTextField extends JTextField {
 
-        public StringListJTextField() {
-        }
+		public StringListJTextField() {
+		}
 
-        public StringListJTextField(String text) {
-            super(text);
-        }
+		public StringListJTextField(String text) {
+			super(text);
+		}
 
-        public StringListJTextField(int columns) {
-            super(columns);
-        }
+		public StringListJTextField(int columns) {
+			super(columns);
+		}
 
-        public StringListJTextField(String text, int columns) {
-            super(text, columns);
-        }
+		public StringListJTextField(String text, int columns) {
+			super(text, columns);
+		}
 
-        public StringListJTextField(Document doc, String text, int columns) {
-            super(doc, text, columns);
-        }
+		public StringListJTextField(Document doc, String text, int columns) {
+			super(doc, text, columns);
+		}
 
-        public List<String> getValue() {
-            String text = getText();
-            String[] strings = text.split(",");
-            List<String> values = new ArrayList<String>(strings.length);
-            for (String string : strings) {
-                values.add(string.trim());
-            }
-            return values;
-        }
+		public List<String> getValue() {
+			String text = getText();
+			String[] strings = text.split(",");
+			List<String> values = new ArrayList<String>(strings.length);
+			for (String string : strings) {
+				values.add(string.trim());
+			}
+			return values;
+		}
 
-    }
+	}
 
 }

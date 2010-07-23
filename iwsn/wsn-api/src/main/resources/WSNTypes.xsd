@@ -1,448 +1,448 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" targetNamespace="urn:WSNService"
-           xmlns:tns="urn:WSNService" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:ct="urn:CommonTypes">
-           
-    <xs:import namespace="urn:CommonTypes" schemaLocation="CommonTypes.xsd"/>
+		   xmlns:tns="urn:WSNService" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:ct="urn:CommonTypes">
 
-    <xs:complexType name="addController">
-        <xs:sequence>
-            <xs:element name="controllerEndpointUrl" type="xs:string" minOccurs="1" maxOccurs="1" />
-        </xs:sequence>
-    </xs:complexType>
+	<xs:import namespace="urn:CommonTypes" schemaLocation="CommonTypes.xsd"/>
+
+	<xs:complexType name="addController">
+		<xs:sequence>
+			<xs:element name="controllerEndpointUrl" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:complexType name="addControllerResponse">
-        <xs:sequence/>
-    </xs:complexType>
+		<xs:sequence/>
+	</xs:complexType>
 
-	<xs:element name="addController" type="tns:addController" />
+	<xs:element name="addController" type="tns:addController"/>
 
-	<xs:element name="addControllerResponse" type="tns:addControllerResponse" />
+	<xs:element name="addControllerResponse" type="tns:addControllerResponse"/>
 
 	<xs:complexType name="removeController">
-        <xs:sequence>
-            <xs:element name="controllerEndpointUrl" type="xs:string" minOccurs="1" maxOccurs="1" />
-        </xs:sequence>
-    </xs:complexType>
+		<xs:sequence>
+			<xs:element name="controllerEndpointUrl" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:complexType name="removeControllerResponse">
-        <xs:sequence/>
-    </xs:complexType>
+		<xs:sequence/>
+	</xs:complexType>
 
-	<xs:element name="removeController" type="tns:removeController" />
+	<xs:element name="removeController" type="tns:removeController"/>
 
-	<xs:element name="removeControllerResponse" type="tns:removeControllerResponse" />
+	<xs:element name="removeControllerResponse" type="tns:removeControllerResponse"/>
 
 	<xs:complexType name="getVersion">
-        <xs:sequence/>
-    </xs:complexType>
-
-    <xs:complexType name="getVersionResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="resetNodes">
-        <xs:sequence>
-            <xs:element name="nodes" type="ct:urn" nillable="true"
-                        minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-
-    <xs:complexType name="flashPrograms">
-        <xs:sequence>
-            <xs:element name="nodeIds" type="xs:string" nillable="false"
-                        minOccurs="1" maxOccurs="unbounded"/>
-            <xs:element name="programIndices" type="xs:int" nillable="false"
-                        minOccurs="1" maxOccurs="unbounded"/>
-            <xs:element name="programs" type="tns:program" nillable="false"
-                        minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="program">
-        <xs:sequence>
-            <xs:element name="metaData" type="tns:programMetaData"
-                        minOccurs="0"/>
-            <xs:element name="program" type="xs:base64Binary"
-                        minOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="programMetaData">
-        <xs:sequence>
-            <xs:element name="version" type="xs:string" minOccurs="0"/>
-            <xs:element name="name" type="xs:string" minOccurs="0"/>
-            <xs:element name="platform" type="xs:string" minOccurs="0"/>
-            <xs:element name="other" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="areNodesAlive">
-        <xs:sequence>
-            <xs:element name="nodes" type="xs:string" nillable="true"
-                        minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="setVirtualLink">
-        <xs:sequence>
-            <xs:element name="sourceNode" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="targetNode" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="remoteServiceInstance" type="xs:string"
-                        minOccurs="1" maxOccurs="1"/>
-            <xs:element name="parameters" type="xs:string" nillable="true"
-                        minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="filters" type="xs:string" nillable="true"
-                        minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="setStartTime">
-        <xs:sequence>
-            <xs:element name="time" type="xs:dateTime" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="enableNode">
-        <xs:sequence>
-            <xs:element name="node" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="getFilters">
-        <xs:sequence/>
-    </xs:complexType>
-
-    <xs:complexType name="getFiltersResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" nillable="true"
-                        minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="getNeighbourhood">
-        <xs:sequence>
-            <xs:element name="node" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="getNeighbourhoodResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" nillable="true"
-                        minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="UnknownNodeUrnException">
-        <xs:sequence>
-            <xs:element name="message" type="xs:string" minOccurs="0"/>
-            <xs:element name="urn" type="xs:string" maxOccurs="unbounded"
-                        minOccurs="1"></xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="disablePhysicalLink">
-        <xs:sequence>
-            <xs:element name="nodeA" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="nodeB" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="getPropertyValueOf">
-        <xs:sequence>
-            <xs:element name="node" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="propertyName" type="xs:string"
-                        minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="getPropertyValueOfResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="describeCapabilities">
-        <xs:sequence>
-            <xs:element name="capability" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="describeCapabilitiesResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="UnsupportedOperationException">
-        <xs:sequence>
-            <xs:element name="message" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="send">
-        <xs:sequence>
-            <xs:element name="nodeIds" type="xs:string" nillable="false"
-                        minOccurs="1" maxOccurs="unbounded"/>
-            <xs:element name="message" type="ct:message" minOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="disableNode">
-        <xs:sequence>
-            <xs:element name="node" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-
-    <xs:complexType name="destroyVirtualLink">
-        <xs:sequence>
-            <xs:element name="sourceNode" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="targetNode" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="enablePhysicalLink">
-        <xs:sequence>
-            <xs:element name="nodeA" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-            <xs:element name="nodeB" type="xs:string" minOccurs="1"
-                        maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-
-    <xs:element name="areNodesAlive" type="tns:areNodesAlive"></xs:element>
-
-
-    <xs:element name="describeCapabilities"
-                type="tns:describeCapabilities">
-    </xs:element>
-
-    <xs:element name="describeCapabilitiesResponse"
-                type="tns:describeCapabilitiesResponse">
-    </xs:element>
-
-    <xs:element name="destroyVirtualLink"
-                type="tns:destroyVirtualLink">
-    </xs:element>
-
-    <xs:element name="disableNode" type="tns:disableNode"></xs:element>
-
-    <xs:element name="disablePhysicalLink"
-                type="tns:disablePhysicalLink">
-    </xs:element>
-
-    <xs:element name="enableNode" type="tns:enableNode"></xs:element>
-
-    <xs:element name="enablePhysicalLink"
-                type="tns:enablePhysicalLink">
-    </xs:element>
-
-    <xs:element name="flashPrograms" type="tns:flashPrograms"></xs:element>
-
-    <xs:element name="getFilters" type="tns:getFilters"></xs:element>
-
-    <xs:element name="getFiltersResponse"
-                type="tns:getFiltersResponse">
-    </xs:element>
-
-    <xs:element name="getNeighbourhood" type="tns:getNeighbourhood"></xs:element>
-
-    <xs:element name="getNeighbourhoodResponse"
-                type="tns:getNeighbourhoodResponse">
-    </xs:element>
-
-    <xs:element name="getPropertyValueOf"
-                type="tns:getPropertyValueOf">
-    </xs:element>
-
-    <xs:element name="getPropertyValueOfResponse"
-                type="tns:getPropertyValueOfResponse">
-    </xs:element>
-
-    <xs:element name="getVersion" type="tns:getVersion"></xs:element>
-
-    <xs:element name="getVersionResponse"
-                type="tns:getVersionResponse">
-    </xs:element>
-
-    <xs:element name="program" type="tns:program"></xs:element>
-
-    <xs:element name="programMetaData" type="tns:programMetaData"></xs:element>
-
-    <xs:element name="resetNodes" type="tns:resetNodes"></xs:element>
-
-    <xs:element name="send" type="tns:send"></xs:element>
-
-    <xs:element name="setStartTime" type="tns:setStartTime"></xs:element>
-
-    <xs:element name="setVirtualLink" type="tns:setVirtualLink"></xs:element>
-
-    <xs:element name="UnknownNodeUrnException"
-                type="tns:UnknownNodeUrnException">
-    </xs:element>
-
-    <xs:element name="UnsupportedOperationException"
-                type="tns:UnsupportedOperationException">
-    </xs:element>
-
-    <xs:complexType name="sendResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId"></xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="areNodesAliveResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1"></xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="areNodesAliveResponse"
-                type="tns:areNodesAliveResponse">
-    </xs:element>
-
-    <xs:element name="sendResponse" type="tns:sendResponse" />
-
-    <xs:complexType name="defineNetwork">
-        <xs:sequence>
-            <xs:element name="newNetwork" type="xs:string" maxOccurs="1" minOccurs="1" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="defineNetworkResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="defineNetwork" type="tns:defineNetwork" />
-
-    <xs:element name="defineNetworkResponse"
-                type="tns:defineNetworkResponse">
-    </xs:element>
-
-    <xs:complexType name="destroyVirtualLinkResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="disableNodeResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="disableNodeResponse"
-                type="tns:disableNodeResponse">
-    </xs:element>
-
-    <xs:complexType name="disablePhysicalLinkResponse">
-        <xs:sequence>
-            <xs:element name="return" type="xs:string" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="disablePhysicalLinkResponse"
-                type="tns:disablePhysicalLinkResponse">
-    </xs:element>
-
-    <xs:complexType name="enableNodeResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="enablePhysicalLinkResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="enableNodeResponse"
-                type="tns:enableNodeResponse">
-    </xs:element>
-
-    <xs:element name="enablePhysicalLinkResponse"
-                type="tns:enablePhysicalLinkResponse">
-    </xs:element>
-
-    <xs:complexType name="flashProgramsResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="flashProgramsResponse"
-                type="tns:flashProgramsResponse">
-    </xs:element>
-
-    <xs:complexType name="resetNodesResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="resetNodesResponse"
-                type="tns:resetNodesResponse">
-    </xs:element>
-
-    <xs:complexType name="setStartTimeResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="setVirtualLinkResponse">
-        <xs:sequence>
-            <xs:element name="return" type="ct:requestId" maxOccurs="1"
-                        minOccurs="1">
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:element name="setStartTimeResponse"
-                type="tns:setStartTimeResponse">
-    </xs:element>
-
-    <xs:element name="setVirtualLinkResponse"
-                type="tns:setVirtualLinkResponse">
-    </xs:element>
-
-    <xs:element name="destroyVirtualLinkResponse"
-                type="tns:setVirtualLinkResponse">
-    </xs:element>
+		<xs:sequence/>
+	</xs:complexType>
+
+	<xs:complexType name="getVersionResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="resetNodes">
+		<xs:sequence>
+			<xs:element name="nodes" type="ct:urn" nillable="true"
+						minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="flashPrograms">
+		<xs:sequence>
+			<xs:element name="nodeIds" type="xs:string" nillable="false"
+						minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="programIndices" type="xs:int" nillable="false"
+						minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="programs" type="tns:program" nillable="false"
+						minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="program">
+		<xs:sequence>
+			<xs:element name="metaData" type="tns:programMetaData"
+						minOccurs="0"/>
+			<xs:element name="program" type="xs:base64Binary"
+						minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="programMetaData">
+		<xs:sequence>
+			<xs:element name="version" type="xs:string" minOccurs="0"/>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="platform" type="xs:string" minOccurs="0"/>
+			<xs:element name="other" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="areNodesAlive">
+		<xs:sequence>
+			<xs:element name="nodes" type="xs:string" nillable="true"
+						minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="setVirtualLink">
+		<xs:sequence>
+			<xs:element name="sourceNode" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="targetNode" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="remoteServiceInstance" type="xs:string"
+						minOccurs="1" maxOccurs="1"/>
+			<xs:element name="parameters" type="xs:string" nillable="true"
+						minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="filters" type="xs:string" nillable="true"
+						minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="setStartTime">
+		<xs:sequence>
+			<xs:element name="time" type="xs:dateTime" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="enableNode">
+		<xs:sequence>
+			<xs:element name="node" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getFilters">
+		<xs:sequence/>
+	</xs:complexType>
+
+	<xs:complexType name="getFiltersResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" nillable="true"
+						minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getNeighbourhood">
+		<xs:sequence>
+			<xs:element name="node" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getNeighbourhoodResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" nillable="true"
+						minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="UnknownNodeUrnException">
+		<xs:sequence>
+			<xs:element name="message" type="xs:string" minOccurs="0"/>
+			<xs:element name="urn" type="xs:string" maxOccurs="unbounded"
+						minOccurs="1"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="disablePhysicalLink">
+		<xs:sequence>
+			<xs:element name="nodeA" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="nodeB" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getPropertyValueOf">
+		<xs:sequence>
+			<xs:element name="node" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="propertyName" type="xs:string"
+						minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getPropertyValueOfResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="describeCapabilities">
+		<xs:sequence>
+			<xs:element name="capability" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="describeCapabilitiesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="UnsupportedOperationException">
+		<xs:sequence>
+			<xs:element name="message" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="send">
+		<xs:sequence>
+			<xs:element name="nodeIds" type="xs:string" nillable="false"
+						minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="message" type="ct:message" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="disableNode">
+		<xs:sequence>
+			<xs:element name="node" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="destroyVirtualLink">
+		<xs:sequence>
+			<xs:element name="sourceNode" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="targetNode" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="enablePhysicalLink">
+		<xs:sequence>
+			<xs:element name="nodeA" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+			<xs:element name="nodeB" type="xs:string" minOccurs="1"
+						maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="areNodesAlive" type="tns:areNodesAlive"></xs:element>
+
+
+	<xs:element name="describeCapabilities"
+				type="tns:describeCapabilities">
+	</xs:element>
+
+	<xs:element name="describeCapabilitiesResponse"
+				type="tns:describeCapabilitiesResponse">
+	</xs:element>
+
+	<xs:element name="destroyVirtualLink"
+				type="tns:destroyVirtualLink">
+	</xs:element>
+
+	<xs:element name="disableNode" type="tns:disableNode"></xs:element>
+
+	<xs:element name="disablePhysicalLink"
+				type="tns:disablePhysicalLink">
+	</xs:element>
+
+	<xs:element name="enableNode" type="tns:enableNode"></xs:element>
+
+	<xs:element name="enablePhysicalLink"
+				type="tns:enablePhysicalLink">
+	</xs:element>
+
+	<xs:element name="flashPrograms" type="tns:flashPrograms"></xs:element>
+
+	<xs:element name="getFilters" type="tns:getFilters"></xs:element>
+
+	<xs:element name="getFiltersResponse"
+				type="tns:getFiltersResponse">
+	</xs:element>
+
+	<xs:element name="getNeighbourhood" type="tns:getNeighbourhood"></xs:element>
+
+	<xs:element name="getNeighbourhoodResponse"
+				type="tns:getNeighbourhoodResponse">
+	</xs:element>
+
+	<xs:element name="getPropertyValueOf"
+				type="tns:getPropertyValueOf">
+	</xs:element>
+
+	<xs:element name="getPropertyValueOfResponse"
+				type="tns:getPropertyValueOfResponse">
+	</xs:element>
+
+	<xs:element name="getVersion" type="tns:getVersion"></xs:element>
+
+	<xs:element name="getVersionResponse"
+				type="tns:getVersionResponse">
+	</xs:element>
+
+	<xs:element name="program" type="tns:program"></xs:element>
+
+	<xs:element name="programMetaData" type="tns:programMetaData"></xs:element>
+
+	<xs:element name="resetNodes" type="tns:resetNodes"></xs:element>
+
+	<xs:element name="send" type="tns:send"></xs:element>
+
+	<xs:element name="setStartTime" type="tns:setStartTime"></xs:element>
+
+	<xs:element name="setVirtualLink" type="tns:setVirtualLink"></xs:element>
+
+	<xs:element name="UnknownNodeUrnException"
+				type="tns:UnknownNodeUrnException">
+	</xs:element>
+
+	<xs:element name="UnsupportedOperationException"
+				type="tns:UnsupportedOperationException">
+	</xs:element>
+
+	<xs:complexType name="sendResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="areNodesAliveResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="areNodesAliveResponse"
+				type="tns:areNodesAliveResponse">
+	</xs:element>
+
+	<xs:element name="sendResponse" type="tns:sendResponse"/>
+
+	<xs:complexType name="defineNetwork">
+		<xs:sequence>
+			<xs:element name="newNetwork" type="xs:string" maxOccurs="1" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="defineNetworkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="defineNetwork" type="tns:defineNetwork"/>
+
+	<xs:element name="defineNetworkResponse"
+				type="tns:defineNetworkResponse">
+	</xs:element>
+
+	<xs:complexType name="destroyVirtualLinkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="disableNodeResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="disableNodeResponse"
+				type="tns:disableNodeResponse">
+	</xs:element>
+
+	<xs:complexType name="disablePhysicalLinkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="disablePhysicalLinkResponse"
+				type="tns:disablePhysicalLinkResponse">
+	</xs:element>
+
+	<xs:complexType name="enableNodeResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="enablePhysicalLinkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="enableNodeResponse"
+				type="tns:enableNodeResponse">
+	</xs:element>
+
+	<xs:element name="enablePhysicalLinkResponse"
+				type="tns:enablePhysicalLinkResponse">
+	</xs:element>
+
+	<xs:complexType name="flashProgramsResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="flashProgramsResponse"
+				type="tns:flashProgramsResponse">
+	</xs:element>
+
+	<xs:complexType name="resetNodesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="resetNodesResponse"
+				type="tns:resetNodesResponse">
+	</xs:element>
+
+	<xs:complexType name="setStartTimeResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="setVirtualLinkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="ct:requestId" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="setStartTimeResponse"
+				type="tns:setStartTimeResponse">
+	</xs:element>
+
+	<xs:element name="setVirtualLinkResponse"
+				type="tns:setVirtualLinkResponse">
+	</xs:element>
+
+	<xs:element name="destroyVirtualLinkResponse"
+				type="tns:setVirtualLinkResponse">
+	</xs:element>
 </xs:schema>
 

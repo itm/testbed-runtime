@@ -31,18 +31,18 @@ import de.uniluebeck.itm.gtr.messaging.cache.MessageCacheImpl;
 
 public class UnreliableMessagingModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(UnreliableMessagingService.class).to(UnreliableMessagingServiceImpl.class);
-    }
+	@Override
+	protected void configure() {
+		bind(UnreliableMessagingService.class).to(UnreliableMessagingServiceImpl.class);
+	}
 
-    @Provides
-    @Unreliable
-    MessageCache<UnreliableMessagingCacheEntry> provideUnreliableMessageCache() {
-        return new MessageCacheImpl<UnreliableMessagingCacheEntry>(
-                UnreliableMessagingServiceImpl.MESSAGE_CACHE_COMPARATOR
-        );
-    }
+	@Provides
+	@Unreliable
+	MessageCache<UnreliableMessagingCacheEntry> provideUnreliableMessageCache() {
+		return new MessageCacheImpl<UnreliableMessagingCacheEntry>(
+				UnreliableMessagingServiceImpl.MESSAGE_CACHE_COMPARATOR
+		);
+	}
 
 
 }

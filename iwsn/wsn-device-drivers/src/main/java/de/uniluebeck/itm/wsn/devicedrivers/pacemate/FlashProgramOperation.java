@@ -47,8 +47,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private boolean programFlash() throws Exception {
 		PacemateBinFile pacemateProgram = null;
@@ -266,8 +267,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -292,8 +294,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for NodeName complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="NodeName">
  *   &lt;complexContent>
@@ -30,71 +30,61 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "NodeName")
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class NodeName {
 
-    @XmlAttribute(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String name;
-    @XmlAttribute
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String description;
+	@XmlAttribute(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String name;
+	@XmlAttribute
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String description;
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets the value of the name property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setName(String value) {
-        this.name = value;
-    }
+	/**
+	 * Sets the value of the name property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setName(String value) {
+		this.name = value;
+	}
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getDescription() {
-        return description;
-    }
+	/**
+	 * Gets the value of the description property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getDescription() {
+		return description;
+	}
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setDescription(String value) {
-        this.description = value;
-    }
+	/**
+	 * Sets the value of the description property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setDescription(String value) {
+		this.description = value;
+	}
 
 }

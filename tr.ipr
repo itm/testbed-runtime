@@ -308,6 +308,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
       <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" />
@@ -322,6 +323,7 @@
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" filepath="$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" filepath="$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" filepath="$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" filepath="$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" filepath="$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" filepath="$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" />
       <module fileurl="file://$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" filepath="$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" />
@@ -336,6 +338,7 @@
       <module fileurl="file://$PROJECT_DIR$/util/tr.util.iml" filepath="$PROJECT_DIR$/util/tr.util.iml" />
       <module fileurl="file://$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" filepath="$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiseml/tr.wiseml.iml" filepath="$PROJECT_DIR$/wiseml/tr.wiseml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" filepath="$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" filepath="$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" />

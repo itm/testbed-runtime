@@ -52,7 +52,7 @@ public class Triple<V, W, X> {
 	/**
 	 * Constructs a new immutable tuple.
 	 *
-	 * @param first the first element of the tuple
+	 * @param first  the first element of the tuple
 	 * @param second the second element of the tuple
 	 * @param second the third element of the tuple
 	 */
@@ -134,5 +134,5 @@ public class Triple<V, W, X> {
 				", third=" + third +
 				'}';
 	}
-	
+
 }

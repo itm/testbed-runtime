@@ -24,28 +24,28 @@
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
-
 /**
  * A data block of a binary file that is intended to be written to a device's flash memory.
  * The data block consists of the address within flash memory that the data should be written to, and
  * a portion of actual data. The size of the data portion depends on the device type and
- * hence on the type of bin file that provides the data block for writing. 
- * @author Friedemann Wesner
+ * hence on the type of bin file that provides the data block for writing.
  *
+ * @author Friedemann Wesner
  */
 public class BinFileDataBlock {
 	/**
 	 * Address in flash memory that this segment will be written to
 	 */
 	public int address;
-	
+
 	/**
-	 * Actual block of data bytes of the segment 
+	 * Actual block of data bytes of the segment
 	 */
 	public byte[] data = null;
-	
+
 	/**
 	 * Constructor
+	 *
 	 * @param address
 	 * @param data
 	 */

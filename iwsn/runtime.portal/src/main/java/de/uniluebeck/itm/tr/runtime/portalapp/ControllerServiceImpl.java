@@ -26,7 +26,6 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.v211.Message;
@@ -42,59 +41,59 @@ import java.io.StringWriter;
 
 @Singleton
 @WebService(
-        serviceName = "ControllerService",
-        targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
-        portName = "ControllerPort",
-        endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+		serviceName = "ControllerService",
+		targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+		portName = "ControllerPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
 )
 class ControllerServiceImpl implements ControllerService {
 
-    private static final String API_URL = "controller";
+	private static final String API_URL = "controller";
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerService.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerService.class);
 
-    private String endpointUrl;
+	private String endpointUrl;
 
-    private Endpoint endpoint;
+	private Endpoint endpoint;
 
-    @Inject
-    public ControllerServiceImpl(@Named(PortalModule.NAME_WSN_INSTANCE_BASE_URL) String wisebedBaseUrl) {
-        this.endpointUrl = wisebedBaseUrl + API_URL;
-    }
+	@Inject
+	public ControllerServiceImpl(@Named(PortalModule.NAME_WSN_INSTANCE_BASE_URL) String wisebedBaseUrl) {
+		this.endpointUrl = wisebedBaseUrl + API_URL;
+	}
 
-    @Override
-    public void start() throws Exception {
+	@Override
+	public void start() throws Exception {
 
-    	String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl);
+		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl);
 
 		log.debug("Starting WISEBED controller service...");
 		log.debug("Endpoint URL: {}", endpointUrl);
 		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
-    	
-        endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
-        
-        log.info("Started WISEBED controller service on {}", bindAllInterfacesUrl);
-    }
 
-    @Override
-    public void stop() {
+		endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
-        if (endpoint != null) {
-            endpoint.stop();
-            log.info("Stopped WISEBED controller service on {}", endpointUrl);
-        }
+		log.info("Started WISEBED controller service on {}", bindAllInterfacesUrl);
+	}
 
-    }
+	@Override
+	public void stop() {
 
-    @Override
-    public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+		if (endpoint != null) {
+			endpoint.stop();
+			log.info("Stopped WISEBED controller service on {}", endpointUrl);
+		}
+
+	}
+
+	@Override
+	public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
 		StringWriter stringWriter = new StringWriter();
 		JAXB.marshal(msg, stringWriter);
-        log.info("Received controller message: {}", stringWriter.toString());
-    }
+		log.info("Received controller message: {}", stringWriter.toString());
+	}
 
-    @Override
-    public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+	@Override
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
 		StringWriter stringWriter = new StringWriter();
 		JAXB.marshal(status, stringWriter);
 		log.info("Received controller status message: {}", stringWriter.toString());

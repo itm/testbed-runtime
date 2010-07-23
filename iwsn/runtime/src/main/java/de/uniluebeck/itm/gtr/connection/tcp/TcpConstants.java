@@ -30,6 +30,6 @@ package de.uniluebeck.itm.gtr.connection.tcp;
  */
 public class TcpConstants {
 
-    public static final String TYPE = "tcp";
+	public static final String TYPE = "tcp";
 
 }

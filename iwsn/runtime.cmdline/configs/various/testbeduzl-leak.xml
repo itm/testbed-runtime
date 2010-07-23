@@ -26,40 +26,42 @@
 
 	<nodes id="opium">
 		<names>
-			<nodename name="urn:wisebed:tubs:401" description="" />
-			<nodename name="urn:wisebed:tubs:402" description="" />
-			<nodename name="urn:wisebed:tubs:403" description="" />
-			<nodename name="urn:wisebed:tubs:404" description="" />
-			<nodename name="urn:wisebed:tubs:405" description="" />
-			<nodename name="urn:wisebed:tubs:406" description="" />
-			<nodename name="urn:wisebed:tubs:407" description="" />
-			<nodename name="urn:wisebed:tubs:408" description="" />
-			<nodename name="urn:wisebed:tubs:409" description="" />
-			<nodename name="urn:wisebed:tubs:410" description="" />
-			<nodename name="urn:wisebed:tubs:411" description="" />
-			<nodename name="urn:wisebed:tubs:412" description="" />
-			<nodename name="urn:wisebed:tubs:413" description="" />
-			<nodename name="urn:wisebed:tubs:414" description="" />
-			<nodename name="urn:wisebed:tubs:415" description="" />
-			<nodename name="urn:wisebed:tubs:416" description="" />
-			<nodename name="urn:wisebed:tubs:417" description="" />
-			<nodename name="urn:wisebed:tubs:418" description="" />
+			<nodename name="urn:wisebed:tubs:401" description=""/>
+			<nodename name="urn:wisebed:tubs:402" description=""/>
+			<nodename name="urn:wisebed:tubs:403" description=""/>
+			<nodename name="urn:wisebed:tubs:404" description=""/>
+			<nodename name="urn:wisebed:tubs:405" description=""/>
+			<nodename name="urn:wisebed:tubs:406" description=""/>
+			<nodename name="urn:wisebed:tubs:407" description=""/>
+			<nodename name="urn:wisebed:tubs:408" description=""/>
+			<nodename name="urn:wisebed:tubs:409" description=""/>
+			<nodename name="urn:wisebed:tubs:410" description=""/>
+			<nodename name="urn:wisebed:tubs:411" description=""/>
+			<nodename name="urn:wisebed:tubs:412" description=""/>
+			<nodename name="urn:wisebed:tubs:413" description=""/>
+			<nodename name="urn:wisebed:tubs:414" description=""/>
+			<nodename name="urn:wisebed:tubs:415" description=""/>
+			<nodename name="urn:wisebed:tubs:416" description=""/>
+			<nodename name="urn:wisebed:tubs:417" description=""/>
+			<nodename name="urn:wisebed:tubs:418" description=""/>
 		</names>
 		<serverconnections>
-			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8081" />
+			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8081"/>
 		</serverconnections>
 		<applications>
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
 				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
 					<webservice>
 						<urnprefix>urn:wisebed:tubs:</urnprefix>
-						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10011/sessions</sessionmanagementendpointurl>
+						<sessionmanagementendpointurl>http://daniel-bimschass-macbook-pro.local:10011/sessions
+						</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://daniel-bimschass-macbook-pro.local:10011/</wsninstancebaseurl>
 						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>
-			<application name="CoCoSBackend" factoryclass="de.tubs.cs.ibr.cocos.testbed.TestbedCocosApplicationFactory" />
+			<application name="CoCoSBackend"
+						 factoryclass="de.tubs.cs.ibr.cocos.testbed.TestbedCocosApplicationFactory"/>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
@@ -171,21 +173,21 @@
 
 	<nodes id="kavakava">
 		<names>
-			<nodename name="urn:wisebed:tubs:419" description="" />
-			<nodename name="urn:wisebed:tubs:420" description="" />
-			<nodename name="urn:wisebed:tubs:421" description="" />
-			<nodename name="urn:wisebed:tubs:422" description="" />
-			<nodename name="urn:wisebed:tubs:423" description="" />
-			<nodename name="urn:wisebed:tubs:424" description="" />
-			<nodename name="urn:wisebed:tubs:425" description="" />
-			<nodename name="urn:wisebed:tubs:426" description="" />
-			<nodename name="urn:wisebed:tubs:427" description="" />
-			<nodename name="urn:wisebed:tubs:428" description="" />
-			<nodename name="urn:wisebed:tubs:429" description="" />
-			<nodename name="urn:wisebed:tubs:430" description="" />
+			<nodename name="urn:wisebed:tubs:419" description=""/>
+			<nodename name="urn:wisebed:tubs:420" description=""/>
+			<nodename name="urn:wisebed:tubs:421" description=""/>
+			<nodename name="urn:wisebed:tubs:422" description=""/>
+			<nodename name="urn:wisebed:tubs:423" description=""/>
+			<nodename name="urn:wisebed:tubs:424" description=""/>
+			<nodename name="urn:wisebed:tubs:425" description=""/>
+			<nodename name="urn:wisebed:tubs:426" description=""/>
+			<nodename name="urn:wisebed:tubs:427" description=""/>
+			<nodename name="urn:wisebed:tubs:428" description=""/>
+			<nodename name="urn:wisebed:tubs:429" description=""/>
+			<nodename name="urn:wisebed:tubs:430" description=""/>
 		</names>
 		<serverconnections>
-			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8082" />
+			<serverconnection type="tcp" address="daniel-bimschass-macbook-pro.local:8082"/>
 		</serverconnections>
 		<applications>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">

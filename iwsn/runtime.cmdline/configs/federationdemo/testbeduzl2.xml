@@ -26,7 +26,7 @@
 
 	<nodes id="testbeduzl2">
 		<names>
-			<nodename name="urn:wisebed:uzl2:2" description="" />
+			<nodename name="urn:wisebed:uzl2:2" description=""/>
 		</names>
 		<applications>
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">

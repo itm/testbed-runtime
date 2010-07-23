@@ -34,41 +34,41 @@ import de.uniluebeck.itm.gtr.common.Service;
  */
 public interface NamingService extends Service {
 
-    /**
-     * Adds an entry to the naming service.
-     *
-     * @param entry the entry to add to the naming service
-     */
-    void addEntry(NamingEntry entry);
+	/**
+	 * Adds an entry to the naming service.
+	 *
+	 * @param entry the entry to add to the naming service
+	 */
+	void addEntry(NamingEntry entry);
 
-    /**
-     * Removes a naming entry from the naming service.
-     *
-     * @param entry the entry to remove
-     */
-    void removeEntry(NamingEntry entry);
+	/**
+	 * Removes a naming entry from the naming service.
+	 *
+	 * @param entry the entry to remove
+	 */
+	void removeEntry(NamingEntry entry);
 
-    /**
-     * Returns all entries of the naming table.
-     *
-     * @return a set of all naming entries of the naming service
-     */
-    ImmutableSet<NamingEntry> getEntries();
+	/**
+	 * Returns all entries of the naming table.
+	 *
+	 * @return a set of all naming entries of the naming service
+	 */
+	ImmutableSet<NamingEntry> getEntries();
 
-    /**
-     * Returns all entries of the naming table for the node {@code nodeName}.
-     *
-     * @param nodeName the nodes' name whose entries are to be retrieved
-     * @return a set containing all naming table entries for the node {@code nodeName}
-     */
-    ImmutableSortedSet<NamingEntry> getEntries(String nodeName);
+	/**
+	 * Returns all entries of the naming table for the node {@code nodeName}.
+	 *
+	 * @param nodeName the nodes' name whose entries are to be retrieved
+	 * @return a set containing all naming table entries for the node {@code nodeName}
+	 */
+	ImmutableSortedSet<NamingEntry> getEntries(String nodeName);
 
-    /**
-     * Returns the naming entry with the highest priority for the given node name.
-     *
-     * @param name the nodes' name
-     * @return the naming entry with the highest priority or {@code null} if there's no entry available
-     */
-    NamingEntry getEntry(String name);
+	/**
+	 * Returns the naming entry with the highest priority for the given node name.
+	 *
+	 * @param name the nodes' name
+	 * @return the naming entry with the highest priority or {@code null} if there's no entry available
+	 */
+	NamingEntry getEntry(String name);
 
 }

@@ -36,200 +36,201 @@ import java.util.*;
  */
 public class Comparison {
 
-    //TODO performance-verbesserung
-    public static boolean equals(Object actualObject, Object compareObject) {
-        if (compare(actualObject, compareObject) == -1) return false;
-        return true;
-    }
+	//TODO performance-verbesserung
 
-    //-1 checked and failed
-    //0 not checked
-    //1 checked and correct
+	public static boolean equals(Object actualObject, Object compareObject) {
+		if (compare(actualObject, compareObject) == -1) return false;
+		return true;
+	}
 
-    private static int preComparison(Object actualObject, Object compareObject) {
-        int status = 0;
-        //if primitive and not equal
-        if ((status = compareIfPrimitive(actualObject, compareObject)) != 0) return status;
-        //if String
-        if ((status = compareIfString(actualObject, compareObject)) != 0) return status;
-        //if list
-        if ((status = compareIfList(actualObject, compareObject)) != 0) return status;
-        //if array
-        if ((status = compareIfArray(actualObject, compareObject)) != 0) return status;
-        //if set
-        if ((status = compareIfSet(actualObject, compareObject)) != 0) return status;
-        //if map
-        if ((status = compareIfMap(actualObject, compareObject)) != 0) return status;
+	//-1 checked and failed
+	//0 not checked
+	//1 checked and correct
 
-        return status;
-    }
+	private static int preComparison(Object actualObject, Object compareObject) {
+		int status = 0;
+		//if primitive and not equal
+		if ((status = compareIfPrimitive(actualObject, compareObject)) != 0) return status;
+		//if String
+		if ((status = compareIfString(actualObject, compareObject)) != 0) return status;
+		//if list
+		if ((status = compareIfList(actualObject, compareObject)) != 0) return status;
+		//if array
+		if ((status = compareIfArray(actualObject, compareObject)) != 0) return status;
+		//if set
+		if ((status = compareIfSet(actualObject, compareObject)) != 0) return status;
+		//if map
+		if ((status = compareIfMap(actualObject, compareObject)) != 0) return status;
 
-    public static int compare(Object actualObject, Object compareObject) {
-        int status = preComparison(actualObject, compareObject);
-        if (status != 0) {
-            return status;
-        }
+		return status;
+	}
 
-        Map<Object, Object> objectMap = new HashMap<Object, Object>();
-        objectMap.put(actualObject, compareObject);
+	public static int compare(Object actualObject, Object compareObject) {
+		int status = preComparison(actualObject, compareObject);
+		if (status != 0) {
+			return status;
+		}
 
-        Map<Object, Object> tempMap = new HashMap<Object, Object>();
+		Map<Object, Object> objectMap = new HashMap<Object, Object>();
+		objectMap.put(actualObject, compareObject);
 
-        for (Object object : objectMap.keySet()) {
-            //get all declared methods
-            Class clazz = object.getClass();
-            List<Method> declaredMethods = new LinkedList<Method>();
-            declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
-            while (true) {
-                clazz = clazz.getSuperclass();
-                if (clazz.equals(Object.class)) break;
-                declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
-            }
-            //getting getters and compare
-            for (Method method : declaredMethods) {
-                //getting getters
-                if (!method.getName().startsWith("get")) continue;
+		Map<Object, Object> tempMap = new HashMap<Object, Object>();
 
-                Object invokedActualObject = null;
-                Object invokedCompareObject = null;
+		for (Object object : objectMap.keySet()) {
+			//get all declared methods
+			Class clazz = object.getClass();
+			List<Method> declaredMethods = new LinkedList<Method>();
+			declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+			while (true) {
+				clazz = clazz.getSuperclass();
+				if (clazz.equals(Object.class)) break;
+				declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+			}
+			//getting getters and compare
+			for (Method method : declaredMethods) {
+				//getting getters
+				if (!method.getName().startsWith("get")) continue;
 
-                //try invoking
-                try {
-                    invokedActualObject = method.invoke(object);
-                    invokedCompareObject = method.invoke(objectMap.get(object));
-                }
-                catch (InvocationTargetException e) {
-                    continue;
-                }
-                catch (IllegalArgumentException e) {
-                    continue;
-                }
-                catch (IllegalAccessException e) {
-                    continue;
-                }
+				Object invokedActualObject = null;
+				Object invokedCompareObject = null;
 
-                //start comparison
-                //check if null
-                if (compareIfNull(invokedActualObject, invokedCompareObject)) continue;
-                //preComparison
-                status = preComparison(invokedActualObject, invokedCompareObject);
-                if (status == -1) return status;
+				//try invoking
+				try {
+					invokedActualObject = method.invoke(object);
+					invokedCompareObject = method.invoke(objectMap.get(object));
+				}
+				catch (InvocationTargetException e) {
+					continue;
+				}
+				catch (IllegalArgumentException e) {
+					continue;
+				}
+				catch (IllegalAccessException e) {
+					continue;
+				}
 
-                tempMap.put(invokedActualObject, invokedCompareObject);
-            }
-            if (tempMap.isEmpty()) return status;
+				//start comparison
+				//check if null
+				if (compareIfNull(invokedActualObject, invokedCompareObject)) continue;
+				//preComparison
+				status = preComparison(invokedActualObject, invokedCompareObject);
+				if (status == -1) return status;
 
-            objectMap = tempMap;
-            tempMap = new HashMap<Object, Object>();
-        }
+				tempMap.put(invokedActualObject, invokedCompareObject);
+			}
+			if (tempMap.isEmpty()) return status;
 
-        return 0;
-    }
+			objectMap = tempMap;
+			tempMap = new HashMap<Object, Object>();
+		}
 
-    private static boolean compareIfNull(Object actualObject, Object compareObject) {
-        if (actualObject == null && compareObject == null) return true;
-        return false;
-    }
+		return 0;
+	}
 
-    private static int compareIfPrimitive(Object actualObject, Object compareObject) {
-        if (actualObject.getClass().isPrimitive()) {
-            if (actualObject == compareObject) return 1;
-            return -1;
-        }
-        return 0;
-    }
+	private static boolean compareIfNull(Object actualObject, Object compareObject) {
+		if (actualObject == null && compareObject == null) return true;
+		return false;
+	}
 
-    private static int compareIfString(Object actualObject, Object compareObject) {
-        if (actualObject instanceof String) {
-            if (actualObject.equals(compareObject)) return 1;
-            return -1;
-        }
-        return 0;
-    }
+	private static int compareIfPrimitive(Object actualObject, Object compareObject) {
+		if (actualObject.getClass().isPrimitive()) {
+			if (actualObject == compareObject) return 1;
+			return -1;
+		}
+		return 0;
+	}
 
-    private static int compareIfArray(Object actualObject, Object compareObject) {
-        if (actualObject.getClass().isArray()) {
-            Object[] actualObjectAsArray = (Object[]) actualObject;
-            Object[] compareObjectAsArray = (Object[]) compareObject;
+	private static int compareIfString(Object actualObject, Object compareObject) {
+		if (actualObject instanceof String) {
+			if (actualObject.equals(compareObject)) return 1;
+			return -1;
+		}
+		return 0;
+	}
 
-            if (actualObjectAsArray.length != compareObjectAsArray.length) return -1;
+	private static int compareIfArray(Object actualObject, Object compareObject) {
+		if (actualObject.getClass().isArray()) {
+			Object[] actualObjectAsArray = (Object[]) actualObject;
+			Object[] compareObjectAsArray = (Object[]) compareObject;
 
-            for (int i = 0; i < actualObjectAsArray.length; i++) {
-                return compare(actualObjectAsArray[i], compareObjectAsArray[i]);
-            }
-        }
-        return 0;
-    }
+			if (actualObjectAsArray.length != compareObjectAsArray.length) return -1;
 
-    private static int compareIfList(Object actualObject, Object compareObject) {
-        if (actualObject instanceof List) {
-            List actualObjectAsList = (List) actualObject;
-            List compareObjectAsList = (List) compareObject;
+			for (int i = 0; i < actualObjectAsArray.length; i++) {
+				return compare(actualObjectAsArray[i], compareObjectAsArray[i]);
+			}
+		}
+		return 0;
+	}
 
-            return compareIfArray(actualObjectAsList.toArray(), compareObjectAsList.toArray());
-        }
-        return 0;
-    }
+	private static int compareIfList(Object actualObject, Object compareObject) {
+		if (actualObject instanceof List) {
+			List actualObjectAsList = (List) actualObject;
+			List compareObjectAsList = (List) compareObject;
 
-    private static int compareIfSet(Object actualObject, Object compareObject) {
-        if (actualObject instanceof Set) {
-            Set actualObjectAsSet = (Set) actualObject;
-            Set compareObjectAsSet = (Set) compareObject;
+			return compareIfArray(actualObjectAsList.toArray(), compareObjectAsList.toArray());
+		}
+		return 0;
+	}
 
-            return compareIfArray(actualObjectAsSet.toArray(), compareObjectAsSet.toArray());
-        }
-        return 0;
-    }
+	private static int compareIfSet(Object actualObject, Object compareObject) {
+		if (actualObject instanceof Set) {
+			Set actualObjectAsSet = (Set) actualObject;
+			Set compareObjectAsSet = (Set) compareObject;
 
-    private static int compareIfMap(Object actualObject, Object compareObject) {
-        if (actualObject instanceof Map) {
-            Map actualObjectAsMap = (Map) actualObject;
-            Map compareObjectAsMap = (Map) compareObject;
+			return compareIfArray(actualObjectAsSet.toArray(), compareObjectAsSet.toArray());
+		}
+		return 0;
+	}
 
-            if (actualObjectAsMap.size() != compareObjectAsMap.size()) return -1;
+	private static int compareIfMap(Object actualObject, Object compareObject) {
+		if (actualObject instanceof Map) {
+			Map actualObjectAsMap = (Map) actualObject;
+			Map compareObjectAsMap = (Map) compareObject;
 
-            //preComparison keys
-            if (compareIfSet(actualObjectAsMap.keySet(), compareObjectAsMap.keySet()) == -1) return -1;
-            //preComparison values
-            return (compareIfArray(actualObjectAsMap.values().toArray(), compareObjectAsMap.values().toArray()));
-        }
-        return 0;
-    }
+			if (actualObjectAsMap.size() != compareObjectAsMap.size()) return -1;
 
-    //test
+			//preComparison keys
+			if (compareIfSet(actualObjectAsMap.keySet(), compareObjectAsMap.keySet()) == -1) return -1;
+			//preComparison values
+			return (compareIfArray(actualObjectAsMap.values().toArray(), compareObjectAsMap.values().toArray()));
+		}
+		return 0;
+	}
 
-   /* public static void main(String[] args) throws DatatypeConfigurationException {
-        List<User> users = new LinkedList<User>();
-        User user = new User();
-        user.setUrnPrefix("urn:wisebed:testbed1");
-        user.setUsername("Nils Rohwedder");
-        users.add(user);
+	//test
 
-        List<String> urns = new LinkedList<String>();
-        urns.add("urn:wisebed:testbed1");
+	/* public static void main(String[] args) throws DatatypeConfigurationException {
+			List<User> users = new LinkedList<User>();
+			User user = new User();
+			user.setUrnPrefix("urn:wisebed:testbed1");
+			user.setUsername("Nils Rohwedder");
+			users.add(user);
 
-        long millis = System.currentTimeMillis() + 200000;
-        GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
-        gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarFrom.setTimeInMillis(millis);
+			List<String> urns = new LinkedList<String>();
+			urns.add("urn:wisebed:testbed1");
 
-        GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
-        gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarTo.setTimeInMillis(millis + 40);
+			long millis = System.currentTimeMillis() + 200000;
+			GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
+			gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+			gregorianCalendarFrom.setTimeInMillis(millis);
 
-        ConfidentialReservationData data = new ConfidentialReservationData();
-        data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
-        data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
-        data.setUsers(users);
-        data.setNodeURNs(urns);
+			GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
+			gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+			gregorianCalendarTo.setTimeInMillis(millis + 40);
 
-        ConfidentialReservationData otherData = new ConfidentialReservationData();
-        otherData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
-        otherData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
-        otherData.setUsers(users);
-        otherData.setNodeURNs(urns);
+			ConfidentialReservationData data = new ConfidentialReservationData();
+			data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+			data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+			data.setUsers(users);
+			data.setNodeURNs(urns);
 
-        System.out.println(equals(data, otherData));
-    }*/
+			ConfidentialReservationData otherData = new ConfidentialReservationData();
+			otherData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+			otherData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+			otherData.setUsers(users);
+			otherData.setNodeURNs(urns);
+
+			System.out.println(equals(data, otherData));
+		}*/
 }
 

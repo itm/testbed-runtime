@@ -25,33 +25,33 @@ package de.uniluebeck.itm.gtr.connection;
 
 public class ConnectionTypeUnavailableException extends ConnectionException {
 
-    private static final long serialVersionUID = -706325671879793536L;
+	private static final long serialVersionUID = -706325671879793536L;
 
-    private String type;
+	private String type;
 
-    public ConnectionTypeUnavailableException(String type) {
-        super();
-        this.type = type;
-    }
+	public ConnectionTypeUnavailableException(String type) {
+		super();
+		this.type = type;
+	}
 
-    public ConnectionTypeUnavailableException(String type, String message, Throwable cause) {
-        super(message, cause);
-        this.type = type;
-    }
+	public ConnectionTypeUnavailableException(String type, String message, Throwable cause) {
+		super(message, cause);
+		this.type = type;
+	}
 
-    public ConnectionTypeUnavailableException(String type, String message) {
-        super(message);
-        this.type = type;
-    }
+	public ConnectionTypeUnavailableException(String type, String message) {
+		super(message);
+		this.type = type;
+	}
 
-    public ConnectionTypeUnavailableException(String type, Throwable cause) {
-        super(cause);
-        this.type = type;
-    }
+	public ConnectionTypeUnavailableException(String type, Throwable cause) {
+		super(cause);
+		this.type = type;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
 }
 

@@ -24,7 +24,9 @@
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
-/** The possible modes how data is received on the serial interface */
+/**
+ * The possible modes how data is received on the serial interface
+ */
 public enum MessageMode {
 	/**
 	 * Mode to send Packets

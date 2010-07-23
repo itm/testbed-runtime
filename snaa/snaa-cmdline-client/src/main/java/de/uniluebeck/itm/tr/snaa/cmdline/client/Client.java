@@ -35,146 +35,146 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Client {
-    private static final Logger log = LoggerFactory.getLogger(Client.class);
+	private static final Logger log = LoggerFactory.getLogger(Client.class);
 
-    enum Operation {
-        authenticate, authorize;
-    }
+	enum Operation {
+		authenticate, authorize;
+	}
 
-    private static final String defaultSnaaUrl = "http://127.0.0.1:8080/snaa/dummy1";
+	private static final String defaultSnaaUrl = "http://127.0.0.1:8080/snaa/dummy1";
 
-    private static final String defaultUrnPrefix = "urn:wisebed:dummy";
+	private static final String defaultUrnPrefix = "urn:wisebed:dummy";
 
-    private static final String defaultAction = "reserve";
+	private static final String defaultAction = "reserve";
 
-    private static final String defaultOperation = Operation.authenticate.toString();
+	private static final String defaultOperation = Operation.authenticate.toString();
 
-    private static final String defaultSecretAuthenticationKey = "dummy-secret-key";
+	private static final String defaultSecretAuthenticationKey = "dummy-secret-key";
 
-    /**
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) {
-        URL url = null;
-        String username = null;
-        String password = null;
-        String urnPrefix = null;
-        String action = null;
-        Operation operation = null;
-        String secretAuthenticationKey = null;
+	/**
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) {
+		URL url = null;
+		String username = null;
+		String password = null;
+		String urnPrefix = null;
+		String action = null;
+		Operation operation = null;
+		String secretAuthenticationKey = null;
 
-        CommandLineParser parser = new PosixParser();
-        Options options = new Options();
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
 
-        options.addOption("l", "url", true, "URL of the SNAA, defaults to " + defaultSnaaUrl);
-        options.addOption("u", "username", true, "Username");
-        options.addOption("p", "password", true, "Password");
-        options.addOption("o", "operation", true, "Operation to perform, possible values: "
-                + Arrays.toString(Operation.values()));
-        options.addOption("a", "action", true, "Action string for authorization operation, defaults to: "
-                + defaultAction);
-        options.addOption("s", "secretauthkey", true, "Secret auth key for authorization option, defauls to "
-                + defaultSecretAuthenticationKey);
-        options.addOption("x", "urnprefix", true, "URN Prefix, defaults to " + defaultUrnPrefix);
-        options.addOption("v", "verbose", false, "Verbose logging output");
-        options.addOption("h", "help", false, "Help output");
+		options.addOption("l", "url", true, "URL of the SNAA, defaults to " + defaultSnaaUrl);
+		options.addOption("u", "username", true, "Username");
+		options.addOption("p", "password", true, "Password");
+		options.addOption("o", "operation", true, "Operation to perform, possible values: "
+				+ Arrays.toString(Operation.values()));
+		options.addOption("a", "action", true, "Action string for authorization operation, defaults to: "
+				+ defaultAction);
+		options.addOption("s", "secretauthkey", true, "Secret auth key for authorization option, defauls to "
+				+ defaultSecretAuthenticationKey);
+		options.addOption("x", "urnprefix", true, "URN Prefix, defaults to " + defaultUrnPrefix);
+		options.addOption("v", "verbose", false, "Verbose logging output");
+		options.addOption("h", "help", false, "Help output");
 
-        try {
+		try {
 
-            CommandLine line = parser.parse(options, args);
+			CommandLine line = parser.parse(options, args);
 
-            if (line.hasOption('v'))
-                org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
+			if (line.hasOption('v'))
+				org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
 
-            if (line.hasOption('h'))
-                printUsageAndExit(options);
+			if (line.hasOption('h'))
+				printUsageAndExit(options);
 
-            url = new URL(getOptionalArgument(line, 'l', defaultSnaaUrl));
-            urnPrefix = getOptionalArgument(line, 'x', defaultUrnPrefix);
-            username = getMandatoryArgument(line, 'u');
-            password = getMandatoryArgument(line, 'p');
-            action = getOptionalArgument(line, 'a', defaultAction);
-            secretAuthenticationKey = getOptionalArgument(line, 's', defaultSecretAuthenticationKey);
-            operation = Operation.valueOf(getOptionalArgument(line, 'a', defaultOperation));
+			url = new URL(getOptionalArgument(line, 'l', defaultSnaaUrl));
+			urnPrefix = getOptionalArgument(line, 'x', defaultUrnPrefix);
+			username = getMandatoryArgument(line, 'u');
+			password = getMandatoryArgument(line, 'p');
+			action = getOptionalArgument(line, 'a', defaultAction);
+			secretAuthenticationKey = getOptionalArgument(line, 's', defaultSecretAuthenticationKey);
+			operation = Operation.valueOf(getOptionalArgument(line, 'a', defaultOperation));
 
-        } catch (Exception e) {
-            log.error("Invalid command line: " + e);
-            printUsageAndExit(options);
-        }
+		} catch (Exception e) {
+			log.error("Invalid command line: " + e);
+			printUsageAndExit(options);
+		}
 
-        SNAAService service = new SNAAService(url, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
-        SNAA port = service.getPort(SNAA.class);
+		SNAAService service = new SNAAService(url, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
+		SNAA port = service.getPort(SNAA.class);
 
-        if (operation == Operation.authenticate) {
-            AuthenticationTriple auth1 = new AuthenticationTriple();
+		if (operation == Operation.authenticate) {
+			AuthenticationTriple auth1 = new AuthenticationTriple();
 
-            auth1.setUrnPrefix(urnPrefix);
-            auth1.setUsername(username);
-            auth1.setPassword(password);
+			auth1.setUrnPrefix(urnPrefix);
+			auth1.setUsername(username);
+			auth1.setPassword(password);
 
-            List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
-            authTriples.add(auth1);
+			List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
+			authTriples.add(auth1);
 
-            System.out.println("Authenticating username[" + username + "], urnprefix[" + urnPrefix + "] at [" + url
-                    + "]");
-            try {
-                List<SecretAuthenticationKey> list = port.authenticate(authTriples);
+			System.out.println("Authenticating username[" + username + "], urnprefix[" + urnPrefix + "] at [" + url
+					+ "]");
+			try {
+				List<SecretAuthenticationKey> list = port.authenticate(authTriples);
 
-                System.out.println("Authentication suceeded, secret authentication key(s): ");
-                for (SecretAuthenticationKey sak : list)
-                    System.out.println("\tuser[" + sak.getUsername() + "], urnprefix[" + sak.getUrnPrefix() + "], key["
-                            + sak.getSecretAuthenticationKey() + "]");
+				System.out.println("Authentication suceeded, secret authentication key(s): ");
+				for (SecretAuthenticationKey sak : list)
+					System.out.println("\tuser[" + sak.getUsername() + "], urnprefix[" + sak.getUrnPrefix() + "], key["
+							+ sak.getSecretAuthenticationKey() + "]");
 
-            } catch (AuthenticationExceptionException e) {
-                System.out.println("Authentication failed [" + e + "]");
-                e.printStackTrace();
-            } catch (SNAAExceptionException e) {
-                System.out.println("Server reported error, authentication failed [" + e + "]");
-                e.printStackTrace();
-            }
+			} catch (AuthenticationExceptionException e) {
+				System.out.println("Authentication failed [" + e + "]");
+				e.printStackTrace();
+			} catch (SNAAExceptionException e) {
+				System.out.println("Server reported error, authentication failed [" + e + "]");
+				e.printStackTrace();
+			}
 
-        } else if (operation == Operation.authorize) {
-            List<SecretAuthenticationKey> saks = new ArrayList<SecretAuthenticationKey>();
-            SecretAuthenticationKey sak = new SecretAuthenticationKey();
+		} else if (operation == Operation.authorize) {
+			List<SecretAuthenticationKey> saks = new ArrayList<SecretAuthenticationKey>();
+			SecretAuthenticationKey sak = new SecretAuthenticationKey();
 
-            sak.setSecretAuthenticationKey(secretAuthenticationKey);
-            saks.add(sak);
+			sak.setSecretAuthenticationKey(secretAuthenticationKey);
+			saks.add(sak);
 
-            try {
-                Action actionObj = new Action();
-                actionObj.setAction(action);
-                boolean authorized = port.isAuthorized(saks, actionObj);
-                System.out.println("Authorization " + (authorized ? "suceeded" : "failed"));
+			try {
+				Action actionObj = new Action();
+				actionObj.setAction(action);
+				boolean authorized = port.isAuthorized(saks, actionObj);
+				System.out.println("Authorization " + (authorized ? "suceeded" : "failed"));
 
-            } catch (SNAAExceptionException e) {
-                System.out.println("Authorization failed, server reported error [" + e + "]");
-                e.printStackTrace();
-            }
+			} catch (SNAAExceptionException e) {
+				System.out.println("Authorization failed, server reported error [" + e + "]");
+				e.printStackTrace();
+			}
 
-        }
+		}
 
-    }
+	}
 
-    private static void printUsageAndExit(Options options) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("de.uniluebeck.itm.tr.snaa.cmdline.Main", options);
-        System.exit(1);
-    }
+	private static void printUsageAndExit(Options options) {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("de.uniluebeck.itm.tr.snaa.cmdline.Main", options);
+		System.exit(1);
+	}
 
-    private static String getMandatoryArgument(CommandLine line, char argument) throws Exception {
-        String tmp = getOptionalArgument(line, argument, null);
-        if (tmp != null)
-            return line.getOptionValue(argument);
+	private static String getMandatoryArgument(CommandLine line, char argument) throws Exception {
+		String tmp = getOptionalArgument(line, argument, null);
+		if (tmp != null)
+			return line.getOptionValue(argument);
 
-        throw new Exception("Please supply -" + argument);
-    }
+		throw new Exception("Please supply -" + argument);
+	}
 
-    private static String getOptionalArgument(CommandLine line, char argument, String defaultValue) throws Exception {
-        if (line.hasOption(argument))
-            return line.getOptionValue(argument);
-        else
-            return defaultValue;
-    }
+	private static String getOptionalArgument(CommandLine line, char argument, String defaultValue) throws Exception {
+		if (line.hasOption(argument))
+			return line.getOptionValue(argument);
+		else
+			return defaultValue;
+	}
 
 }

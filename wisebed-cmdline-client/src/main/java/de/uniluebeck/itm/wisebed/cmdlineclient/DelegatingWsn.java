@@ -32,15 +32,15 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 
 @WebService(
-        serviceName = "WSNService",
-        targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
-        portName = "WSNPort",
-        endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
+		serviceName = "WSNService",
+		targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
+		portName = "WSNPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
 )
 public class DelegatingWsn implements WSN {
 
 	private WSN delegate = null;
-	
+
 	private DelegatingWsn(WSN delegate) {
 		super();
 		this.delegate = delegate;
@@ -145,7 +145,7 @@ public class DelegatingWsn implements WSN {
 
 	@Override
 	public String setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance,
-			List<String> parameters, List<String> filters) {
+								 List<String> parameters, List<String> filters) {
 		return delegate.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 	}
 

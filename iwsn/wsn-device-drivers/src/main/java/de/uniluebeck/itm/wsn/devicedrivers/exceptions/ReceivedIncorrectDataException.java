@@ -26,21 +26,21 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 /**
  * @author Friedemann Wesner
- *
  */
 @SuppressWarnings("serial")
 public class ReceivedIncorrectDataException extends Exception {
 	private String msg = null;
-	
+
 	/**
 	 * Constructor
 	 */
 	public ReceivedIncorrectDataException() {
-		
+
 	}
-	
+
 	/**
 	 * Constructor
+	 *
 	 * @param msg
 	 */
 	public ReceivedIncorrectDataException(String msg) {
@@ -50,6 +50,7 @@ public class ReceivedIncorrectDataException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;

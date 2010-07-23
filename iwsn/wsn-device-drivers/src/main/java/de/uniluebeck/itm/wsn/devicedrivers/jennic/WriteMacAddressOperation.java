@@ -32,12 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
+
 /**
- * 
+ *
  */
 
 public class WriteMacAddressOperation extends iSenseDeviceOperation {
-	/** Logging */
+	/**
+	 * Logging
+	 */
 	private static final Logger log = LoggerFactory.getLogger(WriteMacAddressOperation.class);
 
 	/** */
@@ -47,8 +50,9 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	private MacAddress mac;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public WriteMacAddressOperation(JennicDevice device, MacAddress mac) {
 		super(device);
@@ -57,8 +61,8 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
@@ -129,8 +133,9 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected byte[][] readSector(Sectors.SectorIndex index) throws Exception {
 		int start = Sectors.getSectorStart(index);
@@ -170,8 +175,9 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private void writeSector(Sectors.SectorIndex index, byte[][] sector) throws Exception {
 		int address = Sectors.getSectorStart(index);
@@ -187,16 +193,18 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private int getBlockSize() {
 		return 128;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -222,8 +230,9 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

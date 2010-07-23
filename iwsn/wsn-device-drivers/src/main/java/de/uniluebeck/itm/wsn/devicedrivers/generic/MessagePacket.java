@@ -28,13 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
-
-
 /**
- * 
  * @author dp
- * 
  */
 
 public class MessagePacket implements Message {
@@ -44,22 +39,28 @@ public class MessagePacket implements Message {
 	/** */
 	private static long nextIdCounter = 0;
 
-	/** Special character */
+	/**
+	 * Special character
+	 */
 	public static final byte STX = 0x02;
 
-	/** Special character */
+	/**
+	 * Special character
+	 */
 	public static final byte ETX = 0x03;
 
-	/** Special character */
+	/**
+	 * Special character
+	 */
 	public static final byte DLE = 0x10;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final byte CR = 0x0D;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final byte LF = 0x0A;
 
@@ -73,15 +74,17 @@ public class MessagePacket implements Message {
 	private long id = nextId();
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected MessagePacket() {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public MessagePacket(int type, byte[] content) {
 		setType(type);
@@ -89,8 +92,9 @@ public class MessagePacket implements Message {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private synchronized static long nextId() {
 		if (nextIdCounter >= Long.MAX_VALUE - 1)
@@ -100,8 +104,9 @@ public class MessagePacket implements Message {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static MessagePacket parse(byte[] buffer, int offset, int length) {
 		MessagePacket p = new MessagePacket();
@@ -117,8 +122,9 @@ public class MessagePacket implements Message {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public String toString() {
 		return "Packet ID[" + id + "]: Type: [" + type + "], content: hex[" + StringUtils.toHexString(content) + "], string[" + new String(content) + "]";
@@ -130,7 +136,7 @@ public class MessagePacket implements Message {
 
 	/**
 	 * Sets the given content
-	 * 
+	 *
 	 * @param content
 	 */
 	public void setContent(byte[] content) {
@@ -140,7 +146,7 @@ public class MessagePacket implements Message {
 
 	/**
 	 * Returns the current type
-	 * 
+	 *
 	 * @return
 	 */
 	public int getType() {
@@ -149,7 +155,7 @@ public class MessagePacket implements Message {
 
 	/**
 	 * Sets the type
-	 * 
+	 *
 	 * @param type
 	 */
 	public void setType(int type) {
@@ -158,7 +164,7 @@ public class MessagePacket implements Message {
 
 	/**
 	 * Returns the id
-	 * 
+	 *
 	 * @return
 	 */
 	public long getId() {

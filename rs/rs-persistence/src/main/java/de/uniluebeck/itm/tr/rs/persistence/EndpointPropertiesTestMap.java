@@ -35,103 +35,103 @@ import java.util.Map;
  */
 public class EndpointPropertiesTestMap {
 
-    public static final Map<String, String> SNAAPropertiesMapWisebed1 = new HashMap<String, String>() {{
+	public static final Map<String, String> SNAAPropertiesMapWisebed1 = new HashMap<String, String>() {{
 
-        put("config.port","8080");
-        put("config.snaas","dummy1, dummy2");
+		put("config.port", "8080");
+		put("config.snaas", "dummy1, dummy2");
 
-        put("dummy1.type","dummy");
-        put("dummy1.urnprefix","urn:wisebed1:testbed1");
-        put("dummy1.path","/snaa/dummy1");
+		put("dummy1.type", "dummy");
+		put("dummy1.urnprefix", "urn:wisebed1:testbed1");
+		put("dummy1.path", "/snaa/dummy1");
 
-        put("dummy2.type","dummy");
-        put("dummy2.urnprefix","urn:wisebed1:testbed2");
-        put("dummy2.path","/snaa/dummy2");
-    }};
+		put("dummy2.type", "dummy");
+		put("dummy2.urnprefix", "urn:wisebed1:testbed2");
+		put("dummy2.path", "/snaa/dummy2");
+	}};
 
-    public static final Map<String, String> SNAAPropertiesMapWisebed2 = new HashMap<String, String>() {{
+	public static final Map<String, String> SNAAPropertiesMapWisebed2 = new HashMap<String, String>() {{
 
-        put("config.port","8090");
-        put("config.snaas","dummy1, dummy2");
+		put("config.port", "8090");
+		put("config.snaas", "dummy1, dummy2");
 
-        put("dummy1.type","dummy");
-        put("dummy1.urnprefix", "urn:wisebed2:testbed1");
-        put("dummy1.path","/snaa/dummy1");
+		put("dummy1.type", "dummy");
+		put("dummy1.urnprefix", "urn:wisebed2:testbed1");
+		put("dummy1.path", "/snaa/dummy1");
 
-        put("dummy2.type","dummy");
-        put("dummy2.urnprefix", "urn:wisebed2:testbed2");
-        put("dummy2.path","/snaa/dummy2");
+		put("dummy2.type", "dummy");
+		put("dummy2.urnprefix", "urn:wisebed2:testbed2");
+		put("dummy2.path", "/snaa/dummy2");
 
 
-        /*put("shib1.type","shibboleth");
-        put("shib1.urnprefix","urn:wisebed:shib1");
-        put("shib1.path","/snaa/shib1");
-        put("shib2.type","shibboleth");
-        put("shib2.urnprefix","urn:wisebed:shib2");
-        put("shib2.path","/snaa/shib2");
-        put("fed1.type","federator");
-        put("fed1.path","/snaa/fed1");
-        put("fed1.federates","shib1, shib2, dummy1, dummy2");
-        put("fed1.shib1.urnprefixes","urn:wisebed:shib1");
-        put("fed1.shib1.endpointurl","http://localhost:8080/snaa/shib1");
-        put("fed1.shib2.urnprefixes","urn:wisebed:shib2");
-        put("fed1.shib2.endpointurl","http://localhost:8080/snaa/shib2");
-        put("fed1.dummy1.urnprefixes","urn:wisebed:testbed1");
-        put("fed1.dummy1.endpointurl","http://localhost:8080/snaa/dummy1");
-        put("fed1.dummy2.urnprefixes","urn:wisebed:testbed2");
-        put("fed1.dummy2.endpointurl","http://localhost:8080/snaa/dummy2");
-        put("jaas1.type","jaas");
-        put("jaas1.urnprefix","urn:wisebed:jaas1");
-        put("jaas1.path","/snaa/jaas1");
-        put("jaas1.configfile","sample_config.jaas");
-        put("jaas1.module","AlwaysTrue");
-        put("jaas2.type","jaas");
-        put("jaas2.urnprefix","urn:wisebed:jaas2");
-        put("jaas2.path","/snaa/jaas2");
-        put("jaas2.configfile","sample_config.jaas");
-        put("jaas2.module","HtpasswdFile");*/
-    }};
+		/*put("shib1.type","shibboleth");
+				put("shib1.urnprefix","urn:wisebed:shib1");
+				put("shib1.path","/snaa/shib1");
+				put("shib2.type","shibboleth");
+				put("shib2.urnprefix","urn:wisebed:shib2");
+				put("shib2.path","/snaa/shib2");
+				put("fed1.type","federator");
+				put("fed1.path","/snaa/fed1");
+				put("fed1.federates","shib1, shib2, dummy1, dummy2");
+				put("fed1.shib1.urnprefixes","urn:wisebed:shib1");
+				put("fed1.shib1.endpointurl","http://localhost:8080/snaa/shib1");
+				put("fed1.shib2.urnprefixes","urn:wisebed:shib2");
+				put("fed1.shib2.endpointurl","http://localhost:8080/snaa/shib2");
+				put("fed1.dummy1.urnprefixes","urn:wisebed:testbed1");
+				put("fed1.dummy1.endpointurl","http://localhost:8080/snaa/dummy1");
+				put("fed1.dummy2.urnprefixes","urn:wisebed:testbed2");
+				put("fed1.dummy2.endpointurl","http://localhost:8080/snaa/dummy2");
+				put("jaas1.type","jaas");
+				put("jaas1.urnprefix","urn:wisebed:jaas1");
+				put("jaas1.path","/snaa/jaas1");
+				put("jaas1.configfile","sample_config.jaas");
+				put("jaas1.module","AlwaysTrue");
+				put("jaas2.type","jaas");
+				put("jaas2.urnprefix","urn:wisebed:jaas2");
+				put("jaas2.path","/snaa/jaas2");
+				put("jaas2.configfile","sample_config.jaas");
+				put("jaas2.module","HtpasswdFile");*/
+	}};
 
-    public static final Map<String, String> RSPropertiesMap = new HashMap<String, String>() {{
+	public static final Map<String, String> RSPropertiesMap = new HashMap<String, String>() {{
 
-        put("config.port","9090");
-        put("config.rsnames","inmemory1, inmemory2, inmemory3, inmemory4, fed1");
+		put("config.port", "9090");
+		put("config.rsnames", "inmemory1, inmemory2, inmemory3, inmemory4, fed1");
 
-        put("inmemory1.type","singleurnprefix");
-        put("inmemory1.snaaendpointurl","http://localhost:8080/snaa/dummy1");
-        put("inmemory1.persistence","inmemory");
-        put("inmemory1.urnprefix","urn:wisebed1:testbed1");
-        put("inmemory1.path","/rs/inmemory1");
+		put("inmemory1.type", "singleurnprefix");
+		put("inmemory1.snaaendpointurl", "http://localhost:8080/snaa/dummy1");
+		put("inmemory1.persistence", "inmemory");
+		put("inmemory1.urnprefix", "urn:wisebed1:testbed1");
+		put("inmemory1.path", "/rs/inmemory1");
 
-        put("inmemory2.type","singleurnprefix");
-        put("inmemory2.snaaendpointurl","http://localhost:8080/snaa/dummy2");
-        put("inmemory2.persistence","inmemory");
-        put("inmemory2.urnprefix","urn:wisebed1:testbed2");
-        put("inmemory2.path","/rs/inmemory2");
+		put("inmemory2.type", "singleurnprefix");
+		put("inmemory2.snaaendpointurl", "http://localhost:8080/snaa/dummy2");
+		put("inmemory2.persistence", "inmemory");
+		put("inmemory2.urnprefix", "urn:wisebed1:testbed2");
+		put("inmemory2.path", "/rs/inmemory2");
 
-        put("inmemory3.type","singleurnprefix");
-        put("inmemory3.snaaendpointurl","http://localhost:8090/snaa/dummy1");
-        put("inmemory3.persistence","inmemory");
-        put("inmemory3.urnprefix","urn:wisebed2:testbed1");
-        put("inmemory3.path","/rs/inmemory3");
+		put("inmemory3.type", "singleurnprefix");
+		put("inmemory3.snaaendpointurl", "http://localhost:8090/snaa/dummy1");
+		put("inmemory3.persistence", "inmemory");
+		put("inmemory3.urnprefix", "urn:wisebed2:testbed1");
+		put("inmemory3.path", "/rs/inmemory3");
 
-        put("inmemory4.type","singleurnprefix");
-        put("inmemory4.snaaendpointurl","http://localhost:8090/snaa/dummy2");
-        put("inmemory4.persistence","inmemory");
-        put("inmemory4.urnprefix","urn:wisebed2:testbed2");
-        put("inmemory4.path","/rs/inmemory4");
+		put("inmemory4.type", "singleurnprefix");
+		put("inmemory4.snaaendpointurl", "http://localhost:8090/snaa/dummy2");
+		put("inmemory4.persistence", "inmemory");
+		put("inmemory4.urnprefix", "urn:wisebed2:testbed2");
+		put("inmemory4.path", "/rs/inmemory4");
 
-        put("fed1.type","federator");
-        put("fed1.path","/rs/fed1");
-        put("fed1.federates","inmemory1, inmemory2, inmemory3, inmemory4");
-        put("fed1.inmemory1.urnprefixes","urn:wisebed1:testbed1");
-        put("fed1.inmemory1.endpointurl","http://localhost:9090/rs/inmemory1");
-        put("fed1.inmemory2.urnprefixes","urn:wisebed1:testbed2");
-        put("fed1.inmemory2.endpointurl","http://localhost:9090/rs/inmemory2");
-        put("fed1.inmemory3.urnprefixes","urn:wisebed2:testbed1");
-        put("fed1.inmemory3.endpointurl","http://localhost:9090/rs/inmemory3");
-        put("fed1.inmemory4.urnprefixes","urn:wisebed2:testbed2");
-        put("fed1.inmemory4.endpointurl","http://localhost:9090/rs/inmemory4");
+		put("fed1.type", "federator");
+		put("fed1.path", "/rs/fed1");
+		put("fed1.federates", "inmemory1, inmemory2, inmemory3, inmemory4");
+		put("fed1.inmemory1.urnprefixes", "urn:wisebed1:testbed1");
+		put("fed1.inmemory1.endpointurl", "http://localhost:9090/rs/inmemory1");
+		put("fed1.inmemory2.urnprefixes", "urn:wisebed1:testbed2");
+		put("fed1.inmemory2.endpointurl", "http://localhost:9090/rs/inmemory2");
+		put("fed1.inmemory3.urnprefixes", "urn:wisebed2:testbed1");
+		put("fed1.inmemory3.endpointurl", "http://localhost:9090/rs/inmemory3");
+		put("fed1.inmemory4.urnprefixes", "urn:wisebed2:testbed2");
+		put("fed1.inmemory4.endpointurl", "http://localhost:9090/rs/inmemory4");
 
-    }};
+	}};
 }

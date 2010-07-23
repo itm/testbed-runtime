@@ -9,18 +9,14 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.xml;
 
 import javax.annotation.Generated;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -32,45 +28,39 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "webservice"
+		"webservice"
 })
 @XmlRootElement(name = "portalapp")
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Portalapp {
 
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected WebService webservice;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected WebService webservice;
 
-    /**
-     * Gets the value of the webservice property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link WebService }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public WebService getWebservice() {
-        return webservice;
-    }
+	/**
+	 * Gets the value of the webservice property.
+	 *
+	 * @return possible object is
+	 *         {@link WebService }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public WebService getWebservice() {
+		return webservice;
+	}
 
-    /**
-     * Sets the value of the webservice property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link WebService }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setWebservice(WebService value) {
-        this.webservice = value;
-    }
+	/**
+	 * Sets the value of the webservice property.
+	 *
+	 * @param value allowed object is
+	 *              {@link WebService }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-16T10:15:31+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setWebservice(WebService value) {
+		this.webservice = value;
+	}
 
 }

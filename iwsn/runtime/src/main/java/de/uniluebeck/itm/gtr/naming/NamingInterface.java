@@ -25,53 +25,53 @@ package de.uniluebeck.itm.gtr.naming;
 
 public class NamingInterface implements Cloneable {
 
-    private String type;
+	private String type;
 
-    private String address;
+	private String address;
 
-    public NamingInterface(String type, String address) {
-        this.type = type;
-        this.address = address;
-    }
+	public NamingInterface(String type, String address) {
+		this.type = type;
+		this.address = address;
+	}
 
-    protected NamingInterface(NamingInterface iface) {
-        this.type = iface.type;
-        this.address = iface.address;
-    }
+	protected NamingInterface(NamingInterface iface) {
+		this.type = iface.type;
+		this.address = iface.address;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public String getAddress() {
-        return address;
-    }
+	public String getAddress() {
+		return address;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        NamingInterface that = (NamingInterface) o;
+		NamingInterface that = (NamingInterface) o;
 
-        if (!address.equals(that.address)) return false;
-        if (!type.equals(that.type)) return false;
+		if (!address.equals(that.address)) return false;
+		if (!type.equals(that.type)) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + address.hashCode();
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = type.hashCode();
+		result = 31 * result + address.hashCode();
+		return result;
+	}
 
-    @Override
-    public String toString() {
-        return "NamingInterface{" +
-                "type='" + type + '\'' +
-                ", address='" + address + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "NamingInterface{" +
+				"type='" + type + '\'' +
+				", address='" + address + '\'' +
+				'}';
+	}
 }

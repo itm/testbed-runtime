@@ -25,10 +25,6 @@ package de.uniluebeck.itm.gtr.common;
 
 import com.google.inject.internal.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 
 /**
  * Abstract base class for classes that have to inform listeners about events. This class is thread-safe.
@@ -39,13 +35,13 @@ public abstract class AbstractListenable<T> implements Listenable<T> {
 
 	protected ImmutableList<T> listeners = (ImmutableList<T>) ImmutableList.builder().build();
 
-    @Override
-    public void addListener(T listener) {
+	@Override
+	public void addListener(T listener) {
 		listeners = (ImmutableList<T>) ImmutableList.builder().addAll(listeners).add(listener).build();
 	}
 
-    @Override
-    public void removeListener(T listener) {
+	@Override
+	public void removeListener(T listener) {
 		ImmutableList.Builder<Object> listBuilder = ImmutableList.builder();
 		for (T t : listeners) {
 			if (t != listener) {
@@ -53,6 +49,6 @@ public abstract class AbstractListenable<T> implements Listenable<T> {
 			}
 		}
 		listeners = (ImmutableList<T>) listBuilder.build();
-    }
+	}
 
 }

@@ -1,4 +1,3 @@
-
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for program complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="program">
  *   &lt;complexContent>
@@ -24,64 +23,56 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "program", propOrder = {
-    "metaData",
-    "program"
+		"metaData",
+		"program"
 })
 public class Program {
 
-    protected ProgramMetaData metaData;
-    @XmlElement(required = true)
-    protected byte[] program;
+	protected ProgramMetaData metaData;
+	@XmlElement(required = true)
+	protected byte[] program;
 
-    /**
-     * Gets the value of the metaData property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ProgramMetaData }
-     *     
-     */
-    public ProgramMetaData getMetaData() {
-        return metaData;
-    }
+	/**
+	 * Gets the value of the metaData property.
+	 *
+	 * @return possible object is
+	 *         {@link ProgramMetaData }
+	 */
+	public ProgramMetaData getMetaData() {
+		return metaData;
+	}
 
-    /**
-     * Sets the value of the metaData property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ProgramMetaData }
-     *     
-     */
-    public void setMetaData(ProgramMetaData value) {
-        this.metaData = value;
-    }
+	/**
+	 * Sets the value of the metaData property.
+	 *
+	 * @param value allowed object is
+	 *              {@link ProgramMetaData }
+	 */
+	public void setMetaData(ProgramMetaData value) {
+		this.metaData = value;
+	}
 
-    /**
-     * Gets the value of the program property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
-     */
-    public byte[] getProgram() {
-        return program;
-    }
+	/**
+	 * Gets the value of the program property.
+	 *
+	 * @return possible object is
+	 *         byte[]
+	 */
+	public byte[] getProgram() {
+		return program;
+	}
 
-    /**
-     * Sets the value of the program property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
-     */
-    public void setProgram(byte[] value) {
-        this.program = ((byte[]) value);
-    }
+	/**
+	 * Sets the value of the program property.
+	 *
+	 * @param value allowed object is
+	 *              byte[]
+	 */
+	public void setProgram(byte[] value) {
+		this.program = ((byte[]) value);
+	}
 
 }

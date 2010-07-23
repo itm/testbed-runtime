@@ -55,7 +55,7 @@ public interface Interaction {
 	 * // TODO documentation
 	 *
 	 * @param binaryType binary type to identify the receiver
-	 * @param payload	 the payload to be send to the node
+	 * @param payload	the payload to be send to the node
 	 * @param callback
 	 */
 	void sendByteMessage(byte binaryType, byte payload[], NodeApiCallback callback);

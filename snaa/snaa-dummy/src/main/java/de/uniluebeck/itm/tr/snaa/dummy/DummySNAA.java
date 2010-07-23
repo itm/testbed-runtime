@@ -33,39 +33,39 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
-        endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA",
-        portName = "SNAAPort",
-        serviceName = "SNAAService",
-        targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+		endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
 )
 public class DummySNAA implements SNAA {
 
-    private Random r = new SecureRandom();
+	private Random r = new SecureRandom();
 
-    @Override
-    public List<SecretAuthenticationKey> authenticate(
-            @WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-            throws AuthenticationExceptionException, SNAAExceptionException {
+	@Override
+	public List<SecretAuthenticationKey> authenticate(
+			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+			throws AuthenticationExceptionException, SNAAExceptionException {
 
-        List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
+		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
 
-        for (AuthenticationTriple triple : authenticationData) {
-            SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
-            secretAuthenticationKey.setUrnPrefix(triple.getUrnPrefix());
-            secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
-            secretAuthenticationKey.setUsername(triple.getUsername());
-            keys.add(secretAuthenticationKey);
-        }
+		for (AuthenticationTriple triple : authenticationData) {
+			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
+			secretAuthenticationKey.setUrnPrefix(triple.getUrnPrefix());
+			secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
+			secretAuthenticationKey.setUsername(triple.getUsername());
+			keys.add(secretAuthenticationKey);
+		}
 
-        return keys;
-    }
+		return keys;
+	}
 
-    @Override
-    public boolean isAuthorized(
-            @WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-            @WebParam(name = "action", targetNamespace = "") Action action)
-            throws SNAAExceptionException {
+	@Override
+	public boolean isAuthorized(
+			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
+			@WebParam(name = "action", targetNamespace = "") Action action)
+			throws SNAAExceptionException {
 
-        return true;
-    }
+		return true;
+	}
 }

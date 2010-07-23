@@ -25,19 +25,19 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class FlashProgramFailedException extends Exception {
 	private String msg = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public FlashProgramFailedException() {
-		
+
 	}
-	
+
 	/**
 	 * @param msg
 	 */
@@ -48,6 +48,7 @@ public class FlashProgramFailedException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;

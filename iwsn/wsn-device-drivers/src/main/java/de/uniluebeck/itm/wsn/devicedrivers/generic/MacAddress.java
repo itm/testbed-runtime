@@ -29,9 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author dp
- * 
  */
 public class MacAddress {
 	/** */
@@ -41,21 +39,22 @@ public class MacAddress {
 	 * Suppose the MAC address is: 00:15:8D:00:00:04:7D:50. Then 0x00 will be
 	 * stored at address[0] and 0x50 at address[7]. The least significant value
 	 * isx50. 0x00 0x15 0x8D 0x00 0x00 0x04 0x7D 0x50
-	 * 
-	 * */
+	 */
 	private byte[] address = {};
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 
 	public MacAddress() {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public MacAddress(int lower16) {
 		address = new byte[8];
@@ -67,16 +66,18 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public MacAddress(byte[] address) {
 		setMacBytes(address);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public MacAddress(byte[] address, int offset) {
 		byte mac[] = new byte[8];
@@ -85,6 +86,7 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
 	 * Returns the MAC address as string in hex format
 	 */
@@ -93,8 +95,9 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public byte[] getMacBytes() {
 		byte[] tmp = new byte[address.length];
@@ -103,8 +106,9 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void setMacBytes(byte[] address) {
 		this.address = new byte[8];
@@ -114,8 +118,9 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public int getMacLowest16() {
 		byte[] address = getMacBytes();
@@ -123,14 +128,16 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public boolean equalsLower16(int id) {
 		return id == getMacLowest16();
 	}
 
 	// -------------------------------------------------------------------------
+
 	@Override
 	public boolean equals(Object o) {
 
@@ -143,8 +150,9 @@ public class MacAddress {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public String toString() {
 		return getMacString();

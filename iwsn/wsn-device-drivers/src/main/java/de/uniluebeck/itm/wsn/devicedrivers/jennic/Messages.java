@@ -110,7 +110,7 @@ public class Messages {
 
 	/**	 */
 	public static byte[] flashEraseRequestMessage() {
-		return new byte[] { FLASH_ERASE_REQUEST };
+		return new byte[]{FLASH_ERASE_REQUEST};
 	}
 
 	/**	 */
@@ -146,7 +146,7 @@ public class Messages {
 
 	/**	 */
 	public static byte[] flashTypeReadRequestMessage() {
-		return new byte[] { FLASH_TYPE_READ_REQUEST };
+		return new byte[]{FLASH_TYPE_READ_REQUEST};
 	}
 
 	/**	 */

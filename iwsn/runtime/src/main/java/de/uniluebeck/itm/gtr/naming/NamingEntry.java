@@ -28,66 +28,66 @@ import java.util.Comparator;
 
 public class NamingEntry implements Cloneable {
 
-    public static class NamingEntryComparator implements Comparator<NamingEntry> {
-        @Override
-        public int compare(NamingEntry o1, NamingEntry o2) {
-            return o1.priority < o2.priority ? -1 : o1.priority == o2.priority ? 0 : 1;
-        }
-    }
+	public static class NamingEntryComparator implements Comparator<NamingEntry> {
+		@Override
+		public int compare(NamingEntry o1, NamingEntry o2) {
+			return o1.priority < o2.priority ? -1 : o1.priority == o2.priority ? 0 : 1;
+		}
+	}
 
-    private String nodeName;
+	private String nodeName;
 
-    private NamingInterface iface;
+	private NamingInterface iface;
 
-    private int priority;
+	private int priority;
 
-    public NamingEntry(String nodeName, NamingInterface iface, int priority) {
-        this.nodeName = nodeName;
-        this.iface = iface;
-        this.priority = priority;
-    }
+	public NamingEntry(String nodeName, NamingInterface iface, int priority) {
+		this.nodeName = nodeName;
+		this.iface = iface;
+		this.priority = priority;
+	}
 
-    public String getNodeName() {
-        return nodeName;
-    }
+	public String getNodeName() {
+		return nodeName;
+	}
 
-    public NamingInterface getIface() {
-        return iface;
-    }
+	public NamingInterface getIface() {
+		return iface;
+	}
 
-    public int getPriority() {
-        return priority;
-    }
+	public int getPriority() {
+		return priority;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        NamingEntry that = (NamingEntry) o;
+		NamingEntry that = (NamingEntry) o;
 
-        if (priority != that.priority) return false;
-        if (iface != null ? !iface.equals(that.iface) : that.iface != null) return false;
-        if (nodeName != null ? !nodeName.equals(that.nodeName) : that.nodeName != null) return false;
+		if (priority != that.priority) return false;
+		if (iface != null ? !iface.equals(that.iface) : that.iface != null) return false;
+		if (nodeName != null ? !nodeName.equals(that.nodeName) : that.nodeName != null) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = nodeName != null ? nodeName.hashCode() : 0;
-        result = 31 * result + (iface != null ? iface.hashCode() : 0);
-        result = 31 * result + priority;
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = nodeName != null ? nodeName.hashCode() : 0;
+		result = 31 * result + (iface != null ? iface.hashCode() : 0);
+		result = 31 * result + priority;
+		return result;
+	}
 
-    @Override
-    public String toString() {
-        return "NamingEntry{" +
-                "nodeName='" + nodeName + '\'' +
-                ", iface=" + iface +
-                ", priority=" + priority +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "NamingEntry{" +
+				"nodeName='" + nodeName + '\'' +
+				", iface=" + iface +
+				", priority=" + priority +
+				'}';
+	}
 
 }

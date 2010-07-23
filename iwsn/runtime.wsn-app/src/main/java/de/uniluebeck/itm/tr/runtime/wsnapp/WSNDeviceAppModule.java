@@ -40,23 +40,23 @@ class WSNDeviceAppModule extends AbstractModule {
 	private long nodeId;
 
 	public WSNDeviceAppModule(String nodeUrn, long nodeId, iSenseDevice iSenseDevice, TestbedRuntime testbedRuntime) {
-        this.nodeUrn = nodeUrn;
-        this.nodeId = nodeId;
-        this.iSenseDevice = iSenseDevice;
-        this.testbedRuntime = testbedRuntime;
-    }
+		this.nodeUrn = nodeUrn;
+		this.nodeId = nodeId;
+		this.iSenseDevice = iSenseDevice;
+		this.testbedRuntime = testbedRuntime;
+	}
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 
-        bind(Long.class).annotatedWith(Names.named(WSNDeviceAppImpl.NAME_NODE_ID)).toInstance(nodeId);
-        bind(String.class).annotatedWith(Names.named(WSNDeviceAppImpl.NAME_NODE_URN)).toInstance(nodeUrn);
+		bind(Long.class).annotatedWith(Names.named(WSNDeviceAppImpl.NAME_NODE_ID)).toInstance(nodeId);
+		bind(String.class).annotatedWith(Names.named(WSNDeviceAppImpl.NAME_NODE_URN)).toInstance(nodeUrn);
 
-        bind(iSenseDevice.class).toInstance(iSenseDevice);
+		bind(iSenseDevice.class).toInstance(iSenseDevice);
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
 
-        bind(WSNDeviceApp.class).to(WSNDeviceAppImpl.class);
+		bind(WSNDeviceApp.class).to(WSNDeviceAppImpl.class);
 
-    }
+	}
 
 }

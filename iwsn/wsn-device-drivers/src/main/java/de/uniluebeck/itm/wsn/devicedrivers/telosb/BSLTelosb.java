@@ -39,7 +39,7 @@ import java.io.OutputStream;
 
 /**
  * @author Friedemann Wesner
- * 
+ *         <p/>
  *         This class is for communication with the boot strap loader of a MSP430 MP used by TelosB (tMote) devices. See
  *         the MSP430 Memory Programming Guide (SLAU265A) from http://www.ti.com/msp430 for details on bsl
  *         communication. The tos-bsl python script by Chris Liechti / Volker Rzehak was used as a reference for this
@@ -48,13 +48,21 @@ import java.io.OutputStream;
 public class BSLTelosb {
 	private static final Logger log = LoggerFactory.getLogger(BSLTelosb.class);
 
-	/** Possible values for msp430 baudrate */
+	/**
+	 * Possible values for msp430 baudrate
+	 */
 	public static enum BaudRate {
-		/** 9600 baud (initial rate) */
+		/**
+		 * 9600 baud (initial rate)
+		 */
 		Baud9600,
-		/** 19200 baud */
+		/**
+		 * 19200 baud
+		 */
 		Baud19200,
-		/** 38000 baud */
+		/**
+		 * 38000 baud
+		 */
 		Baud38000;
 
 		public String toString() {
@@ -82,32 +90,50 @@ public class BSLTelosb {
 	}
 
 	/** boot loader command ids */
-	/** mass erase */
+	/**
+	 * mass erase
+	 */
 	public static final int CMD_MASSERASE = 0x18;
 
-	/** transmit password */
+	/**
+	 * transmit password
+	 */
 	public static final int CMD_TXPASSWORD = 0x10;
 
-	/** transmit data block */
+	/**
+	 * transmit data block
+	 */
 	public static final int CMD_TXDATABLOCK = 0x12;
 
-	/** load program counter */
+	/**
+	 * load program counter
+	 */
 	public static final int CMD_LOADPC = 0x1A;
 
-	/** receive data block */
+	/**
+	 * receive data block
+	 */
 	public static final int CMD_RXDATABLOCK = 0x14;
 
-	/** receive bsl version */
+	/**
+	 * receive bsl version
+	 */
 	public static final int CMD_RXBSLVERSION = 0x1E;
 
-	/** change baudrate */
+	/**
+	 * change baudrate
+	 */
 	public static final int CMD_CHANGEBAUD = 0x20;
 
 	/** byte value constants for bsl communication */
-	/** ACK */
+	/**
+	 * ACK
+	 */
 	public static final int DATA_ACK = 0x90;
 
-	/** NO ACK */
+	/**
+	 * NO ACK
+	 */
 	public static final int DATA_NACK = 0xA0;
 
 	/* bsl synchronization byte */
@@ -139,7 +165,7 @@ public class BSLTelosb {
 	private TelosI2CCom i2cCom = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public Object dataAvailableMonitor = new Object();
 
@@ -149,9 +175,8 @@ public class BSLTelosb {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param serialPort
-	 *            used for communication with the bsl
+	 *
+	 * @param serialPort used for communication with the bsl
 	 * @throws IOException
 	 */
 	public BSLTelosb(SerialPort serialPort) throws IOException {
@@ -168,7 +193,7 @@ public class BSLTelosb {
 
 	/**
 	 * Initializes bsl communication by resetting the device.
-	 * 
+	 *
 	 * @return true if BSL was started successfully
 	 */
 	public boolean invokeBSL() {
@@ -199,7 +224,7 @@ public class BSLTelosb {
 
 	/**
 	 * Reset the device.
-	 * 
+	 *
 	 * @return true if resetted successfully
 	 */
 	public boolean reset() {
@@ -228,18 +253,15 @@ public class BSLTelosb {
 
 	/**
 	 * Send BSL command with given address, length and data. Return the received answer of the bsl.
-	 * 
-	 * @param cmd
-	 *            command byte (CMD)
-	 * @param address
-	 *            high and low address bytes (AL and AH)
-	 * @param pureDataLength
-	 *            number of pure data bytes or possibly other info (LL and LH)
-	 * @param data
-	 *            array of data bytes (D1...Dn), may be null
-	 * @wait if true, BSL sync will be repeated forever until it succeeds
+	 *
+	 * @param cmd			command byte (CMD)
+	 * @param address		high and low address bytes (AL and AH)
+	 * @param pureDataLength number of pure data bytes or possibly other info (LL and LH)
+	 * @param data		   array of data bytes (D1...Dn), may be null
 	 * @throws UnexpectedResponseException
 	 * @throws UnsupportedCommOperationException
+	 *
+	 * @wait if true, BSL sync will be repeated forever until it succeeds
 	 */
 	public void sendBSLCommand(int cmd, int address, int pureDataLength, byte data[], boolean wait)
 			throws TimeoutException, IOException, UnexpectedResponseException {
@@ -316,7 +338,7 @@ public class BSLTelosb {
 
 	/**
 	 * Receive bsl reply to a previously sent command
-	 * 
+	 *
 	 * @return bsl reply (ACK, NACK or replied data D0..Dn)
 	 * @throws IOException
 	 * @throws TimeoutException
@@ -351,13 +373,13 @@ public class BSLTelosb {
 			// if (log.isDebugEnabled()) {
 			// log.debug("Received bsl ACK");
 			// }
-			result = (new byte[] { (byte) reply });
+			result = (new byte[]{(byte) reply});
 		} else if (reply == DATA_NACK) {
 			// no acknowledge received
 			if (log.isDebugEnabled()) {
 				log.debug("Received bsl NACK");
 			}
-			result = (new byte[] { (byte) reply });
+			result = (new byte[]{(byte) reply});
 		} else if (reply == BSL_HDR) {
 			// receiving a data frame
 			dataFrame = new byte[4];
@@ -470,10 +492,9 @@ public class BSLTelosb {
 
 	/**
 	 * Transmit 32 byte password to the boot loader to unlock all password protected commands
-	 * 
+	 *
 	 * @param password
-	 * @param wait
-	 *            if true, bsl sync will try forever
+	 * @param wait	 if true, bsl sync will try forever
 	 * @return true if received ACK, false if received NACK
 	 * @throws IOException
 	 * @throws TimeoutException
@@ -534,7 +555,7 @@ public class BSLTelosb {
 	/**
 	 * Prepare BSL patch by directing program counter of the mote to start address of the patch code. This patch is
 	 * required by BSL version 1.10 to execute commands for reading/writing blocks correctly.
-	 * 
+	 *
 	 * @return true if ACK received, false if NACK received
 	 * @throws IOException
 	 * @throws TimeoutException
@@ -566,20 +587,16 @@ public class BSLTelosb {
 
 	/**
 	 * Verify a memory block of given length against given data or 0xFF (erased data)
-	 * 
-	 * @param address
-	 *            address of data block to verify
-	 * @param length
-	 *            number of bytes to verify
-	 * @param data
-	 *            data against which to verify or null if to verify against 0xFF
-	 * @return true if checked data matches supplied data, false otherwise
+	 *
+	 * @param address address of data block to verify
+	 * @param length  number of bytes to verify
+	 * @param data	data against which to verify or null if to verify against 0xFF
+	 * @return true if supplied data and read data block match, false otherwise
 	 * @throws TimeoutException
 	 * @throws InvalidChecksumException
 	 * @throws IOException
 	 * @throws ReceivedIncorrectDataException
 	 * @throws UnexpectedResponseException
-	 * @return true if supplied data and read data block match, false otherwise
 	 */
 	public boolean verifyBlock(int address, int length, byte[] data) throws TimeoutException, InvalidChecksumException,
 			IOException, ReceivedIncorrectDataException, UnexpectedResponseException {
@@ -653,9 +670,8 @@ public class BSLTelosb {
 	/**
 	 * Change the baudrate for data transmissions to the boot loader. Valid baud rates are 9600, 19200, 38000. Baudrate
 	 * for bsl communicaion can only be changed by using this bsl command.
-	 * 
-	 * @param newBaud
-	 *            new baud rate to set
+	 *
+	 * @param newBaud new baud rate to set
 	 * @return true if baud rate was changed successfully, false if no ACK was received
 	 * @throws TimeoutException
 	 * @throws UnexpectedResponseException
@@ -671,21 +687,21 @@ public class BSLTelosb {
 		BaudRate newBaudRate;
 
 		switch (newBaud) {
-		case Baud19200:
-			a = 0x85E0;
-			l = 0x0001;
-			newBaudRate = BaudRate.Baud19200;
-			break;
-		case Baud38000:
-			a = 0x87E0;
-			l = 0x0002;
-			newBaudRate = BaudRate.Baud38000;
-			break;
-		case Baud9600:
-		default:
-			a = 0x8580;
-			l = 0x0000;
-			newBaudRate = BaudRate.Baud9600;
+			case Baud19200:
+				a = 0x85E0;
+				l = 0x0001;
+				newBaudRate = BaudRate.Baud19200;
+				break;
+			case Baud38000:
+				a = 0x87E0;
+				l = 0x0002;
+				newBaudRate = BaudRate.Baud38000;
+				break;
+			case Baud9600:
+			default:
+				a = 0x8580;
+				l = 0x0000;
+				newBaudRate = BaudRate.Baud9600;
 		}
 
 		// send bsl command
@@ -718,7 +734,7 @@ public class BSLTelosb {
 
 	/**
 	 * Change the baudrate and parity information for data transmissions.
-	 * 
+	 *
 	 * @param newBaud
 	 * @return true if baud rate was changed successfully, false if no ACK was received
 	 * @throws IOException
@@ -739,6 +755,7 @@ public class BSLTelosb {
 	 * @param wait if true, retry infinitely often to sync
 	 * @return true, if sync was successful (ACK received), false otherwise
 	 */
+
 	private boolean bslSyncronize(boolean wait) throws TimeoutException, IOException {
 		int answer;
 		int maxTries = 10;
@@ -795,6 +812,7 @@ public class BSLTelosb {
 	/*
 	 * Calculate checksum of a complete given bsl command message
 	 */
+
 	private int calcChecksum(byte dataFrame[]) {
 		int checksum = 0;
 
@@ -810,6 +828,7 @@ public class BSLTelosb {
 	 * Wait for data beeing available from serial port. Throw TimeoutException after
 	 * specified time out.
 	 */
+
 	private int waitDataAvailable(InputStream istream, int timeoutMillis) throws TimeoutException, IOException {
 		TimeDiff timeDiff = new TimeDiff();
 		int avail = 0;
@@ -834,6 +853,7 @@ public class BSLTelosb {
 	/*
 	 * Flush the input buffer.
 	 */
+
 	private void flushInputStream() {
 		long i = 0;
 
@@ -851,7 +871,7 @@ public class BSLTelosb {
 	/**
 	 * Set the baud rate to the appropriate value necessary for bsl communication, in case another baud rate was used
 	 * before for communication with the os.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void setBslBaudRate() throws IOException {
@@ -872,7 +892,7 @@ public class BSLTelosb {
 
 	/**
 	 * Restore the external baud rate used by the serial port before the baud rate was changed for bsl communication.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void restoreNonBslBaudrate() throws IOException {

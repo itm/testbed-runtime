@@ -26,9 +26,9 @@ package de.uniluebeck.itm.gtr.connection;
 
 public interface ConnectionFactory {
 
-    Connection create(String nodeName, Connection.Direction direction, String address)
-            throws ConnectionInvalidAddressException;
+	Connection create(String nodeName, Connection.Direction direction, String address)
+			throws ConnectionInvalidAddressException;
 
-    String getType();
+	String getType();
 
 }

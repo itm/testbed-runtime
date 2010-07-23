@@ -26,22 +26,22 @@ package de.uniluebeck.itm.gtr.connection;
 
 public class ConnectionException extends Exception {
 
-    private static final long serialVersionUID = 3621069768954365503L;
+	private static final long serialVersionUID = 3621069768954365503L;
 
-    public ConnectionException() {
-        super();
-    }
+	public ConnectionException() {
+		super();
+	}
 
-    public ConnectionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ConnectionException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ConnectionException(String message) {
-        super(message);
-    }
+	public ConnectionException(String message) {
+		super(message);
+	}
 
-    public ConnectionException(Throwable cause) {
-        super(cause);
-    }
+	public ConnectionException(Throwable cause) {
+		super(cause);
+	}
 
 }

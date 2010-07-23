@@ -30,12 +30,12 @@
     <orderEntry type="module" module-name="tr.wsn-device-drivers" exported="" />
     <orderEntry type="library" exported="" name="Maven: org.rxtx:rxtx:2.1.7" level="project" />
     <orderEntry type="library" exported="" name="Maven: joda-time:joda-time:1.6" level="project" />
-    <orderEntry type="library" exported="" name="Maven: de.uniluebeck.itm:tr.motelist:0.5.3-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="tr.motelist" exported="" />
     <orderEntry type="library" exported="" name="Maven: commons-lang:commons-lang:2.5" level="project" />
     <orderEntry type="module" module-name="tr.runtime.portal" exported="" />
     <orderEntry type="module" module-name="tr.rs-api" exported="" />
     <orderEntry type="library" exported="" name="Maven: javax.persistence:persistence-api:1.0" level="project" />
-    <orderEntry type="library" exported="" name="Maven: de.uniluebeck.itm:tr.runtime.socket-connector:0.5.3-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="tr.runtime.socket-connector" exported="" />
     <orderEntry type="library" exported="" name="Maven: org.jboss.netty:netty:3.1.5.GA" level="project" />
     <orderEntry type="library" exported="" name="Maven: com.google.classpath-explorer:classpath-explorer:1.0" level="project" />
   </component>

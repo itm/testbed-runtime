@@ -60,7 +60,7 @@ public class DeviceFactory {
 
 	public static void main(String[] args) throws Exception {
 		final Object waitObject = new Object();
-		
+
 		iSenseDevice device = create("isense", "/dev/ttyUSB0");
 		//iSenseDevice device = create("pacemate", "COM5");
 		//iSenseDevice device = create("telosb", "COM43");
@@ -85,7 +85,7 @@ public class DeviceFactory {
 			@Override
 			public void operationDone(Operation op, Object result) {
 				System.out.println("Operation[" + op + "] done, result: " + result);
-				synchronized(waitObject) {
+				synchronized (waitObject) {
 					waitObject.notifyAll();
 				}
 			}
@@ -93,7 +93,7 @@ public class DeviceFactory {
 			@Override
 			public void operationCanceled(Operation op) {
 				System.out.println("Operation[" + op + "] canceled");
-				synchronized(waitObject) {
+				synchronized (waitObject) {
 					waitObject.notifyAll();
 				}
 			}
@@ -104,28 +104,30 @@ public class DeviceFactory {
 		//IDeviceBinFile program = new PacemateBinFile(new File("WISEBEDApplication.pacemate.bin"));
 		//IDeviceBinFile program = new TelosbBinFile(new File("WISEBEDApplication.telosb.ihex"));
 		device.triggerProgram(program, true);
-		
+
 		device.triggerReboot();
-		
-		synchronized(waitObject) {
+
+		synchronized (waitObject) {
 			waitObject.wait();
 		}
-		
+
 		System.out.println("Done, exiting now.");
 		System.exit(0);
 	}
-	
+
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte[] tmp) {
 		return toHexString(tmp, 0, tmp.length);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static String toHexString(byte[] tmp, int offset, int length) {
 		StringBuffer s = new StringBuffer();
@@ -137,22 +139,21 @@ public class DeviceFactory {
 		}
 		return s.toString();
 	}
-	
-	public static String toASCIIString(byte [] tmp) {
+
+	public static String toASCIIString(byte[] tmp) {
 		StringBuffer sb = new StringBuffer("");
 
-		for (byte b : tmp ) {
-			if(b == 0x0D)
+		for (byte b : tmp) {
+			if (b == 0x0D)
 				sb.append("<CR>");
 			else if (b == 0x0A)
 				sb.append("<LF>");
-			else
-			{
-				char chr = (char)b;
-		  		sb.append(chr);
+			else {
+				char chr = (char) b;
+				sb.append(chr);
 			}
 		}
-		
+
 		return sb.toString();
 	}
 }

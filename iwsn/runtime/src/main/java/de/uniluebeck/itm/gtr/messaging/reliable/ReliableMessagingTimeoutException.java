@@ -25,22 +25,22 @@ package de.uniluebeck.itm.gtr.messaging.reliable;
 
 public class ReliableMessagingTimeoutException extends Exception {
 
-    private static final long serialVersionUID = -5008058625913002755L;
+	private static final long serialVersionUID = -5008058625913002755L;
 
-    public ReliableMessagingTimeoutException() {
-        super();
-    }
+	public ReliableMessagingTimeoutException() {
+		super();
+	}
 
-    public ReliableMessagingTimeoutException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public ReliableMessagingTimeoutException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ReliableMessagingTimeoutException(String message) {
-        super(message);
-    }
+	public ReliableMessagingTimeoutException(String message) {
+		super(message);
+	}
 
-    public ReliableMessagingTimeoutException(Throwable cause) {
-        super(cause);
-    }
+	public ReliableMessagingTimeoutException(Throwable cause) {
+		super(cause);
+	}
 
 }

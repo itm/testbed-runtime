@@ -32,35 +32,35 @@ import de.uniluebeck.itm.gtr.common.Service;
  */
 public interface RoutingTableService extends Service {
 
-    /**
-     * Returns the node name of the next hop on the way to {@code destinationNodeName}.
-     *
-     * @param destinationNodeName the name of the destination node
-     * @return the node name of the next hop or {@code null} if there's no route to {@code destinationNodeName}
-     */
-    String getNextHop(String destinationNodeName);
+	/**
+	 * Returns the node name of the next hop on the way to {@code destinationNodeName}.
+	 *
+	 * @param destinationNodeName the name of the destination node
+	 * @return the node name of the next hop or {@code null} if there's no route to {@code destinationNodeName}
+	 */
+	String getNextHop(String destinationNodeName);
 
-    /**
-     * Sets the next hop node name for the destination node name.
-     *
-     * @param destinationNodeName the name of the destination node
-     * @param nextHopNodeName     the name of the next hop for the destination node name
-     */
-    void setNextHop(String destinationNodeName, String nextHopNodeName);
+	/**
+	 * Sets the next hop node name for the destination node name.
+	 *
+	 * @param destinationNodeName the name of the destination node
+	 * @param nextHopNodeName	 the name of the next hop for the destination node name
+	 */
+	void setNextHop(String destinationNodeName, String nextHopNodeName);
 
-    /**
-     * Removes the entry for the destination node named {@code destinationNodeName}.
-     *
-     * @param destinationNodeName the name of the destination node who's entry is to be removed
-     */
-    void removeNextHop(String destinationNodeName);
+	/**
+	 * Removes the entry for the destination node named {@code destinationNodeName}.
+	 *
+	 * @param destinationNodeName the name of the destination node who's entry is to be removed
+	 */
+	void removeNextHop(String destinationNodeName);
 
-    /**
-     * Returns a map containing all entries of the routing table as that maps destination node name to next hop node
-     * name.
-     *
-     * @return a map containing all entries of the routing table as that maps destination node name to next hop node
-     * name
-     */
-    ImmutableMap<String, String> getEntries();
+	/**
+	 * Returns a map containing all entries of the routing table as that maps destination node name to next hop node
+	 * name.
+	 *
+	 * @return a map containing all entries of the routing table as that maps destination node name to next hop node
+	 *         name
+	 */
+	ImmutableMap<String, String> getEntries();
 }

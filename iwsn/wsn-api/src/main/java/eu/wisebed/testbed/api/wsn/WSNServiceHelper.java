@@ -23,27 +23,14 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import java.net.URL;
-import java.util.Collection;
-import java.util.Map;
+import eu.wisebed.testbed.api.wsn.v211.*;
+import org.apache.log4j.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-
-import org.apache.log4j.Logger;
-
-import eu.wisebed.testbed.api.wsn.v211.Controller;
-import eu.wisebed.testbed.api.wsn.v211.ControllerService;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagementService;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException;
-import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.WSN;
-import eu.wisebed.testbed.api.wsn.v211.WSNService;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -56,7 +43,6 @@ public class WSNServiceHelper {
 	 * Returns the port to the Session Management API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 *
 	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.SessionManagement} instance that is
 	 *         connected to the Web Service endpoint
 	 */
@@ -67,7 +53,7 @@ public class WSNServiceHelper {
 
 		log.debug("Creating session management client for " + endpointUrl);
 		log.debug("URL to WSDL is " + resource);
-		
+
 		SessionManagementService service = new SessionManagementService(resource, qName);
 		SessionManagement sessionManagementPort = service.getSessionManagementPort();
 
@@ -82,7 +68,6 @@ public class WSNServiceHelper {
 	 * Returns the port to the Controller API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 *
 	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
 	 *         Service endpoint
 	 */
@@ -105,7 +90,6 @@ public class WSNServiceHelper {
 	 * Returns the port to the WSN API instance.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 *
 	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.WSN} instance that is connected to the Web Service
 	 *         endpoint
 	 */
@@ -124,7 +108,7 @@ public class WSNServiceHelper {
 	}
 
 	public static ExperimentNotRunningException_Exception createExperimentNotRunningException(String msg,
-																										Exception e) {
+																							  Exception e) {
 		ExperimentNotRunningException exception = new ExperimentNotRunningException();
 		exception.setMessage(msg);
 		return new ExperimentNotRunningException_Exception(msg, exception, e);

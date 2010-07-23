@@ -29,7 +29,7 @@
     <orderEntry type="module" module-name="tr.wsn-device-drivers" exported="" />
     <orderEntry type="library" exported="" name="Maven: org.rxtx:rxtx:2.1.7" level="project" />
     <orderEntry type="library" exported="" name="Maven: joda-time:joda-time:1.6" level="project" />
-    <orderEntry type="library" exported="" name="Maven: de.uniluebeck.itm:tr.motelist:0.5.3-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="tr.motelist" exported="" />
     <orderEntry type="library" exported="" name="Maven: commons-lang:commons-lang:2.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
   </component>

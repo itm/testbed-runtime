@@ -278,7 +278,6 @@ public class FederatorRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @return
 	 */
 	private BiMap<String, ConfidentialReservationData> constructEndpointUrlToReservationMap(
@@ -324,7 +323,6 @@ public class FederatorRS implements RS {
 	 * if not
 	 *
 	 * @param nodeURNs
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void assertUrnsServed(List<String> nodeURNs) throws RSExceptionException {

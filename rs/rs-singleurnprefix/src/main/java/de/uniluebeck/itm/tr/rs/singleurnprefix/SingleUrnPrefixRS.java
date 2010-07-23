@@ -191,7 +191,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void checkNodesAvailable(PublicReservationData reservation)
@@ -218,7 +217,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param nodeUrns
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void performServingNodeUrnsCheck(List<String> nodeUrns) throws RSExceptionException {
@@ -236,9 +234,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param secretReservationKeys
-	 *
 	 * @return
-	 *
 	 * @throws RSExceptionException
 	 */
 	private SecretReservationKey performSanityCheck(List<SecretReservationKey> secretReservationKeys)
@@ -269,7 +265,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
@@ -295,7 +290,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param authenticationData
-	 *
 	 * @throws RSExceptionException
 	 */
 	public SecretAuthenticationKey performSanityCheck(List<SecretAuthenticationKey> authenticationData)
@@ -323,9 +317,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param key
-	 *
 	 * @return
-	 *
 	 * @throws RSExceptionException
 	 * @throws AuthorizationExceptionException
 	 *

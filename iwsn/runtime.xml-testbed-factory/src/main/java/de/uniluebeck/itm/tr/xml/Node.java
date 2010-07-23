@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.*;
 
 /**
  * <p>Java class for Node complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="Node">
  *   &lt;complexContent>
@@ -32,160 +32,138 @@ import javax.xml.bind.annotation.*;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Node", propOrder = {
-    "names",
-    "serverconnections",
-    "clientconnections",
-    "applications"
+		"names",
+		"serverconnections",
+		"clientconnections",
+		"applications"
 })
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Node {
 
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected NodeNames names;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected ServerConnections serverconnections;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected ClientConnections clientconnections;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Applications applications;
-    @XmlAttribute(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String id;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected NodeNames names;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected ServerConnections serverconnections;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected ClientConnections clientconnections;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Applications applications;
+	@XmlAttribute(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String id;
 
-    /**
-     * Gets the value of the names property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link NodeNames }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public NodeNames getNames() {
-        return names;
-    }
+	/**
+	 * Gets the value of the names property.
+	 *
+	 * @return possible object is
+	 *         {@link NodeNames }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public NodeNames getNames() {
+		return names;
+	}
 
-    /**
-     * Sets the value of the names property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link NodeNames }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setNames(NodeNames value) {
-        this.names = value;
-    }
+	/**
+	 * Sets the value of the names property.
+	 *
+	 * @param value allowed object is
+	 *              {@link NodeNames }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setNames(NodeNames value) {
+		this.names = value;
+	}
 
-    /**
-     * Gets the value of the serverconnections property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ServerConnections }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public ServerConnections getServerconnections() {
-        return serverconnections;
-    }
+	/**
+	 * Gets the value of the serverconnections property.
+	 *
+	 * @return possible object is
+	 *         {@link ServerConnections }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public ServerConnections getServerconnections() {
+		return serverconnections;
+	}
 
-    /**
-     * Sets the value of the serverconnections property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ServerConnections }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setServerconnections(ServerConnections value) {
-        this.serverconnections = value;
-    }
+	/**
+	 * Sets the value of the serverconnections property.
+	 *
+	 * @param value allowed object is
+	 *              {@link ServerConnections }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setServerconnections(ServerConnections value) {
+		this.serverconnections = value;
+	}
 
-    /**
-     * Gets the value of the clientconnections property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ClientConnections }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public ClientConnections getClientconnections() {
-        return clientconnections;
-    }
+	/**
+	 * Gets the value of the clientconnections property.
+	 *
+	 * @return possible object is
+	 *         {@link ClientConnections }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public ClientConnections getClientconnections() {
+		return clientconnections;
+	}
 
-    /**
-     * Sets the value of the clientconnections property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ClientConnections }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setClientconnections(ClientConnections value) {
-        this.clientconnections = value;
-    }
+	/**
+	 * Sets the value of the clientconnections property.
+	 *
+	 * @param value allowed object is
+	 *              {@link ClientConnections }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setClientconnections(ClientConnections value) {
+		this.clientconnections = value;
+	}
 
-    /**
-     * Gets the value of the applications property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Applications }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Applications getApplications() {
-        return applications;
-    }
+	/**
+	 * Gets the value of the applications property.
+	 *
+	 * @return possible object is
+	 *         {@link Applications }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Applications getApplications() {
+		return applications;
+	}
 
-    /**
-     * Sets the value of the applications property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Applications }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setApplications(Applications value) {
-        this.applications = value;
-    }
+	/**
+	 * Sets the value of the applications property.
+	 *
+	 * @param value allowed object is
+	 *              {@link Applications }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setApplications(Applications value) {
+		this.applications = value;
+	}
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getId() {
-        return id;
-    }
+	/**
+	 * Gets the value of the id property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getId() {
+		return id;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setId(String value) {
-        this.id = value;
-    }
+	/**
+	 * Sets the value of the id property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setId(String value) {
+		this.id = value;
+	}
 
 }

@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.*;
 
 /**
  * <p>Java class for Application complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="Application">
  *   &lt;complexContent>
@@ -30,102 +30,88 @@ import javax.xml.bind.annotation.*;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Application", propOrder = {
-    "any"
+		"any"
 })
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Application {
 
-    @XmlAnyElement(lax = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Object any;
-    @XmlAttribute(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String name;
-    @XmlAttribute(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String factoryclass;
+	@XmlAnyElement(lax = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Object any;
+	@XmlAttribute(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String name;
+	@XmlAttribute(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String factoryclass;
 
-    /**
-     * Gets the value of the any property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Object }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Object getAny() {
-        return any;
-    }
+	/**
+	 * Gets the value of the any property.
+	 *
+	 * @return possible object is
+	 *         {@link Object }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Object getAny() {
+		return any;
+	}
 
-    /**
-     * Sets the value of the any property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Object }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setAny(Object value) {
-        this.any = value;
-    }
+	/**
+	 * Sets the value of the any property.
+	 *
+	 * @param value allowed object is
+	 *              {@link Object }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setAny(Object value) {
+		this.any = value;
+	}
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets the value of the name property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setName(String value) {
-        this.name = value;
-    }
+	/**
+	 * Sets the value of the name property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setName(String value) {
+		this.name = value;
+	}
 
-    /**
-     * Gets the value of the factoryclass property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getFactoryclass() {
-        return factoryclass;
-    }
+	/**
+	 * Gets the value of the factoryclass property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getFactoryclass() {
+		return factoryclass;
+	}
 
-    /**
-     * Sets the value of the factoryclass property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setFactoryclass(String value) {
-        this.factoryclass = value;
-    }
+	/**
+	 * Sets the value of the factoryclass property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setFactoryclass(String value) {
+		this.factoryclass = value;
+	}
 
 }

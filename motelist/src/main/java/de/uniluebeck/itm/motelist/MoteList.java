@@ -92,7 +92,6 @@ public class MoteList {
 	/**
 	 * @param type	   one of "isense", "telosb", "pacemate"
 	 * @param macAddress
-	 *
 	 * @return {@code null} if not found, serial device (e.g. /dev/ttyUSB0) otherwise
 	 */
 	public String getMotePort(String type, int macAddress) {

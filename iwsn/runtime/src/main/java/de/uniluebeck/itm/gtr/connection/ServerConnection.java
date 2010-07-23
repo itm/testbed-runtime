@@ -29,21 +29,20 @@ import java.io.IOException;
 
 /**
  * TODO describe...
- *
+ * <p/>
  * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()} properly
  * so it can be used in {@link java.util.HashMap}s.
- * 
  */
 public abstract class ServerConnection extends AbstractListenable<ServerConnectionListener> {
 
-    public abstract void bind() throws ConnectionInvalidAddressException, IOException;
+	public abstract void bind() throws ConnectionInvalidAddressException, IOException;
 
-    public abstract void unbind();
+	public abstract void unbind();
 
-    public abstract boolean isBound();
+	public abstract boolean isBound();
 
-    public abstract String getAddress();
+	public abstract String getAddress();
 
 	public abstract String getType();
-	
+
 }

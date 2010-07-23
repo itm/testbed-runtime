@@ -38,51 +38,51 @@ import javax.xml.ws.Endpoint;
 import java.util.Arrays;
 
 @WebService(
-        serviceName = "ControllerService",
-        targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
-        portName = "ControllerPort",
-        endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+		serviceName = "ControllerService",
+		targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+		portName = "ControllerPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
 )
 public class ControllerServiceImpl implements Controller {
 
-    private static final Logger log = LoggerFactory.getLogger(Controller.class);
+	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
-    private String endpointUrl;
+	private String endpointUrl;
 
-    private Endpoint endpoint;
+	private Endpoint endpoint;
 
-    public ControllerServiceImpl(String endpointUrl) {
-        this.endpointUrl = endpointUrl;
-    }
+	public ControllerServiceImpl(String endpointUrl) {
+		this.endpointUrl = endpointUrl;
+	}
 
-    public void start() throws Exception {
+	public void start() throws Exception {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl);
 
 		log.debug("Starting WISEBED controller service...");
 		log.debug("Endpoint URL: {}", endpointUrl);
 		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
-    	
-        endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
-        
-        log.info("Started WISEBED controller service on {}", bindAllInterfacesUrl);
-    }
 
-    public void stop() {
+		endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
-        if (endpoint != null) {
-            endpoint.stop();
-            log.info("Stopped WISEBED controller service on {}", endpointUrl);
-        }
+		log.info("Started WISEBED controller service on {}", bindAllInterfacesUrl);
+	}
 
-    }
+	public void stop() {
 
-    @Override
-    public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+		if (endpoint != null) {
+			endpoint.stop();
+			log.info("Stopped WISEBED controller service on {}", endpointUrl);
+		}
+
+	}
+
+	@Override
+	public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
 		log.info("Received controller message: {}\n{}", msg, StringUtils.jaxbMarshal(msg));
-    }
+	}
 
-    @Override
-    public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+	@Override
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
 		log.info("Received controller status message: {}\n{}",
 				Arrays.toString(status.getStatus().toArray()), StringUtils.jaxbMarshal(status)
 		);

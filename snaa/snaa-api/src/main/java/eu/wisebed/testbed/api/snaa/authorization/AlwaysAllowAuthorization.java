@@ -28,9 +28,9 @@ import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 
 public class AlwaysAllowAuthorization implements IUserAuthorization {
 
-    @Override
-    public boolean isAuthorized(Action action, ActionDetails details) throws SNAAExceptionException {
-        return true;
-    }
+	@Override
+	public boolean isAuthorized(Action action, ActionDetails details) throws SNAAExceptionException {
+		return true;
+	}
 
 }

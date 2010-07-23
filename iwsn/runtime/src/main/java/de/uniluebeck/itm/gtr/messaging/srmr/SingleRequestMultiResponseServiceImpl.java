@@ -155,13 +155,13 @@ public class SingleRequestMultiResponseServiceImpl
 		for (Iterator<Triple<String, String, SingleRequestMultiResponseListener>> iterator =
 				listeners.iterator(); iterator.hasNext();) {
 
-            ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
-		    for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
-			    if (t.getThird() != listener) {
-		    		listBuilder.add(t);
-		    	}
-		    }
-		    listeners = listBuilder.build();
+			ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
+			for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
+				if (t.getThird() != listener) {
+					listBuilder.add(t);
+				}
+			}
+			listeners = listBuilder.build();
 		}
 	}
 

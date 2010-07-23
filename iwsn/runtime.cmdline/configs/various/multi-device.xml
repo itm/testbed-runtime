@@ -26,8 +26,8 @@
 
 	<nodes id="testbeduzl1">
 		<names>
-			<nodename name="urn:wisebed:testbeduzl1:60" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:1327" description="" />
+			<nodename name="urn:wisebed:testbeduzl1:60" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:1327" description=""/>
 		</names>
 		<applications>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">

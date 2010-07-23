@@ -37,6 +37,6 @@ public interface MessageFilter {
 	 * @param msg the message to be filtered
 	 * @return the filtered message or {@code null} if the message was dropped
 	 */
-    Messages.Msg filter(Messages.Msg msg);
+	Messages.Msg filter(Messages.Msg msg);
 
 }

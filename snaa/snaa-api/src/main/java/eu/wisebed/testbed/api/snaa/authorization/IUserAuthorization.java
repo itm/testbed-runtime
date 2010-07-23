@@ -31,34 +31,34 @@ import java.util.Map;
 
 public interface IUserAuthorization {
 
-    public static class ActionDetails {
+	public static class ActionDetails {
 
-        private String username;
+		private String username;
 
-        private Map<String, Object> userDetails;
+		private Map<String, Object> userDetails;
 
-        public String getUsername() {
-            return username;
-        }
+		public String getUsername() {
+			return username;
+		}
 
-        public void setUsername(String username) {
-            this.username = username;
-        }
+		public void setUsername(String username) {
+			this.username = username;
+		}
 
-        public Map<String, Object> getUserDetails() {
+		public Map<String, Object> getUserDetails() {
 			if (userDetails == null) {
 				userDetails = new HashMap<String, Object>();
 			}
 			return userDetails;
-        }
+		}
 
-        public void setUserDetails(Map<String, Object> userDetails) {
-            this.userDetails = userDetails;
-        }
+		public void setUserDetails(Map<String, Object> userDetails) {
+			this.userDetails = userDetails;
+		}
 
 
-    }
+	}
 
-    boolean isAuthorized(Action action, ActionDetails details) throws SNAAExceptionException;
+	boolean isAuthorized(Action action, ActionDetails details) throws SNAAExceptionException;
 
 }

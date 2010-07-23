@@ -24,11 +24,8 @@
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
-
 /**
- * 
  * @author dp
- * 
  */
 public class MessagePlainText implements Message {
 
@@ -36,8 +33,9 @@ public class MessagePlainText implements Message {
 	private byte[] content = {};
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public MessagePlainText(byte[] buffer) {
 		content = new byte[buffer.length];
@@ -45,8 +43,9 @@ public class MessagePlainText implements Message {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public byte[] getContent() {
 		return content;
@@ -54,7 +53,7 @@ public class MessagePlainText implements Message {
 
 	/**
 	 * Sets the message plain text
-	 * 
+	 *
 	 * @param content
 	 */
 	public void setContent(byte[] content) {

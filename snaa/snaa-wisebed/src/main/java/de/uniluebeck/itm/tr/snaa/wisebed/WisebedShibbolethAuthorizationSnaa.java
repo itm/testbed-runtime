@@ -42,7 +42,7 @@ public class WisebedShibbolethAuthorizationSnaa extends ShibbolethSNAA {
 	private static final Logger log = LoggerFactory.getLogger(WisebedShibbolethAuthorizationSnaa.class);
 
 	public WisebedShibbolethAuthorizationSnaa(Set<String> urnPrefixes, String secretAuthenticationKeyUrl,
-			IUserAuthorization authorization) {
+											  IUserAuthorization authorization) {
 		super(urnPrefixes, secretAuthenticationKeyUrl, authorization);
 	}
 

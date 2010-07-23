@@ -26,54 +26,59 @@ package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 /**
  * Abstract base class for all binary file objects.
- * @author Friedemann Wesner
  *
+ * @author Friedemann Wesner
  */
 public interface IDeviceBinFile {
-	
+
 	/**
 	 * Return the platform type that this bin file is to be used with.
+	 *
 	 * @return the platform type
 	 */
 	public ChipType getFileType();
-	
+
 	/**
 	 * Check if the specified device type is compatible with using this bin file.
+	 *
 	 * @param deviceType
 	 * @return true if this bin file is compatible to deviceType, false otherwise
 	 */
 	public boolean isCompatible(ChipType deviceType);
-	
+
 	/**
-	 * Reset the block iterator used by method getNextBlock(). Afterwards, data blocks 
+	 * Reset the block iterator used by method getNextBlock(). Afterwards, data blocks
 	 * for writing to flash memory can be obtained successively by calling getNextBlock()
 	 */
 	public void resetBlockIterator();
-	
+
 	/**
-	 * Check if there is still at least one data block that will be returned by 
+	 * Check if there is still at least one data block that will be returned by
 	 * the block iterator when calling getNextBlock(). There is no block that can be provided
 	 * if the end of file has been reached.
+	 *
 	 * @return true if there is a block that will be returned by getNextBlock(), false otherwise
 	 */
 	public abstract boolean hasNextBlock();
-	
+
 	/**
 	 * Get a data block of the bin file for writing it to flash memory along with the address within
 	 * flash memory that the block should be written to.
 	 * The method will iterate over all data of the binary file, starting at the beginning
 	 * if resetBlockIterator() was called before. The size of a data block depends on the type
 	 * of bin file that provides the data.
+	 *
 	 * @return the next pair of data block and block address, or null if end of file was reached
 	 */
-	public BinFileDataBlock getNextBlock(); 
-	
+	public BinFileDataBlock getNextBlock();
+
 	/**
 	 * Calculate total number of blocks that make up the binary file.
+	 *
 	 * @return number of blocks
 	 */
 	public int getBlockCount();
-	
+
 	/**
 	 * @return
 	 */

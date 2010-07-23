@@ -38,115 +38,115 @@ import java.net.Socket;
 
 public class TcpConnection extends Connection {
 
-    private static final Logger log = LoggerFactory.getLogger(TcpConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(TcpConnection.class);
 
-    protected Socket socket;
+	protected Socket socket;
 
-    private InetSocketAddress socketAddress;
+	private InetSocketAddress socketAddress;
 
-    private String nodeName;
+	private String nodeName;
 
-    private Direction direction;
+	private Direction direction;
 
-    public TcpConnection(String nodeName, Connection.Direction direction, String hostName, int port) {
+	public TcpConnection(String nodeName, Connection.Direction direction, String hostName, int port) {
 
-        this.nodeName = nodeName;
-        this.direction = direction;
-        this.socketAddress = new InetSocketAddress(hostName, port);
+		this.nodeName = nodeName;
+		this.direction = direction;
+		this.socketAddress = new InetSocketAddress(hostName, port);
 
-    }
+	}
 
-    public void connect() throws ConnectionInvalidAddressException, IOException {
+	public void connect() throws ConnectionInvalidAddressException, IOException {
 
-        if (socket == null) {
+		if (socket == null) {
 
-            socket = new Socket();
-            socket.connect(socketAddress);
-            postEvent(true);
+			socket = new Socket();
+			socket.connect(socketAddress);
+			postEvent(true);
 
-        } else if (!socket.isConnected()) {
+		} else if (!socket.isConnected()) {
 
-            disconnect();
+			disconnect();
 
-            socket = new Socket();
-            socket.connect(socketAddress);
-            postEvent(true);
+			socket = new Socket();
+			socket.connect(socketAddress);
+			postEvent(true);
 
-        }
+		}
 
-    }
+	}
 
-    private void postEvent(boolean connected) {
-        for (ConnectionListener listener : listeners) {
-            if (connected)
-                listener.connectionOpened(this);
-            else
-                listener.connectionClosed(this);
-        }
-    }
+	private void postEvent(boolean connected) {
+		for (ConnectionListener listener : listeners) {
+			if (connected)
+				listener.connectionOpened(this);
+			else
+				listener.connectionClosed(this);
+		}
+	}
 
-    public void disconnect() {
+	public void disconnect() {
 
-        try {
+		try {
 
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-                postEvent(false);
-            }
+			if (socket != null && !socket.isClosed()) {
+				socket.close();
+				postEvent(false);
+			}
 
-        } catch (IOException e) {
-            // simply ignore as this connection is closed anyway and will not be used anymore
-            log.debug("IOException while closing TcpConnection", e);
-        }
+		} catch (IOException e) {
+			// simply ignore as this connection is closed anyway and will not be used anymore
+			log.debug("IOException while closing TcpConnection", e);
+		}
 
-    }
+	}
 
-    public String getAddress() {
-        return socketAddress.getHostName() + ":" + socketAddress.getPort();
-    }
+	public String getAddress() {
+		return socketAddress.getHostName() + ":" + socketAddress.getPort();
+	}
 
-    public InputStream getInputStream() throws IOException {
-        return socket == null ? null : socket.getInputStream();
-    }
+	public InputStream getInputStream() throws IOException {
+		return socket == null ? null : socket.getInputStream();
+	}
 
-    public String getRemoteNodeName() {
-        return nodeName;
-    }
+	public String getRemoteNodeName() {
+		return nodeName;
+	}
 
-    public OutputStream getOutputStream() throws IOException {
-        return socket == null ? null : socket.getOutputStream();
-    }
+	public OutputStream getOutputStream() throws IOException {
+		return socket == null ? null : socket.getOutputStream();
+	}
 
-    public String getType() {
-        return TcpConstants.TYPE;
-    }
+	public String getType() {
+		return TcpConstants.TYPE;
+	}
 
-    public Direction getDirection() {
-        return direction;
-    }
+	public Direction getDirection() {
+		return direction;
+	}
 
-    public boolean isConnected() {
-        return socket != null && socket.isConnected();
-    }
+	public boolean isConnected() {
+		return socket != null && socket.isConnected();
+	}
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("TcpConnection");
-        sb.append("{socket=").append(socket);
-        sb.append(", socketAddress=").append(socketAddress);
-        sb.append(", nodeName='").append(nodeName).append('\'');
-        sb.append(", direction=").append(direction);
-        sb.append('}');
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("TcpConnection");
+		sb.append("{socket=").append(socket);
+		sb.append(", socketAddress=").append(socketAddress);
+		sb.append(", nodeName='").append(nodeName).append('\'');
+		sb.append(", direction=").append(direction);
+		sb.append('}');
+		return sb.toString();
+	}
 
-    void setSocket(Socket socket) {
-        this.socket = socket;
-        if (socket.isConnected()) {
-            postEvent(true);
-        }
-    }
+	void setSocket(Socket socket) {
+		this.socket = socket;
+		if (socket.isConnected()) {
+			postEvent(true);
+		}
+	}
 
 	@Override
 	public boolean equals(Object o) {

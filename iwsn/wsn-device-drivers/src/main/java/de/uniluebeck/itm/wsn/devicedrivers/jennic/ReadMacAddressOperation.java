@@ -31,8 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
+
 /**
- * 
+ *
  */
 public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	// /Logging
@@ -45,8 +46,9 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	private MacAddress macAddress = null;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public ReadMacAddressOperation(JennicDevice device) {
 		super(device);
@@ -92,8 +94,9 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -119,8 +122,9 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

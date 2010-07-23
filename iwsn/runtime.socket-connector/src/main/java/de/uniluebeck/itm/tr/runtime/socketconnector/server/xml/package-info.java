@@ -5,5 +5,4 @@
 // Generated on: 2010.07.06 at 10:48:57 AM MESZ 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/runtime/socketconnector/server/xml")
-package de.uniluebeck.itm.tr.runtime.socketconnector.server.xml;
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/runtime/socketconnector/server/xml") package de.uniluebeck.itm.tr.runtime.socketconnector.server.xml;

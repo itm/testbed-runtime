@@ -25,50 +25,50 @@
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 	<nodes id="1">
 		<names>
-			<nodename name="1a" description="" />
-			<nodename name="1b" description="" />
-			<nodename name="1c" description="" />
+			<nodename name="1a" description=""/>
+			<nodename name="1b" description=""/>
+			<nodename name="1c" description=""/>
 		</names>
 		<serverconnections>
-			<serverconnection type="tcp" address="127.0.0.1:10001" />
-			<serverconnection type="tcp" address="127.0.0.1:10002" />
-			<serverconnection type="tcp" address="127.0.0.1:10003" />
+			<serverconnection type="tcp" address="127.0.0.1:10001"/>
+			<serverconnection type="tcp" address="127.0.0.1:10002"/>
+			<serverconnection type="tcp" address="127.0.0.1:10003"/>
 		</serverconnections>
 		<clientconnections>
-			<clientconnection type="tcp" address="127.0.0.1:20001" />
-			<clientconnection type="tcp" address="127.0.0.1:20002" />
+			<clientconnection type="tcp" address="127.0.0.1:20001"/>
+			<clientconnection type="tcp" address="127.0.0.1:20002"/>
 		</clientconnections>
 		<applications>
 
-			<application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory" />
+			<application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory"/>
 
 		</applications>
 	</nodes>
 	<nodes id="2">
 		<names>
-			<nodename name="2a" description="" />
-			<nodename name="2b" description="" />
-			<nodename name="2c" description="" />
+			<nodename name="2a" description=""/>
+			<nodename name="2b" description=""/>
+			<nodename name="2c" description=""/>
 		</names>
 		<serverconnections>
-			<serverconnection type="tcp" address="127.0.0.1:20001" />
-			<serverconnection type="tcp" address="127.0.0.1:20002" />
-			<serverconnection type="tcp" address="127.0.0.1:20003" />
+			<serverconnection type="tcp" address="127.0.0.1:20001"/>
+			<serverconnection type="tcp" address="127.0.0.1:20002"/>
+			<serverconnection type="tcp" address="127.0.0.1:20003"/>
 		</serverconnections>
 	</nodes>
 	<nodes id="3">
 		<names>
-			<nodename name="3a" description="" />
-			<nodename name="3b" description="" />
-			<nodename name="3c" description="" />
+			<nodename name="3a" description=""/>
+			<nodename name="3b" description=""/>
+			<nodename name="3c" description=""/>
 		</names>
 		<serverconnections>
-			<serverconnection type="tcp" address="127.0.0.1:30001" />
-			<serverconnection type="tcp" address="127.0.0.1:30002" />
-			<serverconnection type="tcp" address="127.0.0.1:30003" />
+			<serverconnection type="tcp" address="127.0.0.1:30001"/>
+			<serverconnection type="tcp" address="127.0.0.1:30002"/>
+			<serverconnection type="tcp" address="127.0.0.1:30003"/>
 		</serverconnections>
 		<clientconnections>
-			<clientconnection type="tcp" address="127.0.0.1:20002" />
+			<clientconnection type="tcp" address="127.0.0.1:20002"/>
 		</clientconnections>
 		<applications>
 

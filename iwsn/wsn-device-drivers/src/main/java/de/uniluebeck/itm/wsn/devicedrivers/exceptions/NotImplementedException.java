@@ -26,21 +26,21 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 /**
  * @author Friedemann Wesner
- *
  */
 @SuppressWarnings("serial")
 public class NotImplementedException extends Exception {
 	private String msg = null;
-	
+
 	/**
 	 * Constructor
 	 */
 	public NotImplementedException() {
-		
+
 	}
-	
+
 	/**
 	 * Constructor
+	 *
 	 * @param msg
 	 */
 	public NotImplementedException(String msg) {
@@ -50,10 +50,11 @@ public class NotImplementedException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;
 	}
 
-	
+
 }

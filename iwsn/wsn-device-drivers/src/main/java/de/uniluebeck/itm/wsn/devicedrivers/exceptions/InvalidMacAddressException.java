@@ -25,15 +25,15 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class InvalidMacAddressException extends Exception {
 	protected byte[] address;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param address
 	 */
 	public InvalidMacAddressException(byte[] address) {
@@ -42,7 +42,7 @@ public class InvalidMacAddressException extends Exception {
 
 	/**
 	 * returns the MacAddress
-	 * 
+	 *
 	 * @return
 	 */
 	public byte[] getMacAddress() {

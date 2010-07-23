@@ -22,47 +22,47 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-             version="1.0">
-    <persistence-unit name="default">
+			 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+			 version="1.0">
+	<persistence-unit name="default">
 
-        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-        <!-- Configure JPA -->
-        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+		<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+		<!-- Configure JPA -->
+		<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-            <!-- Configure JPA to use Hibernate for persistence -->
-            <provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<!-- Configure JPA to use Hibernate for persistence -->
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-            <!-- Configure the persisted entities  -->
-            <class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal</class>
-            <class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal</class>
-            <class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.PublicReservationDataInternal</class>
-            <class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal</class>
-            <class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal</class>
+		<!-- Configure the persisted entities  -->
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.PublicReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal</class>
 
-        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-        <!-- Hibernate Configuration -->
-        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-        <!--  <properties>  -->
-        
-            <!-- Configure an Apache Derby instance as an in-process database engine -->
-            <!--<property name="hibernate.connection.driver_class" value="org.apache.derby.jdbc.EmbeddedDriver"/>-->
-            <!--<property name="hibernate.connection.url" value="jdbc:derby:target/PersistenceDB;create=true"/>-->
-            <!--<property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect"/>-->
-            
-            <!-- Configure Hibernate -->
-            <!--<property name="hibernate.ddl-generation.output-mode" value="database"/>-->
-            <!--<property name="hibernate.hbm2ddl.auto" value="create"/> -->
-            <!--<property name="hibernate.archive.autodetection" value="class, hbm"/> -->
-            
-            <!-- Optional configure SQL stdout logging -->
+		<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+		<!-- Hibernate Configuration -->
+		<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+		<!--  <properties>  -->
 
-             <!--   <property name="hibernate.show_sql" value="true"/> -->
-             <!--   <property name="hibernate.format_sql" value="true"/> -->
-             <!--   <property name="use_sql_comments" value="true"/> -->
+		<!-- Configure an Apache Derby instance as an in-process database engine -->
+		<!--<property name="hibernate.connection.driver_class" value="org.apache.derby.jdbc.EmbeddedDriver"/>-->
+		<!--<property name="hibernate.connection.url" value="jdbc:derby:target/PersistenceDB;create=true"/>-->
+		<!--<property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect"/>-->
 
-        <!-- </properties> -->
+		<!-- Configure Hibernate -->
+		<!--<property name="hibernate.ddl-generation.output-mode" value="database"/>-->
+		<!--<property name="hibernate.hbm2ddl.auto" value="create"/> -->
+		<!--<property name="hibernate.archive.autodetection" value="class, hbm"/> -->
+
+		<!-- Optional configure SQL stdout logging -->
+
+		<!--   <property name="hibernate.show_sql" value="true"/> -->
+		<!--   <property name="hibernate.format_sql" value="true"/> -->
+		<!--   <property name="use_sql_comments" value="true"/> -->
+
+		<!-- </properties> -->
 
 
-    </persistence-unit>
+	</persistence-unit>
 </persistence>

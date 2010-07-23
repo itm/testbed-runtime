@@ -26,19 +26,18 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 /**
  * @author Friedemann Wesner
- *
  */
 @SuppressWarnings("serial")
 public class FlashReadFailedException extends Exception {
 	private String msg;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public FlashReadFailedException() {
-		
+
 	}
-	
+
 	/**
 	 * @param msg
 	 */
@@ -49,10 +48,11 @@ public class FlashReadFailedException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;
 	}
-	
-	
+
+
 }

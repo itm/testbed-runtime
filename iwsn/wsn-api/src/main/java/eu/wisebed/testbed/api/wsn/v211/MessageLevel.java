@@ -1,4 +1,3 @@
-
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlEnum;
@@ -7,9 +6,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for messageLevel.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ * <p/>
  * <pre>
  * &lt;simpleType name="messageLevel">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
@@ -22,25 +21,24 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
  */
 @XmlType(name = "messageLevel", namespace = "urn:CommonTypes")
 @XmlEnum
 public enum MessageLevel {
 
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL;
+	TRACE,
+	DEBUG,
+	INFO,
+	WARN,
+	ERROR,
+	FATAL;
 
-    public String value() {
-        return name();
-    }
+	public String value() {
+		return name();
+	}
 
-    public static MessageLevel fromValue(String v) {
-        return valueOf(v);
-    }
+	public static MessageLevel fromValue(String v) {
+		return valueOf(v);
+	}
 
 }

@@ -38,7 +38,6 @@ public interface TestbedApplicationFactory {
 	 *                        sending and receiving messages
 	 * @param applicationName the (human-readable) name of the application
 	 * @param configuration   the configuration object (application-specific)
-	 *
 	 * @return an instance of {@link de.uniluebeck.itm.gtr.application.TestbedApplication} or {@code null} if the
 	 *         application could not be created
 	 */

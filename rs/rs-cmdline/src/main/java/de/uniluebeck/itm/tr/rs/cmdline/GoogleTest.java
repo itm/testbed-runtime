@@ -29,13 +29,9 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeFactory;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,12 +71,12 @@ public class GoogleTest {
 		}
 
 		Thread.sleep(20000);
-		
+
 		System.out.println("Deleting reservation with key: " + StringUtils.jaxbMarshal(addedReservation));
 		ConfidentialReservationData deletedReservation = p.deleteReservation(addedReservation);
-		
+
 		System.out.println("Deleted reservation: " + StringUtils.jaxbMarshal(deletedReservation));
-		
+
 
 	}
 }

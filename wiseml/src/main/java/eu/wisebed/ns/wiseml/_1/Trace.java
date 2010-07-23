@@ -8,24 +8,17 @@
 
 package eu.wisebed.ns.wiseml._1;
 
+import javax.annotation.Generated;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Generated;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -36,362 +29,326 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "traceItem"
+		"traceItem"
 })
 @XmlRootElement(name = "trace")
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Trace {
 
-    @XmlElements({
-        @XmlElement(name = "timestamp", required = true, type = String.class),
-        @XmlElement(name = "link", required = true, type = Trace.Link.class),
-        @XmlElement(name = "node", required = true, type = Trace.Node.class)
-    })
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected List<Object> traceItem;
-    @XmlAttribute(required = true)
-    @XmlSchemaType(name = "anySimpleType")
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String id;
+	@XmlElements({
+			@XmlElement(name = "timestamp", required = true, type = String.class),
+			@XmlElement(name = "link", required = true, type = Trace.Link.class),
+			@XmlElement(name = "node", required = true, type = Trace.Node.class)
+	})
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected List<Object> traceItem;
+	@XmlAttribute(required = true)
+	@XmlSchemaType(name = "anySimpleType")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String id;
 
-    /**
-     * Gets the value of the traceItem property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the traceItem property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getTraceItem().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * {@link Trace.Link }
-     * {@link Trace.Node }
-     * 
-     * 
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public List<Object> getTraceItem() {
-        if (traceItem == null) {
-            traceItem = new ArrayList<Object>();
-        }
-        return this.traceItem;
-    }
+	/**
+	 * Gets the value of the traceItem property.
+	 * <p/>
+	 * <p/>
+	 * This accessor method returns a reference to the live list,
+	 * not a snapshot. Therefore any modification you make to the
+	 * returned list will be present inside the JAXB object.
+	 * This is why there is not a <CODE>set</CODE> method for the traceItem property.
+	 * <p/>
+	 * <p/>
+	 * For example, to add a new item, do as follows:
+	 * <pre>
+	 *    getTraceItem().add(newItem);
+	 * </pre>
+	 * <p/>
+	 * <p/>
+	 * <p/>
+	 * Objects of the following type(s) are allowed in the list
+	 * {@link String }
+	 * {@link Trace.Link }
+	 * {@link Trace.Node }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public List<Object> getTraceItem() {
+		if (traceItem == null) {
+			traceItem = new ArrayList<Object>();
+		}
+		return this.traceItem;
+	}
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getId() {
-        return id;
-    }
+	/**
+	 * Gets the value of the id property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getId() {
+		return id;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setId(String value) {
-        this.id = value;
-    }
+	/**
+	 * Sets the value of the id property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setId(String value) {
+		this.id = value;
+	}
 
 
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="rssi" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
-     *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}data" maxOccurs="unbounded" minOccurs="0"/>
-     *       &lt;/sequence>
-     *       &lt;attribute name="source" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
-     *       &lt;attribute name="target" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "rssi",
-        "data"
-    })
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public static class Link {
+	/**
+	 * <p>Java class for anonymous complex type.
+	 * <p/>
+	 * <p>The following schema fragment specifies the expected content contained within this class.
+	 * <p/>
+	 * <pre>
+	 * &lt;complexType>
+	 *   &lt;complexContent>
+	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+	 *       &lt;sequence>
+	 *         &lt;element name="rssi" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+	 *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}data" maxOccurs="unbounded" minOccurs="0"/>
+	 *       &lt;/sequence>
+	 *       &lt;attribute name="source" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
+	 *       &lt;attribute name="target" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
+	 *     &lt;/restriction>
+	 *   &lt;/complexContent>
+	 * &lt;/complexType>
+	 * </pre>
+	 */
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "", propOrder = {
+			"rssi",
+			"data"
+	})
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public static class Link {
 
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected String rssi;
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected List<Data> data;
-        @XmlAttribute(required = true)
-        @XmlSchemaType(name = "anySimpleType")
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected String source;
-        @XmlAttribute(required = true)
-        @XmlSchemaType(name = "anySimpleType")
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected String target;
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected String rssi;
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected List<Data> data;
+		@XmlAttribute(required = true)
+		@XmlSchemaType(name = "anySimpleType")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected String source;
+		@XmlAttribute(required = true)
+		@XmlSchemaType(name = "anySimpleType")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected String target;
 
-        /**
-         * Gets the value of the rssi property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public String getRssi() {
-            return rssi;
-        }
+		/**
+		 * Gets the value of the rssi property.
+		 *
+		 * @return possible object is
+		 *         {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public String getRssi() {
+			return rssi;
+		}
 
-        /**
-         * Sets the value of the rssi property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public void setRssi(String value) {
-            this.rssi = value;
-        }
+		/**
+		 * Sets the value of the rssi property.
+		 *
+		 * @param value allowed object is
+		 *              {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public void setRssi(String value) {
+			this.rssi = value;
+		}
 
-        /**
-         * Gets the value of the data property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the data property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getData().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Data }
-         * 
-         * 
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public List<Data> getData() {
-            if (data == null) {
-                data = new ArrayList<Data>();
-            }
-            return this.data;
-        }
+		/**
+		 * Gets the value of the data property.
+		 * <p/>
+		 * <p/>
+		 * This accessor method returns a reference to the live list,
+		 * not a snapshot. Therefore any modification you make to the
+		 * returned list will be present inside the JAXB object.
+		 * This is why there is not a <CODE>set</CODE> method for the data property.
+		 * <p/>
+		 * <p/>
+		 * For example, to add a new item, do as follows:
+		 * <pre>
+		 *    getData().add(newItem);
+		 * </pre>
+		 * <p/>
+		 * <p/>
+		 * <p/>
+		 * Objects of the following type(s) are allowed in the list
+		 * {@link Data }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public List<Data> getData() {
+			if (data == null) {
+				data = new ArrayList<Data>();
+			}
+			return this.data;
+		}
 
-        /**
-         * Gets the value of the source property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public String getSource() {
-            return source;
-        }
+		/**
+		 * Gets the value of the source property.
+		 *
+		 * @return possible object is
+		 *         {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public String getSource() {
+			return source;
+		}
 
-        /**
-         * Sets the value of the source property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public void setSource(String value) {
-            this.source = value;
-        }
+		/**
+		 * Sets the value of the source property.
+		 *
+		 * @param value allowed object is
+		 *              {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public void setSource(String value) {
+			this.source = value;
+		}
 
-        /**
-         * Gets the value of the target property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public String getTarget() {
-            return target;
-        }
+		/**
+		 * Gets the value of the target property.
+		 *
+		 * @return possible object is
+		 *         {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public String getTarget() {
+			return target;
+		}
 
-        /**
-         * Sets the value of the target property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public void setTarget(String value) {
-            this.target = value;
-        }
+		/**
+		 * Sets the value of the target property.
+		 *
+		 * @param value allowed object is
+		 *              {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public void setTarget(String value) {
+			this.target = value;
+		}
 
-    }
+	}
 
 
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}position" minOccurs="0"/>
-     *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}data" maxOccurs="unbounded" minOccurs="0"/>
-     *       &lt;/sequence>
-     *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "position",
-        "data"
-    })
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public static class Node {
+	/**
+	 * <p>Java class for anonymous complex type.
+	 * <p/>
+	 * <p>The following schema fragment specifies the expected content contained within this class.
+	 * <p/>
+	 * <pre>
+	 * &lt;complexType>
+	 *   &lt;complexContent>
+	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+	 *       &lt;sequence>
+	 *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}position" minOccurs="0"/>
+	 *         &lt;element ref="{http://wisebed.eu/ns/wiseml/1.0}data" maxOccurs="unbounded" minOccurs="0"/>
+	 *       &lt;/sequence>
+	 *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
+	 *     &lt;/restriction>
+	 *   &lt;/complexContent>
+	 * &lt;/complexType>
+	 * </pre>
+	 */
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "", propOrder = {
+			"position",
+			"data"
+	})
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public static class Node {
 
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected Coordinate position;
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected List<Data> data;
-        @XmlAttribute(required = true)
-        @XmlSchemaType(name = "anySimpleType")
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        protected String id;
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected Coordinate position;
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected List<Data> data;
+		@XmlAttribute(required = true)
+		@XmlSchemaType(name = "anySimpleType")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		protected String id;
 
-        /**
-         * Gets the value of the position property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link Coordinate }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public Coordinate getPosition() {
-            return position;
-        }
+		/**
+		 * Gets the value of the position property.
+		 *
+		 * @return possible object is
+		 *         {@link Coordinate }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public Coordinate getPosition() {
+			return position;
+		}
 
-        /**
-         * Sets the value of the position property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link Coordinate }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public void setPosition(Coordinate value) {
-            this.position = value;
-        }
+		/**
+		 * Sets the value of the position property.
+		 *
+		 * @param value allowed object is
+		 *              {@link Coordinate }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public void setPosition(Coordinate value) {
+			this.position = value;
+		}
 
-        /**
-         * Gets the value of the data property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the data property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getData().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Data }
-         * 
-         * 
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public List<Data> getData() {
-            if (data == null) {
-                data = new ArrayList<Data>();
-            }
-            return this.data;
-        }
+		/**
+		 * Gets the value of the data property.
+		 * <p/>
+		 * <p/>
+		 * This accessor method returns a reference to the live list,
+		 * not a snapshot. Therefore any modification you make to the
+		 * returned list will be present inside the JAXB object.
+		 * This is why there is not a <CODE>set</CODE> method for the data property.
+		 * <p/>
+		 * <p/>
+		 * For example, to add a new item, do as follows:
+		 * <pre>
+		 *    getData().add(newItem);
+		 * </pre>
+		 * <p/>
+		 * <p/>
+		 * <p/>
+		 * Objects of the following type(s) are allowed in the list
+		 * {@link Data }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public List<Data> getData() {
+			if (data == null) {
+				data = new ArrayList<Data>();
+			}
+			return this.data;
+		}
 
-        /**
-         * Gets the value of the id property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public String getId() {
-            return id;
-        }
+		/**
+		 * Gets the value of the id property.
+		 *
+		 * @return possible object is
+		 *         {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public String getId() {
+			return id;
+		}
 
-        /**
-         * Sets the value of the id property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-        public void setId(String value) {
-            this.id = value;
-        }
+		/**
+		 * Sets the value of the id property.
+		 *
+		 * @param value allowed object is
+		 *              {@link String }
+		 */
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		public void setId(String value) {
+			this.id = value;
+		}
 
-    }
+	}
 
 }

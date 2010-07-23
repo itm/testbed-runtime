@@ -23,9 +23,9 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import java.io.IOException;
-
 import eu.wisebed.testbed.api.wsn.v211.Message;
+
+import java.io.IOException;
 
 public interface JobResultListener {
 

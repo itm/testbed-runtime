@@ -26,8 +26,6 @@ package de.uniluebeck.itm.gtr.messaging.reliable;
 import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 
-import java.io.Serializable;
-
 
 public interface ReliableMessagingService extends Service {
 

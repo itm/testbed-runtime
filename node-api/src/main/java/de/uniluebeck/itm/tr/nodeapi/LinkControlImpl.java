@@ -72,5 +72,5 @@ class LinkControlImpl implements LinkControl {
 		);
 		nodeApi.sendToNode(requestId, callback, buffer);
 	}
-	
+
 }

@@ -25,21 +25,22 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class TimeoutException extends Exception {
 	private String msg = null;
-	
+
 	/**
 	 * Constructor
 	 */
 	public TimeoutException() {
-		
+
 	}
-	
+
 	/**
 	 * Constructor
+	 *
 	 * @param msg
 	 */
 	public TimeoutException(String msg) {
@@ -49,6 +50,7 @@ public class TimeoutException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;

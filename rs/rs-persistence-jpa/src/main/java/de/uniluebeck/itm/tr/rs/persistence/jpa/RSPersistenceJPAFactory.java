@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class RSPersistenceJPAFactory {
 
-    public static RSPersistence createInstance(Map properties) {
+	public static RSPersistence createInstance(Map properties) {
 		return new RSPersistenceJPAImpl(properties);
 	}
 
