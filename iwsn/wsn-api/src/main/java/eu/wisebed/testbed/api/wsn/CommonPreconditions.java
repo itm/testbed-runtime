@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -26,10 +26,7 @@ package eu.wisebed.testbed.api.wsn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -84,5 +81,24 @@ public class CommonPreconditions {
 		preconditions.addServedUrnPrefixes("urn:wisebed:tubs:");
 		preconditions.checkNodesServed(Arrays.asList("urn:wisebed:tubs:419"));
 	}
+
+	//check current reserved nodes from rs on nodeNames
+	public void checkNodesReserved(List<String> nodeNames, Set<String> reservedNodes) {
+		if (reservedNodes == null) return;
+		for (String nodeName : nodeNames) {
+			if (!reservedNodes.contains(nodeName))
+				log.error("Tried to send Message to Node " + nodeName + "but Node not reserved! Execution aborted!");
+		}
+
+	}
+
+	//check current reserved nodes from rs on NodeName
+	public void checkNodeReserved(String nodeName, Set<String> reservedNodes) {
+		if (reservedNodes == null) return;
+		if (!reservedNodes.contains(nodeName))
+			log.error("Tried to send Message to Node " + nodeName + "but Node not reserved! Execution aborted!");
+
+	}
+
 
 }
