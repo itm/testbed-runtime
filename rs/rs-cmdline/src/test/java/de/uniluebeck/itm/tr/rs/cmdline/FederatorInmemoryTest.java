@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -73,6 +73,7 @@ public class FederatorInmemoryTest {
 			new HashMap<Integer, ConfidentialReservationData>();
 
 	private Map<Integer, List<SecretReservationKey>> reservationKeyMap = null;
+	private String secretReservationKey = "a1b2c3";
 
 	@Before
 	public void setUp() throws Exception {
@@ -162,6 +163,7 @@ public class FederatorInmemoryTest {
 		data.setUrnPrefix("urn:wisebed2:testbed1");
 		data.setUrnPrefix("urn:wisebed2:testbed2");
 		data.setUsername("Nils Rohwedder");
+		data.setSecretReservationKey(this.secretReservationKey);
 		dataList.add(data);
 
 		List<String> urns = new LinkedList<String>();
@@ -242,7 +244,7 @@ public class FederatorInmemoryTest {
 		//testing on wrong SecretReservationKey
 		try {
 			SecretReservationKey key = new SecretReservationKey();
-			key.setSecretReservationKey("a");
+			key.setSecretReservationKey(this.secretReservationKey);
 			key.setUrnPrefix("urn:wisebed1:testbed1");
 			rsFederator.getReservation(Arrays.asList(key));
 			fail("Should have raised ReservationNotFoundException");
@@ -331,6 +333,9 @@ public class FederatorInmemoryTest {
 
 					testData.getData().clear();
 					testData.getData().addAll(confidentialReservationData.getData());
+					for (Data userData : testData.getData()) {
+						assertEquals(userData.getSecretReservationKey(), this.secretReservationKey);
+					}
 
 					assertTrue(equals(testData, confidentialReservationData));
 				}
