@@ -76,24 +76,24 @@ public class SingleUrnPrefixInmemoryTest {
         secretAuthenticationKeyList.add(key);
 
         //creating ConfidentialReservationData
-        ConfidentialReservationData data = new ConfidentialReservationData();
-		User user = new User();
-		user.setUrnPrefix(urnPrefix);
-		user.setUsername("Nils Rohwedder");
-        data.getUsers().add(user);
+        ConfidentialReservationData confiData = new ConfidentialReservationData();
+		Data data = new Data();
+		data.setUrnPrefix(urnPrefix);
+		data.setUsername("Nils Rohwedder");
+        confiData.getData().add(data);
 
         gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
         gregorianCalendarFrom.setTimeInMillis(from);
         
-        data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+        confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
         gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
         gregorianCalendarTo.setTimeInMillis(to);
-        data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+        confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
         //Creating testDataMap
         for (int i = 0; i < 10; i++) {
-            reservationDataMap.put(i, data);
+            reservationDataMap.put(i, confiData);
         }
 
     }

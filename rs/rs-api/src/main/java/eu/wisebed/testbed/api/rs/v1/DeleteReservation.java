@@ -19,8 +19,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="authenticationData" type="{http://testbed.wisebed.eu/api/rs/v1/}secretAuthenticationKey" maxOccurs="unbounded"/>
- *         &lt;element name="secretReservationKey" type="{http://testbed.wisebed.eu/api/rs/v1/}secretReservationKey" maxOccurs="unbounded"/>
+ *         &lt;element name="authenticationData" type="{urn:RSService}secretAuthenticationKey" maxOccurs="unbounded"/>
+ *         &lt;element name="secretReservationKey" type="{urn:RSService}secretReservationKey" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

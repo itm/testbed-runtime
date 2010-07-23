@@ -42,7 +42,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+		targetNamespace = "urn:RSService")
 public class SingleUrnPrefixRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
@@ -100,10 +100,10 @@ public class SingleUrnPrefixRS implements RS {
 			crd.setFrom(reservation.getFrom());
 			crd.setTo(reservation.getTo());
 			crd.getNodeURNs().addAll(reservation.getNodeURNs());
-			User user = new User();
-			user.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-			user.setUsername(secretAuthenticationKey.getUsername());
-			crd.getUsers().add(user);
+			Data data = new Data();
+			data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+			data.setUsername(secretAuthenticationKey.getUsername());
+			crd.getData().add(data);
 
 			try {
 

@@ -10,7 +10,7 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.1
  * 
  */
-@WebFault(name = "ReservationNotFoundFault", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+@WebFault(name = "ReservationNotFoundFault", targetNamespace = "urn:RSService")
 public class ReservervationNotFoundExceptionException
     extends Exception
 {

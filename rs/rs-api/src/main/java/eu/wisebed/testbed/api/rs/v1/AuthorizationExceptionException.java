@@ -10,7 +10,7 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.1
  * 
  */
-@WebFault(name = "AuthorizationFault", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+@WebFault(name = "AuthorizationFault", targetNamespace = "urn:RSService")
 public class AuthorizationExceptionException
     extends Exception
 {

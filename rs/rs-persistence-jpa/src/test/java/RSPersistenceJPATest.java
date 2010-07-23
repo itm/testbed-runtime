@@ -24,8 +24,8 @@
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.TypeConverter;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
@@ -77,9 +77,9 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         Date dateFrom = new Date(System.currentTimeMillis());
         Date dateTo = new Date(System.currentTimeMillis() + 10000);
 
-        UserInternal user = new UserInternal();
+        DataInternal user = new DataInternal();
         user.setUsername("Nils");
-        List users = new LinkedList<UserInternal>();
+        List users = new LinkedList<DataInternal>();
         users.add(user);
         ConfidentialReservationDataInternal addConfidentialReservationData = new ConfidentialReservationDataInternal();
         List urns = new ArrayList();
@@ -88,7 +88,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         addConfidentialReservationData.setFromDate(dateFrom.getTime());
         addConfidentialReservationData.setToDate(dateTo.getTime());
         addConfidentialReservationData.setNodeURNs(urns);
-        addConfidentialReservationData.setUsers(users);
+        addConfidentialReservationData.setData(users);
         SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData), urnPrefix);
         System.out.println(addKey.getSecretReservationKey() + " added!");
 

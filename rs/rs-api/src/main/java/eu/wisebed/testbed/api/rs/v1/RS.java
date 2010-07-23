@@ -18,7 +18,7 @@ import javax.xml.ws.ResponseWrapper;
  * Generated source version: 2.1
  * 
  */
-@WebService(name = "RS", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+@WebService(name = "RS", targetNamespace = "urn:RSService")
 @XmlSeeAlso({
     ObjectFactory.class
 })
@@ -35,8 +35,8 @@ public interface RS {
      */
     @WebMethod
     @WebResult(name = "reservations", targetNamespace = "")
-    @RequestWrapper(localName = "getReservations", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetReservations")
-    @ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetReservationsResponse")
+    @RequestWrapper(localName = "getReservations", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetReservations")
+    @ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetReservationsResponse")
     public List<PublicReservationData> getReservations(
         @WebParam(name = "from", targetNamespace = "")
         XMLGregorianCalendar from,
@@ -55,8 +55,8 @@ public interface RS {
      */
     @WebMethod
     @WebResult(name = "reservationData", targetNamespace = "")
-    @RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetConfidentialReservations")
-    @ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetConfidentialReservationsResponse")
+    @RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetConfidentialReservations")
+    @ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetConfidentialReservationsResponse")
     public List<ConfidentialReservationData> getConfidentialReservations(
         @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
         List<SecretAuthenticationKey> secretAuthenticationKey,
@@ -75,8 +75,8 @@ public interface RS {
      */
     @WebMethod
     @WebResult(name = "reservationData", targetNamespace = "")
-    @RequestWrapper(localName = "getReservation", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetReservation")
-    @ResponseWrapper(localName = "getReservationResponse", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.GetReservationResponse")
+    @RequestWrapper(localName = "getReservation", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetReservation")
+    @ResponseWrapper(localName = "getReservationResponse", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.GetReservationResponse")
     public List<ConfidentialReservationData> getReservation(
         @WebParam(name = "secretReservationKey", targetNamespace = "")
         List<SecretReservationKey> secretReservationKey)
@@ -87,12 +87,12 @@ public interface RS {
      * 
      * @param secretReservationKey
      * @param authenticationData
-     * @throws RSExceptionException
      * @throws ReservervationNotFoundExceptionException
+     * @throws RSExceptionException
      */
     @WebMethod
-    @RequestWrapper(localName = "deleteReservation", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.DeleteReservation")
-    @ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.DeleteReservationResponse")
+    @RequestWrapper(localName = "deleteReservation", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.DeleteReservation")
+    @ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.DeleteReservationResponse")
     public void deleteReservation(
         @WebParam(name = "authenticationData", targetNamespace = "")
         List<SecretAuthenticationKey> authenticationData,
@@ -107,14 +107,14 @@ public interface RS {
      * @param reservation
      * @return
      *     returns java.util.List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey>
-     * @throws AuthorizationExceptionException
      * @throws RSExceptionException
      * @throws ReservervationConflictExceptionException
+     * @throws AuthorizationExceptionException
      */
     @WebMethod
     @WebResult(name = "secretReservationKey", targetNamespace = "")
-    @RequestWrapper(localName = "makeReservation", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.MakeReservation")
-    @ResponseWrapper(localName = "makeReservationResponse", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", className = "eu.wisebed.testbed.api.rs.v1.MakeReservationResponse")
+    @RequestWrapper(localName = "makeReservation", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.MakeReservation")
+    @ResponseWrapper(localName = "makeReservationResponse", targetNamespace = "urn:RSService", className = "eu.wisebed.testbed.api.rs.v1.MakeReservationResponse")
     public List<SecretReservationKey> makeReservation(
         @WebParam(name = "authenticationData", targetNamespace = "")
         List<SecretAuthenticationKey> authenticationData,

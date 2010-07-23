@@ -28,7 +28,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "Users")
-public class UserInternal implements Serializable {
+public class DataInternal implements Serializable {
 
     @Id
     @GeneratedValue
@@ -45,10 +45,10 @@ public class UserInternal implements Serializable {
     // @JoinColumn(name="confidentialReservationData_id", nullable=false)
     // protected ConfidentialReservationDataInternal confidentialReservationData;
 
-    public UserInternal() {
+    public DataInternal() {
     }
 
-    public UserInternal(String urnPrefix, String username) {
+    public DataInternal(String urnPrefix, String username) {
         this.urnPrefix = urnPrefix;
         this.username = username;
     }
@@ -71,7 +71,7 @@ public class UserInternal implements Serializable {
 
     @Override
     public String toString() {
-        return "UserInternal{" +
+        return "DataInternal{" +
                 "urnPrefix='" + urnPrefix + '\'' +
                 ", username='" + username + '\'' +
                 '}';

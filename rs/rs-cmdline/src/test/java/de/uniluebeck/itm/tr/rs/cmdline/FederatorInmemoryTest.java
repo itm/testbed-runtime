@@ -155,14 +155,14 @@ public class FederatorInmemoryTest {
 		}
 
 
-		List<User> users = new LinkedList<User>();
-		User user = new User();
-		user.setUrnPrefix("urn:wisebed1:testbed1");
-		user.setUrnPrefix("urn:wisebed1:testbed2");
-		user.setUrnPrefix("urn:wisebed2:testbed1");
-		user.setUrnPrefix("urn:wisebed2:testbed2");
-		user.setUsername("Nils Rohwedder");
-		users.add(user);
+		List<Data> dataList = new LinkedList<Data>();
+		Data data = new Data();
+		data.setUrnPrefix("urn:wisebed1:testbed1");
+		data.setUrnPrefix("urn:wisebed1:testbed2");
+		data.setUrnPrefix("urn:wisebed2:testbed1");
+		data.setUrnPrefix("urn:wisebed2:testbed2");
+		data.setUsername("Nils Rohwedder");
+		dataList.add(data);
 
 		List<String> urns = new LinkedList<String>();
 		urns.add("urn:wisebed1:testbed1");
@@ -172,22 +172,22 @@ public class FederatorInmemoryTest {
 		//Creating confi-data
 		for (int i = 0; i < 12; i++) {
 			Thread.sleep(100);
-			ConfidentialReservationData data = new ConfidentialReservationData();
-			data.getUsers().addAll(users);
-			data.getNodeURNs().addAll(urns);
+			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
+			confidentialReservationData.getData().addAll(dataList);
+			confidentialReservationData.getNodeURNs().addAll(urns);
 
 			long millis = System.currentTimeMillis() + 200000;
 			gregorianCalendarFrom = new GregorianCalendar();
 			gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 			gregorianCalendarFrom.setTimeInMillis(millis);
-			data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+			confidentialReservationData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
 			gregorianCalendarTo = new GregorianCalendar();
 			gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 			gregorianCalendarTo.setTimeInMillis(millis + 50);
-			data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+			confidentialReservationData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
-			reservationDataMap.put(i, data);
+			reservationDataMap.put(i, confidentialReservationData);
 		}
 	}
 
@@ -321,17 +321,17 @@ public class FederatorInmemoryTest {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 			List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
 			List<ConfidentialReservationData> reservationData = rsFederator.getReservation(tempKeyList);
-			for (ConfidentialReservationData data : reservationData) {
-				for (User user : data.getUsers()) {
+			for (ConfidentialReservationData confidentialReservationData : reservationData) {
+				for (Data data : confidentialReservationData.getData()) {
 					ConfidentialReservationData testData = reservationDataMap.get(i);
 
 					testData.getNodeURNs().clear();
-					testData.getNodeURNs().addAll(data.getNodeURNs());
+					testData.getNodeURNs().addAll(confidentialReservationData.getNodeURNs());
 
-					testData.getUsers().clear();
-					testData.getUsers().addAll(data.getUsers());
+					testData.getData().clear();
+					testData.getData().addAll(confidentialReservationData.getData());
 
-					assertTrue(equals(testData, data));
+					assertTrue(equals(testData, confidentialReservationData));
 				}
 			}
 		}

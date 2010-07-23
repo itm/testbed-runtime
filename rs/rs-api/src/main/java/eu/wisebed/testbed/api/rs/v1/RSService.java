@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.1
  * 
  */
-@WebServiceClient(name = "RSService", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
+@WebServiceClient(name = "RSService", targetNamespace = "urn:RSService", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
 public class RSService
     extends Service
 {
@@ -43,7 +43,7 @@ public class RSService
     }
 
     public RSService() {
-        super(RSSERVICE_WSDL_LOCATION, new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSService"));
+        super(RSSERVICE_WSDL_LOCATION, new QName("urn:RSService", "RSService"));
     }
 
     /**
@@ -53,7 +53,7 @@ public class RSService
      */
     @WebEndpoint(name = "RSPort")
     public RS getRSPort() {
-        return super.getPort(new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSPort"), RS.class);
+        return super.getPort(new QName("urn:RSService", "RSPort"), RS.class);
     }
 
     /**
@@ -65,7 +65,7 @@ public class RSService
      */
     @WebEndpoint(name = "RSPort")
     public RS getRSPort(WebServiceFeature... features) {
-        return super.getPort(new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSPort"), RS.class, features);
+        return super.getPort(new QName("urn:RSService", "RSPort"), RS.class, features);
     }
 
 }
