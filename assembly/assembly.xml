@@ -4,7 +4,7 @@
 
 	<id>assembly</id>
 	<formats>
-		<format>jar</format>
+		<format>tar.gz</format>
 	</formats>
 	<dependencySets>
 		<dependencySet>
@@ -18,11 +18,12 @@
 	</dependencySets>
 	<fileSets>
 		<fileSet>
-			<directory>src/main/assembly/macosx-universal-64/</directory>
+			<directory>src/main/assembly/</directory>
 			<outputDirectory>.</outputDirectory>
 			<includes>
 				<include>**/*</include>
 			</includes>
+			<filtered>true</filtered>
 		</fileSet>
 	</fileSets>
 

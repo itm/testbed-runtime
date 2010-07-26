@@ -19,12 +19,12 @@
 # Optimized for use with version 3.5.2 of the Wrapper.
 
 # Application
-APP_NAME="tr.rs"
-APP_LONG_NAME="Testbed Runtime Reservation System"
+APP_NAME="tr.snaa"
+APP_LONG_NAME="Testbed Runtime SNAA"
 
 # Wrapper
-WRAPPER_CMD="./wrapper"
-WRAPPER_CONF="../conf/tr.rs.conf"
+WRAPPER_CMD="../lib/wrapper-macosx-universal-64"
+WRAPPER_CONF="../conf/tr.snaa.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
