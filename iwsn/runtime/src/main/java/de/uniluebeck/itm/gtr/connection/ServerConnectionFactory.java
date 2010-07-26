@@ -24,11 +24,10 @@
 package de.uniluebeck.itm.gtr.connection;
 
 
-
 public interface ServerConnectionFactory {
 
-    ServerConnection create(String address) throws ConnectionInvalidAddressException;
+	ServerConnection create(String address) throws ConnectionInvalidAddressException;
 
-    String getType();
+	String getType();
 
 }

@@ -61,7 +61,6 @@ public class TelosbBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param file
-	 *
 	 * @throws Exception
 	 */
 	public TelosbBinFile(File file) throws Exception {
@@ -76,7 +75,6 @@ public class TelosbBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param fileName
-	 *
 	 * @throws FileLoadException
 	 */
 	public TelosbBinFile(String fileName) throws Exception {

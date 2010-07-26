@@ -26,36 +26,36 @@ package de.uniluebeck.itm.tr.nodeapi;
 
 public interface LinkControl {
 
-    /**
-     * Set up a virtual link between the two nodes identified by the unique this node
-     * and destNode. The reserved broadcast ID is not allowed as parameter.
-     *
-     * @param destNode end point of the virtual link
-     */
-    void setVirtualLink(long destNode, NodeApiCallback callback);
+	/**
+	 * Set up a virtual link between the two nodes identified by the unique this node
+	 * and destNode. The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param destNode end point of the virtual link
+	 */
+	void setVirtualLink(long destNode, NodeApiCallback callback);
 
-    /**
-     * Destroy a virtual link between this node and destNode.
-     * The reserved broadcast ID is not allowed as parameter.
-     *
-     * @param destNode end point of the virtual link
-     */
-    void destroyVirtualLink(long destNode, NodeApiCallback callback);
+	/**
+	 * Destroy a virtual link between this node and destNode.
+	 * The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param destNode end point of the virtual link
+	 */
+	void destroyVirtualLink(long destNode, NodeApiCallback callback);
 
-    /**
-     * Enable the physical radio link between this node and nodeB (if possible).
-     * The reserved broadcast ID is not allowed as parameter.
-     *
-     * @param nodeB end point of the link
-     */
-    void enablePhysicalLink(long nodeB, NodeApiCallback callback);
+	/**
+	 * Enable the physical radio link between this node and nodeB (if possible).
+	 * The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 */
+	void enablePhysicalLink(long nodeB, NodeApiCallback callback);
 
-    /**
-     * Disable the physical radio link between this node and nodeB.
-     * The reserved broadcast ID is not allowed as parameter.
-     *
-     * @param nodeB end point of the link
-     */
-    void disablePhysicalLink(long nodeB, NodeApiCallback callback);
+	/**
+	 * Disable the physical radio link between this node and nodeB.
+	 * The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 */
+	void disablePhysicalLink(long nodeB, NodeApiCallback callback);
 
 }

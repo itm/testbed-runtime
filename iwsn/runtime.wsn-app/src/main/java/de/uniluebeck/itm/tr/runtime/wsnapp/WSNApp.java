@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.common.Service;
 import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
@@ -32,27 +31,27 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 
+ *
  */
 public interface WSNApp extends Service, TestbedApplication {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
@@ -61,19 +60,18 @@ public interface WSNApp extends Service, TestbedApplication {
 	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
 
-    /**
+	/**
 	 *
 	 */
 	public static interface Callback {
 
-        void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
+		void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
 
 		void failure(Exception e);
 
 	}
 
 	/**
-	 *
 	 * @param nodeUrns
 	 * @param message
 	 * @param callback
@@ -82,14 +80,12 @@ public interface WSNApp extends Service, TestbedApplication {
 			throws UnknownNodeUrnException_Exception;
 
 	/**
-	 *
 	 * @param nodeUrns
 	 * @param callback
 	 */
-    void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
+	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
 	/**
-	 *
 	 * @param programs
 	 * @param callback
 	 */
@@ -98,26 +94,22 @@ public interface WSNApp extends Service, TestbedApplication {
 
 
 	/**
-	 * 
 	 * @param nodeUrns
 	 * @param callback
 	 */
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
 	/**
-	 * 
 	 * @param receiver
 	 */
 	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
 	/**
-	 *
 	 * @param receiver
 	 */
 	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
 	/**
-	 *
 	 * @param sourceNodeUrn
 	 * @param targetNodeUrn
 	 * @param callback
@@ -126,7 +118,6 @@ public interface WSNApp extends Service, TestbedApplication {
 			throws UnknownNodeUrnException_Exception;
 
 	/**
-	 * 
 	 * @param sourceNodeUrn
 	 * @param targetNodeUrn
 	 * @param callback

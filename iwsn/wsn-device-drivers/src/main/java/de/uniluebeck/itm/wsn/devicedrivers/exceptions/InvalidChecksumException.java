@@ -25,21 +25,22 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class InvalidChecksumException extends Exception {
 	private String msg = null;
-	
+
 	/**
 	 * Constructor
 	 */
 	public InvalidChecksumException() {
-		
+
 	}
-	
+
 	/**
 	 * Constructor
+	 *
 	 * @param msg
 	 */
 	public InvalidChecksumException(String msg) {
@@ -49,6 +50,7 @@ public class InvalidChecksumException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;

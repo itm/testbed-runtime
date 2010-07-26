@@ -19,9 +19,9 @@ import java.util.List;
 
 /**
  * <p>Java class for ClientConnections complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="ClientConnections">
  *   &lt;complexContent>
@@ -33,48 +33,44 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ClientConnections", propOrder = {
-    "clientconnection"
+		"clientconnection"
 })
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class ClientConnections {
 
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected List<ClientConnection> clientconnection;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected List<ClientConnection> clientconnection;
 
-    /**
-     * Gets the value of the clientconnection property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the clientconnection property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getClientconnection().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link ClientConnection }
-     * 
-     * 
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public List<ClientConnection> getClientconnection() {
-        if (clientconnection == null) {
-            clientconnection = new ArrayList<ClientConnection>();
-        }
-        return this.clientconnection;
-    }
+	/**
+	 * Gets the value of the clientconnection property.
+	 * <p/>
+	 * <p/>
+	 * This accessor method returns a reference to the live list,
+	 * not a snapshot. Therefore any modification you make to the
+	 * returned list will be present inside the JAXB object.
+	 * This is why there is not a <CODE>set</CODE> method for the clientconnection property.
+	 * <p/>
+	 * <p/>
+	 * For example, to add a new item, do as follows:
+	 * <pre>
+	 *    getClientconnection().add(newItem);
+	 * </pre>
+	 * <p/>
+	 * <p/>
+	 * <p/>
+	 * Objects of the following type(s) are allowed in the list
+	 * {@link ClientConnection }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-05-07T06:46:11+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public List<ClientConnection> getClientconnection() {
+		if (clientconnection == null) {
+			clientconnection = new ArrayList<ClientConnection>();
+		}
+		return this.clientconnection;
+	}
 
 }

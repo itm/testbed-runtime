@@ -34,66 +34,66 @@ import java.awt.*;
  */
 public class ControllerView extends JPanel {
 
-    private ControllerModel controllerModel;
+	private ControllerModel controllerModel;
 
-    private JPanel panel;
+	private JPanel panel;
 
-    private JButton receiveButton;
+	private JButton receiveButton;
 
-    private JButton receiveStatusButton;
+	private JButton receiveStatusButton;
 
-    private JLabel endpointUrlLabel;
+	private JLabel endpointUrlLabel;
 
-    private JTextField endpointUrlTextField;
+	private JTextField endpointUrlTextField;
 
-    private JPanel superPanel;
+	private JPanel superPanel;
 
 
-    public ControllerView(ControllerModel controllerModel) {
+	public ControllerView(ControllerModel controllerModel) {
 
-        super(new FlowLayout());
-        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+		super(new FlowLayout());
+		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.controllerModel = controllerModel;
+		this.controllerModel = controllerModel;
 
-        this.superPanel = new JPanel(new GridLayout(4, 1));
-        this.panel = new JPanel(new GridLayout(3, 2));
-        this.superPanel.add(this.panel);
+		this.superPanel = new JPanel(new GridLayout(4, 1));
+		this.panel = new JPanel(new GridLayout(3, 2));
+		this.superPanel.add(this.panel);
 
-        {
-            endpointUrlLabel = new JLabel("Endpoint URL");
-            endpointUrlTextField = new JTextField();
+		{
+			endpointUrlLabel = new JLabel("Endpoint URL");
+			endpointUrlTextField = new JTextField();
 
-            panel.add(endpointUrlLabel);
-            panel.add(endpointUrlTextField);
-        }
-        {
-            receiveButton = new JButton("receive()");
+			panel.add(endpointUrlLabel);
+			panel.add(endpointUrlTextField);
+		}
+		{
+			receiveButton = new JButton("receive()");
 
-            panel.add(new JLabel());
-            panel.add(receiveButton);
-        }
-        {
-            receiveStatusButton = new JButton("receiveStatus()");
+			panel.add(new JLabel());
+			panel.add(receiveButton);
+		}
+		{
+			receiveStatusButton = new JButton("receiveStatus()");
 
-            panel.add(new JLabel());
-            panel.add(receiveStatusButton);
-        }
+			panel.add(new JLabel());
+			panel.add(receiveStatusButton);
+		}
 
-        add(superPanel);
+		add(superPanel);
 
-    }
+	}
 
-    public JButton getReceiveButton() {
-        return receiveButton;
-    }
+	public JButton getReceiveButton() {
+		return receiveButton;
+	}
 
-    public JButton getReceiveStatusButton() {
-        return receiveStatusButton;
-    }
+	public JButton getReceiveStatusButton() {
+		return receiveStatusButton;
+	}
 
-    public JTextField getEndpointUrlTextField() {
-        return endpointUrlTextField;
-    }
+	public JTextField getEndpointUrlTextField() {
+		return endpointUrlTextField;
+	}
 
 }

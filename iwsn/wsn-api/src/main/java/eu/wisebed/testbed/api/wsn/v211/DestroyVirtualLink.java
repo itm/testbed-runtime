@@ -1,4 +1,3 @@
-
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for destroyVirtualLink complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="destroyVirtualLink">
  *   &lt;complexContent>
@@ -24,67 +23,57 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "destroyVirtualLink", propOrder = {
-    "sourceNode",
-    "targetNode"
+		"sourceNode",
+		"targetNode"
 })
 public class DestroyVirtualLink {
 
-    @XmlElement(required = true)
-    protected String sourceNode;
-    @XmlElement(required = true)
-    protected String targetNode;
+	@XmlElement(required = true)
+	protected String sourceNode;
+	@XmlElement(required = true)
+	protected String targetNode;
 
-    /**
-     * Gets the value of the sourceNode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSourceNode() {
-        return sourceNode;
-    }
+	/**
+	 * Gets the value of the sourceNode property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	public String getSourceNode() {
+		return sourceNode;
+	}
 
-    /**
-     * Sets the value of the sourceNode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSourceNode(String value) {
-        this.sourceNode = value;
-    }
+	/**
+	 * Sets the value of the sourceNode property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	public void setSourceNode(String value) {
+		this.sourceNode = value;
+	}
 
-    /**
-     * Gets the value of the targetNode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTargetNode() {
-        return targetNode;
-    }
+	/**
+	 * Gets the value of the targetNode property.
+	 *
+	 * @return possible object is
+	 *         {@link String }
+	 */
+	public String getTargetNode() {
+		return targetNode;
+	}
 
-    /**
-     * Sets the value of the targetNode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTargetNode(String value) {
-        this.targetNode = value;
-    }
+	/**
+	 * Sets the value of the targetNode property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	public void setTargetNode(String value) {
+		this.targetNode = value;
+	}
 
 }

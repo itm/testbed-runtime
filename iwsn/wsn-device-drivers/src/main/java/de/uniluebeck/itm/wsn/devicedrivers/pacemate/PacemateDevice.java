@@ -64,7 +64,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	/** */
 	private enum ComPortMode {
 		Normal, Program
-	};
+	}
+
+	;
 
 	private String serialPortName;
 
@@ -341,7 +343,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	/**
 	 * Jennic Style not of interest for pacemate
-	 * 
+	 *
 	 * @param address
 	 * @param len
 	 * @return
@@ -496,24 +498,24 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	public void serialEvent(SerialPortEvent event) {
 		// log.debug("Serial event");
 		switch (event.getEventType()) {
-		case SerialPortEvent.DATA_AVAILABLE:
+			case SerialPortEvent.DATA_AVAILABLE:
 
-			synchronized (dataAvailableMonitor) {
-				// log.debug("DM");
-				dataAvailableMonitor.notifyAll();
-			}
+				synchronized (dataAvailableMonitor) {
+					// log.debug("DM");
+					dataAvailableMonitor.notifyAll();
+				}
 
-			if (operation == null) {
-				receive(inStream);
-			} else {
-				// TODO Dennis/Carsten: Callback Methode fr den Programming mode
-				// ?
-			}
+				if (operation == null) {
+					receive(inStream);
+				} else {
+					// TODO Dennis/Carsten: Callback Methode fr den Programming mode
+					// ?
+				}
 
-			break;
-		default:
-			log.debug("Serial event (other than data available): " + event);
-			break;
+				break;
+			default:
+				log.debug("Serial event (other than data available): " + event);
+				break;
 		}
 	}
 
@@ -522,7 +524,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// log.debug("JD: Sending " + p);
 
 		if (operationInProgress()) {
-			log.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName()+ ")");
+			log.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName() + ")");
 			return;
 		}
 
@@ -599,9 +601,10 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	}
 
 	// ------------------------------------------------------------------------
+
 	/**
 	 * writes the byte array to the out stream pacemate style
-	 * 
+	 *
 	 * @throws NullPointerException
 	 * @throws InvalidChecksumException
 	 * @throws UnexpectedResponseException
@@ -633,9 +636,8 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	/**
 	 * Writes the CRC to the last two bytes of the Flash pacemate style
-	 * 
+	 *
 	 * @param crc
-	 * 
 	 * @return everything OK
 	 * @throws Exception
 	 */
@@ -729,9 +731,10 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	// ------------------------------------------------------------------------
 	// --
+
 	/**
 	 * writes the byte array to the out stream pacemate style
-	 * 
+	 *
 	 * @throws NullPointerException
 	 * @throws InvalidChecksumException
 	 * @throws UnexpectedResponseException
@@ -771,8 +774,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	protected byte[] receiveBootLoaderReply(String type) throws TimeoutException, UnexpectedResponseException,
 			InvalidChecksumException, IOException, NullPointerException {
@@ -869,15 +873,13 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	// ------------------------------------------------------------------------
 	// --
+
 	/**
 	 * Wait at most timeoutMillis for the input stream to become available
-	 * 
-	 * @param istream
-	 *            The stream to monitor
-	 * @param timeoutMillis
-	 *            Milliseconds to wait until timeout, 0 for no timeout
-	 * @param minCharacters
-	 *            The minimal amount of available characters
+	 *
+	 * @param istream	   The stream to monitor
+	 * @param timeoutMillis Milliseconds to wait until timeout, 0 for no timeout
+	 * @param minCharacters The minimal amount of available characters
 	 * @return The number of characters available
 	 * @throws IOException
 	 */
@@ -973,7 +975,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	/**
 	 * Returns the device's port name as String
-	 * 
+	 *
 	 * @return
 	 */
 	public String getPortName() {
@@ -986,7 +988,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	@Override
 	public int[] getChannels() {
-		int[] channels = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+		int[] channels = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
 		return channels;
 	}
 

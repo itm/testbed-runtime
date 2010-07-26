@@ -1,4 +1,3 @@
-
 package eu.wisebed.testbed.api.snaa.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,9 +10,9 @@ import java.util.List;
 
 /**
  * <p>Java class for authenticate complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="authenticate">
  *   &lt;complexContent>
@@ -25,45 +24,41 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "authenticate", propOrder = {
-    "authenticationData"
+		"authenticationData"
 })
 public class Authenticate {
 
-    @XmlElement(required = true)
-    protected List<AuthenticationTriple> authenticationData;
+	@XmlElement(required = true)
+	protected List<AuthenticationTriple> authenticationData;
 
-    /**
-     * Gets the value of the authenticationData property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the authenticationData property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getAuthenticationData().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link AuthenticationTriple }
-     * 
-     * 
-     */
-    public List<AuthenticationTriple> getAuthenticationData() {
-        if (authenticationData == null) {
-            authenticationData = new ArrayList<AuthenticationTriple>();
-        }
-        return this.authenticationData;
-    }
+	/**
+	 * Gets the value of the authenticationData property.
+	 * <p/>
+	 * <p/>
+	 * This accessor method returns a reference to the live list,
+	 * not a snapshot. Therefore any modification you make to the
+	 * returned list will be present inside the JAXB object.
+	 * This is why there is not a <CODE>set</CODE> method for the authenticationData property.
+	 * <p/>
+	 * <p/>
+	 * For example, to add a new item, do as follows:
+	 * <pre>
+	 *    getAuthenticationData().add(newItem);
+	 * </pre>
+	 * <p/>
+	 * <p/>
+	 * <p/>
+	 * Objects of the following type(s) are allowed in the list
+	 * {@link AuthenticationTriple }
+	 */
+	public List<AuthenticationTriple> getAuthenticationData() {
+		if (authenticationData == null) {
+			authenticationData = new ArrayList<AuthenticationTriple>();
+		}
+		return this.authenticationData;
+	}
 
 }

@@ -35,17 +35,17 @@ import de.uniluebeck.itm.gtr.connection.tcp.TcpServerConnectionFactory;
  */
 public class ConnectionModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 
-        bind(ConnectionService.class).to(ConnectionServiceImpl.class);
+		bind(ConnectionService.class).to(ConnectionServiceImpl.class);
 
-        Multibinder<ConnectionFactory> cfBinder = Multibinder.newSetBinder(binder(), ConnectionFactory.class);
-        cfBinder.addBinding().to(TcpConnectionFactory.class);
+		Multibinder<ConnectionFactory> cfBinder = Multibinder.newSetBinder(binder(), ConnectionFactory.class);
+		cfBinder.addBinding().to(TcpConnectionFactory.class);
 
-        Multibinder<ServerConnectionFactory> scfBinder = Multibinder.newSetBinder(binder(), ServerConnectionFactory.class);
-        scfBinder.addBinding().to(TcpServerConnectionFactory.class);
+		Multibinder<ServerConnectionFactory> scfBinder = Multibinder.newSetBinder(binder(), ServerConnectionFactory.class);
+		scfBinder.addBinding().to(TcpServerConnectionFactory.class);
 
-    }
+	}
 
 }

@@ -34,12 +34,12 @@ public class UrlUtils {
 	public static URL convertHostToZeros(URL url) throws MalformedURLException {
 		return new URL(url.getProtocol(), "0.0.0.0", url.getPort(), url.getFile());
 	}
-	
+
 	/* Converts a URL (http://example.com:8989/path to http://0.0.0.0:8989/path
-	 *  
-	 */
+		 *
+		 */
 	public static String convertHostToZeros(String oldUrl) throws MalformedURLException {
 		return convertHostToZeros(new URL(oldUrl)).toString();
 	}
-	
+
 }

@@ -57,8 +57,8 @@
 			</application>
 		</applications>
 	</nodes>
-	
-	
+
+
 	<nodes id="testbeduzl03">
 		<names>
 			<nodename name="node02-01" description=""/>
@@ -93,8 +93,8 @@
 			</application>
 		</applications>
 	</nodes>
-	
-	
+
+
 	<nodes id="wisebed1">
 		<names>
 			<nodename name="wisebed1" description=""/>
@@ -102,20 +102,21 @@
 		<serverconnections>
 			<serverconnection type="tcp" address="141.83.68.34:8888"/>
 		</serverconnections>
-		
+
 		<applications>
-		
-				<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
 				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
 					<webservice>
 						<urnprefix>urn:wisebed:uzl</urnprefix>
-						<sessionmanagementendpointurl>http://wisebed1.itm.uni-luebeck.de:8888/sessions</sessionmanagementendpointurl>
+						<sessionmanagementendpointurl>http://wisebed1.itm.uni-luebeck.de:8888/sessions
+						</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://wisebed1.itm.uni-luebeck.de:8888/wsn/</wsninstancebaseurl>
 						<wisemlfilename>configs/various/wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>
-			
+
 		</applications>
 	</nodes>
 </ns2:testbed>

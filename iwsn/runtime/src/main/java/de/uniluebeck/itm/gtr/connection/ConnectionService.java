@@ -30,10 +30,10 @@ import java.io.IOException;
 
 public interface ConnectionService extends Service {
 
-    Connection getConnection(String nodeName) throws ConnectionInvalidAddressException,
-            ConnectionTypeUnavailableException, IOException;
+	Connection getConnection(String nodeName) throws ConnectionInvalidAddressException,
+			ConnectionTypeUnavailableException, IOException;
 
-    ServerConnection getServerConnection(String type, String address) throws ConnectionInvalidAddressException,
-            ConnectionTypeUnavailableException, IOException;
+	ServerConnection getServerConnection(String type, String address) throws ConnectionInvalidAddressException,
+			ConnectionTypeUnavailableException, IOException;
 
 }

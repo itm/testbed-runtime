@@ -41,12 +41,12 @@ import java.util.concurrent.*;
 
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+		targetNamespace = "urn:RSService")
 public class FederatorRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorRS.class);
 
-	private static final QName RS_SERVICE_QNAME = new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSService");
+	private static final QName RS_SERVICE_QNAME = new QName("urn:RSService", "RSService");
 
 	/**
 	 *
@@ -278,7 +278,6 @@ public class FederatorRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @return
 	 */
 	private BiMap<String, ConfidentialReservationData> constructEndpointUrlToReservationMap(
@@ -298,7 +297,7 @@ public class FederatorRS implements RS {
 			data.setFrom(reservation.getFrom());
 			data.setTo(reservation.getTo());
 			data.setUserData(reservation.getUserData());
-			data.getUsers().addAll(reservation.getUsers());
+			data.getData().addAll(reservation.getData());
 		}
 
 		return map;
@@ -324,7 +323,6 @@ public class FederatorRS implements RS {
 	 * if not
 	 *
 	 * @param nodeURNs
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void assertUrnsServed(List<String> nodeURNs) throws RSExceptionException {

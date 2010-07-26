@@ -26,47 +26,47 @@ package de.uniluebeck.itm.tr.nodeapi;
 
 public interface NodeControl {
 
-    /**
-     * Enables this node. The node is reactivating the radio and start
-     * interacting with the environment.
-     */
-    void enableNode(NodeApiCallback callback);
+	/**
+	 * Enables this node. The node is reactivating the radio and start
+	 * interacting with the environment.
+	 */
+	void enableNode(NodeApiCallback callback);
 
-    /**
-     * Disable this node. The node does not longer send out messages
-     * or interact with the environment (e.g. a mobile node or via an actuator).
-     */
-    void disableNode(NodeApiCallback callback);
+	/**
+	 * Disable this node. The node does not longer send out messages
+	 * or interact with the environment (e.g. a mobile node or via an actuator).
+	 */
+	void disableNode(NodeApiCallback callback);
 
-    /**
-     * Reset this node in time milliseconds
-     *
-     * @param time
-     */
-    void resetNode(int time, NodeApiCallback callback);
+	/**
+	 * Reset this node in time milliseconds
+	 *
+	 * @param time
+	 */
+	void resetNode(int time, NodeApiCallback callback);
 
-    /**
-     * Sets the starttime of the nodes de.uniluebeck.itm.tr.wisebed.app to in time milliseconds
-     *
-     * @param time
-     */
-    void setStartTime(int time, NodeApiCallback callback);
+	/**
+	 * Sets the starttime of the nodes de.uniluebeck.itm.tr.wisebed.app to in time milliseconds
+	 *
+	 * @param time
+	 */
+	void setStartTime(int time, NodeApiCallback callback);
 
-    /**
-     * Sets a new virtualNodeID. In default virtualID == natural nodeID
-     *
-     * @param virtualNodeID
-     */
-    void setVirtualID(long virtualNodeID, NodeApiCallback callback);
+	/**
+	 * Sets a new virtualNodeID. In default virtualID == natural nodeID
+	 *
+	 * @param virtualNodeID
+	 */
+	void setVirtualID(long virtualNodeID, NodeApiCallback callback);
 
-    /**
-     * Asks the connected node for its ID. In default virtualID == natural nodeID
-     */
-    void getID(NodeApiCallback callback);
+	/**
+	 * Asks the connected node for its ID. In default virtualID == natural nodeID
+	 */
+	void getID(NodeApiCallback callback);
 
-    /**
-     * Check if this node is alive.
-     */
-    void areNodesAlive(NodeApiCallback callback);
+	/**
+	 * Check if this node is alive.
+	 */
+	void areNodesAlive(NodeApiCallback callback);
 
 }

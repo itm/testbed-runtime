@@ -35,43 +35,43 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "reservationData", propOrder = {"reservation", "urnPrefix", "secretReservationKey"})
 public class ReservationData {
 
-    private ConfidentialReservationData reservation;
+	private ConfidentialReservationData reservation;
 
-    private String urnPrefix;
+	private String urnPrefix;
 
-    private String secretReservationKey;
+	private String secretReservationKey;
 
-    public ReservationData() {
-    }
+	public ReservationData() {
+	}
 
-    public ReservationData(ConfidentialReservationData reservation, String urnPrefix, String secretReservationKey) {
-        this.reservation = reservation;
-        this.urnPrefix = urnPrefix;
-        this.secretReservationKey = secretReservationKey;
-    }
+	public ReservationData(ConfidentialReservationData reservation, String urnPrefix, String secretReservationKey) {
+		this.reservation = reservation;
+		this.urnPrefix = urnPrefix;
+		this.secretReservationKey = secretReservationKey;
+	}
 
-    public ConfidentialReservationData getReservation() {
-        return reservation;
-    }
+	public ConfidentialReservationData getReservation() {
+		return reservation;
+	}
 
-    public String getUrnPrefix() {
-        return urnPrefix;
-    }
+	public String getUrnPrefix() {
+		return urnPrefix;
+	}
 
-    public void setReservation(ConfidentialReservationData reservation) {
-        this.reservation = reservation;
-    }
+	public void setReservation(ConfidentialReservationData reservation) {
+		this.reservation = reservation;
+	}
 
-    public void setUrnPrefix(String urnPrefix) {
-        this.urnPrefix = urnPrefix;
-    }
+	public void setUrnPrefix(String urnPrefix) {
+		this.urnPrefix = urnPrefix;
+	}
 
-    public void setSecretReservationKey(String secretReservationKey) {
-        this.secretReservationKey = secretReservationKey;
-    }
+	public void setSecretReservationKey(String secretReservationKey) {
+		this.secretReservationKey = secretReservationKey;
+	}
 
-    public String getSecretReservationKey() {
-        return secretReservationKey;
-    }
+	public String getSecretReservationKey() {
+		return secretReservationKey;
+	}
 
 }

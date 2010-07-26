@@ -36,24 +36,24 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 public class SocketServerPipelineFactory implements ChannelPipelineFactory {
 
-    SocketServer socketServer;
+	SocketServer socketServer;
 
-    public SocketServerPipelineFactory(SocketServer socketServer) {
-        this.socketServer = socketServer;
-    }
+	public SocketServerPipelineFactory(SocketServer socketServer) {
+		this.socketServer = socketServer;
+	}
 
-    public ChannelPipeline getPipeline() throws Exception {
+	public ChannelPipeline getPipeline() throws Exception {
 
 		ChannelPipeline p = pipeline();
 
 		p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(1048576, 0, 4, 0, 4));
-        p.addLast("protobufEnvelopeMessageDecoder", new ProtobufDecoder(Messages.Msg.getDefaultInstance()));
+		p.addLast("protobufEnvelopeMessageDecoder", new ProtobufDecoder(Messages.Msg.getDefaultInstance()));
 
-        p.addLast("frameEncoder", new LengthFieldPrepender(4));
-        p.addLast("protobufEncoder", new ProtobufEncoder());
+		p.addLast("frameEncoder", new LengthFieldPrepender(4));
+		p.addLast("protobufEncoder", new ProtobufEncoder());
 
-        p.addLast("handler", socketServer);
-		
-        return p;
-    }
+		p.addLast("handler", socketServer);
+
+		return p;
+	}
 }

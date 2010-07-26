@@ -288,7 +288,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
-	 *
 	 * @return an instance hash
 	 */
 	private String calculateWSNInstanceHash(List<SecretReservationKey> secretReservationKeys) {
@@ -304,7 +303,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances
-	 *
 	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
 	 */
 	private Set<String> convertToUrnPrefixSet(List<SecretReservationKey> secretReservationKeys) {
@@ -321,7 +319,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances as
 	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(eu.wisebed.testbed.api.wsn.v211.GetInstance)}
-	 *
 	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they
 	 *         serve
 	 */

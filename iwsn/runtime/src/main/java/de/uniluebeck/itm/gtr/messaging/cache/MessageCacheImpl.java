@@ -34,34 +34,34 @@ public class MessageCacheImpl<T extends MessageCacheEntry> implements MessageCac
 
 	private static final Logger log = LoggerFactory.getLogger(MessageCacheImpl.class);
 
-    private final PriorityBlockingQueue<T> queue;
+	private final PriorityBlockingQueue<T> queue;
 
-    public MessageCacheImpl(Comparator<T> comparator) {
-        this.queue = new PriorityBlockingQueue<T>(10, comparator);
-    }
+	public MessageCacheImpl(Comparator<T> comparator) {
+		this.queue = new PriorityBlockingQueue<T>(10, comparator);
+	}
 
-    @Override
-    public void enq(MessageCacheEntry entry) {
-        queue.put((T) entry);
-    }
+	@Override
+	public void enq(MessageCacheEntry entry) {
+		queue.put((T) entry);
+	}
 
-    public T deq() throws InterruptedException {
-        return queue.take();
-    }
+	public T deq() throws InterruptedException {
+		return queue.take();
+	}
 
-    @Override
-    public int size() {
-        return queue.size();
-    }
+	@Override
+	public int size() {
+		return queue.size();
+	}
 
-    @Override
-    public String toString() {
-        return queue.toString();
-    }
+	@Override
+	public String toString() {
+		return queue.toString();
+	}
 
-    @Override
-    public boolean contains(MessageCacheEntry entry) {
-        return this.queue.contains(entry);
-    }
+	@Override
+	public boolean contains(MessageCacheEntry entry) {
+		return this.queue.contains(entry);
+	}
 
 }

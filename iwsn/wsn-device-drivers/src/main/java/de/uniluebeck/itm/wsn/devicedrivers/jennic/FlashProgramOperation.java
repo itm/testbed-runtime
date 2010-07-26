@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
+
 /**
  *
  */
@@ -46,8 +47,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	private boolean rebootAfterFlashing;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public FlashProgramOperation(JennicDevice device, IDeviceBinFile program, boolean rebootAfterFlashing) {
 		super(device);
@@ -57,12 +59,13 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private boolean programFlash() throws Exception {
 		JennicBinFile jennicProgram = null;
-		
+
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
 			log.error("Unable to enter programming mode");
@@ -90,10 +93,10 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			log.error("Chip type(" + chipType + ") and bin-program type(" + program.getFileType() + ") do not match");
 			throw new ProgramChipMismatchException(chipType, program.getFileType());
 		}
-		
+
 		// insert flash header of device
 		try {
-			jennicProgram = (JennicBinFile)program;
+			jennicProgram = (JennicBinFile) program;
 			if (!jennicProgram.insertHeader(device.getFlashHeader())) {
 				log.error("Unable to write flash header to binary file.");
 				return false;
@@ -107,7 +110,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		device.eraseFlash(SectorIndex.FIRST);
 		device.eraseFlash(SectorIndex.SECOND);
 		device.eraseFlash(SectorIndex.THIRD);
-		
+
 		// Write program to flash
 		BinFileDataBlock block = null;
 		int blockCount = 0;
@@ -119,11 +122,11 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				device.operationCancelled(this);
 				return false;
 			}
-			
+
 			// Notify listeners of the new status
 			float progress = ((float) blockCount) / ((float) program.getBlockCount());
 			device.operationProgress(Operation.PROGRAM, progress);
-			
+
 			// Return with success if the user has requested to cancel this
 			// operation
 			if (isCancelled()) {
@@ -131,7 +134,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				device.operationCancelled(this);
 				return false;
 			}
-			
+
 			blockCount++;
 		}
 
@@ -145,8 +148,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -172,8 +176,9 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

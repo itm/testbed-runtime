@@ -30,10 +30,10 @@ public interface TimedCacheListener<K, V> {
 	/**
 	 * Invoked upon timeout of a cache entry.
 	 *
-	 * @param key the key of the cache element
+	 * @param key   the key of the cache element
 	 * @param value the value of the cache element
 	 * @return if the element should be removed, a new timeout otherwise
 	 */
 	Tuple<Long, TimeUnit> timeout(K key, V value);
-	
+
 }

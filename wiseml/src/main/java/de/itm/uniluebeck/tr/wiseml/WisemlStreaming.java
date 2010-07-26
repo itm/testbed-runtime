@@ -23,20 +23,11 @@
 
 package de.itm.uniluebeck.tr.wiseml;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-
-import javax.xml.bind.JAXBException;
-
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.w3c.tidy.Tidy;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import javax.xml.bind.JAXBException;
+import java.io.*;
 
 //TODO Do XML streaming validation (http://java.sun.com/developer/technicalArticles/xml/jaxp1-3/#Validate%20SAX%20Stream)
 
@@ -65,7 +56,7 @@ public class WisemlStreaming {
 			tidy.parse(instream, outstream);
 		}
 	}
-	
+
 	public WisemlStreaming(OutputStream outputStream) throws IOException {
 		PipedInputStream pipeIn = new PipedInputStream();
 		PipedOutputStream pipedout = new PipedOutputStream(pipeIn);
@@ -80,7 +71,7 @@ public class WisemlStreaming {
 		addFragment("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		addFragment("<wiseml xmlns=\"http://wisebed.eu/ns/wiseml/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://wisebed.eu/ns/wiseml/1.0\" version=\"1.0\">\n");
 	}
-	
+
 	public void addFooter() throws IOException {
 		addFragment("</wiseml>");
 	}

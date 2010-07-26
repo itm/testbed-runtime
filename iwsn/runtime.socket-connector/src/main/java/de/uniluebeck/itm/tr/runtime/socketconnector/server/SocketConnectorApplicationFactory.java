@@ -48,7 +48,7 @@ public class SocketConnectorApplicationFactory implements TestbedApplicationFact
 					(Socketconnector) context.createUnmarshaller().unmarshal((Node) configuration);
 
 			return new SocketConnectorApplication(testbedRuntime, socketConnectorApp.getPort());
-			
+
 		} catch (JAXBException e) {
 			logger.error("Error initialising socket connector", e);
 			return null;

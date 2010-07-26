@@ -26,9 +26,7 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 
 /**
- * 
  * @author dp
- * 
  */
 @SuppressWarnings("serial")
 public class ProgramChipMismatchException extends Exception {
@@ -38,6 +36,7 @@ public class ProgramChipMismatchException extends Exception {
 	private ChipType programType;
 
 	// -------------------------------------------------------------------------
+
 	/**
 	 */
 	public ProgramChipMismatchException(ChipType chipType, ChipType programType) {
@@ -46,6 +45,7 @@ public class ProgramChipMismatchException extends Exception {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
 	 */
 	public ChipType getChipType() {
@@ -53,6 +53,7 @@ public class ProgramChipMismatchException extends Exception {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
 	 */
 	public ChipType getProgramType() {

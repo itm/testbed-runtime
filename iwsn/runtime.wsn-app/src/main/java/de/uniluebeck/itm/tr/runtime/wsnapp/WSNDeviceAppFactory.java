@@ -67,8 +67,8 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				String autodetectionMac = wsnDevice.getAutodetectionMac();
 				String type = wsnDevice.getType();
 				String urn = wsnDevice.getUrn();
-                
-                StringUtils.checkIfSuffixIsInt(urn);
+
+				StringUtils.checkIfSuffixIsInt(urn);
 
 				if (serialInterface == null || "".equals(serialInterface)) {
 

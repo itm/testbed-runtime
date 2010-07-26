@@ -27,15 +27,11 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-import eu.wisebed.testbed.api.rs.v1.User;
-
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeFactory;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,12 +50,12 @@ public class GoogleTest {
 		nodeUrns.add("urn:wisebed:uzl:node22");
 		nodeUrns.add("urn:wisebed:uzl:node33");
 		res.getNodeURNs().addAll(nodeUrns);
-		List<User> users = new ArrayList<User>();
-		User u = new User();
-		u.setUrnPrefix("urn:wisebed:uzl:");
-		u.setUsername("testuser");
-		users.add(u);
-		res.getUsers().addAll(users);
+		List<Data> datas = new ArrayList<Data>();
+		Data data = new Data();
+		data.setUrnPrefix("urn:wisebed:uzl:");
+		data.setUsername("testuser");
+		datas.add(data);
+		res.getData().addAll(datas);
 
 		System.out.println("Creating reservation: " + StringUtils.jaxbMarshal(res));
 		SecretReservationKey addedReservation = p.addReservation(res, "urn:wisebed:uzl:");
@@ -75,12 +71,12 @@ public class GoogleTest {
 		}
 
 		Thread.sleep(20000);
-		
+
 		System.out.println("Deleting reservation with key: " + StringUtils.jaxbMarshal(addedReservation));
 		ConfidentialReservationData deletedReservation = p.deleteReservation(addedReservation);
-		
+
 		System.out.println("Deleted reservation: " + StringUtils.jaxbMarshal(deletedReservation));
-		
+
 
 	}
 }

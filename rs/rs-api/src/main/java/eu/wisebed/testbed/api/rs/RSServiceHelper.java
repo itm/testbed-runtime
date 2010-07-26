@@ -38,13 +38,12 @@ public class RSServiceHelper {
 	 * Returns the port to the RS API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 *
 	 * @return a {@link eu.wisebed.testbed.api.rs.v1.RS} instance that is
 	 *         connected to the Web Service endpoint
 	 */
 	public static RS getRSService(String endpointUrl) {
 
-		QName qName = new QName("http://testbed.wisebed.eu/api/rs/v1/", "RSService");
+		QName qName = new QName("urn:RSService", "RSService");
 		URL resource = RSServiceHelper.class.getClassLoader().getResource("RS.wsdl");
 
 		RSService service = new RSService(resource, qName);

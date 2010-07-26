@@ -26,10 +26,10 @@ package de.uniluebeck.itm.gtr.connection;
 
 public interface ServerConnectionListener {
 
-    void serverConnectionOpened(ServerConnection serverConnection);
+	void serverConnectionOpened(ServerConnection serverConnection);
 
-    void serverConnectionClosed(ServerConnection serverConnection);
+	void serverConnectionClosed(ServerConnection serverConnection);
 
-    void connectionEstablished(ServerConnection serverConnection, Connection connection);
+	void connectionEstablished(ServerConnection serverConnection, Connection connection);
 
 }

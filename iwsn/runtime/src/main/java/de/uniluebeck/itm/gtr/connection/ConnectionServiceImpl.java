@@ -41,171 +41,171 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Singleton
 class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ConnectionService.class);
+	private static final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
-    private final Map<String, ConnectionFactory> connectionFactories = new HashMap<String, ConnectionFactory>();
+	private final Map<String, ConnectionFactory> connectionFactories = new HashMap<String, ConnectionFactory>();
 
-    private final Map<String, ServerConnectionFactory> serverConnectionFactories = new HashMap<String, ServerConnectionFactory>();
+	private final Map<String, ServerConnectionFactory> serverConnectionFactories = new HashMap<String, ServerConnectionFactory>();
 
-    private final RoutingTableService routing;
-    private NamingService naming;
+	private final RoutingTableService routing;
+	private NamingService naming;
 
-    private final Map<Tuple<String, String>, ServerConnection> serverConnectionInstances = new HashMap<Tuple<String, String>, ServerConnection>();
+	private final Map<Tuple<String, String>, ServerConnection> serverConnectionInstances = new HashMap<Tuple<String, String>, ServerConnection>();
 
-    private final Map<String, Set<Connection>> connectionInstances = new HashMap<String, Set<Connection>>();
+	private final Map<String, Set<Connection>> connectionInstances = new HashMap<String, Set<Connection>>();
 
-    @Inject
-    public ConnectionServiceImpl(Set<ConnectionFactory> connectionFactories,
-                                 Set<ServerConnectionFactory> serverConnectionFactories,
-                                 RoutingTableService routing,
-                                 NamingService naming) {
+	@Inject
+	public ConnectionServiceImpl(Set<ConnectionFactory> connectionFactories,
+								 Set<ServerConnectionFactory> serverConnectionFactories,
+								 RoutingTableService routing,
+								 NamingService naming) {
 
-        this.routing = routing;
-        this.naming = naming;
+		this.routing = routing;
+		this.naming = naming;
 
-        for (ConnectionFactory connectionFactory : connectionFactories) {
-            this.connectionFactories.put(connectionFactory.getType(), connectionFactory);
-        }
+		for (ConnectionFactory connectionFactory : connectionFactories) {
+			this.connectionFactories.put(connectionFactory.getType(), connectionFactory);
+		}
 
-        for (ServerConnectionFactory serverConnectionFactory : serverConnectionFactories) {
-            this.serverConnectionFactories.put(serverConnectionFactory.getType(), serverConnectionFactory);
-        }
-    }
+		for (ServerConnectionFactory serverConnectionFactory : serverConnectionFactories) {
+			this.serverConnectionFactories.put(serverConnectionFactory.getType(), serverConnectionFactory);
+		}
+	}
 
-    @Override
-    public Connection getConnection(String nodeName) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
+	@Override
+	public Connection getConnection(String nodeName) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
 
-        checkNotNull(nodeName);
-        checkArgument(!"".equals(nodeName), "Parameter nodeName must not be empty");
+		checkNotNull(nodeName);
+		checkArgument(!"".equals(nodeName), "Parameter nodeName must not be empty");
 
-        String nextHop = routing.getNextHop(nodeName);
+		String nextHop = routing.getNextHop(nodeName);
 
-        synchronized (connectionInstances) {
+		synchronized (connectionInstances) {
 
-            Set<Connection> nodeConnections = connectionInstances.get(nextHop);
-            return nodeConnections == null || nodeConnections.size() == 0 ?
-                    createConnection(naming.getEntries(nextHop)) :
-                    nodeConnections.iterator().next();
-        }
-    }
+			Set<Connection> nodeConnections = connectionInstances.get(nextHop);
+			return nodeConnections == null || nodeConnections.size() == 0 ?
+					createConnection(naming.getEntries(nextHop)) :
+					nodeConnections.iterator().next();
+		}
+	}
 
-    private Connection createConnection(SortedSet<NamingEntry> namingEntries) {
+	private Connection createConnection(SortedSet<NamingEntry> namingEntries) {
 
-    	if (namingEntries == null)
-    		return null;
-    	
-        for (NamingEntry namingEntry : namingEntries) {
+		if (namingEntries == null)
+			return null;
 
-            ConnectionFactory connectionFactory = connectionFactories.get(namingEntry.getIface().getType());
+		for (NamingEntry namingEntry : namingEntries) {
 
-            if (connectionFactory == null) {
-                throw new RuntimeException(
-                        "No ConnectionFactory implementation found for interface type " +
-                        namingEntry.getIface().getType()
-                );
-            }
+			ConnectionFactory connectionFactory = connectionFactories.get(namingEntry.getIface().getType());
 
-            try {
+			if (connectionFactory == null) {
+				throw new RuntimeException(
+						"No ConnectionFactory implementation found for interface type " +
+								namingEntry.getIface().getType()
+				);
+			}
 
-                Connection connection = connectionFactory.create(
-                        namingEntry.getNodeName(),
-                        Connection.Direction.OUT,
-                        namingEntry.getIface().getAddress()
-                );
-                connection.addListener(this);
-                connection.connect();
-                return connection;
+			try {
 
-            } catch (java.net.UnknownHostException e) {
-                log.error(
-                        "Unkown host {}.",
-                        namingEntry.getIface().getAddress()
-                );
-            } catch (Exception e) {
-                log.info(
-                        "Exception while trying to establish connection to {}. Cause: {}",
-                        namingEntry.getIface().getAddress(),
-                        e.getCause()
-                );
-            }
-            
-        }
+				Connection connection = connectionFactory.create(
+						namingEntry.getNodeName(),
+						Connection.Direction.OUT,
+						namingEntry.getIface().getAddress()
+				);
+				connection.addListener(this);
+				connection.connect();
+				return connection;
 
-        return null;
+			} catch (java.net.UnknownHostException e) {
+				log.error(
+						"Unkown host {}.",
+						namingEntry.getIface().getAddress()
+				);
+			} catch (Exception e) {
+				log.info(
+						"Exception while trying to establish connection to {}. Cause: {}",
+						namingEntry.getIface().getAddress(),
+						e.getCause()
+				);
+			}
 
-    }
+		}
 
-    @Override
-    public ServerConnection getServerConnection(String type, String address) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
+		return null;
 
-        synchronized (serverConnectionInstances) {
-            Tuple<String, String> typeAddressTuple = new Tuple<String, String>(type, address);
-            ServerConnection instance = serverConnectionInstances.get(typeAddressTuple);
-            return instance != null ? instance : createServerConnection(type, address);
-        }
+	}
 
-    }
+	@Override
+	public ServerConnection getServerConnection(String type, String address) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
 
-    private ServerConnection createServerConnection(String type, String address) throws ConnectionInvalidAddressException {
-        ServerConnectionFactory serverConnectionFactory = serverConnectionFactories.get(type);
-        ServerConnection serverConnection = serverConnectionFactory.create(address);
-        serverConnectionInstances.put(new Tuple<String, String>(type, address), serverConnection);
-        return serverConnection;
-    }
+		synchronized (serverConnectionInstances) {
+			Tuple<String, String> typeAddressTuple = new Tuple<String, String>(type, address);
+			ServerConnection instance = serverConnectionInstances.get(typeAddressTuple);
+			return instance != null ? instance : createServerConnection(type, address);
+		}
 
-    @Override
-    public void start() throws Exception {
-        // nothing to do
-    }
+	}
 
-    @Override
-    public void stop() {
-        closeConnections();
-        closeServerConnections();
-    }
+	private ServerConnection createServerConnection(String type, String address) throws ConnectionInvalidAddressException {
+		ServerConnectionFactory serverConnectionFactory = serverConnectionFactories.get(type);
+		ServerConnection serverConnection = serverConnectionFactory.create(address);
+		serverConnectionInstances.put(new Tuple<String, String>(type, address), serverConnection);
+		return serverConnection;
+	}
 
-    private void closeServerConnections() {
-        for (ServerConnection serverConnection : serverConnectionInstances.values()) {
-            serverConnection.unbind();
-        }
-    }
+	@Override
+	public void start() throws Exception {
+		// nothing to do
+	}
 
-    private void closeConnections() {
-        for (Set<Connection> connections : this.connectionInstances.values()) {
-            for (Connection connection : connections) {
-                connection.disconnect();
-            }
-        }
-    }
+	@Override
+	public void stop() {
+		closeConnections();
+		closeServerConnections();
+	}
 
-    @Override
-    public void connectionOpened(Connection connection) {
+	private void closeServerConnections() {
+		for (ServerConnection serverConnection : serverConnectionInstances.values()) {
+			serverConnection.unbind();
+		}
+	}
 
-        if (Connection.Direction.OUT == connection.getDirection()) {
-            synchronized (connectionInstances) {
-                Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
-                if (nodeConnections == null) {
-                    nodeConnections = new HashSet<Connection>();
-                    connectionInstances.put(connection.getRemoteNodeName(), nodeConnections);
-                }
-                nodeConnections.add(connection);
-            }
-        }
+	private void closeConnections() {
+		for (Set<Connection> connections : this.connectionInstances.values()) {
+			for (Connection connection : connections) {
+				connection.disconnect();
+			}
+		}
+	}
 
-    }
+	@Override
+	public void connectionOpened(Connection connection) {
 
-    @Override
-    public void connectionClosed(Connection connection) {
+		if (Connection.Direction.OUT == connection.getDirection()) {
+			synchronized (connectionInstances) {
+				Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
+				if (nodeConnections == null) {
+					nodeConnections = new HashSet<Connection>();
+					connectionInstances.put(connection.getRemoteNodeName(), nodeConnections);
+				}
+				nodeConnections.add(connection);
+			}
+		}
 
-        if (Connection.Direction.OUT == connection.getDirection()) {
+	}
 
-            synchronized (connectionInstances) {
-                Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
-                if (nodeConnections != null) {
-                    nodeConnections.remove(connection);
-                }
-            }
-        }
-    }
+	@Override
+	public void connectionClosed(Connection connection) {
+
+		if (Connection.Direction.OUT == connection.getDirection()) {
+
+			synchronized (connectionInstances) {
+				Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
+				if (nodeConnections != null) {
+					nodeConnections.remove(connection);
+				}
+			}
+		}
+	}
 
 }

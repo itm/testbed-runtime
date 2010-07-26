@@ -32,25 +32,25 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
  */
 public interface MessageEventListener {
 
-    /**
-     * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was sent.
-     *
-     * @param msg the message that was sent
-     */
-    void messageSent(Messages.Msg msg);
+	/**
+	 * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was sent.
+	 *
+	 * @param msg the message that was sent
+	 */
+	void messageSent(Messages.Msg msg);
 
-    /**
-     * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was dropped.
-     *
-     * @param msg the message that was dropped
-     */
-    void messageDropped(Messages.Msg msg);
+	/**
+	 * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was dropped.
+	 *
+	 * @param msg the message that was dropped
+	 */
+	void messageDropped(Messages.Msg msg);
 
-    /**
-     * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was received.
-     *
-     * @param msg the message that was received
-     */
-    void messageReceived(Messages.Msg msg);
+	/**
+	 * Invoked through the {@link de.uniluebeck.itm.gtr.messaging.event.MessageEventService} if a message was received.
+	 *
+	 * @param msg the message that was received
+	 */
+	void messageReceived(Messages.Msg msg);
 
 }

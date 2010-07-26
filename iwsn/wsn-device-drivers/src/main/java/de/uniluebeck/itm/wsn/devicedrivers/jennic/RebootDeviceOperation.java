@@ -29,24 +29,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
+
 /**
- * 
+ *
  */
 public class RebootDeviceOperation extends iSenseDeviceOperation {
-	/** Logging */
+	/**
+	 * Logging
+	 */
 	private static final Logger log = LoggerFactory.getLogger(RebootDeviceOperation.class);
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public RebootDeviceOperation(JennicDevice device) {
 		super(device);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -60,8 +65,9 @@ public class RebootDeviceOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

@@ -30,9 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author dp
- * 
  */
 public abstract class iSenseDevice {
 	/** */
@@ -42,16 +40,17 @@ public abstract class iSenseDevice {
 	protected static iSenseDeviceImpl device = new NullDevice();
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public static iSenseDevice getISenseDevice() {
 		return device;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param dev
 	 */
 	public static void setISenseDevice(iSenseDeviceImpl dev) {
@@ -71,24 +70,25 @@ public abstract class iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param p
 	 * @throws Exception
 	 */
 	public abstract void send(MessagePacket p) throws Exception;
-	
+
 	// -------------------------------------------------------------------------
+
 	/**
 	 * Sets the MessageMode for all connections Plain or Packet
-	 * 
+	 *
 	 * @param messageMode the new MessageMode
 	 */
 	public abstract void setReceiveMode(MessageMode messageMode);
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param program
 	 * @return
 	 * @throws Exception
@@ -96,84 +96,90 @@ public abstract class iSenseDevice {
 	public abstract boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param mac
 	 * @throws Exception
 	 */
 	public abstract void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @throws Exception
 	 */
 	public abstract void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @throws Exception
 	 */
 	public abstract boolean triggerReboot() throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param listener
 	 */
 	public abstract void registerListener(iSenseDeviceListener listener);
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param listener
 	 */
 	public abstract void deregisterListener(iSenseDeviceListener listener);
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public abstract void registerListener(iSenseDeviceListener listener, int type);
 
 	// -------------------------------------------------------------------------
+
 	/**
 	 */
 	public abstract void deregisterListener(iSenseDeviceListener listener, int type);
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public abstract void cancelOperation(Operation op);
 
 	/**
 	 * If the device has a serial port it will be returned. Else null will be
 	 * returned
-	 * 
+	 *
 	 * @return
 	 */
 	public SerialPort getSerialPort() {
 		return null;
 	}
+
 	/**
 	 * Returns the channels
+	 *
 	 * @return
 	 */
 	public abstract int[] getChannels();
-	
+
 	/**
 	 * Create and return an appropriate binary file corresponding to the type of this device
+	 *
 	 * @param fileName path to the file to be loaded
 	 * @return the created binary file
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public abstract IDeviceBinFile loadBinFile(String fileName) throws Exception;
 
-    /**
-     *
-     */
-    public abstract void shutdown();
+	/**
+	 *
+	 */
+	public abstract void shutdown();
 }

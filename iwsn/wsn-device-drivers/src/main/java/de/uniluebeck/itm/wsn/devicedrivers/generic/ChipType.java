@@ -59,8 +59,9 @@ public enum ChipType {
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public static int getHeaderStart(ChipType chipType) {
 		int headerStart = -1;
@@ -75,8 +76,9 @@ public enum ChipType {
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public static int getHeaderLength(ChipType chipType) {
 		int headerLength = -1;
@@ -91,21 +93,24 @@ public enum ChipType {
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public static int getMacInFlashStart(ChipType chipType) {
 		switch (chipType) {
-		case JN5121:
-		case JN513X:
-			return 0x24;
-		case JN513XR1:
-			return 0x30;
+			case JN5121:
+			case JN513X:
+				return 0x24;
+			case JN513XR1:
+				return 0x30;
 		}
 		return -1;
 	}
+
 	/**
 	 * Returns the ChipType for a given short
+	 *
 	 * @param chipType
 	 * @return
 	 */
@@ -124,28 +129,28 @@ public enum ChipType {
 			return ChipType.LPC2136;
 		return ChipType.Unknown;
 	}
-	
-	
+
+
 	/**
 	 * Returns the String representation of a given ChipType
-	 * 
+	 *
 	 * @param chipType
 	 * @return
 	 */
 	public static String toString(ChipType chipType) {
 		switch (chipType) {
-		case JN5121:
-			return "JN5121";
-		case JN513X:
-			return "JN513x";
-		case JN513XR1:
-			return "JN513xR1";
-		case Shawn:
-			return "Shawn";
-		case TelosB:
-			return "Telos Rev B";
-		case LPC2136:
-			return "LPC2136 Pacemate";
+			case JN5121:
+				return "JN5121";
+			case JN513X:
+				return "JN513x";
+			case JN513XR1:
+				return "JN513xR1";
+			case Shawn:
+				return "Shawn";
+			case TelosB:
+				return "Telos Rev B";
+			case LPC2136:
+				return "LPC2136 Pacemate";
 		}
 		return "Unknown";
 	}

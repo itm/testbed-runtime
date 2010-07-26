@@ -48,7 +48,9 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	/** */
 	private enum ComPortMode {
 		Normal, Program
-	};
+	}
+
+	;
 
 	// iSenseTelos true = Telos node with iSense Os and uart messages with type
 	// false = no packet type everything as plain text message
@@ -71,7 +73,9 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	/* time out for opening a serial port */
 	private final int PORTOPEN_TIMEOUTMS = 1000;
 
-	/** Strings for saving device state in a memento */
+	/**
+	 * Strings for saving device state in a memento
+	 */
 	public static final String MEM_PORT = "Port";
 
 	private String serialPortName = "";
@@ -89,7 +93,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param id
 	 * @param factory
 	 * @param manager
@@ -215,6 +219,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#eraseFlash()
 	 */
+
 	@Override
 	public void eraseFlash() throws FlashEraseFailedException, IOException {
 		byte[] reply = null;
@@ -276,6 +281,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * ishell.device.iSenseDeviceImpl#eraseFlash(ishell.device.jennic.Sectors
 	 * .SectorIndex)
 	 */
+
 	@Override
 	public void eraseFlash(SectorIndex sector) throws Exception {
 		// TODO Auto-generated method stub
@@ -288,6 +294,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#getChipType()
 	 */
+
 	@Override
 	public ChipType getChipType() throws Exception {
 		return ChipType.TelosB;
@@ -298,6 +305,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#getFlashType()
 	 */
+
 	@Override
 	public FlashType getFlashType() throws Exception {
 		return FlashType.Unknown;
@@ -308,6 +316,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#getOperation()
 	 */
+
 	@Override
 	public Operation getOperation() {
 		if (operation == null)
@@ -321,6 +330,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#leaveProgrammingMode()
 	 */
+
 	@Override
 	public void leaveProgrammingMode() throws Exception {
 		if (log.isDebugEnabled()) {
@@ -335,6 +345,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#readFlash(int, int)
 	 */
+
 	@Override
 	public byte[] readFlash(int address, int len)
 			throws FlashReadFailedException, IOException {
@@ -376,6 +387,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#reset()
 	 */
+
 	@Override
 	public boolean reset() {
 		if (bsl == null) {
@@ -391,6 +403,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#send(ishell.device.MessagePacket)
 	 */
+
 	@Override
 	public void send(MessagePacket p) throws Exception {
 		// TODO Auto-generated method stub
@@ -439,6 +452,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#shutdown()
 	 */
+
 	@Override
 	public void shutdown() {
 		if (log.isDebugEnabled()) {
@@ -476,6 +490,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDeviceImpl#writeFlash(int, byte[], int, int)
 	 */
+
 	@Override
 	public byte[] writeFlash(int address, byte[] bytes, int offset, int len)
 			throws IOException, FlashProgramFailedException {
@@ -499,8 +514,8 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 				log
 						.debug(String
 								.format(
-										"***Programming data block at address: 0x%02x, writing %d bytes.",
-										address, bytes.length));
+								"***Programming data block at address: 0x%02x, writing %d bytes.",
+								address, bytes.length));
 			}
 
 			// execute bsl patch first(only for BSL version <=1.10)
@@ -520,7 +535,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			}
 
 			// verify programmed block
-			if (verify ) {
+			if (verify) {
 				if (!bsl.verifyBlock(address, len, bytes)) {
 					throw new FlashProgramFailedException(
 							"Failed to program flash: verification of written data failed");
@@ -539,6 +554,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDevice#getChannels()
 	 */
+
 	@Override
 	public int[] getChannels() {
 		// TODO Auto-generated method stub
@@ -550,6 +566,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDevice#triggerGetMacAddress(boolean)
 	 */
+
 	@Override
 	public void triggerGetMacAddress(boolean rebootAfterFlashing)
 			throws Exception {
@@ -566,9 +583,10 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * ishell.device.iSenseDevice#triggerProgram(ishell.device.IDeviceBinFile,
 	 * boolean)
 	 */
+
 	@Override
 	public boolean triggerProgram(IDeviceBinFile program,
-			boolean rebootAfterFlashing) throws Exception {
+								  boolean rebootAfterFlashing) throws Exception {
 		if (operationInProgress()) {
 			log.error("Already another operation in progress (" + operation
 					+ ")");
@@ -585,6 +603,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * 
 	 * @see ishell.device.iSenseDevice#triggerReboot()
 	 */
+
 	@Override
 	public boolean triggerReboot() throws Exception {
 		if (log.isDebugEnabled()) {
@@ -609,6 +628,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * ishell.device.iSenseDevice#triggerSetMacAddress(ishell.device.MacAddress,
 	 * boolean)
 	 */
+
 	@Override
 	public void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing)
 			throws Exception {
@@ -619,50 +639,50 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		switch (event.getEventType()) {
-		case SerialPortEvent.DATA_AVAILABLE:
+			case SerialPortEvent.DATA_AVAILABLE:
 
-			synchronized (bsl.dataAvailableMonitor) {
-				bsl.dataAvailableMonitor.notifyAll();
-			}
-			if (operation == null) {
-				receive(inputStream);
-				/*
-				 * try { // Read all available characters int packetLength = 0;
-				 * byte [] packet = new byte[2048];
-				 * 
-				 * while (inputStream != null && inputStream.available() != 0 &&
-				 * (packetLength + 1) < packet.length) { packet[packetLength++]
-				 * = (byte) (0xFF & inputStream.read()); }
-				 * 
-				 * // Notify listeners //MessagePlainText p = new
-				 * MessagePlainText(buffer); if (packetLength == 1) // strange
-				 * short content
-				 * log.debug("received from telosB with strange content!"); else
-				 * { if (iSenseTelos == true) { // Copy them into a buffer with
-				 * correct length byte[] buffer = new byte[packetLength];
-				 * System.arraycopy(packet, 0, buffer, 0, packetLength);
-				 * MessagePacket p = new MessagePacket(buffer[0],buffer);
-				 * notifyReceivePacket(p); log.debug("received from telosB: "+
-				 * (new String(buffer,0,buffer.length-1))); } else { // Copy
-				 * them into a buffer with correct length byte[] buffer = new
-				 * byte[packetLength +1]; // all messages as debug because we
-				 * don't have a packet type buffer[0] =
-				 * SerialMonitor.logTypeDebug; System.arraycopy(packet, 0,
-				 * buffer, 1, packetLength); MessagePacket p2 = new
-				 * MessagePacket(PacketTypes.LOG,buffer);
-				 * notifyReceivePacket(p2); log.debug("received from telosB: "+
-				 * (new String(buffer,0,buffer.length-1))); }
-				 * 
-				 * } // Reset packet information packetLength = 0;
-				 * 
-				 * } catch (IOException error) { log.debug("Error: "+error,
-				 * error); }
-				 */
-			}
-			break;
-		default:
-			log.debug("Serial event (other than data available): " + event);
-			break;
+				synchronized (bsl.dataAvailableMonitor) {
+					bsl.dataAvailableMonitor.notifyAll();
+				}
+				if (operation == null) {
+					receive(inputStream);
+					/*
+									 * try { // Read all available characters int packetLength = 0;
+									 * byte [] packet = new byte[2048];
+									 *
+									 * while (inputStream != null && inputStream.available() != 0 &&
+									 * (packetLength + 1) < packet.length) { packet[packetLength++]
+									 * = (byte) (0xFF & inputStream.read()); }
+									 *
+									 * // Notify listeners //MessagePlainText p = new
+									 * MessagePlainText(buffer); if (packetLength == 1) // strange
+									 * short content
+									 * log.debug("received from telosB with strange content!"); else
+									 * { if (iSenseTelos == true) { // Copy them into a buffer with
+									 * correct length byte[] buffer = new byte[packetLength];
+									 * System.arraycopy(packet, 0, buffer, 0, packetLength);
+									 * MessagePacket p = new MessagePacket(buffer[0],buffer);
+									 * notifyReceivePacket(p); log.debug("received from telosB: "+
+									 * (new String(buffer,0,buffer.length-1))); } else { // Copy
+									 * them into a buffer with correct length byte[] buffer = new
+									 * byte[packetLength +1]; // all messages as debug because we
+									 * don't have a packet type buffer[0] =
+									 * SerialMonitor.logTypeDebug; System.arraycopy(packet, 0,
+									 * buffer, 1, packetLength); MessagePacket p2 = new
+									 * MessagePacket(PacketTypes.LOG,buffer);
+									 * notifyReceivePacket(p2); log.debug("received from telosB: "+
+									 * (new String(buffer,0,buffer.length-1))); }
+									 *
+									 * } // Reset packet information packetLength = 0;
+									 *
+									 * } catch (IOException error) { log.debug("Error: "+error,
+									 * error); }
+									 */
+				}
+				break;
+			default:
+				log.debug("Serial event (other than data available): " + event);
+				break;
 		}
 	}
 
@@ -680,6 +700,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 * commands. TODO: For old BSL versions (<= 1.1), a necessary patch must be
 	 * applied.
 	 */
+
 	private boolean startBSL() throws TimeoutException, IOException,
 			UnexpectedResponseException, InvalidChecksumException,
 			ReceivedIncorrectDataException {

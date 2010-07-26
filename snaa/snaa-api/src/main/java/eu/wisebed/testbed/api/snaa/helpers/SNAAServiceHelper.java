@@ -36,7 +36,6 @@ public class SNAAServiceHelper {
 	 * Returns the port to the SNAA API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 *
 	 * @return a {@link eu.wisebed.testbed.api.snaa.v1.SNAA} instance that is
 	 *         connected to the Web Service endpoint
 	 */

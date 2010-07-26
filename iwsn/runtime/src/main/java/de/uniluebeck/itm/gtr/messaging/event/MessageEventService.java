@@ -34,25 +34,25 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
  */
 public abstract class MessageEventService extends AbstractListenable<MessageEventListener> implements Service {
 
-    /**
-     * Asynchronously notifies listeners that the message {@code msg} was sent.
-     *
-     * @param msg the message that was sent
-     */
-    public abstract void sent(Messages.Msg msg);
+	/**
+	 * Asynchronously notifies listeners that the message {@code msg} was sent.
+	 *
+	 * @param msg the message that was sent
+	 */
+	public abstract void sent(Messages.Msg msg);
 
-    /**
-     * Asynchronously notifies listeners that the message {@code msg} was dropped.
-     *
-     * @param msg the message that was dropped
-     */
-    public abstract void dropped(Messages.Msg msg);
+	/**
+	 * Asynchronously notifies listeners that the message {@code msg} was dropped.
+	 *
+	 * @param msg the message that was dropped
+	 */
+	public abstract void dropped(Messages.Msg msg);
 
-    /**
-     * Asynchronously notifies listeners that the message {@code msg} was received.
-     *
-     * @param msg the message that was received
-     */
-    public abstract void received(Messages.Msg msg);
+	/**
+	 * Asynchronously notifies listeners that the message {@code msg} was received.
+	 *
+	 * @param msg the message that was received
+	 */
+	public abstract void received(Messages.Msg msg);
 
 }

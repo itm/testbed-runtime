@@ -104,7 +104,7 @@ public class ControllerController {
 		this.view.getReceiveButton().addActionListener(receiveActionListener);
 		this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
 		try {
-			this.view.getEndpointUrlTextField().setText("http://"+ InetAddress.getLocalHost().getHostName()+":8081/controller");
+			this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

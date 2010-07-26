@@ -30,13 +30,13 @@ import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
- * UserInternal: nr
+ * DataInternal: nr
  * Date: 09.04.2010
  * Time: 16:28:09
  */
 public class RSPersistenceJPAFactory {
 
-    public static RSPersistence createInstance(Map properties) {
+	public static RSPersistence createInstance(Map properties) {
 		return new RSPersistenceJPAImpl(properties);
 	}
 

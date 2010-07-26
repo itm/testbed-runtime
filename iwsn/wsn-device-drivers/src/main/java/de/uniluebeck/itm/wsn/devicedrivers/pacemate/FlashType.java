@@ -25,7 +25,7 @@ package de.uniluebeck.itm.wsn.devicedrivers.pacemate;
 
 /**
  * @author Maick Danckwardt
- * Enumeration defining the flashType
+ *         Enumeration defining the flashType
  */
 public enum FlashType {
 
@@ -48,19 +48,19 @@ public enum FlashType {
 
 	/**
 	 * Returns the specific Jennic Id for a specific flashType
-	 * 
+	 *
 	 * @return
 	 */
 	public byte getPacemateId() {
 		switch (this) {
-		case STM25P10A:
-			return 0x00;
-		case SST25VF010A:
-			return 0x01;
-		case Atmel25F512:
-			return 0x02;
-		default:
-			return 126;
+			case STM25P10A:
+				return 0x00;
+			case SST25VF010A:
+				return 0x01;
+			case Atmel25F512:
+				return 0x02;
+			default:
+				return 126;
 		}
 
 	}

@@ -61,11 +61,10 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param binFile
-	 *
 	 * @throws FileLoadException
 	 */
 	public JennicBinFile(File binFile) throws Exception {
-		
+
 		this.description = binFile.getAbsolutePath();
 
 		if (!binFile.exists() || !binFile.canRead()) {
@@ -94,7 +93,6 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param filename
-	 *
 	 * @throws FileLoadException
 	 */
 	public JennicBinFile(String filename) throws Exception {
@@ -157,7 +155,6 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Insert flash header of a jennic device into bin file.
 	 *
 	 * @param b
-	 *
 	 * @return
 	 */
 	public boolean insertHeader(byte[] b) {

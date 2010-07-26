@@ -33,16 +33,18 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	private static final Logger log = LoggerFactory.getLogger(WriteMacAddressOperation.class);
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public WriteMacAddressOperation(PacemateDevice device, MacAddress mac) {
 		super(device);
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		//TODO Implement

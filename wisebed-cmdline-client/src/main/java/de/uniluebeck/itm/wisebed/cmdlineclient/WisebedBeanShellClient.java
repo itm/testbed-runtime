@@ -48,10 +48,10 @@ public class WisebedBeanShellClient {
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
 		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v211.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
-		importsForBeanShell.add("import java.util.concurrent.TimeUnit;"); 
+		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 	}
 
-	
+
 	/**
 	 * @param args
 	 * @throws EvalError
@@ -101,7 +101,7 @@ public class WisebedBeanShellClient {
 		BeanShellHelper helper = new BeanShellHelper();
 		log.debug("Adding helper to beanshell, use 'helper' variable");
 		i.set("helper", helper);
-		
+
 		// Add some convenience imports
 		for (String importStatement : importsForBeanShell) {
 			log.debug("Adding the following default import: " + importStatement);

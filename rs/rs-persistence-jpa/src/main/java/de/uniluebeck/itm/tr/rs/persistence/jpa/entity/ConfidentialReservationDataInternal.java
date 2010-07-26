@@ -32,25 +32,25 @@ import java.util.List;
 @Entity
 public class ConfidentialReservationDataInternal extends PublicReservationDataInternal implements Serializable {
 
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL)
-    protected List<UserInternal> users;
+	@OneToMany(cascade = javax.persistence.CascadeType.ALL)
+	protected List<DataInternal> data;
 
-    public List<UserInternal> getUsers() {
-        if (users == null) {
-            users = new LinkedList<UserInternal>();
-        }
-        return users;
-    }
+	public List<DataInternal> getData() {
+		if (data == null) {
+			data = new LinkedList<DataInternal>();
+		}
+		return data;
+	}
 
-    public void setUsers(List<UserInternal> users) {
-        this.users = users;
-    }
+	public void setData(List<DataInternal> data) {
+		this.data = data;
+	}
 
-    @Override
-    public String toString() {
-        return "ConfidentialReservationDataInternal{" +
-                "users=" + users +
-                "} " + super.toString();
-    }
+	@Override
+	public String toString() {
+		return "ConfidentialReservationDataInternal{" +
+				"users=" + data +
+				"} " + super.toString();
+	}
 
 }

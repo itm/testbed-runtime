@@ -23,20 +23,19 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
-
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
+import eu.wisebed.testbed.api.wsn.v211.Message;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
-import eu.wisebed.testbed.api.wsn.v211.Message;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
 public class HtmlWriter implements JobResultListener {
 	private static final Logger log = Logger.getLogger(HtmlWriter.class);
@@ -52,7 +51,7 @@ public class HtmlWriter implements JobResultListener {
 	@Override
 	public synchronized void receiveMessage(Message msg) throws IOException {
 		DateTimeFormatter timeFormatter = DateTimeFormat.mediumDateTime();
-		
+
 		write("<h1>Message from " + msg.getSourceNodeId() + "</h1>");
 		write("<div>");
 		write("<table>");
@@ -149,7 +148,7 @@ public class HtmlWriter implements JobResultListener {
 
 	private synchronized void writeHeader() throws IOException {
 		DateTimeFormatter timeFormatter = DateTimeFormat.mediumDateTime();
-		
+
 		write(" <html><head>");
 		write("	<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">");
 		write("<style type=\"text/css\">         body {                 font-family: Helvetica;                 font-size:12pt;                                 margin-left:0px;                 margin-right:0px;                 margin-top:0px;                 margin-bottom:0px         }          h1 {             font-family: Helvetica;             color:#666666;             font-size:15pt;             font-weight:bold;             margin-left:5px;             margin-bottom:0px;             margin-top:30px;         }          h2 {             font-family: Helvetica;             color:#000000;             font-weight:bold;             font-size:13pt;             margin-left:40px;             margin-bottom:0px;             margin-top:15px;         }          h3 {             font-family: Helvetica;             color:#666666;             font-weight:bold;             font-size:12pt;             margin-left:50px;             margin-bottom:0px;             margin-top:15px;         }          div {             margin-left:30px;             margin-right:200px;             margin-top:20px;             font-family: Helvetica;             color:#000000;         }          ul {             margin-left:55px;             margin-top:10px;             font-family: Helvetica;             color:#000000;         }          ol {             margin-left:55px;             margin-top:10px;             font-family: Helvetica;             color:#000000;         }          li {             margin-left:0px;             margin-top:0px;         }          a {             text-decoration: none;         }          a:link {             font-family: Helvetica;             color:#A50021;          }          a:visited {             font-family: Helvetica;             color:#A50021;          }          a:hover {             font-family: Helvetica;             color:#A50021;             text-decoration:underline;          }          a:active {             font-family: Helvetica;             color:#A50021;          }    a.link_active:hover {             text-decoration:underline;         }            </style>");

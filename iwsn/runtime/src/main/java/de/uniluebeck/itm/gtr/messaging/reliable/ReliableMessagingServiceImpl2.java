@@ -94,11 +94,11 @@ class ReliableMessagingServiceImpl2 implements ReliableMessagingService {
 	private final TimedCacheListener<String, AsynchronousJob> asynchronousCacheListener =
 			new TimedCacheListener<String, AsynchronousJob>() {
 
-		@Override
-		public Tuple<Long, TimeUnit> timeout(final String key, final AsynchronousJob value) {
-			return value.sendOrTimeout();
-		}
-	};
+				@Override
+				public Tuple<Long, TimeUnit> timeout(final String key, final AsynchronousJob value) {
+					return value.sendOrTimeout();
+				}
+			};
 
 	@Inject
 	public ReliableMessagingServiceImpl2(UnreliableMessagingService unreliableMessagingService,

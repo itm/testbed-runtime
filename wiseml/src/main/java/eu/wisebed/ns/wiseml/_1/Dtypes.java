@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for dtypes.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ * <p/>
  * <pre>
  * &lt;simpleType name="dtypes">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}token">
@@ -27,34 +27,33 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
  */
 @XmlType(name = "dtypes")
 @XmlEnum
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public enum Dtypes {
 
-    @XmlEnumValue("decimal")
-    DECIMAL("decimal"),
-    @XmlEnumValue("integer")
-    INTEGER("integer");
-    private final String value;
+	@XmlEnumValue("decimal")
+	DECIMAL("decimal"),
+	@XmlEnumValue("integer")
+	INTEGER("integer");
+	private final String value;
 
-    Dtypes(String v) {
-        value = v;
-    }
+	Dtypes(String v) {
+		value = v;
+	}
 
-    public String value() {
-        return value;
-    }
+	public String value() {
+		return value;
+	}
 
-    public static Dtypes fromValue(String v) {
-        for (Dtypes c: Dtypes.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+	public static Dtypes fromValue(String v) {
+		for (Dtypes c : Dtypes.values()) {
+			if (c.value.equals(v)) {
+				return c;
+			}
+		}
+		throw new IllegalArgumentException(v);
+	}
 
 }

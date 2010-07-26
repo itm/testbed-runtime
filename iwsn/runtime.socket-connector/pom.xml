@@ -88,7 +88,8 @@
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.tr.runtime.socketconnector.client.SocketConnectorClient</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.runtime.socketconnector.client.SocketConnectorClient
+							</mainClass>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>

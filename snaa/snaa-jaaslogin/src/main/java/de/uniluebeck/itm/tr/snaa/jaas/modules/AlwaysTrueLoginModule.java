@@ -38,64 +38,64 @@ import java.util.Map;
 
 public class AlwaysTrueLoginModule implements LoginModule {
 
-    private Subject subject;
+	private Subject subject;
 
-    private CallbackHandler callbackHandler;
+	private CallbackHandler callbackHandler;
 
-    /**
-     * A principal that is not null means that {@link AlwaysTrueLoginModule#login()} succeeded.
-     */
-    private Principal principal;
+	/**
+	 * A principal that is not null means that {@link AlwaysTrueLoginModule#login()} succeeded.
+	 */
+	private Principal principal;
 
-    @Override
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-    }
+	@Override
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+		this.subject = subject;
+		this.callbackHandler = callbackHandler;
+	}
 
-    @Override
-    public boolean login() throws LoginException {
+	@Override
+	public boolean login() throws LoginException {
 
-        Callback[] callbacks = new Callback[]{new NameCallback("")};
+		Callback[] callbacks = new Callback[]{new NameCallback("")};
 
-        try {
+		try {
 
-            callbackHandler.handle(callbacks);
-            principal = new NamedPrincipal(((NameCallback) callbacks[0]).getName());
+			callbackHandler.handle(callbacks);
+			principal = new NamedPrincipal(((NameCallback) callbacks[0]).getName());
 
-        } catch (IOException e) {
-            return false;
-        } catch (UnsupportedCallbackException e) {
-            return false;
-        }
+		} catch (IOException e) {
+			return false;
+		} catch (UnsupportedCallbackException e) {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean commit() throws LoginException {
+	@Override
+	public boolean commit() throws LoginException {
 
-        if (principal != null) {
-            if (!subject.getPrincipals().contains(principal)) {
-                subject.getPrincipals().add(principal);
-            } else {
-                throw new LoginException("Login attempt was not successful.");
-            }
-        }
+		if (principal != null) {
+			if (!subject.getPrincipals().contains(principal)) {
+				subject.getPrincipals().add(principal);
+			} else {
+				throw new LoginException("Login attempt was not successful.");
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean abort() throws LoginException {
-        principal = null;
-        return true;
-    }
+	@Override
+	public boolean abort() throws LoginException {
+		principal = null;
+		return true;
+	}
 
-    @Override
-    public boolean logout() throws LoginException {
-        principal = null;
-        return true;
-    }
+	@Override
+	public boolean logout() throws LoginException {
+		principal = null;
+		return true;
+	}
 
 }

@@ -25,19 +25,19 @@ package de.uniluebeck.itm.wsn.devicedrivers.exceptions;
 
 
 /**
-*
-*/
+ *
+ */
 @SuppressWarnings("serial")
 public class FlashEraseFailedException extends Exception {
 	private String msg = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public FlashEraseFailedException() {
-		
+
 	}
-	
+
 	/**
 	 * @param msg
 	 */
@@ -48,6 +48,7 @@ public class FlashEraseFailedException extends Exception {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
+
 	@Override
 	public String getMessage() {
 		return msg;

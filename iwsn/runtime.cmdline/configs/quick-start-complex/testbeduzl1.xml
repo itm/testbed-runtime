@@ -26,9 +26,9 @@
 
 	<nodes id="testbeduzl1">
 		<names>
-			<nodename name="urn:wisebed:testbeduzl1:1" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:2" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:3" description="" />
+			<nodename name="urn:wisebed:testbeduzl1:1" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:2" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:3" description=""/>
 		</names>
 		<applications>
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
@@ -67,4 +67,4 @@
 	</nodes>
 
 </ns2:testbed>
-<!-- END SNIPPET: testbeduzl1_Xml -->
+		<!-- END SNIPPET: testbeduzl1_Xml -->

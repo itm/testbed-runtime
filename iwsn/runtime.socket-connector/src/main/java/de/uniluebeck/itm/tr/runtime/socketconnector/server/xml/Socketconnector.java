@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -31,36 +31,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "port"
+		"port"
 })
 @XmlRootElement(name = "socketconnector")
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Socketconnector {
 
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected int port;
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected int port;
 
-    /**
-     * Gets the value of the port property.
-     * 
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public int getPort() {
-        return port;
-    }
+	/**
+	 * Gets the value of the port property.
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public int getPort() {
+		return port;
+	}
 
-    /**
-     * Sets the value of the port property.
-     * 
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setPort(int value) {
-        this.port = value;
-    }
+	/**
+	 * Sets the value of the port property.
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-07-06T10:48:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setPort(int value) {
+		this.port = value;
+	}
 
 }

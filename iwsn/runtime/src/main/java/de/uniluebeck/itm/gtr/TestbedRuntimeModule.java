@@ -32,18 +32,18 @@ public class TestbedRuntimeModule extends AbstractModule {
 
 	private Class<?>[] serviceClasses;
 
-    public TestbedRuntimeModule(String[] localNodeNames, Class<?>... serviceClasses) {
+	public TestbedRuntimeModule(String[] localNodeNames, Class<?>... serviceClasses) {
 		this.localNodeNames = localNodeNames;
 		this.serviceClasses = serviceClasses;
-    }
+	}
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 
 		bind(String[].class).annotatedWith(LocalNodeNames.class).toInstance(localNodeNames);
-        bind(Class[].class).annotatedWith(TestbedRuntimeServices.class).toInstance(serviceClasses);
-        bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
+		bind(Class[].class).annotatedWith(TestbedRuntimeServices.class).toInstance(serviceClasses);
+		bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
 
-    }
+	}
 
 }

@@ -37,7 +37,6 @@ import de.uniluebeck.itm.gtr.messaging.MessageTools;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.cache.MessageCache;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
-import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,295 +54,295 @@ import java.util.concurrent.Executors;
 @Singleton
 class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
-    private static final Logger log = LoggerFactory.getLogger(UnreliableMessagingService.class);
+	private static final Logger log = LoggerFactory.getLogger(UnreliableMessagingService.class);
 
-    public static final Comparator<UnreliableMessagingCacheEntry> MESSAGE_CACHE_COMPARATOR = new Comparator<UnreliableMessagingCacheEntry>() {
+	public static final Comparator<UnreliableMessagingCacheEntry> MESSAGE_CACHE_COMPARATOR = new Comparator<UnreliableMessagingCacheEntry>() {
 
-        public int compare(UnreliableMessagingCacheEntry e1, UnreliableMessagingCacheEntry e2) {
+		public int compare(UnreliableMessagingCacheEntry e1, UnreliableMessagingCacheEntry e2) {
 
-            // 1st comparison: priority
-            if (e1.msg.getPriority() != e2.msg.getPriority())
-                return e1.msg.getPriority() < e2.msg.getPriority() ? -1 : 1;
+			// 1st comparison: priority
+			if (e1.msg.getPriority() != e2.msg.getPriority())
+				return e1.msg.getPriority() < e2.msg.getPriority() ? -1 : 1;
 
-            // 2nd comparison: age
-            if (e1.timestamp != e2.timestamp)
-                return e1.timestamp < e2.timestamp ? -1 : 1;
+			// 2nd comparison: age
+			if (e1.timestamp != e2.timestamp)
+				return e1.timestamp < e2.timestamp ? -1 : 1;
 
-            // 3rd comparison: validUntil
-            return e1.msg.getValidUntil() == e2.msg.getValidUntil() ? 0
-                    : e1.msg.getValidUntil() < e2.msg.getValidUntil() ? -1 : 1;
+			// 3rd comparison: validUntil
+			return e1.msg.getValidUntil() == e2.msg.getValidUntil() ? 0
+					: e1.msg.getValidUntil() < e2.msg.getValidUntil() ? -1 : 1;
 
-        }
+		}
 
-    };
+	};
 
-    private ConnectionService connectionService;
+	private ConnectionService connectionService;
 
 	private RoutingTableService routingTableService;
 
-    private MessageEventService messageEventService;
+	private MessageEventService messageEventService;
 
-    private Runnable dequeuingRunnable = new Runnable() {
+	private Runnable dequeuingRunnable = new Runnable() {
 
-        @Override
-        public void run() {
+		@Override
+		public void run() {
 
-            while (!Thread.currentThread().isInterrupted()) {
+			while (!Thread.currentThread().isInterrupted()) {
 
-                try {
+				try {
 
-                    UnreliableMessagingCacheEntry messagingCacheEntry = messageCache.deq();
-                    DispatcherRunnable dispatcherRunnable = new DispatcherRunnable(messagingCacheEntry);
-                    log.trace("dequeued message: {}. message queue size: {}", messagingCacheEntry, messageCache.size());
-                    dispatcherThreads.execute(dispatcherRunnable);
+					UnreliableMessagingCacheEntry messagingCacheEntry = messageCache.deq();
+					DispatcherRunnable dispatcherRunnable = new DispatcherRunnable(messagingCacheEntry);
+					log.trace("dequeued message: {}. message queue size: {}", messagingCacheEntry, messageCache.size());
+					dispatcherThreads.execute(dispatcherRunnable);
 
-                } catch (InterruptedException e) {
-                    // ignore as this should only happen when shutting down
-                }
+				} catch (InterruptedException e) {
+					// ignore as this should only happen when shutting down
+				}
 
-            }
-        }
-    };
+			}
+		}
+	};
 
-    private Thread dequeuingThread = new Thread(dequeuingRunnable, "UnreliableMessagingService-DequeuingThread");
+	private Thread dequeuingThread = new Thread(dequeuingRunnable, "UnreliableMessagingService-DequeuingThread");
 
-    private ExecutorService dispatcherThreads = Executors.newFixedThreadPool(1, new NamingThreadFactory("UnreliableMessagingService-DispatcherThread %d"));
+	private ExecutorService dispatcherThreads = Executors.newFixedThreadPool(1, new NamingThreadFactory("UnreliableMessagingService-DispatcherThread %d"));
 
-    /**
-     * Runnable that is used by the dispatcher threads. A dispatcher thread
-     * takes a message from the message queue and tries to send it to its
-     * recipient over a connection retrieved from the connection service.
-     */
-    private class DispatcherRunnable implements Runnable {
+	/**
+	 * Runnable that is used by the dispatcher threads. A dispatcher thread
+	 * takes a message from the message queue and tries to send it to its
+	 * recipient over a connection retrieved from the connection service.
+	 */
+	private class DispatcherRunnable implements Runnable {
 
-        private UnreliableMessagingCacheEntry messageCacheEntry;
+		private UnreliableMessagingCacheEntry messageCacheEntry;
 
-        private DispatcherRunnable(UnreliableMessagingCacheEntry messageCacheEntry) {
-            this.messageCacheEntry = messageCacheEntry;
-        }
+		private DispatcherRunnable(UnreliableMessagingCacheEntry messageCacheEntry) {
+			this.messageCacheEntry = messageCacheEntry;
+		}
 
-        @SuppressWarnings("unchecked")
-        private void dispatchMessages() {
+		@SuppressWarnings("unchecked")
+		private void dispatchMessages() {
 
-            long now = System.currentTimeMillis();
+			long now = System.currentTimeMillis();
 
-            if (messageCacheEntry != null) {
+			if (messageCacheEntry != null) {
 
-                if (messageCacheEntry.msg.getValidUntil() >= now) {
+				if (messageCacheEntry.msg.getValidUntil() >= now) {
 
-                    // try to get a connection
-                    Connection connection = getConnection(messageCacheEntry.msg);
+					// try to get a connection
+					Connection connection = getConnection(messageCacheEntry.msg);
 
-                    // try to send the message, fails silently if one of the
-                    // arguments is null. this results in a drop of the message.
-                    if (sendMessage(messageCacheEntry.msg, connection)) {
-                        messageEventService.sent(messageCacheEntry.msg);
-                    }
+					// try to send the message, fails silently if one of the
+					// arguments is null. this results in a drop of the message.
+					if (sendMessage(messageCacheEntry.msg, connection)) {
+						messageEventService.sent(messageCacheEntry.msg);
+					}
 
-                } else {
-                    messageEventService.dropped(messageCacheEntry.msg);
-                }
+				} else {
+					messageEventService.dropped(messageCacheEntry.msg);
+				}
 
-            }
+			}
 
-        }
+		}
 
-        /**
-         * Returns a connection to the next hop of the messages' recipient address.
-         *
-         * @param msg the message containing the recipients' address
-         * @return a {@link Connection} object for the message {@code msg} or
-         *         {@code null} if no connection can be established
-         */
-        private Connection getConnection(Messages.Msg msg) {
+		/**
+		 * Returns a connection to the next hop of the messages' recipient address.
+		 *
+		 * @param msg the message containing the recipients' address
+		 * @return a {@link Connection} object for the message {@code msg} or
+		 *         {@code null} if no connection can be established
+		 */
+		private Connection getConnection(Messages.Msg msg) {
 
-            try {
+			try {
 
-                return connectionService.getConnection(msg.getTo());
+				return connectionService.getConnection(msg.getTo());
 
-            } catch (ConnectionInvalidAddressException e1) {
-                log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1});
-            } catch (ConnectionTypeUnavailableException e1) {
-                return null;
-            } catch (IOException e1) {
-                log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
-                        msg.getTo(), msg, e1
-                });
-            }
+			} catch (ConnectionInvalidAddressException e1) {
+				log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1});
+			} catch (ConnectionTypeUnavailableException e1) {
+				return null;
+			} catch (IOException e1) {
+				log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
+						msg.getTo(), msg, e1
+				});
+			}
 
-            return null;
+			return null;
 
-        }
+		}
 
-        public void run() {
-            dispatchMessages();
-        }
+		public void run() {
+			dispatchMessages();
+		}
 
-        /**
-         * Sends the message {@code msg} over the connection {@code connection}
-         * if both are not {@code null}. Otherwise nothing is done.
-         *
-         * @param msg        the message to be sent
-         * @param connection the connection the message shall be sent over
-         * @return {@code true} if the msg has been sent or {@code false} if not
-         */
-        private boolean sendMessage(Messages.Msg msg, Connection connection) {
+		/**
+		 * Sends the message {@code msg} over the connection {@code connection}
+		 * if both are not {@code null}. Otherwise nothing is done.
+		 *
+		 * @param msg		the message to be sent
+		 * @param connection the connection the message shall be sent over
+		 * @return {@code true} if the msg has been sent or {@code false} if not
+		 */
+		private boolean sendMessage(Messages.Msg msg, Connection connection) {
 
-            if (msg == null) {
-                log.debug("Message is null. Ignoring...");
-                return false;
-            }
+			if (msg == null) {
+				log.debug("Message is null. Ignoring...");
+				return false;
+			}
 
-            if (connection == null) {
-                log.debug("de could not be established. Dropping: {}", msg);
-                return false;
-            }
+			if (connection == null) {
+				log.debug("de could not be established. Dropping: {}", msg);
+				return false;
+			}
 
-            try {
+			try {
 
-                //noinspection SynchronizationOnLocalVariableOrMethodParameter
-                synchronized (connection) {
-                    MessageTools.sendMessage(msg, connection.getOutputStream());
+				//noinspection SynchronizationOnLocalVariableOrMethodParameter
+				synchronized (connection) {
+					MessageTools.sendMessage(msg, connection.getOutputStream());
 
-                }
+				}
 
-                return true;
+				return true;
 
-            } catch (IOException e) {
-                log.debug("IOException while constructing stream to {}. Dropping message:\n" +
-                        "{}\n" +
-                        "Closing connection...", msg.getTo(), msg);
+			} catch (IOException e) {
+				log.debug("IOException while constructing stream to {}. Dropping message:\n" +
+						"{}\n" +
+						"Closing connection...", msg.getTo(), msg);
 
-                connection.disconnect();
+				connection.disconnect();
 
-                return false;
-            } catch (Exception e) {
-                log.warn("Exception while serializing message to {}."
-                        + "Dropping message:\n{}", msg.getTo(), Arrays.toString(msg.getPayload().toByteArray()));
-                return false;
-            }
+				return false;
+			} catch (Exception e) {
+				log.warn("Exception while serializing message to {}."
+						+ "Dropping message:\n{}", msg.getTo(), Arrays.toString(msg.getPayload().toByteArray()));
+				return false;
+			}
 
-        }
+		}
 
-    }
+	}
 
-    /**
-     * A reference to the message cache. It is used to process messages
-     * asynchronously. The calling thread of
-     * {@link UnreliableMessagingService#sendAsync(String, String, String, java.io.Serializable, int, long)}
-     * returns immediately after placing the message to be send into the message
-     * cache. The dispatcher threads will later on pick up messages from the
-     * cache and send them to the appropriate recipients.
-     */
-    private MessageCache<UnreliableMessagingCacheEntry> messageCache;
+	/**
+	 * A reference to the message cache. It is used to process messages
+	 * asynchronously. The calling thread of
+	 * {@link UnreliableMessagingService#sendAsync(String, String, String, java.io.Serializable, int, long)}
+	 * returns immediately after placing the message to be send into the message
+	 * cache. The dispatcher threads will later on pick up messages from the
+	 * cache and send them to the appropriate recipients.
+	 */
+	private MessageCache<UnreliableMessagingCacheEntry> messageCache;
 
 	private ImmutableSet<String> localNodeNames;
 
-    public void sendAsync(Messages.Msg message) {
+	public void sendAsync(Messages.Msg message) {
 
-        // assure that message priority contains a valid value
-        if (message.getPriority() < 0 || message.getPriority() > 2)
-            throw new IllegalArgumentException("Invalid priority. Priority must be one of 0, 1, 2.");
+		// assure that message priority contains a valid value
+		if (message.getPriority() < 0 || message.getPriority() > 2)
+			throw new IllegalArgumentException("Invalid priority. Priority must be one of 0, 1, 2.");
 
-        // ensure that lifetime of the message is restricted to the maximum
-        // which is allowed
-        // (defined by maxValidity)
-        long maxValidity = UnreliableMessagingService.DEFAULT_MAX_VALIDITY;
+		// ensure that lifetime of the message is restricted to the maximum
+		// which is allowed
+		// (defined by maxValidity)
+		long maxValidity = UnreliableMessagingService.DEFAULT_MAX_VALIDITY;
 
-        // check if the messages lifetime's exceeded
-        long maxValidUntil = System.currentTimeMillis() + maxValidity;
+		// check if the messages lifetime's exceeded
+		long maxValidUntil = System.currentTimeMillis() + maxValidity;
 
-        if (message.getValidUntil() > maxValidUntil) {
-            message = Messages.Msg.newBuilder(message).setValidUntil(maxValidUntil).build();
-        }
+		if (message.getValidUntil() > maxValidUntil) {
+			message = Messages.Msg.newBuilder(message).setValidUntil(maxValidUntil).build();
+		}
 
-        // if it's for this local node we can deliver it directly through message eventing
-        if (localNodeNames.contains(message.getTo())) {
-            messageEventService.received(message);
-            return;
-        }
+		// if it's for this local node we can deliver it directly through message eventing
+		if (localNodeNames.contains(message.getTo())) {
+			messageEventService.received(message);
+			return;
+		}
 
 		// check if name is known, otherwise discard
 		if (routingTableService.getNextHop(message.getTo()) == null) {
 			throw new UnknownNameException(message.getTo());
 		}
 
-        // otherwise put it into the message queue for asynchronous delivery
-        UnreliableMessagingCacheEntry entry = new UnreliableMessagingCacheEntry(message,
-                System.currentTimeMillis());
+		// otherwise put it into the message queue for asynchronous delivery
+		UnreliableMessagingCacheEntry entry = new UnreliableMessagingCacheEntry(message,
+				System.currentTimeMillis());
 
-        this.messageCache.enq(entry);
+		this.messageCache.enq(entry);
 
-    }
+	}
 
-    public void sendAsync(String from, String to, String msgType, Serializable msg,
-                          int priority, long validUntil) {
+	public void sendAsync(String from, String to, String msgType, Serializable msg,
+						  int priority, long validUntil) {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try {
+		try {
 
-            ObjectOutputStream oout = new ObjectOutputStream(out);
-            oout.writeObject(msg);
-            oout.close();
+			ObjectOutputStream oout = new ObjectOutputStream(out);
+			oout.writeObject(msg);
+			oout.close();
 
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
 
-        sendAsync(from, to, msgType, out.toByteArray(), priority, validUntil);
+		sendAsync(from, to, msgType, out.toByteArray(), priority, validUntil);
 
-    }
+	}
 
 	@Override
 	public void sendAsync(String from, String to, String msgType, byte[] payload, int priority, long validUntil) {
 		Messages.Msg.Builder builder = Messages.Msg.newBuilder().setFrom(from)
-                .setTo(to).setMsgType(msgType).setPriority(priority).setValidUntil(validUntil);
+				.setTo(to).setMsgType(msgType).setPriority(priority).setValidUntil(validUntil);
 
-        builder.setPayload(ByteString.copyFrom(payload));
+		builder.setPayload(ByteString.copyFrom(payload));
 
-        sendAsync(builder.build());
+		sendAsync(builder.build());
 	}
 
 	@Inject
-    public UnreliableMessagingServiceImpl(ConnectionService connectionService,
+	public UnreliableMessagingServiceImpl(ConnectionService connectionService,
 										  MessageEventService messageEventService,
 										  @Unreliable MessageCache<UnreliableMessagingCacheEntry> messageCache,
 										  final RoutingTableService routingTableService,
 										  @LocalNodeNames String... localNodeNames) {
 
-        this.connectionService = connectionService;
-        this.messageEventService = messageEventService;
-        this.messageCache = messageCache;
+		this.connectionService = connectionService;
+		this.messageEventService = messageEventService;
+		this.messageCache = messageCache;
 		this.routingTableService = routingTableService;
 		this.localNodeNames = ImmutableSet.of(localNodeNames);
-        
-    }
 
-    @Override
-    public void start() throws Exception {
-        dequeuingThread.start();
-    }
+	}
 
-    @Override
-    public void stop() {
-        dequeuingThread.interrupt();
-    }
+	@Override
+	public void start() throws Exception {
+		dequeuingThread.start();
+	}
 
-    @Override
-    public Connection getConnection(Messages.Msg msg) throws ConnectionTypeUnavailableException, IOException, ConnectionInvalidAddressException {
-        try {
-            return connectionService.getConnection(msg.getTo());
-        } catch (ConnectionInvalidAddressException e1) {
-            log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1});
-        } catch (ConnectionTypeUnavailableException e1) {
-            return null;
-        } catch (IOException e1) {
-            log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
-                    msg.getTo(), msg, e1
-            });
-        }
-        return null;
-    }
+	@Override
+	public void stop() {
+		dequeuingThread.interrupt();
+	}
+
+	@Override
+	public Connection getConnection(Messages.Msg msg) throws ConnectionTypeUnavailableException, IOException, ConnectionInvalidAddressException {
+		try {
+			return connectionService.getConnection(msg.getTo());
+		} catch (ConnectionInvalidAddressException e1) {
+			log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1});
+		} catch (ConnectionTypeUnavailableException e1) {
+			return null;
+		} catch (IOException e1) {
+			log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
+					msg.getTo(), msg, e1
+			});
+		}
+		return null;
+	}
 
 }

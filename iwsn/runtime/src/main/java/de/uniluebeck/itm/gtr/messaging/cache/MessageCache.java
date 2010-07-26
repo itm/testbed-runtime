@@ -25,12 +25,12 @@ package de.uniluebeck.itm.gtr.messaging.cache;
 
 public interface MessageCache<T extends MessageCacheEntry> {
 
-    void enq(T entry);
+	void enq(T entry);
 
-    T deq() throws InterruptedException;
+	T deq() throws InterruptedException;
 
-    int size();
+	int size();
 
-    boolean contains(MessageCacheEntry entry);
+	boolean contains(MessageCacheEntry entry);
 
 }

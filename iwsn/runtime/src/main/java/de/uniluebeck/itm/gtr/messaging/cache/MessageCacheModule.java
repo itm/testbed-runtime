@@ -28,9 +28,9 @@ import com.google.inject.AbstractModule;
 
 public class MessageCacheModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        
-    }
+	@Override
+	protected void configure() {
+
+	}
 
 }

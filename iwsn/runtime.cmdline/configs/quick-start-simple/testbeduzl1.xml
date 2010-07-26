@@ -10,8 +10,8 @@
   ~   disclaimer.                                                                                                     ~
   ~ - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the       ~
   ~   following disclaimer in the documentation and/or other materials provided with the distribution.                ~
-  ~ - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote
-  ~   products derived from this software without specific prior written permission.                                  ~
+  ~ - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or       ~
+  ~   promote products derived from this software without specific prior written permission.                          ~
   ~                                                                                                                   ~
   ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,~
   ~ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE     ~
@@ -26,11 +26,11 @@
 
 	<nodes id="testbeduzl1">
 		<names>
-			<nodename name="urn:wisebed:testbeduzl1:1" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:2" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:3" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:4" description="" />
-			<nodename name="urn:wisebed:testbeduzl1:5" description="" />
+			<nodename name="urn:wisebed:testbeduzl1:1" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:2" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:3" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:4" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:10" description=""/>
 		</names>
 		<applications>
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
@@ -39,7 +39,9 @@
 						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
-						<wisemlfilename>configs/quick-start-simple/testbeduzl1-wiseml.xml</wisemlfilename>
+						<wisemlfilename>
+							/Users/nrohwedder/IdeaProjects/itm/testbed-runtime/iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1-wiseml.xml
+						</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
 			</application>
@@ -47,32 +49,32 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:testbeduzl1:1</urn>
-						<id>1</id>
-						<type>isense</type>
+						<id>0x1</id>
+						<type>null</type>
 						<serialinterface>/dev/ttyUSB1</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:2</urn>
 						<id>2</id>
-						<type>isense</type>
+						<type>null</type>
 						<serialinterface>/dev/ttyUSB2</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:3</urn>
 						<id>3</id>
-						<type>isense</type>
+						<type>null</type>
 						<serialinterface>/dev/ttyUSB3</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:4</urn>
 						<id>4</id>
-						<type>isense</type>
+						<type>null</type>
 						<serialinterface>/dev/ttyUSB4</serialinterface>
 					</device>
 					<device>
-						<urn>urn:wisebed:testbeduzl1:5</urn>
-						<id>5</id>
-						<type>isense</type>
+						<urn>urn:wisebed:testbeduzl1:10</urn>
+						<id>0xA</id>
+						<type>null</type>
 						<serialinterface>/dev/ttyUSB5</serialinterface>
 					</device>
 				</wsn:wsnapp>
@@ -81,4 +83,4 @@
 	</nodes>
 
 </ns2:testbed>
-<!-- END SNIPPET: testbeduzl1_Xml -->
+		<!-- END SNIPPET: testbeduzl1_Xml -->

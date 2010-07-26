@@ -39,164 +39,166 @@ import static org.junit.Assert.*;
 
 public abstract class RSPersistenceTest {
 
-    public Map<Integer, ConfidentialReservationData> reservationDataList = null;
-    public Map<Integer, SecretReservationKey> reservationKeyList = null;
-    private static long from = System.currentTimeMillis();
-    private static long to = System.currentTimeMillis() + 1000;
-    public static String urnPrefix = "urn:UZL";
-    private RSPersistence persistence = null;
+	public Map<Integer, ConfidentialReservationData> reservationDataList = null;
+	public Map<Integer, SecretReservationKey> reservationKeyList = null;
+	private static long from = System.currentTimeMillis();
+	private static long to = System.currentTimeMillis() + 1000;
+	public static String urnPrefix = "urn:UZL";
+	private RSPersistence persistence = null;
 
-    public void setPersistence(RSPersistence persistence) {
-        this.persistence = persistence;
-    }
+	public void setPersistence(RSPersistence persistence) {
+		this.persistence = persistence;
+	}
 
-    public RSPersistence getPersistence() {
-        return this.persistence;
-    }
+	public RSPersistence getPersistence() {
+		return this.persistence;
+	}
 
-    @Before
-    public void setUp() throws RSExceptionException, DatatypeConfigurationException {
-        reservationDataList = new HashMap<Integer, ConfidentialReservationData>();
-        //Creating testdata
-        for (int i = 0; i < 10; i++) {
-            ConfidentialReservationData data = new ConfidentialReservationData();
+	@Before
+	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
+		reservationDataList = new HashMap<Integer, ConfidentialReservationData>();
+		//Creating testdata
+		for (int i = 0; i < 10; i++) {
+			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
 
-            GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
-            gregorianCalendarFrom.setTimeInMillis(from);
-            gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT"));
-            data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+			GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
+			gregorianCalendarFrom.setTimeInMillis(from);
+			gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT"));
+			confidentialReservationData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
-            GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
-            gregorianCalendarTo.setTimeInMillis(to);
-            gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT"));
-            data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+			GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
+			gregorianCalendarTo.setTimeInMillis(to);
+			gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT"));
+			confidentialReservationData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
-            User user = new User();
-			user.setUrnPrefix(urnPrefix);
-			user.setUsername("User "+ i);
-			data.getUsers().add(user);
+			Data data = new Data();
+			data.setUrnPrefix(urnPrefix);
+			data.setUsername("Data " + i);
+			confidentialReservationData.getData().add(data);
 
-            reservationDataList.put(i, data);
-        }
-    }
-
-
-    @Test
-    public void test() throws Throwable {
-        this.addReservations();
-        this.getReservations();
-        this.getReservationBeforeDeletion();
-        this.deleteReservationBeforeDeletion();
-        this.getReservationAfterDeletion();
-        this.deleteReservationAfterDeletion();
-    }
-
-    public void addReservations() throws Throwable {
-        this.reservationKeyList = new HashMap<Integer, SecretReservationKey>();
-        for (int i = 0; i < reservationDataList.size(); i++) {
-            this.reservationKeyList.put(i, persistence.addReservation(reservationDataList.get(i), urnPrefix));
-        }
-    }
-
-    public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
-        for (int i = 0; i < reservationKeyList.size(); i++) {
-            assertTrue(equals(persistence.getReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
-        }
-    }
-
-    public void getReservationAfterDeletion() throws RSExceptionException {
-        for (int i = 0; i < reservationKeyList.size(); i++) {
-            try {
-                persistence.getReservation(reservationKeyList.get(i));
-                fail("Should have raised an ReservervationNotFoundExceptionException");
-            }catch (ReservervationNotFoundExceptionException e){
-
-            }
-        }
-    }
+			reservationDataList.put(i, confidentialReservationData);
+		}
+	}
 
 
-    public void getReservations() throws RSExceptionException {
-        //first interval : no overlap first direction
-        long testFrom = 0;
-        long testTo = 0;
+	@Test
+	public void test() throws Throwable {
+		this.addReservations();
+		this.getReservations();
+		this.getReservationBeforeDeletion();
+		this.deleteReservationBeforeDeletion();
+		this.getReservationAfterDeletion();
+		this.deleteReservationAfterDeletion();
+	}
 
-        testFrom = from - 20000;
-        testTo = to - 20000;
-        Interval testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 0);
+	public void addReservations() throws Throwable {
+		this.reservationKeyList = new HashMap<Integer, SecretReservationKey>();
+		for (int i = 0; i < reservationDataList.size(); i++) {
+			this.reservationKeyList.put(i, persistence.addReservation(reservationDataList.get(i), urnPrefix));
+		}
+	}
 
-        //first interval : no overlap second direction
-        testFrom = from + 20000;
-        testTo = to + 20000;
-        testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 0);
+	public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
+		for (int i = 0; i < reservationKeyList.size(); i++) {
+			assertTrue(equals(persistence.getReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
+		}
+	}
 
-        //second interval : small overlap first direction
-        //TODO for GCAL not working
-        testFrom = from - 20000;
-        testTo = to - 500;
-        testInterval = new Interval(testFrom, testTo);
-        persistence.getReservations(testInterval);
-        assertSame (persistence.getReservations(testInterval).size(), 10);
+	public void getReservationAfterDeletion() throws RSExceptionException {
+		for (int i = 0; i < reservationKeyList.size(); i++) {
+			try {
+				persistence.getReservation(reservationKeyList.get(i));
+				fail("Should have raised an ReservervationNotFoundExceptionException");
+			} catch (ReservervationNotFoundExceptionException e) {
 
-        //second interval : small overlap second direction
-        //TODO for GCAL not working
-        testFrom = from + 500;
-        testTo = to + 20000;
-        testInterval = new Interval(testFrom, testTo);
-        persistence.getReservations(testInterval);
-        assertSame (persistence.getReservations(testInterval).size(), 10);
+			}
+		}
+	}
 
-        //third interval : overlap on the same timeline first direction
-        testFrom = from - 20000;
-        testTo = from;
-        testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 0);
 
-        //third interval : overlap on the same timeline second direction
-        testFrom = to;
-        testTo = to + 20000;
-        testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 0);
+	public void getReservations() throws RSExceptionException {
+		//first interval : no overlap first direction
+		long testFrom = 0;
+		long testTo = 0;
 
-        //fourth interval : absolute overlap first direction
-        //TODO for GCAL not working
-        testFrom = from + 5;
-        testTo = to - 5;
-        testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 10);
+		testFrom = from - 20000;
+		testTo = to - 20000;
+		Interval testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 0);
 
-        //fourth interval : absolute overlap second direction
-        //TODO for GCAL not working
-        testFrom = from - 5;
-        testTo = to + 5;
-        testInterval = new Interval(testFrom, testTo);
-        assertSame (persistence.getReservations(testInterval).size(), 10);
+		//first interval : no overlap second direction
+		testFrom = from + 20000;
+		testTo = to + 20000;
+		testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 0);
 
-    }
+		//second interval : small overlap first direction
+		//TODO for GCAL not working
+		testFrom = from - 20000;
+		testTo = to - 500;
+		testInterval = new Interval(testFrom, testTo);
+		persistence.getReservations(testInterval);
+		assertSame(persistence.getReservations(testInterval).size(), 10);
 
-    public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
-        for (int i = 0; i < this.reservationKeyList.size(); i++) {
-            assertTrue(equals(persistence.deleteReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
-        }
-    }
+		//second interval : small overlap second direction
+		//TODO for GCAL not working
+		testFrom = from + 500;
+		testTo = to + 20000;
+		testInterval = new Interval(testFrom, testTo);
+		persistence.getReservations(testInterval);
+		assertSame(persistence.getReservations(testInterval).size(), 10);
+
+		//third interval : overlap on the same timeline first direction
+		testFrom = from - 20000;
+		testTo = from;
+		testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 0);
+
+		//third interval : overlap on the same timeline second direction
+		testFrom = to;
+		testTo = to + 20000;
+		testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 0);
+
+		//fourth interval : absolute overlap first direction
+		//TODO for GCAL not working
+		testFrom = from + 5;
+		testTo = to - 5;
+		testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 10);
+
+		//fourth interval : absolute overlap second direction
+		//TODO for GCAL not working
+		testFrom = from - 5;
+		testTo = to + 5;
+		testInterval = new Interval(testFrom, testTo);
+		assertSame(persistence.getReservations(testInterval).size(), 10);
+
+	}
+
+	public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
+		for (int i = 0; i < this.reservationKeyList.size(); i++) {
+			assertTrue(equals(persistence.deleteReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
+		}
+	}
 
 	private boolean equals(ConfidentialReservationData reservationData, ConfidentialReservationData reservationDataOther) {
 		// TODO implement (im moment noch unschoen!!)
-        //if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
-        //if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
-        //if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
+		//if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
+		//if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
+		//if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
 
-        return Comparison.equals(reservationData, reservationDataOther);
-    }
+		return Comparison.equals(reservationData, reservationDataOther);
+	}
 
-    public void deleteReservationAfterDeletion() throws RSExceptionException {
-        for (int i = 0; i < this.reservationKeyList.size(); i++) {
-            try {
-                persistence.deleteReservation(reservationKeyList.get(i));
-                fail("Should have raised an ReservervationNotFoundExceptionException");
-            }catch (ReservervationNotFoundExceptionException e){;}
-        }
-    }
+	public void deleteReservationAfterDeletion() throws RSExceptionException {
+		for (int i = 0; i < this.reservationKeyList.size(); i++) {
+			try {
+				persistence.deleteReservation(reservationKeyList.get(i));
+				fail("Should have raised an ReservervationNotFoundExceptionException");
+			} catch (ReservervationNotFoundExceptionException e) {
+				;
+			}
+		}
+	}
 }

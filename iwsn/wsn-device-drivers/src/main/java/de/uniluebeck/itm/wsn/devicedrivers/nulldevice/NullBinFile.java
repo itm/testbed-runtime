@@ -24,21 +24,21 @@
 package de.uniluebeck.itm.wsn.devicedrivers.nulldevice;
 
 
-
 import de.uniluebeck.itm.wsn.devicedrivers.generic.BinFileDataBlock;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.IDeviceBinFile;
 
 /**
  * @author Friedemann Wesner
- *
- * A dummy bin file
+ *         <p/>
+ *         A dummy bin file
  */
 public class NullBinFile implements IDeviceBinFile {
 
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#getBlockCount()
 	 */
+
 	@Override
 	public int getBlockCount() {
 		return 0;
@@ -47,6 +47,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#getFileType()
 	 */
+
 	@Override
 	public ChipType getFileType() {
 		return ChipType.Unknown;
@@ -55,6 +56,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#getLength()
 	 */
+
 	@Override
 	public int getLength() {
 		return 0;
@@ -63,6 +65,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#getNextBlock()
 	 */
+
 	@Override
 	public BinFileDataBlock getNextBlock() {
 		return new BinFileDataBlock(0, new byte[0]);
@@ -71,6 +74,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#hasNextBlock()
 	 */
+
 	@Override
 	public boolean hasNextBlock() {
 		return false;
@@ -79,6 +83,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#isCompatible(ishell.device.ChipType)
 	 */
+
 	@Override
 	public boolean isCompatible(ChipType deviceType) {
 		return false;
@@ -87,6 +92,7 @@ public class NullBinFile implements IDeviceBinFile {
 	/* (non-Javadoc)
 	 * @see ishell.device.IDeviceBinFile#resetBlockIterator()
 	 */
+
 	@Override
 	public void resetBlockIterator() {
 	}

@@ -76,7 +76,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param binFile
-	 *
 	 * @throws FileLoadException
 	 */
 	public PacemateBinFile(File binFile) throws Exception {
@@ -141,7 +140,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param filename
-	 *
 	 * @throws FileLoadException
 	 */
 	public PacemateBinFile(String filename) throws Exception {
@@ -247,7 +245,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 
 	/**
 	 * @param b
-	 *
 	 * @return
 	 */
 	public static byte encodeByte(byte b) {
@@ -263,7 +260,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 	 *
 	 * @param data
 	 * @param realDataLength
-	 *
 	 * @return
 	 */
 	public byte[] encode(byte[] data, int realDataLength) {
@@ -304,7 +300,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 	 *
 	 * @param data
 	 * @param realDataLength
-	 *
 	 * @return
 	 */
 	public static byte[] encodeCRCData(byte[] data, int realDataLength) {
@@ -339,7 +334,6 @@ public class PacemateBinFile implements IDeviceBinFile {
 	 * Insert flash header of a jennic device into bin file.
 	 *
 	 * @param b
-	 *
 	 * @return
 	 */
 	public boolean insertHeader(byte[] b) {

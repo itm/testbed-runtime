@@ -33,31 +33,32 @@ import java.io.IOException;
 
 /**
  * @author Friedemann Wesner
- *
  */
 public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 	private static final Logger log = LoggerFactory.getLogger(TelosbFlashProgramOperation.class);
-	
+
 	private IDeviceBinFile binFile = null;
 
 	/**
 	 * Constructor
+	 *
 	 * @param device
 	 * @param binFile
 	 */
 	public TelosbFlashProgramOperation(iSenseDeviceImpl device, IDeviceBinFile binFile) {
 		super(device);
-		
+
 		if (device == null || binFile == null) {
 			throw new NullPointerException("Supplied device or binFile for FlashProgramOperation is null");
 		}
-		
+
 		this.binFile = binFile;
 	}
 
 	/* (non-Javadoc)
 	 * @see ishell.device.iSenseDeviceOperation#getOperation()
 	 */
+
 	@Override
 	public Operation getOperation() {
 		return Operation.PROGRAM;
@@ -66,6 +67,7 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 	/* (non-Javadoc)
 	 * @see ishell.device.iSenseDeviceOperation#run()
 	 */
+
 	@Override
 	public void run() {
 		try {
@@ -85,18 +87,18 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 				log.warn("Unable to leave programming mode:" + e, e);
 			}
 		}
-		
+
 		// Indicate failure
 		operationDone(null);
 	}
-	
+
 	private boolean programFlash() throws Exception {
 		ChipType chipType;
 		BinFileDataBlock block;
 		int blockCount = 0;
 		float progress = 0f;
 		int bytesProgrammed = 0;
-		
+
 		// Return if the user has requested to cancel this operation
 		if (isCancelled()) {
 			if (log.isDebugEnabled()) {
@@ -105,7 +107,7 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 			getDevice().operationCancelled(this);
 			return false;
 		}
-		
+
 		// enter programming mode
 		try {
 			if (!getDevice().enterProgrammingMode()) {
@@ -113,52 +115,52 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 				return false;
 			}
 		} catch (Exception e) {
-			log.error("Error on entering programming mode: "+e, e);
+			log.error("Error on entering programming mode: " + e, e);
 			return false;
 		}
-		
+
 		// Check if file and current chip match
 		chipType = getDevice().getChipType();
-		if ( !binFile.isCompatible(chipType) ) {
+		if (!binFile.isCompatible(chipType)) {
 			log.error("Chip type(" + chipType + ") and bin-program type(" + binFile.getFileType() + ") do not match");
 			throw new ProgramChipMismatchException(chipType, binFile.getFileType());
 		}
-		
+
 		// Write program to flash
 		log.info("Starting to write program into flash memory...");
 		while ((block = binFile.getNextBlock()) != null) {
-			
+
 			// write single block
 			try {
 				getDevice().writeFlash(block.address, block.data, 0, block.data.length);
 			} catch (FlashProgramFailedException e) {
 				log.error(String.format("Error writing %d bytes into flash " +
-						"at address 0x%02x: "+e+". Programmed "+bytesProgrammed+" bytes so far. "+
-						". Operation will be canceled.", block.data.length, block.address),e);
+						"at address 0x%02x: " + e + ". Programmed " + bytesProgrammed + " bytes so far. " +
+						". Operation will be canceled.", block.data.length, block.address), e);
 				getDevice().operationCancelled(this);
 				return false;
 			} catch (IOException e) {
-				log.error("I/O error while writing flash: " +e+". Programmed "+bytesProgrammed+" bytes so far. " +
+				log.error("I/O error while writing flash: " + e + ". Programmed " + bytesProgrammed + " bytes so far. " +
 						"Operation will be canceled!", e);
 				getDevice().operationCancelled(this);
 				return false;
 			}
-			
+
 			bytesProgrammed += block.data.length;
-			
+
 			// Notify listeners of the new status
 			progress = ((float) blockCount) / ((float) binFile.getBlockCount());
 			getDevice().operationProgress(Operation.PROGRAM, progress);
-			
+
 			// Return if the user has requested to cancel this operation
 			if (isCancelled()) {
 				getDevice().operationCancelled(this);
 				return false;
 			}
-			
+
 			blockCount++;
 		}
-		
+
 		// reset device (exit boot loader)
 		log.info("Resetting device.");
 		try {
@@ -167,12 +169,12 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 				return false;
 			}
 		} catch (Exception e) {
-			log.error("Error while resetting device: "+e, e);
+			log.error("Error while resetting device: " + e, e);
 			return false;
 		}
-		
-		log.debug("Programmed "+bytesProgrammed+" bytes.");
-		
+
+		log.debug("Programmed " + bytesProgrammed + " bytes.");
+
 		return true;
 	}
 

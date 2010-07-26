@@ -28,9 +28,9 @@ import com.google.inject.AbstractModule;
 
 public class ReliableMessagingModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(ReliableMessagingService.class).to(ReliableMessagingServiceImpl2.class);
-    }
+	@Override
+	protected void configure() {
+		bind(ReliableMessagingService.class).to(ReliableMessagingServiceImpl2.class);
+	}
 
 }

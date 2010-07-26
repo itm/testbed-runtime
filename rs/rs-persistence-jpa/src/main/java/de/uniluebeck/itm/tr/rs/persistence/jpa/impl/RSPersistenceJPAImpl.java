@@ -49,19 +49,21 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-    @Inject
-    public RSPersistenceJPAImpl(@Named("properties") Map properties){
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
-        //EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
-		manager = factory.createEntityManager();
-    }
-
-    /** old
 	@Inject
-	public RSPersistenceJPAImpl(@Named("persistenceUnitName") String persistenceUnitName) {
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
+	public RSPersistenceJPAImpl(@Named("properties") Map properties) {
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
+		//EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
 		manager = factory.createEntityManager();
-	}**/
+	}
+
+	/**
+	 * old
+	 *
+	 * @Inject public RSPersistenceJPAImpl(@Named("persistenceUnitName") String persistenceUnitName) {
+	 * EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
+	 * manager = factory.createEntityManager();
+	 * }*
+	 */
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData, String urnPrefix)
 			throws RSExceptionException {
@@ -189,6 +191,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 	}
 
 	// temp
+
 	public void printPersistentReservationData() throws Exception {
 		System.out.println("ReservationTableEntries:\n----------");
 		for (Object entry : manager.createQuery(

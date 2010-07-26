@@ -32,45 +32,45 @@ import java.util.List;
 
 class MessageFilterChain {
 
-    private static final Logger log = LoggerFactory.getLogger(MessageFilterChain.class);
+	private static final Logger log = LoggerFactory.getLogger(MessageFilterChain.class);
 
-    private final List<MessageFilter> chain = new ArrayList<MessageFilter>();
+	private final List<MessageFilter> chain = new ArrayList<MessageFilter>();
 
-    public MessageFilterChain(MessageFilter... filters) {
+	public MessageFilterChain(MessageFilter... filters) {
 		for (MessageFilter filter : filters) {
 			chain.add(filter);
 		}
-    }
+	}
 
-    /**
-     * Passes the message {@code msg} through the filter chain and returns the
-     * filtered message instance. If one of the filters returns {@code null},
-     * this method will return {@code null}, too, which means that the filter
-     * chain dropped the message.
-     *
-     * @param msg the message to filter
-     * @return the filtered message or {@code null}
-     */
-    public Messages.Msg filter(Messages.Msg msg) {
-        for (MessageFilter filter : chain) {
-            msg = filter.filter(msg);
-            if (msg == null)
-                return null;
-        }
-        return msg;
-    }
+	/**
+	 * Passes the message {@code msg} through the filter chain and returns the
+	 * filtered message instance. If one of the filters returns {@code null},
+	 * this method will return {@code null}, too, which means that the filter
+	 * chain dropped the message.
+	 *
+	 * @param msg the message to filter
+	 * @return the filtered message or {@code null}
+	 */
+	public Messages.Msg filter(Messages.Msg msg) {
+		for (MessageFilter filter : chain) {
+			msg = filter.filter(msg);
+			if (msg == null)
+				return null;
+		}
+		return msg;
+	}
 
-    public void add(MessageFilter messageFilter) {
-        this.chain.add(messageFilter);
-    }
+	public void add(MessageFilter messageFilter) {
+		this.chain.add(messageFilter);
+	}
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("MessageFilterChain");
-        sb.append("{chain=").append(chain);
-        sb.append('}');
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("MessageFilterChain");
+		sb.append("{chain=").append(chain);
+		sb.append('}');
+		return sb.toString();
+	}
 }
 

@@ -36,64 +36,64 @@ import java.net.UnknownHostException;
 
 public class ControllerServiceDummyView extends JPanel {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerServiceDummyView.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerServiceDummyView.class);
 
-    private JTextField endpointUrlTextField;
+	private JTextField endpointUrlTextField;
 
-    private JPanel panel;
+	private JPanel panel;
 
-    private JCheckBox startServiceCheckbox;
+	private JCheckBox startServiceCheckbox;
 
-    private ControllerServiceImpl controllerService;
+	private ControllerServiceImpl controllerService;
 
-    public ControllerServiceDummyView() {
+	public ControllerServiceDummyView() {
 
-        super(new FlowLayout());
-        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+		super(new FlowLayout());
+		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.panel = new JPanel(new GridLayout(2, 2));
+		this.panel = new JPanel(new GridLayout(2, 2));
 
-        {
-            panel.add(new JLabel("Controller API Endpoint URL"));
+		{
+			panel.add(new JLabel("Controller API Endpoint URL"));
 			try {
-				endpointUrlTextField = new JTextField("http://"+ InetAddress.getLocalHost().getHostName() +":8081/controller");
+				endpointUrlTextField = new JTextField("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
 			panel.add(endpointUrlTextField);
-        }
-        {
-            startServiceCheckbox = new JCheckBox("Start service");
-            startServiceCheckbox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (startServiceCheckbox.isSelected()) {
+		}
+		{
+			startServiceCheckbox = new JCheckBox("Start service");
+			startServiceCheckbox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (startServiceCheckbox.isSelected()) {
 
-                        String endpointUrl = endpointUrlTextField.getText();
-                        controllerService = new ControllerServiceImpl(endpointUrl);
+						String endpointUrl = endpointUrlTextField.getText();
+						controllerService = new ControllerServiceImpl(endpointUrl);
 
-                        try {
-                            controllerService.start();
-                        } catch (Exception e1) {
-                            JOptionPane.showMessageDialog(
-                                    null,
-                                    "Failed to start controller service on URL " + endpointUrl,
-                                    "Failed to start controller service!",
-                                    JOptionPane.WARNING_MESSAGE
-                            );
-                            log.error("Exception while starting controller service", e1);
-                        }
+						try {
+							controllerService.start();
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(
+									null,
+									"Failed to start controller service on URL " + endpointUrl,
+									"Failed to start controller service!",
+									JOptionPane.WARNING_MESSAGE
+							);
+							log.error("Exception while starting controller service", e1);
+						}
 
-                    } else {
-                        controllerService.stop();
-                    }
-                }
-            });
-            panel.add(startServiceCheckbox);
-        }
+					} else {
+						controllerService.stop();
+					}
+				}
+			});
+			panel.add(startServiceCheckbox);
+		}
 
-        add(panel);
+		add(panel);
 
-    }
+	}
 
 }

@@ -38,112 +38,112 @@ import java.net.Socket;
 
 public class TcpServerConnection extends ServerConnection {
 
-    private static final Logger log = LoggerFactory.getLogger(TcpServerConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(TcpServerConnection.class);
 
-    private Runnable acceptRunnable = new Runnable() {
+	private Runnable acceptRunnable = new Runnable() {
 
-        public void run() {
+		public void run() {
 
-            while (!Thread.interrupted()) {
-                try {
+			while (!Thread.interrupted()) {
+				try {
 
-                    // listeners will track the connection...
-                    Socket socket = serverSocket.accept();
-                    InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+					// listeners will track the connection...
+					Socket socket = serverSocket.accept();
+					InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
 
-                    TcpConnection connection = new TcpConnection(
-                            null,
-                            Connection.Direction.IN,
-                            remoteSocketAddress.getHostName(),
-                            remoteSocketAddress.getPort()
-                    );
-                    connection.setSocket(socket);
+					TcpConnection connection = new TcpConnection(
+							null,
+							Connection.Direction.IN,
+							remoteSocketAddress.getHostName(),
+							remoteSocketAddress.getPort()
+					);
+					connection.setSocket(socket);
 
-                    for (ServerConnectionListener listener : listeners) {
-                        listener.connectionEstablished(TcpServerConnection.this, connection);
-                    }
+					for (ServerConnectionListener listener : listeners) {
+						listener.connectionEstablished(TcpServerConnection.this, connection);
+					}
 
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 
-        }
-    };
+		}
+	};
 
-    private final Thread acceptThread = new Thread(acceptRunnable, "TcpServerConnection-AcceptThread");
+	private final Thread acceptThread = new Thread(acceptRunnable, "TcpServerConnection-AcceptThread");
 
-    private ServerSocket serverSocket;
+	private ServerSocket serverSocket;
 
-    private InetSocketAddress socketAddress;
+	private InetSocketAddress socketAddress;
 
-    public TcpServerConnection(String hostName, int port) {
-        this.socketAddress = new InetSocketAddress(hostName, port);
-    }
+	public TcpServerConnection(String hostName, int port) {
+		this.socketAddress = new InetSocketAddress(hostName, port);
+	}
 
-    public void bind() throws IOException, ConnectionInvalidAddressException {
+	public void bind() throws IOException, ConnectionInvalidAddressException {
 
-        if (serverSocket != null && serverSocket.isBound()) {
-            return;
-        }
+		if (serverSocket != null && serverSocket.isBound()) {
+			return;
+		}
 
-        if (serverSocket == null) {
-            try {
+		if (serverSocket == null) {
+			try {
 
-                serverSocket = new ServerSocket();
-                serverSocket.bind(socketAddress);
-                log.debug("Successfully bound server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
+				serverSocket = new ServerSocket();
+				serverSocket.bind(socketAddress);
+				log.debug("Successfully bound server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
 
-            } catch (IOException e) {
-                throw new ConnectionInvalidAddressException(getAddress(), "Failed to bind ServerSocket", e);
-            }
-        } else if (!serverSocket.isBound()) {
+			} catch (IOException e) {
+				throw new ConnectionInvalidAddressException(getAddress(), "Failed to bind ServerSocket", e);
+			}
+		} else if (!serverSocket.isBound()) {
 
-            serverSocket.bind(socketAddress);
+			serverSocket.bind(socketAddress);
 
-        }
+		}
 
-        acceptThread.start();
-        postEvent(true);
+		acceptThread.start();
+		postEvent(true);
 
-    }
+	}
 
-    private void postEvent(boolean connected) {
-        for (ServerConnectionListener listener : listeners) {
-            if (connected)
-                listener.serverConnectionOpened(this);
-            else
-                listener.serverConnectionClosed(this);
-        }
-    }
+	private void postEvent(boolean connected) {
+		for (ServerConnectionListener listener : listeners) {
+			if (connected)
+				listener.serverConnectionOpened(this);
+			else
+				listener.serverConnectionClosed(this);
+		}
+	}
 
-    public void unbind() {
+	public void unbind() {
 
-        synchronized (acceptThread) {
-            // acceptThread will close the socket and inform listeners about it
-            acceptThread.interrupt();
-        }
+		synchronized (acceptThread) {
+			// acceptThread will close the socket and inform listeners about it
+			acceptThread.interrupt();
+		}
 
-        try {
+		try {
 
-            serverSocket.close();
+			serverSocket.close();
 
-        } catch (IOException e) {
-            log.debug("IOException while closing server socket.", e);
-        } finally {
-            log.debug("Closing TcpServerConnection...");
-            postEvent(false);
-        }
+		} catch (IOException e) {
+			log.debug("IOException while closing server socket.", e);
+		} finally {
+			log.debug("Closing TcpServerConnection...");
+			postEvent(false);
+		}
 
-    }
+	}
 
-    public boolean isBound() {
-        return serverSocket != null && serverSocket.isBound();
-    }
+	public boolean isBound() {
+		return serverSocket != null && serverSocket.isBound();
+	}
 
-    public String getAddress() {
-        return socketAddress.getHostName() + ":" + socketAddress.getPort();
-    }
+	public String getAddress() {
+		return socketAddress.getHostName() + ":" + socketAddress.getPort();
+	}
 
 	@Override
 	public String getType() {
@@ -151,9 +151,9 @@ public class TcpServerConnection extends ServerConnection {
 	}
 
 	@Override
-    public String toString() {
-        return "TcpServerConnection{" +
-                "socketAddress=" + socketAddress +
-                '}';
-    }
+	public String toString() {
+		return "TcpServerConnection{" +
+				"socketAddress=" + socketAddress +
+				'}';
+	}
 }

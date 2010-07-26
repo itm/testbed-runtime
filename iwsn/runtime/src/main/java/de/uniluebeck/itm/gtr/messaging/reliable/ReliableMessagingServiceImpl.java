@@ -36,206 +36,209 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 @Singleton
 class ReliableMessagingServiceImpl implements ReliableMessagingService {
 
-    private static final Logger log = LoggerFactory.getLogger(ReliableMessagingService.class);
+	private static final Logger log = LoggerFactory.getLogger(ReliableMessagingService.class);
 
-    private abstract class ReliableMessagingJob implements Runnable {
+	private abstract class ReliableMessagingJob implements Runnable {
 
-        protected final SyncMapEntry syncMapEntry;
+		protected final SyncMapEntry syncMapEntry;
 
-        protected ReliableMessagingJob(SyncMapEntry syncMapEntry) {
-            this.syncMapEntry = syncMapEntry;
-        }
+		protected ReliableMessagingJob(SyncMapEntry syncMapEntry) {
+			this.syncMapEntry = syncMapEntry;
+		}
 
-    }
+	}
 
-    private class WakeUpJob extends ReliableMessagingJob {
+	private class WakeUpJob extends ReliableMessagingJob {
 
-        public WakeUpJob(SyncMapEntry syncMapEntry) {
-            super(syncMapEntry);
-        }
+		public WakeUpJob(SyncMapEntry syncMapEntry) {
+			super(syncMapEntry);
+		}
 
-        @Override
-        public void run() {
+		@Override
+		public void run() {
 
-            log.debug("ReliableMessagingServiceImpl$WakeUpJob.run");
+			log.debug("ReliableMessagingServiceImpl$WakeUpJob.run");
 
-            synchronized (syncMapEntry) {
+			synchronized (syncMapEntry) {
 
-                if (!syncMapEntry.done) {
+				if (!syncMapEntry.done) {
 
-                    // depending on wether this is the reply of an asynchronous invocation or to a synchronous
-                    // invocation there's a different sync object in the map and we'll have to act accordingly
+					// depending on wether this is the reply of an asynchronous invocation or to a synchronous
+					// invocation there's a different sync object in the map and we'll have to act accordingly
 
-                    boolean asyncJob = syncMapEntry.syncObj instanceof AsyncCallback;
-                    boolean reply = syncMapEntry.reply != null;
+					boolean asyncJob = syncMapEntry.syncObj instanceof AsyncCallback;
+					boolean reply = syncMapEntry.reply != null;
 
-                    if (asyncJob) {
+					if (asyncJob) {
 
-                        log.trace("*** Invoking asynchronous callback for message ID: {}", syncMapEntry.message.getReplyWith());
-                        if (reply) {
-                            ((AsyncCallback) syncMapEntry.syncObj).success(syncMapEntry.reply.getPayload().toByteArray());
-                        } else {
-                            //noinspection ThrowableInstanceNeverThrown
-                            ((AsyncCallback) syncMapEntry.syncObj).failure(
-                                    new ReliableMessagingTimeoutException("No reply was received in time!"));
-                        }
+						log.trace("*** Invoking asynchronous callback for message ID: {}", syncMapEntry.message.getReplyWith());
+						if (reply) {
+							((AsyncCallback) syncMapEntry.syncObj).success(syncMapEntry.reply.getPayload().toByteArray());
+						} else {
+							//noinspection ThrowableInstanceNeverThrown
+							((AsyncCallback) syncMapEntry.syncObj).failure(
+									new ReliableMessagingTimeoutException("No reply was received in time!"));
+						}
 
-                    } else {
+					} else {
 
-                        log.trace("*** Notifying sleeping thread for message ID: {}", syncMapEntry.message.getReplyWith());
-                        // wake up thread
-                        syncMapEntry.awakeOnReply();
+						log.trace("*** Notifying sleeping thread for message ID: {}", syncMapEntry.message.getReplyWith());
+						// wake up thread
+						syncMapEntry.awakeOnReply();
 
-                    }
+					}
 
-                    syncMapEntry.done = true;
+					syncMapEntry.done = true;
 
-                }
-            }
-        }
-    }
+				}
+			}
+		}
+	}
 
-    private class SendJob extends ReliableMessagingJob {
+	private class SendJob extends ReliableMessagingJob {
 
-        public SendJob(SyncMapEntry syncMapEntry) {
-            super(syncMapEntry);
-        }
+		public SendJob(SyncMapEntry syncMapEntry) {
+			super(syncMapEntry);
+		}
 
-        @Override
-        public void run() {
-            log.debug("ReliableMessagingServiceImpl$SendJob.run");
-            ReliableMessagingServiceImpl.this.unreliableMessagingService.sendAsync(syncMapEntry.message);
-        }
+		@Override
+		public void run() {
+			log.debug("ReliableMessagingServiceImpl$SendJob.run");
+			ReliableMessagingServiceImpl.this.unreliableMessagingService.sendAsync(syncMapEntry.message);
+		}
 
-    }
+	}
 
-    private static class SyncMapEntry {
+	private static class SyncMapEntry {
 
-        public final List<Future> futures;
+		public final List<Future> futures;
 
-        public final Messages.Msg message;
+		public final Messages.Msg message;
 
-        public Messages.Msg reply;
+		public Messages.Msg reply;
 
-        public final Object syncObj;
+		public final Object syncObj;
 
-        public boolean done = false;
+		public boolean done = false;
 
-        public SyncMapEntry(Messages.Msg message, Object syncObj) {
-            this.message = message;
-            this.futures = new LinkedList<Future>();
-            this.syncObj = syncObj;
-        }
+		public SyncMapEntry(Messages.Msg message, Object syncObj) {
+			this.message = message;
+			this.futures = new LinkedList<Future>();
+			this.syncObj = syncObj;
+		}
 
-        public synchronized void waitForReply() {
-            log.debug("ReliableMessagingServiceImpl$SynchronousJob.waitForReply");
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                log.error("This should not occur", e);
-            }
-        }
+		public synchronized void waitForReply() {
+			log.debug("ReliableMessagingServiceImpl$SynchronousJob.waitForReply");
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				log.error("This should not occur", e);
+			}
+		}
 
-        public synchronized void awakeOnReply() {
-            log.debug("ReliableMessagingServiceImpl$SynchronousJob.awakeOnReply");
-            this.notify();
-        }
+		public synchronized void awakeOnReply() {
+			log.debug("ReliableMessagingServiceImpl$SynchronousJob.awakeOnReply");
+			this.notify();
+		}
 
-    }
+	}
 
-    private ScheduledExecutorService scheduler;
+	private ScheduledExecutorService scheduler;
 
-    private UnreliableMessagingService unreliableMessagingService;
+	private UnreliableMessagingService unreliableMessagingService;
 
-    private MessageEventService messageEventService;
+	private MessageEventService messageEventService;
 
-    private Map<String, SyncMapEntry> syncMap = Collections.synchronizedMap(new HashMap<String, SyncMapEntry>());
+	private Map<String, SyncMapEntry> syncMap = Collections.synchronizedMap(new HashMap<String, SyncMapEntry>());
 
-    private final MessageEventListener messageEventListener = new MessageEventAdapter() {
-        @Override
-        public void messageReceived(Messages.Msg msg) {
-            if (msg.hasReplyTo()) {
-                receivedReply(msg);
-            }
-        }
-    };
+	private final MessageEventListener messageEventListener = new MessageEventAdapter() {
+		@Override
+		public void messageReceived(Messages.Msg msg) {
+			if (msg.hasReplyTo()) {
+				receivedReply(msg);
+			}
+		}
+	};
 
-    private void receivedReply(Messages.Msg reply) {
+	private void receivedReply(Messages.Msg reply) {
 
-        String messageId = reply.getReplyTo();
-        log.trace("*** Received reply for message ID: {}", messageId);
+		String messageId = reply.getReplyTo();
+		log.trace("*** Received reply for message ID: {}", messageId);
 
-        // check if there's a corresponding request inside the syncMap
-        final SyncMapEntry syncMapEntry = syncMap.get(messageId);
+		// check if there's a corresponding request inside the syncMap
+		final SyncMapEntry syncMapEntry = syncMap.get(messageId);
 
-        if (syncMapEntry == null) {
-            log.warn("Received reply to unknown message ID ({}). Ignoring...", messageId);
-            return;
-        }
+		if (syncMapEntry == null) {
+			log.warn("Received reply to unknown message ID ({}). Ignoring...", messageId);
+			return;
+		}
 
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (syncMapEntry) {
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (syncMapEntry) {
 
-            if (!syncMapEntry.done) {
+			if (!syncMapEntry.done) {
 
-                // put reply into reply map so that awoken or asynchronous callback thread can get them
-                syncMapEntry.reply = reply;
+				// put reply into reply map so that awoken or asynchronous callback thread can get them
+				syncMapEntry.reply = reply;
 
-                // cancel all outstanding operations (in case there are any left)
-                for (Future future : syncMapEntry.futures) {
-                    if (!future.isCancelled()) {
-                        future.cancel(true);
-                    }
-                }
+				// cancel all outstanding operations (in case there are any left)
+				for (Future future : syncMapEntry.futures) {
+					if (!future.isCancelled()) {
+						future.cancel(true);
+					}
+				}
 
-                scheduler.execute(new WakeUpJob(syncMapEntry));
+				scheduler.execute(new WakeUpJob(syncMapEntry));
 
-            }
+			}
 
-        }
-    }
+		}
+	}
 
-    @Inject
-    public ReliableMessagingServiceImpl(UnreliableMessagingService unreliableMessagingService,
-                                        MessageEventService messageEventService) {
-        
-        this.unreliableMessagingService = unreliableMessagingService;
-        this.messageEventService = messageEventService;
-    }
+	@Inject
+	public ReliableMessagingServiceImpl(UnreliableMessagingService unreliableMessagingService,
+										MessageEventService messageEventService) {
 
-    private byte[] sendInternal(Messages.Msg message) throws ReliableMessagingTimeoutException {
+		this.unreliableMessagingService = unreliableMessagingService;
+		this.messageEventService = messageEventService;
+	}
 
-        SyncMapEntry syncMapEntry = createSyncMapEntryAndScheduleJobs(message, new Object());
+	private byte[] sendInternal(Messages.Msg message) throws ReliableMessagingTimeoutException {
 
-        // let caller thread sleep on the syncObj of the syncMapEntry
-        syncMapEntry.waitForReply();
+		SyncMapEntry syncMapEntry = createSyncMapEntryAndScheduleJobs(message, new Object());
 
-        // if we're here it means that the caller thread was woken up and is the current thread executing this code
-        log.trace("*** Woke up caller thread of message ID: {}", message.getReplyWith());
+		// let caller thread sleep on the syncObj of the syncMapEntry
+		syncMapEntry.waitForReply();
 
-        // if there's no reply inside the reply map it means no asynchronous reply was received so we'll throw a
-        // timeout exception
-        if (syncMapEntry.reply == null) {
-            log.trace("*** Timeout for message ID: {}", message.getReplyWith());
-            throw new ReliableMessagingTimeoutException("No reply for message received");
-        }
+		// if we're here it means that the caller thread was woken up and is the current thread executing this code
+		log.trace("*** Woke up caller thread of message ID: {}", message.getReplyWith());
 
-        return syncMapEntry.reply.getPayload().toByteArray();
-    }
+		// if there's no reply inside the reply map it means no asynchronous reply was received so we'll throw a
+		// timeout exception
+		if (syncMapEntry.reply == null) {
+			log.trace("*** Timeout for message ID: {}", message.getReplyWith());
+			throw new ReliableMessagingTimeoutException("No reply for message received");
+		}
 
-    @Override
-    public byte[] send(Messages.Msg message) throws ReliableMessagingTimeoutException {
+		return syncMapEntry.reply.getPayload().toByteArray();
+	}
 
-        // TODO check preconditions
+	@Override
+	public byte[] send(Messages.Msg message) throws ReliableMessagingTimeoutException {
 
-        return sendInternal(message);
-    }
+		// TODO check preconditions
+
+		return sendInternal(message);
+	}
 
 	@Override
 	public byte[] send(final String from, final String to, final String app, final byte[] payload, final int priority,
@@ -248,80 +251,80 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	}
 
 	@Override
-    public void sendAsync(Messages.Msg message, AsyncCallback callback) {
+	public void sendAsync(Messages.Msg message, AsyncCallback callback) {
 
-        // TODO check preconditions
+		// TODO check preconditions
 
-        sendAsyncInternal(message, callback);
-    }
+		sendAsyncInternal(message, callback);
+	}
 
-    private void sendAsyncInternal(Messages.Msg message, AsyncCallback callback) {
-        createSyncMapEntryAndScheduleJobs(message, callback);
-    }
+	private void sendAsyncInternal(Messages.Msg message, AsyncCallback callback) {
+		createSyncMapEntryAndScheduleJobs(message, callback);
+	}
 
-    private SyncMapEntry createSyncMapEntryAndScheduleJobs(Messages.Msg message, Object syncObj) {
+	private SyncMapEntry createSyncMapEntryAndScheduleJobs(Messages.Msg message, Object syncObj) {
 
-        final String messageId = message.getReplyWith();
+		final String messageId = message.getReplyWith();
 
-        final SyncMapEntry mapEntry = new SyncMapEntry(message, syncObj);
+		final SyncMapEntry mapEntry = new SyncMapEntry(message, syncObj);
 
-        // remember all the Future objects we created for this message so we can cancel them if the reply or use the
-        // wake up runnable to wake up the callers thread
-        final long lifetime = message.getValidUntil() - System.currentTimeMillis();
+		// remember all the Future objects we created for this message so we can cancel them if the reply or use the
+		// wake up runnable to wake up the callers thread
+		final long lifetime = message.getValidUntil() - System.currentTimeMillis();
 
-        mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 0 * (lifetime / 3), TimeUnit.MILLISECONDS));
-        mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 1 * (lifetime / 3), TimeUnit.MILLISECONDS));
-        mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 2 * (lifetime / 3), TimeUnit.MILLISECONDS));
-        mapEntry.futures.add(scheduler.schedule(new WakeUpJob(mapEntry), 3 * (lifetime / 3), TimeUnit.MILLISECONDS));
+		mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 0 * (lifetime / 3), TimeUnit.MILLISECONDS));
+		mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 1 * (lifetime / 3), TimeUnit.MILLISECONDS));
+		mapEntry.futures.add(scheduler.schedule(new SendJob(mapEntry), 2 * (lifetime / 3), TimeUnit.MILLISECONDS));
+		mapEntry.futures.add(scheduler.schedule(new WakeUpJob(mapEntry), 3 * (lifetime / 3), TimeUnit.MILLISECONDS));
 
-        syncMap.put(messageId, mapEntry);
+		syncMap.put(messageId, mapEntry);
 
-        return mapEntry;
+		return mapEntry;
 
-    }
+	}
 
-    @Override
-    public void sendAsync(String from, String to, String app, byte[] payload, int priority, long validUntil, AsyncCallback callback) {
+	@Override
+	public void sendAsync(String from, String to, String app, byte[] payload, int priority, long validUntil, AsyncCallback callback) {
 
-        // TODO check preconditions
+		// TODO check preconditions
 
-        sendAsyncInternal(MessageTools.buildReliableTransportMessage(from, to, app, payload, priority, validUntil), callback);
-    }
+		sendAsyncInternal(MessageTools.buildReliableTransportMessage(from, to, app, payload, priority, validUntil), callback);
+	}
 
-    @Override
-    public void start() throws Exception {
+	@Override
+	public void start() throws Exception {
 
-        log.debug("ReliableMessagingServiceImpl.start");
-        scheduler = Executors.newScheduledThreadPool(1, new NamingThreadFactory("ReliableMessagingService-Thread %d"));
-        messageEventService.addListener(messageEventListener);
+		log.debug("ReliableMessagingServiceImpl.start");
+		scheduler = Executors.newScheduledThreadPool(1, new NamingThreadFactory("ReliableMessagingService-Thread %d"));
+		messageEventService.addListener(messageEventListener);
 
-    }
+	}
 
-    @Override
-    public void stop() {
+	@Override
+	public void stop() {
 
-        log.debug("ReliableMessagingServiceImpl.stop");
+		log.debug("ReliableMessagingServiceImpl.stop");
 
-        messageEventService.removeListener(messageEventListener);
+		messageEventService.removeListener(messageEventListener);
 
-        // wake up all sleeping threads with exceptions
-        scheduler.shutdown();
+		// wake up all sleeping threads with exceptions
+		scheduler.shutdown();
 
-        try {
-            scheduler.awaitTermination(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // silently catch
-        }
+		try {
+			scheduler.awaitTermination(1, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// silently catch
+		}
 
-        List<Runnable> failedJobs = scheduler.shutdownNow();
-        for (Runnable job : failedJobs) {
+		List<Runnable> failedJobs = scheduler.shutdownNow();
+		for (Runnable job : failedJobs) {
 
-            // if this service shuts down while some of the caller threads are either sleeping or waiting for an
-            // asynchronous result we should still awake or invoke them...
-            if (job instanceof WakeUpJob) {
-                job.run();
-            }
+			// if this service shuts down while some of the caller threads are either sleeping or waiting for an
+			// asynchronous result we should still awake or invoke them...
+			if (job instanceof WakeUpJob) {
+				job.run();
+			}
 
-        }
-    }
+		}
+	}
 }

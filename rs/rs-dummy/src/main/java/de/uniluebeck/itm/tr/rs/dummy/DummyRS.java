@@ -34,14 +34,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "urn:RSService")
 public class DummyRS implements RS {
 
 	private Random r = new SecureRandom();
 
-    @Override
-    public List<PublicReservationData> getReservations(@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-                                                       @WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+	@Override
+	public List<PublicReservationData> getReservations(@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
+													   @WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
 
 		return Collections.emptyList();
 
@@ -58,16 +58,16 @@ public class DummyRS implements RS {
 	}
 
 	@Override
-    public List<ConfidentialReservationData> getReservation(
-            @WebParam(name = "secretReservationKey", targetNamespace = "") List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public List<ConfidentialReservationData> getReservation(
+			@WebParam(name = "secretReservationKey", targetNamespace = "") List<SecretReservationKey> secretReservationKey)
+			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-        String msg = "Reservation not found (not implemented, this is the dummy implementation";
-        RSException exception = new RSException();
-        exception.setMessage(msg);
-        throw new RSExceptionException(msg, exception);
+		String msg = "Reservation not found (not implemented, this is the dummy implementation";
+		RSException exception = new RSException();
+		exception.setMessage(msg);
+		throw new RSExceptionException(msg, exception);
 
-    }
+	}
 
 	@Override
 	public void deleteReservation(
@@ -89,14 +89,14 @@ public class DummyRS implements RS {
 
 		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());
 
-        for (SecretAuthenticationKey key : authenticationData) {
-            SecretReservationKey secretAuthenticationKey = new SecretReservationKey();
-            secretAuthenticationKey.setUrnPrefix(key.getUrnPrefix());
-            secretAuthenticationKey.setSecretReservationKey(Long.toString(r.nextLong()));
-            keys.add(secretAuthenticationKey);
-        }
+		for (SecretAuthenticationKey key : authenticationData) {
+			SecretReservationKey secretAuthenticationKey = new SecretReservationKey();
+			secretAuthenticationKey.setUrnPrefix(key.getUrnPrefix());
+			secretAuthenticationKey.setSecretReservationKey(Long.toString(r.nextLong()));
+			keys.add(secretAuthenticationKey);
+		}
 
-        return keys;
+		return keys;
 
 	}
 

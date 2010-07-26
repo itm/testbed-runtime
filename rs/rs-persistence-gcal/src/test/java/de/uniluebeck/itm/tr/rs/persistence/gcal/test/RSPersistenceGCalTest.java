@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.rs.persistence.gcal.test;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
+import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,21 +40,21 @@ import javax.xml.datatype.DatatypeConfigurationException;
  * To change this template use File | Settings | File Templates.
  */
 public class RSPersistenceGCalTest extends RSPersistenceTest {
-    @Before
-    public void setUp() throws RSExceptionException, DatatypeConfigurationException {
-        super.setUp();
-        RSPersistence persistence = new GCalRSPersistence("nrohwedder@gmx.de", "rohwedder");
-        super.setPersistence(persistence);
-    }
+	@Before
+	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
+		super.setUp();
+		RSPersistence persistence = new GCalRSPersistence("nrohwedder@gmx.de", "rohwedder");
+		super.setPersistence(persistence);
+	}
 
-    @Test
-    public void test() throws Throwable {
-        this.addReservations();
-        //TODO NOT working... WHY??
-        //this.getReservations();
-        this.getReservationBeforeDeletion();
-        this.deleteReservationBeforeDeletion();
-        this.getReservationAfterDeletion();
-        this.deleteReservationAfterDeletion();
-    }
+	@Test
+	public void test() throws Throwable {
+		this.addReservations();
+		//TODO NOT working... WHY??
+		//this.getReservations();
+		this.getReservationBeforeDeletion();
+		this.deleteReservationBeforeDeletion();
+		this.getReservationAfterDeletion();
+		this.deleteReservationAfterDeletion();
+	}
 }

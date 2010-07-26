@@ -30,23 +30,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * @author dp
- * 
  */
 public class NullDevice extends iSenseDeviceImpl {
 	/** */
 	private static final Logger log = LoggerFactory.getLogger(NullDevice.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public NullDevice() {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public boolean enterProgrammingMode() throws Exception {
@@ -55,8 +54,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void eraseFlash() throws Exception {
@@ -64,8 +64,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public ChipType getChipType() throws Exception {
@@ -74,8 +75,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public FlashType getFlashType() throws Exception {
@@ -84,8 +86,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {
@@ -94,8 +97,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void leaveProgrammingMode() throws Exception {
@@ -103,18 +107,20 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public byte[] readFlash(int address, int len) throws Exception {
 		log.warn("No device connection available (Ignoring action)");
-		return new byte[] {};
+		return new byte[]{};
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public boolean reset() throws Exception {
@@ -123,8 +129,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void send(MessagePacket p) throws Exception {
@@ -137,16 +144,18 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void shutdown() {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception {
@@ -154,8 +163,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) throws Exception {
@@ -164,8 +174,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) throws Exception {
@@ -173,18 +184,20 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public byte[] writeFlash(int address, byte[] bytes, int offset, int len) throws Exception {
 		log.warn("No device connection available (Ignoring action)");
-		return new byte[] {};
+		return new byte[]{};
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public boolean triggerReboot() throws Exception {
@@ -193,8 +206,9 @@ public class NullDevice extends iSenseDeviceImpl {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public String toString() {
@@ -203,7 +217,7 @@ public class NullDevice extends iSenseDeviceImpl {
 
 	@Override
 	public int[] getChannels() {
-		int[] channels = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+		int[] channels = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
 		return channels;
 	}
 

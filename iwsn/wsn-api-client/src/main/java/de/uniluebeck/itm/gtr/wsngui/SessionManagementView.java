@@ -29,25 +29,25 @@ import java.awt.*;
 
 public class SessionManagementView extends JPanel {
 
-    private JTextField endpointUrlTextField;
+	private JTextField endpointUrlTextField;
 
-    private JLabel endpointUrlLabel;
+	private JLabel endpointUrlLabel;
 
-    private JLabel smPanelReservationIdLabel;
+	private JLabel smPanelReservationIdLabel;
 
-    private JTextArea secretReservationKeysTextArea;
+	private JTextArea secretReservationKeysTextArea;
 
-    private JTextField controllerTextField;
+	private JTextField controllerTextField;
 
-    private JLabel smPanelControllerLabel;
+	private JLabel smPanelControllerLabel;
 
-    private JButton getInstanceButton;
+	private JButton getInstanceButton;
 
-    private JButton freeButton;
+	private JButton freeButton;
 
-    private SessionManagementModel model;
+	private SessionManagementModel model;
 
-    private JPanel panel;
+	private JPanel panel;
 
 	private JTextField getInstanceResultTextField;
 
@@ -55,45 +55,45 @@ public class SessionManagementView extends JPanel {
 
 	public SessionManagementView(SessionManagementModel model) {
 
-        super(new FlowLayout());
-        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+		super(new FlowLayout());
+		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.panel = new JPanel(new GridLayout(8, 2));
-        this.model = model;
+		this.panel = new JPanel(new GridLayout(8, 2));
+		this.model = model;
 
-        {
-            endpointUrlLabel = new JLabel("Endpoint URL");
-            endpointUrlTextField = new JTextField();
+		{
+			endpointUrlLabel = new JLabel("Endpoint URL");
+			endpointUrlTextField = new JTextField();
 
-            panel.add(endpointUrlLabel);
-            panel.add(endpointUrlTextField);
-        }
-        {
-            smPanelReservationIdLabel = new JLabel("Secret Reservation Keys\none tuple per line\nurnPrefix,secretReservationKey");
-            secretReservationKeysTextArea = new JTextArea(5, 30);
+			panel.add(endpointUrlLabel);
+			panel.add(endpointUrlTextField);
+		}
+		{
+			smPanelReservationIdLabel = new JLabel("Secret Reservation Keys\none tuple per line\nurnPrefix,secretReservationKey");
+			secretReservationKeysTextArea = new JTextArea(5, 30);
 
-            panel.add(smPanelReservationIdLabel);
-            panel.add(secretReservationKeysTextArea);
-        }
-        {
-            smPanelControllerLabel = new JLabel("Controller Endpoint URL");
-            controllerTextField = new JTextField();
+			panel.add(smPanelReservationIdLabel);
+			panel.add(secretReservationKeysTextArea);
+		}
+		{
+			smPanelControllerLabel = new JLabel("Controller Endpoint URL");
+			controllerTextField = new JTextField();
 
-            panel.add(smPanelControllerLabel);
-            panel.add(controllerTextField);
-        }
-        {
-            getInstanceButton = new JButton("getInstance()");
+			panel.add(smPanelControllerLabel);
+			panel.add(controllerTextField);
+		}
+		{
+			getInstanceButton = new JButton("getInstance()");
 
-            panel.add(new JLabel());
-            panel.add(getInstanceButton);
-        }
-        {
-            freeButton = new JButton("free()");
+			panel.add(new JLabel());
+			panel.add(getInstanceButton);
+		}
+		{
+			freeButton = new JButton("free()");
 
-            panel.add(new JLabel());
-            panel.add(freeButton);
-        }
+			panel.add(new JLabel());
+			panel.add(freeButton);
+		}
 		{
 			getInstanceResultTextField = new JTextField();
 
@@ -108,30 +108,30 @@ public class SessionManagementView extends JPanel {
 		}
 
 
-        add(panel);
-        add(Box.createVerticalGlue());
+		add(panel);
+		add(Box.createVerticalGlue());
 
-    }
+	}
 
-    public JTextField getEndpointUrlTextField() {
-        return endpointUrlTextField;
-    }
+	public JTextField getEndpointUrlTextField() {
+		return endpointUrlTextField;
+	}
 
-    public JTextArea getSecretReservationKeysTextArea() {
-        return secretReservationKeysTextArea;
-    }
+	public JTextArea getSecretReservationKeysTextArea() {
+		return secretReservationKeysTextArea;
+	}
 
-    public JTextField getControllerTextField() {
-        return controllerTextField;
-    }
+	public JTextField getControllerTextField() {
+		return controllerTextField;
+	}
 
-    public JButton getGetInstanceButton() {
-        return getInstanceButton;
-    }
+	public JButton getGetInstanceButton() {
+		return getInstanceButton;
+	}
 
-    public JButton getFreeButton() {
-        return freeButton;
-    }
+	public JButton getFreeButton() {
+		return freeButton;
+	}
 
 	public JButton getGetInstanceResultCopyButton() {
 		return getInstanceResultCopyButton;

@@ -48,133 +48,133 @@ import java.util.concurrent.TimeUnit;
  */
 public class InMemoryRSPersistence implements RSPersistence {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryRSPersistence.class);
+	private static final Logger log = LoggerFactory.getLogger(InMemoryRSPersistence.class);
 
-    private Random random = new SecureRandom();
+	private Random random = new SecureRandom();
 
-    private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new NamingThreadFactory("InMemoryRSPersistence-Thread %d"));
+	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new NamingThreadFactory("InMemoryRSPersistence-Thread %d"));
 
-    private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations = new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
+	private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations = new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
 
-    private Runnable housekeeper = new Runnable() {
+	private Runnable housekeeper = new Runnable() {
 
-        @Override
-        public void run() {
-        	//log.debug("Doing housekeeping. Checking for invalidated sessions (current " + reservations.size() + ")");
+		@Override
+		public void run() {
+			//log.debug("Doing housekeeping. Checking for invalidated sessions (current " + reservations.size() + ")");
 
-            for (Iterator<Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData>> iterator = reservations.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData> entry = iterator.next();
+			for (Iterator<Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData>> iterator = reservations.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData> entry = iterator.next();
 
-                if (entry.getValue().getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-                    log.debug("Removing reservation during housekeeping: " + entry.getValue());
-                    iterator.remove();
-                }
-            }
+				if (entry.getValue().getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
+					log.debug("Removing reservation during housekeeping: " + entry.getValue());
+					iterator.remove();
+				}
+			}
 
-            //log.debug("Housekeeping done, (current " + reservations.size() + ") sessions");
-        }
-    };
+			//log.debug("Housekeeping done, (current " + reservations.size() + ") sessions");
+		}
+	};
 
-    public InMemoryRSPersistence() {
-        timer.scheduleWithFixedDelay(housekeeper, 1, 1, TimeUnit.MINUTES);
-    }
+	public InMemoryRSPersistence() {
+		timer.scheduleWithFixedDelay(housekeeper, 1, 1, TimeUnit.MINUTES);
+	}
 
-    @Override
-    public SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) {
+	@Override
+	public SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) {
 
-        String secretKey = Long.toString(random.nextLong()) + Long.toString(random.nextLong())
-                + Long.toString(random.nextLong()) + Long.toString(random.nextLong())
-                + Long.toString(random.nextLong());
+		String secretKey = Long.toString(random.nextLong()) + Long.toString(random.nextLong())
+				+ Long.toString(random.nextLong()) + Long.toString(random.nextLong())
+				+ Long.toString(random.nextLong());
 
-        SecretReservationKey secretReservationKey = new SecretReservationKey();
-        secretReservationKey.setUrnPrefix(urnPrefix);
-        secretReservationKey.setSecretReservationKey(secretKey);
-        SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
-        reservations.put(secretReservationKeyWrapper, reservationData);
+		SecretReservationKey secretReservationKey = new SecretReservationKey();
+		secretReservationKey.setUrnPrefix(urnPrefix);
+		secretReservationKey.setSecretReservationKey(secretKey);
+		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
+		reservations.put(secretReservationKeyWrapper, reservationData);
 
-        return secretReservationKey;
-    }
+		return secretReservationKey;
+	}
 
-    @Override
-    public List<ConfidentialReservationData> getReservations(Interval interval) {
+	@Override
+	public List<ConfidentialReservationData> getReservations(Interval interval) {
 
-        List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
+		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
 
-        for (ConfidentialReservationData r : reservations.values()) {
-            Interval reserved = new Interval(
-                    new DateTime(r.getFrom().toGregorianCalendar()),
-                    new DateTime(r.getTo().toGregorianCalendar())
-            );
-            if (reserved.overlaps(interval))
-                res.add(r);
+		for (ConfidentialReservationData r : reservations.values()) {
+			Interval reserved = new Interval(
+					new DateTime(r.getFrom().toGregorianCalendar()),
+					new DateTime(r.getTo().toGregorianCalendar())
+			);
+			if (reserved.overlaps(interval))
+				res.add(r);
 
-        }
+		}
 
-        return res;
-    }
+		return res;
+	}
 
-    private static class SecretReservationKeyWrapper {
-        public SecretReservationKey secretReservationKey;
+	private static class SecretReservationKeyWrapper {
+		public SecretReservationKey secretReservationKey;
 
-        private SecretReservationKeyWrapper(SecretReservationKey secretReservationKey) {
-            this.secretReservationKey = secretReservationKey;
-        }
+		private SecretReservationKeyWrapper(SecretReservationKey secretReservationKey) {
+			this.secretReservationKey = secretReservationKey;
+		}
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            SecretReservationKeyWrapper other = (SecretReservationKeyWrapper) obj;
-            if (secretReservationKey.getSecretReservationKey() == null) {
-                if (other.secretReservationKey.getSecretReservationKey() != null)
-                    return false;
-            } else if (!secretReservationKey.getSecretReservationKey().equals(other.secretReservationKey.getSecretReservationKey()))
-                return false;
-            if (secretReservationKey.getUrnPrefix() == null) {
-                if (other.secretReservationKey.getUrnPrefix() != null)
-                    return false;
-            } else if (!secretReservationKey.getUrnPrefix().equals(other.secretReservationKey.getUrnPrefix()))
-                return false;
-            return true;
-        }
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SecretReservationKeyWrapper other = (SecretReservationKeyWrapper) obj;
+			if (secretReservationKey.getSecretReservationKey() == null) {
+				if (other.secretReservationKey.getSecretReservationKey() != null)
+					return false;
+			} else if (!secretReservationKey.getSecretReservationKey().equals(other.secretReservationKey.getSecretReservationKey()))
+				return false;
+			if (secretReservationKey.getUrnPrefix() == null) {
+				if (other.secretReservationKey.getUrnPrefix() != null)
+					return false;
+			} else if (!secretReservationKey.getUrnPrefix().equals(other.secretReservationKey.getUrnPrefix()))
+				return false;
+			return true;
+		}
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((secretReservationKey.getSecretReservationKey() == null) ? 0 : secretReservationKey.getSecretReservationKey().hashCode());
-            result = prime * result + ((secretReservationKey.getUrnPrefix() == null) ? 0 : secretReservationKey.getUrnPrefix().hashCode());
-            return result;
-        }
-    }
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((secretReservationKey.getSecretReservationKey() == null) ? 0 : secretReservationKey.getSecretReservationKey().hashCode());
+			result = prime * result + ((secretReservationKey.getUrnPrefix() == null) ? 0 : secretReservationKey.getUrnPrefix().hashCode());
+			return result;
+		}
+	}
 
-    @Override
-    public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException {
-        SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
-        ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
-        if (confidentialReservationData != null){
-            return confidentialReservationData;
-        }
-        else throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
-    }
+	@Override
+	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException {
+		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
+		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
+		if (confidentialReservationData != null) {
+			return confidentialReservationData;
+		} else
+			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
+	}
 
-    @Override
-    public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException {
-                SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
-        ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
-        if (confidentialReservationData != null){
-            return confidentialReservationData;
-        }
-        else throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
-    }
+	@Override
+	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException {
+		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
+		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
+		if (confidentialReservationData != null) {
+			return confidentialReservationData;
+		} else
+			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
+	}
 
-    @Override
-    public String toString() {
-        return "InMemoryRSPersistence{}";
-    }
+	@Override
+	public String toString() {
+		return "InMemoryRSPersistence{}";
+	}
 
 }

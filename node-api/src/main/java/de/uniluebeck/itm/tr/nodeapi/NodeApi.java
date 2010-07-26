@@ -39,128 +39,128 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Singleton
 public class NodeApi {
 
-    private static final Logger log = LoggerFactory.getLogger(NodeApi.class);
+	private static final Logger log = LoggerFactory.getLogger(NodeApi.class);
 
-    private int lastRequestID = 0;
+	private int lastRequestID = 0;
 
-    private Interaction interaction = new InteractionImpl(this);
+	private Interaction interaction = new InteractionImpl(this);
 
-    private LinkControl linkControl = new LinkControlImpl(this);
+	private LinkControl linkControl = new LinkControlImpl(this);
 
-    private NetworkDescription networkDescription = new NetworkDescriptionImpl(this);
+	private NetworkDescription networkDescription = new NetworkDescriptionImpl(this);
 
-    private NodeControl nodeControl = new NodeControlImpl(this);
+	private NodeControl nodeControl = new NodeControlImpl(this);
 
-    private TimedCache<Integer, NodeApiCallback> callbackCache;
+	private TimedCache<Integer, NodeApiCallback> callbackCache;
 
-    private NodeApiDeviceAdapter deviceAdapter;
+	private NodeApiDeviceAdapter deviceAdapter;
 
-    private TimedCacheListener callbackCacheListener = new TimedCacheListener<Integer, NodeApiCallback>() {
-        @Override
-        public Tuple<Long, TimeUnit> timeout(Integer requestId, NodeApiCallback callback) {
-            callback.timeout();
-            return null;
-        }
-    };
+	private TimedCacheListener callbackCacheListener = new TimedCacheListener<Integer, NodeApiCallback>() {
+		@Override
+		public Tuple<Long, TimeUnit> timeout(Integer requestId, NodeApiCallback callback) {
+			callback.timeout();
+			return null;
+		}
+	};
 
-    public NodeApi(NodeApiDeviceAdapter deviceAdapter, int defaultTimeout, TimeUnit defaultTimeUnit) {
+	public NodeApi(NodeApiDeviceAdapter deviceAdapter, int defaultTimeout, TimeUnit defaultTimeUnit) {
 
-        checkNotNull(deviceAdapter);
-        checkNotNull(defaultTimeout);
-        checkNotNull(defaultTimeUnit);
+		checkNotNull(deviceAdapter);
+		checkNotNull(defaultTimeout);
+		checkNotNull(defaultTimeUnit);
 
-        this.callbackCache = new TimedCache<Integer, NodeApiCallback>(defaultTimeout, defaultTimeUnit);
-        this.callbackCache.setListener(callbackCacheListener);
+		this.callbackCache = new TimedCache<Integer, NodeApiCallback>(defaultTimeout, defaultTimeUnit);
+		this.callbackCache.setListener(callbackCacheListener);
 
-        this.deviceAdapter = deviceAdapter;
-        this.deviceAdapter.setNodeApi(this);
+		this.deviceAdapter = deviceAdapter;
+		this.deviceAdapter.setNodeApi(this);
 
-    }
+	}
 
-    public Interaction getInteraction() {
-        return interaction;
-    }
+	public Interaction getInteraction() {
+		return interaction;
+	}
 
-    public LinkControl getLinkControl() {
-        return linkControl;
-    }
+	public LinkControl getLinkControl() {
+		return linkControl;
+	}
 
-    public NetworkDescription getNetworkDescription() {
-        return networkDescription;
-    }
+	public NetworkDescription getNetworkDescription() {
+		return networkDescription;
+	}
 
-    public NodeControl getNodeControl() {
-        return nodeControl;
-    }
+	public NodeControl getNodeControl() {
+		return nodeControl;
+	}
 
-    public NodeApiDeviceAdapter getDeviceAdapter() {
-        return deviceAdapter;
-    }
+	public NodeApiDeviceAdapter getDeviceAdapter() {
+		return deviceAdapter;
+	}
 
-    /**
-     * Creates a requestId in a thread-safe manner.
-     *
-     * @return a newly created request ID between 0 and 255
-     */
-    synchronized int nextRequestId() {
-        return lastRequestID >= 255 ? (lastRequestID = 0) : ++lastRequestID;
-    }
+	/**
+	 * Creates a requestId in a thread-safe manner.
+	 *
+	 * @return a newly created request ID between 0 and 255
+	 */
+	synchronized int nextRequestId() {
+		return lastRequestID >= 255 ? (lastRequestID = 0) : ++lastRequestID;
+	}
 
-    void sendToNode(final int requestId, final NodeApiCallback callback, final ByteBuffer buffer) {
+	void sendToNode(final int requestId, final NodeApiCallback callback, final ByteBuffer buffer) {
 
-        checkNotNull(callback);
+		checkNotNull(callback);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Sending to node with request ID {}: {}", requestId, StringUtils.toHexString(buffer.array()));
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Sending to node with request ID {}: {}", requestId, StringUtils.toHexString(buffer.array()));
+		}
 
 		callbackCache.put(requestId, callback);
 		deviceAdapter.sendToNode(buffer);
 
-    }
+	}
 
-    void receiveFromNode(ByteBuffer packet) {
+	void receiveFromNode(ByteBuffer packet) {
 
-        checkNotNull(packet);
+		checkNotNull(packet);
 
-        byte[] packetBytes = packet.array();
+		byte[] packetBytes = packet.array();
 
-        if (packetBytes.length < 3) {
-            if (log.isWarnEnabled()) {
-                log.warn("Received incomplete response packet: {}", StringUtils.toHexString(packetBytes));
-            }
-            return;
-        }
+		if (packetBytes.length < 3) {
+			if (log.isWarnEnabled()) {
+				log.warn("Received incomplete response packet: {}", StringUtils.toHexString(packetBytes));
+			}
+			return;
+		}
 
-        int requestId = (packetBytes[1] & 0xFF);
-        byte responseCode = packetBytes[2];
+		int requestId = (packetBytes[1] & 0xFF);
+		byte responseCode = packetBytes[2];
 
-        NodeApiCallback callback = callbackCache.remove(requestId);
+		NodeApiCallback callback = callbackCache.remove(requestId);
 
-        // if callback exists it means that the invocation did not yet time out
-        if (callback != null) {
+		// if callback exists it means that the invocation did not yet time out
+		if (callback != null) {
 
-            byte[] responsePayload = null;
+			byte[] responsePayload = null;
 
-            if (packetBytes.length > 3) {
-                responsePayload = new byte[packetBytes.length - 3];
-                System.arraycopy(packetBytes, 3, responsePayload, 0, packetBytes.length - 3);
-            }
+			if (packetBytes.length > 3) {
+				responsePayload = new byte[packetBytes.length - 3];
+				System.arraycopy(packetBytes, 3, responsePayload, 0, packetBytes.length - 3);
+			}
 
-            if (log.isDebugEnabled()) {
-                log.debug("Received from node with request ID {} and response code {}: {}", new Object[]{requestId, responseCode, responsePayload});
-            }
+			if (log.isDebugEnabled()) {
+				log.debug("Received from node with request ID {} and response code {}: {}", new Object[]{requestId, responseCode, responsePayload});
+			}
 
-            if (responseCode == ResponseType.COMMAND_SUCCESS) {
-                log.debug("Invoking callback.success() for request ID {}", requestId);
-                callback.success(responsePayload);
-            } else {
-                log.debug("Invoking callback.failure() for request ID {}", requestId);
-                callback.failure(responseCode, responsePayload);
-            }
+			if (responseCode == ResponseType.COMMAND_SUCCESS) {
+				log.debug("Invoking callback.success() for request ID {}", requestId);
+				callback.success(responsePayload);
+			} else {
+				log.debug("Invoking callback.failure() for request ID {}", requestId);
+				callback.failure(responseCode, responsePayload);
+			}
 
-        } else if (log.isDebugEnabled()) {
-            log.debug("Received message for unknown requestId: {}", StringUtils.toHexString(packetBytes));
-        }
-    }
+		} else if (log.isDebugEnabled()) {
+			log.debug("Received message for unknown requestId: {}", StringUtils.toHexString(packetBytes));
+		}
+	}
 }

@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -73,6 +73,7 @@ public class FederatorInmemoryTest {
 			new HashMap<Integer, ConfidentialReservationData>();
 
 	private Map<Integer, List<SecretReservationKey>> reservationKeyMap = null;
+	private String secretReservationKey = "a1b2c3";
 
 	@Before
 	public void setUp() throws Exception {
@@ -155,14 +156,15 @@ public class FederatorInmemoryTest {
 		}
 
 
-		List<User> users = new LinkedList<User>();
-		User user = new User();
-		user.setUrnPrefix("urn:wisebed1:testbed1");
-		user.setUrnPrefix("urn:wisebed1:testbed2");
-		user.setUrnPrefix("urn:wisebed2:testbed1");
-		user.setUrnPrefix("urn:wisebed2:testbed2");
-		user.setUsername("Nils Rohwedder");
-		users.add(user);
+		List<Data> dataList = new LinkedList<Data>();
+		Data data = new Data();
+		data.setUrnPrefix("urn:wisebed1:testbed1");
+		data.setUrnPrefix("urn:wisebed1:testbed2");
+		data.setUrnPrefix("urn:wisebed2:testbed1");
+		data.setUrnPrefix("urn:wisebed2:testbed2");
+		data.setUsername("Nils Rohwedder");
+		data.setSecretReservationKey(this.secretReservationKey);
+		dataList.add(data);
 
 		List<String> urns = new LinkedList<String>();
 		urns.add("urn:wisebed1:testbed1");
@@ -172,22 +174,22 @@ public class FederatorInmemoryTest {
 		//Creating confi-data
 		for (int i = 0; i < 12; i++) {
 			Thread.sleep(100);
-			ConfidentialReservationData data = new ConfidentialReservationData();
-			data.getUsers().addAll(users);
-			data.getNodeURNs().addAll(urns);
+			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
+			confidentialReservationData.getData().addAll(dataList);
+			confidentialReservationData.getNodeURNs().addAll(urns);
 
 			long millis = System.currentTimeMillis() + 200000;
 			gregorianCalendarFrom = new GregorianCalendar();
 			gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 			gregorianCalendarFrom.setTimeInMillis(millis);
-			data.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+			confidentialReservationData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
 			gregorianCalendarTo = new GregorianCalendar();
 			gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 			gregorianCalendarTo.setTimeInMillis(millis + 50);
-			data.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+			confidentialReservationData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
-			reservationDataMap.put(i, data);
+			reservationDataMap.put(i, confidentialReservationData);
 		}
 	}
 
@@ -242,7 +244,7 @@ public class FederatorInmemoryTest {
 		//testing on wrong SecretReservationKey
 		try {
 			SecretReservationKey key = new SecretReservationKey();
-			key.setSecretReservationKey("a");
+			key.setSecretReservationKey(this.secretReservationKey);
 			key.setUrnPrefix("urn:wisebed1:testbed1");
 			rsFederator.getReservation(Arrays.asList(key));
 			fail("Should have raised ReservationNotFoundException");
@@ -282,13 +284,14 @@ public class FederatorInmemoryTest {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.setFrom(createXMLGregorianCalendar(1*60*1000));
-			resData.setTo(createXMLGregorianCalendar(5*60*1000));
+			resData.setFrom(createXMLGregorianCalendar(1 * 60 * 1000));
+			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
 			resData.getNodeURNs().add("urn:wisebed1:testbed1");
 			rsFederator.makeReservation(authData, resData);
 			fail("Should have raised an RSExceptionException");
 		}
-		catch (RSExceptionException e) {}
+		catch (RSExceptionException e) {
+		}
 		//testing if makeReservation on empty authenticationData and reservation-data returns empty SecretReservationKey-list
 		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 		ConfidentialReservationData resData = new ConfidentialReservationData();
@@ -321,17 +324,20 @@ public class FederatorInmemoryTest {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 			List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
 			List<ConfidentialReservationData> reservationData = rsFederator.getReservation(tempKeyList);
-			for (ConfidentialReservationData data : reservationData) {
-				for (User user : data.getUsers()) {
+			for (ConfidentialReservationData confidentialReservationData : reservationData) {
+				for (Data data : confidentialReservationData.getData()) {
 					ConfidentialReservationData testData = reservationDataMap.get(i);
 
 					testData.getNodeURNs().clear();
-					testData.getNodeURNs().addAll(data.getNodeURNs());
+					testData.getNodeURNs().addAll(confidentialReservationData.getNodeURNs());
 
-					testData.getUsers().clear();
-					testData.getUsers().addAll(data.getUsers());
+					testData.getData().clear();
+					testData.getData().addAll(confidentialReservationData.getData());
+					for (Data userData : testData.getData()) {
+						assertEquals(userData.getSecretReservationKey(), this.secretReservationKey);
+					}
 
-					assertTrue(equals(testData, data));
+					assertTrue(equals(testData, confidentialReservationData));
 				}
 			}
 		}

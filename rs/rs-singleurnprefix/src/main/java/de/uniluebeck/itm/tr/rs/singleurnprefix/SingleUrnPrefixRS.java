@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -42,7 +42,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "http://testbed.wisebed.eu/api/rs/v1/")
+		targetNamespace = "urn:RSService")
 public class SingleUrnPrefixRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
@@ -100,13 +100,13 @@ public class SingleUrnPrefixRS implements RS {
 			crd.setFrom(reservation.getFrom());
 			crd.setTo(reservation.getTo());
 			crd.getNodeURNs().addAll(reservation.getNodeURNs());
-			User user = new User();
-			user.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-			user.setUsername(secretAuthenticationKey.getUsername());
-			crd.getUsers().add(user);
+			Data data = new Data();
+			data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+			data.setUsername(secretAuthenticationKey.getUsername());
+			data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
+			crd.getData().add(data);
 
 			try {
-
 				SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
 				List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
 				keys.add(secretReservationKey);
@@ -191,7 +191,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void checkNodesAvailable(PublicReservationData reservation)
@@ -218,7 +217,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param nodeUrns
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void performServingNodeUrnsCheck(List<String> nodeUrns) throws RSExceptionException {
@@ -236,9 +234,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param secretReservationKeys
-	 *
 	 * @return
-	 *
 	 * @throws RSExceptionException
 	 */
 	private SecretReservationKey performSanityCheck(List<SecretReservationKey> secretReservationKeys)
@@ -269,7 +265,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param reservation
-	 *
 	 * @throws RSExceptionException
 	 */
 	private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
@@ -295,7 +290,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param authenticationData
-	 *
 	 * @throws RSExceptionException
 	 */
 	public SecretAuthenticationKey performSanityCheck(List<SecretAuthenticationKey> authenticationData)
@@ -323,9 +317,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	/**
 	 * @param key
-	 *
 	 * @return
-	 *
 	 * @throws RSExceptionException
 	 * @throws AuthorizationExceptionException
 	 *

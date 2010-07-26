@@ -48,11 +48,13 @@ public class Sectors {
 		 * Fourth Sector
 		 */
 		FOURTH
-	};
+	}
+
+	;
 
 	/**
 	 * Returns the start of the sector with the given index
-	 * 
+	 *
 	 * @param index
 	 * @return
 	 */
@@ -72,7 +74,7 @@ public class Sectors {
 
 	/**
 	 * Returns the end of the sector with given index
-	 * 
+	 *
 	 * @param index
 	 * @return
 	 */

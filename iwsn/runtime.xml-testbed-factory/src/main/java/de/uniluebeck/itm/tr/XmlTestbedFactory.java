@@ -74,12 +74,12 @@ public class XmlTestbedFactory {
 		TestbedRuntime testbedRuntime = null;
 		ImmutableList<TestbedApplication> testbedApplications = null;
 
-        //checking if the nodes suffix is type of Integer
-        for (Node node : testbed.getNodes()){
-            for (NodeName nodeName : node.getNames().getNodename()){
-                StringUtils.checkIfSuffixIsInt(nodeName.getName());
-            }
-        }
+		//checking if the nodes suffix is type of Integer
+		for (Node node : testbed.getNodes()) {
+			for (NodeName nodeName : node.getNames().getNodename()) {
+				StringUtils.checkIfSuffixIsInt(nodeName.getName());
+			}
+		}
 
 		// TODO sanity check for duplicate node names and node ids
 
@@ -113,7 +113,7 @@ public class XmlTestbedFactory {
 		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(testbedRuntime, testbedApplications);
 	}
 
-    private ImmutableList<TestbedApplication> configureApplications(TestbedRuntime testbedRuntime,
+	private ImmutableList<TestbedApplication> configureApplications(TestbedRuntime testbedRuntime,
 																	Applications applications) {
 
 		ImmutableList.Builder<TestbedApplication> applicationListBuilder =

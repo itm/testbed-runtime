@@ -22,13 +22,13 @@
  **********************************************************************************************************************/
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal;
+import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.UserInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.TypeConverter;
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
@@ -47,71 +47,71 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class RSPersistenceJPATest extends RSPersistenceTest {
-    private static Map<String, String> properties = new HashMap<String, String>(){{
-        //Configure Apache
-        put("hibernate.connection.driver_class","org.apache.derby.jdbc.EmbeddedDriver");
-        put("hibernate.connection.url","jdbc:derby:target/default;create=true");
-        put("hibernate.dialect","org.hibernate.dialect.DerbyDialect");
-        //Confiure Hibernate
-        put("hibernate.ddl-generation.output-mode","database");
-        put("hibernate.hbm2ddl.auto","create");
-        put("hibernate.archive.autodetection","class, hbm");
-    }};
+	private static Map<String, String> properties = new HashMap<String, String>() {{
+		//Configure Apache
+		put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
+		put("hibernate.connection.url", "jdbc:derby:target/default;create=true");
+		put("hibernate.dialect", "org.hibernate.dialect.DerbyDialect");
+		//Confiure Hibernate
+		put("hibernate.ddl-generation.output-mode", "database");
+		put("hibernate.hbm2ddl.auto", "create");
+		put("hibernate.archive.autodetection", "class, hbm");
+	}};
 
-    @Before
-    public void setUp() throws RSExceptionException, DatatypeConfigurationException {
-        super.setUp();
+	@Before
+	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
+		super.setUp();
 
-        RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties);
-        super.setPersistence(persistence);
-    }
+		RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties);
+		super.setPersistence(persistence);
+	}
 
 
-    //simple TEST
+	//simple TEST
 
-    public static void main(String[] args) throws Throwable {
+	public static void main(String[] args) throws Throwable {
 
-        RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties);
-        String urnPrefix = "de";
+		RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties);
+		String urnPrefix = "de";
 
-        Date dateFrom = new Date(System.currentTimeMillis());
-        Date dateTo = new Date(System.currentTimeMillis() + 10000);
+		Date dateFrom = new Date(System.currentTimeMillis());
+		Date dateTo = new Date(System.currentTimeMillis() + 10000);
 
-        UserInternal user = new UserInternal();
-        user.setUsername("Nils");
-        List users = new LinkedList<UserInternal>();
-        users.add(user);
-        ConfidentialReservationDataInternal addConfidentialReservationData = new ConfidentialReservationDataInternal();
-        List urns = new ArrayList();
-        urns.add("testURN");
-        addConfidentialReservationData.setNodeURNs(urns);
-        addConfidentialReservationData.setFromDate(dateFrom.getTime());
-        addConfidentialReservationData.setToDate(dateTo.getTime());
-        addConfidentialReservationData.setNodeURNs(urns);
-        addConfidentialReservationData.setUsers(users);
-        SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData), urnPrefix);
-        System.out.println(addKey.getSecretReservationKey() + " added!");
+		DataInternal user = new DataInternal();
+		user.setUsername("Nils");
+		List users = new LinkedList<DataInternal>();
+		users.add(user);
+		ConfidentialReservationDataInternal addConfidentialReservationData = new ConfidentialReservationDataInternal();
+		List urns = new ArrayList();
+		urns.add("testURN");
+		addConfidentialReservationData.setNodeURNs(urns);
+		addConfidentialReservationData.setFromDate(dateFrom.getTime());
+		addConfidentialReservationData.setToDate(dateTo.getTime());
+		addConfidentialReservationData.setNodeURNs(urns);
+		addConfidentialReservationData.setData(users);
+		SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData), urnPrefix);
+		System.out.println(addKey.getSecretReservationKey() + " added!");
 
-        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
+		((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
 
-        ConfidentialReservationData foundConfidentialReservationData = rsPersistence.getReservation(addKey);
-        System.out.println("found Object: " + foundConfidentialReservationData + "for key: " + addKey.getSecretReservationKey());
+		ConfidentialReservationData foundConfidentialReservationData = rsPersistence.getReservation(addKey);
+		System.out.println("found Object: " + foundConfidentialReservationData + "for key: " + addKey.getSecretReservationKey());
 
-        SecretReservationKeyInternal deleteKey = new SecretReservationKeyInternal();
-        deleteKey.setSecretReservationKey(addKey.getSecretReservationKey());
-        deleteKey.setUrnPrefix(urnPrefix);
-        ConfidentialReservationData deleteConfidentialReservationData = rsPersistence.deleteReservation(TypeConverter.convert(deleteKey));
-        System.out.println("deleted Object: " + deleteConfidentialReservationData + "for key: " + deleteKey.getSecretReservationKey());
+		SecretReservationKeyInternal deleteKey = new SecretReservationKeyInternal();
+		deleteKey.setSecretReservationKey(addKey.getSecretReservationKey());
+		deleteKey.setUrnPrefix(urnPrefix);
+		ConfidentialReservationData deleteConfidentialReservationData = rsPersistence.deleteReservation(TypeConverter.convert(deleteKey));
+		System.out.println("deleted Object: " + deleteConfidentialReservationData + "for key: " + deleteKey.getSecretReservationKey());
 
-        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
+		((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
 
-        GregorianCalendar from = new GregorianCalendar();
-        from.setTime(dateFrom);
-        from.setTimeZone(TimeZone.getTimeZone("GMT-8:00"));
-        Interval interval = new Interval(from.getTimeInMillis(), dateTo.getTime());
-        System.out.println(rsPersistence.getReservations(interval));
+		GregorianCalendar from = new GregorianCalendar();
+		from.setTime(dateFrom);
+		from.setTimeZone(TimeZone.getTimeZone("GMT-8:00"));
+		Interval interval = new Interval(from.getTimeInMillis(), dateTo.getTime());
+		System.out.println(rsPersistence.getReservations(interval));
 
-        ((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
-    }
+		((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
+	}
 
 }

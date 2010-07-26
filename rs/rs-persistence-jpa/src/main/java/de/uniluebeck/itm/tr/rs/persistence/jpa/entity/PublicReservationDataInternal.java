@@ -31,71 +31,71 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class PublicReservationDataInternal implements Serializable {
 
-    @Id
-    @GeneratedValue
-    @Column(nullable = false)
-    private long id;
+	@Id
+	@GeneratedValue
+	@Column(nullable = false)
+	private long id;
 
-    @Column(nullable = false)
-    protected long fromDate;
+	@Column(nullable = false)
+	protected long fromDate;
 
-    @Column(nullable = false)
-    protected long toDate;
+	@Column(nullable = false)
+	protected long toDate;
 
 
-    public long getId() {
-        return id;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    @org.hibernate.annotations.CollectionOfElements(
-            targetElement = java.lang.String.class
-    )
-    @JoinTable(
-            name = "reservationdata_urns",
-            joinColumns = @JoinColumn(name = "urn_id")
-    )
-    @org.hibernate.annotations.IndexColumn(
-            name = "POSITION", base = 1
-    )
-    @Column(name = "urns", nullable = false)
-    private List<String> nodeURNs;
+	@org.hibernate.annotations.CollectionOfElements(
+			targetElement = java.lang.String.class
+	)
+	@JoinTable(
+			name = "reservationdata_urns",
+			joinColumns = @JoinColumn(name = "urn_id")
+	)
+	@org.hibernate.annotations.IndexColumn(
+			name = "POSITION", base = 1
+	)
+	@Column(name = "urns", nullable = false)
+	private List<String> nodeURNs;
 
-    public long getFromDate() {
-        return fromDate;
-    }
+	public long getFromDate() {
+		return fromDate;
+	}
 
-    public void setFromDate(long value) {
-        this.fromDate = value;
-    }
+	public void setFromDate(long value) {
+		this.fromDate = value;
+	}
 
-    public List<String> getNodeURNs() {
-        return this.nodeURNs;
-    }
+	public List<String> getNodeURNs() {
+		return this.nodeURNs;
+	}
 
-    public void setNodeURNs(List<String> nodeURNs) {
-        this.nodeURNs = nodeURNs;
-    }
+	public void setNodeURNs(List<String> nodeURNs) {
+		this.nodeURNs = nodeURNs;
+	}
 
-    public long getToDate() {
-        return toDate;
-    }
+	public long getToDate() {
+		return toDate;
+	}
 
-    public void setToDate(long value) {
-        this.toDate = value;
-    }
+	public void setToDate(long value) {
+		this.toDate = value;
+	}
 
-    @Override
-    public String toString() {
-        return "PublicReservationDataInternal{" +
-                "id=" + id +
-                ", fromDate=" + fromDate +
-                ", toDate=" + toDate +
-                ", nodeURNs=" + nodeURNs +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "PublicReservationDataInternal{" +
+				"id=" + id +
+				", fromDate=" + fromDate +
+				", toDate=" + toDate +
+				", nodeURNs=" + nodeURNs +
+				'}';
+	}
 
 }

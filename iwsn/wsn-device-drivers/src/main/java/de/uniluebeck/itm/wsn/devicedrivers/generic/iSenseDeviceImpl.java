@@ -35,9 +35,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * 
  * @author dp
- * 
  */
 public abstract class iSenseDeviceImpl extends iSenseDevice {
 	/** */
@@ -47,10 +45,10 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	protected static final byte DLE = 0x10;
 
 	/** */
-	protected static final byte[] DLE_STX = new byte[] { DLE, 0x02 };
+	protected static final byte[] DLE_STX = new byte[]{DLE, 0x02};
 
 	/** */
-	protected static final byte[] DLE_ETX = new byte[] { DLE, 0x03 };
+	protected static final byte[] DLE_ETX = new byte[]{DLE, 0x03};
 
 	/** */
 	protected Set<iSenseDeviceListener> promiscousListeners = new TreeSet<iSenseDeviceListener>();
@@ -61,10 +59,14 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	/** */
 	protected int timeoutMillis = 2000;
 
-	/** Data buffer for incoming data */
+	/**
+	 * Data buffer for incoming data
+	 */
 	private byte[] packet = new byte[2048];
 
-	/** Current packetLength of the received packet */
+	/**
+	 * Current packetLength of the received packet
+	 */
 	private int packetLength = 0;
 
 	/** */
@@ -76,7 +78,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	/** */
 	protected iSenseDeviceOperation operation = null;
 
-	/** Message mode */
+	/**
+	 * Message mode
+	 */
 	protected MessageMode messageMode = MessageMode.PACKETS;
 
 	/** */
@@ -88,11 +92,12 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * 
 	 * @see ishell.device.iSenseDevice#send(ishell.util.messages.Packet)
 	 */
+
 	public abstract void send(MessagePacket p) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @throws Exception
 	 */
 	public abstract void leaveProgrammingMode() throws Exception;
@@ -104,6 +109,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * @seeishell.device.iSenseDevice#registerListener(ishell.device.
 	 * iSenseDeviceListener)
 	 */
+
 	public void registerListener(iSenseDeviceListener listener) {
 //		log.debug("Added promiscous listener " + listener + ", already got " + promiscousListeners.size() + " listeners");
 		promiscousListeners.add(listener);
@@ -116,6 +122,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * @seeishell.device.iSenseDevice#deregisterListener(ishell.device.
 	 * iSenseDeviceListener)
 	 */
+
 	public void deregisterListener(iSenseDeviceListener listener) {
         removeListenerInternal(promiscousListeners, listener);
 		for (Set<iSenseDeviceListener> ls : listeners.values())
@@ -145,6 +152,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * @seeishell.device.iSenseDevice#registerListener(ishell.device.
 	 * iSenseDeviceListener, int)
 	 */
+
 	public void registerListener(iSenseDeviceListener listener, int type) {
 		Set<iSenseDeviceListener> s = listeners.get(type);
 		if (s == null) {
@@ -163,6 +171,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * @seeishell.device.iSenseDevice#deregisterListener(ishell.device.
 	 * iSenseDeviceListener, int)
 	 */
+
 	public void deregisterListener(iSenseDeviceListener listener, int type) {
 		Set<iSenseDeviceListener> s = listeners.get(type);
 		if (s == null) {
@@ -175,8 +184,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	// ------------------------------------------------------------------------
 	// --
+
 	/**
-	 * 
 	 * @param d
 	 */
 	public void copyListeners(iSenseDevice d) {
@@ -205,6 +214,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * 
 	 * @see ishell.device.iSenseDevice#cancelOperation(ishell.device.Operation)
 	 */
+
 	public void cancelOperation(Operation op) {
 
 		if (operationInProgress() && getOperation() == op) {
@@ -212,7 +222,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			operationCancelRequestActive = true;
 			if (operation != null)
 				operation.cancelOperation();
-		} else{
+		} else {
 			/*if(operation!=null)
 			{
 				operation.cancelOperation();
@@ -223,8 +233,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	protected boolean operationInProgress() {
 		boolean op = (operation != null) || (operationCancelRequestActive == true);
@@ -234,15 +245,15 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 */
 	public abstract Operation getOperation();
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
@@ -250,32 +261,32 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	// -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	public abstract boolean enterProgrammingMode() throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @throws Exception
 	 */
 	public abstract void eraseFlash() throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param sector
 	 * @throws Exception
 	 */
 	public abstract void eraseFlash(Sectors.SectorIndex sector) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param address
 	 * @param bytes
 	 * @param offset
@@ -286,8 +297,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public abstract byte[] writeFlash(int address, byte bytes[], int offset, int len) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @param address
 	 * @param len
 	 * @return
@@ -296,31 +307,33 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public abstract byte[] readFlash(int address, int len) throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	public abstract ChipType getChipType() throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	public abstract FlashType getFlashType() throws Exception;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public iSenseDeviceImpl() {
 	}
 
 	// -------------------------------------------------------------------------
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public void operationDone(Operation op, Object result) {
 		if (log.isDebugEnabled())
@@ -339,8 +352,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	// ------------------------------------------------------------------------
 	// --
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public void operationCancelled(iSenseDeviceOperation op) {
 		if (log.isDebugEnabled())
@@ -357,8 +371,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
-	/** 
-	 * 
+
+	/**
+	 *
 	 */
 	public void operationProgress(Operation op, float fraction) {
 		if (log.isDebugEnabled())
@@ -373,32 +388,34 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public int getTimeoutMillis() {
 		return timeoutMillis;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void setTimeoutMillis(int timeoutMillis) {
 		this.timeoutMillis = timeoutMillis;
 	}
-	
-	public void setReceiveMode(MessageMode messageMode)
-	{
+
+	public void setReceiveMode(MessageMode messageMode) {
 		this.messageMode = messageMode;
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected void receive(InputStream inStream) {
-	
+
 		if (messageMode == MessageMode.PACKETS)
 			receivePacket(inStream);
 		else if (messageMode == MessageMode.PLAIN)
@@ -408,8 +425,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private void receivePacket(InputStream inStream) {
 		try {
@@ -466,8 +484,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	private void receivePlainText(InputStream inStream) {
 		try {
@@ -487,21 +506,22 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			// Reset packet information
 			packetLength = 0;
 		} catch (IOException error) {
-			log.debug("Error: "+error, error);
+			log.debug("Error: " + error, error);
 		}
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void notifyReceivePacket(MessagePacket p) {
 		//if (log.isDebugEnabled())
-			//log.debug("New packet received: type =" + p.getType() + " packet: " + p.toString());
+		//log.debug("New packet received: type =" + p.getType() + " packet: " + p.toString());
 
 		// TODO: call PacketDispatcher
-		
-		for (iSenseDeviceListener l : promiscousListeners){
+
+		for (iSenseDeviceListener l : promiscousListeners) {
 			/*
 			if (l instanceof Plugin)
 			{
@@ -513,13 +533,12 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 				}
 			}
 			else */
-				l.receivePacket(p);
+			l.receivePacket(p);
 		}
 
 		Set<iSenseDeviceListener> ls = this.listeners.get(p.getType());
 		if (ls != null)
-			for (iSenseDeviceListener l : ls)
-			{
+			for (iSenseDeviceListener l : ls) {
 				/*
 				if (l instanceof Plugin)
 				{
@@ -531,26 +550,28 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 					}
 				}
 				else */
-					l.receivePacket(p);
+				l.receivePacket(p);
 			}
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void notifyReceivePlainText(MessagePlainText p) {
 		if (log.isDebugEnabled())
 			log.debug("New plain text packet received: " + p);
 
-		for (iSenseDeviceListener l : promiscousListeners){
+		for (iSenseDeviceListener l : promiscousListeners) {
 			l.receivePlainText(p);
 		}
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected void clearPacket() {
 		packetLength = 0;
@@ -559,8 +580,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	protected void ensureBufferSize() {
 		if (packetLength + 1 >= this.packet.length) {

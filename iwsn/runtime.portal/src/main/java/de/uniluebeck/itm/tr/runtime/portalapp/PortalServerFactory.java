@@ -80,8 +80,8 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 					new PortalModule(
 							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
 							reservationEndpointUrl, wsnApp, wiseMLBuilder.toString(),
-                            testbedRuntime)
-					).getInstance(SessionManagementService.class);
+							testbedRuntime)
+			).getInstance(SessionManagementService.class);
 
 			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);
 

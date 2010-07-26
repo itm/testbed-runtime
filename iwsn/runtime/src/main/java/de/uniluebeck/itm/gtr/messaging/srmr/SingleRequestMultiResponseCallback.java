@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.gtr.messaging.srmr;
 
 /**
- * 
+ *
  */
 public interface SingleRequestMultiResponseCallback {
 
@@ -32,7 +32,6 @@ public interface SingleRequestMultiResponseCallback {
 	 * Invoked upon receiving a asynchronous response.
 	 *
 	 * @param response the response received
-	 *
 	 * @return true if {@link de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseService} should consider the
 	 *         job as being done (i.e. further responses will be ignored)
 	 */

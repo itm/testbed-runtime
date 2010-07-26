@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://testbed.wisebed.eu/api/rs/v1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://testbed.wisebed.eu/api/rs/v1/" version="1.0">
+<xs:schema xmlns:tns="urn:RSService" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:RSService"
+		   version="1.0">
 	<xs:element name="AuthorizationFault" type="tns:AuthorizationException"/>
 	<xs:element name="RSFault" type="tns:RSException"/>
 	<xs:element name="ReservationConflictFault" type="tns:ReservervationConflictException"/>
@@ -22,7 +23,8 @@
 	</xs:complexType>
 	<xs:complexType name="makeReservation">
 		<xs:sequence>
-			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false" maxOccurs="unbounded"/>
+			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false"
+						maxOccurs="unbounded"/>
 			<xs:element name="reservation" type="tns:confidentialReservationData"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -37,7 +39,7 @@
 		<xs:complexContent>
 			<xs:extension base="tns:publicReservationData">
 				<xs:sequence>
-					<xs:element name="users" type="tns:user" nillable="false" maxOccurs="unbounded"/>
+					<xs:element name="data" type="tns:data" nillable="false" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -50,15 +52,17 @@
 			<xs:element name="userData" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="user">
+	<xs:complexType name="data">
 		<xs:sequence>
 			<xs:element name="urnPrefix" type="xs:string"/>
 			<xs:element name="username" type="xs:string"/>
+			<xs:element name="secretReservationKey" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="getReservation">
 		<xs:sequence>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false" maxOccurs="unbounded"/>
+			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="secretReservationKey">
@@ -80,7 +84,8 @@
 	</xs:complexType>
 	<xs:complexType name="makeReservationResponse">
 		<xs:sequence>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false" maxOccurs="unbounded"/>
+			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ReservervationConflictException">
@@ -90,8 +95,10 @@
 	</xs:complexType>
 	<xs:complexType name="deleteReservation">
 		<xs:sequence>
-			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false" maxOccurs="unbounded"/>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false" maxOccurs="unbounded"/>
+			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false"
+						maxOccurs="unbounded"/>
+			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="getReservationsResponse">
@@ -106,7 +113,7 @@
 	</xs:complexType>
 	<xs:complexType name="getReservationResponse">
 		<xs:sequence>
-			<xs:element name="reservationData" type="tns:confidentialReservationData" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element name="reservationData" type="tns:confidentialReservationData" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="getConfidentialReservations">
@@ -117,7 +124,8 @@
 	</xs:complexType>
 	<xs:complexType name="getConfidentialReservationsResponse">
 		<xs:sequence>
-			<xs:element name="reservationData" type="tns:confidentialReservationData" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="reservationData" type="tns:confidentialReservationData" minOccurs="0"
+						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="getConfidentialReservations" type="tns:getConfidentialReservations"/>

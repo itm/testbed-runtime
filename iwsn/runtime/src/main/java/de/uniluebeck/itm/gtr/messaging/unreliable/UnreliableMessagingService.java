@@ -34,20 +34,19 @@ import java.io.Serializable;
 
 public interface UnreliableMessagingService extends Service {
 
-    public static final long DEFAULT_MAX_VALIDITY = 60000;
-
-    /**
-     * @param from
-     * @param to
-     * @param msg
-     * @param priority
-     * @param validUntil
-     * @throws IllegalArgumentException if {@code priority} is not between 0 and 2
-     */
-    void sendAsync(String from, String to, String msgType, Serializable msg, int priority, long validUntil);
+	public static final long DEFAULT_MAX_VALIDITY = 60000;
 
 	/**
-	 * 
+	 * @param from
+	 * @param to
+	 * @param msg
+	 * @param priority
+	 * @param validUntil
+	 * @throws IllegalArgumentException if {@code priority} is not between 0 and 2
+	 */
+	void sendAsync(String from, String to, String msgType, Serializable msg, int priority, long validUntil);
+
+	/**
 	 * @param from
 	 * @param to
 	 * @param msgType
@@ -57,14 +56,14 @@ public interface UnreliableMessagingService extends Service {
 	 */
 	void sendAsync(String from, String to, String msgType, byte[] msg, int priority, long validUntil);
 
-    /**
-     * @param message
-     * @throws IllegalArgumentException if {@link Messages.Msg#getPriority()} is not between 0 and 2 for instance {@code
-     *                                  message}
-     */
-    void sendAsync(Messages.Msg message);
+	/**
+	 * @param message
+	 * @throws IllegalArgumentException if {@link Messages.Msg#getPriority()} is not between 0 and 2 for instance {@code
+	 *                                  message}
+	 */
+	void sendAsync(Messages.Msg message);
 
-    public Connection getConnection(Messages.Msg msg) throws ConnectionTypeUnavailableException, IOException,
-            ConnectionInvalidAddressException;
+	public Connection getConnection(Messages.Msg msg) throws ConnectionTypeUnavailableException, IOException,
+			ConnectionInvalidAddressException;
 
 }

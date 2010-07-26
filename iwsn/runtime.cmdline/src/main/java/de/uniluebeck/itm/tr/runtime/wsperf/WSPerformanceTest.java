@@ -25,14 +25,13 @@ package de.uniluebeck.itm.tr.runtime.wsperf;
 
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v211.BinaryMessage;
+import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.WSN;
 
-import javax.jws.WebParam;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
-
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -71,7 +70,7 @@ public class WSPerformanceTest {
 
 			BinaryMessage binaryMessage = new BinaryMessage();
 			binaryMessage.setBinaryType((byte) 0);
-			binaryMessage.setBinaryData(new byte[] { 0x00 });
+			binaryMessage.setBinaryData(new byte[]{0x00});
 
 			Message message = new Message();
 			message.setSourceNodeId("urn:wisebed:testbeduzl1:n2");

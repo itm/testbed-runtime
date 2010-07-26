@@ -35,10 +35,10 @@ public class WSNAppModule extends AbstractModule {
 		this.testbedRuntime = testbedRuntime;
 	}
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
-        bind(WSNApp.class).to(WSNAppImpl.class);
-    }
+		bind(WSNApp.class).to(WSNAppImpl.class);
+	}
 
 }

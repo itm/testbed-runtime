@@ -30,26 +30,26 @@ import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
 
 public class TcpConnectionFactory implements ConnectionFactory {
 
-    @Override
-    public Connection create(String nodeName, Connection.Direction direction, String address)
-            throws ConnectionInvalidAddressException {
+	@Override
+	public Connection create(String nodeName, Connection.Direction direction, String address)
+			throws ConnectionInvalidAddressException {
 
-        try {
+		try {
 
-            String[] split = address.split(":");
-            String hostName = split[0];
-            int port = Integer.parseInt(split[1]);
+			String[] split = address.split(":");
+			String hostName = split[0];
+			int port = Integer.parseInt(split[1]);
 
-            return new TcpConnection(nodeName, direction, hostName, port);
+			return new TcpConnection(nodeName, direction, hostName, port);
 
-        } catch (NumberFormatException e) {
-            throw new ConnectionInvalidAddressException(address, "Could not parse port number!", e);
-        }
-    }
+		} catch (NumberFormatException e) {
+			throw new ConnectionInvalidAddressException(address, "Could not parse port number!", e);
+		}
+	}
 
-    @Override
-    public String getType() {
-        return TcpConstants.TYPE;
-    }
+	@Override
+	public String getType() {
+		return TcpConstants.TYPE;
+	}
 
 }

@@ -28,9 +28,9 @@ import com.google.inject.AbstractModule;
 
 public class RoutingModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(RoutingTableService.class).to(RoutingTableServiceImpl.class);
-    }
+	@Override
+	protected void configure() {
+		bind(RoutingTableService.class).to(RoutingTableServiceImpl.class);
+	}
 
 }

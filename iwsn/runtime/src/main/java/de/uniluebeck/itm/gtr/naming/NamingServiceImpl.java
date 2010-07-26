@@ -34,96 +34,96 @@ import java.util.*;
 @Singleton
 class NamingServiceImpl implements NamingService {
 
-    private static final Logger log = LoggerFactory.getLogger(NamingService.class);
+	private static final Logger log = LoggerFactory.getLogger(NamingService.class);
 
-    private final Map<String, SortedSet<NamingEntry>> namingTable = new HashMap<String, SortedSet<NamingEntry>>();
+	private final Map<String, SortedSet<NamingEntry>> namingTable = new HashMap<String, SortedSet<NamingEntry>>();
 
-    @Override
-    public void addEntry(NamingEntry entry) {
+	@Override
+	public void addEntry(NamingEntry entry) {
 
-        synchronized (namingTable) {
+		synchronized (namingTable) {
 
-            SortedSet<NamingEntry> entries = namingTable.get(entry.getNodeName());
+			SortedSet<NamingEntry> entries = namingTable.get(entry.getNodeName());
 
-            if (entries == null) {
-                entries = new TreeSet<NamingEntry>(new NamingEntry.NamingEntryComparator());
-                namingTable.put(entry.getNodeName(), entries);
-            }
+			if (entries == null) {
+				entries = new TreeSet<NamingEntry>(new NamingEntry.NamingEntryComparator());
+				namingTable.put(entry.getNodeName(), entries);
+			}
 
-            if (!entries.contains(entry)) {
-                entries.add(entry);
-            }
+			if (!entries.contains(entry)) {
+				entries.add(entry);
+			}
 
-            log.debug("Added naming entry: {}", entry);
-            log.debug("New naming table contents: {}", namingTable);
+			log.debug("Added naming entry: {}", entry);
+			log.debug("New naming table contents: {}", namingTable);
 
-        }
+		}
 
-    }
+	}
 
-    @Override
-    public void removeEntry(NamingEntry entry) {
+	@Override
+	public void removeEntry(NamingEntry entry) {
 
-        synchronized (namingTable) {
+		synchronized (namingTable) {
 
-            SortedSet<NamingEntry> entries = namingTable.get(entry.getNodeName());
+			SortedSet<NamingEntry> entries = namingTable.get(entry.getNodeName());
 
-            for (Iterator<NamingEntry> iterator = entries.iterator(); iterator.hasNext();) {
-                NamingEntry namingEntry = iterator.next();
-                if (namingEntry.equals(entry)) {
-                    iterator.remove();
-                }
-            }
+			for (Iterator<NamingEntry> iterator = entries.iterator(); iterator.hasNext();) {
+				NamingEntry namingEntry = iterator.next();
+				if (namingEntry.equals(entry)) {
+					iterator.remove();
+				}
+			}
 
-            log.debug("Removed naming entry: {}", entry);
-            log.debug("New naming table contents: {}", namingTable);
+			log.debug("Removed naming entry: {}", entry);
+			log.debug("New naming table contents: {}", namingTable);
 
-        }
+		}
 
-    }
+	}
 
-    @Override
-    public ImmutableSet<NamingEntry> getEntries() {
+	@Override
+	public ImmutableSet<NamingEntry> getEntries() {
 
-        ImmutableSet.Builder<NamingEntry> builder = ImmutableSet.builder();
+		ImmutableSet.Builder<NamingEntry> builder = ImmutableSet.builder();
 
-        for (SortedSet<NamingEntry> entries : namingTable.values()) {
-            for (NamingEntry entry : entries) {
-                builder.add(entry);
-            }
-        }
+		for (SortedSet<NamingEntry> entries : namingTable.values()) {
+			for (NamingEntry entry : entries) {
+				builder.add(entry);
+			}
+		}
 
-        return builder.build();
+		return builder.build();
 
-    }
+	}
 
-    @Override
-    public ImmutableSortedSet<NamingEntry> getEntries(String nodeName) {
+	@Override
+	public ImmutableSortedSet<NamingEntry> getEntries(String nodeName) {
 
-    	SortedSet<NamingEntry> entry = namingTable.get(nodeName);
-    	if (entry == null) {
-    		log.debug("Didn't find a naming entry for node name \"{}\"", nodeName);
-    		return null;
-    	}
-        return ImmutableSortedSet.copyOf(entry);
+		SortedSet<NamingEntry> entry = namingTable.get(nodeName);
+		if (entry == null) {
+			log.debug("Didn't find a naming entry for node name \"{}\"", nodeName);
+			return null;
+		}
+		return ImmutableSortedSet.copyOf(entry);
 
-    }
+	}
 
-    @Override
-    public NamingEntry getEntry(String name) {
+	@Override
+	public NamingEntry getEntry(String name) {
 
-        SortedSet<NamingEntry> entries = namingTable.get(name);
-        return entries == null ? null : entries.size() == 0 ? null : entries.first();
+		SortedSet<NamingEntry> entries = namingTable.get(name);
+		return entries == null ? null : entries.size() == 0 ? null : entries.first();
 
-    }
+	}
 
-    @Override
-    public void start() throws Exception {
-        // nothing to do
-    }
+	@Override
+	public void start() throws Exception {
+		// nothing to do
+	}
 
-    @Override
-    public void stop() {
-        // nothing to do
-    }
+	@Override
+	public void stop() {
+		// nothing to do
+	}
 }

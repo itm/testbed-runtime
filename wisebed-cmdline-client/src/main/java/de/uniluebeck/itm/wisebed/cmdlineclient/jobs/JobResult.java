@@ -23,16 +23,15 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import java.util.HashMap;
-
+import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
 import org.joda.time.DateTime;
 
-import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
+import java.util.HashMap;
 
 public class JobResult {
 	// NodeId -> Result
 	private HashMap<String, Result> results = new HashMap<String, Result>();
-	
+
 	private final JobType jobType;
 
 	private DateTime startTime;
@@ -54,7 +53,7 @@ public class JobResult {
 
 	public JobResult(JobType jobType) {
 		this.jobType = jobType;
-		
+
 	}
 
 	public void addResult(String nodeId, boolean success, String message) {

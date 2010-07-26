@@ -23,16 +23,15 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
 import eu.wisebed.testbed.api.wsn.v211.Status;
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Job {
 	private static final Logger log = Logger.getLogger(Job.class);
@@ -42,9 +41,9 @@ public class Job {
 	private int successfulCount = 0;
 
 	private int errorCount = 0;
-	
+
 	private DateTime startTime;
-	
+
 	private DateTime endTime;
 
 	protected String requestId;
@@ -60,7 +59,9 @@ public class Job {
 
 	public enum JobType {
 		areNodesAlive, resetNodes, send, flashPrograms, setVirtualLink, destroyVirtualLink
-	};
+	}
+
+	;
 
 	public Job(String description, String requestId, List<String> nodeIds, JobType jobType) {
 		this.description = description;
@@ -69,7 +70,7 @@ public class Job {
 		this.jobType = jobType;
 		this.results = new JobResult(jobType);
 	}
-	
+
 	public Job(String description, String requestId, String nodeIds, JobType jobType) {
 		this.description = description;
 		this.requestId = requestId;
@@ -199,9 +200,9 @@ public class Job {
 	}
 
 	private void notifyListeners(JobResult result) {
-		for( JobResultListener l : listeners )
+		for (JobResultListener l : listeners)
 			l.receiveJobResult(result);
-		
+
 	}
 
 }

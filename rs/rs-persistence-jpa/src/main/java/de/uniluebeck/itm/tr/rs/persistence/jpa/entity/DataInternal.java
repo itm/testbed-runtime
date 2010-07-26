@@ -28,53 +28,53 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "Users")
-public class UserInternal implements Serializable {
+public class DataInternal implements Serializable {
 
-    @Id
-    @GeneratedValue
-    @Column(nullable = false)
-    private long id;
+	@Id
+	@GeneratedValue
+	@Column(nullable = false)
+	private long id;
 
-    @Column
-    protected String urnPrefix;
+	@Column
+	protected String urnPrefix;
 
-    @Column
-    protected String username;
+	@Column
+	protected String username;
 
-    // @ManyToOne
-    // @JoinColumn(name="confidentialReservationData_id", nullable=false)
-    // protected ConfidentialReservationDataInternal confidentialReservationData;
+	// @ManyToOne
+	// @JoinColumn(name="confidentialReservationData_id", nullable=false)
+	// protected ConfidentialReservationDataInternal confidentialReservationData;
 
-    public UserInternal() {
-    }
+	public DataInternal() {
+	}
 
-    public UserInternal(String urnPrefix, String username) {
-        this.urnPrefix = urnPrefix;
-        this.username = username;
-    }
+	public DataInternal(String urnPrefix, String username) {
+		this.urnPrefix = urnPrefix;
+		this.username = username;
+	}
 
-    public String getUrnPrefix() {
-        return urnPrefix;
-    }
+	public String getUrnPrefix() {
+		return urnPrefix;
+	}
 
-    public void setUrnPrefix(String urnPrefix) {
-        this.urnPrefix = urnPrefix;
-    }
+	public void setUrnPrefix(String urnPrefix) {
+		this.urnPrefix = urnPrefix;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    @Override
-    public String toString() {
-        return "UserInternal{" +
-                "urnPrefix='" + urnPrefix + '\'' +
-                ", username='" + username + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "DataInternal{" +
+				"urnPrefix='" + urnPrefix + '\'' +
+				", username='" + username + '\'' +
+				'}';
+	}
 
 }

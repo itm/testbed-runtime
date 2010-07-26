@@ -5,5 +5,4 @@
 // Generated on: 2010.06.16 at 10:15:31 AM MESZ 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/runtime/portalapp/xml")
-package de.uniluebeck.itm.tr.runtime.portalapp.xml;
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/runtime/portalapp/xml") package de.uniluebeck.itm.tr.runtime.portalapp.xml;

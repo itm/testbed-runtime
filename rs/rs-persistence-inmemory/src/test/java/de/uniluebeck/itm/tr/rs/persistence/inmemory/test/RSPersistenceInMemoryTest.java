@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
+import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import org.junit.Before;
 
@@ -33,10 +33,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 public class RSPersistenceInMemoryTest extends RSPersistenceTest {
 
-    @Before
-    public void setUp() throws RSExceptionException, DatatypeConfigurationException {
-        super.setUp();
-        RSPersistence persistence = new InMemoryRSPersistence();
-        super.setPersistence(persistence);
-    }
+	@Before
+	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
+		super.setUp();
+		RSPersistence persistence = new InMemoryRSPersistence();
+		super.setPersistence(persistence);
+	}
 }

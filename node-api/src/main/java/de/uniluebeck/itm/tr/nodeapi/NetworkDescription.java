@@ -26,16 +26,16 @@ package de.uniluebeck.itm.tr.nodeapi;
 
 public interface NetworkDescription {
 
-    /**
-     * Request this Node for a special property value
-     *
-     * @param property request the property specified by this value
-     */
-    void getPropertyValue(byte property, NodeApiCallback callback);
+	/**
+	 * Request this Node for a special property value
+	 *
+	 * @param property request the property specified by this value
+	 */
+	void getPropertyValue(byte property, NodeApiCallback callback);
 
-    /**
-     * Request a Neighborhoodlist from this node
-     */
-    void getNeighborhood(NodeApiCallback callback);
+	/**
+	 * Request a Neighborhoodlist from this node
+	 */
+	void getNeighborhood(NodeApiCallback callback);
 
 }

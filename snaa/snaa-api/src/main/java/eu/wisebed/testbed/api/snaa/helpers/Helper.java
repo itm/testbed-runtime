@@ -35,92 +35,92 @@ import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinMaxCount;
 
 public class Helper {
-    private static final Logger log = LoggerFactory.getLogger(Helper.class);
+	private static final Logger log = LoggerFactory.getLogger(Helper.class);
 
-    public static void assertMinAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive)
-            throws SNAAExceptionException {
-        try {
-            assertCollectionMinCount(authenticationData, minCountInclusive);
-        } catch (Exception e) {
-            createSNAAException(e.getMessage());
-        }
-    }
+	public static void assertMinAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive)
+			throws SNAAExceptionException {
+		try {
+			assertCollectionMinCount(authenticationData, minCountInclusive);
+		} catch (Exception e) {
+			createSNAAException(e.getMessage());
+		}
+	}
 
-    public static void assertAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive,
-                                                 int maxCountInclusive) throws SNAAExceptionException {
+	public static void assertAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive,
+												 int maxCountInclusive) throws SNAAExceptionException {
 
-        try {
-            assertCollectionMinMaxCount(authenticationData, minCountInclusive, maxCountInclusive);
-        } catch (Exception e) {
-            createSNAAException(e.getMessage());
-        }
-    }
+		try {
+			assertCollectionMinMaxCount(authenticationData, minCountInclusive, maxCountInclusive);
+		} catch (Exception e) {
+			createSNAAException(e.getMessage());
+		}
+	}
 
-    public static void assertAuthenticationKeyCount(List<SecretAuthenticationKey> authenticationData,
-                                                    int minCountInclusive, int maxCountInclusive) throws SNAAExceptionException {
+	public static void assertAuthenticationKeyCount(List<SecretAuthenticationKey> authenticationData,
+													int minCountInclusive, int maxCountInclusive) throws SNAAExceptionException {
 
-        try {
-            assertCollectionMinCount(authenticationData, minCountInclusive);
-        } catch (Exception e) {
-            createSNAAException(e.getMessage());
-        }
+		try {
+			assertCollectionMinCount(authenticationData, minCountInclusive);
+		} catch (Exception e) {
+			createSNAAException(e.getMessage());
+		}
 
-    }
+	}
 
-    public static void assertUrnPrefixServed(String servedURNPrefix, List<AuthenticationTriple> authenticationData)
-            throws SNAAExceptionException {
-        Set<String> urnPrefixes = new HashSet<String>();
-        urnPrefixes.add(servedURNPrefix);
+	public static void assertUrnPrefixServed(String servedURNPrefix, List<AuthenticationTriple> authenticationData)
+			throws SNAAExceptionException {
+		Set<String> urnPrefixes = new HashSet<String>();
+		urnPrefixes.add(servedURNPrefix);
 
-        assertAuthenticationCount(authenticationData, 1, 1);
-        assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
-    }
+		assertAuthenticationCount(authenticationData, 1, 1);
+		assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
+	}
 
-    public static void assertSAKUrnPrefixServed(String servedURNPrefix, List<SecretAuthenticationKey> authenticationData)
-            throws SNAAExceptionException {
-        Set<String> urnPrefixes = new HashSet<String>();
-        urnPrefixes.add(servedURNPrefix);
+	public static void assertSAKUrnPrefixServed(String servedURNPrefix, List<SecretAuthenticationKey> authenticationData)
+			throws SNAAExceptionException {
+		Set<String> urnPrefixes = new HashSet<String>();
+		urnPrefixes.add(servedURNPrefix);
 
-        assertAuthenticationKeyCount(authenticationData, 1, 1);
-        assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
-    }
+		assertAuthenticationKeyCount(authenticationData, 1, 1);
+		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
+	}
 
-    public static void assertAllUrnPrefixesServed(Set<String> servedURNPrefixes,
-                                                  List<AuthenticationTriple> authenticationData) throws SNAAExceptionException {
+	public static void assertAllUrnPrefixesServed(Set<String> servedURNPrefixes,
+												  List<AuthenticationTriple> authenticationData) throws SNAAExceptionException {
 
-        for (AuthenticationTriple triple : authenticationData) {
-            if (!servedURNPrefixes.contains(triple.getUrnPrefix())) {
-                throw createSNAAException("Not serving urn prefix " + triple.getUrnPrefix());
-            }
-        }
-    }
+		for (AuthenticationTriple triple : authenticationData) {
+			if (!servedURNPrefixes.contains(triple.getUrnPrefix())) {
+				throw createSNAAException("Not serving urn prefix " + triple.getUrnPrefix());
+			}
+		}
+	}
 
-    public static void assertAllSAKUrnPrefixesServed(Set<String> servedURNPrefixes,
-                                                     List<SecretAuthenticationKey> authenticationData) throws SNAAExceptionException {
+	public static void assertAllSAKUrnPrefixesServed(Set<String> servedURNPrefixes,
+													 List<SecretAuthenticationKey> authenticationData) throws SNAAExceptionException {
 
-        for (SecretAuthenticationKey key : authenticationData) {
-            if (!servedURNPrefixes.contains(key.getUrnPrefix())) {
-                throw createSNAAException("Not serving urn prefix " + key.getUrnPrefix());
-            }
-        }
-    }
+		for (SecretAuthenticationKey key : authenticationData) {
+			if (!servedURNPrefixes.contains(key.getUrnPrefix())) {
+				throw createSNAAException("Not serving urn prefix " + key.getUrnPrefix());
+			}
+		}
+	}
 
-    /**
-     * @param msg
-     * @return
-     */
-    public static SNAAExceptionException createSNAAException(String msg) {
-        log.warn(msg);
-        SNAAException exception = new SNAAException();
-        exception.setMessage(msg);
-        return new SNAAExceptionException(msg, exception);
-    }
+	/**
+	 * @param msg
+	 * @return
+	 */
+	public static SNAAExceptionException createSNAAException(String msg) {
+		log.warn(msg);
+		SNAAException exception = new SNAAException();
+		exception.setMessage(msg);
+		return new SNAAExceptionException(msg, exception);
+	}
 
-    public static AuthenticationExceptionException createAuthenticationException(String msg) {
-        log.warn(msg);
-        AuthenticationException exception = new AuthenticationException();
-        exception.setMessage(msg);
-        return new AuthenticationExceptionException(msg, exception);
+	public static AuthenticationExceptionException createAuthenticationException(String msg) {
+		log.warn(msg);
+		AuthenticationException exception = new AuthenticationException();
+		exception.setMessage(msg);
+		return new AuthenticationExceptionException(msg, exception);
 	}
 
 }

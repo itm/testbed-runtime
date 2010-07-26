@@ -54,7 +54,6 @@ public class FederationDemo {
 
 	/**
 	 * @param args
-	 *
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 */
@@ -239,7 +238,7 @@ public class FederationDemo {
 	}
 
 	private static Program readProgram(String pathname, String name, final String other, final String platform,
-											   final String version) throws Exception {
+									   final String version) throws Exception {
 
 		final ProgramMetaData programMetaData = new ProgramMetaData();
 		programMetaData.setName(name);

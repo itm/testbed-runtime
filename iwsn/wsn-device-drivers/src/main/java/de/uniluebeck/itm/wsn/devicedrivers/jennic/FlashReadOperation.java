@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
+
 /**
  *
  */
@@ -50,8 +51,9 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 	private byte result[] = null;
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public FlashReadOperation(JennicDevice device, int startAddress, int endAddress) {
 		super(device);
@@ -92,10 +94,10 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 					length = sectorEnd - sectorStart;
 
 				// Read data block
-				try{
-				byte[] data = device.readFlash(sectorStart, length);
-				System.arraycopy(data, 0, flashData, sectorStart - startAddress, data.length);
-				}catch(Exception e){
+				try {
+					byte[] data = device.readFlash(sectorStart, length);
+					System.arraycopy(data, 0, flashData, sectorStart - startAddress, data.length);
+				} catch (Exception e) {
 					log.debug("Error while reading flash! Operation will be cancelled!");
 					device.operationCancelled(this);
 					return false;
@@ -123,8 +125,9 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	public void run() {
 		try {
@@ -141,8 +144,9 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 	}
 
 	// -------------------------------------------------------------------------
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public Operation getOperation() {

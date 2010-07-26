@@ -45,84 +45,83 @@ import java.io.OutputStream;
  */
 public abstract class Connection extends AbstractListenable<ConnectionListener> {
 
-    /**
-     * Enum type defining the direction of a {@link de.uniluebeck.itm.gtr.connection.Connection} instance. Incoming
-     * connections were opened by the remote host, outgoing were opened by the local host.
-     */
-    public static enum Direction {
-        IN, OUT
-    }
+	/**
+	 * Enum type defining the direction of a {@link de.uniluebeck.itm.gtr.connection.Connection} instance. Incoming
+	 * connections were opened by the remote host, outgoing were opened by the local host.
+	 */
+	public static enum Direction {
+		IN, OUT
+	}
 
-    /**
-     * Tries to connect to the remote host using the underlay transport layer.
-     *
-     * @throws ConnectionTypeUnavailableException
-     *                     if this instance was created with a type for which no implementation is available
-     * @throws ConnectionInvalidAddressException
-     *                     if the address of the remote host is invalid or the format of the address string is invalid
-     * @throws IOException
-     *                     if any {@link java.io.IOException} occurs in the underlying transport implementation
-     */
-    public abstract void connect() throws ConnectionTypeUnavailableException, ConnectionInvalidAddressException, IOException;
+	/**
+	 * Tries to connect to the remote host using the underlay transport layer.
+	 *
+	 * @throws ConnectionTypeUnavailableException
+	 *                     if this instance was created with a type for which no implementation is available
+	 * @throws ConnectionInvalidAddressException
+	 *                     if the address of the remote host is invalid or the format of the address string is invalid
+	 * @throws IOException if any {@link java.io.IOException} occurs in the underlying transport implementation
+	 */
+	public abstract void connect() throws ConnectionTypeUnavailableException, ConnectionInvalidAddressException, IOException;
 
-    /**
-     * Returns if the connection is currently established.
-     *
-     * @return {@code true} if the connection is currently established, {@code false} otherwise
-     */
-    public abstract boolean isConnected();
+	/**
+	 * Returns if the connection is currently established.
+	 *
+	 * @return {@code true} if the connection is currently established, {@code false} otherwise
+	 */
+	public abstract boolean isConnected();
 
-    /**
-     * Closes the connection to the remote host. Does nothing if already disconnected.
-     */
-    public abstract void disconnect();
+	/**
+	 * Closes the connection to the remote host. Does nothing if already disconnected.
+	 */
+	public abstract void disconnect();
 
-    /**
-     * Returns the type of the underlying transport for this connection (e.g. TCP, UDP, ...).
-     *
-     * @return the type of the underlying transport for this connection (e.g. TCP, UDP, ...)
-     */
-    public abstract String getType();
+	/**
+	 * Returns the type of the underlying transport for this connection (e.g. TCP, UDP, ...).
+	 *
+	 * @return the type of the underlying transport for this connection (e.g. TCP, UDP, ...)
+	 */
+	public abstract String getType();
 
-    /**
-     * The name of the remote host. Returns {@code null} if this is an incoming connection. 
-     *
-     * @return the name of the remote host or {@code null} if this is an incoming connection
-     */
-    public abstract String getRemoteNodeName();
+	/**
+	 * The name of the remote host. Returns {@code null} if this is an incoming connection.
+	 *
+	 * @return the name of the remote host or {@code null} if this is an incoming connection
+	 */
+	public abstract String getRemoteNodeName();
 
-    /**
-     * Returns the direction of this connection.
-     *
-     * @return the direction of this connection
-     */
-    public abstract Direction getDirection();
+	/**
+	 * Returns the direction of this connection.
+	 *
+	 * @return the direction of this connection
+	 */
+	public abstract Direction getDirection();
 
-    /**
-     * Returns the address that was used to create this connection.
-     *
-     * @return  the address that was used to create this connection or {@code null} if this is an incoming connection
-     */
-    public abstract String getAddress();
+	/**
+	 * Returns the address that was used to create this connection.
+	 *
+	 * @return the address that was used to create this connection or {@code null} if this is an incoming connection
+	 */
+	public abstract String getAddress();
 
-    /**
-     * Returns the {@link java.io.InputStream} for this connection over which data from the remote host is received.
-     * Concurrent access from multiple threads on this {@link java.io.InputStream} must be synchronized by the caller
-     * of this method.
-     *
-     * @return the {@link java.io.InputStream} for this connection
-     * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
-     */
-    public abstract InputStream getInputStream() throws IOException;
+	/**
+	 * Returns the {@link java.io.InputStream} for this connection over which data from the remote host is received.
+	 * Concurrent access from multiple threads on this {@link java.io.InputStream} must be synchronized by the caller
+	 * of this method.
+	 *
+	 * @return the {@link java.io.InputStream} for this connection
+	 * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
+	 */
+	public abstract InputStream getInputStream() throws IOException;
 
-    /**
-     * Returns the {@link java.io.OutputStream} for this connection over which data can be send to the remote host.
-     * Concurrent access from multiple threads on this {@link java.io.OutputStream} must be synchronized by the caller
-     * of this method.
-     *
-     * @return the {@link java.io.OutputStream} for this connection
-     * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
-     */
-    public abstract OutputStream getOutputStream() throws IOException;
+	/**
+	 * Returns the {@link java.io.OutputStream} for this connection over which data can be send to the remote host.
+	 * Concurrent access from multiple threads on this {@link java.io.OutputStream} must be synchronized by the caller
+	 * of this method.
+	 *
+	 * @return the {@link java.io.OutputStream} for this connection
+	 * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
+	 */
+	public abstract OutputStream getOutputStream() throws IOException;
 
 }

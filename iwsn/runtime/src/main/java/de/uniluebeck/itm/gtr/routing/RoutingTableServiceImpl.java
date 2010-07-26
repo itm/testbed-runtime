@@ -36,43 +36,43 @@ import java.util.Map;
 @Singleton
 class RoutingTableServiceImpl implements RoutingTableService {
 
-    private static final Logger log = LoggerFactory.getLogger(RoutingTableService.class);
+	private static final Logger log = LoggerFactory.getLogger(RoutingTableService.class);
 
-    /**
-     * The routing table. Maps from destinationNodeName to nextHopNodeName.
-     */
-    private Map<String, String> routingTable = Collections.synchronizedMap(new HashMap<String, String>());
+	/**
+	 * The routing table. Maps from destinationNodeName to nextHopNodeName.
+	 */
+	private Map<String, String> routingTable = Collections.synchronizedMap(new HashMap<String, String>());
 
-    @Override
-    public void start() throws Exception {
-        // nothing to do
-    }
+	@Override
+	public void start() throws Exception {
+		// nothing to do
+	}
 
-    @Override
-    public void stop() {
-        // nothing to do
-    }
+	@Override
+	public void stop() {
+		// nothing to do
+	}
 
-    @Override
-    public String getNextHop(String destinationName) {
-        return routingTable.get(destinationName);
-    }
+	@Override
+	public String getNextHop(String destinationName) {
+		return routingTable.get(destinationName);
+	}
 
-    @Override
-    public void setNextHop(String destinationName, String nextHopName) {
-        log.debug("Setting route: {} => {}", destinationName, nextHopName);
-        routingTable.put(destinationName, nextHopName);
-    }
+	@Override
+	public void setNextHop(String destinationName, String nextHopName) {
+		log.debug("Setting route: {} => {}", destinationName, nextHopName);
+		routingTable.put(destinationName, nextHopName);
+	}
 
-    @Override
-    public void removeNextHop(String destinationName) {
-        log.debug("Removing route for: {}", destinationName);
-        routingTable.remove(destinationName);
-    }
+	@Override
+	public void removeNextHop(String destinationName) {
+		log.debug("Removing route for: {}", destinationName);
+		routingTable.remove(destinationName);
+	}
 
-    @Override
-    public ImmutableMap<String, String> getEntries() {
-        return ImmutableMap.copyOf(routingTable);
-    }
+	@Override
+	public ImmutableMap<String, String> getEntries() {
+		return ImmutableMap.copyOf(routingTable);
+	}
 
 }

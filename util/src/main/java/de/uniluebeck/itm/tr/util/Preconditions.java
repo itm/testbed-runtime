@@ -27,18 +27,18 @@ import java.util.Collection;
 
 public class Preconditions {
 
-    public static void assertCollectionMinMaxCount(Collection<?> collection, int minInclusive, int maxInclusive)
-            throws Exception {
+	public static void assertCollectionMinMaxCount(Collection<?> collection, int minInclusive, int maxInclusive)
+			throws Exception {
 
-        if (collection == null || collection.size() < minInclusive || collection.size() > maxInclusive) {
-            throw new Exception("Invalid amount authentication data supplied (min: " + minInclusive + ", max: "
-                    + maxInclusive + ")");
-        }
+		if (collection == null || collection.size() < minInclusive || collection.size() > maxInclusive) {
+			throw new Exception("Invalid amount authentication data supplied (min: " + minInclusive + ", max: "
+					+ maxInclusive + ")");
+		}
 
-    }
+	}
 
-    public static void assertCollectionMinCount(Collection<?> collection, int minCountInclusive) throws Exception {
-        assertCollectionMinMaxCount(collection, minCountInclusive, Integer.MAX_VALUE);
-    }
+	public static void assertCollectionMinCount(Collection<?> collection, int minCountInclusive) throws Exception {
+		assertCollectionMinMaxCount(collection, minCountInclusive, Integer.MAX_VALUE);
+	}
 
 }

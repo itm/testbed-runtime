@@ -23,53 +23,53 @@ import java.security.Principal;
  */
 public class HtpasswdPrincipal implements Principal {
 
-    /**
-     * The principal's name.
-     */
-    private String principalName;
+	/**
+	 * The principal's name.
+	 */
+	private String principalName;
 
-    /**
-     * Constructor.
-     *
-     * @param name the principal name
-     */
-    public HtpasswdPrincipal(String name) {
-        principalName = name;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param name the principal name
+	 */
+	public HtpasswdPrincipal(String name) {
+		principalName = name;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-        return principalName;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getName() {
+		return principalName;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public int hashCode() {
-        return principalName.hashCode();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public int hashCode() {
+		return principalName.hashCode();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
 
-        if (obj instanceof HtpasswdPrincipal) {
-            return ((HtpasswdPrincipal) obj).getName().equals(principalName);
-        }
+		if (obj instanceof HtpasswdPrincipal) {
+			return ((HtpasswdPrincipal) obj).getName().equals(principalName);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public String toString() {
-        return new StringBuffer("HtpasswdPrincipal[").append(principalName).append("]").toString();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public String toString() {
+		return new StringBuffer("HtpasswdPrincipal[").append(principalName).append("]").toString();
+	}
 }

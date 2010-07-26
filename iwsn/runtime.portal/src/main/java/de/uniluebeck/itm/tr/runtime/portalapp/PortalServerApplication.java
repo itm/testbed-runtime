@@ -25,8 +25,6 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 
-import javax.xml.ws.Endpoint;
-
 
 public class PortalServerApplication implements TestbedApplication {
 

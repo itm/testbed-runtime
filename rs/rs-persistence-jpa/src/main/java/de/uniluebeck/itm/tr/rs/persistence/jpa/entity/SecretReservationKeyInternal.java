@@ -32,61 +32,61 @@ import java.io.Serializable;
 @Entity
 public class SecretReservationKeyInternal implements Serializable {
 
-    @Id
-    @GeneratedValue
-    @Column(nullable = false)
-    private long id;
+	@Id
+	@GeneratedValue
+	@Column(nullable = false)
+	private long id;
 
-    @Column(unique = true, nullable = false)
-    protected String secretReservationKey;
-    @Column
-    protected String urnPrefix;
+	@Column(unique = true, nullable = false)
+	protected String secretReservationKey;
+	@Column
+	protected String urnPrefix;
 
-    public String getSecretReservationKey() {
-        return secretReservationKey;
-    }
+	public String getSecretReservationKey() {
+		return secretReservationKey;
+	}
 
-    public void setSecretReservationKey(String value) {
-        this.secretReservationKey = value;
-    }
+	public void setSecretReservationKey(String value) {
+		this.secretReservationKey = value;
+	}
 
-    public String getUrnPrefix() {
-        return urnPrefix;
-    }
+	public String getUrnPrefix() {
+		return urnPrefix;
+	}
 
-    public void setUrnPrefix(String value) {
-        this.urnPrefix = value;
-    }
+	public void setUrnPrefix(String value) {
+		this.urnPrefix = value;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((secretReservationKey == null) ? 0 : secretReservationKey.hashCode());
-        result = prime * result + ((urnPrefix == null) ? 0 : urnPrefix.hashCode());
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((secretReservationKey == null) ? 0 : secretReservationKey.hashCode());
+		result = prime * result + ((urnPrefix == null) ? 0 : urnPrefix.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SecretReservationKeyInternal other = (SecretReservationKeyInternal) obj;
-        if (secretReservationKey == null) {
-            if (other.secretReservationKey != null)
-                return false;
-        } else if (!secretReservationKey.equals(other.secretReservationKey))
-            return false;
-        if (urnPrefix == null) {
-            if (other.urnPrefix != null)
-                return false;
-        } else if (!urnPrefix.equals(other.urnPrefix))
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SecretReservationKeyInternal other = (SecretReservationKeyInternal) obj;
+		if (secretReservationKey == null) {
+			if (other.secretReservationKey != null)
+				return false;
+		} else if (!secretReservationKey.equals(other.secretReservationKey))
+			return false;
+		if (urnPrefix == null) {
+			if (other.urnPrefix != null)
+				return false;
+		} else if (!urnPrefix.equals(other.urnPrefix))
+			return false;
+		return true;
+	}
 
 }

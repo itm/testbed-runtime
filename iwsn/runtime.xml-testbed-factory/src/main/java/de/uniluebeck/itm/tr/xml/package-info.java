@@ -5,5 +5,4 @@
 // Generated on: 2010.05.07 at 06:46:11 PM MESZ 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/xml")
-package de.uniluebeck.itm.tr.xml;
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/xml") package de.uniluebeck.itm.tr.xml;

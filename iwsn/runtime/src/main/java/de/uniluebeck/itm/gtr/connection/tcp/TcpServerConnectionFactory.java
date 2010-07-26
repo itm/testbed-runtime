@@ -34,24 +34,24 @@ import de.uniluebeck.itm.gtr.connection.ServerConnectionFactory;
  */
 public class TcpServerConnectionFactory implements ServerConnectionFactory {
 
-    @Override
-    public ServerConnection create(String address) throws ConnectionInvalidAddressException {
-        try {
+	@Override
+	public ServerConnection create(String address) throws ConnectionInvalidAddressException {
+		try {
 
-            String[] split = address.split(":");
-            String hostName = split[0];
-            int port = Integer.parseInt(split[1]);
+			String[] split = address.split(":");
+			String hostName = split[0];
+			int port = Integer.parseInt(split[1]);
 
-            return new TcpServerConnection(hostName, port);
+			return new TcpServerConnection(hostName, port);
 
-        } catch (NumberFormatException e) {
-            throw new ConnectionInvalidAddressException(address, e);
-        }
-    }
+		} catch (NumberFormatException e) {
+			throw new ConnectionInvalidAddressException(address, e);
+		}
+	}
 
-    @Override
-    public String getType() {
-        return TcpConstants.TYPE;
-    }
+	@Override
+	public String getType() {
+		return TcpConstants.TYPE;
+	}
 
 }

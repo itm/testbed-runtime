@@ -26,32 +26,32 @@ package de.uniluebeck.itm.gtr.connection;
 
 public class ConnectionInvalidAddressException extends ConnectionException {
 
-    private static final long serialVersionUID = -706325671879793536L;
+	private static final long serialVersionUID = -706325671879793536L;
 
-    private String address;
+	private String address;
 
-    public ConnectionInvalidAddressException(String address) {
-        super();
-        this.address = address;
-    }
+	public ConnectionInvalidAddressException(String address) {
+		super();
+		this.address = address;
+	}
 
-    public ConnectionInvalidAddressException(String address, String message, Throwable cause) {
-        super(message, cause);
-        this.address = address;
-    }
+	public ConnectionInvalidAddressException(String address, String message, Throwable cause) {
+		super(message, cause);
+		this.address = address;
+	}
 
-    public ConnectionInvalidAddressException(String address, String message) {
-        super(message);
-        this.address = address;
-    }
+	public ConnectionInvalidAddressException(String address, String message) {
+		super(message);
+		this.address = address;
+	}
 
-    public ConnectionInvalidAddressException(String address, Throwable cause) {
-        super(cause);
-        this.address = address;
-    }
+	public ConnectionInvalidAddressException(String address, Throwable cause) {
+		super(cause);
+		this.address = address;
+	}
 
-    public String getAddress() {
-        return address;
-    }
+	public String getAddress() {
+		return address;
+	}
 
 }

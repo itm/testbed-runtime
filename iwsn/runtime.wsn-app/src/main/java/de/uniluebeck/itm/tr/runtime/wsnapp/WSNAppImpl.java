@@ -35,8 +35,8 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
-import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
+import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
@@ -414,7 +414,7 @@ class WSNAppImpl implements WSNApp {
 	@Override
 	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
 		while (wsnNodeMessageReceivers.remove(receiver)) {
-			
+
 		}
 	}
 

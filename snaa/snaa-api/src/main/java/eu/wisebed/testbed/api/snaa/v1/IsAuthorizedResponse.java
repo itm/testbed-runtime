@@ -1,4 +1,3 @@
-
 package eu.wisebed.testbed.api.snaa.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for isAuthorizedResponse complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="isAuthorizedResponse">
  *   &lt;complexContent>
@@ -22,31 +21,27 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "isAuthorizedResponse", propOrder = {
-    "authorization"
+		"authorization"
 })
 public class IsAuthorizedResponse {
 
-    protected boolean authorization;
+	protected boolean authorization;
 
-    /**
-     * Gets the value of the authorization property.
-     * 
-     */
-    public boolean isAuthorization() {
-        return authorization;
-    }
+	/**
+	 * Gets the value of the authorization property.
+	 */
+	public boolean isAuthorization() {
+		return authorization;
+	}
 
-    /**
-     * Sets the value of the authorization property.
-     * 
-     */
-    public void setAuthorization(boolean value) {
-        this.authorization = value;
-    }
+	/**
+	 * Sets the value of the authorization property.
+	 */
+	public void setAuthorization(boolean value) {
+		this.authorization = value;
+	}
 
 }
