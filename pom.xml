@@ -63,6 +63,7 @@
 		<module>snaa/snaa-jaaslogin</module>
 		<module>snaa/snaa-wisebed</module>
 
+        <module>assembly</module>
 		<module>shibboauth</module>
 		<module>util</module>
 		<module>node-api</module>

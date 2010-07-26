@@ -111,9 +111,9 @@
 						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
+							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
-							<onejarVersion>0.97-RC8</onejarVersion>
 							<binlibs>
                                 <fileSet>
                                     <directory>${project.basedir}/src/main/resources</directory>

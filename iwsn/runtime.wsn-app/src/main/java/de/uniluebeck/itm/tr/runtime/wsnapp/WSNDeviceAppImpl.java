@@ -870,7 +870,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
         // then disconnect from device
-		iSenseDevice.deregisterListener(iSenseDeviceListener);
+        iSenseDevice.deregisterListener(iSenseDeviceListener);
+        log.debug("{} => Shutting down iSenseDevice");
         iSenseDevice.shutdown();
 	}
 

@@ -34,6 +34,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+
 /**
  * Created by IntelliJ IDEA. User: bimschas Date: 26.04.2010 Time: 16:50:56 TODO change
  */
@@ -55,7 +57,7 @@ public class Main {
         // create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag)");
+        options.addOption("n", "nodeid", true, "Node ID to start (the id attribute of the node tag), if not set autodetect is tried");
         options.addOption("f", "file", true, "The (XML) configuration file");
         options.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
         options.addOption("l", "logging", true,
@@ -94,8 +96,6 @@ public class Main {
 
             if (line.hasOption('n')) {
                 nodeId = line.getOptionValue('n');
-            } else {
-                throw new Exception("Please supply -n");
             }
 
         } catch (Exception e) {
@@ -103,11 +103,18 @@ public class Main {
             usage(options);
         }
 
+        String[] nodeIds;
+        if (nodeId == null) {
+            nodeIds = new String[]{InetAddress.getLocalHost().getCanonicalHostName(), InetAddress.getLocalHost().getHostName()};
+        } else {
+            nodeIds = new String[]{nodeId};
+        }
         XmlTestbedFactory factory = new XmlTestbedFactory();
-        Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeId);
+        Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeIds);
 
         // start the testbed runtime
         log.debug("Starting testbed runtime");
+
         final TestbedRuntime runtime = listTuple.getFirst();
         runtime.startServices();
 
@@ -129,7 +136,7 @@ public class Main {
                     try {
                         testbedApplication.stop();
                     } catch (Exception e) {
-                        log.warn("Caught exception when shutting down testbed runtime application "+testbedApplication.getName()+": {}", e);
+                        log.warn("Caught exception when shutting down testbed runtime application " + testbedApplication.getName() + ": {}", e);
                     }
                 }
                 log.info("Stopped testbed runtime applications!");
@@ -148,5 +155,4 @@ public class Main {
         formatter.printHelp(Main.class.getCanonicalName(), options);
         System.exit(1);
     }
-
 }

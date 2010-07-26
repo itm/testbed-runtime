@@ -53,11 +53,13 @@ public class XmlTestbedFactory {
 
 	private static final Logger log = LoggerFactory.getLogger(XmlTestbedFactory.class);
 
-	public Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> create(String configFileStr, String nodeId)
+	public Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> create(String configFileStr, String... nodeIds)
 			throws JAXBException {
 
 		checkNotNull(configFileStr);
-		checkNotNull(nodeId);
+        for (String nodeId : nodeIds) {
+            checkNotNull(nodeId);
+        }
 
 		File configFile = new File(configFileStr);
 
@@ -81,20 +83,32 @@ public class XmlTestbedFactory {
 
 		// TODO sanity check for duplicate node names and node ids
 
-		for (Node node : testbed.getNodes()) {
+        boolean found = false;
+        for (String nodeId : nodeIds) {
 
-			if (nodeId.equals(node.getId())) {
+            if (found) {
+                break;
+            }
 
-				log.debug("Creating testbed instance for node ID {}", nodeId);
-				testbedRuntime = createTestbedRuntime(node);
-				configureServerConnections(testbedRuntime, node.getServerconnections());
-				configureClientConnections(testbedRuntime, node, testbed);
-				testbedApplications = configureApplications(testbedRuntime, node.getApplications());
-				break;
-			}
-		}
+            for (Node node : testbed.getNodes()) {
 
-		checkNotNull(testbedRuntime, "No configuration for node ID %s found!", nodeId);
+                if (found) {
+                    break;
+                }
+
+                if (nodeId.equals(node.getId())) {
+
+                    log.debug("Creating testbed instance for node ID {}", nodeId);
+                    testbedRuntime = createTestbedRuntime(node);
+                    configureServerConnections(testbedRuntime, node.getServerconnections());
+                    configureClientConnections(testbedRuntime, node, testbed);
+                    testbedApplications = configureApplications(testbedRuntime, node.getApplications());
+                    found = true;
+                }
+            }
+        }
+
+		checkNotNull(testbedRuntime, "No configuration for one of the node IDs %s found!", Arrays.toString(nodeIds));
 
 		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(testbedRuntime, testbedApplications);
 	}
