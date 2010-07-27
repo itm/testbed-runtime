@@ -115,7 +115,7 @@ public class Server {
 
 	}
 
-	private static void startFromProperties(Properties props) throws Exception {
+	public static void startFromProperties(Properties props) throws Exception {
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
