@@ -130,7 +130,7 @@ public class WSNServiceImpl implements WSNService {
 	 * @param controllerEndpointUrl
 	 * @param wsnApp
 	 * @param wiseML
-	 * @param reservedNodes		  if not null, passes only reserved nodes, else all nodes will be handled as reserved
+	 * @param reservedNodes		  if not null, passes reserved nodes, else all nodes will be handled as reserved
 	 */
 	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp,
 						  final String wiseML, @Nullable Set<String> reservedNodes) {
