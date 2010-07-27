@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -152,17 +151,15 @@ public class SingleRequestMultiResponseServiceImpl
 
 	@Override
 	public void removeListener(SingleRequestMultiResponseListener listener) {
-		for (Iterator<Triple<String, String, SingleRequestMultiResponseListener>> iterator =
-				listeners.iterator(); iterator.hasNext();) {
 
-			ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
-			for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
-				if (t.getThird() != listener) {
-					listBuilder.add(t);
-				}
+		ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
+		for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
+			if (t.getThird() != listener) {
+				listBuilder.add(t);
 			}
-			listeners = listBuilder.build();
 		}
+		listeners = listBuilder.build();
+
 	}
 
 	private static class ResponderImpl implements SingleRequestMultiResponseListener.Responder {

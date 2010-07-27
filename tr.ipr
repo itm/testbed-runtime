@@ -308,6 +308,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/assembly/tr.assembly.iml" filepath="$PROJECT_DIR$/assembly/tr.assembly.iml" />
       <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
       <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
