@@ -22,6 +22,7 @@
 			<outputDirectory>.</outputDirectory>
 			<includes>
 				<include>**/*</include>
+				<include>logs/</include>
 			</includes>
 			<excludes>
 				<exclude>bin/</exclude>
