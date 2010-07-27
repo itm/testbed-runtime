@@ -23,7 +23,9 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 
-	<nodes id="KavaKava.local">
+	<nodes id="REPLACE_WITH_HOSTNAME">
+		
+		<!-- Place every urn of sensor nodes as name here -->
 		<names>
 			<nodename name="urn:wisebed:testbeduzl1:1" description="" />
 			<nodename name="urn:wisebed:testbeduzl1:2" description="" />
@@ -31,7 +33,10 @@
 			<nodename name="urn:wisebed:testbeduzl1:4" description="" />
 			<nodename name="urn:wisebed:testbeduzl1:5" description="" />
 		</names>
+		
 		<applications>
+
+			<!-- Instantiation of the SessionManagement Web Service that manages WSN service instances -->
 			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
 				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
 					<webservice>
@@ -42,6 +47,8 @@
 					</webservice>
 				</portal:portalapp>
 			</application>
+
+			<!-- Instantiation of the application component that handles communication with the sensor nodes -->
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
@@ -76,6 +83,7 @@
 					</device>
 				</wsn:wsnapp>
 			</application>
+
 		</applications>
 	</nodes>
 
