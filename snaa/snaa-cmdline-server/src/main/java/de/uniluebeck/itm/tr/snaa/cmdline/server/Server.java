@@ -61,11 +61,8 @@ public class Server {
 	private static HttpServer server;
 
 	private enum FederatorType {
-
 		GENERIC, WISEBED
 	}
-
-	;
 
 	/**
 	 * @param args
@@ -106,15 +103,19 @@ public class Server {
 
 		Properties props = new Properties();
 		props.load(new FileReader(propertyFile));
+		startFromProperties(props);
 
-		setProperties(props);
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				log.info("Received shutdown signal. Shutting down...");
+				server.stop(3);
+			}
+		}));
+
 	}
 
-	public static void startFromProperties(Properties props) throws Exception {
-		setProperties(props);
-	}
-
-	private static void setProperties(Properties props) throws Exception {
+	private static void startFromProperties(Properties props) throws Exception {
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
@@ -232,7 +233,7 @@ public class Server {
 		Endpoint endpoint = Endpoint.create(dummySNAA);
 		endpoint.publish(context);
 
-		log.debug("Started dummy SNAA on " + server.getAddress() + path);
+		log.info("Started dummy SNAA on " + server.getAddress() + path);
 
 	}
 
