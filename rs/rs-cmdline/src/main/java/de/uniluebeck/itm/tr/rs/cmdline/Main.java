@@ -92,14 +92,19 @@ public class Main {
 
 		Properties props = new Properties();
 		props.load(new FileReader(propertyFile));
-		setProperties(props);
+		startFromProperties(props);
+
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				log.info("Received shutdown signal. Shutting down...");
+				server.stop(3);
+			}
+		}));
+
 	}
 
 	public static void startFromProperties(Properties props) throws Exception {
-		setProperties(props);
-	}
-
-	public static void setProperties(Properties props) throws Exception {
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
