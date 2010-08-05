@@ -24,7 +24,7 @@
 
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 
-	<nodes id="testbeduzl1">
+	<nodes id="opium.itm.uni-luebeck.de">
 		<names>
 			<nodename name="urn:wisebed:testbeduzl1:1" description=""/>
 			<nodename name="urn:wisebed:testbeduzl1:2" description=""/>

@@ -308,41 +308,76 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
       <module fileurl="file://$PROJECT_DIR$/assembly/tr.assembly.iml" filepath="$PROJECT_DIR$/assembly/tr.assembly.iml" />
       <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline-onejar/tr.rs-cmdline-onejar.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline-onejar/tr.rs-cmdline-onejar.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" filepath="$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" filepath="$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" filepath="$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" filepath="$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" filepath="$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" filepath="$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" filepath="$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" filepath="$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" filepath="$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" filepath="$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" filepath="$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" filepath="$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" filepath="$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" filepath="$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" filepath="$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" filepath="$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" filepath="$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" filepath="$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" filepath="$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" filepath="$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" filepath="$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" />
       <module fileurl="file://$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" filepath="$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" filepath="$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" filepath="$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" filepath="$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" filepath="$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" filepath="$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" filepath="$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" filepath="$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" filepath="$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" filepath="$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" filepath="$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" filepath="$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" filepath="$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/tr.util.iml" filepath="$PROJECT_DIR$/util/tr.util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/tr.util.iml" filepath="$PROJECT_DIR$/util/tr.util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" filepath="$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" filepath="$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiseml/tr.wiseml.iml" filepath="$PROJECT_DIR$/wiseml/tr.wiseml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wiseml/tr.wiseml.iml" filepath="$PROJECT_DIR$/wiseml/tr.wiseml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" filepath="$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" filepath="$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" filepath="$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" filepath="$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" filepath="$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" filepath="$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" />
     </modules>
   </component>

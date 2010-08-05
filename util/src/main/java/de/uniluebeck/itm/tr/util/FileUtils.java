@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,38 +21,51 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.connection.tcp;
+package de.uniluebeck.itm.tr.util;
 
-import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
-import de.uniluebeck.itm.gtr.connection.ServerConnection;
-import de.uniluebeck.itm.gtr.connection.ServerConnectionFactory;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
-/**
- * User: bimschas
- * Date: 14.02.2010
- * Time: 22:32:10
- */
-public class TcpServerConnectionFactory implements ServerConnectionFactory {
 
-	@Override
-	public ServerConnection create(String address) throws ConnectionInvalidAddressException {
-		try {
+public class FileUtils {
 
-			String[] split = address.split(":");
-			// TODO search how it's possible to just bind to one interface
-			String hostName = "0.0.0.0";
-			int port = Integer.parseInt(split[1]);
-
-			return new TcpServerConnection(hostName, port);
-
-		} catch (NumberFormatException e) {
-			throw new ConnectionInvalidAddressException(address, e);
-		}
+	public static File copyToTmpFile(InputStream in, String prefix, String suffix) throws IOException {
+		File tempFile = File.createTempFile(prefix, suffix);
+		tempFile.deleteOnExit();
+		copy(in, new FileOutputStream(tempFile));
+		return tempFile;
 	}
 
-	@Override
-	public String getType() {
-		return TcpConstants.TYPE;
+	public static void copy(InputStream in, OutputStream out) throws IOException {
+		final ReadableByteChannel inputChannel = Channels.newChannel(in);
+		final WritableByteChannel outputChannel = Channels.newChannel(out);
+		// copy the channels
+		copy(inputChannel, outputChannel);
+		// closing the channels
+		inputChannel.close();
+		outputChannel.close();
+	}
+
+	private static void copy(ReadableByteChannel src, WritableByteChannel dest) throws IOException {
+		final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+		while (src.read(buffer) != -1) {
+			// prepare the buffer to be drained
+			buffer.flip();
+			// write to the channel, may block
+			dest.write(buffer);
+			// If partial transfer, shift remainder down
+			// If buffer is empty, same as doing clear()
+			buffer.compact();
+		}
+		// EOF will leave buffer in fill state
+		buffer.flip();
+		// make sure the buffer is fully drained.
+		while (buffer.hasRemaining()) {
+			dest.write(buffer);
+		}
 	}
 
 }

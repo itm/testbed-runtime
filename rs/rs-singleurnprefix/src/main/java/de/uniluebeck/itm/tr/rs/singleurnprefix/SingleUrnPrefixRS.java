@@ -80,12 +80,14 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Authentication check
 		{
-			Action action = new Action();
-			action.setAction("reserve"); // TODO Change to something sensible when defined
-			try {
-				checkAuthentication(secretAuthenticationKey, action);
-			} catch (AuthenticationExceptionException e) {
-				throw createAuthorizationExceptionException(e);
+			if (snaaEndpointUrl != null && !"".equals(snaaEndpointUrl)) {
+				Action action = new Action();
+				action.setAction("reserve"); // TODO Change to something sensible when defined
+				try {
+					checkAuthentication(secretAuthenticationKey, action);
+				} catch (AuthenticationExceptionException e) {
+					throw createAuthorizationExceptionException(e);
+				}
 			}
 		}
 

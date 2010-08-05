@@ -23,16 +23,27 @@
 
 package eu.wisebed.testbed.api.rs;
 
+import de.uniluebeck.itm.tr.util.FileUtils;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSService;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class RSServiceHelper {
+
+	private static File tmpFileRS = null;
+
+	private static final Lock tmpFileRSLock = new ReentrantLock();
 
 	/**
 	 * Returns the port to the RS API.
@@ -44,9 +55,28 @@ public class RSServiceHelper {
 	public static RS getRSService(String endpointUrl) {
 
 		QName qName = new QName("urn:RSService", "RSService");
-		URL resource = RSServiceHelper.class.getClassLoader().getResource("RS.wsdl");
+		InputStream resourceStream = RSServiceHelper.class.getClassLoader().getResourceAsStream("RS.wsdl");
 
-		RSService service = new RSService(resource, qName);
+		tmpFileRSLock.lock();
+		try {
+			if (tmpFileRS == null) {
+				try {
+					tmpFileRS = FileUtils.copyToTmpFile(resourceStream, "tr.rs", "wsdl");
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		} finally {
+			tmpFileRSLock.unlock();
+		}
+
+		RSService service;
+		try {
+			service = new RSService(tmpFileRS.toURI().toURL(), qName);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+
 		RS rsPort = service.getRSPort();
 
 		Map<String, Object> ctxt = ((BindingProvider) rsPort).getRequestContext();

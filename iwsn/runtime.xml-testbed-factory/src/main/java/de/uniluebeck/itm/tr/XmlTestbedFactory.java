@@ -74,13 +74,6 @@ public class XmlTestbedFactory {
 		TestbedRuntime testbedRuntime = null;
 		ImmutableList<TestbedApplication> testbedApplications = null;
 
-		//checking if the nodes suffix is type of Integer
-		for (Node node : testbed.getNodes()) {
-			for (NodeName nodeName : node.getNames().getNodename()) {
-				StringUtils.checkIfSuffixIsInt(nodeName.getName());
-			}
-		}
-
 		// TODO sanity check for duplicate node names and node ids
 
         boolean found = false;

@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,38 +21,34 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.connection.tcp;
+package de.uniluebeck.itm.motelist;
 
-import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
-import de.uniluebeck.itm.gtr.connection.ServerConnection;
-import de.uniluebeck.itm.gtr.connection.ServerConnectionFactory;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import gnu.io.CommPortIdentifier;
+
+import java.util.Enumeration;
 
 /**
+ * Created by IntelliJ IDEA.
  * User: bimschas
- * Date: 14.02.2010
- * Time: 22:32:10
+ * Date: 27.07.2010
+ * Time: 20:49:57
+ * TODO change
  */
-public class TcpServerConnectionFactory implements ServerConnectionFactory {
-
+public class MoteListRXTX extends AbstractMoteList {
 	@Override
-	public ServerConnection create(String address) throws ConnectionInvalidAddressException {
-		try {
+	public Multimap<String, String> getMoteList() {
 
-			String[] split = address.split(":");
-			// TODO search how it's possible to just bind to one interface
-			String hostName = "0.0.0.0";
-			int port = Integer.parseInt(split[1]);
+		Multimap<String, String> map = HashMultimap.create();
 
-			return new TcpServerConnection(hostName, port);
+		Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
+		System.out.println(((CommPortIdentifier) portIdentifiers.nextElement()).getPortType());
 
-		} catch (NumberFormatException e) {
-			throw new ConnectionInvalidAddressException(address, e);
-		}
+		return map;
 	}
 
-	@Override
-	public String getType() {
-		return TcpConstants.TYPE;
+	public static void main(String[] args) {
+		new MoteListRXTX().getMoteList();
 	}
-
 }

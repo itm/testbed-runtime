@@ -23,15 +23,27 @@
 
 package eu.wisebed.testbed.api.snaa.helpers;
 
+import de.uniluebeck.itm.tr.util.FileUtils;
 import eu.wisebed.testbed.api.snaa.v1.SNAA;
 import eu.wisebed.testbed.api.snaa.v1.SNAAService;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SNAAServiceHelper {
+
+	private static File tmpFileSNAA = null;
+
+	private static final Lock tmpFileSNAALock = new ReentrantLock();
+
 	/**
 	 * Returns the port to the SNAA API.
 	 *
@@ -42,9 +54,27 @@ public class SNAAServiceHelper {
 	public static SNAA getSNAAService(String endpointUrl) {
 
 		QName qName = new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService");
-		URL resource = SNAAServiceHelper.class.getClassLoader().getResource("SNAA.wsdl");
+		InputStream resourceStream = SNAAServiceHelper.class.getClassLoader().getResourceAsStream("SNAA.wsdl");
 
-		SNAAService service = new SNAAService(resource, qName);
+		tmpFileSNAALock.lock();
+		try {
+			if (tmpFileSNAA == null) {
+				try {
+					tmpFileSNAA = FileUtils.copyToTmpFile(resourceStream, "tr.snaa", "wsdl");
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		} finally {
+			tmpFileSNAALock.unlock();
+		}
+
+		SNAAService service;
+		try {
+			service = new SNAAService(tmpFileSNAA.toURI().toURL(), qName);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 		SNAA snaaPort = service.getSNAAPort();
 
 		Map<String, Object> ctxt = ((BindingProvider) snaaPort).getRequestContext();

@@ -316,7 +316,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			log.warn("Unavailable connection type \"{}\" found while creating server connection! {}", e.getType());
 			throw e;
 		} catch (ConnectionInvalidAddressException e) {
-			log.warn("Invalid address \"{}\" found while creating server connection! {}", e.getAddress(), e);
+			log.warn("Invalid address \""+e.getAddress()+"\" found while creating server connection: " + e, e);
 			throw e;
 		} catch (IOException e) {
 			log.info("IOException while binding ServerConnection!", e);

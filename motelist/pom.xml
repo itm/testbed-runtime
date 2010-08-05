@@ -75,7 +75,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.motelist.MoteList</mainClass>
+							<mainClass>de.uniluebeck.itm.motelist.MoteListLinux</mainClass>
 							<onejarVersion>0.97-RC4</onejarVersion>
 							<binlibs>
 								<fileSet>

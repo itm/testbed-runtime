@@ -29,7 +29,7 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
-import de.uniluebeck.itm.motelist.MoteList;
+import de.uniluebeck.itm.motelist.MoteListLinux;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Wsnapp;
 import de.uniluebeck.itm.tr.util.StringUtils;
@@ -59,16 +59,16 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			Wsnapp config = (Wsnapp) unmarshaller.unmarshal((Node) configuration);
 
 			ImmutableList.Builder<WSNDeviceApp> builder = new ImmutableList.Builder<WSNDeviceApp>();
-			MoteList moteList = null;
+			MoteListLinux moteList = null;
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
-				long id = StringUtils.hexToLong(wsnDevice.getId());
+				long id = StringUtils.parseHexOrDecLong(wsnDevice.getId());
 				String serialInterface = wsnDevice.getSerialinterface();
 				String autodetectionMac = wsnDevice.getAutodetectionMac();
 				String type = wsnDevice.getType();
 				String urn = wsnDevice.getUrn();
 
-				StringUtils.checkIfSuffixIsInt(urn);
+				StringUtils.assertHexOrDecLongUrnSuffix(urn);
 
 				if (serialInterface == null || "".equals(serialInterface)) {
 
@@ -76,14 +76,14 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 					if (moteList == null) {
 						try {
-							moteList = new MoteList();
+							moteList = new MoteListLinux();
 						} catch (IOException e) {
 							log.warn("" + e, e);
 							continue;
 						}
 					}
 
-					serialInterface = moteList.getMotePort(type, Integer.parseInt(autodetectionMac));
+					serialInterface = moteList.getMotePort(type, StringUtils.parseHexOrDecLong(autodetectionMac));
 
 					if (serialInterface == null) {
 						log.warn("No serial interface could be detected for {} mote with MAC address {}", type,

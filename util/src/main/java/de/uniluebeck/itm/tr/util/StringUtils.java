@@ -157,25 +157,30 @@ public class StringUtils {
 	}
 
 
-	public static Long hexToLong(String value) {
-		if (value.startsWith("0x")) return Long.parseLong(value.substring(2), 16);
-		return Long.parseLong(value, 10);
+	public static Long parseHexOrDecLong(String value) {
+		return value.startsWith("0x") ? Long.parseLong(value.substring(2), 16) : Long.parseLong(value, 10);
 	}
 
-	public static boolean hasSuffixOfTypeInt(String value) {
+	public static boolean hasHexOrDecLongUrnSuffix(String value) {
 		String[] arr = value.split(":");
 		String suffix = arr[arr.length - 1];
 		try {
-			Integer.parseInt(suffix);
-		}
-		catch (NumberFormatException nfe) {
+			parseHexOrDecLong(suffix);
+		} catch (NumberFormatException nfe) {
 			return false;
 		}
 		return true;
 	}
 
-	public static void checkIfSuffixIsInt(String value) throws RuntimeException {
-		if (!StringUtils.hasSuffixOfTypeInt(value))
+	/**
+	 * Asserts that the given String {@code value} is a URN that has a suffix which can be parsed as a long value,
+	 * either hex-encoded (starting with 0x) or decimal-encoded.
+	 *
+	 * @param value
+	 * @throws RuntimeException if suffix can not be parse as long value
+	 */
+	public static void assertHexOrDecLongUrnSuffix(String value) throws RuntimeException {
+		if (!StringUtils.hasHexOrDecLongUrnSuffix(value))
 			throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
 	}
 
