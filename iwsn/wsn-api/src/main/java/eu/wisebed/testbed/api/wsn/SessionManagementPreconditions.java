@@ -23,7 +23,6 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v211.GetInstance;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
 import java.util.HashSet;
@@ -33,9 +32,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * Created by IntelliJ IDEA. User: bimschas Date: 10.05.2010 Time: 08:14:42 TODO change
- */
 public class SessionManagementPreconditions {
 
 	private CommonPreconditions commonPreconditions;
@@ -48,20 +44,19 @@ public class SessionManagementPreconditions {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 	}
 
-	public void checkGetInstanceArguments(GetInstance parameters) {
-		checkGetInstanceArguments(parameters, false);
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller) {
+		checkGetInstanceArguments(secretReservationKey, controller, false);
 	}
 
-	public void checkGetInstanceArguments(GetInstance parameters, boolean singleUrnImplementation) {
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller, boolean singleUrnImplementation) {
 
-		checkNotNull(parameters);
-		checkNotNull(parameters.getController());
-		checkNotNull(parameters.getSecretReservationKey());
+		checkNotNull(secretReservationKey);
+		checkNotNull(controller);
 
-		checkUrnPrefixesServed(parameters.getSecretReservationKey());
+		checkUrnPrefixesServed(secretReservationKey);
 
 		if (singleUrnImplementation) {
-			checkArgument(parameters.getSecretReservationKey().size() == 1,
+			checkArgument(secretReservationKey.size() == 1,
 					"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
 			);
 		}

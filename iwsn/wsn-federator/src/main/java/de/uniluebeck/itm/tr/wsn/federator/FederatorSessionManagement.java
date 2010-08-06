@@ -32,7 +32,10 @@ import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,21 +147,29 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			public String federatedWSNInstanceEndpointUrl;
 
-			public GetInstance requestParameter;
+			public List<SecretReservationKey> secretReservationKey;
 
-			private Result(GetInstance requestParameter, String federatedWSNInstanceEndpointUrl) {
-				this.requestParameter = requestParameter;
+			public String controller;
+
+			private Result(List<SecretReservationKey> secretReservationKey, String controller,
+						   String federatedWSNInstanceEndpointUrl) {
+				this.secretReservationKey = secretReservationKey;
+				this.controller = controller;
 				this.federatedWSNInstanceEndpointUrl = federatedWSNInstanceEndpointUrl;
 			}
 		}
 
-		private GetInstance requestParameter;
-
 		private String federatedSessionManagementEndpointUrl;
 
-		public GetInstanceCallable(String federatedSessionManagementEndpointUrl, GetInstance requestParameter) {
+		private List<SecretReservationKey> secretReservationKey;
+
+		private String controller;
+
+		public GetInstanceCallable(String federatedSessionManagementEndpointUrl,
+								   List<SecretReservationKey> secretReservationKey, String controller) {
 			this.federatedSessionManagementEndpointUrl = federatedSessionManagementEndpointUrl;
-			this.requestParameter = requestParameter;
+			this.secretReservationKey = secretReservationKey;
+			this.controller = controller;
 		}
 
 		@Override
@@ -166,22 +177,23 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			SessionManagement service = WSNServiceHelper
 					.getSessionManagementService(federatedSessionManagementEndpointUrl);
-			String federatedWSNInstanceEndpointUrl = service.getInstance(requestParameter);
+			String federatedWSNInstanceEndpointUrl = service.getInstance(secretReservationKey, controller);
 
-			return new GetInstanceCallable.Result(requestParameter, federatedWSNInstanceEndpointUrl);
+			return new GetInstanceCallable.Result(secretReservationKey, controller, federatedWSNInstanceEndpointUrl);
 
 		}
 	}
 
 	@Override
 	public String getInstance(
-			@WebParam(name = "getInstance", targetNamespace = "urn:SessionManagementService", partName = "parameters")
-			GetInstance parameters)
+			@WebParam(name = "secretReservationKeys", targetNamespace = "")
+			List<SecretReservationKey> secretReservationKeys,
+			@WebParam(name = "controller", targetNamespace = "")
+			String controller)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
-		preconditions.checkGetInstanceArguments(parameters);
+		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
-		final List<SecretReservationKey> secretReservationKeys = parameters.getSecretReservationKey();
 		final String wsnInstanceHash = calculateWSNInstanceHash(secretReservationKeys);
 
 		// check if instance already exists and return it if that's the case
@@ -196,9 +208,8 @@ public class FederatorSessionManagement implements SessionManagement {
 			}
 			);
 
-			//TODO URGENT: The correct approach would be to overwrite the old controller
-			log.debug("Adding new controller to the list: {}", parameters.getController());
-			existingWSNFederatorInstance.addController(parameters.getController());
+			log.debug("Adding controller to the set of controllers: {}", controller);
+			existingWSNFederatorInstance.addController(controller);
 
 			return existingWSNFederatorInstance.getWsnEndpointUrl();
 		}
@@ -216,7 +227,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			// add controller to set of upstream controllers so that output is
 			// sent upwards
-			federatorWSN.addController(parameters.getController());
+			federatorWSN.addController(controller);
 
 		} catch (Exception e) {
 			// TODO throw generic but declared exception
@@ -234,12 +245,8 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			String sessionManagementEndpointUrl = entry.getKey();
 
-			GetInstance requestParameter = new GetInstance();
-			requestParameter.setController(controllerEndpointUrl);
-			requestParameter.getSecretReservationKey().addAll(entry.getValue());
-
-			GetInstanceCallable getInstanceCallable = new GetInstanceCallable(sessionManagementEndpointUrl,
-					requestParameter
+			GetInstanceCallable getInstanceCallable = new GetInstanceCallable(
+					sessionManagementEndpointUrl, secretReservationKeys, controllerEndpointUrl
 			);
 
 			log.debug("Calling getInstance on {}", entry.getKey());
@@ -253,10 +260,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 				GetInstanceCallable.Result result = future.get();
 
-				Set<String> federatedUrnPrefixSet = convertToUrnPrefixSet(result.requestParameter
-						.getSecretReservationKey()
-				);
-
+				Set<String> federatedUrnPrefixSet = convertToUrnPrefixSet(result.secretReservationKey);
 				federatorWSN.addFederatedWSNEndpoint(result.federatedWSNInstanceEndpointUrl, federatedUrnPrefixSet);
 
 			} catch (InterruptedException e) {
@@ -288,6 +292,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
+	 *
 	 * @return an instance hash
 	 */
 	private String calculateWSNInstanceHash(List<SecretReservationKey> secretReservationKeys) {
@@ -303,6 +308,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances
+	 *
 	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
 	 */
 	private Set<String> convertToUrnPrefixSet(List<SecretReservationKey> secretReservationKeys) {
@@ -318,7 +324,9 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * Session Management endpoints are responsible for which set of URN prefixes.
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances as
-	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(eu.wisebed.testbed.api.wsn.v211.GetInstance)}
+	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
+	 *							  String)}
+	 *
 	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they
 	 *         serve
 	 */

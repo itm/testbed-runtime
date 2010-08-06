@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for enablePhysicalLink complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="enablePhysicalLink">
  *   &lt;complexContent>
@@ -23,57 +24,67 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "enablePhysicalLink", propOrder = {
-		"nodeA",
-		"nodeB"
+    "nodeA",
+    "nodeB"
 })
 public class EnablePhysicalLink {
 
-	@XmlElement(required = true)
-	protected String nodeA;
-	@XmlElement(required = true)
-	protected String nodeB;
+    @XmlElement(required = true)
+    protected String nodeA;
+    @XmlElement(required = true)
+    protected String nodeB;
 
-	/**
-	 * Gets the value of the nodeA property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getNodeA() {
-		return nodeA;
-	}
+    /**
+     * Gets the value of the nodeA property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNodeA() {
+        return nodeA;
+    }
 
-	/**
-	 * Sets the value of the nodeA property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setNodeA(String value) {
-		this.nodeA = value;
-	}
+    /**
+     * Sets the value of the nodeA property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNodeA(String value) {
+        this.nodeA = value;
+    }
 
-	/**
-	 * Gets the value of the nodeB property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getNodeB() {
-		return nodeB;
-	}
+    /**
+     * Gets the value of the nodeB property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNodeB() {
+        return nodeB;
+    }
 
-	/**
-	 * Sets the value of the nodeB property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setNodeB(String value) {
-		this.nodeB = value;
-	}
+    /**
+     * Sets the value of the nodeB property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNodeB(String value) {
+        this.nodeB = value;
+    }
 
 }

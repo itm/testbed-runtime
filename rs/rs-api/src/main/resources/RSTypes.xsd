@@ -56,18 +56,18 @@
 		<xs:sequence>
 			<xs:element name="urnPrefix" type="xs:string"/>
 			<xs:element name="username" type="xs:string"/>
-			<xs:element name="secretReservationKey" type="xs:string"/>
+			<xs:element name="secretReservationKeys" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="getReservation">
 		<xs:sequence>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+			<xs:element name="secretReservationKeys" type="tns:secretReservationKeys" nillable="false"
 						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="secretReservationKey">
+	<xs:complexType name="secretReservationKeys">
 		<xs:sequence>
-			<xs:element name="secretReservationKey" type="xs:string"/>
+			<xs:element name="secretReservationKeys" type="xs:string"/>
 			<xs:element name="urnPrefix" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -84,7 +84,7 @@
 	</xs:complexType>
 	<xs:complexType name="makeReservationResponse">
 		<xs:sequence>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+			<xs:element name="secretReservationKeys" type="tns:secretReservationKeys" nillable="false"
 						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -97,7 +97,7 @@
 		<xs:sequence>
 			<xs:element name="authenticationData" type="tns:secretAuthenticationKey" nillable="false"
 						maxOccurs="unbounded"/>
-			<xs:element name="secretReservationKey" type="tns:secretReservationKey" nillable="false"
+			<xs:element name="secretReservationKeys" type="tns:secretReservationKeys" nillable="false"
 						maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>

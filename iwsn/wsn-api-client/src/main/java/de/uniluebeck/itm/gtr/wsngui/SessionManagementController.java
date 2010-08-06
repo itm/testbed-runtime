@@ -61,10 +61,7 @@ public class SessionManagementController {
 			try {
 
 				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
-				GetInstance params = new GetInstance();
-				params.setController(controllerEndpointUrl);
-				params.getSecretReservationKey().addAll(srkList);
-				String instanceUrl = smService.getInstance(params);
+				String instanceUrl = smService.getInstance(srkList, controllerEndpointUrl);
 
 				view.getGetInstanceResultTextField().setText(instanceUrl);
 

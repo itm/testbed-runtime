@@ -201,14 +201,16 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	@Override
 	public String getInstance(
-			@WebParam(name = "getInstance", targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
-					partName = "parameters") GetInstance parameters)
+        @WebParam(name = "secretReservationKey", targetNamespace = "")
+        List<SecretReservationKey> secretReservationKeys,
+        @WebParam(name = "controller", targetNamespace = "")
+        String controller)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
-		preconditions.checkGetInstanceArguments(parameters);
+		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
 		// extract the one and only relevant secretReservationKey
-		String secretReservationKey = parameters.getSecretReservationKey().get(0).getSecretReservationKey();
+		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
 
 		// check if wsnInstance already exists and return it if that's the case
 		WSNServiceImpl wsnInstance = null;
@@ -217,8 +219,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			wsnInstance = wsnInstances.get(secretReservationKey);
 
 			if (wsnInstance != null) {
-				log.debug("Adding new controller to the list: {}", parameters.getController());
-				wsnInstance.addController(parameters.getController());
+				log.debug("Adding new controller to the list: {}", controller);
+				wsnInstance.addController(controller);
 
 				return wsnInstance.getWsnInstanceEndpointUrl();
 			}
@@ -260,7 +262,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		try {
 			URL wsnInstanceEndpointUrl = new URL(wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-			URL controllerEndpointUrl = new URL(parameters.getController());
+			URL controllerEndpointUrl = new URL(controller);
 
 			wsnInstance = new WSNServiceImpl(urnPrefix, wsnInstanceEndpointUrl, controllerEndpointUrl, wsnApp, wiseML, reservedNodes);
 

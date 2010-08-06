@@ -40,7 +40,7 @@
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
 						<wisemlfilename>
-							/Users/nrohwedder/IdeaProjects/itm/testbed-runtime/iwsn/runtime.cmdline/configs/quick-start-simple/testbeduzl1-wiseml.xml
+							testbeduzl1-wiseml.xml
 						</wisemlfilename>
 					</webservice>
 				</portal:portalapp>

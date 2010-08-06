@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for enableNodeResponse complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="enableNodeResponse">
  *   &lt;complexContent>
@@ -22,34 +23,40 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "enableNodeResponse", propOrder = {
-		"_return"
+    "_return"
 })
 public class EnableNodeResponse {
 
-	@XmlElement(name = "return", required = true)
-	protected String _return;
+    @XmlElement(name = "return", required = true)
+    protected String _return;
 
-	/**
-	 * Gets the value of the return property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getReturn() {
-		return _return;
-	}
+    /**
+     * Gets the value of the return property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getReturn() {
+        return _return;
+    }
 
-	/**
-	 * Sets the value of the return property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setReturn(String value) {
-		this._return = value;
-	}
+    /**
+     * Sets the value of the return property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setReturn(String value) {
+        this._return = value;
+    }
 
 }

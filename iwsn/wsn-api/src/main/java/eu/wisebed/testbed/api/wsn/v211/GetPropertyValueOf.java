@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for getPropertyValueOf complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="getPropertyValueOf">
  *   &lt;complexContent>
@@ -23,57 +24,67 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "getPropertyValueOf", propOrder = {
-		"node",
-		"propertyName"
+    "node",
+    "propertyName"
 })
 public class GetPropertyValueOf {
 
-	@XmlElement(required = true)
-	protected String node;
-	@XmlElement(required = true)
-	protected String propertyName;
+    @XmlElement(required = true)
+    protected String node;
+    @XmlElement(required = true)
+    protected String propertyName;
 
-	/**
-	 * Gets the value of the node property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getNode() {
-		return node;
-	}
+    /**
+     * Gets the value of the node property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNode() {
+        return node;
+    }
 
-	/**
-	 * Sets the value of the node property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setNode(String value) {
-		this.node = value;
-	}
+    /**
+     * Sets the value of the node property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNode(String value) {
+        this.node = value;
+    }
 
-	/**
-	 * Gets the value of the propertyName property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getPropertyName() {
-		return propertyName;
-	}
+    /**
+     * Gets the value of the propertyName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPropertyName() {
+        return propertyName;
+    }
 
-	/**
-	 * Sets the value of the propertyName property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setPropertyName(String value) {
-		this.propertyName = value;
-	}
+    /**
+     * Sets the value of the propertyName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPropertyName(String value) {
+        this.propertyName = value;
+    }
 
 }

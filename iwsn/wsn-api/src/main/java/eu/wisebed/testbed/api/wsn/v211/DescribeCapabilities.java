@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for describeCapabilities complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="describeCapabilities">
  *   &lt;complexContent>
@@ -22,34 +23,40 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "describeCapabilities", propOrder = {
-		"capability"
+    "capability"
 })
 public class DescribeCapabilities {
 
-	@XmlElement(required = true)
-	protected String capability;
+    @XmlElement(required = true)
+    protected String capability;
 
-	/**
-	 * Gets the value of the capability property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getCapability() {
-		return capability;
-	}
+    /**
+     * Gets the value of the capability property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCapability() {
+        return capability;
+    }
 
-	/**
-	 * Sets the value of the capability property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setCapability(String value) {
-		this.capability = value;
-	}
+    /**
+     * Sets the value of the capability property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCapability(String value) {
+        this.capability = value;
+    }
 
 }

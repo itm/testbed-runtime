@@ -135,10 +135,12 @@ public class WSNAppTest {
 
 		SessionManagement sm = WSNServiceHelper.getSessionManagementService(sessionManamentEndpoint);
 
-		GetInstance getInstanceParams = createGetInstance(localControllerEndpoint, copyRsToWsn(reservation));
+		List<SecretReservationKey> secretReservationKeyList = copyRsToWsn(reservation);
 
-		log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(getInstanceParams));
-		final String wsnApiEndpoint = sm.getInstance(getInstanceParams);
+		if (log.isDebugEnabled()) {
+			log.debug("Using the following parameters for get instance: {}, {}", StringUtils.jaxbMarshal(secretReservationKeyList), localControllerEndpoint);
+		}
+		final String wsnApiEndpoint = sm.getInstance(secretReservationKeyList, localControllerEndpoint);
 
 		log.info("Got an WSN instance URL, endpoint is: " + wsnApiEndpoint);
 		final WSN wsn = WSNServiceHelper.getWSNService(wsnApiEndpoint);

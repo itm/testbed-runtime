@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for status complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="status">
  *   &lt;complexContent>
@@ -24,78 +25,92 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "status", namespace = "urn:ControllerService", propOrder = {
-		"nodeId",
-		"value",
-		"msg"
+    "nodeId",
+    "value",
+    "msg"
 })
 public class Status {
 
-	@XmlElement(required = true)
-	protected String nodeId;
-	protected Integer value;
-	protected String msg;
+    @XmlElement(required = true)
+    protected String nodeId;
+    protected Integer value;
+    protected String msg;
 
-	/**
-	 * Gets the value of the nodeId property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getNodeId() {
-		return nodeId;
-	}
+    /**
+     * Gets the value of the nodeId property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNodeId() {
+        return nodeId;
+    }
 
-	/**
-	 * Sets the value of the nodeId property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setNodeId(String value) {
-		this.nodeId = value;
-	}
+    /**
+     * Sets the value of the nodeId property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNodeId(String value) {
+        this.nodeId = value;
+    }
 
-	/**
-	 * Gets the value of the value property.
-	 *
-	 * @return possible object is
-	 *         {@link Integer }
-	 */
-	public Integer getValue() {
-		return value;
-	}
+    /**
+     * Gets the value of the value property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public Integer getValue() {
+        return value;
+    }
 
-	/**
-	 * Sets the value of the value property.
-	 *
-	 * @param value allowed object is
-	 *              {@link Integer }
-	 */
-	public void setValue(Integer value) {
-		this.value = value;
-	}
+    /**
+     * Sets the value of the value property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setValue(Integer value) {
+        this.value = value;
+    }
 
-	/**
-	 * Gets the value of the msg property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getMsg() {
-		return msg;
-	}
+    /**
+     * Gets the value of the msg property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getMsg() {
+        return msg;
+    }
 
-	/**
-	 * Sets the value of the msg property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setMsg(String value) {
-		this.msg = value;
-	}
+    /**
+     * Sets the value of the msg property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setMsg(String value) {
+        this.msg = value;
+    }
 
 }
