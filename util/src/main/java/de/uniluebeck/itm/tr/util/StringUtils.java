@@ -161,15 +161,38 @@ public class StringUtils {
 		return value.startsWith("0x") ? Long.parseLong(value.substring(2), 16) : Long.parseLong(value, 10);
 	}
 
+
+    public static String parseHexOrDecLongUrnSuffix(String value) {
+        String[] valueAsArray = value.split(":");
+        String suffix = valueAsArray[valueAsArray.length - 1];
+        return getPrefixAsStringFromStringArray(valueAsArray) + ":" + (suffix.startsWith("0x") ? Long.parseLong(suffix.substring(2), 16) : Long.parseLong(suffix, 10));
+    }
+
+    private static String getPrefixAsStringFromStringArray(String[] value){
+        StringBuffer result = new StringBuffer();
+        if (value.length > 0) {
+            result.append(value[0]);
+            for (int i = 1; i < value.length - 1; i++) {
+                result.append(":");
+                result.append(value[i]);
+            }
+        }
+        return result.toString();
+    }
+
+    public static boolean assertHexOrDecLongValue(String value){
+        try {
+            parseHexOrDecLong(value);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
 	public static boolean hasHexOrDecLongUrnSuffix(String value) {
 		String[] arr = value.split(":");
 		String suffix = arr[arr.length - 1];
-		try {
-			parseHexOrDecLong(suffix);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
+		return assertHexOrDecLongValue(suffix);
 	}
 
 	/**
