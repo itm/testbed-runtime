@@ -37,7 +37,7 @@ public class Logging {
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
-			itmLogger.setLevel(Level.WARN);
+			itmLogger.setLevel(Level.INFO);
 		}
 
 	}

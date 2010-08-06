@@ -30,10 +30,7 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Singleton
 class MessageEventServiceImpl extends MessageEventService {
@@ -126,7 +123,7 @@ class MessageEventServiceImpl extends MessageEventService {
 				1,
 				3,
 				60L, TimeUnit.SECONDS,
-				new SynchronousQueue<Runnable>(),
+				new LinkedBlockingQueue<Runnable>(),
 				new ThreadFactoryBuilder().setNameFormat("MessageEventService-Thread %d").build()
 		);
 	}

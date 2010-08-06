@@ -26,6 +26,7 @@ package de.uniluebeck.itm.motelist;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MacAddress;
@@ -82,6 +83,7 @@ public abstract class AbstractMoteList {
 				JennicDevice device = new JennicDevice(port);
 
 				if (device.isConnected()) {
+					log.info("Connected to device at {}", port);
 					device.registerListener(new iSenseDeviceListenerAdapter() {
 
 						@Override
@@ -93,7 +95,7 @@ public abstract class AbstractMoteList {
 								Exception e = (Exception) result;
 								log.error("Caught exception when trying to read MAC address: " + e, e);
 							} else if (op == Operation.READ_MAC && result != null) {
-								log.debug("Found iSense device on port {} with MAC address {}", port, result);
+								log.info("Found iSense device on port {} with MAC address {}", port, result);
 								devices.put(port, new Tuple<String, MacAddress>("isense", (MacAddress) result));
 							}
 						}
@@ -123,9 +125,27 @@ public abstract class AbstractMoteList {
 
 		}
 
+		byte[] searchLower16 = new byte[2];
+		searchLower16[0] = (byte) (macAddress >> 8 & 0xFF);
+		searchLower16[1] = (byte) (macAddress & 0xFF);
+
+		log.debug("Searching for device with MAC address: {}", StringUtils.toHexString(searchLower16));
+
 		for (Map.Entry<String, Tuple<String, MacAddress>> entry : devices.entrySet()) {
+			
 			boolean sameType = entry.getValue().getFirst().equals(type);
-			boolean sameMac = entry.getValue().getSecond().getMacLowest16() == macAddress;
+
+			byte [] found = entry.getValue().getSecond().getMacBytes();
+			byte[] foundLower16 = new byte[2];
+			foundLower16[0] = found[6];
+			foundLower16[1] = found[7];
+
+			log.debug("{} == {} ?", StringUtils.toHexString(searchLower16), StringUtils.toHexString(foundLower16));
+
+			boolean sameMac =
+					searchLower16[0] == foundLower16[0] &&
+					searchLower16[1] == foundLower16[1];
+
 			if (sameType && sameMac) {
 				return entry.getKey(); // port
 			}

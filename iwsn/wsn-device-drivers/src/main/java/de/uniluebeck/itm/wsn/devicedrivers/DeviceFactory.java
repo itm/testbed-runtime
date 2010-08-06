@@ -58,77 +58,10 @@ public class DeviceFactory {
 		throw new Exception("Unknown type " + type);
 	}
 
-	public static void main(String[] args) throws Exception {
-		final Object waitObject = new Object();
-
-		iSenseDevice device = create("isense", "/dev/ttyUSB0");
-		//iSenseDevice device = create("pacemate", "COM5");
-		//iSenseDevice device = create("telosb", "COM43");
-
-		device.registerListener(new iSenseDeviceListener() {
-
-			@Override
-			public void receivePlainText(MessagePlainText p) {
-				//System.out.println("Received plain text: " + toASCIIString(p.getContent()));
-			}
-
-			@Override
-			public void receivePacket(MessagePacket p) {
-				//System.out.println("Received packet: " + toASCIIString(p.getContent()));
-			}
-
-			@Override
-			public void operationProgress(Operation op, float fraction) {
-				System.out.println("Operation[" + op + "], progress[" + fraction + "]");
-			}
-
-			@Override
-			public void operationDone(Operation op, Object result) {
-				System.out.println("Operation[" + op + "] done, result: " + result);
-				synchronized (waitObject) {
-					waitObject.notifyAll();
-				}
-			}
-
-			@Override
-			public void operationCanceled(Operation op) {
-				System.out.println("Operation[" + op + "] canceled");
-				synchronized (waitObject) {
-					waitObject.notifyAll();
-				}
-			}
-		});
-
-		System.out.println("Flashing device");
-		IDeviceBinFile program = new JennicBinFile(new File("WISEBEDApplication.jn5139r1.bin"));
-		//IDeviceBinFile program = new PacemateBinFile(new File("WISEBEDApplication.pacemate.bin"));
-		//IDeviceBinFile program = new TelosbBinFile(new File("WISEBEDApplication.telosb.ihex"));
-		device.triggerProgram(program, true);
-
-		device.triggerReboot();
-
-		synchronized (waitObject) {
-			waitObject.wait();
-		}
-
-		System.out.println("Done, exiting now.");
-		System.exit(0);
-	}
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
 	public static String toHexString(byte[] tmp) {
 		return toHexString(tmp, 0, tmp.length);
 	}
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
 	public static String toHexString(byte[] tmp, int offset, int length) {
 		StringBuffer s = new StringBuffer();
 		for (int i = offset; i < offset + length; ++i) {
@@ -156,4 +89,5 @@ public class DeviceFactory {
 
 		return sb.toString();
 	}
+
 }

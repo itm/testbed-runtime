@@ -3,11 +3,13 @@ package de.uniluebeck.itm.motelist;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 
@@ -17,28 +19,37 @@ public class MoteListLinux extends AbstractMoteList {
 
 	private ProcessBuilder pb;
 
+	private File tmpFile;
+
 	public MoteListLinux() throws IOException {
 		if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
-			copyScriptToTmp();
-			pb = new ProcessBuilder("/tmp/motelistv2", "-c");
-			File tmpScript = new File("/tmp/motelistv2");
-			tmpScript.setExecutable(true);
+			copyScriptToTmpFile();
+			pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
 		}
 	}
 
 	public static void main(String[] args) throws IOException {
 		Logging.setLoggingDefaults();
-		log.info("{}", new MoteListLinux().getMoteList());
+
+		if (args.length > 1) {
+			log.info("Searching for {} device with MAC address: {}", args[0], args[1]);
+			log.info("Found: {}", new MoteListLinux().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
+		}
+		else {
+			log.info("Displaying all connected devices: \n{}", new MoteListLinux().getMoteList());
+		}
+
 	}
 
-	private void copyScriptToTmp() throws IOException {
+	private void copyScriptToTmpFile() throws IOException {
 
 		InputStream from = getClass().getClassLoader().getResourceAsStream("motelistv2");
 		FileOutputStream to = null;
 
 		try {
 
-			to = new FileOutputStream(new File("/tmp/motelistv2"));
+			tmpFile = File.createTempFile("motelist", "");
+			to = new FileOutputStream(tmpFile);
 			byte[] buffer = new byte[4096];
 			int bytesRead;
 
@@ -62,6 +73,8 @@ public class MoteListLinux extends AbstractMoteList {
 				}
 			}
 		}
+
+		tmpFile.setExecutable(true);
 
 	}
 

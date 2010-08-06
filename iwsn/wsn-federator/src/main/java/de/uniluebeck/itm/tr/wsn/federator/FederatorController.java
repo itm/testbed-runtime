@@ -48,9 +48,6 @@ public class FederatorController implements Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorController.class);
 
-	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamingThreadFactory(
-			"FederatorController-Thread %d"));
-
 	private static final int CACHE_TIMEOUT = 10;
 
 	private static final TimeUnit CACHE_TIMEOUT_UNIT = TimeUnit.MINUTES;
@@ -81,7 +78,7 @@ public class FederatorController implements Controller {
 
 	public FederatorController(String controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.controllerHelper = new ControllerHelper(executorService);
+		this.controllerHelper = new ControllerHelper();
 	}
 
 	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
@@ -135,8 +132,6 @@ public class FederatorController implements Controller {
 			controllerEndpoint.stop();
 			log.info("Stopped WSN federator controller at {}", controllerEndpointUrl);
 		}
-
-		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 
 		log.info("Stopped WSN federator controller at {}!", controllerEndpointUrl);
 	}

@@ -145,8 +145,8 @@ public class WSNServiceImpl implements WSNService {
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
 
-		executorService = Executors.newScheduledThreadPool(5, new NamingThreadFactory("WSNService-Thread %d"));
-		controllerHelper = new ControllerHelper(executorService);
+		executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build());
+		controllerHelper = new ControllerHelper();
 
 		addController(controllerEndpointUrl.toString());
 

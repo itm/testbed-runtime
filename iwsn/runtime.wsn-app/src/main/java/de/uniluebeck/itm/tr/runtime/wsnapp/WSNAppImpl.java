@@ -115,7 +115,7 @@ class WSNAppImpl implements WSNApp {
 
 					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
 
-						log.debug("Deliver node output to listener: " + message);
+						log.debug("Deliver node output to listener {}: {}", receiver, message);
 						receiver.receive(message);
 
 					}

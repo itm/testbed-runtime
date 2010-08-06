@@ -23,13 +23,14 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -145,16 +146,16 @@ public class ControllerHelper {
 	/**
 	 * Used to deliver messages and request status updates in parallel.
 	 */
-	private final ScheduledExecutorService executorService;
+	private final ScheduledThreadPoolExecutor executorService;
 
 	/**
 	 * Constructs a new {@link ControllerHelper} instance.
-	 *
-	 * @param executorService used to deliver messages and request status updates in parallel. Note: the life cycle of the
-	 *                        {@link java.util.concurrent.ScheduledExecutorService} is not controlled by this instance!
 	 */
-	public ControllerHelper(ScheduledExecutorService executorService) {
-		this.executorService = executorService;
+	public ControllerHelper() {
+		executorService = new ScheduledThreadPoolExecutor(1,
+				new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build()
+		);
+		executorService.setMaximumPoolSize(1);
 	}
 
 	/**
@@ -168,6 +169,7 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 			controllerEndpoints.put(controllerEndpointUrl, controller);
 		}
+		executorService.setMaximumPoolSize(getControllerCount());
 	}
 
 	/**
@@ -180,6 +182,7 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 			controllerEndpoints.remove(controllerEndpointUrl);
 		}
+		executorService.setMaximumPoolSize(getControllerCount());
 	}
 
 	/**
@@ -188,6 +191,13 @@ public class ControllerHelper {
 	 * @param message the {@link eu.wisebed.testbed.api.wsn.v211.Message} instance to deliver
 	 */
 	public void receive(Message message) {
+
+		if (executorService.getTaskCount() > 100) {
+			log.error("More than 100 messages in the delivery queue. Dropping message!");
+			// TODO find more elegant solution on how to cope with too much load
+			return;
+		}
+
 		synchronized (controllerEndpoints) {
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
 				log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
@@ -202,6 +212,13 @@ public class ControllerHelper {
 	 * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v211.RequestStatus} instance to deliver
 	 */
 	public void receiveStatus(RequestStatus requestStatus) {
+
+		if (executorService.getTaskCount() > 100) {
+			log.error("More than 100 messages in the delivery queue. Dropping requestStatus!");
+			// TODO find more elegant solution on how to cope with too much load
+			return;
+		}
+
 		synchronized (controllerEndpoints) {
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
 				log.debug("Delivering request status with requestID {} to endpoint URL {}",
