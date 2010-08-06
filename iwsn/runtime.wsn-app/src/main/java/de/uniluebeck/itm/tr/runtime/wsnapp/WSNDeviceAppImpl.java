@@ -851,13 +851,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		testbedRuntime.getSingleRequestMultiResponseService()
 				.addListener(nodeUrn, WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST, srmrsListener);
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
-
-		log.debug("{} => Triggering node reboot...", nodeUrn);
-		boolean triggered = iSenseDevice.triggerReboot();
-		if (!triggered) {
-			log.warn("{} => Triggering node reboot failed!", nodeUrn);
-		}
-
+		
 	}
 
 	@Override

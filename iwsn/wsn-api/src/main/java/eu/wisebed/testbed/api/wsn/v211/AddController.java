@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for addController complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="addController">
  *   &lt;complexContent>
@@ -22,34 +23,40 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "addController", propOrder = {
-		"controllerEndpointUrl"
+    "controllerEndpointUrl"
 })
 public class AddController {
 
-	@XmlElement(required = true)
-	protected String controllerEndpointUrl;
+    @XmlElement(required = true)
+    protected String controllerEndpointUrl;
 
-	/**
-	 * Gets the value of the controllerEndpointUrl property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getControllerEndpointUrl() {
-		return controllerEndpointUrl;
-	}
+    /**
+     * Gets the value of the controllerEndpointUrl property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getControllerEndpointUrl() {
+        return controllerEndpointUrl;
+    }
 
-	/**
-	 * Sets the value of the controllerEndpointUrl property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setControllerEndpointUrl(String value) {
-		this.controllerEndpointUrl = value;
-	}
+    /**
+     * Sets the value of the controllerEndpointUrl property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setControllerEndpointUrl(String value) {
+        this.controllerEndpointUrl = value;
+    }
 
 }

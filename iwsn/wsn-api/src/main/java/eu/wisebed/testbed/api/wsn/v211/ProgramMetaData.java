@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -7,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for programMetaData complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="programMetaData">
  *   &lt;complexContent>
@@ -24,99 +25,117 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "programMetaData", propOrder = {
-		"version",
-		"name",
-		"platform",
-		"other"
+    "version",
+    "name",
+    "platform",
+    "other"
 })
 public class ProgramMetaData {
 
-	protected String version;
-	protected String name;
-	protected String platform;
-	protected String other;
+    protected String version;
+    protected String name;
+    protected String platform;
+    protected String other;
 
-	/**
-	 * Gets the value of the version property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getVersion() {
-		return version;
-	}
+    /**
+     * Gets the value of the version property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getVersion() {
+        return version;
+    }
 
-	/**
-	 * Sets the value of the version property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setVersion(String value) {
-		this.version = value;
-	}
+    /**
+     * Sets the value of the version property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setVersion(String value) {
+        this.version = value;
+    }
 
-	/**
-	 * Gets the value of the name property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Gets the value of the name property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Sets the value of the name property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
+    /**
+     * Sets the value of the name property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setName(String value) {
+        this.name = value;
+    }
 
-	/**
-	 * Gets the value of the platform property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getPlatform() {
-		return platform;
-	}
+    /**
+     * Gets the value of the platform property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPlatform() {
+        return platform;
+    }
 
-	/**
-	 * Sets the value of the platform property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setPlatform(String value) {
-		this.platform = value;
-	}
+    /**
+     * Sets the value of the platform property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPlatform(String value) {
+        this.platform = value;
+    }
 
-	/**
-	 * Gets the value of the other property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getOther() {
-		return other;
-	}
+    /**
+     * Gets the value of the other property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getOther() {
+        return other;
+    }
 
-	/**
-	 * Sets the value of the other property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setOther(String value) {
-		this.other = value;
-	}
+    /**
+     * Sets the value of the other property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setOther(String value) {
+        this.other = value;
+    }
 
 }

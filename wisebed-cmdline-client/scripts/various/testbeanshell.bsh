@@ -46,8 +46,8 @@ import de.uniluebeck.itm.tr.util.*;
 	//--------------------------------------------------------------------------
 	//RS
 	//--------------------------------------------------------------------------
-	//	void deleteReservation(java.util.List<SecretReservationKey> secretReservationKey)
-	//	java.util.List<ConfidentialReservationData> 	getReservation(java.util.List<SecretReservationKey> secretReservationKey)
+	//	void deleteReservation(java.util.List<SecretReservationKey> secretReservationKeys)
+	//	java.util.List<ConfidentialReservationData> 	getReservation(java.util.List<SecretReservationKey> secretReservationKeys)
 	//	java.util.List<PublicReservationData> 	getReservations(javax.xml.datatype.XMLGregorianCalendar from, javax.xml.datatype.XMLGregorianCalendar to)
 	//	java.util.List<SecretReservationKey> 	makeReservation(java.util.List<SecretAuthenticationKey> authenticationData, PublicReservationData reservation)
 	          
@@ -65,9 +65,9 @@ import de.uniluebeck.itm.tr.util.*;
 	//		java.lang.String 	toString()
 	          
 	//	Type: SecretReservationKey 
-	//		java.lang.String 	getSecretReservationKey() Gets the value of the secretReservationKey property.
+	//		java.lang.String 	getSecretReservationKey() Gets the value of the secretReservationKeys property.
 	//		java.lang.String 	getUrnPrefix() Gets the value of the urnPrefix property.
-	//		void 	setSecretReservationKey(java.lang.String value) Sets the value of the secretReservationKey property.
+	//		void 	setSecretReservationKey(java.lang.String value) Sets the value of the secretReservationKeys property.
 	//		void 	setUrnPrefix(java.lang.String value) Sets the value of the urnPrefix property.
 	
 	//Type: User
@@ -86,19 +86,19 @@ import de.uniluebeck.itm.tr.util.*;
 	//--------------------------------------------------------------------------
 	//SessionManagement
 	//--------------------------------------------------------------------------
-	//	 void 	free(java.util.List<SecretReservationKey> secretReservationKey)
+	//	 void 	free(java.util.List<SecretReservationKey> secretReservationKeys)
 	//	 java.lang.String 	getInstance(GetInstance parameters)
 	//	 java.lang.String 	getNetwork()
 	//
 	//	GetInstance Type
 	//		 java.lang.String 	getController() Gets the value of the controller property.
-	//		 java.util.List<SecretReservationKey> 	getSecretReservationKey() Gets the value of the secretReservationKey property.
+	//		 java.util.List<SecretReservationKey> 	getSecretReservationKey() Gets the value of the secretReservationKeys property.
 	//		 void 	setController(java.lang.String value)  Sets the value of the controller property.
 	//
 	//	SecretReservationKey Type
-	//		java.lang.String 	getSecretReservationKey() Gets the value of the secretReservationKey property.
+	//		java.lang.String 	getSecretReservationKey() Gets the value of the secretReservationKeys property.
 	//		java.lang.String 	getUrnPrefix() Gets the value of the urnPrefix property.
-	//		void 	setSecretReservationKey(java.lang.String value) Sets the value of the secretReservationKey property.
+	//		void 	setSecretReservationKey(java.lang.String value) Sets the value of the secretReservationKeys property.
 	//		void 	setUrnPrefix(java.lang.String value) Sets the value of the urnPrefix property.
 	
 	//--------------------------------------------------------------------------

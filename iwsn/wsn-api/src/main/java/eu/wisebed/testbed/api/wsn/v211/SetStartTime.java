@@ -1,14 +1,19 @@
+
 package eu.wisebed.testbed.api.wsn.v211;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * <p>Java class for setStartTime complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="setStartTime">
  *   &lt;complexContent>
@@ -20,35 +25,41 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "setStartTime", propOrder = {
-		"time"
+    "time"
 })
 public class SetStartTime {
 
-	@XmlElement(required = true)
-	@XmlSchemaType(name = "dateTime")
-	protected XMLGregorianCalendar time;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar time;
 
-	/**
-	 * Gets the value of the time property.
-	 *
-	 * @return possible object is
-	 *         {@link XMLGregorianCalendar }
-	 */
-	public XMLGregorianCalendar getTime() {
-		return time;
-	}
+    /**
+     * Gets the value of the time property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getTime() {
+        return time;
+    }
 
-	/**
-	 * Sets the value of the time property.
-	 *
-	 * @param value allowed object is
-	 *              {@link XMLGregorianCalendar }
-	 */
-	public void setTime(XMLGregorianCalendar value) {
-		this.time = value;
-	}
+    /**
+     * Sets the value of the time property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setTime(XMLGregorianCalendar value) {
+        this.time = value;
+    }
 
 }

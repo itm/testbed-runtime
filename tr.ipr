@@ -1,54 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AntConfiguration">
-    <defaultAnt bundledAnt="true" />
-  </component>
-  <component name="CodeStyleSettingsManager">
-    <option name="PER_PROJECT_SETTINGS">
-      <value>
-        <option name="USE_SAME_INDENTS" value="true" />
-        <option name="OTHER_INDENT_OPTIONS">
-          <value>
-            <option name="INDENT_SIZE" value="4" />
-            <option name="CONTINUATION_INDENT_SIZE" value="8" />
-            <option name="TAB_SIZE" value="4" />
-            <option name="USE_TAB_CHARACTER" value="true" />
-            <option name="SMART_TABS" value="false" />
-            <option name="LABEL_INDENT_SIZE" value="0" />
-            <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-          </value>
-        </option>
-        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
-          <option name="INDENT_SIZE" value="2" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="java">
-          <option name="INDENT_SIZE" value="4" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="xml">
-          <option name="INDENT_SIZE" value="4" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
-      </value>
-    </option>
-    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
-  </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <resourceExtensions>
@@ -69,29 +20,8 @@
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
-  <component name="CopyrightManager" default="ITM">
-    <copyright>
-      <option name="notice" value="Copyright (c) 2010, Institute of Telematics, University of Luebeck&#10;All rights reserved.&#10;&#10;Redistribution and use in source and binary forms, with or without modification, are permitted provided that the&#10;following conditions are met:&#10; &#10;- Redistributions of source code must retain the above copyright notice, this list of conditions and the following&#10;  disclaimer.&#10;- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the&#10;  following disclaimer in the documentation and/or other materials provided with the distribution.&#10;- Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or&#10;  promote products derived from this software without specific prior written permission.&#10;&#10;THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,&#10;INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE&#10;ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,&#10;INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE&#10;GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF&#10;LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY&#10;OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE." />
-      <option name="keyword" value="Copyright" />
-      <option name="allowReplaceKeyword" value="" />
-      <option name="myName" value="ITM" />
-      <option name="myLocal" value="true" />
-    </copyright>
+  <component name="CopyrightManager" default="">
     <module2copyright />
-    <LanguageOptions name="__TEMPLATE__">
-      <option name="fileTypeOverride" value="2" />
-      <option name="relativeBefore" value="true" />
-      <option name="addBlankAfter" value="true" />
-      <option name="fileLocation" value="1" />
-      <option name="block" value="true" />
-      <option name="separateBefore" value="true" />
-      <option name="separateAfter" value="true" />
-      <option name="prefixLines" value="true" />
-      <option name="lenBefore" value="120" />
-      <option name="lenAfter" value="120" />
-      <option name="box" value="true" />
-      <option name="filler" value=" " />
-    </LanguageOptions>
   </component>
   <component name="DaemonCodeAnalyzer">
     <disable_hints />
@@ -288,13 +218,6 @@
       </item>
     </group>
   </component>
-  <component name="ProjectDictionaryState">
-    <dictionary name="bimschas">
-      <words>
-        <w>timestamp</w>
-      </words>
-    </dictionary>
-  </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
@@ -308,76 +231,40 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
-      <module fileurl="file://$PROJECT_DIR$/tr.iml" filepath="$PROJECT_DIR$/tr.iml" />
       <module fileurl="file://$PROJECT_DIR$/assembly/tr.assembly.iml" filepath="$PROJECT_DIR$/assembly/tr.assembly.iml" />
       <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
-      <module fileurl="file://$PROJECT_DIR$/motelist/tr.motelist.iml" filepath="$PROJECT_DIR$/motelist/tr.motelist.iml" />
-      <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/node-api/tr.node-api.iml" filepath="$PROJECT_DIR$/node-api/tr.node-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" filepath="$PROJECT_DIR$/rs/rs-api/tr.rs-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline/tr.rs-cmdline.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-cmdline-onejar/tr.rs-cmdline-onejar.iml" filepath="$PROJECT_DIR$/rs/rs-cmdline-onejar/tr.rs-cmdline-onejar.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" filepath="$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" filepath="$PROJECT_DIR$/rs/rs-dummy/tr.rs-dummy.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" filepath="$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" filepath="$PROJECT_DIR$/rs/rs-federator/tr.rs-federator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" filepath="$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" filepath="$PROJECT_DIR$/rs/rs-persistence/tr.rs-persistence.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-gcal/tr.rs-persistence-gcal.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-inmemory/tr.rs-persistence-inmemory.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" filepath="$PROJECT_DIR$/rs/rs-persistence-jpa/tr.rs-persistence-jpa.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" filepath="$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" />
       <module fileurl="file://$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" filepath="$PROJECT_DIR$/rs/rs-singleurnprefix/tr.rs-singleurnprefix.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" filepath="$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" filepath="$PROJECT_DIR$/iwsn/runtime/tr.runtime.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" filepath="$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" filepath="$PROJECT_DIR$/iwsn/runtime.cmdline/tr.runtime.cmdline.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" filepath="$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" filepath="$PROJECT_DIR$/iwsn/runtime.portal/tr.runtime.portal.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" filepath="$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" filepath="$PROJECT_DIR$/iwsn/runtime.socket-connector/tr.runtime.socket-connector.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" filepath="$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" filepath="$PROJECT_DIR$/iwsn/runtime.wsn-app/tr.runtime.wsn-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" filepath="$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" filepath="$PROJECT_DIR$/iwsn/runtime.xml-testbed-factory/tr.runtime.xml-testbed-factory.iml" />
       <module fileurl="file://$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" filepath="$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" />
-      <module fileurl="file://$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" filepath="$PROJECT_DIR$/shibboauth/tr.shibboauth.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" filepath="$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" filepath="$PROJECT_DIR$/snaa/snaa-api/tr.snaa-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-client/tr.snaa-cmdline-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" filepath="$PROJECT_DIR$/snaa/snaa-cmdline-server/tr.snaa-cmdline-server.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" filepath="$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" filepath="$PROJECT_DIR$/snaa/snaa-dummy/tr.snaa-dummy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" filepath="$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" filepath="$PROJECT_DIR$/snaa/snaa-federator/tr.snaa-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" filepath="$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" filepath="$PROJECT_DIR$/snaa/snaa-jaaslogin/tr.snaa-jaaslogin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" filepath="$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" filepath="$PROJECT_DIR$/snaa/snaa-shibboleth/tr.snaa-shibboleth.iml" />
       <module fileurl="file://$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" filepath="$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" />
-      <module fileurl="file://$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" filepath="$PROJECT_DIR$/snaa/snaa-wisebed/tr.snaa-wisebed.iml" />
-      <module fileurl="file://$PROJECT_DIR$/util/tr.util.iml" filepath="$PROJECT_DIR$/util/tr.util.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/tr.util.iml" filepath="$PROJECT_DIR$/util/tr.util.iml" />
       <module fileurl="file://$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" filepath="$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" filepath="$PROJECT_DIR$/wisebed-cmdline-client/tr.wisebed-cmdline-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wiseml/tr.wiseml.iml" filepath="$PROJECT_DIR$/wiseml/tr.wiseml.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiseml/tr.wiseml.iml" filepath="$PROJECT_DIR$/wiseml/tr.wiseml.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" filepath="$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" filepath="$PROJECT_DIR$/wiseml-merger/tr.wiseml-merger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api/tr.wsn-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" filepath="$PROJECT_DIR$/iwsn/wsn-api-client/tr.wsn-api-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" filepath="$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" filepath="$PROJECT_DIR$/iwsn/wsn-device-drivers/tr.wsn-device-drivers.iml" />
-      <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" filepath="$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" />
       <module fileurl="file://$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" filepath="$PROJECT_DIR$/iwsn/wsn-federator/tr.wsn-federator.iml" />
     </modules>
   </component>
@@ -480,14 +367,37 @@
     <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
     <option name="IGNORE_SPACES_IN_MERGE" value="false" />
     <option name="DETECT_NESTED_COPIES" value="false" />
+    <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
     <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
     <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
     <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="Git" />
+    <mapping directory="" vcs="" />
   </component>
   <component name="libraryTable">
+    <library name="Maven: javax.persistence:persistence-api:1.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.google.guava:guava:r05">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Maven: org.slf4j:slf4j-api:1.5.8">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar!/" />
@@ -521,94 +431,6 @@
         <root url="jar://$MAVEN_REPOSITORY$/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.google.inject:guice:2.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: aopalliance:aopalliance:1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: com.google.inject.extensions:guice-multibindings:2.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: com.google.inject.extensions:grapher:2.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: com.google.protobuf:protobuf-java:2.3.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.jgrapht:jgrapht-jdk1.6:0.8.1">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: commons-cli:commons-cli:1.2">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.rxtx:rxtx:2.1.7">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7-sources.jar!/" />
-      </SOURCES>
-    </library>
     <library name="Maven: joda-time:joda-time:1.6">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/joda-time/joda-time/1.6/joda-time-1.6.jar!/" />
@@ -631,17 +453,6 @@
         <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: javax.persistence:persistence-api:1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/javax/persistence/persistence-api/1.0/persistence-api-1.0-sources.jar!/" />
-      </SOURCES>
-    </library>
     <library name="Maven: commons-logging:commons-logging:1.1.1">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar!/" />
@@ -651,138 +462,6 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.apache.james:apache-mime4j:0.6">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: commons-codec:commons-codec:1.4">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.apache.httpcomponents:httpclient:4.0.1">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.apache.httpcomponents:httpcore:4.0.1">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.apache.httpcomponents:httpmime:4.0.1">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: net.htmlparser.jericho:jericho-html:3.1">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.bouncycastle:bcprov-ext-jdk16:1.45">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: edu.vt.middleware:crypt:1.5">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: commons-cli:commons-cli:1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: commons-lang:commons-lang:1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: org.beanshell:bsh:2.0b4">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4-sources.jar!/" />
-      </SOURCES>
-    </library>
-    <library name="Maven: com.google.classpath-explorer:classpath-explorer:1.0">
-      <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0.jar!/" />
-      </CLASSES>
-      <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0-javadoc.jar!/" />
-      </JAVADOC>
-      <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: com.google:gdata-calendar:2.0">
@@ -827,6 +506,28 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/com/google/gdata-core/1.0/gdata-core-1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.google.inject:guice:2.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: aopalliance:aopalliance:1.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: hsqldb:hsqldb:1.8.0.7">
@@ -1005,37 +706,158 @@
         <root url="jar://$MAVEN_REPOSITORY$/mysql/mysql-connector-java/5.1.9/mysql-connector-java-5.1.9-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: commons-logging:commons-logging:1.0.4">
+    <library name="Maven: commons-cli:commons-cli:1.2">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.2/commons-cli-1.2-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: jtidy:jtidy:4aug2000r7-dev">
+    <library name="Maven: org.apache.james:apache-mime4j:0.6">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/james/apache-mime4j/0.6/apache-mime4j-0.6-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.google.guava:guava:r05">
+    <library name="Maven: commons-codec:commons-codec:1.4">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r05/guava-r05-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.httpcomponents:httpclient:4.0.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.httpcomponents:httpcore:4.0.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.httpcomponents:httpmime:4.0.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpmime/4.0.1/httpmime-4.0.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: net.htmlparser.jericho:jericho-html:3.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/net/htmlparser/jericho/jericho-html/3.1/jericho-html-3.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.bouncycastle:bcprov-ext-jdk16:1.45">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/bouncycastle/bcprov-ext-jdk16/1.45/bcprov-ext-jdk16-1.45-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: edu.vt.middleware:crypt:1.5">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/edu/vt/middleware/crypt/1.5/crypt-1.5-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.google.inject.extensions:guice-multibindings:2.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/guice-multibindings/2.0/guice-multibindings-2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.google.inject.extensions:grapher:2.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/extensions/grapher/2.0/grapher-2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.google.protobuf:protobuf-java:2.3.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.3.0/protobuf-java-2.3.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.jgrapht:jgrapht-jdk1.6:0.8.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-jdk1.6/0.8.1/jgrapht-jdk1.6-0.8.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.rxtx:rxtx:2.1.7">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/rxtx/rxtx/2.1.7/rxtx-2.1.7-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: commons-lang:commons-lang:2.5">
@@ -1049,6 +871,28 @@
         <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/2.5/commons-lang-2.5-sources.jar!/" />
       </SOURCES>
     </library>
+    <library name="Maven: jtidy:jtidy:4aug2000r7-dev">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: commons-logging:commons-logging:1.0.4">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Maven: org.jboss.netty:netty:3.1.5.GA">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/org/jboss/netty/netty/3.1.5.GA/netty-3.1.5.GA.jar!/" />
@@ -1058,33 +902,50 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/jboss/netty/netty/3.1.5.GA/netty-3.1.5.GA-sources.jar!/" />
-        <root url="file:///Applications/Development/netty-3.1.5.GA/src/main/java" />
       </SOURCES>
     </library>
-    <library name="Maven: de.uniluebeck.itm:tr.motelist:0.5.3-SNAPSHOT">
+    <library name="Maven: com.google.classpath-explorer:classpath-explorer:1.0">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.motelist/0.5.3-SNAPSHOT/tr.motelist-0.5.3-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$PROJECT_DIR$/motelist/pom-javadoc.jar!/" />
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.motelist/0.5.3-SNAPSHOT/tr.motelist-0.5.3-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$PROJECT_DIR$/motelist/pom-sources.jar!/" />
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.motelist/0.5.3-SNAPSHOT/tr.motelist-0.5.3-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/google/classpath-explorer/classpath-explorer/1.0/classpath-explorer-1.0-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: de.uniluebeck.itm:tr.runtime.socket-connector:0.5.3-SNAPSHOT">
+    <library name="Maven: org.beanshell:bsh:2.0b4">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.runtime.socket-connector/0.5.3-SNAPSHOT/tr.runtime.socket-connector-0.5.3-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$PROJECT_DIR$/iwsn/runtime.socket-connector/pom-javadoc.jar!/" />
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.runtime.socket-connector/0.5.3-SNAPSHOT/tr.runtime.socket-connector-0.5.3-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$PROJECT_DIR$/iwsn/runtime.socket-connector/pom-sources.jar!/" />
-        <root url="jar://$MAVEN_REPOSITORY$/de/uniluebeck/itm/tr.runtime.socket-connector/0.5.3-SNAPSHOT/tr.runtime.socket-connector-0.5.3-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/beanshell/bsh/2.0b4/bsh-2.0b4-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: commons-cli:commons-cli:1.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.0/commons-cli-1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: commons-lang:commons-lang:1.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/1.0/commons-lang-1.0-sources.jar!/" />
       </SOURCES>
     </library>
   </component>

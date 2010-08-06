@@ -171,9 +171,7 @@ public class FederationDemo {
 		// Get WSN API instance URL --> call getInstance()
 		//--------------------------------------------------------------------------
 		SessionManagement sm = WSNServiceHelper.getSessionManagementService(sessionManagementEndpoint);
-		GetInstance getInstanceParams =
-				helper.createGetInstance(localControllerEndpoint, helper.copyRsToWsn(reservation));
-		String wsnApiEndpoint = sm.getInstance(getInstanceParams);
+		String wsnApiEndpoint = sm.getInstance(helper.copyRsToWsn(reservation), localControllerEndpoint);
 		WSN wsn = WSNServiceHelper.getWSNService(wsnApiEndpoint);
 
 		System.out.println("Successfully received iWSN endpoint URL: " + wsnApiEndpoint);

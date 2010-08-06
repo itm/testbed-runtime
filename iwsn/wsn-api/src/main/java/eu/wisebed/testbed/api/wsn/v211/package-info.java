@@ -1,1 +1,2 @@
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:WSNService") package eu.wisebed.testbed.api.wsn.v211;
+@javax.xml.bind.annotation.XmlSchema(namespace = "urn:WSNService")
+package eu.wisebed.testbed.api.wsn.v211;
