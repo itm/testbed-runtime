@@ -62,13 +62,15 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			MoteListLinux moteList = null;
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
+                StringUtils.assertHexOrDecLongValue(wsnDevice.getId());
 				long id = StringUtils.parseHexOrDecLong(wsnDevice.getId());
+                
 				String serialInterface = wsnDevice.getSerialinterface();
 				String autodetectionMac = wsnDevice.getAutodetectionMac();
 				String type = wsnDevice.getType();
-				String urn = wsnDevice.getUrn();
 
-				StringUtils.assertHexOrDecLongUrnSuffix(urn);
+                StringUtils.assertHexOrDecLongUrnSuffix(wsnDevice.getUrn());
+				String urn = StringUtils.parseHexOrDecLongUrnSuffix(wsnDevice.getUrn());
 
 				if (serialInterface == null || "".equals(serialInterface)) {
 
