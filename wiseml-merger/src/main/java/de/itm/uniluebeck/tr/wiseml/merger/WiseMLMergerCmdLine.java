@@ -1,6 +1,5 @@
 package de.itm.uniluebeck.tr.wiseml.merger;
 
-import com.sun.xml.internal.ws.streaming.XMLStreamReaderFactory;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 
 import javax.xml.stream.*;
