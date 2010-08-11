@@ -68,4 +68,10 @@ public class FileUtils {
 		}
 	}
 
+    public static void deleteDirectory(File dir) {
+        for (String filename : dir.getAbsoluteFile().list()){
+            new File(dir.getAbsolutePath(), filename).delete();
+        }
+        dir.delete();
+    }
 }
