@@ -1,11 +1,11 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp.persistentQueue;
+package de.uniluebeck.itm.tr.util.persistentQueue.impl;
 
 /**
  * Created by IntelliJ IDEA.
  * User: nrohwedder
  * Date: 11.08.2010
- * Time: 11:45:51
+ * Time: 15:39:19
  * To change this template use File | Settings | File Templates.
  */
-public class NotEnoughMemoryException extends Throwable {
+public class PersistentQueueImpl2 {
 }
