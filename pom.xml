@@ -72,7 +72,7 @@
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
-		<module>wiseml-merger</module>
+		<!--<module>wiseml-merger</module>-->
 
 	</modules>
 
