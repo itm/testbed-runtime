@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
 
 /**
  * Created by:
@@ -51,7 +53,7 @@ public class WSNClient {
 
 	private JScrollPane outputScrollPane;
 
-	public WSNClient() {
+	public WSNClient(Map<String, Object> properties) {
 
 		panel = new JPanel(new BorderLayout());
 
@@ -62,12 +64,12 @@ public class WSNClient {
 		{
 			ControllerModel controllerModel = new ControllerModel();
 			ControllerView controllerView = new ControllerView(controllerModel);
-			ControllerController controllerController = new ControllerController(controllerView, controllerModel);
+			ControllerController controllerController = new ControllerController(controllerView, controllerModel, properties);
 			tabs.addTab("Controller Client", controllerView);
 		}
 
 		{
-			ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView();
+			ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView(properties);
 			tabs.addTab("Controller Service Dummy", controllerServiceDummyView);
 		}
 
@@ -78,14 +80,14 @@ public class WSNClient {
 
 			SessionManagementModel sessionManagementModel = new SessionManagementModel();
 			SessionManagementView sessionManagementView = new SessionManagementView(sessionManagementModel);
-			SessionManagementController sessionManagementController = new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView);
+			SessionManagementController sessionManagementController = new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView, properties);
 
 			tabs.addTab("Session Management Client", sessionManagementView);
 			tabs.addTab("WSN Client", wsnClientView);
 		}
 
 		{
-			WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView();
+			WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView(properties);
 			tabs.addTab("WSN Server Dummy", wsnServiceDummyView);
 		}
 
@@ -115,7 +117,26 @@ public class WSNClient {
 	}
 
 	public static void main(String[] args) {
-		new WSNClient().frame.setVisible(true);
+        String propertyFile = null;
+        // create the command line parser
+        CommandLineParser parser = new PosixParser();
+        Options options = new Options();
+        options.addOption("f", "file", true, "The properties file");
+
+        CommandLine line = null;
+        Map<String, Object> properties = null;
+        try {
+            line = parser.parse(options, args);
+
+            if (line.hasOption('f')) {
+                propertyFile = line.getOptionValue('f');
+                properties = WSNClientProperties.getPropertyMap(propertyFile);
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage() + "\nProperties-file ignored!");
+        }
+		new WSNClient(properties).frame.setVisible(true);
 	}
 
 }

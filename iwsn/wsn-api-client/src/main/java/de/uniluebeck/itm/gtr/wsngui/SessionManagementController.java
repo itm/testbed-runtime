@@ -34,6 +34,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SessionManagementController {
 
@@ -107,7 +108,7 @@ public class SessionManagementController {
 	};
 
 	public SessionManagementController(SessionManagementView view, SessionManagementModel model,
-									   WSNClientView wsnClientView) {
+									   WSNClientView wsnClientView, Map<String, Object> properties) {
 
 		this.view = view;
 		this.model = model;
@@ -117,15 +118,43 @@ public class SessionManagementController {
 		this.view.getFreeButton().addActionListener(freeActionListener);
 
 		try {
-			this.view.getEndpointUrlTextField()
-					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
-			this.view.getSecretReservationKeysTextArea().setText(""
-					+ "urn:wisebed:testbeduzl1:,1234\n"
-					+ "urn:wisebed:testbeduzl2:,1234\n"
-					+ "urn:wisebed:testbeduzl3:,1234"
-			);
-			this.view.getControllerTextField()
-					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            if (properties == null){
+                this.view.getEndpointUrlTextField()
+                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
+                this.view.getSecretReservationKeysTextArea().setText(""
+                        + "urn:wisebed:testbeduzl1:,1234\n"
+                        + "urn:wisebed:testbeduzl2:,1234\n"
+                        + "urn:wisebed:testbeduzl3:,1234"
+                );
+                this.view.getControllerTextField()
+                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            } else {
+                Object endpointUrlProperties = properties.get(WSNClientProperties.keySessionManagement + "." + WSNClientProperties.keyEndpointURL);
+                Object secretReservationKeysProperties = properties.get(WSNClientProperties.keySessionManagement + "." + WSNClientProperties.keyReservationKeys);
+                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyController + "." + WSNClientProperties.keyEndpointURL);
+
+                String endpointUrl = "";
+                String secretReservationKeys = "";
+                String controllerEndpointUrl = "";
+
+                if (endpointUrlProperties != null){
+                    endpointUrl = (String) endpointUrlProperties;
+                }
+
+                if (secretReservationKeysProperties != null){
+                    List list = (List) secretReservationKeysProperties;
+                    for (Object o : list){
+                        secretReservationKeys += o + "\n";
+                    }
+                }
+
+                if (controllerEndpointUrlProperties != null){
+                    controllerEndpointUrl = (String) controllerEndpointUrlProperties;
+                }
+                this.view.getEndpointUrlTextField().setText(endpointUrl);
+                this.view.getSecretReservationKeysTextArea().setText(secretReservationKeys);                
+                this.view.getControllerTextField().setText(controllerEndpointUrl);
+            }
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

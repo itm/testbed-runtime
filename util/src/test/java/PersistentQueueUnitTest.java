@@ -186,8 +186,8 @@ public abstract class PersistentQueueUnitTest{
         while(!queue.isEmpty()){
             queue.poll();
         }
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        int cnt = 50;
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        int cnt = 1000;
         List<Future> futures = new LinkedList<Future>();
         for (int i=0;i<cnt;i++){
             futures.add(executorService.submit(new AddToQueueRunnable(queue, i)));

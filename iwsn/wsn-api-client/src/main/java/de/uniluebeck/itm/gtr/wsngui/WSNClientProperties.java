@@ -23,82 +23,57 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Map;
+/**
+ * Created by IntelliJ IDEA.
+ * User: nrohwedder
+ * Date: 12.08.2010
+ * Time: 17:54:01
+ * To change this template use File | Settings | File Templates.
+ */
+public class WSNClientProperties {
+    public final static String keyController = "controller";
+    public final static String keySessionManagement = "sessionManagementClient";
+    public final static String keyWsnServerDummy = "wsnServerDummy";
+    public final static String keyReservationKeys = "reservationKeysFile";
+    public final static String keyEndpointURL = "endpoint.url";
 
+    public static Map<String, Object> getPropertyMap(String s) throws IOException {
+        Map<String, Object> propertyMap = new HashMap<String, Object>();
+        Properties props = new Properties();
+        File file = new File(s);
+        props.load(new FileReader(file));
 
-public class WSNServiceDummyView extends JPanel {
+        for (Object o : props.keySet()){
+            String key = (String) o;
+            if (key.equals(keySessionManagement + "." + keyReservationKeys)){
+                propertyMap.put(key, convertCSVFileToList(new File(file.getParent(), props.getProperty(key))));
 
-	private static final Logger log = LoggerFactory.getLogger(WSNServiceDummyView.class);
-
-	private JPanel panel;
-
-	private JTextField endpointUrlTextField;
-
-	private JCheckBox startServiceCheckbox;
-
-	private WSNServiceDummyImpl wsnService;
-
-	public WSNServiceDummyView(Map<String, Object> properties) {
-
-		super(new FlowLayout());
-		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
-
-		this.panel = new JPanel(new GridLayout(2, 2));
-
-		{
-			panel.add(new JLabel("WSN API Endpoint URL"));
-            if (properties == null){
-			    endpointUrlTextField = new JTextField("http://localhost:8082/wsn/dummy");
             } else {
-                Object wsnServerDummyEndpointUrlProperties = properties.get(WSNClientProperties.keyWsnServerDummy + "." + WSNClientProperties.keyEndpointURL);
-
-                String endpointUrl = "";
-                if (wsnServerDummyEndpointUrlProperties != null){
-                    endpointUrl = (String) wsnServerDummyEndpointUrlProperties;
-                }
-                endpointUrlTextField = new JTextField(endpointUrl);
+                propertyMap.put(key, props.getProperty(key));
             }
-			panel.add(endpointUrlTextField);
-		}
-		{
-			startServiceCheckbox = new JCheckBox("Start service");
-			startServiceCheckbox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (startServiceCheckbox.isSelected()) {
+        }
+        return propertyMap;
+    }
 
-						String endpointUrl = endpointUrlTextField.getText();
-						wsnService = new WSNServiceDummyImpl(endpointUrl);
+    private static List<String> convertCSVFileToList(File file) throws IOException {
+        List<String> list = new LinkedList<String>();
+        BufferedReader reader  = new BufferedReader(new FileReader(file));
+        String line = null;
 
-						try {
-							wsnService.start();
-						} catch (Exception e1) {
-							JOptionPane.showMessageDialog(
-									null,
-									"Failed to start controller service on URL " + endpointUrl,
-									"Failed to start controller service!",
-									JOptionPane.WARNING_MESSAGE
-							);
-							log.error("Exception while starting controller service", e1);
-						}
+        while((line = reader.readLine()) != null){
+            StringTokenizer st = new StringTokenizer(line, ",");
+            if (st.countTokens() != 2) throw new RuntimeException("Reservation-key: \""+ line + "\" is not a tuple.\nProperties file ignored!");
 
-					} else {
-						wsnService.stop();
-					}
-				}
-			});
-			panel.add(startServiceCheckbox);
-		}
+            list.add(line);
+        }
 
-		add(panel);
-
-	}
-
+        reader.close();
+        return list;
+    }
 }

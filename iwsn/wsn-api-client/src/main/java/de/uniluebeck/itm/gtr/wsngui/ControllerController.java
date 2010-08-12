@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * Created by: User: bimschas Date: 04.03.2010 Time: 16:16:44
@@ -96,7 +97,7 @@ public class ControllerController {
 		}
 	};
 
-	public ControllerController(ControllerView view, ControllerModel model) {
+	public ControllerController(ControllerView view, ControllerModel model, Map<String, Object> properties) {
 
 		this.view = view;
 		this.model = model;
@@ -104,7 +105,17 @@ public class ControllerController {
 		this.view.getReceiveButton().addActionListener(receiveActionListener);
 		this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
 		try {
-			this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            if (properties == null){
+			    this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            } else {
+                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyController + "." + WSNClientProperties.keyEndpointURL);
+
+                String endpointUrl = "";
+                if (controllerEndpointUrlProperties != null){
+                    endpointUrl = (String) controllerEndpointUrlProperties;
+                }
+                this.view.getEndpointUrlTextField().setText(endpointUrl);
+            }
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
