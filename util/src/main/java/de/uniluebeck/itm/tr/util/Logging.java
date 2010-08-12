@@ -34,10 +34,16 @@ public class Logging {
 		Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%-20.20t] %-5p %-20.20C{1} %x - %m%n"));
 
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
+		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
 			itmLogger.setLevel(Level.INFO);
+		}
+
+		if (!wisebedLogger.getAllAppenders().hasMoreElements()) {
+			wisebedLogger.addAppender(appender);
+			wisebedLogger.setLevel(Level.INFO);
 		}
 
 	}

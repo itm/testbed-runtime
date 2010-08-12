@@ -43,9 +43,8 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:uzl1:1</urn>
-						<id>1</id>
-						<type>isense</type>
-						<serialinterface>/dev/tty.usbserial-00001324</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:uzl1:1,2,SECONDS</serialinterface>
 					</device>
 				</wsn:wsnapp>
 			</application>

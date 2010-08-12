@@ -25,16 +25,18 @@
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 
 	<nodes id="portal">
-
-		<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
-			<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
-				<webservice>
-					<urnprefix>urn:wisebed:</urnprefix>
-					<sessionmanagementendpointurl>http://localhost:10012/sessions</sessionmanagementendpointurl>
-					<wsninstancebaseurl>http://localhost:10012/wsn</wsninstancebaseurl>
-				</webservice>
-			</portal:portalapp>
-		</application>
+		<applications>
+			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+					<webservice>
+						<urnprefix>urn:wisebed:</urnprefix>
+						<sessionmanagementendpointurl>http://localhost:10012/sessions</sessionmanagementendpointurl>
+						<wsninstancebaseurl>http://localhost:10012/wsn</wsninstancebaseurl>
+						<wisemlfilename>configs/quick-start-complex/wiseml.xml</wisemlfilename>
+					</webservice>
+				</portal:portalapp>
+			</application>
+		</applications>
 	</nodes>
 
 </ns2:testbed>

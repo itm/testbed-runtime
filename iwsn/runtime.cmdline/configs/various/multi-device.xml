@@ -34,13 +34,11 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:testbeduzl1:60</urn>
-						<id>60</id>
 						<type>isense</type>
 						<serialinterface>/dev/tty.usbserial-00002426</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:1327</urn>
-						<id>1327</id>
 						<type>telosb</type>
 						<serialinterface>/dev/tty.usbserial-XBQTIXVU</serialinterface>
 					</device>

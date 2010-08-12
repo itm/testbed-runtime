@@ -45,19 +45,16 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:testbedtubs1:1</urn>
-						<id>1</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB1</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbedtubs1:2</urn>
-						<id>2</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB2</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbedtubs1:3</urn>
-						<id>3</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB3</serialinterface>
 					</device>

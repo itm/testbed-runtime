@@ -72,32 +72,47 @@ class WSNAppImpl implements WSNApp {
 		return WSNApp.class.getSimpleName();
 	}
 
+	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
+		@Override
+		public void run() {
+			registerNodeMessageReceiver(false);
+		}
+	};
+
+	private void registerNodeMessageReceiver(boolean register) {
+
+		ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
+
+		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
+				.setNodeName(localNodeName)
+				.setOperation(register ?
+						WSNAppMessages.ListenerManagement.Operation.REGISTER :
+						WSNAppMessages.ListenerManagement.Operation.UNREGISTER
+				)
+				.build();
+
+		for (String destinationNodeName : map.keySet()) {
+
+			testbedRuntime.getUnreliableMessagingService()
+					.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
+					);
+		}
+
+		// also register ourselves for all local node names
+		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNames()) {
+			testbedRuntime.getUnreliableMessagingService()
+					.sendAsync(localNodeName, currentLocalNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
+					);
+		}
+
+	}
+
 	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
 		@Override
 		public void run() {
-
-			ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
-
-			WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-					.setNodeName(localNodeName)
-					.setOperation(WSNAppMessages.ListenerManagement.Operation.REGISTER)
-					.build();
-
-			for (String destinationNodeName : map.keySet()) {
-
-				testbedRuntime.getUnreliableMessagingService()
-						.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-								management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
-						);
-			}
-
-			// also register ourselves for all local node names
-			for (String currentLocalNodeName : testbedRuntime.getLocalNodeNames()) {
-				testbedRuntime.getUnreliableMessagingService()
-						.sendAsync(localNodeName, currentLocalNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-								management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
-						);
-			}
+			registerNodeMessageReceiver(true);
 		}
 	};
 
@@ -113,11 +128,12 @@ class WSNAppImpl implements WSNApp {
 							.mergeFrom(msg.getPayload())
 							.build();
 
+					if (log.isDebugEnabled()) {
+						log.debug("Received node output: {}", WSNAppMessageTools.toString(message, true));
+					}
+
 					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-
-						log.debug("Deliver node output to listener {}: {}", receiver, message);
 						receiver.receive(message);
-
 					}
 
 				} catch (InvalidProtocolBufferException e) {
@@ -146,6 +162,9 @@ class WSNAppImpl implements WSNApp {
 
 		// stop sending 'register'-messages to node counterpart
 		registerNodeMessageReceiverFuture.cancel(false);
+
+		// unregister with all nodes once
+		testbedRuntime.getSchedulerService().execute(unregisterNodeMessageReceiverRunnable);
 
 		// stop listening for messages from the nodes
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);

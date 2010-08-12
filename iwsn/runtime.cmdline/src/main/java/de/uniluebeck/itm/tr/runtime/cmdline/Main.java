@@ -75,13 +75,18 @@ public class Main {
 
             if (line.hasOption('v')) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
+				Logger.getLogger("de.uniluebeck.itm").setLevel(Level.DEBUG);
+				Logger.getLogger("eu.wisebed").setLevel(Level.DEBUG);
             }
 
             if (line.hasOption('l')) {
-                Level level = Level.toLevel(line.getOptionValue('l'));
-                System.out.println("Setting log level to " + level);
-                Logger.getRootLogger().setLevel(level);
+
+				Level level = Level.toLevel(line.getOptionValue('l'));
+				System.out.println("Setting log level to " + level);
+
+				Logger.getRootLogger().setLevel(level);
                 Logger.getLogger("de.uniluebeck.itm").setLevel(level);
+				Logger.getLogger("eu.wisebed").setLevel(level);
             }
 
             if (line.hasOption('h')) {

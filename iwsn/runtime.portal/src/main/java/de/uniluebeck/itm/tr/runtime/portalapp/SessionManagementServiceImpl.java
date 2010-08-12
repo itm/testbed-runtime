@@ -318,7 +318,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 			// stop it if it is existing (it may have been freed before or its lifetime may have been reached)
 			if (wsnInstance != null) {
-				wsnInstance.stop();
+				try {
+					wsnInstance.stop();
+				} catch (Exception e) {
+					log.error("Error while stopping WSN service instance: " + e, e);
+				}
 				wsnInstances.remove(secretReservationKey);
 			}
 
