@@ -47,31 +47,26 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:testbeduzl1:1</urn>
-						<id>1</id>
 						<type>isense</type>
 						<autodetection-mac>1</autodetection-mac>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:2</urn>
-						<id>2</id>
 						<type>isense</type>
 						<autodetection-mac>2</autodetection-mac>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:3</urn>
-						<id>3</id>
 						<type>isense</type>
 						<autodetection-mac>3</autodetection-mac>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:4</urn>
-						<id>4</id>
 						<type>isense</type>
 						<autodetection-mac>4</autodetection-mac>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:5</urn>
-						<id>5</id>
 						<type>isense</type>
 						<autodetection-mac>5</autodetection-mac>
 					</device>

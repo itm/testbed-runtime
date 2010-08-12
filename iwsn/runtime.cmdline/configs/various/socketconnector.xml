@@ -41,19 +41,16 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:testbeduzl1:1</urn>
-						<id>1</id>
 						<type>mock</type>
 						<serialinterface>urn:wisebed:testbeduzl1:1,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:2</urn>
-						<id>2</id>
 						<type>mock</type>
 						<serialinterface>urn:wisebed:testbeduzl1:2,2,SECONDS</serialinterface>
 					</device>
 					<device>
 						<urn>urn:wisebed:testbeduzl1:3</urn>
-						<id>3</id>
 						<type>mock</type>
 						<serialinterface>urn:wisebed:testbeduzl1:3,2,SECONDS</serialinterface>
 					</device>

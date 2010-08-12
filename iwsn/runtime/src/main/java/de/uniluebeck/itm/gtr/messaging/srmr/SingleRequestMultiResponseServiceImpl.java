@@ -232,7 +232,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 				if (isRequest) {
 
-					log.debug("=== Request === {} ==== {}",
+					log.trace("=== Request === {} ==== {}",
 							Arrays.toString(testbedRuntime.getLocalNodeNames().toArray()), msg
 					);
 					// this happens on the request-receiver (server) side
@@ -274,7 +274,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 				} else if (isResponse) {
 
-					log.debug("*** Response *** {} *** {}",
+					log.trace("*** Response *** {} *** {}",
 							Arrays.toString(testbedRuntime.getLocalNodeNames().toArray()), msg
 					);
 

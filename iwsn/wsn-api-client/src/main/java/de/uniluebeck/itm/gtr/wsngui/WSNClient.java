@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Created by:
@@ -89,6 +91,14 @@ public class WSNClient {
 
 		outputTextPane = new JTextArea();
 		outputTextPane.setEditable(false);
+		outputTextPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					outputTextPane.setText("");
+				}
+			}
+		});
 
 		outputScrollPane = new JScrollPane(outputTextPane);
 		outputScrollPane.setPreferredSize(new Dimension(800, 400));

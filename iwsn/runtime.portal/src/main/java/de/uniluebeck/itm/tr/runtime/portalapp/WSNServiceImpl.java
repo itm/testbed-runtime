@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.NamingThreadFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.sun.istack.internal.Nullable;
@@ -145,7 +144,9 @@ public class WSNServiceImpl implements WSNService {
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
 
-		executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build());
+		executorService = Executors.newSingleThreadScheduledExecutor(
+				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
+		);
 		controllerHelper = new ControllerHelper();
 
 		addController(controllerEndpointUrl.toString());
@@ -505,6 +506,14 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.flashPrograms(convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+					if (requestStatus.hasStatus() && requestStatus.getStatus().hasValue() && requestStatus.getStatus()
+							.hasNodeId()) {
+						log.debug(
+								"Flashing node {} completed {} percent.",
+								requestStatus.getStatus().getNodeId(),
+								requestStatus.getStatus().getValue()
+						);
+					}
 					controllerHelper.receiveStatus(convert(requestStatus, requestId));
 				}
 

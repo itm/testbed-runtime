@@ -66,8 +66,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private String nodeUrn;
 
-	private long nodeId;
-
 	private TestbedRuntime testbedRuntime;
 
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
@@ -131,10 +129,11 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	private NodeApi nodeApi;
 
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
-		log.debug("{} => WSNDeviceAppImpl.executeManagement({})", nodeUrn, management);
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
+			log.debug("{} => Node {} registered for node outputs", nodeUrn, management.getNodeName());
 			nodeMessageListeners.add(management.getNodeName());
 		} else {
+			log.debug("{} => Node {} unregistered from node outputs", nodeUrn, management.getNodeName());
 			nodeMessageListeners.remove(management.getNodeName());
 		}
 	}
@@ -151,12 +150,10 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	@Inject
 	public WSNDeviceAppImpl(@Named(WSNDeviceAppImpl.NAME_NODE_URN) String nodeUrn,
-							@Named(WSNDeviceAppImpl.NAME_NODE_ID) long nodeId,
 							iSenseDevice iSenseDevice,
 							TestbedRuntime testbedRuntime) {
 
 		this.nodeUrn = nodeUrn;
-		this.nodeId = nodeId;
 		this.iSenseDevice = iSenseDevice;
 		this.testbedRuntime = testbedRuntime;
 		// TODO set timeout realistic
@@ -711,8 +708,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private void deliverToNodeMessageReceivers(MessagePacket p) {
 
-		log.debug("{} => WSNDeviceAppImpl.deliverToNodeMessageReceivers({})", nodeUrn, p);
-
 		if (nodeMessageListeners.size() == 0) {
 			log.debug("{} => No message listeners registered!", nodeUrn);
 			return;
@@ -770,14 +765,27 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		}
 
+		WSNAppMessages.Message message = messageBuilder.build();
+
 		for (String nodeMessageListener : nodeMessageListeners) {
 
-			log.debug("{} => Delivering node output to {}", nodeUrn, nodeMessageListener);
+			if (log.isDebugEnabled()) {
+				log.debug("{} => Delivering node output to {}: {}", new String[]{
+						nodeUrn,
+						nodeMessageListener,
+						WSNAppMessageTools.toString(message, false)
+				}
+				);
+			}
 
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(nodeUrn, nodeMessageListener, WSNApp.MSG_TYPE_LISTENER_MESSAGE,
-							messageBuilder.build().toByteArray(), 1, System.currentTimeMillis() + 5000
-					);
+			testbedRuntime.getUnreliableMessagingService().sendAsync(
+					nodeUrn,
+					nodeMessageListener,
+					WSNApp.MSG_TYPE_LISTENER_MESSAGE,
+					message.toByteArray(),
+					1,
+					System.currentTimeMillis() + 5000
+			);
 		}
 
 
@@ -787,7 +795,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.doneReset()", nodeUrn);
 
-// send reply to indicate failure
+		// send reply to indicate failure
 		testbedRuntime.getUnreliableMessagingService().sendAsync(
 				MessageTools.buildReply(currentOperationInvocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 						buildRequestStatus(1, null)
@@ -800,7 +808,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.failedReset()", nodeUrn);
 
-// send reply to indicate failure
+		// send reply to indicate failure
 		testbedRuntime.getUnreliableMessagingService().sendAsync(
 				MessageTools.buildReply(currentOperationInvocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 						buildRequestStatus(0, "Failed resetting node")
@@ -851,7 +859,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		testbedRuntime.getSingleRequestMultiResponseService()
 				.addListener(nodeUrn, WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST, srmrsListener);
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
-		
+
 	}
 
 	@Override
@@ -863,10 +871,10 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
-        // then disconnect from device
-        iSenseDevice.deregisterListener(iSenseDeviceListener);
-        log.debug("{} => Shutting down iSenseDevice");
-        iSenseDevice.shutdown();
+		// then disconnect from device
+		iSenseDevice.deregisterListener(iSenseDeviceListener);
+		log.debug("{} => Shutting down iSenseDevice");
+		iSenseDevice.shutdown();
 	}
 
 	public boolean isExclusiveOperationRunning() {
