@@ -44,8 +44,8 @@
 					<device>
 						<urn>urn:wisebed:uzl2:2</urn>
 						<id>2</id>
-						<type>isense</type>
-						<serialinterface>/dev/tty.usbserial-00001124</serialinterface>
+						<type>mock</type>
+						<serialinterface>urn:wisebed:uzl2:2,2,SECONDS</serialinterface>
 					</device>
 				</wsn:wsnapp>
 			</application>

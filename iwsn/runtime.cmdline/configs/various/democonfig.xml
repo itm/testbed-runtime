@@ -87,7 +87,6 @@
 				<abc:wsnapp xmlns:abc="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>3a</urn>
-						<id>0</id>
 						<type>isense</type>
 						<serialinterface>/dev/tty.usbserial-00002006</serialinterface>
 					</device>

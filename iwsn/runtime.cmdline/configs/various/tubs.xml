@@ -40,7 +40,6 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>urn:wisebed:tubs:n1</urn>
-						<id>420</id>
 						<type>isense</type>
 						<serialinterface>/dev/tty.usbserial-00002006</serialinterface>
 					</device>

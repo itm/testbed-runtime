@@ -62,15 +62,13 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			MoteListLinux moteList = null;
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
-                StringUtils.assertHexOrDecLongValue(wsnDevice.getId());
-				long id = StringUtils.parseHexOrDecLong(wsnDevice.getId());
                 
 				String serialInterface = wsnDevice.getSerialinterface();
 				String autodetectionMac = wsnDevice.getAutodetectionMac();
 				String type = wsnDevice.getType();
 
                 StringUtils.assertHexOrDecLongUrnSuffix(wsnDevice.getUrn());
-				String urn = StringUtils.parseHexOrDecLongUrnSuffix(wsnDevice.getUrn());
+				String urn = wsnDevice.getUrn();
 
 				if (serialInterface == null || "".equals(serialInterface)) {
 
@@ -101,7 +99,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 					log.debug("Trying to connect to {} device on port {}", type, serialInterface);
 
 					iSenseDevice device = DeviceFactory.create(type, serialInterface);
-					Injector injector = Guice.createInjector(new WSNDeviceAppModule(urn, id, device, testbedRuntime));
+					Injector injector = Guice.createInjector(new WSNDeviceAppModule(urn, device, testbedRuntime));
 					builder.add(injector.getInstance(WSNDeviceApp.class));
 
 				} catch (Exception e) {

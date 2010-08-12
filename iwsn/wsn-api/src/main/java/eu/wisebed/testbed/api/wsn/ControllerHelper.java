@@ -192,7 +192,7 @@ public class ControllerHelper {
 	 */
 	public void receive(Message message) {
 
-		if (executorService.getTaskCount() > 100) {
+		if (executorService.getQueue().size() > 100) {
 			log.error("More than 100 messages in the delivery queue. Dropping message!");
 			// TODO find more elegant solution on how to cope with too much load
 			return;
@@ -213,7 +213,7 @@ public class ControllerHelper {
 	 */
 	public void receiveStatus(RequestStatus requestStatus) {
 
-		if (executorService.getTaskCount() > 100) {
+		if (executorService.getQueue().size() > 100) {
 			log.error("More than 100 messages in the delivery queue. Dropping requestStatus!");
 			// TODO find more elegant solution on how to cope with too much load
 			return;

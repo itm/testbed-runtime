@@ -73,19 +73,16 @@
 				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<device>
 						<urn>node02-01</urn>
-						<id>1</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB1</serialinterface>
 					</device>
 					<device>
 						<urn>node02-02</urn>
-						<id>2</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB3</serialinterface>
 					</device>
 					<device>
 						<urn>node02-03</urn>
-						<id>3</id>
 						<type>isense</type>
 						<serialinterface>/dev/ttyUSB5</serialinterface>
 					</device>
