@@ -48,7 +48,7 @@ import java.util.LinkedList;
  * @author Gabor Cselle
  * @version 1.0
  */
-public class PersistentQueueImpl2 implements PersistentQueue {
+public class PersistentQueueImplSingleFile implements PersistentQueue {
     private final String filename;
     private final int defragmentInterval;
     /** How many remove()s have we executed since last defragmenting the file? */
@@ -71,7 +71,7 @@ public class PersistentQueueImpl2 implements PersistentQueue {
      * @param filename the file to use for keeping the persistent state
      * @throws IOException if an I/O error occurs
      */
-    public PersistentQueueImpl2(String filename, long maxSizeInMB) throws IOException {
+    public PersistentQueueImplSingleFile(String filename, long maxSizeInMB) throws IOException {
         this(filename, DEFAULT_DEFRAGMENT_INTERVAL, maxSizeInMB);
     }
 
@@ -82,7 +82,7 @@ public class PersistentQueueImpl2 implements PersistentQueue {
      * @param defragmentInterval number of deletes after which defragment operation should start
      * @throws IOException if an I/O error occurs
      */
-    public PersistentQueueImpl2(String filename, int defragmentInterval, long maxSizeInMB) throws IOException {
+    public PersistentQueueImplSingleFile(String filename, int defragmentInterval, long maxSizeInMB) throws IOException {
         this.filename = filename;
         this.defragmentInterval = defragmentInterval;
         this.removesSinceDefragment = 0;
@@ -115,6 +115,11 @@ public class PersistentQueueImpl2 implements PersistentQueue {
      */
     public synchronized long size() {
         return list.size();
+    }
+
+    @Override
+    public long getUsedDiskSpaceInByte() {
+        return (new File(this.filename).length());
     }
 
     /**

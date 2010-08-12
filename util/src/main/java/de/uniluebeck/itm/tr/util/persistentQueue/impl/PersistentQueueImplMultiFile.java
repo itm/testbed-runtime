@@ -1,12 +1,15 @@
 package de.uniluebeck.itm.tr.util.persistentQueue.impl;
 
 import java.io.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.uniluebeck.itm.tr.util.persistentQueue.LongOverflowException;
 import de.uniluebeck.itm.tr.util.persistentQueue.NotEnoughMemoryException;
 import de.uniluebeck.itm.tr.util.persistentQueue.PersistentQueue;
 import de.uniluebeck.itm.tr.util.FileUtils;
 import org.slf4j.LoggerFactory;
+import sun.awt.datatransfer.ToolkitThreadBlockedHandler;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * Time: 16:45:45
  * To change this template use File | Settings | File Templates.
  */
-public class PersistentQueueImpl implements PersistentQueue {
+public class PersistentQueueImplMultiFile implements PersistentQueue {
 
     private File dir;
 
@@ -33,9 +36,11 @@ public class PersistentQueueImpl implements PersistentQueue {
 
     private long sizeOfDirectoryInByte = 0;
     
-    final org.slf4j.Logger log = LoggerFactory.getLogger(PersistentQueueImpl.class);
-    
-    public PersistentQueueImpl(String dir, long maxSizeInMegaByte) throws IOException, SecurityException {
+    final org.slf4j.Logger log = LoggerFactory.getLogger(PersistentQueueImplMultiFile.class);
+    private Lock lock;
+
+    public PersistentQueueImplMultiFile(String dir, long maxSizeInMegaByte) throws IOException, SecurityException {
+        this.lock = new ReentrantLock();
         this.dir = new File(dir);
         this.maxSizeInMegaByte = maxSizeInMegaByte;
 
@@ -51,7 +56,8 @@ public class PersistentQueueImpl implements PersistentQueue {
      * @throws NotEnoughMemoryException
      * @throws LongOverflowException
      */
-    public synchronized boolean add(Serializable object) throws NotEnoughMemoryException, LongOverflowException {
+    public boolean add(Serializable object) throws NotEnoughMemoryException, LongOverflowException {
+        lock.lock();
         try {
             assertMaxSizeReached();
             File file = this.createNewFile();
@@ -64,6 +70,9 @@ public class PersistentQueueImpl implements PersistentQueue {
         }
         catch (IOException e){
             return false;
+        }
+        finally {
+            lock.unlock();
         }
     }
 
@@ -88,30 +97,43 @@ public class PersistentQueueImpl implements PersistentQueue {
      * @throws ClassNotFoundException
      * @throws SecurityException
      */
-    public synchronized Serializable poll() throws IOException, ClassNotFoundException, SecurityException {
-        Serializable object = this.peek();
-        File file = this.getFileFromHead();
-        file.delete();
+    public Serializable poll() throws IOException, ClassNotFoundException, SecurityException {
+        Serializable object = null;
+        lock.lock();
+        try {
+            object = this.getHeadObject();
+            File file = this.getFileFromHead();
+            file.delete();
+            this.head ++;
+            this.size --;
 
-        this.head ++;
-        this.size --;
-        
-        return object;
+            return object;
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public synchronized Serializable peek() throws IOException, ClassNotFoundException {
+    public Serializable peek() throws IOException, ClassNotFoundException {
+        Serializable object = null;
+        lock.lock();
+        try {
+            object = getHeadObject();
+            return object;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private Serializable getHeadObject() throws ClassNotFoundException, IOException {
         if (this.isEmpty()){
             log.warn("Queue is empty.");
             return null;
         }
         File file = this.getFileFromHead();
-        Serializable object = null;
         FileInputStream fileInputStream = new FileInputStream(file.getAbsoluteFile());
         ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-        object = (Serializable) objectInputStream.readObject();
-
-        return object;
+        return (Serializable) objectInputStream.readObject();
     }
 
     public synchronized boolean isEmpty() {
@@ -122,7 +144,12 @@ public class PersistentQueueImpl implements PersistentQueue {
         return this.size;
     }
 
-    private synchronized void addObjectToFile(File file, Serializable object) throws IOException {
+    @Override
+    public long getUsedDiskSpaceInByte() {
+        return this.sizeOfDirectoryInByte;
+    }
+
+    private void addObjectToFile(File file, Serializable object) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(file, true);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 
@@ -134,7 +161,7 @@ public class PersistentQueueImpl implements PersistentQueue {
 
 
     
-    private synchronized File getFileFromHead(){
+    private File getFileFromHead(){
         return new File(this.dir.getAbsolutePath(), prefix + this.head + suffix);
     }
 
@@ -160,7 +187,7 @@ public class PersistentQueueImpl implements PersistentQueue {
         return (this.sizeOfDirectoryInByte / 1024 / 1024);
     }
 
-    private synchronized File createNewFile() throws IOException {
+    private File createNewFile() throws IOException {
         long value = this.tail;
         File file = new File(this.dir.getAbsolutePath(), prefix + value + suffix);
         if (!file.createNewFile()) throw new IOException("Could not create File");
