@@ -110,8 +110,10 @@ import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 	// Get WSN API instance URL --> call getInstance()
 	//--------------------------------------------------------------------------
 		SessionManagement sm = WSNServiceHelper.getSessionManagementService(sessionManagementEndpoint);
-		GetInstance getInstanceParams = helper.createGetInstance(localControllerEndpoint, helper.copyRsToWsn(reservation));
-		String wsnApiEndpoint = sm.getInstance(getInstanceParams);
+
+		log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(helper.copyRsToWsn(reservation)) + ", " + localControllerEndpoint);
+		String wsnApiEndpointUzl = smUzl.getInstance(helper.copyRsToWsn(reservation), localControllerEndpoint);
+		
 		WSN wsn = WSNServiceHelper.getWSNService(wsnApiEndpoint);
 	
 	//--------------------------------------------------------------------------
