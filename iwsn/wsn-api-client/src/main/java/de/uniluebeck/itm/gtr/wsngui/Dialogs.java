@@ -60,8 +60,11 @@ public class Dialogs {
 		JTextArea textArea = new JTextArea(displayText);
 		textArea.setEditable(false);
 		textArea.setLineWrap(true);
-		textArea.setPreferredSize(new Dimension(800, 600));
+		//textArea.setPreferredSize(new Dimension(800, 600));
 		JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(800, 600));
 		JOptionPane.showMessageDialog(null, scrollPane);
 	}
 
