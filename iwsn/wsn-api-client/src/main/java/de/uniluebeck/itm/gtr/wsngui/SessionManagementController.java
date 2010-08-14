@@ -69,6 +69,24 @@ public class SessionManagementController {
 				JOptionPane.showMessageDialog(null, "Experiment is not running");
 			} catch (UnknownReservationIdException_Exception e1) {
 				JOptionPane.showMessageDialog(null, "Unknown reservation ID");
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+	};
+
+	private ActionListener getNetworkActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+
+			String endpointUrl = view.getEndpointUrlTextField().getText();
+			try {
+
+				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+				Dialogs.showTextDialog(smService.getNetwork(), true);
+
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
 		}
 	};
@@ -97,11 +115,14 @@ public class SessionManagementController {
 				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
 				List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
 				smService.free(srkList);
+				view.getGetInstanceResultTextField().setText("");
 
 			} catch (ExperimentNotRunningException_Exception e1) {
 				JOptionPane.showMessageDialog(null, "Experiment is not running");
 			} catch (UnknownReservationIdException_Exception e1) {
 				JOptionPane.showMessageDialog(null, "Unknown reservation ID");
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
 		}
 	};
@@ -115,14 +136,13 @@ public class SessionManagementController {
 
 		this.view.getGetInstanceButton().addActionListener(getInstanceActionListener);
 		this.view.getFreeButton().addActionListener(freeActionListener);
+		this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
 
 		try {
 			this.view.getEndpointUrlTextField()
 					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
 			this.view.getSecretReservationKeysTextArea().setText(""
-					+ "urn:wisebed:testbeduzl1:,1234\n"
-					+ "urn:wisebed:testbeduzl2:,1234\n"
-					+ "urn:wisebed:testbeduzl3:,1234"
+					+ "urn:wisebed:testbeduzl1:,1234"
 			);
 			this.view.getControllerTextField()
 					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");

@@ -53,12 +53,14 @@ public class SessionManagementView extends JPanel {
 
 	private JButton getInstanceResultCopyButton;
 
+	private JButton getNetworkButton;
+
 	public SessionManagementView(SessionManagementModel model) {
 
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-		this.panel = new JPanel(new GridLayout(8, 2));
+		this.panel = new JPanel(new GridLayout(9, 2));
 		this.model = model;
 
 		{
@@ -69,11 +71,13 @@ public class SessionManagementView extends JPanel {
 			panel.add(endpointUrlTextField);
 		}
 		{
-			smPanelReservationIdLabel = new JLabel("Secret Reservation Keys\none tuple per line\nurnPrefix,secretReservationKey");
-			secretReservationKeysTextArea = new JTextArea(5, 30);
+			smPanelReservationIdLabel = new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)");
+			secretReservationKeysTextArea = new JTextArea();
+			JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
+			secretReservationKeysScrollPane.setPreferredSize(new Dimension(400,30));
 
 			panel.add(smPanelReservationIdLabel);
-			panel.add(secretReservationKeysTextArea);
+			panel.add(secretReservationKeysScrollPane);
 		}
 		{
 			smPanelControllerLabel = new JLabel("Controller Endpoint URL");
@@ -95,6 +99,12 @@ public class SessionManagementView extends JPanel {
 			panel.add(freeButton);
 		}
 		{
+			getNetworkButton = new JButton("getNetwork()");
+
+			panel.add(new JLabel());
+			panel.add(getNetworkButton);
+		}
+		{
 			getInstanceResultTextField = new JTextField();
 
 			panel.add(new JLabel("GetInstance() result"));
@@ -109,7 +119,6 @@ public class SessionManagementView extends JPanel {
 
 
 		add(panel);
-		add(Box.createVerticalGlue());
 
 	}
 
@@ -139,5 +148,9 @@ public class SessionManagementView extends JPanel {
 
 	public JTextField getGetInstanceResultTextField() {
 		return getInstanceResultTextField;
+	}
+
+	public JButton getGetNetworkButton() {
+		return getNetworkButton;
 	}
 }

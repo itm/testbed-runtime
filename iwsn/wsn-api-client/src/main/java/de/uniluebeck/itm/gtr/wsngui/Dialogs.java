@@ -23,11 +23,16 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.tidy.Tidy;
 
 import javax.swing.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,12 +42,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by:
- * User: bimschas
- * Date: 05.03.2010
- * Time: 13:39:44
+ * Created by: User: bimschas Date: 05.03.2010 Time: 13:39:44
  */
 public class Dialogs {
+
+	public static void showTextDialog(final String text, boolean tidyXml) {
+		String displayText = text;
+		if (tidyXml) {
+			try {
+				JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
+				Wiseml wiseml = (Wiseml) jc.createUnmarshaller().unmarshal(new StringReader(text));
+				displayText = StringUtils.jaxbMarshal(wiseml);
+			} catch (Exception e) {
+				// silently catch and display as normal string 
+			}
+		}
+		JTextArea textArea = new JTextArea(displayText);
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		textArea.setPreferredSize(new Dimension(800, 600));
+		JScrollPane scrollPane = new JScrollPane(textArea);
+		JOptionPane.showMessageDialog(null, scrollPane);
+	}
 
 	public static class InputDialog<T> extends JDialog {
 
@@ -116,8 +137,9 @@ public class Dialogs {
 
 		@Override
 		public void setVisible(boolean b) {
-			if (b)
+			if (b) {
 				pack();
+			}
 			super.setVisible(b);
 		}
 	}

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.xml.namespace.QName;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -57,148 +58,156 @@ public class WSNClientController {
 	private ActionListener buttonActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+
 			WSN wsnService = null;
+
 			try {
 				wsnService = getWSNService();
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, "Service is unavailable. Reason: " + e1.getMessage(), "Service Unavailable", JOptionPane.WARNING_MESSAGE);
 			}
-			if (wsnService != null) {
 
-				if (e.getSource() == clientView.getAreNodesAliveButton()) {
+			try {
+				if (wsnService != null) {
 
-					Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
-					Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
-							"AreNodesAlive - Parameters",
-							stringListPanel
-					);
-					dialog.setVisible(true);
-					List<String> nodeUrns = dialog.getResult();
-					if (nodeUrns != null) {
-						String requestId = wsnService.areNodesAlive(nodeUrns);
-						log.info("AreNodesAlive called -> got requestId {}", requestId);
-					}
+					if (e.getSource() == clientView.getAreNodesAliveButton()) {
 
-				} else if (e.getSource() == clientView.getDefineNetworkButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getDescribeCapabilitiesButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getDestroyVirtualLinkButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getDisableNodeButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getDisablePhysicalLinkButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getEnableNodeButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getEnablePhysicalLinkButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getFlashProgramsButton()) {
-
-					// fundamentals set
-					Dialogs.FlashProgramsPanel flashProgramsPanel = new Dialogs.FlashProgramsPanel();
-					Dialogs.InputDialog<FlashPrograms> dialog = new Dialogs.InputDialog<FlashPrograms>(
-							"FlashPrograms - Parameters",
-							flashProgramsPanel
-					);
-					dialog.setVisible(true);
-					FlashPrograms flashPrograms = dialog.getResult();
-					if (flashPrograms != null) {
-						String requestId = wsnService.flashPrograms(
-								flashPrograms.getNodeIds(),
-								flashPrograms.getProgramIndices(),
-								flashPrograms.getPrograms()
+						Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
+						Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
+								"AreNodesAlive - Parameters",
+								stringListPanel
 						);
-						log.info("FlashPrograms called -> got requestId: {}", requestId);
+						dialog.setVisible(true);
+						List<String> nodeUrns = dialog.getResult();
+						if (nodeUrns != null) {
+							String requestId = wsnService.areNodesAlive(nodeUrns);
+							log.info("AreNodesAlive called -> got requestId {}", requestId);
+						}
+
+					} else if (e.getSource() == clientView.getDefineNetworkButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getDescribeCapabilitiesButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getDestroyVirtualLinkButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getDisableNodeButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getDisablePhysicalLinkButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getEnableNodeButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getEnablePhysicalLinkButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getFlashProgramsButton()) {
+
+						// fundamentals set
+						Dialogs.FlashProgramsPanel flashProgramsPanel = new Dialogs.FlashProgramsPanel();
+						Dialogs.InputDialog<FlashPrograms> dialog = new Dialogs.InputDialog<FlashPrograms>(
+								"FlashPrograms - Parameters",
+								flashProgramsPanel
+						);
+						dialog.setVisible(true);
+						FlashPrograms flashPrograms = dialog.getResult();
+						if (flashPrograms != null) {
+							String requestId = wsnService.flashPrograms(
+									flashPrograms.getNodeIds(),
+									flashPrograms.getProgramIndices(),
+									flashPrograms.getPrograms()
+							);
+							log.info("FlashPrograms called -> got requestId: {}", requestId);
+						}
+
+					} else if (e.getSource() == clientView.getGetFiltersButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getGetNeighborhoodButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getGetNetworkButton()) {
+
+						Dialogs.showTextDialog(wsnService.getNetwork(), true);
+
+					} else if (e.getSource() == clientView.getGetPropertyValueOfButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getGetVersionButton()) {
+
+						// fundamentals set
+						JOptionPane.showMessageDialog(null, wsnService.getVersion());
+
+					} else if (e.getSource() == clientView.getResetNodesButton()) {
+
+						Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
+						Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
+								"ResetNodes - Parameters",
+								stringListPanel
+						);
+						dialog.setVisible(true);
+						List<String> nodeUrns = dialog.getResult();
+						if (nodeUrns != null) {
+							String requestId = wsnService.resetNodes(nodeUrns);
+							log.info("ResetNodes called -> got requestId: {}", requestId);
+						}
+
+					} else if (e.getSource() == clientView.getSendButton()) {
+
+						// fundamentals set
+						Dialogs.SendMessagePanel panel = new Dialogs.SendMessagePanel();
+						Dialogs.InputDialog<Send> dialog = new Dialogs.InputDialog<Send>(
+								"Send - Parameters",
+								panel
+						);
+						dialog.setVisible(true);
+						Send result = dialog.getResult();
+						if (result != null) {
+							List<String> nodeUrns = result.getNodeIds();
+							Message message = result.getMessage();
+							String requestId = wsnService.send(nodeUrns, message);
+							log.info("Send called -> got requestId: {}", requestId);
+						}
+
+					} else if (e.getSource() == clientView.getSetStartTimeButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
+					} else if (e.getSource() == clientView.getSetVirtualLinkButton()) {
+
+						// TODO
+						JOptionPane.showMessageDialog(null, "TODO");
+
 					}
-
-				} else if (e.getSource() == clientView.getGetFiltersButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getGetNeighborhoodButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getGetNetworkButton()) {
-
-					JOptionPane.showMessageDialog(null, new JTextArea(wsnService.getNetwork()));
-
-				} else if (e.getSource() == clientView.getGetPropertyValueOfButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getGetVersionButton()) {
-
-					// fundamentals set
-					JOptionPane.showMessageDialog(null, wsnService.getVersion());
-
-				} else if (e.getSource() == clientView.getResetNodesButton()) {
-
-					Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
-					Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
-							"ResetNodes - Parameters",
-							stringListPanel
-					);
-					dialog.setVisible(true);
-					List<String> nodeUrns = dialog.getResult();
-					if (nodeUrns != null) {
-						String requestId = wsnService.resetNodes(nodeUrns);
-						log.info("ResetNodes called -> got requestId: {}", requestId);
-					}
-
-				} else if (e.getSource() == clientView.getSendButton()) {
-
-					// fundamentals set
-					Dialogs.SendMessagePanel panel = new Dialogs.SendMessagePanel();
-					Dialogs.InputDialog<Send> dialog = new Dialogs.InputDialog<Send>(
-							"Send - Parameters",
-							panel
-					);
-					dialog.setVisible(true);
-					Send result = dialog.getResult();
-					if (result != null) {
-						List<String> nodeUrns = result.getNodeIds();
-						Message message = result.getMessage();
-						String requestId = wsnService.send(nodeUrns, message);
-						log.info("Send called -> got requestId: {}", requestId);
-					}
-
-				} else if (e.getSource() == clientView.getSetStartTimeButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
-				} else if (e.getSource() == clientView.getSetVirtualLinkButton()) {
-
-					// TODO
-					JOptionPane.showMessageDialog(null, "TODO");
-
 				}
+				
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
 		}
 	};
