@@ -34,42 +34,21 @@
 		<relativePath>../../</relativePath>
 	</parent>
 
-	<artifactId>tr.rs-persistence-jpa</artifactId>
+	<artifactId>tr.logcontroller</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: RS Persistence JPA</name>
+	<name>TR :: Logging Controller</name>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence</artifactId>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<!--<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence</artifactId>
-			<version>0.5.2-SNAPSHOT</version>
-			<scope>test</scope>
-			<classifier>tests</classifier>
-		</dependency>-->
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.util</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-singleurnprefix</artifactId>
-		</dependency>
 
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
 			<artifactId>persistence-api</artifactId>
@@ -101,12 +80,6 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
