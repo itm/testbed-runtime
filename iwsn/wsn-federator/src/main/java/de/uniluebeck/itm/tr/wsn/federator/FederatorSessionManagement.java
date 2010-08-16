@@ -30,6 +30,7 @@ import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
@@ -78,7 +79,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	private final String reservationEndpointUrl;
 
 	/**
-	 * wsnInstanceHash (see {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#calculateWSNInstanceHash(java.util.List)}
+	 * wsnInstanceHash (see {@link eu.wisebed.testbed.api.wsn.SessionManagementHelper#calculateWSNInstanceHash(java.util.List)}
 	 * ) -> Federating WSN API instance
 	 */
 	private final TimedCache<String, FederatorWSN> instanceCache = new TimedCache<String, FederatorWSN>();
@@ -194,7 +195,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
-		final String wsnInstanceHash = calculateWSNInstanceHash(secretReservationKeys);
+		final String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
 
 		// check if instance already exists and return it if that's the case
 		FederatorWSN existingWSNFederatorInstance = instanceCache.get(wsnInstanceHash);
@@ -287,24 +288,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	/**
-	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
-	 * secretReservationKeys}.
-	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances that
-	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
-	 *
-	 * @return an instance hash
-	 */
-	private String calculateWSNInstanceHash(List<SecretReservationKey> secretReservationKeys) {
-		// secretReservationKey -> urnPrefix
-		Map<String, String> map = new TreeMap<String, String>();
-		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
-			map.put(secretReservationKey.getSecretReservationKey(), secretReservationKey.getUrnPrefix());
-		}
-		return "wsnInstanceHash" + map.hashCode();
-	}
-
-	/**
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
 	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances
@@ -364,7 +347,7 @@ public class FederatorSessionManagement implements SessionManagement {
 		preconditions.checkFreeArguments(secretReservationKeys);
 
 		// check if instance still exists and if not simply exit
-		String wsnInstanceHash = calculateWSNInstanceHash(secretReservationKeys);
+		String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
 		FederatorWSN federatorWSN = instanceCache.remove(wsnInstanceHash);
 		if (federatorWSN == null) {
 			log.warn("Trying to free a not existing instance for keys {} with a hash of {}.", secretReservationKeys,
