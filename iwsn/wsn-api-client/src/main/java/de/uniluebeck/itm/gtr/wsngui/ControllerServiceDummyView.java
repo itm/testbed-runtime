@@ -47,7 +47,7 @@ public class ControllerServiceDummyView extends JPanel {
 
 	private ControllerServiceImpl controllerService;
 
-	public ControllerServiceDummyView(Map<String, Object> properties) {
+	public ControllerServiceDummyView(Map<String, String> properties) {
 
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
@@ -57,17 +57,12 @@ public class ControllerServiceDummyView extends JPanel {
 		{
 			panel.add(new JLabel("Controller API Endpoint URL"));
 			try {
-                if (properties == null){
+                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyControllerService + "." + WSNClientProperties.keyEndpointURL);
+                if (controllerEndpointUrlProperties == null){
 				    endpointUrlTextField = new JTextField("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
                 }
                 else {
-                    Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyController + "." + WSNClientProperties.keyEndpointURL);
-
-                    String endpointUrl = "";
-                    if (controllerEndpointUrlProperties != null){
-                        endpointUrl = (String) controllerEndpointUrlProperties;
-                    }
-                    endpointUrlTextField = new JTextField(endpointUrl);
+                    endpointUrlTextField = new JTextField((String) controllerEndpointUrlProperties);
                 }
 			} catch (UnknownHostException e) {
 				e.printStackTrace();

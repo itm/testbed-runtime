@@ -53,7 +53,7 @@ public class WSNClient {
 
 	private JScrollPane outputScrollPane;
 
-	public WSNClient(Map<String, Object> properties) {
+	public WSNClient(Map<String, String> properties) {
 
 		panel = new JPanel(new BorderLayout());
 
@@ -75,7 +75,7 @@ public class WSNClient {
 
 		{
 			WSNClientModel wsnClientModel = new WSNClientModel();
-			WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
+			WSNClientView wsnClientView = new WSNClientView(wsnClientModel, properties);
 			WSNClientController wsnClientController = new WSNClientController(wsnClientView, wsnClientModel);
 
 			SessionManagementModel sessionManagementModel = new SessionManagementModel();
@@ -124,7 +124,7 @@ public class WSNClient {
         options.addOption("f", "file", true, "The properties file");
 
         CommandLine line = null;
-        Map<String, Object> properties = null;
+        Map<String, String> properties = null;
         try {
             line = parser.parse(options, args);
 
@@ -134,7 +134,8 @@ public class WSNClient {
             }
 
         } catch (Exception e) {
-            log.error(e.getMessage() + "\nProperties-file ignored!");
+            log.error(e.getMessage() + "\n Start aborted!");
+            System.exit(1);
         }
 		new WSNClient(properties).frame.setVisible(true);
 	}

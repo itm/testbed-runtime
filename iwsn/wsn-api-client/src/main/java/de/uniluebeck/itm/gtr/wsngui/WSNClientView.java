@@ -25,6 +25,7 @@ package de.uniluebeck.itm.gtr.wsngui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 
 public class WSNClientView extends JPanel {
@@ -71,7 +72,7 @@ public class WSNClientView extends JPanel {
 
 	private JPanel panel;
 
-	public WSNClientView(WSNClientModel clientModel) {
+	public WSNClientView(WSNClientModel clientModel, Map<String, String> properties) {
 
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
@@ -81,7 +82,10 @@ public class WSNClientView extends JPanel {
 
 		{
 			panel.add(new JLabel("WSN API Endpoint URL"));
+
+            Object endpointURLProperty = properties.get(WSNClientProperties.keyWsnClient + "." + WSNClientProperties.keyEndpointURL);
 			endpointUrlTextField = new JTextField();
+            if (endpointURLProperty != null)endpointUrlTextField.setText((String) endpointURLProperty);
 			panel.add(endpointUrlTextField);
 		}
 		{

@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -37,22 +36,26 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class WSNClientProperties {
-    public final static String keyController = "controller";
-    public final static String keySessionManagement = "sessionManagementClient";
-    public final static String keyWsnServerDummy = "wsnServerDummy";
-    public final static String keyReservationKeys = "reservationKeysFile";
+    public final static String keyControllerClient = "controller.client";
+    public final static String keyControllerService = "controller.service";
+    public final static String keySessionManagementClient = "sessionmanagement.client";
+    public final static String keySessionManagementClientController = "sessionmanagement.client.controller";
+    public final static String keyWsnClient = "wsn.client";
+    public final static String keyWsnServerDummy = "wsn.server";
+    public final static String keyReservationKeys = "reservationkeys";
     public final static String keyEndpointURL = "endpoint.url";
 
-    public static Map<String, Object> getPropertyMap(String s) throws IOException {
-        Map<String, Object> propertyMap = new HashMap<String, Object>();
+    public static Map<String, String> getPropertyMap(String s) throws IOException {
+        Map<String, String> propertyMap = new HashMap<String, String>();
         Properties props = new Properties();
         File file = new File(s);
         props.load(new FileReader(file));
 
         for (Object o : props.keySet()){
             String key = (String) o;
-            if (key.equals(keySessionManagement + "." + keyReservationKeys)){
-                propertyMap.put(key, convertCSVFileToList(new File(file.getParent(), props.getProperty(key))));
+            if (key.startsWith(keySessionManagementClient + "." + keyReservationKeys)){
+                assertReservationKey(props.getProperty(key));
+                propertyMap.put(key, props.getProperty(key));
 
             } else {
                 propertyMap.put(key, props.getProperty(key));
@@ -61,19 +64,8 @@ public class WSNClientProperties {
         return propertyMap;
     }
 
-    private static List<String> convertCSVFileToList(File file) throws IOException {
-        List<String> list = new LinkedList<String>();
-        BufferedReader reader  = new BufferedReader(new FileReader(file));
-        String line = null;
-
-        while((line = reader.readLine()) != null){
-            StringTokenizer st = new StringTokenizer(line, ",");
-            if (st.countTokens() != 2) throw new RuntimeException("Reservation-key: \""+ line + "\" is not a tuple.\nProperties file ignored!");
-
-            list.add(line);
-        }
-
-        reader.close();
-        return list;
+    private static void assertReservationKey(String property) {
+        if (property.split(",").length != 2) throw new RuntimeException("Reservation-Key " + property + " is no tuple!");
     }
+
 }

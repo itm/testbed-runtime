@@ -97,7 +97,7 @@ public class ControllerController {
 		}
 	};
 
-	public ControllerController(ControllerView view, ControllerModel model, Map<String, Object> properties) {
+	public ControllerController(ControllerView view, ControllerModel model, Map<String, String> properties) {
 
 		this.view = view;
 		this.model = model;
@@ -105,16 +105,11 @@ public class ControllerController {
 		this.view.getReceiveButton().addActionListener(receiveActionListener);
 		this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
 		try {
-            if (properties == null){
+            Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyControllerClient + "." + WSNClientProperties.keyEndpointURL);
+            if (controllerEndpointUrlProperties == null){
 			    this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
             } else {
-                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyController + "." + WSNClientProperties.keyEndpointURL);
-
-                String endpointUrl = "";
-                if (controllerEndpointUrlProperties != null){
-                    endpointUrl = (String) controllerEndpointUrlProperties;
-                }
-                this.view.getEndpointUrlTextField().setText(endpointUrl);
+                this.view.getEndpointUrlTextField().setText((String) controllerEndpointUrlProperties);
             }
 		} catch (UnknownHostException e) {
 			e.printStackTrace();

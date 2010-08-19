@@ -45,7 +45,7 @@ public class WSNServiceDummyView extends JPanel {
 
 	private WSNServiceDummyImpl wsnService;
 
-	public WSNServiceDummyView(Map<String, Object> properties) {
+	public WSNServiceDummyView(Map<String, String> properties) {
 
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
@@ -54,16 +54,12 @@ public class WSNServiceDummyView extends JPanel {
 
 		{
 			panel.add(new JLabel("WSN API Endpoint URL"));
-            if (properties == null){
+            Object wsnServerDummyEndpointUrlProperties = properties.get(WSNClientProperties.keyWsnServerDummy + "." + WSNClientProperties.keyEndpointURL);
+
+            if (wsnServerDummyEndpointUrlProperties == null){
 			    endpointUrlTextField = new JTextField("http://localhost:8082/wsn/dummy");
             } else {
-                Object wsnServerDummyEndpointUrlProperties = properties.get(WSNClientProperties.keyWsnServerDummy + "." + WSNClientProperties.keyEndpointURL);
-
-                String endpointUrl = "";
-                if (wsnServerDummyEndpointUrlProperties != null){
-                    endpointUrl = (String) wsnServerDummyEndpointUrlProperties;
-                }
-                endpointUrlTextField = new JTextField(endpointUrl);
+                endpointUrlTextField = new JTextField((String) wsnServerDummyEndpointUrlProperties);
             }
 			panel.add(endpointUrlTextField);
 		}

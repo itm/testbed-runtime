@@ -108,7 +108,7 @@ public class SessionManagementController {
 	};
 
 	public SessionManagementController(SessionManagementView view, SessionManagementModel model,
-									   WSNClientView wsnClientView, Map<String, Object> properties) {
+									   WSNClientView wsnClientView, Map<String, String> properties) {
 
 		this.view = view;
 		this.model = model;
@@ -118,42 +118,38 @@ public class SessionManagementController {
 		this.view.getFreeButton().addActionListener(freeActionListener);
 
 		try {
-            if (properties == null){
+            Object endpointUrlProperties = properties.get(WSNClientProperties.keySessionManagementClient + "." + WSNClientProperties.keyEndpointURL);
+            Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keySessionManagementClientController + "." + WSNClientProperties.keyEndpointURL);
+            String secretReservationKeysProperties = null;
+            for (String key : properties.keySet()){
+                if (key.startsWith(WSNClientProperties.keySessionManagementClient + "." + WSNClientProperties.keyReservationKeys)){
+                    if (secretReservationKeysProperties == null) secretReservationKeysProperties = "";
+                    secretReservationKeysProperties += properties.get(key) + "\n";
+                }
+            }
+
+            if (endpointUrlProperties == null){
                 this.view.getEndpointUrlTextField()
                         .setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
+            }
+            else {
+                this.view.getEndpointUrlTextField().setText((String) endpointUrlProperties);
+            }
+            if (secretReservationKeysProperties == null){
                 this.view.getSecretReservationKeysTextArea().setText(""
                         + "urn:wisebed:testbeduzl1:,1234\n"
                         + "urn:wisebed:testbeduzl2:,1234\n"
                         + "urn:wisebed:testbeduzl3:,1234"
                 );
+            }
+            else {
+                this.view.getSecretReservationKeysTextArea().setText(secretReservationKeysProperties);
+            }
+            if (controllerEndpointUrlProperties == null){
                 this.view.getControllerTextField()
                         .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
             } else {
-                Object endpointUrlProperties = properties.get(WSNClientProperties.keySessionManagement + "." + WSNClientProperties.keyEndpointURL);
-                Object secretReservationKeysProperties = properties.get(WSNClientProperties.keySessionManagement + "." + WSNClientProperties.keyReservationKeys);
-                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyController + "." + WSNClientProperties.keyEndpointURL);
-
-                String endpointUrl = "";
-                String secretReservationKeys = "";
-                String controllerEndpointUrl = "";
-
-                if (endpointUrlProperties != null){
-                    endpointUrl = (String) endpointUrlProperties;
-                }
-
-                if (secretReservationKeysProperties != null){
-                    List list = (List) secretReservationKeysProperties;
-                    for (Object o : list){
-                        secretReservationKeys += o + "\n";
-                    }
-                }
-
-                if (controllerEndpointUrlProperties != null){
-                    controllerEndpointUrl = (String) controllerEndpointUrlProperties;
-                }
-                this.view.getEndpointUrlTextField().setText(endpointUrl);
-                this.view.getSecretReservationKeysTextArea().setText(secretReservationKeys);                
-                this.view.getControllerTextField().setText(controllerEndpointUrl);
+                this.view.getControllerTextField().setText((String) controllerEndpointUrlProperties);
             }
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
