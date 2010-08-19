@@ -45,6 +45,7 @@
 		<module>rs/rs-persistence-inmemory</module>
 		<module>rs/rs-persistence-jpa</module>
 
+		<module>iwsn/csv2config</module>
 		<module>iwsn/logcontroller</module>
 		<module>iwsn/runtime</module>
 		<module>iwsn/runtime.cmdline</module>
