@@ -495,11 +495,6 @@
 			<name>ITM UzL Maven snapshots repository</name>
 			<url>scp://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
 		</snapshotRepository>
-		<site>
-			<id>testbed-runtime.site</id>
-			<name>Testbed Runtime Documentation</name>
-			<url>scp://itm01:/www/itm/projects/testbed-runtime-doc/</url>
-		</site>
 	</distributionManagement>
 
 	<properties>
