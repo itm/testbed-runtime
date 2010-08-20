@@ -141,13 +141,11 @@ public class SessionManagementController {
 		this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
 
 		try {
-			this.view.getEndpointUrlTextField()
-					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
-			this.view.getSecretReservationKeysTextArea().setText(""
-					+ "urn:wisebed:testbeduzl1:,1234"
-			);
-			this.view.getControllerTextField()
-					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+
+			this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8888/sessions");
+			this.view.getSecretReservationKeysTextArea().setText("urn:wisebed:uzl1:,1234");
+			this.view.getControllerTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
