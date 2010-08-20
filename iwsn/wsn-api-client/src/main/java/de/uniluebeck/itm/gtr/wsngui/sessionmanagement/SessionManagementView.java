@@ -21,44 +21,47 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.sessionmanagement;
 
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 04.03.2010
- * Time: 16:16:27
- */
-public class ControllerView extends JPanel {
 
-	private ControllerModel controllerModel;
-
-	private JPanel panel;
-
-	private JButton receiveButton;
-
-	private JButton receiveStatusButton;
-
-	private JLabel endpointUrlLabel;
+public class SessionManagementView extends JPanel {
 
 	private JTextField endpointUrlTextField;
 
-	private JPanel superPanel;
+	private JLabel endpointUrlLabel;
 
+	private JLabel smPanelReservationIdLabel;
 
-	public ControllerView(ControllerModel controllerModel) {
+	private JTextArea secretReservationKeysTextArea;
+
+	private JTextField controllerTextField;
+
+	private JLabel smPanelControllerLabel;
+
+	private JButton getInstanceButton;
+
+	private JButton freeButton;
+
+	private SessionManagementModel model;
+
+	private JPanel panel;
+
+	private JTextField getInstanceResultTextField;
+
+	private JButton getInstanceResultCopyButton;
+
+	private JButton getNetworkButton;
+
+	public SessionManagementView(SessionManagementModel model) {
 
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-		this.controllerModel = controllerModel;
-
-		this.superPanel = new JPanel(new GridLayout(4, 1));
-		this.panel = new JPanel(new GridLayout(3, 2));
-		this.superPanel.add(this.panel);
+		this.panel = new JPanel(new GridLayout(9, 2));
+		this.model = model;
 
 		{
 			endpointUrlLabel = new JLabel("Endpoint URL");
@@ -68,32 +71,86 @@ public class ControllerView extends JPanel {
 			panel.add(endpointUrlTextField);
 		}
 		{
-			receiveButton = new JButton("receive()");
+			smPanelReservationIdLabel = new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)");
+			secretReservationKeysTextArea = new JTextArea();
+			JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
+			secretReservationKeysScrollPane.setPreferredSize(new Dimension(400,30));
 
-			panel.add(new JLabel());
-			panel.add(receiveButton);
+			panel.add(smPanelReservationIdLabel);
+			panel.add(secretReservationKeysScrollPane);
 		}
 		{
-			receiveStatusButton = new JButton("receiveStatus()");
+			smPanelControllerLabel = new JLabel("Controller Endpoint URL");
+			controllerTextField = new JTextField();
+
+			panel.add(smPanelControllerLabel);
+			panel.add(controllerTextField);
+		}
+		{
+			getInstanceButton = new JButton("getInstance()");
 
 			panel.add(new JLabel());
-			panel.add(receiveStatusButton);
+			panel.add(getInstanceButton);
+		}
+		{
+			freeButton = new JButton("free()");
+
+			panel.add(new JLabel());
+			panel.add(freeButton);
+		}
+		{
+			getNetworkButton = new JButton("getNetwork()");
+
+			panel.add(new JLabel());
+			panel.add(getNetworkButton);
+		}
+		{
+			getInstanceResultTextField = new JTextField();
+
+			panel.add(new JLabel("GetInstance() result"));
+			panel.add(getInstanceResultTextField);
+		}
+		{
+			getInstanceResultCopyButton = new JButton("Copy to WSN Client");
+
+			panel.add(new JLabel());
+			panel.add(getInstanceResultCopyButton);
 		}
 
-		add(superPanel);
 
-	}
+		add(panel);
 
-	public JButton getReceiveButton() {
-		return receiveButton;
-	}
-
-	public JButton getReceiveStatusButton() {
-		return receiveStatusButton;
 	}
 
 	public JTextField getEndpointUrlTextField() {
 		return endpointUrlTextField;
 	}
 
+	public JTextArea getSecretReservationKeysTextArea() {
+		return secretReservationKeysTextArea;
+	}
+
+	public JTextField getControllerTextField() {
+		return controllerTextField;
+	}
+
+	public JButton getGetInstanceButton() {
+		return getInstanceButton;
+	}
+
+	public JButton getFreeButton() {
+		return freeButton;
+	}
+
+	public JButton getGetInstanceResultCopyButton() {
+		return getInstanceResultCopyButton;
+	}
+
+	public JTextField getGetInstanceResultTextField() {
+		return getInstanceResultTextField;
+	}
+
+	public JButton getGetNetworkButton() {
+		return getNetworkButton;
+	}
 }

@@ -21,8 +21,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.sessionmanagement;
 
+import de.uniluebeck.itm.gtr.wsngui.Dialogs;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.*;

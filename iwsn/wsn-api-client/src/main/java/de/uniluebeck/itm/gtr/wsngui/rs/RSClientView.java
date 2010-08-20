@@ -20,15 +20,16 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
+package de.uniluebeck.itm.gtr.wsngui.rs;
 
-package de.uniluebeck.itm.gtr.wsngui;
+import javax.swing.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 02.03.2010
- * Time: 13:13:08
- * To change this template use File | Settings | File Templates.
- */
-public class SessionManagementModel {
+public class RSClientView extends JPanel {
+
+	private RSClientModel model;
+
+	public RSClientView(final RSClientModel model) {
+		this.model = model;
+	}
+	
 }

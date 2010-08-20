@@ -21,13 +21,71 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.controller;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 04.03.2010
- * Time: 16:16:20
- */
-public class ControllerModel {
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.v211.Controller;
+import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import java.util.Arrays;
+
+@WebService(
+		serviceName = "ControllerService",
+		targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+		portName = "ControllerPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+)
+public class ControllerServiceImpl implements Controller {
+
+	private static final Logger log = LoggerFactory.getLogger(Controller.class);
+
+	private String endpointUrl;
+
+	private Endpoint endpoint;
+
+	public ControllerServiceImpl(String endpointUrl) {
+		this.endpointUrl = endpointUrl;
+	}
+
+	public void start() throws Exception {
+		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl);
+
+		log.debug("Starting WISEBED controller service...");
+		log.debug("Endpoint URL: {}", endpointUrl);
+		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
+
+		endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
+
+		log.info("Started WISEBED controller service on {}", bindAllInterfacesUrl);
+	}
+
+	public void stop() {
+
+		if (endpoint != null) {
+			endpoint.stop();
+			log.info("Stopped WISEBED controller service on {}", endpointUrl);
+		}
+
+	}
+
+	@Override
+	public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+		log.info("Received controller message: {}\n{}", msg, StringUtils.jaxbMarshal(msg));
+	}
+
+	@Override
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+		log.info("Received controller status message: {}\n{}",
+				Arrays.toString(status.getStatus().toArray()), StringUtils.jaxbMarshal(status)
+		);
+	}
+
 }

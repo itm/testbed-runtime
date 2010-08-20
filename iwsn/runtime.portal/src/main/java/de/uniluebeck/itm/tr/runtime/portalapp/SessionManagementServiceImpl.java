@@ -37,6 +37,7 @@ import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
@@ -307,10 +308,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		// extract the one and only relevant secret reservation key
 		String secretReservationKey = secretReservationKeyList.get(0).getSecretReservationKey();
 
-		if (reservationEndpointUrl != null) {
-			// TODO integrate authorization process here
-		}
-
 		synchronized (wsnInstances) {
 
 			// search for the existing instance
@@ -324,6 +321,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					log.error("Error while stopping WSN service instance: " + e, e);
 				}
 				wsnInstances.remove(secretReservationKey);
+			} else {
+				throw SessionManagementHelper.createExperimentNotRunningException(secretReservationKey);
 			}
 
 		}

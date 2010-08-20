@@ -21,14 +21,79 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.controller;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 02.03.2010
- * Time: 13:22:51
- * To change this template use File | Settings | File Templates.
- */
-public class WSNClientModel {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+
+public class ControllerServiceDummyView extends JPanel {
+
+	private static final Logger log = LoggerFactory.getLogger(ControllerServiceDummyView.class);
+
+	private JTextField endpointUrlTextField;
+
+	private JPanel panel;
+
+	private JCheckBox startServiceCheckbox;
+
+	private ControllerServiceImpl controllerService;
+
+	public ControllerServiceDummyView() {
+
+		super(new FlowLayout());
+		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+
+		this.panel = new JPanel(new GridLayout(2, 2));
+
+		{
+			panel.add(new JLabel("Controller API Endpoint URL"));
+			try {
+				endpointUrlTextField = new JTextField("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+			panel.add(endpointUrlTextField);
+		}
+		{
+			startServiceCheckbox = new JCheckBox("Start service");
+			startServiceCheckbox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (startServiceCheckbox.isSelected()) {
+
+						String endpointUrl = endpointUrlTextField.getText();
+						controllerService = new ControllerServiceImpl(endpointUrl);
+
+						try {
+							controllerService.start();
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(
+									null,
+									"Failed to start controller service on URL " + endpointUrl,
+									"Failed to start controller service!",
+									JOptionPane.WARNING_MESSAGE
+							);
+							log.error("Exception while starting controller service", e1);
+						}
+
+					} else {
+						controllerService.stop();
+					}
+				}
+			});
+			panel.add(startServiceCheckbox);
+		}
+
+		add(panel);
+
+	}
+
 }

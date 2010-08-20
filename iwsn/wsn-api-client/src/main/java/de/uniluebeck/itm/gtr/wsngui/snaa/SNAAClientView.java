@@ -20,103 +20,88 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.snaa;
 
 import javax.swing.*;
 import java.awt.*;
 
 
-public class SessionManagementView extends JPanel {
+public class SNAAClientView extends JPanel {
+
+	private SNAAClientModel model;
 
 	private JTextField endpointUrlTextField;
 
-	private JLabel endpointUrlLabel;
+	private JButton isAuthenticatedButton;
 
-	private JLabel smPanelReservationIdLabel;
+	private JButton authenticateButton;
 
-	private JTextArea secretReservationKeysTextArea;
+	private JTextArea authenticationTriplesTextArea;
 
-	private JTextField controllerTextField;
+	private JTextField actionTextField;
 
-	private JLabel smPanelControllerLabel;
+	private JTextArea secretAuthenticationKeysTextArea;
 
-	private JButton getInstanceButton;
+	private JButton copyToRSButton;
 
-	private JButton freeButton;
-
-	private SessionManagementModel model;
-
-	private JPanel panel;
-
-	private JTextField getInstanceResultTextField;
-
-	private JButton getInstanceResultCopyButton;
-
-	private JButton getNetworkButton;
-
-	public SessionManagementView(SessionManagementModel model) {
-
+	public SNAAClientView(final SNAAClientModel model) {
 		super(new FlowLayout());
 		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-		this.panel = new JPanel(new GridLayout(9, 2));
 		this.model = model;
 
+		JPanel panel = new JPanel(new GridLayout(7, 2));
+
 		{
-			endpointUrlLabel = new JLabel("Endpoint URL");
+			JLabel endpointUrlLabel = new JLabel("SNAA Endpoint URL");
 			endpointUrlTextField = new JTextField();
 
 			panel.add(endpointUrlLabel);
 			panel.add(endpointUrlTextField);
 		}
 		{
-			smPanelReservationIdLabel = new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)");
-			secretReservationKeysTextArea = new JTextArea();
-			JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
-			secretReservationKeysScrollPane.setPreferredSize(new Dimension(400,30));
+			JLabel authenticationTriplesLabel = new JLabel("Credentials (urnprefix,username,password) one triple per line");
+			authenticationTriplesTextArea = new JTextArea();
+			JScrollPane authenticationTriplesScrollPane = new JScrollPane(authenticationTriplesTextArea);
+			authenticationTriplesScrollPane.setPreferredSize(new Dimension(400,50));
 
-			panel.add(smPanelReservationIdLabel);
-			panel.add(secretReservationKeysScrollPane);
+			panel.add(authenticationTriplesLabel);
+			panel.add(authenticationTriplesScrollPane);
 		}
 		{
-			smPanelControllerLabel = new JLabel("Controller Endpoint URL");
-			controllerTextField = new JTextField();
-
-			panel.add(smPanelControllerLabel);
-			panel.add(controllerTextField);
-		}
-		{
-			getInstanceButton = new JButton("getInstance()");
+			authenticateButton = new JButton("authenticate()");
 
 			panel.add(new JLabel());
-			panel.add(getInstanceButton);
+			panel.add(authenticateButton);
 		}
 		{
-			freeButton = new JButton("free()");
+			JLabel resultsLabel = new JLabel("Authentication Result (urnprefix,username,secretauthenticationkey) one triple per line");
+			secretAuthenticationKeysTextArea = new JTextArea();
+			JScrollPane secretAuthenticationKeysScrollPane = new JScrollPane(secretAuthenticationKeysTextArea);
+			secretAuthenticationKeysScrollPane.setPreferredSize(new Dimension(400,50));
+
+			panel.add(resultsLabel);
+			panel.add(secretAuthenticationKeysScrollPane);
+		}
+		{
+			JLabel actionLabel = new JLabel("Action");
+			actionTextField = new JTextField();
+
+			panel.add(actionLabel);
+			panel.add(actionTextField);
+		}
+		{
+			isAuthenticatedButton = new JButton("isAuthenticated()");
 
 			panel.add(new JLabel());
-			panel.add(freeButton);
+			panel.add(isAuthenticatedButton);
 		}
 		{
-			getNetworkButton = new JButton("getNetwork()");
+			copyToRSButton = new JButton("Copy authentication Result to RS Client");
 
 			panel.add(new JLabel());
-			panel.add(getNetworkButton);
+			panel.add(copyToRSButton);
 		}
-		{
-			getInstanceResultTextField = new JTextField();
-
-			panel.add(new JLabel("GetInstance() result"));
-			panel.add(getInstanceResultTextField);
-		}
-		{
-			getInstanceResultCopyButton = new JButton("Copy to WSN Client");
-
-			panel.add(new JLabel());
-			panel.add(getInstanceResultCopyButton);
-		}
-
 
 		add(panel);
 
@@ -126,31 +111,23 @@ public class SessionManagementView extends JPanel {
 		return endpointUrlTextField;
 	}
 
-	public JTextArea getSecretReservationKeysTextArea() {
-		return secretReservationKeysTextArea;
+	public JTextArea getAuthenticationTriplesTextArea() {
+		return authenticationTriplesTextArea;
 	}
 
-	public JTextField getControllerTextField() {
-		return controllerTextField;
+	public JTextField getActionTextField() {
+		return actionTextField;
 	}
 
-	public JButton getGetInstanceButton() {
-		return getInstanceButton;
+	public JButton getAuthenticatedButton() {
+		return isAuthenticatedButton;
 	}
 
-	public JButton getFreeButton() {
-		return freeButton;
+	public JButton getAuthenticateButton() {
+		return authenticateButton;
 	}
 
-	public JButton getGetInstanceResultCopyButton() {
-		return getInstanceResultCopyButton;
-	}
-
-	public JTextField getGetInstanceResultTextField() {
-		return getInstanceResultTextField;
-	}
-
-	public JButton getGetNetworkButton() {
-		return getNetworkButton;
+	public JTextArea getSecretAuthenticationKeysTextArea() {
+		return secretAuthenticationKeysTextArea;
 	}
 }

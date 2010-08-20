@@ -146,7 +146,7 @@ public class JAASSNAA implements SNAA {
 
 		if (auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
 				|| !secretAuthenticationKey.getUsername().equals(auth.username)) {
-			log.warn("Authorization for user " + auth.username + " failed. Invalid parameters.");
+			log.warn("Authorization failed. Invalid parameters.");
 			return false;
 		}
 

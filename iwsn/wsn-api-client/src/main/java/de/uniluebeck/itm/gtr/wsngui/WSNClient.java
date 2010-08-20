@@ -23,6 +23,23 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerController;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerModel;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceDummyView;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerView;
+import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
+import de.uniluebeck.itm.gtr.wsngui.rs.RSClientModel;
+import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementController;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementModel;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementView;
+import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientController;
+import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientModel;
+import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientView;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientController;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientModel;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceDummyView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +76,18 @@ public class WSNClient {
 
 		panel.add(tabs, BorderLayout.NORTH);
 
+		{
+			SNAAClientModel snaaClientModel = new SNAAClientModel();
+			SNAAClientView snaaClientView = new SNAAClientView(snaaClientModel);
+			SNAAClientController snaaClientController = new SNAAClientController(snaaClientView, snaaClientModel);
+			tabs.addTab("SNAA Client", snaaClientView);
+		}
+		{
+			RSClientModel rsClientModel = new RSClientModel();
+			RSClientView rsClientView = new RSClientView(rsClientModel);
+			RSClientController rsClientController = new RSClientController(rsClientView, rsClientModel);
+			tabs.addTab("RS Client", rsClientView);
+		}
 		{
 			ControllerModel controllerModel = new ControllerModel();
 			ControllerView controllerView = new ControllerView(controllerModel);

@@ -21,9 +21,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui;
+package de.uniluebeck.itm.gtr.wsngui.wsn;
 
 
+import de.uniluebeck.itm.gtr.wsngui.Dialogs;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.FlashPrograms;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.xml.namespace.QName;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
