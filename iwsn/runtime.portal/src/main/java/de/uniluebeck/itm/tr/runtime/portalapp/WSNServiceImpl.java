@@ -378,6 +378,7 @@ public class WSNServiceImpl implements WSNService {
 	public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
 					   @WebParam(name = "msg", targetNamespace = "") Message message) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSendArguments(nodeIds, message);
 
 		// log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
@@ -462,6 +463,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkAreNodesAliveArguments(nodes);
 		preconditions.checkNodesReserved(nodes, reservedNodes);
 
@@ -495,6 +497,7 @@ public class WSNServiceImpl implements WSNService {
 								@WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices,
 								@WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
@@ -575,6 +578,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkResetNodesArguments(nodes);
 		preconditions.checkNodesReserved(nodes, reservedNodes);
 
@@ -616,6 +620,7 @@ public class WSNServiceImpl implements WSNService {
 								 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
 								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 		preconditions.checkNodeReserved(sourceNode, reservedNodes);
 		preconditions.checkNodeReserved(targetNode, reservedNodes);
@@ -729,6 +734,7 @@ public class WSNServiceImpl implements WSNService {
 	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
 									 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
 		preconditions.checkNodeReserved(sourceNode, reservedNodes);
 		preconditions.checkNodeReserved(targetNode, reservedNodes);
@@ -767,6 +773,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDefineNetworkArguments(newNetwork);
 
 		log.debug("WSNServiceImpl.defineNetwork");
@@ -777,6 +784,7 @@ public class WSNServiceImpl implements WSNService {
 	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
 			throws UnsupportedOperationException_Exception {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDescribeCapabilitiesArguments(capability);
 
 		log.debug("WSNServiceImpl.describeCapabilities");
@@ -786,6 +794,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -797,6 +806,7 @@ public class WSNServiceImpl implements WSNService {
 	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
 									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
 		preconditions.checkNodeReserved(nodeA, reservedNodes);
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
@@ -808,6 +818,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -819,6 +830,7 @@ public class WSNServiceImpl implements WSNService {
 	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
 									 @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
 		preconditions.checkNodeReserved(nodeA, reservedNodes);
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
@@ -837,6 +849,7 @@ public class WSNServiceImpl implements WSNService {
 	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
 			throws UnknownNodeUrnException_Exception {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetNeighbourhoodArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -849,6 +862,7 @@ public class WSNServiceImpl implements WSNService {
 									 @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
 			throws UnknownNodeUrnException_Exception {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetPropertyValueOfArguments(node, propertyName);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -859,6 +873,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSetStartTimeArguments(time);
 
 		log.debug("WSNServiceImpl.setStartTime");
