@@ -22,9 +22,12 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.gtr.wsngui.snaa;
 
+import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.*;
 import eu.wisebed.testbed.api.snaa.v1.Action;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.testbed.api.snaa.v1.SNAA;
+import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,127 +42,137 @@ import java.util.List;
 
 public class SNAAClientController {
 
-	private static final Logger log = LoggerFactory.getLogger(SNAAClientController.class);
+    private static final Logger log = LoggerFactory.getLogger(SNAAClientController.class);
 
-	private SNAAClientModel model;
+    private SNAAClientModel model;
 
-	private SNAAClientView view;
+    private RSClientView rsClientView;
 
-	private ActionListener isAuthenticatedActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
+    private SNAAClientView view;
 
-			try {
+    private ActionListener isAuthenticatedActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
 
-				String endpointUrl = view.getEndpointUrlTextField().getText();
-				List<SecretAuthenticationKey> secretAuthenticationKeys = parseSecretAuthenticationKeys();
-				Action action = new Action();
-				action.setAction(view.getActionTextField().getText());
+            try {
 
-				SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
-				boolean result = snaaService.isAuthorized(secretAuthenticationKeys, action);
-				JOptionPane.showMessageDialog(null, result);
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                List<SecretAuthenticationKey> secretAuthenticationKeys = parseSecretAuthenticationKeys();
+                Action action = new Action();
+                action.setAction(view.getActionTextField().getText());
 
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
+                SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
+                boolean result = snaaService.isAuthorized(secretAuthenticationKeys, action);
+                JOptionPane.showMessageDialog(null, result);
 
-		}
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
 
-	};
+        }
 
-	private List<SecretAuthenticationKey> parseSecretAuthenticationKeys() {
+    };
+    private ActionListener copyToRSButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            rsClientView.getSecretAuthenticationKeysTextArea().setText(view.getSecretAuthenticationKeysTextArea().getText());
+        }
+    };
 
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>();
-		String text = view.getSecretAuthenticationKeysTextArea().getText();
+    private List<SecretAuthenticationKey> parseSecretAuthenticationKeys() {
 
-		for (String line : text.split("\n")) {
+        List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>();
+        String text = view.getSecretAuthenticationKeysTextArea().getText();
 
-			String[] values = line.split(",");
-			
-			if (values.length == 3) {
-				SecretAuthenticationKey key = new SecretAuthenticationKey();
-				key.setUrnPrefix(values[0].trim());
-				key.setUsername(values[1].trim());
-				key.setSecretAuthenticationKey(values[2].trim());
-				keys.add(key);
-			}
-		}
+        for (String line : text.split("\n")) {
 
-		return keys;
-	}
+            String[] values = line.split(",");
 
-	private ActionListener authenticateActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
+            if (values.length == 3) {
+                SecretAuthenticationKey key = new SecretAuthenticationKey();
+                key.setUrnPrefix(values[0].trim());
+                key.setUsername(values[1].trim());
+                key.setSecretAuthenticationKey(values[2].trim());
+                keys.add(key);
+            }
+        }
 
-			try {
+        return keys;
+    }
 
-				String endpointUrl = view.getEndpointUrlTextField().getText();
-				List<AuthenticationTriple> authenticationData = parseAuthenticationTriples();
+    private ActionListener authenticateActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
 
-				SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
-				List<SecretAuthenticationKey> keys = snaaService.authenticate(authenticationData);
+            try {
 
-				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < keys.size(); i++) {
-					builder.append(keys.get(i).getUrnPrefix());
-					builder.append(",");
-					builder.append(keys.get(i).getUsername());
-					builder.append(",");
-					builder.append(keys.get(i).getSecretAuthenticationKey());
-					if (i < keys.size() - 1) {
-						builder.append("\n");
-					}
-				}
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                List<AuthenticationTriple> authenticationData = parseAuthenticationTriples();
 
-				view.getSecretAuthenticationKeysTextArea().setText(builder.toString());
+                SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
+                List<SecretAuthenticationKey> keys = snaaService.authenticate(authenticationData);
 
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < keys.size(); i++) {
+                    builder.append(keys.get(i).getUrnPrefix());
+                    builder.append(",");
+                    builder.append(keys.get(i).getUsername());
+                    builder.append(",");
+                    builder.append(keys.get(i).getSecretAuthenticationKey());
+                    if (i < keys.size() - 1) {
+                        builder.append("\n");
+                    }
+                }
 
-		}
-	};
+                view.getSecretAuthenticationKeysTextArea().setText(builder.toString());
 
-	private List<AuthenticationTriple> parseAuthenticationTriples() {
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
 
-		String text = view.getAuthenticationTriplesTextArea().getText();
-		String[] lines = text.split("\n");
-		ArrayList<AuthenticationTriple> triples = new ArrayList<AuthenticationTriple>(lines.length);
-		for (String line : lines) {
+        }
+    };
 
-			String[] values = line.split(",");
+    private List<AuthenticationTriple> parseAuthenticationTriples() {
 
-			if (values.length == 3) {
-				AuthenticationTriple triple = new AuthenticationTriple();
-				triple.setUrnPrefix(values[0].trim());
-				triple.setUsername(values[1].trim());
-				triple.setPassword(values[2].trim());
-				triples.add(triple);
-			}
-		}
+        String text = view.getAuthenticationTriplesTextArea().getText();
+        String[] lines = text.split("\n");
+        ArrayList<AuthenticationTriple> triples = new ArrayList<AuthenticationTriple>(lines.length);
+        for (String line : lines) {
 
-		return triples;
+            String[] values = line.split(",");
 
-	}
+            if (values.length == 3) {
+                AuthenticationTriple triple = new AuthenticationTriple();
+                triple.setUrnPrefix(values[0].trim());
+                triple.setUsername(values[1].trim());
+                triple.setPassword(values[2].trim());
+                triples.add(triple);
+            }
+        }
 
-	public SNAAClientController(final SNAAClientView view, final SNAAClientModel model) {
+        return triples;
 
-		this.view = view;
-		this.model = model;
+    }
 
-		this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
-		this.view.getAuthenticatedButton().addActionListener(isAuthenticatedActionListener);
+    public SNAAClientController(final SNAAClientView view, final SNAAClientModel model, RSClientView rsClientView) {
 
-		this.view.getAuthenticationTriplesTextArea().setText("urn:wisebed:uzl1:,testbeduzl1,testbeduzl1");
-		try {
-			this.view.getEndpointUrlTextField()
-					.setText("http://" + InetAddress.getLocalHost().getHostName() + ":8890/snaa");
-		} catch (UnknownHostException e) {
-			log.error("" + e, e);
-		}
+        this.view = view;
+        this.model = model;
+        this.rsClientView = rsClientView;
 
-	}
+        this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
+        this.view.getAuthenticatedButton().addActionListener(isAuthenticatedActionListener);
+        this.view.getCopyToRSButton().addActionListener(copyToRSButtonActionListener);
+
+        this.view.getAuthenticationTriplesTextArea().setText("urn:wisebed:uzl1:,testbeduzl1,testbeduzl1");
+        try {
+            this.view.getEndpointUrlTextField()
+                    .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8890/snaa");
+        } catch (UnknownHostException e) {
+            log.error("" + e, e);
+        }
+
+    }
 
 }

@@ -40,111 +40,88 @@ import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientController;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientModel;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceDummyView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 04.03.2010
- * Time: 15:29:14
- */
-public class WSNClient {
+public class WSNGui {
 
-	private static final Logger log = LoggerFactory.getLogger(WSNClient.class);
+    private JFrame frame;
 
-	private JPanel panel;
+    private JTextArea outputTextPane;
 
-	private JTabbedPane tabs;
+    public WSNGui() {
 
-	private JFrame frame;
+        JPanel panel = new JPanel(new BorderLayout());
 
-	private JTextArea outputTextPane;
+        JTabbedPane tabs = new JTabbedPane();
 
-	private JScrollPane outputScrollPane;
+        panel.add(tabs, BorderLayout.NORTH);
 
-	public WSNClient() {
+        {
+            ControllerModel controllerModel = new ControllerModel();
+            ControllerView controllerView = new ControllerView(controllerModel);
+            new ControllerController(controllerView, controllerModel);
 
-		panel = new JPanel(new BorderLayout());
+            ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView();
 
-		tabs = new JTabbedPane();
+            WSNClientModel wsnClientModel = new WSNClientModel();
+            WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
+            new WSNClientController(wsnClientView, wsnClientModel);
 
-		panel.add(tabs, BorderLayout.NORTH);
+            SessionManagementModel sessionManagementModel = new SessionManagementModel();
+            SessionManagementView sessionManagementView = new SessionManagementView(sessionManagementModel);
+            new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView);
 
-		{
-			SNAAClientModel snaaClientModel = new SNAAClientModel();
-			SNAAClientView snaaClientView = new SNAAClientView(snaaClientModel);
-			SNAAClientController snaaClientController = new SNAAClientController(snaaClientView, snaaClientModel);
-			tabs.addTab("SNAA Client", snaaClientView);
-		}
-		{
-			RSClientModel rsClientModel = new RSClientModel();
-			RSClientView rsClientView = new RSClientView(rsClientModel);
-			RSClientController rsClientController = new RSClientController(rsClientView, rsClientModel);
-			tabs.addTab("RS Client", rsClientView);
-		}
-		{
-			ControllerModel controllerModel = new ControllerModel();
-			ControllerView controllerView = new ControllerView(controllerModel);
-			ControllerController controllerController = new ControllerController(controllerView, controllerModel);
-			tabs.addTab("Controller Client", controllerView);
-		}
+            RSClientModel rsClientModel = new RSClientModel();
+            RSClientView rsClientView = new RSClientView(rsClientModel);
+            new RSClientController(rsClientView, rsClientModel, sessionManagementView);
 
-		{
-			ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView();
-			tabs.addTab("Controller Service Dummy", controllerServiceDummyView);
-		}
+            SNAAClientModel snaaClientModel = new SNAAClientModel();
+            SNAAClientView snaaClientView = new SNAAClientView(snaaClientModel);
+            new SNAAClientController(snaaClientView, snaaClientModel, rsClientView);
 
-		{
-			WSNClientModel wsnClientModel = new WSNClientModel();
-			WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
-			WSNClientController wsnClientController = new WSNClientController(wsnClientView, wsnClientModel);
+            WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView();
 
-			SessionManagementModel sessionManagementModel = new SessionManagementModel();
-			SessionManagementView sessionManagementView = new SessionManagementView(sessionManagementModel);
-			SessionManagementController sessionManagementController = new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView);
+            tabs.addTab("SNAA Client", snaaClientView);
+            tabs.addTab("RS Client", rsClientView);
+            tabs.addTab("Controller Client", controllerView);
+            tabs.addTab("Controller Service Dummy", controllerServiceDummyView);
+            tabs.addTab("Session Management Client", sessionManagementView);
+            tabs.addTab("WSN Client", wsnClientView);
+            tabs.addTab("WSN Server Dummy", wsnServiceDummyView);
 
-			tabs.addTab("Session Management Client", sessionManagementView);
-			tabs.addTab("WSN Client", wsnClientView);
-		}
+        }
 
-		{
-			WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView();
-			tabs.addTab("WSN Server Dummy", wsnServiceDummyView);
-		}
+        outputTextPane = new JTextArea();
+        outputTextPane.setEditable(false);
+        outputTextPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    outputTextPane.setText("");
+                }
+            }
+        });
 
-		outputTextPane = new JTextArea();
-		outputTextPane.setEditable(false);
-		outputTextPane.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					outputTextPane.setText("");
-				}
-			}
-		});
+        JScrollPane outputScrollPane = new JScrollPane(outputTextPane);
+        outputScrollPane.setPreferredSize(new Dimension(800, 400));
+        outputScrollPane.setAutoscrolls(true);
 
-		outputScrollPane = new JScrollPane(outputTextPane);
-		outputScrollPane.setPreferredSize(new Dimension(800, 400));
-		outputScrollPane.setAutoscrolls(true);
+        panel.add(outputScrollPane, BorderLayout.CENTER);
 
-		panel.add(outputScrollPane, BorderLayout.CENTER);
+        TextAreaAppender.setTextArea(outputTextPane);
 
-		TextAreaAppender.setTextArea(outputTextPane);
+        frame = new JFrame("WISEBED Web Service API Testing Tool");
+        frame.setContentPane(panel);
+        frame.pack();
 
-		frame = new JFrame("WISEBED Web Service API Testing Tool");
-		frame.setContentPane(panel);
-		frame.pack();
+    }
 
-	}
-
-	public static void main(String[] args) {
-		new WSNClient().frame.setVisible(true);
-	}
+    public static void main(String[] args) {
+        new WSNGui().frame.setVisible(true);
+    }
 
 }

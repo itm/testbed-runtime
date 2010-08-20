@@ -29,241 +29,241 @@ import java.awt.*;
 
 public class WSNClientView extends JPanel {
 
-	private WSNClientModel clientModel;
+    private WSNClientModel clientModel;
 
-	private JTextField endpointUrlTextField;
+    private JTextField endpointUrlTextField;
 
-	private JButton areNodesAliveButton;
+    private JButton areNodesAliveButton;
 
-	private JButton defineNetworkButton;
+    private JButton defineNetworkButton;
 
-	private JButton describeCapabilitiesButton;
+    private JButton describeCapabilitiesButton;
 
-	private JButton destroyVirtualLinkButton;
+    private JButton destroyVirtualLinkButton;
 
-	private JButton disableNodeButton;
+    private JButton disableNodeButton;
 
-	private JButton disablePhysicalLinkButton;
+    private JButton disablePhysicalLinkButton;
 
-	private JButton enableNodeButton;
+    private JButton enableNodeButton;
 
-	private JButton enablePhysicalLinkButton;
+    private JButton enablePhysicalLinkButton;
 
-	private JButton flashProgramsButton;
+    private JButton flashProgramsButton;
 
-	private JButton getFiltersButton;
+    private JButton getFiltersButton;
 
-	private JButton getNeighborhoodButton;
+    private JButton getNeighborhoodButton;
 
-	private JButton getNetworkButton;
+    private JButton getNetworkButton;
 
-	private JButton getPropertyValueOfButton;
+    private JButton getPropertyValueOfButton;
 
-	private JButton getVersionButton;
+    private JButton getVersionButton;
 
-	private JButton resetNodesButton;
+    private JButton resetNodesButton;
 
-	private JButton sendButton;
+    private JButton sendButton;
 
-	private JButton setStartTimeButton;
+    private JButton setStartTimeButton;
 
-	private JButton setVirtualLinkButton;
+    private JButton setVirtualLinkButton;
 
-	private JPanel panel;
+    private JPanel panel;
 
-	public WSNClientView(WSNClientModel clientModel) {
+    public WSNClientView(WSNClientModel clientModel) {
 
-		super(new FlowLayout());
-		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+        super(new FlowLayout());
+        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-		this.panel = new JPanel(new GridLayout(11, 2));
-		this.clientModel = clientModel;
+        this.panel = new JPanel(new GridLayout(11, 2));
+        this.clientModel = clientModel;
 
-		{
-			panel.add(new JLabel("WSN API Endpoint URL"));
-			endpointUrlTextField = new JTextField();
-			panel.add(endpointUrlTextField);
-		}
-		{
-			// checkAreNodesAlive
-			areNodesAliveButton = new JButton("checkAreNodesAlive()");
-			panel.add(areNodesAliveButton);
-		}
-		{
-			// defineNetwork
-			defineNetworkButton = new JButton("defineNetwork()");
-			defineNetworkButton.setEnabled(false); // TODO
-			panel.add(defineNetworkButton);
-		}
-		{
-			// describeCapabilitiesButton
-			describeCapabilitiesButton = new JButton("describeCapabilitiesButton()");
-			describeCapabilitiesButton.setEnabled(false); // TODO
-			panel.add(describeCapabilitiesButton);
-		}
-		{
-			// destroyVirtualLinkButton
-			destroyVirtualLinkButton = new JButton("destroyVirtualLinkButton()");
-			destroyVirtualLinkButton.setEnabled(false); // TODO
-			panel.add(destroyVirtualLinkButton);
-		}
-		{
-			// disableNodeButton
-			disableNodeButton = new JButton("disableNodeButton()");
-			disableNodeButton.setEnabled(false); // TODO
-			panel.add(disableNodeButton);
-		}
-		{
-			// disablePhysicalLinkButton
-			disablePhysicalLinkButton = new JButton("disablePhysicalLinkButton()");
-			disablePhysicalLinkButton.setEnabled(false); // TODO
-			panel.add(disablePhysicalLinkButton);
-		}
-		{
-			// enableNode
-			enableNodeButton = new JButton("enableNode()");
-			enableNodeButton.setEnabled(false); // TODO
-			panel.add(enableNodeButton);
-		}
-		{
-			// enablePhysicalLink
-			enablePhysicalLinkButton = new JButton("enablePhysicalLink()");
-			enablePhysicalLinkButton.setEnabled(false); // TODO
-			panel.add(enablePhysicalLinkButton);
-		}
-		{
-			// flashProgramsButton
-			flashProgramsButton = new JButton("flashProgramsButton()");
-			panel.add(flashProgramsButton);
-		}
-		{
-			// getFilters
-			getFiltersButton = new JButton("getFilters()");
-			getFiltersButton.setEnabled(false); // TODO
-			panel.add(getFiltersButton);
-		}
-		{
-			// getNeighborhoodButton
-			getNeighborhoodButton = new JButton("getNeighborhoodButton()");
-			getNeighborhoodButton.setEnabled(false); // TODO
-			panel.add(getNeighborhoodButton);
-		}
-		{
-			// getNetwork
-			getNetworkButton = new JButton("getNetwork()");
-			panel.add(getNetworkButton);
-		}
-		{
-			// getPropertyValueOf
-			getPropertyValueOfButton = new JButton("getPropertyValueOf()");
-			getPropertyValueOfButton.setEnabled(false); // TODO
-			panel.add(getPropertyValueOfButton);
-		}
-		{
-			// getVersion
-			getVersionButton = new JButton("getVersion()");
-			panel.add(getVersionButton);
-		}
-		{
-			// resetNodes
-			resetNodesButton = new JButton("resetNodes()");
-			panel.add(resetNodesButton);
-		}
-		{
-			// send
-			sendButton = new JButton("send()");
-			panel.add(sendButton);
-		}
-		{
-			// setStartTime
-			setStartTimeButton = new JButton("setStartTime()");
-			setStartTimeButton.setEnabled(false); // TODO
-			panel.add(setStartTimeButton);
-		}
-		{
-			// setVirtualLink
-			setVirtualLinkButton = new JButton("setVirtualLink()");
-			setVirtualLinkButton.setEnabled(false); // TODO
-			panel.add(setVirtualLinkButton);
-		}
+        {
+            panel.add(new JLabel("WSN API Endpoint URL"));
+            endpointUrlTextField = new JTextField();
+            panel.add(endpointUrlTextField);
+        }
+        {
+            // checkAreNodesAlive
+            areNodesAliveButton = new JButton("checkAreNodesAlive()");
+            panel.add(areNodesAliveButton);
+        }
+        {
+            // defineNetwork
+            defineNetworkButton = new JButton("defineNetwork()");
+            defineNetworkButton.setEnabled(false); // TODO
+            panel.add(defineNetworkButton);
+        }
+        {
+            // describeCapabilitiesButton
+            describeCapabilitiesButton = new JButton("describeCapabilitiesButton()");
+            describeCapabilitiesButton.setEnabled(false); // TODO
+            panel.add(describeCapabilitiesButton);
+        }
+        {
+            // destroyVirtualLinkButton
+            destroyVirtualLinkButton = new JButton("destroyVirtualLinkButton()");
+            destroyVirtualLinkButton.setEnabled(false); // TODO
+            panel.add(destroyVirtualLinkButton);
+        }
+        {
+            // disableNodeButton
+            disableNodeButton = new JButton("disableNodeButton()");
+            disableNodeButton.setEnabled(false); // TODO
+            panel.add(disableNodeButton);
+        }
+        {
+            // disablePhysicalLinkButton
+            disablePhysicalLinkButton = new JButton("disablePhysicalLinkButton()");
+            disablePhysicalLinkButton.setEnabled(false); // TODO
+            panel.add(disablePhysicalLinkButton);
+        }
+        {
+            // enableNode
+            enableNodeButton = new JButton("enableNode()");
+            enableNodeButton.setEnabled(false); // TODO
+            panel.add(enableNodeButton);
+        }
+        {
+            // enablePhysicalLink
+            enablePhysicalLinkButton = new JButton("enablePhysicalLink()");
+            enablePhysicalLinkButton.setEnabled(false); // TODO
+            panel.add(enablePhysicalLinkButton);
+        }
+        {
+            // flashProgramsButton
+            flashProgramsButton = new JButton("flashProgramsButton()");
+            panel.add(flashProgramsButton);
+        }
+        {
+            // getFilters
+            getFiltersButton = new JButton("getFilters()");
+            getFiltersButton.setEnabled(false); // TODO
+            panel.add(getFiltersButton);
+        }
+        {
+            // getNeighborhoodButton
+            getNeighborhoodButton = new JButton("getNeighborhoodButton()");
+            getNeighborhoodButton.setEnabled(false); // TODO
+            panel.add(getNeighborhoodButton);
+        }
+        {
+            // getNetwork
+            getNetworkButton = new JButton("getNetwork()");
+            panel.add(getNetworkButton);
+        }
+        {
+            // getPropertyValueOf
+            getPropertyValueOfButton = new JButton("getPropertyValueOf()");
+            getPropertyValueOfButton.setEnabled(false); // TODO
+            panel.add(getPropertyValueOfButton);
+        }
+        {
+            // getVersion
+            getVersionButton = new JButton("getVersion()");
+            panel.add(getVersionButton);
+        }
+        {
+            // resetNodes
+            resetNodesButton = new JButton("resetNodes()");
+            panel.add(resetNodesButton);
+        }
+        {
+            // send
+            sendButton = new JButton("send()");
+            panel.add(sendButton);
+        }
+        {
+            // setStartTime
+            setStartTimeButton = new JButton("setStartTime()");
+            setStartTimeButton.setEnabled(false); // TODO
+            panel.add(setStartTimeButton);
+        }
+        {
+            // setVirtualLink
+            setVirtualLinkButton = new JButton("setVirtualLink()");
+            setVirtualLinkButton.setEnabled(false); // TODO
+            panel.add(setVirtualLinkButton);
+        }
 
-		add(panel);
+        add(panel);
 
-	}
+    }
 
-	public JButton getGetVersionButton() {
-		return getVersionButton;
-	}
+    public JButton getGetVersionButton() {
+        return getVersionButton;
+    }
 
-	public JTextField getEndpointUrlTextField() {
-		return endpointUrlTextField;
-	}
+    public JTextField getEndpointUrlTextField() {
+        return endpointUrlTextField;
+    }
 
-	public JButton getAreNodesAliveButton() {
-		return areNodesAliveButton;
-	}
+    public JButton getAreNodesAliveButton() {
+        return areNodesAliveButton;
+    }
 
-	public JButton getDefineNetworkButton() {
-		return defineNetworkButton;
-	}
+    public JButton getDefineNetworkButton() {
+        return defineNetworkButton;
+    }
 
-	public JButton getDescribeCapabilitiesButton() {
-		return describeCapabilitiesButton;
-	}
+    public JButton getDescribeCapabilitiesButton() {
+        return describeCapabilitiesButton;
+    }
 
-	public JButton getDestroyVirtualLinkButton() {
-		return destroyVirtualLinkButton;
-	}
+    public JButton getDestroyVirtualLinkButton() {
+        return destroyVirtualLinkButton;
+    }
 
-	public JButton getDisableNodeButton() {
-		return disableNodeButton;
-	}
+    public JButton getDisableNodeButton() {
+        return disableNodeButton;
+    }
 
-	public JButton getDisablePhysicalLinkButton() {
-		return disablePhysicalLinkButton;
-	}
+    public JButton getDisablePhysicalLinkButton() {
+        return disablePhysicalLinkButton;
+    }
 
-	public JButton getEnableNodeButton() {
-		return enableNodeButton;
-	}
+    public JButton getEnableNodeButton() {
+        return enableNodeButton;
+    }
 
-	public JButton getEnablePhysicalLinkButton() {
-		return enablePhysicalLinkButton;
-	}
+    public JButton getEnablePhysicalLinkButton() {
+        return enablePhysicalLinkButton;
+    }
 
-	public JButton getFlashProgramsButton() {
-		return flashProgramsButton;
-	}
+    public JButton getFlashProgramsButton() {
+        return flashProgramsButton;
+    }
 
-	public JButton getGetFiltersButton() {
-		return getFiltersButton;
-	}
+    public JButton getGetFiltersButton() {
+        return getFiltersButton;
+    }
 
-	public JButton getGetNeighborhoodButton() {
-		return getNeighborhoodButton;
-	}
+    public JButton getGetNeighborhoodButton() {
+        return getNeighborhoodButton;
+    }
 
-	public JButton getGetNetworkButton() {
-		return getNetworkButton;
-	}
+    public JButton getGetNetworkButton() {
+        return getNetworkButton;
+    }
 
-	public JButton getGetPropertyValueOfButton() {
-		return getPropertyValueOfButton;
-	}
+    public JButton getGetPropertyValueOfButton() {
+        return getPropertyValueOfButton;
+    }
 
-	public JButton getResetNodesButton() {
-		return resetNodesButton;
-	}
+    public JButton getResetNodesButton() {
+        return resetNodesButton;
+    }
 
-	public JButton getSendButton() {
-		return sendButton;
-	}
+    public JButton getSendButton() {
+        return sendButton;
+    }
 
-	public JButton getSetStartTimeButton() {
-		return setStartTimeButton;
-	}
+    public JButton getSetStartTimeButton() {
+        return setStartTimeButton;
+    }
 
-	public JButton getSetVirtualLinkButton() {
-		return setVirtualLinkButton;
-	}
+    public JButton getSetVirtualLinkButton() {
+        return setVirtualLinkButton;
+    }
 }

@@ -23,13 +23,114 @@
 package de.uniluebeck.itm.gtr.wsngui.rs;
 
 import javax.swing.*;
+import java.awt.*;
+import java.text.DateFormat;
 
 public class RSClientView extends JPanel {
 
-	private RSClientModel model;
+    private RSClientModel model;
 
-	public RSClientView(final RSClientModel model) {
-		this.model = model;
-	}
-	
+    private JTextField endpointUrlTextField;
+
+    private JTextArea secretAuthenticationKeysTextArea;
+
+    private JFormattedTextField fromDateTextField;
+
+    private JFormattedTextField toDateTextField;
+
+    private JButton makeReservationButton;
+
+    private JTextField nodeUrnsTextField;
+
+    private JTextArea secretReservationKeysTextArea;
+
+    private JButton copySecretReservationKeysButton;
+
+    public RSClientView(final RSClientModel model) {
+        super(new FlowLayout());
+        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+
+        this.model = model;
+
+        JPanel panel = new JPanel(new GridLayout(8, 2));
+
+        {
+            endpointUrlTextField = new JTextField();
+            panel.add(new JLabel("RS Endpoint URL"));
+            panel.add(endpointUrlTextField);
+        }
+        {
+            secretAuthenticationKeysTextArea = new JTextArea();
+            JScrollPane secretAuthenticationKeysScrollPane = new JScrollPane(secretAuthenticationKeysTextArea);
+            secretAuthenticationKeysScrollPane.setPreferredSize(new Dimension(400, 50));
+            panel.add(new JLabel("Secret Authentication Keys (urnprefix,username,secretauthenticationkey) one triple per line"));
+            panel.add(secretAuthenticationKeysScrollPane);
+        }
+        {
+            fromDateTextField = new JFormattedTextField(DateFormat.getInstance());
+            panel.add(new JLabel("Date From"));
+            panel.add(fromDateTextField);
+        }
+        {
+            toDateTextField = new JFormattedTextField(DateFormat.getInstance());
+            panel.add(new JLabel("Date Until"));
+            panel.add(toDateTextField);
+        }
+        {
+            nodeUrnsTextField = new JTextField();
+            panel.add(new JLabel("Node URNs"));
+            panel.add(nodeUrnsTextField);
+        }
+        {
+            makeReservationButton = new JButton("makeReservation()");
+            panel.add(new JLabel());
+            panel.add(makeReservationButton);
+        }
+        {
+            secretReservationKeysTextArea = new JTextArea();
+            JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
+            secretReservationKeysScrollPane.setPreferredSize(new Dimension(400, 50));
+            panel.add(new JLabel("Secret Reservation Keys"));
+            panel.add(secretReservationKeysScrollPane);
+        }
+        {
+            copySecretReservationKeysButton = new JButton("Copy SRKs to Session Management Client");
+            panel.add(new JLabel());
+            panel.add(copySecretReservationKeysButton);
+        }
+
+        add(panel);
+    }
+
+    public JButton getCopySecretReservationKeysButton() {
+        return copySecretReservationKeysButton;
+    }
+
+    public JTextField getEndpointUrlTextField() {
+        return endpointUrlTextField;
+    }
+
+    public JTextArea getSecretAuthenticationKeysTextArea() {
+        return secretAuthenticationKeysTextArea;
+    }
+
+    public JFormattedTextField getFromDateTextField() {
+        return fromDateTextField;
+    }
+
+    public JFormattedTextField getToDateTextField() {
+        return toDateTextField;
+    }
+
+    public JButton getMakeReservationButton() {
+        return makeReservationButton;
+    }
+
+    public JTextField getNodeUrnsTextField() {
+        return nodeUrnsTextField;
+    }
+
+    public JTextArea getSecretReservationKeysTextArea() {
+        return secretReservationKeysTextArea;
+    }
 }

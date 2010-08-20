@@ -41,75 +41,75 @@ import java.net.UnknownHostException;
  */
 public class ControllerController {
 
-	private static final Logger log = LoggerFactory.getLogger(ControllerController.class);
+    private static final Logger log = LoggerFactory.getLogger(ControllerController.class);
 
-	private ControllerView view;
+    private ControllerView view;
 
-	private ControllerModel model;
+    private ControllerModel model;
 
-	private Controller getControllerService() {
-		String endpointUrl = view.getEndpointUrlTextField().getText();
-		Controller controllerPort = WSNServiceHelper.getControllerService(endpointUrl);
-		return controllerPort;
-	}
+    private Controller getControllerService() {
+        String endpointUrl = view.getEndpointUrlTextField().getText();
+        Controller controllerPort = WSNServiceHelper.getControllerService(endpointUrl);
+        return controllerPort;
+    }
 
-	private ActionListener receiveActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
+    private ActionListener receiveActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
 
-			Dialogs.MessagePanel panel = new Dialogs.MessagePanel();
-			Dialogs.InputDialog<Message> dialog = new Dialogs.InputDialog<Message>(
-					"Receive - Parameters",
-					panel
-			);
-			dialog.setVisible(true);
-			Message message = dialog.getResult();
+            Dialogs.MessagePanel panel = new Dialogs.MessagePanel();
+            Dialogs.InputDialog<Message> dialog = new Dialogs.InputDialog<Message>(
+                    "Receive - Parameters",
+                    panel
+            );
+            dialog.setVisible(true);
+            Message message = dialog.getResult();
 
-			if (message != null) {
+            if (message != null) {
 
-				getControllerService().receive(message);
-				log.info("Called Controller.receive() successfully...");
+                getControllerService().receive(message);
+                log.info("Called Controller.receive() successfully...");
 
-			}
+            }
 
-		}
-	};
+        }
+    };
 
-	private ActionListener receiveStatusActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
+    private ActionListener receiveStatusActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
 
-			Dialogs.RequestStatusPanel panel = new Dialogs.RequestStatusPanel();
-			Dialogs.InputDialog<RequestStatus> dialog = new Dialogs.InputDialog<RequestStatus>(
-					"ReceiveStatus - Parameters",
-					panel
-			);
-			dialog.setVisible(true);
-			RequestStatus status = dialog.getResult();
+            Dialogs.RequestStatusPanel panel = new Dialogs.RequestStatusPanel();
+            Dialogs.InputDialog<RequestStatus> dialog = new Dialogs.InputDialog<RequestStatus>(
+                    "ReceiveStatus - Parameters",
+                    panel
+            );
+            dialog.setVisible(true);
+            RequestStatus status = dialog.getResult();
 
-			if (status != null) {
+            if (status != null) {
 
-				getControllerService().receiveStatus(status);
-				log.info("Called Controller.receiveStatus() successfully...");
+                getControllerService().receiveStatus(status);
+                log.info("Called Controller.receiveStatus() successfully...");
 
-			}
+            }
 
-		}
-	};
+        }
+    };
 
-	public ControllerController(ControllerView view, ControllerModel model) {
+    public ControllerController(ControllerView view, ControllerModel model) {
 
-		this.view = view;
-		this.model = model;
+        this.view = view;
+        this.model = model;
 
-		this.view.getReceiveButton().addActionListener(receiveActionListener);
-		this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
-		try {
-			this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+        this.view.getReceiveButton().addActionListener(receiveActionListener);
+        this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
+        try {
+            this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 }

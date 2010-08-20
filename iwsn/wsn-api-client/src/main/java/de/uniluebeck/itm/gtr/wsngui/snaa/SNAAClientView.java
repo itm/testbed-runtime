@@ -28,106 +28,111 @@ import java.awt.*;
 
 public class SNAAClientView extends JPanel {
 
-	private SNAAClientModel model;
+    private SNAAClientModel model;
 
-	private JTextField endpointUrlTextField;
+    private JTextField endpointUrlTextField;
 
-	private JButton isAuthenticatedButton;
+    private JButton isAuthenticatedButton;
 
-	private JButton authenticateButton;
+    private JButton authenticateButton;
 
-	private JTextArea authenticationTriplesTextArea;
+    private JTextArea authenticationTriplesTextArea;
 
-	private JTextField actionTextField;
+    private JTextField actionTextField;
 
-	private JTextArea secretAuthenticationKeysTextArea;
+    private JTextArea secretAuthenticationKeysTextArea;
 
-	private JButton copyToRSButton;
+    private JButton copyToRSButton;
 
-	public SNAAClientView(final SNAAClientModel model) {
-		super(new FlowLayout());
-		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+    public SNAAClientView(final SNAAClientModel model) {
+        super(new FlowLayout());
+        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-		this.model = model;
+        this.model = model;
 
-		JPanel panel = new JPanel(new GridLayout(7, 2));
+        JPanel panel = new JPanel(new GridLayout(7, 2));
 
-		{
-			JLabel endpointUrlLabel = new JLabel("SNAA Endpoint URL");
-			endpointUrlTextField = new JTextField();
+        {
+            JLabel endpointUrlLabel = new JLabel("SNAA Endpoint URL");
+            endpointUrlTextField = new JTextField();
 
-			panel.add(endpointUrlLabel);
-			panel.add(endpointUrlTextField);
-		}
-		{
-			JLabel authenticationTriplesLabel = new JLabel("Credentials (urnprefix,username,password) one triple per line");
-			authenticationTriplesTextArea = new JTextArea();
-			JScrollPane authenticationTriplesScrollPane = new JScrollPane(authenticationTriplesTextArea);
-			authenticationTriplesScrollPane.setPreferredSize(new Dimension(400,50));
+            panel.add(endpointUrlLabel);
+            panel.add(endpointUrlTextField);
+        }
+        {
+            JLabel authenticationTriplesLabel = new JLabel("Credentials (urnprefix,username,password) one triple per line");
+            authenticationTriplesTextArea = new JTextArea();
+            JScrollPane authenticationTriplesScrollPane = new JScrollPane(authenticationTriplesTextArea);
+            authenticationTriplesScrollPane.setPreferredSize(new Dimension(400, 50));
 
-			panel.add(authenticationTriplesLabel);
-			panel.add(authenticationTriplesScrollPane);
-		}
-		{
-			authenticateButton = new JButton("authenticate()");
+            panel.add(authenticationTriplesLabel);
+            panel.add(authenticationTriplesScrollPane);
+        }
+        {
+            authenticateButton = new JButton("authenticate()");
 
-			panel.add(new JLabel());
-			panel.add(authenticateButton);
-		}
-		{
-			JLabel resultsLabel = new JLabel("Authentication Result (urnprefix,username,secretauthenticationkey) one triple per line");
-			secretAuthenticationKeysTextArea = new JTextArea();
-			JScrollPane secretAuthenticationKeysScrollPane = new JScrollPane(secretAuthenticationKeysTextArea);
-			secretAuthenticationKeysScrollPane.setPreferredSize(new Dimension(400,50));
+            panel.add(new JLabel());
+            panel.add(authenticateButton);
+        }
+        {
+            JLabel resultsLabel = new JLabel("Authentication Result (urnprefix,username,secretauthenticationkey) one triple per line");
+            secretAuthenticationKeysTextArea = new JTextArea();
+            JScrollPane secretAuthenticationKeysScrollPane = new JScrollPane(secretAuthenticationKeysTextArea);
+            secretAuthenticationKeysScrollPane.setPreferredSize(new Dimension(400, 50));
 
-			panel.add(resultsLabel);
-			panel.add(secretAuthenticationKeysScrollPane);
-		}
-		{
-			JLabel actionLabel = new JLabel("Action");
-			actionTextField = new JTextField();
+            panel.add(resultsLabel);
+            panel.add(secretAuthenticationKeysScrollPane);
+        }
+        {
+            JLabel actionLabel = new JLabel("Action");
+            actionTextField = new JTextField();
 
-			panel.add(actionLabel);
-			panel.add(actionTextField);
-		}
-		{
-			isAuthenticatedButton = new JButton("isAuthenticated()");
+            panel.add(actionLabel);
+            panel.add(actionTextField);
+        }
+        {
+            isAuthenticatedButton = new JButton("isAuthenticated()");
 
-			panel.add(new JLabel());
-			panel.add(isAuthenticatedButton);
-		}
-		{
-			copyToRSButton = new JButton("Copy authentication Result to RS Client");
+            panel.add(new JLabel());
+            panel.add(isAuthenticatedButton);
+        }
+        {
+            copyToRSButton = new JButton("Copy authentication Result to RS Client");
 
-			panel.add(new JLabel());
-			panel.add(copyToRSButton);
-		}
+            panel.add(new JLabel());
+            panel.add(copyToRSButton);
+        }
 
-		add(panel);
+        add(panel);
 
-	}
+    }
 
-	public JTextField getEndpointUrlTextField() {
-		return endpointUrlTextField;
-	}
+    public JTextField getEndpointUrlTextField() {
+        return endpointUrlTextField;
+    }
 
-	public JTextArea getAuthenticationTriplesTextArea() {
-		return authenticationTriplesTextArea;
-	}
+    public JTextArea getAuthenticationTriplesTextArea() {
+        return authenticationTriplesTextArea;
+    }
 
-	public JTextField getActionTextField() {
-		return actionTextField;
-	}
+    public JTextField getActionTextField() {
+        return actionTextField;
+    }
 
-	public JButton getAuthenticatedButton() {
-		return isAuthenticatedButton;
-	}
+    public JButton getAuthenticatedButton() {
+        return isAuthenticatedButton;
+    }
 
-	public JButton getAuthenticateButton() {
-		return authenticateButton;
-	}
+    public JButton getAuthenticateButton() {
+        return authenticateButton;
+    }
 
-	public JTextArea getSecretAuthenticationKeysTextArea() {
-		return secretAuthenticationKeysTextArea;
-	}
+    public JTextArea getSecretAuthenticationKeysTextArea() {
+        return secretAuthenticationKeysTextArea;
+    }
+
+    public JButton getCopyToRSButton() {
+        return copyToRSButton;
+    }
+    
 }

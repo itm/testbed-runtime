@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.snaa.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for authenticationTriple complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="authenticationTriple">
  *   &lt;complexContent>
@@ -24,80 +25,94 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "authenticationTriple", propOrder = {
-		"password",
-		"urnPrefix",
-		"username"
+    "password",
+    "urnPrefix",
+    "username"
 })
 public class AuthenticationTriple {
 
-	@XmlElement(required = true)
-	protected String password;
-	@XmlElement(required = true)
-	protected String urnPrefix;
-	@XmlElement(required = true)
-	protected String username;
+    @XmlElement(required = true)
+    protected String password;
+    @XmlElement(required = true)
+    protected String urnPrefix;
+    @XmlElement(required = true)
+    protected String username;
 
-	/**
-	 * Gets the value of the password property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getPassword() {
-		return password;
-	}
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
+    }
 
-	/**
-	 * Sets the value of the password property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setPassword(String value) {
-		this.password = value;
-	}
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
+    }
 
-	/**
-	 * Gets the value of the urnPrefix property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getUrnPrefix() {
-		return urnPrefix;
-	}
+    /**
+     * Gets the value of the urnPrefix property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUrnPrefix() {
+        return urnPrefix;
+    }
 
-	/**
-	 * Sets the value of the urnPrefix property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setUrnPrefix(String value) {
-		this.urnPrefix = value;
-	}
+    /**
+     * Sets the value of the urnPrefix property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUrnPrefix(String value) {
+        this.urnPrefix = value;
+    }
 
-	/**
-	 * Gets the value of the username property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getUsername() {
-		return username;
-	}
+    /**
+     * Gets the value of the username property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUsername() {
+        return username;
+    }
 
-	/**
-	 * Sets the value of the username property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setUsername(String value) {
-		this.username = value;
-	}
+    /**
+     * Sets the value of the username property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUsername(String value) {
+        this.username = value;
+    }
 
 }

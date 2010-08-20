@@ -27,7 +27,10 @@ import de.uniluebeck.itm.gtr.wsngui.Dialogs;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -39,119 +42,119 @@ import java.util.List;
 
 public class SessionManagementController {
 
-	private SessionManagementView view;
+    private SessionManagementView view;
 
-	private SessionManagementModel model;
+    private SessionManagementModel model;
 
-	private WSNClientView wsnClientView;
+    private WSNClientView wsnClientView;
 
-	private ActionListener getInstanceResultCopyActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			wsnClientView.getEndpointUrlTextField().setText(view.getGetInstanceResultTextField().getText());
-		}
-	};
+    private ActionListener getInstanceResultCopyActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            wsnClientView.getEndpointUrlTextField().setText(view.getGetInstanceResultTextField().getText());
+        }
+    };
 
-	private ActionListener getInstanceActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String endpointUrl = view.getEndpointUrlTextField().getText();
-			String controllerEndpointUrl = view.getControllerTextField().getText();
-			String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
-			List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
+    private ActionListener getInstanceActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String endpointUrl = view.getEndpointUrlTextField().getText();
+            String controllerEndpointUrl = view.getControllerTextField().getText();
+            String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
+            List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
 
-			try {
+            try {
 
-				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
-				String instanceUrl = smService.getInstance(srkList, controllerEndpointUrl);
+                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                String instanceUrl = smService.getInstance(srkList, controllerEndpointUrl);
 
-				view.getGetInstanceResultTextField().setText(instanceUrl);
+                view.getGetInstanceResultTextField().setText(instanceUrl);
 
-			} catch (ExperimentNotRunningException_Exception e1) {
-				JOptionPane.showMessageDialog(null, "Experiment is not running");
-			} catch (UnknownReservationIdException_Exception e1) {
-				JOptionPane.showMessageDialog(null, "Unknown reservation ID");
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
-		}
-	};
+            } catch (ExperimentNotRunningException_Exception e1) {
+                JOptionPane.showMessageDialog(null, "Experiment is not running");
+            } catch (UnknownReservationIdException_Exception e1) {
+                JOptionPane.showMessageDialog(null, "Unknown reservation ID");
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
+        }
+    };
 
-	private ActionListener getNetworkActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
+    private ActionListener getNetworkActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
 
-			String endpointUrl = view.getEndpointUrlTextField().getText();
-			try {
+            String endpointUrl = view.getEndpointUrlTextField().getText();
+            try {
 
-				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
-				Dialogs.showTextDialog(smService.getNetwork(), true);
+                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                Dialogs.showTextDialog(smService.getNetwork(), true);
 
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
-		}
-	};
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
+        }
+    };
 
-	private List<SecretReservationKey> parseSecretReservationKeyList(String secretReservationKeysString) {
-		List<String> srkStrings = StringUtils.parseLines(secretReservationKeysString);
-		List<SecretReservationKey> srkList = new ArrayList<SecretReservationKey>(srkStrings.size());
-		SecretReservationKey key;
-		for (String srkString : srkStrings) {
-			String[] tupleStrings = srkString.split(",");
-			key = new SecretReservationKey();
-			key.setUrnPrefix(tupleStrings[0]);
-			key.setSecretReservationKey(tupleStrings[1]);
-			srkList.add(key);
-		}
-		return srkList;
-	}
+    private List<SecretReservationKey> parseSecretReservationKeyList(String secretReservationKeysString) {
+        List<String> srkStrings = StringUtils.parseLines(secretReservationKeysString);
+        List<SecretReservationKey> srkList = new ArrayList<SecretReservationKey>(srkStrings.size());
+        SecretReservationKey key;
+        for (String srkString : srkStrings) {
+            String[] tupleStrings = srkString.split(",");
+            key = new SecretReservationKey();
+            key.setUrnPrefix(tupleStrings[0]);
+            key.setSecretReservationKey(tupleStrings[1]);
+            srkList.add(key);
+        }
+        return srkList;
+    }
 
-	private ActionListener freeActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String endpointUrl = view.getEndpointUrlTextField().getText();
-			String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
-			try {
+    private ActionListener freeActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String endpointUrl = view.getEndpointUrlTextField().getText();
+            String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
+            try {
 
-				SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
-				List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
-				smService.free(srkList);
-				view.getGetInstanceResultTextField().setText("");
+                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
+                smService.free(srkList);
+                view.getGetInstanceResultTextField().setText("");
 
-			} catch (ExperimentNotRunningException_Exception e1) {
-				JOptionPane.showMessageDialog(null, "Experiment is not running");
-			} catch (UnknownReservationIdException_Exception e1) {
-				JOptionPane.showMessageDialog(null, "Unknown reservation ID");
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
-		}
-	};
+            } catch (ExperimentNotRunningException_Exception e1) {
+                JOptionPane.showMessageDialog(null, "Experiment is not running");
+            } catch (UnknownReservationIdException_Exception e1) {
+                JOptionPane.showMessageDialog(null, "Unknown reservation ID");
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
+        }
+    };
 
-	public SessionManagementController(SessionManagementView view, SessionManagementModel model,
-									   WSNClientView wsnClientView) {
+    public SessionManagementController(SessionManagementView view, SessionManagementModel model,
+                                       WSNClientView wsnClientView) {
 
-		this.view = view;
-		this.model = model;
-		this.wsnClientView = wsnClientView;
+        this.view = view;
+        this.model = model;
+        this.wsnClientView = wsnClientView;
 
-		this.view.getGetInstanceButton().addActionListener(getInstanceActionListener);
-		this.view.getFreeButton().addActionListener(freeActionListener);
-		this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
+        this.view.getGetInstanceButton().addActionListener(getInstanceActionListener);
+        this.view.getFreeButton().addActionListener(freeActionListener);
+        this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
 
-		try {
+        try {
 
-			this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8888/sessions");
-			this.view.getSecretReservationKeysTextArea().setText("urn:wisebed:uzl1:,1234");
-			this.view.getControllerTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8888/sessions");
+            this.view.getSecretReservationKeysTextArea().setText("urn:wisebed:uzl1:,1234");
+            this.view.getControllerTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
 
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 
-		this.view.getGetInstanceResultCopyButton().addActionListener(getInstanceResultCopyActionListener);
+        this.view.getGetInstanceResultCopyButton().addActionListener(getInstanceResultCopyActionListener);
 
-	}
+    }
 
 }

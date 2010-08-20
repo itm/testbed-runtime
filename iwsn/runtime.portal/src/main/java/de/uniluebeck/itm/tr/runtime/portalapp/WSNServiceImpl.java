@@ -33,6 +33,8 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.ns.wiseml._1.Setup;
+import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
@@ -43,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -193,6 +196,11 @@ public class WSNServiceImpl implements WSNService {
 			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
 			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
 
+            if (!reservedNodes.contains(wsnMessage.getSourceNodeId())) {
+                log.warn("Received message from unreserved node \"{}\".", wsnMessage.getSourceNodeId());
+                return;
+            }
+
 			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
 
 			Message message = new Message();
@@ -336,11 +344,12 @@ public class WSNServiceImpl implements WSNService {
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
-		try {
+		// TODO define clean lifecycle for WSN app, following lifecycle of WSNServiceImpl
+        /*try {
 			wsnApp.stop();
 		} catch (Exception e) {
 			log.error("" + e, e);
-		}
+		}*/
 
 		if (wsnInstanceEndpoint != null) {
 			wsnInstanceEndpoint.stop();
@@ -570,8 +579,20 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public String getNetwork() {
-		log.debug("WSNServiceImpl.getNetwork");
-		// TODO implement run-time generation of WiseML file
+
+        log.debug("WSNServiceImpl.getNetwork");
+
+        Wiseml wiseml = JAXB.unmarshal(wiseML, Wiseml.class);
+        List<Setup.Node> node = wiseml.getSetup().getNode();
+        Iterator<Setup.Node> nodeIterator = node.iterator();
+
+        while (nodeIterator.hasNext()) {
+            Setup.Node currentNode = nodeIterator.next();
+            if (!reservedNodes.contains(currentNode.getId())) {
+                nodeIterator.remove();
+            }
+        }
+
 		return wiseML;
 	}
 
