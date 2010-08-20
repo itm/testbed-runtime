@@ -152,7 +152,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		this.messageEventService = messageEventService;
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.schedulerService = schedulerService;
-		this.localNodeNames = ImmutableSet.of(localNodeNames);
+		this.localNodeNames = ImmutableSet.copyOf(localNodeNames);
 
 		// remember ServerConnectionFactory instances according to type
 		Map<String, Set<ServerConnectionFactory>> scfs = new HashMap<String, Set<ServerConnectionFactory>>();
@@ -184,8 +184,9 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 		for (Map.Entry<Tuple<String, String>, ServerConnection> entry : serverConnections.entrySet()) {
 			if (entry.getValue() == null || !entry.getValue().isBound()) {
-				schedulerService
-						.schedule(new EstablishServerConnectionRunnable(entry.getKey()), 0, TimeUnit.MILLISECONDS);
+				schedulerService.submit(
+                        new EstablishServerConnectionRunnable(entry.getKey())
+                );
 			}
 		}
 
@@ -223,8 +224,9 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			serverConnection.unbind();
 		}
 
-		for (Set<Connection> set : openClientConnections.values()) {
+        for (Set<Connection> set : openClientConnections.values()) {
 			for (Connection connection : set) {
+                connection.removeListener(this);
 				connection.disconnect();
 			}
 		}

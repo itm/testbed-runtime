@@ -21,17 +21,17 @@ import de.uniluebeck.itm.tr.util.*;
 //--------------------------------------------------------------------------
 
 	//This is the endpoint of our local 
-		String localControllerEndpoint = "http://opium.itm.uni-luebeck.de:8089/testcontroller";
+		String localControllerEndpoint = "http://opium.local:8089/controller";
 	           
 	//The endpoint of the Session Management 
-		String sessionManamentEndpointUzl = "http://testbeduzl13.itm.uni-luebeck.de:8888/sessions";
+		String sessionManamentEndpointUzl = "http://opium.local:10011/sessions";
 	
 //--------------------------------------------------------------------------
 // Application logic
 //--------------------------------------------------------------------------
 	
-		secretAuthKeysUzl = helper.generateFakeSNAAAuthentication("urn:wisebed:uzl:","dummy-user","dummy-secret-authentication-key");
-		reservation = helper.generateFakeReservationKeys("urn:wisebed:uzl:","dummy-secret-reservation-key");
+		secretAuthKeysUzl = helper.generateFakeSNAAAuthentication("urn:wisebed:testbeduzl1:","dummy-user","dummy-secret-authentication-key");
+		reservation = helper.generateFakeReservationKeys("urn:wisebed:testbeduzl1:","dummy-secret-reservation-key");
 
 	//--------------------------------------------------------------------------
 	// Start local controller instance
@@ -74,8 +74,8 @@ import de.uniluebeck.itm.tr.util.*;
 	// Get UZL WSN API instance URL --> call getInstance()
 	//--------------------------------------------------------------------------
 		SessionManagement smUzl = WSNServiceHelper.getSessionManagementService(sessionManamentEndpointUzl);
-			
-		log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(helper.copyRsToWsn(reservation)) + ", " + localControllerEndpoint);
+
+	    log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(helper.copyRsToWsn(reservation)) + ", " + localControllerEndpoint);
 		String wsnApiEndpointUzl = smUzl.getInstance(helper.copyRsToWsn(reservation), localControllerEndpoint);
 
 		log.info("Got an UZL WSN instance URL, endpoint is: " + wsnApiEndpointUzl);
@@ -91,16 +91,11 @@ import de.uniluebeck.itm.tr.util.*;
         
         String [] uzlnodes = new String[] 
         {
-			"urn:wisebed:uzl:501",
-			"urn:wisebed:uzl:502",
-			"urn:wisebed:uzl:503",
-			"urn:wisebed:uzl:504",
-			"urn:wisebed:uzl:505",
-			"urn:wisebed:uzl:506",
-			"urn:wisebed:uzl:507",
-			"urn:wisebed:uzl:508",
-			"urn:wisebed:uzl:509",
-			"urn:wisebed:uzl:510"
+			"urn:wisebed:testbeduzl1:0x0001",
+			"urn:wisebed:testbeduzl1:0x0002",
+			"urn:wisebed:testbeduzl1:0x0003",
+			"urn:wisebed:testbeduzl1:0x0004",
+			"urn:wisebed:testbeduzl1:0x0005"
         };
         
 		/*

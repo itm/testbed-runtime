@@ -1,8 +1,0 @@
-TR :: WSN API
-
-  <<WHAT IS 'WSN API'?>>
-
-  The WSN API is the implementation of the {{{http://www.wisebed.eu/images/stories/deliverables/TR/TR-iWSN-API-V2.1.1.pdf}iWSN API v2.1.1}}
-defined by the WISEBED consortium.
-
-  {{{./apidocs/index.html}javadoc}}

@@ -262,10 +262,8 @@ import de.uniluebeck.itm.tr.util.*;
 	//--------------------------------------------------------------------------
 		SessionManagement sm = WSNServiceHelper.getSessionManagementService(sessionManamentEndpoint);
 		
-		GetInstance getInstanceParams = helper.createGetInstance(localControllerEndpoint, helper.copyRsToWsn(reservation));
-		
-		log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(getInstanceParams));
-		String wsnApiEndpoint = sm.getInstance(getInstanceParams);
+		log.debug("Using the following parameters for get instance: " + StringUtils.jaxbMarshal(helper.copyRsToWsn(reservation)) + ", " + localControllerEndpoint);
+		String wsnApiEndpoint = smUzl.getInstance(helper.copyRsToWsn(reservation), localControllerEndpoint);
 
 		log.info("Got an WSN instance URL, endpoint is: " + wsnApiEndpoint);
 		WSN wsn = WSNServiceHelper.getWSNService(wsnApiEndpoint);
