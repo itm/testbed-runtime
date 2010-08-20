@@ -5,67 +5,22 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import java.io.StringReader;
 
-public class WiseMLMergingStreamReader implements XMLStreamReader {
-	
-	private MergingInfo info;
-    private XMLStreamReader target;
+/**
+ * Delegates calls to another XMLStreamReader until a certain element is reached.
+ *
+ * User: kuypers
+ * Date: 19.08.2010
+ * Time: 18:00:28
+ * To change this template use File | Settings | File Templates.
+ */
+public abstract class ElementScanningDelegate implements XMLStreamReader {
 
-	public WiseMLMergingStreamReader(final MergingInfo info) {
-		this.info = info;
-        this.target = createHeadTarget();
-	}
+    protected XMLStreamReader target;
+    private String[] elementNames;
 
-    public void nextState() {
-
-        info.nextStage();
-
-        switch (info.getStage()) {
-            case SetupProperties:
-                readSetupProperties();
-                break;
-            case SetupDefaultNodes:
-                readSetupDefaultNodes();
-                break;
-            case SetupDefaultLinks:
-                readSetupDefaultLinks();
-                break;
-            case SetupNodes:
-                readSetupNodes();
-                break;
-            case SetupLinks:
-                readSetupLinks();
-                break;
-            case Scenario:
-                target = createSequenceTarget(this.info.getReaders(), "trace", "wiseml");
-                break;
-            case Trace:
-                readTrace();
-                break;
-        }
-    }
-
-    private void readSetupProperties() {
-        // TODO
-    }
-
-    private void readSetupDefaultNodes() {
-        // TODO
-    }
-
-    private void readSetupDefaultLinks() {
-        // TODO
-    }
-
-    private void readSetupNodes() {
-        // TODO
-    }
-
-    private void readSetupLinks() {
-        // TODO
-    }
-
-    private void readTrace() {
-        // TODO
+    public ElementScanningDelegate(XMLStreamReader target, String... elementNames) {
+        this.target = target;
+        this.elementNames = elementNames;
     }
 
     @Override
@@ -73,9 +28,26 @@ public class WiseMLMergingStreamReader implements XMLStreamReader {
         return target.getProperty(s);
     }
 
+    private boolean localNameFound() {
+        String elementName = target.getLocalName();
+        for (int i = 0; i < elementNames.length; i++) {
+            if (elementName.equals(elementNames[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected abstract void onLocalNameApplies();
+
     @Override
     public int next() throws XMLStreamException {
-        return target.next();
+        int result = target.next();
+        if (result == XMLStreamConstants.START_ELEMENT && localNameFound()) {
+            onLocalNameApplies();
+            return target.next();
+        }
+        return result;
     }
 
     @Override
@@ -90,7 +62,12 @@ public class WiseMLMergingStreamReader implements XMLStreamReader {
 
     @Override
     public int nextTag() throws XMLStreamException {
-        return target.nextTag();
+        int result = target.nextTag();
+        if (localNameFound()) {
+            onLocalNameApplies();
+            return target.nextTag();
+        }
+        return result;
     }
 
     @Override
@@ -293,52 +270,6 @@ public class WiseMLMergingStreamReader implements XMLStreamReader {
         return target.getPIData();
     }
 
-    private XMLStreamReader createHeadTarget() {
-        return new ElementScanningDelegate(
-                createReaderFromString(
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                                "<wiseml version=\"1.0\" xmlns=\"http://wisebed.eu/ns/wiseml/1.0\">" +
-                                "<setup></setup></wiseml>", null),
-                "setup") {
-            @Override
-            protected void onLocalNameApplies() {
-                target = this;
-                nextState();
-            }
-        };
-    }
 
-    private XMLStreamReader createSequenceTarget(final XMLStreamReader[] readers, final String... elementNames) {
-        final int[] indexRef = new int[]{0};
-        return new ElementScanningDelegate(readers[0], elementNames) {
-            @Override
-            protected void onLocalNameApplies() {
-                indexRef[0]++;
-                if (indexRef[0] < readers.length) {
-                    target = readers[indexRef[0]];
-                } else {
-                    target = WiseMLMergingStreamReader.this;
-                    nextState();
-                }
-            }
-        };
-    }
-
-    private static XMLStreamReader createReaderFromString(String source, String nextElement) {
-        try {
-            XMLStreamReader target = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(source));
-            while (nextElement != null && target.hasNext()) {
-                if (target.getEventType() == XMLStreamConstants.START_ELEMENT) {
-                    if (target.getLocalName().equals(nextElement)) {
-                        break;
-                    }
-                }
-                target.next();
-            }
-            return target;
-        } catch (XMLStreamException e) {
-            throw new IllegalArgumentException("exception while processing source", e);
-        }
-    }
 
 }

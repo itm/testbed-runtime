@@ -117,65 +117,72 @@ public class WiseMLMergerCmdLine {
     }
 
     private static void connectAndStream(XMLStreamReader input, XMLStreamWriter output) {
-        // TODO: (bug) all tag contents are commented out for some reason
-        try {
-            int attributeIndex = 0;
-            int namespaceIndex = 0;
-            while (input.hasNext()) {
-                switch (input.next()) {
-                case XMLStreamReader.START_DOCUMENT:
-                    output.writeStartDocument(input.getEncoding(), input.getVersion());
-                    break;
-                case XMLStreamReader.END_DOCUMENT:
-                    output.writeEndDocument();
-                    break;
-                case XMLStreamReader.START_ELEMENT:
-                    attributeIndex = 0;
-                    output.writeStartElement(input.getPrefix(), input.getLocalName(), input.getNamespaceURI());
-                    break;
-                case XMLStreamReader.END_ELEMENT:
-                    output.writeEndElement();
-                    break;
-                case XMLStreamReader.ATTRIBUTE:
-                    output.writeAttribute(input.getAttributePrefix(attributeIndex),
-                            input.getAttributeNamespace(attributeIndex),
-                            input.getAttributeLocalName(attributeIndex),
-                            input.getAttributeValue(attributeIndex));
-                    attributeIndex++;
-                    break;
-                case XMLStreamReader.NAMESPACE:
-                    output.writeNamespace(input.getNamespacePrefix(namespaceIndex),
-                            input.getNamespaceURI(namespaceIndex));
-                    namespaceIndex++;
-                    break;
-                case XMLStreamReader.CHARACTERS:
-                    //output.writeCharacters(new String(input.getTextCharacters()));
-                    output.writeComment(input.getText());
-                    break;
-                case XMLStreamReader.CDATA:
-                    //output.writeCData(new String(input.getTextCharacters()));
-                    output.writeComment(input.getText());
-                    break;
-                case XMLStreamReader.COMMENT:
-                    output.writeComment(input.getText());
-                    break;
-                case XMLStreamReader.SPACE:
-                    output.writeComment(input.getText());
-                    break;
-                case XMLStreamReader.PROCESSING_INSTRUCTION:
-                    output.writeProcessingInstruction(input.getPITarget(), input.getPIData());
-                    break;
-                case XMLStreamReader.ENTITY_REFERENCE:
-                    output.writeEntityRef(input.getText());
-                    break;
-                case XMLStreamReader.DTD:
-                    output.writeDTD(input.getText());
-                }
-            }
-        } catch (XMLStreamException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+		// TODO: fix namespace
+		try {
+			int namespaceIndex = 0;
+			while (input.hasNext()) {
+				switch (input.getEventType()) {
+				case XMLStreamConstants.START_DOCUMENT:
+					output.writeStartDocument(input.getEncoding(), input.getVersion());
+					break;
+				case XMLStreamConstants.START_ELEMENT:
+					output.writeStartElement(input.getPrefix(), input.getLocalName(), input.getNamespaceURI());
+					for (int i = 0; i < input.getAttributeCount(); i++) {
+						String prefix = input.getAttributePrefix(i);
+						String namespace = input.getAttributeNamespace(i);
+						String localName = input.getAttributeLocalName(i);
+						String value = input.getAttributeValue(i);
+
+						if (prefix == null || prefix.equals("")) {
+							if (namespace == null) {
+								output.writeAttribute(localName, value);
+							} else {
+								output.writeAttribute(namespace, localName, value);
+							}
+						} else {
+							output.writeAttribute(prefix, namespace, localName, value);
+						}
+					}
+					break;
+				case XMLStreamConstants.END_ELEMENT:
+					output.writeEndElement();
+					break;
+				case XMLStreamConstants.NAMESPACE:
+					output.writeNamespace(input.getNamespacePrefix(namespaceIndex),
+							input.getNamespaceURI(namespaceIndex));
+					namespaceIndex++;
+					break;
+				case XMLStreamConstants.CHARACTERS:
+					//output.writeCharacters(new String(input.getTextCharacters()));
+					output.writeCharacters(input.getText());
+					break;
+				case XMLStreamConstants.CDATA:
+					//output.writeCData(new String(input.getTextCharacters()));
+					output.writeCData(input.getText());
+					break;
+				case XMLStreamConstants.COMMENT:
+					output.writeComment(input.getText());
+					break;
+				case XMLStreamConstants.SPACE:
+					output.writeCharacters(input.getText());
+					break;
+				case XMLStreamConstants.PROCESSING_INSTRUCTION:
+					output.writeProcessingInstruction(input.getPITarget(), input.getPIData());
+					break;
+				case XMLStreamConstants.ENTITY_REFERENCE:
+					output.writeEntityRef(input.getText());
+					break;
+				case XMLStreamConstants.DTD:
+					output.writeDTD(input.getText());
+				}
+				input.next();
+			}
+			output.writeEndDocument();
+			output.flush();
+		} catch (XMLStreamException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
 }

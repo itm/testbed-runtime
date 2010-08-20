@@ -8,11 +8,14 @@ public class MergingInfo {
 	
 	private MergerConfiguration config;
 	private XMLStreamReader[] readers;
+
+    private ReadingStage stage;
 	
 	public MergingInfo(MergerConfiguration config, XMLStreamReader[] readers) {
 		super();
 		this.config = config;
 		this.readers = readers;
+        this.stage = ReadingStage.Head;
 	}
 
 	public MergerConfiguration getConfig() {
@@ -22,5 +25,17 @@ public class MergingInfo {
 	public XMLStreamReader[] getReaders() {
 		return readers;
 	}
+
+    public ReadingStage getStage() {
+        return stage;
+    }
+
+    public void nextStage() {
+        if (stage.ordinal() < ReadingStage.values().length-1) {
+            stage = ReadingStage.values()[stage.ordinal()+1];
+        } else {
+            throw new IllegalStateException("no more stages");
+        }
+    }
 
 }
