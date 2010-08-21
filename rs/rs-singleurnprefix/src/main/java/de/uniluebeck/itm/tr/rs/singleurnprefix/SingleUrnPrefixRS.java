@@ -112,6 +112,7 @@ public class SingleUrnPrefixRS implements RS {
 				SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
 				List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
 				keys.add(secretReservationKey);
+                data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
 				return keys;
 
 			} catch (Exception e) {
