@@ -51,6 +51,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.UnsupportedOperationException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -594,7 +595,10 @@ public class WSNServiceImpl implements WSNService {
             }
         }
 
-		return wiseML;
+        StringWriter writer = new StringWriter();
+        JAXB.marshal(wiseml, writer);
+
+		return writer.toString();
 	}
 
 	@Override
