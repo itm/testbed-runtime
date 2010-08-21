@@ -50,6 +50,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
+import java.io.StringReader;
 import java.lang.UnsupportedOperationException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -582,7 +583,7 @@ public class WSNServiceImpl implements WSNService {
 
         log.debug("WSNServiceImpl.getNetwork");
 
-        Wiseml wiseml = JAXB.unmarshal(wiseML, Wiseml.class);
+        Wiseml wiseml = JAXB.unmarshal(new StringReader(wiseML), Wiseml.class);
         List<Setup.Node> node = wiseml.getSetup().getNode();
         Iterator<Setup.Node> nodeIterator = node.iterator();
 
