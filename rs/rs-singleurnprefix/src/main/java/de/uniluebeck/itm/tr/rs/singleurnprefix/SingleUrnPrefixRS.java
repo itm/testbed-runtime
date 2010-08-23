@@ -105,13 +105,14 @@ public class SingleUrnPrefixRS implements RS {
 			Data data = new Data();
 			data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
 			data.setUsername(secretAuthenticationKey.getUsername());
-			data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
+			//data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
 			crd.getData().add(data);
 
 			try {
 				SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
 				List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
 				keys.add(secretReservationKey);
+                data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
 				return keys;
 
 			} catch (Exception e) {
@@ -191,10 +192,6 @@ public class SingleUrnPrefixRS implements RS {
 		throw createRSExceptionException("Not yet implemented!");
 	}
 
-	/**
-	 * @param reservation
-	 * @throws RSExceptionException
-	 */
 	private void checkNodesAvailable(PublicReservationData reservation)
 			throws ReservervationConflictExceptionException, RSExceptionException {
 		List<String> requested = reservation.getNodeURNs();
@@ -217,10 +214,6 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	/**
-	 * @param nodeUrns
-	 * @throws RSExceptionException
-	 */
 	private void performServingNodeUrnsCheck(List<String> nodeUrns) throws RSExceptionException {
 
 		// Check if we serve all node urns
@@ -234,11 +227,6 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	/**
-	 * @param secretReservationKeys
-	 * @return
-	 * @throws RSExceptionException
-	 */
 	private SecretReservationKey performSanityCheck(List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException {
 		String msg = null;
@@ -265,10 +253,6 @@ public class SingleUrnPrefixRS implements RS {
 		return srk;
 	}
 
-	/**
-	 * @param reservation
-	 * @throws RSExceptionException
-	 */
 	private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
 		String msg = null;
 
@@ -290,10 +274,6 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	/**
-	 * @param authenticationData
-	 * @throws RSExceptionException
-	 */
 	public SecretAuthenticationKey performSanityCheck(List<SecretAuthenticationKey> authenticationData)
 			throws RSExceptionException {
 		// Check if authentication data has been supplied
@@ -317,18 +297,11 @@ public class SingleUrnPrefixRS implements RS {
 		return sak;
 	}
 
-	/**
-	 * @param key
-	 * @return
-	 * @throws RSExceptionException
-	 * @throws AuthorizationExceptionException
-	 *
-	 */
 	public boolean checkAuthentication(SecretAuthenticationKey key, Action action) throws RSExceptionException,
 			AuthorizationExceptionException, AuthenticationExceptionException {
 
 		log.debug("Checking authorization for key: " + key + " and action: " + action);
-		boolean authorized = false;
+		boolean authorized;
 
 		eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey k =
 				new eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey();

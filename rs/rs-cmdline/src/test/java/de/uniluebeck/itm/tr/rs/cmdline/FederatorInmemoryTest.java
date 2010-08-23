@@ -69,11 +69,9 @@ public class FederatorInmemoryTest {
 
 	private GregorianCalendar gregorianCalendarTo = null;
 
-	private Map<Integer, ConfidentialReservationData> reservationDataMap =
-			new HashMap<Integer, ConfidentialReservationData>();
+	private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
 
 	private Map<Integer, List<SecretReservationKey>> reservationKeyMap = null;
-	private String secretReservationKey = "a1b2c3";
 
 	@Before
 	public void setUp() throws Exception {
@@ -163,7 +161,6 @@ public class FederatorInmemoryTest {
 		data.setUrnPrefix("urn:wisebed2:testbed1");
 		data.setUrnPrefix("urn:wisebed2:testbed2");
 		data.setUsername("Nils Rohwedder");
-		data.setSecretReservationKey(this.secretReservationKey);
 		dataList.add(data);
 
 		List<String> urns = new LinkedList<String>();
@@ -244,13 +241,13 @@ public class FederatorInmemoryTest {
 		//testing on wrong SecretReservationKey
 		try {
 			SecretReservationKey key = new SecretReservationKey();
-			key.setSecretReservationKey(this.secretReservationKey);
+			key.setSecretReservationKey("abcdefghijklmnopqrstuvwxyz");
 			key.setUrnPrefix("urn:wisebed1:testbed1");
 			rsFederator.getReservation(Arrays.asList(key));
 			fail("Should have raised ReservationNotFoundException");
 		}
 		catch (ReservervationNotFoundExceptionException e) {
-			System.out.println(e);
+			// do nothing
 		}
 	}
 
@@ -262,6 +259,7 @@ public class FederatorInmemoryTest {
 			fail("Should have raised an RSExceptionException");
 		}
 		catch (RSExceptionException e) {
+            // do nothing
 		}
 		try {
 			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
@@ -269,6 +267,7 @@ public class FederatorInmemoryTest {
 			fail("Should have raised an RSExceptionException");
 		}
 		catch (RSExceptionException e) {
+            // do nothing
 		}
 		//testing on not-served urn
 		try {
@@ -279,6 +278,7 @@ public class FederatorInmemoryTest {
 			fail("Should have raised an RSExceptionException");
 		}
 		catch (RSExceptionException e) {
+            // do nothing
 		}
 		//testing on not valid authentication-data
 		try {
@@ -291,6 +291,7 @@ public class FederatorInmemoryTest {
 			fail("Should have raised an RSExceptionException");
 		}
 		catch (RSExceptionException e) {
+            // do nothing
 		}
 		//testing if makeReservation on empty authenticationData and reservation-data returns empty SecretReservationKey-list
 		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
@@ -315,8 +316,12 @@ public class FederatorInmemoryTest {
 			throws RSExceptionException, ReservervationConflictExceptionException, AuthorizationExceptionException {
 		reservationKeyMap = new HashMap<Integer, List<SecretReservationKey>>();
 		for (int i = 0; i < reservationDataMap.size(); i++) {
-			reservationKeyMap
-					.put(i, rsFederator.makeReservation(rsSecretAuthenticationKeyList, reservationDataMap.get(i)));
+
+            List<SecretReservationKey> secretReservationKeyList = rsFederator.makeReservation(
+                    rsSecretAuthenticationKeyList,
+                    reservationDataMap.get(i)
+            );
+            reservationKeyMap.put(i, secretReservationKeyList);
 		}
 	}
 
@@ -333,9 +338,9 @@ public class FederatorInmemoryTest {
 
 					testData.getData().clear();
 					testData.getData().addAll(confidentialReservationData.getData());
-					for (Data userData : testData.getData()) {
+					/*for (Data userData : testData.getData()) {
 						assertEquals(userData.getSecretReservationKey(), this.secretReservationKey);
-					}
+					}*/
 
 					assertTrue(equals(testData, confidentialReservationData));
 				}

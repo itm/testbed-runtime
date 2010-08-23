@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.wsn.devicedrivers.mockdevice;
 
 import com.google.common.util.concurrent.NamingThreadFactory;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.FlashType;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.Sectors;
@@ -164,7 +165,7 @@ public class MockDevice extends iSenseDeviceImpl {
 
 		String[] nodeNameParts = nodeName.split(":");
 		try {
-			this.nodeId = Long.parseLong(nodeNameParts[nodeNameParts.length - 1]);
+			this.nodeId = StringUtils.parseHexOrDecLong(nodeNameParts[nodeNameParts.length - 1]);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(
 					"The last part of the node URN must be a long value. Failed to parse it..."

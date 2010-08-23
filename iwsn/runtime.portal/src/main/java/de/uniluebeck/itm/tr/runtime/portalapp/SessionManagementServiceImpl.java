@@ -37,6 +37,7 @@ import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
@@ -207,6 +208,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
         String controller)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
 		// extract the one and only relevant secretReservationKey
@@ -302,14 +304,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			List<SecretReservationKey> secretReservationKeyList)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
+		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkFreeArguments(secretReservationKeyList);
 
 		// extract the one and only relevant secret reservation key
 		String secretReservationKey = secretReservationKeyList.get(0).getSecretReservationKey();
-
-		if (reservationEndpointUrl != null) {
-			// TODO integrate authorization process here
-		}
 
 		synchronized (wsnInstances) {
 
@@ -324,6 +323,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					log.error("Error while stopping WSN service instance: " + e, e);
 				}
 				wsnInstances.remove(secretReservationKey);
+			} else {
+				throw SessionManagementHelper.createExperimentNotRunningException(secretReservationKey);
 			}
 
 		}
@@ -377,7 +378,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// TODO replace with more generic exception type
 			throw WSNServiceHelper.createUnknownReservationIdException(msg, null, e);
 		} catch (ReservervationNotFoundExceptionException e) {
-			log.debug("" + e, e);
+			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
 			throw WSNServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
 		}
 

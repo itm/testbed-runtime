@@ -55,7 +55,6 @@ public class SingleUrnPrefixInmemoryTest {
 	private GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
 	private GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
 	private Map<String, String> endpointPropertiesMap = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed1;
-	private String secretReservationKey = "a1b2c3d4";
 
 	@Before
 	public void setUp() throws Exception {
@@ -81,7 +80,6 @@ public class SingleUrnPrefixInmemoryTest {
 		Data data = new Data();
 		data.setUrnPrefix(urnPrefix);
 		data.setUsername("Nils Rohwedder");
-		data.setSecretReservationKey(this.secretReservationKey);
 		confiData.getData().add(data);
 
 		gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
@@ -118,18 +116,28 @@ public class SingleUrnPrefixInmemoryTest {
 
 	public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
+
+            List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
 			tempKeyList.add(reservationKeyMap.get(i));
-			assertTrue(equals(reservationDataMap.get(i), singleUrnPrefixRS.getReservation(tempKeyList).get(0)));
+
+            ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
+            ConfidentialReservationData receivedCRD = singleUrnPrefixRS.getReservation(tempKeyList).get(0);
+
+            assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
+            assertEquals(rememberedCRD.getNodeURNs(), receivedCRD.getNodeURNs());
+            assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
+            assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
+
+			//assertTrue(equals(reservationDataMap.get(i), singleUrnPrefixRS.getReservation(tempKeyList).get(0)));
 		}
 	}
 
-	private boolean equals(ConfidentialReservationData reservationData, ConfidentialReservationData reservationDataOther) {
-		// TODO implement (im moment noch unschoen!!)
+	private boolean equals(ConfidentialReservationData rd1, ConfidentialReservationData rd2) {
+        // TODO implement (im moment noch unschoen!!)
 		//if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
 		//if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
 		//if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
-		return Comparison.equals(reservationData, reservationDataOther);
+		return Comparison.equals(rd1, rd2);
 	}
 
 

@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -75,7 +74,7 @@ public class WSNServiceHelper {
 		try {
 			if (tmpFileSessionManagement == null) {
 				try {
-					tmpFileSessionManagement = FileUtils.copyToTmpFile(resourceStream, "tr.iwsn.sessionmanagement", "wsdl");
+					tmpFileSessionManagement = FileUtils.copyToTmpFile(resourceStream, "tr.controller.sessionmanagement", "wsdl");
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -115,7 +114,7 @@ public class WSNServiceHelper {
 		try {
 			if (tmpFileController == null) {
 				try {
-					tmpFileController = FileUtils.copyToTmpFile(resourceStream, "tr.iwsn.controller", "wsdl");
+					tmpFileController = FileUtils.copyToTmpFile(resourceStream, "tr.controller.controller", "wsdl");
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -156,7 +155,7 @@ public class WSNServiceHelper {
 		try {
 			if (tmpFileWSN == null) {
 				try {
-					tmpFileWSN = FileUtils.copyToTmpFile(resourceStream, "tr.iwsn.wsn", "wsdl");
+					tmpFileWSN = FileUtils.copyToTmpFile(resourceStream, "tr.controller.wsn", "wsdl");
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

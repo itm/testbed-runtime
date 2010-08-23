@@ -2,288 +2,343 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.*;
+import java.io.StringReader;
 
 public class WiseMLMergingStreamReader implements XMLStreamReader {
 	
 	private MergingInfo info;
-	
+    private XMLStreamReader target;
+
 	public WiseMLMergingStreamReader(final MergingInfo info) {
 		this.info = info;
+        this.target = createHeadTarget();
 	}
 
-	@Override
-	public Object getProperty(String name) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public void nextState() {
 
-	@Override
-	public int next() throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+        info.nextStage();
 
-	@Override
-	public void require(int type, String namespaceURI, String localName)
-			throws XMLStreamException {
-		// TODO Auto-generated method stub
+        switch (info.getStage()) {
+            case SetupProperties:
+                readSetupProperties();
+                break;
+            case SetupDefaultNodes:
+                readSetupDefaultNodes();
+                break;
+            case SetupDefaultLinks:
+                readSetupDefaultLinks();
+                break;
+            case SetupNodes:
+                readSetupNodes();
+                break;
+            case SetupLinks:
+                readSetupLinks();
+                break;
+            case Scenario:
+                target = createSequenceTarget(this.info.getReaders(), "trace", "wiseml");
+                break;
+            case Trace:
+                readTrace();
+                break;
+        }
+    }
 
-	}
+    private void readSetupProperties() {
+        // TODO
+    }
 
-	@Override
-	public String getElementText() throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private void readSetupDefaultNodes() {
+        // TODO
+    }
 
-	@Override
-	public int nextTag() throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    private void readSetupDefaultLinks() {
+        // TODO
+    }
 
-	@Override
-	public boolean hasNext() throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    private void readSetupNodes() {
+        // TODO
+    }
 
-	@Override
-	public void close() throws XMLStreamException {
-		// TODO Auto-generated method stub
+    private void readSetupLinks() {
+        // TODO
+    }
 
-	}
+    private void readTrace() {
+        // TODO
+    }
 
-	@Override
-	public String getNamespaceURI(String prefix) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Object getProperty(String s) throws IllegalArgumentException {
+        return target.getProperty(s);
+    }
 
-	@Override
-	public boolean isStartElement() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public int next() throws XMLStreamException {
+        return target.next();
+    }
 
-	@Override
-	public boolean isEndElement() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public void require(int i, String s, String s1) throws XMLStreamException {
+        target.require(i, s, s1);
+    }
 
-	@Override
-	public boolean isCharacters() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public String getElementText() throws XMLStreamException {
+        return target.getElementText();
+    }
 
-	@Override
-	public boolean isWhiteSpace() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public int nextTag() throws XMLStreamException {
+        return target.nextTag();
+    }
 
-	@Override
-	public String getAttributeValue(String namespaceURI, String localName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean hasNext() throws XMLStreamException {
+        return target.hasNext();
+    }
 
-	@Override
-	public int getAttributeCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public void close() throws XMLStreamException {
+        target.close();
+    }
 
-	@Override
-	public QName getAttributeName(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNamespaceURI(String s) {
+        return target.getNamespaceURI(s);
+    }
 
-	@Override
-	public String getAttributeNamespace(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isStartElement() {
+        return target.isStartElement();
+    }
 
-	@Override
-	public String getAttributeLocalName(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isEndElement() {
+        return target.isEndElement();
+    }
 
-	@Override
-	public String getAttributePrefix(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isCharacters() {
+        return target.isCharacters();
+    }
 
-	@Override
-	public String getAttributeType(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isWhiteSpace() {
+        return target.isWhiteSpace();
+    }
 
-	@Override
-	public String getAttributeValue(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAttributeValue(String s, String s1) {
+        return target.getAttributeValue(s, s1);
+    }
 
-	@Override
-	public boolean isAttributeSpecified(int index) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public int getAttributeCount() {
+        return target.getAttributeCount();
+    }
 
-	@Override
-	public int getNamespaceCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public QName getAttributeName(int i) {
+        return target.getAttributeName(i);
+    }
 
-	@Override
-	public String getNamespacePrefix(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAttributeNamespace(int i) {
+        return target.getAttributeNamespace(i);
+    }
 
-	@Override
-	public String getNamespaceURI(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAttributeLocalName(int i) {
+        return target.getAttributeLocalName(i);
+    }
 
-	@Override
-	public NamespaceContext getNamespaceContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAttributePrefix(int i) {
+        return target.getAttributePrefix(i);
+    }
 
-	@Override
-	public int getEventType() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public String getAttributeType(int i) {
+        return target.getAttributeType(i);
+    }
 
-	@Override
-	public String getText() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAttributeValue(int i) {
+        return target.getAttributeValue(i);
+    }
 
-	@Override
-	public char[] getTextCharacters() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isAttributeSpecified(int i) {
+        return target.isAttributeSpecified(i);
+    }
 
-	@Override
-	public int getTextCharacters(int sourceStart, char[] target,
-			int targetStart, int length) throws XMLStreamException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getNamespaceCount() {
+        return target.getNamespaceCount();
+    }
 
-	@Override
-	public int getTextStart() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public String getNamespacePrefix(int i) {
+        return target.getNamespacePrefix(i);
+    }
 
-	@Override
-	public int getTextLength() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public String getNamespaceURI(int i) {
+        return target.getNamespaceURI(i);
+    }
 
-	@Override
-	public String getEncoding() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public NamespaceContext getNamespaceContext() {
+        return target.getNamespaceContext();
+    }
 
-	@Override
-	public boolean hasText() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public int getEventType() {
+        return target.getEventType();
+    }
 
-	@Override
-	public Location getLocation() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getText() {
+        return target.getText();
+    }
 
-	@Override
-	public QName getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public char[] getTextCharacters() {
+        return target.getTextCharacters();
+    }
 
-	@Override
-	public String getLocalName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public int getTextCharacters(int i, char[] chars, int i1, int i2) throws XMLStreamException {
+        return target.getTextCharacters(i, chars, i1, i2);
+    }
 
-	@Override
-	public boolean hasName() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public int getTextStart() {
+        return target.getTextStart();
+    }
 
-	@Override
-	public String getNamespaceURI() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public int getTextLength() {
+        return target.getTextLength();
+    }
 
-	@Override
-	public String getPrefix() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getEncoding() {
+        return target.getEncoding();
+    }
 
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean hasText() {
+        return target.hasText();
+    }
 
-	@Override
-	public boolean isStandalone() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public Location getLocation() {
+        return target.getLocation();
+    }
 
-	@Override
-	public boolean standaloneSet() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public QName getName() {
+        return target.getName();
+    }
 
-	@Override
-	public String getCharacterEncodingScheme() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getLocalName() {
+        return target.getLocalName();
+    }
 
-	@Override
-	public String getPITarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean hasName() {
+        return target.hasName();
+    }
 
-	@Override
-	public String getPIData() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNamespaceURI() {
+        return target.getNamespaceURI();
+    }
+
+    @Override
+    public String getPrefix() {
+        return target.getPrefix();
+    }
+
+    @Override
+    public String getVersion() {
+        return target.getVersion();
+    }
+
+    @Override
+    public boolean isStandalone() {
+        return target.isStandalone();
+    }
+
+    @Override
+    public boolean standaloneSet() {
+        return target.standaloneSet();
+    }
+
+    @Override
+    public String getCharacterEncodingScheme() {
+        return target.getCharacterEncodingScheme();
+    }
+
+    @Override
+    public String getPITarget() {
+        return target.getPITarget();
+    }
+
+    @Override
+    public String getPIData() {
+        return target.getPIData();
+    }
+
+    private XMLStreamReader createHeadTarget() {
+        return new ElementScanningDelegate(
+                createReaderFromString(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                                "<wiseml version=\"1.0\" xmlns=\"http://wisebed.eu/ns/wiseml/1.0\">" +
+                                "<setup></setup></wiseml>", null),
+                "setup") {
+            @Override
+            protected void onLocalNameApplies() {
+                target = this;
+                nextState();
+            }
+        };
+    }
+
+    private XMLStreamReader createSequenceTarget(final XMLStreamReader[] readers, final String... elementNames) {
+        final int[] indexRef = new int[]{0};
+        return new ElementScanningDelegate(readers[0], elementNames) {
+            @Override
+            protected void onLocalNameApplies() {
+                indexRef[0]++;
+                if (indexRef[0] < readers.length) {
+                    target = readers[indexRef[0]];
+                } else {
+                    target = WiseMLMergingStreamReader.this;
+                    nextState();
+                }
+            }
+        };
+    }
+
+    private static XMLStreamReader createReaderFromString(String source, String nextElement) {
+        try {
+            XMLStreamReader target = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(source));
+            while (nextElement != null && target.hasNext()) {
+                if (target.getEventType() == XMLStreamConstants.START_ELEMENT) {
+                    if (target.getLocalName().equals(nextElement)) {
+                        break;
+                    }
+                }
+                target.next();
+            }
+            return target;
+        } catch (XMLStreamException e) {
+            throw new IllegalArgumentException("exception while processing source", e);
+        }
+    }
 
 }

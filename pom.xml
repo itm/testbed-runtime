@@ -22,15 +22,14 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5.3-SNAPSHOT</version>
+	<version>0.5.4-SNAPSHOT</version>
 	<name>TR</name>
 
 	<modules>
@@ -45,6 +44,8 @@
 		<module>rs/rs-persistence-inmemory</module>
 		<module>rs/rs-persistence-jpa</module>
 
+		<module>iwsn/csv2config</module>
+		<module>iwsn/logcontroller</module>
 		<module>iwsn/runtime</module>
 		<module>iwsn/runtime.cmdline</module>
 		<module>iwsn/runtime.portal</module>
@@ -65,14 +66,14 @@
 		<module>snaa/snaa-jaaslogin</module>
 		<module>snaa/snaa-wisebed</module>
 
-        <module>assembly</module>
+		<module>assembly</module>
 		<module>shibboauth</module>
 		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
-		<!--<module>wiseml-merger</module>-->
+		<module>wiseml-merger</module>
 
 	</modules>
 
@@ -394,6 +395,46 @@
 				<artifactId>rxtx</artifactId>
 				<version>2.1.7</version>
 			</dependency>
+			<dependency>
+				<groupId>javax.persistence</groupId>
+				<artifactId>persistence-api</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>1.8.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate</artifactId>
+				<version>3.2.2.ga</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-annotations</artifactId>
+				<version>3.2.1.ga</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>3.2.1.ga</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.transaction</groupId>
+				<artifactId>jta</artifactId>
+				<version>1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.derby</groupId>
+				<artifactId>derby</artifactId>
+				<version>10.4.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.9</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.beanshell</groupId>
@@ -495,11 +536,6 @@
 			<name>ITM UzL Maven snapshots repository</name>
 			<url>scp://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
 		</snapshotRepository>
-		<site>
-			<id>testbed-runtime.site</id>
-			<name>Testbed Runtime Documentation</name>
-			<url>scp://itm01:/www/itm/projects/testbed-runtime-doc/</url>
-		</site>
 	</distributionManagement>
 
 	<properties>

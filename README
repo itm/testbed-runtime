@@ -16,7 +16,10 @@ DOCUMENTATION AND ISSUE TRACKING
 MAILING LIST
 
   There's a user mailing list (testbed-runtime-users@itm.uni-luebeck.de) you are free
-  to join at [4]. Support will be preferrably given through this list.
+  to join by sending an e-mail to testbed-runtime-users-subscribe@itm.uni-luebeck.de, to
+  unsubscribe please send an e-mail to testbed-runtime-users-unsubscribe@itm.uni-luebeck.de.
+  You can also visit the mailing list archives at [4]. Community and developer support  will
+  be preferably given through this list.
 
 BUILDING
 
@@ -37,4 +40,4 @@ REFERENCES
   [1] http://www.wisebed.eu/
   [2] http://maven.apache.org/
   [3] https://www.itm.uni-luebeck.de/projects/testbed-runtime/
-  [4] https://www.itm.uni-luebeck.de/cgi-bin/mailman/listinfo/testbed-runtime-users
+  [4] http://www.itm.uni-luebeck.de/pipermail/testbed-runtime-users/
