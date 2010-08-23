@@ -3,11 +3,15 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals;
 import javax.xml.stream.XMLStreamReader;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.Setup;
 
 public class MergingInfo {
 	
 	private MergerConfiguration config;
-	private XMLStreamReader[] readers;
+
+    private XMLStreamReader[] readers;
+    private Setup[] inputSetups;
+    private Setup mergedSetup;
 
     private ReadingStage stage;
 	
