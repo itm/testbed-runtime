@@ -39,6 +39,7 @@ import javax.xml.namespace.QName;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Map;
 
 
 public class WSNClientController {
@@ -51,7 +52,9 @@ public class WSNClientController {
 
     private WSNClientModel clientModel;
 
-    private WSN getWSNService() {
+	private Map<String, String> properties;
+
+	private WSN getWSNService() {
         return WSNServiceHelper.getWSNService(clientView.getEndpointUrlTextField().getText());
     }
 
@@ -212,10 +215,12 @@ public class WSNClientController {
         }
     };
 
-    public WSNClientController(WSNClientView clientView, WSNClientModel clientModel) {
+    public WSNClientController(WSNClientView clientView, WSNClientModel clientModel,
+							   final Map<String, String> properties) {
 
         this.clientView = clientView;
         this.clientModel = clientModel;
+		this.properties = properties;
 
         this.clientView.getAreNodesAliveButton().addActionListener(buttonActionListener);
         this.clientView.getDefineNetworkButton().addActionListener(buttonActionListener);

@@ -21,86 +21,46 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.wsngui.controller;
+package de.uniluebeck.itm.gtr.wsngui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 
-public class ControllerServiceDummyView extends JPanel {
+public class WSNClientProperties {
 
-	private static final Logger log = LoggerFactory.getLogger(ControllerServiceDummyView.class);
+    public final static String KEY_CONTROLLER_CLIENT = "controller.client";
+    public final static String KEY_CONTROLLER_SERVICE = "controller.service";
+    public final static String KEY_SESSION_MANAGEMENT_CLIENT = "sessionmanagement.client";
+    public final static String KEY_SESSION_MANAGEMENT_CLIENT_CONTROLLER = "sessionmanagement.client.controller";
+    public final static String KEY_WSN_CLIENT = "wsn.client";
+    public final static String KEY_WSN_SERVER_DUMMY = "wsn.server";
+    public final static String KEY_RESERVATION_KEYS = "reservationkeys";
+    public final static String KEY_ENDPOINT_URL = "endpoint.url";
 
-	private JTextField endpointUrlTextField;
+    public static Map<String, String> getPropertyMap(String s) throws IOException {
+        Map<String, String> propertyMap = new HashMap<String, String>();
+        Properties props = new Properties();
+        File file = new File(s);
+        props.load(new FileReader(file));
 
-	private JPanel panel;
+        for (Object o : props.keySet()){
+            String key = (String) o;
+            if (key.startsWith(KEY_SESSION_MANAGEMENT_CLIENT + "." + KEY_RESERVATION_KEYS)){
+                assertReservationKey(props.getProperty(key));
+                propertyMap.put(key, props.getProperty(key));
 
-	private JCheckBox startServiceCheckbox;
+            } else {
+                propertyMap.put(key, props.getProperty(key));
+            }
+        }
+        return propertyMap;
+    }
 
-	private ControllerServiceImpl controllerService;
-
-	public ControllerServiceDummyView(Map<String, String> properties) {
-
-		super(new FlowLayout());
-		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
-
-		this.panel = new JPanel(new GridLayout(2, 2));
-
-		{
-			panel.add(new JLabel("Controller API Endpoint URL"));
-			try {
-                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyControllerService + "." + WSNClientProperties.keyEndpointURL);
-                if (controllerEndpointUrlProperties == null){
-				    endpointUrlTextField = new JTextField("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
-                }
-                else {
-                    endpointUrlTextField = new JTextField((String) controllerEndpointUrlProperties);
-                }
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-			panel.add(endpointUrlTextField);
-		}
-		{
-			startServiceCheckbox = new JCheckBox("Start service");
-			startServiceCheckbox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (startServiceCheckbox.isSelected()) {
-
-						String endpointUrl = endpointUrlTextField.getText();
-						controllerService = new ControllerServiceImpl(endpointUrl);
-
-						try {
-							controllerService.start();
-						} catch (Exception e1) {
-							JOptionPane.showMessageDialog(
-									null,
-									"Failed to start controller service on URL " + endpointUrl,
-									"Failed to start controller service!",
-									JOptionPane.WARNING_MESSAGE
-							);
-							log.error("Exception while starting controller service", e1);
-						}
-
-					} else {
-						controllerService.stop();
-					}
-				}
-			});
-			panel.add(startServiceCheckbox);
-		}
-
-		add(panel);
-
-	}
+    private static void assertReservationKey(String property) {
+        if (property.split(",").length != 2) throw new RuntimeException("Reservation-Key " + property + " is no tuple!");
+    }
 
 }

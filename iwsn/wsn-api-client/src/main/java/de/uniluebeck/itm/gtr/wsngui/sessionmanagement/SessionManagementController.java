@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.gtr.wsngui.sessionmanagement;
 
 import de.uniluebeck.itm.gtr.wsngui.Dialogs;
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
@@ -39,6 +40,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SessionManagementController {
 
@@ -133,7 +135,7 @@ public class SessionManagementController {
     };
 
     public SessionManagementController(SessionManagementView view, SessionManagementModel model,
-                                       WSNClientView wsnClientView) {
+									   WSNClientView wsnClientView, Map<String, String> properties) {
 
         this.view = view;
         this.model = model;
@@ -144,16 +146,44 @@ public class SessionManagementController {
         this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
 
         try {
+            Object endpointUrlProperties = properties.get(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT + "." + WSNClientProperties.KEY_ENDPOINT_URL);
+            Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT_CONTROLLER + "." + WSNClientProperties.KEY_ENDPOINT_URL);
+            String secretReservationKeysProperties = null;
+            for (String key : properties.keySet()){
+                if (key.startsWith(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT + "." + WSNClientProperties.KEY_RESERVATION_KEYS)){
+                    if (secretReservationKeysProperties == null) secretReservationKeysProperties = "";
+                    secretReservationKeysProperties += properties.get(key) + "\n";
+                }
+            }
 
-            this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8888/sessions");
-            this.view.getSecretReservationKeysTextArea().setText("urn:wisebed:uzl1:,1234");
-            this.view.getControllerTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            if (endpointUrlProperties == null){
+                this.view.getEndpointUrlTextField()
+                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
+            }
+            else {
+                this.view.getEndpointUrlTextField().setText((String) endpointUrlProperties);
+            }
+            if (secretReservationKeysProperties == null){
+                this.view.getSecretReservationKeysTextArea().setText(""
+                        + "urn:wisebed:testbeduzl1:,1234\n"
+                        + "urn:wisebed:testbeduzl2:,1234\n"
+                        + "urn:wisebed:testbeduzl3:,1234"
+                );
+            }
+            else {
+                this.view.getSecretReservationKeysTextArea().setText(secretReservationKeysProperties);
+            }
+            if (controllerEndpointUrlProperties == null){
+                this.view.getControllerTextField()
+                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            } else {
+                this.view.getControllerTextField().setText((String) controllerEndpointUrlProperties);
+            }
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        this.view.getGetInstanceResultCopyButton().addActionListener(getInstanceResultCopyActionListener);
+		this.view.getGetInstanceResultCopyButton().addActionListener(getInstanceResultCopyActionListener);
 
     }
 

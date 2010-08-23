@@ -23,11 +23,6 @@
 
 package de.uniluebeck.itm.gtr.wsngui.controller;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 04.03.2010
- * Time: 16:16:20
- */
+
 public class ControllerModel {
 }

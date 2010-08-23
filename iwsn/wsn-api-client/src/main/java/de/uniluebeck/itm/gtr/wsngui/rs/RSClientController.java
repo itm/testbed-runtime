@@ -42,6 +42,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 public class RSClientController {
@@ -52,7 +53,9 @@ public class RSClientController {
 
     private SessionManagementView sessionManagementView;
 
-    private ActionListener makeReservationButtonActionListener = new ActionListener() {
+	private Map<String, String> properties;
+
+	private ActionListener makeReservationButtonActionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -146,13 +149,15 @@ public class RSClientController {
         return keys;
     }
 
-    public RSClientController(final RSClientView view, final RSClientModel model, SessionManagementView sessionManagementView) {
+    public RSClientController(final RSClientView view, final RSClientModel model,
+							  SessionManagementView sessionManagementView, final Map<String, String> properties) {
 
         this.view = view;
         this.model = model;
         this.sessionManagementView = sessionManagementView;
+		this.properties = properties;
 
-        try {
+		try {
             view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8889/rs");
         } catch (UnknownHostException e) {
             log.error("" + e, e);

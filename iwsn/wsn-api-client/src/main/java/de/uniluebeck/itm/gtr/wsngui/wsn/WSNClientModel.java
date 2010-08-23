@@ -23,12 +23,6 @@
 
 package de.uniluebeck.itm.gtr.wsngui.wsn;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 02.03.2010
- * Time: 13:22:51
- * To change this template use File | Settings | File Templates.
- */
+
 public class WSNClientModel {
 }

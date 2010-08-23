@@ -21,5 +21,7 @@ public interface PersistentQueue <E extends Serializable> {
     public boolean isEmpty();
 
     public long size();
+
+    public long getUsedDiskSpaceInByte();
     
 }

@@ -40,50 +40,59 @@ import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientController;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientModel;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceDummyView;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
 
 public class WSNGui {
+
+	private static final Logger log = LoggerFactory.getLogger(WSNGui.class);
 
     private JFrame frame;
 
     private JTextArea outputTextPane;
 
-    public WSNGui() {
+	public WSNGui(Map<String, String> properties) {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JTabbedPane tabs = new JTabbedPane();
+		JTabbedPane tabs = new JTabbedPane();
 
         panel.add(tabs, BorderLayout.NORTH);
 
         {
             ControllerModel controllerModel = new ControllerModel();
             ControllerView controllerView = new ControllerView(controllerModel);
-            new ControllerController(controllerView, controllerModel);
+            new ControllerController(controllerView, controllerModel, properties);
 
-            ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView();
+            ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView(properties);
 
             WSNClientModel wsnClientModel = new WSNClientModel();
             WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
-            new WSNClientController(wsnClientView, wsnClientModel);
+            new WSNClientController(wsnClientView, wsnClientModel, properties);
 
             SessionManagementModel sessionManagementModel = new SessionManagementModel();
             SessionManagementView sessionManagementView = new SessionManagementView(sessionManagementModel);
-            new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView);
+            new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView, properties);
 
             RSClientModel rsClientModel = new RSClientModel();
             RSClientView rsClientView = new RSClientView(rsClientModel);
-            new RSClientController(rsClientView, rsClientModel, sessionManagementView);
+            new RSClientController(rsClientView, rsClientModel, sessionManagementView, properties);
 
             SNAAClientModel snaaClientModel = new SNAAClientModel();
             SNAAClientView snaaClientView = new SNAAClientView(snaaClientModel);
-            new SNAAClientController(snaaClientView, snaaClientModel, rsClientView);
+            new SNAAClientController(snaaClientView, snaaClientModel, rsClientView, properties);
 
-            WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView();
+            WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView(properties);
 
             tabs.addTab("SNAA Client", snaaClientView);
             tabs.addTab("RS Client", rsClientView);
@@ -121,7 +130,27 @@ public class WSNGui {
     }
 
     public static void main(String[] args) {
-        new WSNGui().frame.setVisible(true);
-    }
+        String propertyFile = null;
+        // create the command line parser
+        CommandLineParser parser = new PosixParser();
+        Options options = new Options();
+        options.addOption("f", "file", true, "The properties file");
+
+        CommandLine line = null;
+        Map<String, String> properties = null;
+        try {
+            line = parser.parse(options, args);
+
+            if (line.hasOption('f')) {
+                propertyFile = line.getOptionValue('f');
+                properties = WSNClientProperties.getPropertyMap(propertyFile);
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage() + "\n Start aborted!");
+            System.exit(1);
+        }
+		new WSNGui(properties).frame.setVisible(true);
+	}
 
 }

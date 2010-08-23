@@ -38,6 +38,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class SNAAClientController {
@@ -48,7 +49,9 @@ public class SNAAClientController {
 
     private RSClientView rsClientView;
 
-    private SNAAClientView view;
+	private Map<String, String> properties;
+
+	private SNAAClientView view;
 
     private ActionListener isAuthenticatedActionListener = new ActionListener() {
         @Override
@@ -155,13 +158,15 @@ public class SNAAClientController {
 
     }
 
-    public SNAAClientController(final SNAAClientView view, final SNAAClientModel model, RSClientView rsClientView) {
+    public SNAAClientController(final SNAAClientView view, final SNAAClientModel model, RSClientView rsClientView,
+								final Map<String, String> properties) {
 
         this.view = view;
         this.model = model;
         this.rsClientView = rsClientView;
+		this.properties = properties;
 
-        this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
+		this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
         this.view.getAuthenticatedButton().addActionListener(isAuthenticatedActionListener);
         this.view.getCopyToRSButton().addActionListener(copyToRSButtonActionListener);
 

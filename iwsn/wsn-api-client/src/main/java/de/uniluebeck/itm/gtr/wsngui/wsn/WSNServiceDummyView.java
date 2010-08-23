@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.gtr.wsngui.wsn;
 
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,38 +31,43 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 
 
 public class WSNServiceDummyView extends JPanel {
 
     private static final Logger log = LoggerFactory.getLogger(WSNServiceDummyView.class);
 
-    private JPanel panel;
-
-    private JTextField endpointUrlTextField;
+	private JTextField endpointUrlTextField;
 
     private JCheckBox startServiceCheckbox;
 
     private WSNServiceDummyImpl wsnService;
 
-    public WSNServiceDummyView() {
+	public WSNServiceDummyView(Map<String, String> properties) {
 
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.panel = new JPanel(new GridLayout(2, 2));
+		final JPanel panel = new JPanel(new GridLayout(2, 2));
 
-        {
-            panel.add(new JLabel("WSN API Endpoint URL"));
-            endpointUrlTextField = new JTextField("http://localhost:8082/wsn/dummy");
-            panel.add(endpointUrlTextField);
-        }
-        {
-            startServiceCheckbox = new JCheckBox("Start service");
-            startServiceCheckbox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (startServiceCheckbox.isSelected()) {
+		{
+			panel.add(new JLabel("WSN API Endpoint URL"));
+            Object wsnServerDummyEndpointUrlProperties = properties.get(WSNClientProperties.KEY_WSN_SERVER_DUMMY + "." + WSNClientProperties.KEY_ENDPOINT_URL);
+
+            if (wsnServerDummyEndpointUrlProperties == null){
+			    endpointUrlTextField = new JTextField("http://localhost:8082/wsn/dummy");
+            } else {
+                endpointUrlTextField = new JTextField((String) wsnServerDummyEndpointUrlProperties);
+            }
+			panel.add(endpointUrlTextField);
+		}
+		{
+			startServiceCheckbox = new JCheckBox("Start service");
+			startServiceCheckbox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (startServiceCheckbox.isSelected()) {
 
                         String endpointUrl = endpointUrlTextField.getText();
                         wsnService = new WSNServiceDummyImpl(endpointUrl);

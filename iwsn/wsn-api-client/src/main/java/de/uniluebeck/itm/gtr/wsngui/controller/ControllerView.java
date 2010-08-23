@@ -26,12 +26,7 @@ package de.uniluebeck.itm.gtr.wsngui.controller;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 04.03.2010
- * Time: 16:16:27
- */
+
 public class ControllerView extends JPanel {
 
     private ControllerModel controllerModel;

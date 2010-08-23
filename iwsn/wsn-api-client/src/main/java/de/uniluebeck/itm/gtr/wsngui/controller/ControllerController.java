@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.gtr.wsngui.controller;
 
 import de.uniluebeck.itm.gtr.wsngui.Dialogs;
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.Controller;
 import eu.wisebed.testbed.api.wsn.v211.Message;
@@ -35,10 +36,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
-/**
- * Created by: User: bimschas Date: 04.03.2010 Time: 16:16:44
- */
+
 public class ControllerController {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerController.class);
@@ -97,18 +97,23 @@ public class ControllerController {
         }
     };
 
-    public ControllerController(ControllerView view, ControllerModel model) {
+	public ControllerController(ControllerView view, ControllerModel model, Map<String, String> properties) {
 
         this.view = view;
         this.model = model;
 
-        this.view.getReceiveButton().addActionListener(receiveActionListener);
-        this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
-        try {
-            this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+		this.view.getReceiveButton().addActionListener(receiveActionListener);
+		this.view.getReceiveStatusButton().addActionListener(receiveStatusActionListener);
+		try {
+            Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.KEY_CONTROLLER_CLIENT + "." + WSNClientProperties.KEY_ENDPOINT_URL);
+            if (controllerEndpointUrlProperties == null){
+			    this.view.getEndpointUrlTextField().setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
+            } else {
+                this.view.getEndpointUrlTextField().setText((String) controllerEndpointUrlProperties);
+            }
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 
     }
 
