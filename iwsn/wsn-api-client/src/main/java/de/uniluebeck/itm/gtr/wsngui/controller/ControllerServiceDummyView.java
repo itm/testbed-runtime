@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.gtr.wsngui.controller;
 
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class ControllerServiceDummyView extends JPanel {
 		{
 			panel.add(new JLabel("Controller API Endpoint URL"));
 			try {
-                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.keyControllerService + "." + WSNClientProperties.keyEndpointURL);
+                Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.KEY_CONTROLLER_SERVICE + "." + WSNClientProperties.KEY_ENDPOINT_URL);
                 if (controllerEndpointUrlProperties == null){
 				    endpointUrlTextField = new JTextField("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
                 }

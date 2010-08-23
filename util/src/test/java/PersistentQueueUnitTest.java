@@ -16,13 +16,6 @@ import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: nrohwedder
- * Date: 11.08.2010
- * Time: 15:59:47
- * To change this template use File | Settings | File Templates.
- */
 
 public abstract class PersistentQueueUnitTest{
 
@@ -187,7 +180,7 @@ public abstract class PersistentQueueUnitTest{
             queue.poll();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(4);
-        int cnt = 1000;
+        int cnt = 100;
         List<Future> futures = new LinkedList<Future>();
         for (int i=0;i<cnt;i++){
             futures.add(executorService.submit(new AddToQueueRunnable(queue, i)));
@@ -217,7 +210,10 @@ public abstract class PersistentQueueUnitTest{
 
     }
 
-    @Test
+    /*
+     * @Test
+     * commented out as it lengthens the build process astronomically
+     */
     public void compareOfPersistentQueues() throws ClassNotFoundException, IOException, NotEnoughMemoryException, LongOverflowException {
         PersistentQueue queueSingleFile = new PersistentQueueImplSingleFile("PersistentQueueUnitTestSingleFileCompare", 50);
         PersistentQueue queueMultiFile = new PersistentQueueImplMultiFile("PersistentQueueUnitTestMultiFileCompare", 50);

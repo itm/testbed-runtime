@@ -37,10 +37,11 @@ public class PersistentQueueImplMultiFile implements PersistentQueue {
     private long sizeOfDirectoryInByte = 0;
     
     final org.slf4j.Logger log = LoggerFactory.getLogger(PersistentQueueImplMultiFile.class);
+	
     private final Lock lock = new ReentrantLock();
 
     public PersistentQueueImplMultiFile(String dir, long maxSizeInMegaByte) throws IOException, SecurityException {
-        this.dir = new File(dir);
+		this.dir = new File(dir + File.separator + "PersistentQueueImplMultiFile");
         this.maxSizeInMegaByte = maxSizeInMegaByte;
 
         this.createAndRemoveDir();
