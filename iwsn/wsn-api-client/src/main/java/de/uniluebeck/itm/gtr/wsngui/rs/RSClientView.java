@@ -28,8 +28,6 @@ import java.text.DateFormat;
 
 public class RSClientView extends JPanel {
 
-    private RSClientModel model;
-
     private JTextField endpointUrlTextField;
 
     private JTextArea secretAuthenticationKeysTextArea;
@@ -46,11 +44,9 @@ public class RSClientView extends JPanel {
 
     private JButton copySecretReservationKeysButton;
 
-    public RSClientView(final RSClientModel model) {
+    public RSClientView() {
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
-
-        this.model = model;
 
         JPanel panel = new JPanel(new GridLayout(8, 2));
 

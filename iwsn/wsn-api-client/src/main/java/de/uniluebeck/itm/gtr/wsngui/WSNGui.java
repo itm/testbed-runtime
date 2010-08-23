@@ -23,15 +23,13 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
-import de.uniluebeck.itm.gtr.wsngui.controller.ControllerController;
-import de.uniluebeck.itm.gtr.wsngui.controller.ControllerModel;
-import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceDummyView;
-import de.uniluebeck.itm.gtr.wsngui.controller.ControllerView;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientController;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceController;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceView;
+import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientView;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
-import de.uniluebeck.itm.gtr.wsngui.rs.RSClientModel;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementController;
-import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementModel;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementView;
 import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientController;
 import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientModel;
@@ -51,7 +49,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Map;
+import java.io.FileReader;
+import java.util.Properties;
 
 public class WSNGui {
 
@@ -61,7 +60,7 @@ public class WSNGui {
 
     private JTextArea outputTextPane;
 
-	public WSNGui(Map<String, String> properties) {
+	public WSNGui(Properties properties) {
 
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -70,11 +69,11 @@ public class WSNGui {
         panel.add(tabs, BorderLayout.NORTH);
 
         {
-            ControllerModel controllerModel = new ControllerModel();
-            ControllerView controllerView = new ControllerView(controllerModel);
-            new ControllerController(controllerView, controllerModel, properties);
+            ControllerClientView controllerClientView = new ControllerClientView();
+            new ControllerClientController(controllerClientView, properties);
 
-            ControllerServiceDummyView controllerServiceDummyView = new ControllerServiceDummyView(properties);
+			ControllerServiceView controllerServiceView = new ControllerServiceView();
+			new ControllerServiceController(controllerServiceView, properties);
 
             WSNClientModel wsnClientModel = new WSNClientModel();
             WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
@@ -96,8 +95,8 @@ public class WSNGui {
 
             tabs.addTab("SNAA Client", snaaClientView);
             tabs.addTab("RS Client", rsClientView);
-            tabs.addTab("Controller Client", controllerView);
-            tabs.addTab("Controller Service Dummy", controllerServiceDummyView);
+            tabs.addTab("Controller Client", controllerClientView);
+            tabs.addTab("Controller Service Dummy", controllerServiceView);
             tabs.addTab("Session Management Client", sessionManagementView);
             tabs.addTab("WSN Client", wsnClientView);
             tabs.addTab("WSN Server Dummy", wsnServiceDummyView);
@@ -134,16 +133,18 @@ public class WSNGui {
         // create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("f", "file", true, "The properties file");
+        options.addOption("f", "file", true, "A property file containing values to override autodetected field values (optional)");
 
         CommandLine line = null;
-        Map<String, String> properties = null;
+        Properties properties = null;
         try {
+
             line = parser.parse(options, args);
 
             if (line.hasOption('f')) {
                 propertyFile = line.getOptionValue('f');
-                properties = WSNClientProperties.getPropertyMap(propertyFile);
+                properties = new Properties();
+				properties.load(new FileReader(propertyFile));
             }
 
         } catch (Exception e) {

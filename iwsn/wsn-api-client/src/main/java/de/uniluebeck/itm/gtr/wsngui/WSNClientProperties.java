@@ -23,44 +23,53 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-
+import java.util.Map;
+import java.util.Properties;
 
 public class WSNClientProperties {
 
-    public final static String KEY_CONTROLLER_CLIENT = "controller.client";
-    public final static String KEY_CONTROLLER_SERVICE = "controller.service";
-    public final static String KEY_SESSION_MANAGEMENT_CLIENT = "sessionmanagement.client";
-    public final static String KEY_SESSION_MANAGEMENT_CLIENT_CONTROLLER = "sessionmanagement.client.controller";
-    public final static String KEY_WSN_CLIENT = "wsn.client";
-    public final static String KEY_WSN_SERVER_DUMMY = "wsn.server";
-    public final static String KEY_RESERVATION_KEYS = "reservationkeys";
-    public final static String KEY_ENDPOINT_URL = "endpoint.url";
+	public static final String SNAA_CLIENT_ENDPOINTURL = "snaa.client.endpointurl";
 
-    public static Map<String, String> getPropertyMap(String s) throws IOException {
-        Map<String, String> propertyMap = new HashMap<String, String>();
-        Properties props = new Properties();
-        File file = new File(s);
-        props.load(new FileReader(file));
+	public static final String SNAA_CLIENT_CREDENTIALS = "snaa.client.credentials";
 
-        for (Object o : props.keySet()){
-            String key = (String) o;
-            if (key.startsWith(KEY_SESSION_MANAGEMENT_CLIENT + "." + KEY_RESERVATION_KEYS)){
-                assertReservationKey(props.getProperty(key));
-                propertyMap.put(key, props.getProperty(key));
+	public static final String SNAA_CLIENT_SECRETAUTHENTICATIONKEYS = "snaa.client.secretauthenticationkeys";
 
-            } else {
-                propertyMap.put(key, props.getProperty(key));
-            }
-        }
-        return propertyMap;
-    }
+	public static final String SNAA_CLIENT_ACTION = "snaa.client.action";
 
-    private static void assertReservationKey(String property) {
-        if (property.split(",").length != 2) throw new RuntimeException("Reservation-Key " + property + " is no tuple!");
-    }
+	public static final String RS_CLIENT_ENDPOINTURL = "rs.client.endpointurl";
 
+	public static final String RS_CLIENT_SECRETAUTHENTICATIONKEYS = "rs.client.secretauthenticationkeys";
+
+	public static final String RS_CLIENT_DATEFROM = "rs.client.datefrom";
+
+	public static final String RS_CLIENT_DATEUNTIL = "rs.client.dateuntil";
+
+	public static final String RS_CLIENT_NODEURNS = "rs.client.nodeurns";
+
+	public static final String CONTROLLER_CLIENT_ENDPOINTURL = "controller.client.endpointurl";
+
+	public static final String CONTROLLER_SERVICE_ENDPOINTURL = "controller.service.endpointurl";
+
+	public static final String SESSIONMANAGEMENT_CLIENT_ENDPOINTURL = "sessionmanagement.client.endpointurl";
+
+	public static final String SESSIONMANAGEMENT_CLIENT_SECRETRESERVATIONKEYS =
+			"sessionmanagement.client.secretreservationkeys";
+
+	public static final String SESSIONMANAGEMENT_CLIENT_CONTROLLERENDPOINTURL =
+			"sessionmanagement.client.controllerendpointurl";
+
+	public static final String WSN_CLIENT_ENDPOINTURL = "wsn.client.endpointurl";
+
+	public static final String WSN_SERVICE_ENDPOINTURL = "wsn.service.endpointurl";
+
+	public static String readList(final Properties properties, final String propertyPrefix, final String defaultValue) {
+		StringBuilder builder = new StringBuilder();
+		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+			if (((String) entry.getKey()).startsWith(propertyPrefix)) {
+				builder.append((String) entry.getValue());
+				builder.append("\n");
+			}
+		}
+
+	}
 }

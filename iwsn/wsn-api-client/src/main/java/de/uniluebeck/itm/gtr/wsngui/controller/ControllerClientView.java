@@ -23,6 +23,67 @@
 
 package de.uniluebeck.itm.gtr.wsngui.controller;
 
+import javax.swing.*;
+import java.awt.*;
 
-public class ControllerModel {
+
+public class ControllerClientView extends JPanel {
+
+    private JPanel panel;
+
+    private JButton receiveButton;
+
+    private JButton receiveStatusButton;
+
+    private JLabel endpointUrlLabel;
+
+    private JTextField endpointUrlTextField;
+
+    private JPanel superPanel;
+
+    public ControllerClientView() {
+
+        super(new FlowLayout());
+        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+
+        this.superPanel = new JPanel(new GridLayout(4, 1));
+        this.panel = new JPanel(new GridLayout(3, 2));
+        this.superPanel.add(this.panel);
+
+        {
+            endpointUrlLabel = new JLabel("Endpoint URL");
+            endpointUrlTextField = new JTextField();
+
+            panel.add(endpointUrlLabel);
+            panel.add(endpointUrlTextField);
+        }
+        {
+            receiveButton = new JButton("receive()");
+
+            panel.add(new JLabel());
+            panel.add(receiveButton);
+        }
+        {
+            receiveStatusButton = new JButton("receiveStatus()");
+
+            panel.add(new JLabel());
+            panel.add(receiveStatusButton);
+        }
+
+        add(superPanel);
+
+    }
+
+    public JButton getReceiveButton() {
+        return receiveButton;
+    }
+
+    public JButton getReceiveStatusButton() {
+        return receiveStatusButton;
+    }
+
+    public JTextField getEndpointUrlTextField() {
+        return endpointUrlTextField;
+    }
+
 }

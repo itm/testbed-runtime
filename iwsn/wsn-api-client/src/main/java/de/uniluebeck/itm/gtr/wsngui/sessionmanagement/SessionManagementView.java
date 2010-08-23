@@ -31,60 +31,46 @@ public class SessionManagementView extends JPanel {
 
     private JTextField endpointUrlTextField;
 
-    private JLabel endpointUrlLabel;
+	private JTextArea secretReservationKeysTextArea;
 
-    private JLabel smPanelReservationIdLabel;
+    private JTextField controllerEndpointTextField;
 
-    private JTextArea secretReservationKeysTextArea;
-
-    private JTextField controllerTextField;
-
-    private JLabel smPanelControllerLabel;
-
-    private JButton getInstanceButton;
+	private JButton getInstanceButton;
 
     private JButton freeButton;
 
-    private SessionManagementModel model;
-
-    private JPanel panel;
-
-    private JTextField getInstanceResultTextField;
+	private JTextField getInstanceResultTextField;
 
     private JButton getInstanceResultCopyButton;
 
     private JButton getNetworkButton;
 
-    public SessionManagementView(SessionManagementModel model) {
+    public SessionManagementView() {
 
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.panel = new JPanel(new GridLayout(9, 2));
-        this.model = model;
+		final JPanel panel = new JPanel(new GridLayout(9, 2));
 
         {
-            endpointUrlLabel = new JLabel("Endpoint URL");
             endpointUrlTextField = new JTextField();
 
-            panel.add(endpointUrlLabel);
+            panel.add(new JLabel("Endpoint URL"));
             panel.add(endpointUrlTextField);
         }
         {
-            smPanelReservationIdLabel = new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)");
-            secretReservationKeysTextArea = new JTextArea();
+			secretReservationKeysTextArea = new JTextArea();
             JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
             secretReservationKeysScrollPane.setPreferredSize(new Dimension(400, 30));
 
-            panel.add(smPanelReservationIdLabel);
+            panel.add(new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)"));
             panel.add(secretReservationKeysScrollPane);
         }
         {
-            smPanelControllerLabel = new JLabel("Controller Endpoint URL");
-            controllerTextField = new JTextField();
+            controllerEndpointTextField = new JTextField();
 
-            panel.add(smPanelControllerLabel);
-            panel.add(controllerTextField);
+            panel.add(new JLabel("Controller Endpoint URL"));
+            panel.add(controllerEndpointTextField);
         }
         {
             getInstanceButton = new JButton("getInstance()");
@@ -130,8 +116,8 @@ public class SessionManagementView extends JPanel {
         return secretReservationKeysTextArea;
     }
 
-    public JTextField getControllerTextField() {
-        return controllerTextField;
+    public JTextField getControllerEndpointTextField() {
+        return controllerEndpointTextField;
     }
 
     public JButton getGetInstanceButton() {

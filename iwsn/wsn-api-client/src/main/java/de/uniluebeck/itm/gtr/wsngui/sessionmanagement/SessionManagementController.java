@@ -40,13 +40,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 public class SessionManagementController {
 
     private SessionManagementView view;
-
-    private SessionManagementModel model;
 
     private WSNClientView wsnClientView;
 
@@ -61,7 +59,7 @@ public class SessionManagementController {
         @Override
         public void actionPerformed(ActionEvent e) {
             String endpointUrl = view.getEndpointUrlTextField().getText();
-            String controllerEndpointUrl = view.getControllerTextField().getText();
+            String controllerEndpointUrl = view.getControllerEndpointTextField().getText();
             String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
             List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
 
@@ -134,11 +132,9 @@ public class SessionManagementController {
         }
     };
 
-    public SessionManagementController(SessionManagementView view, SessionManagementModel model,
-									   WSNClientView wsnClientView, Map<String, String> properties) {
+    public SessionManagementController(SessionManagementView view, WSNClientView wsnClientView, Properties properties) {
 
         this.view = view;
-        this.model = model;
         this.wsnClientView = wsnClientView;
 
         this.view.getGetInstanceButton().addActionListener(getInstanceActionListener);
@@ -146,39 +142,23 @@ public class SessionManagementController {
         this.view.getGetNetworkButton().addActionListener(getNetworkActionListener);
 
         try {
-            Object endpointUrlProperties = properties.get(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT + "." + WSNClientProperties.KEY_ENDPOINT_URL);
-            Object controllerEndpointUrlProperties = properties.get(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT_CONTROLLER + "." + WSNClientProperties.KEY_ENDPOINT_URL);
-            String secretReservationKeysProperties = null;
-            for (String key : properties.keySet()){
-                if (key.startsWith(WSNClientProperties.KEY_SESSION_MANAGEMENT_CLIENT + "." + WSNClientProperties.KEY_RESERVATION_KEYS)){
-                    if (secretReservationKeysProperties == null) secretReservationKeysProperties = "";
-                    secretReservationKeysProperties += properties.get(key) + "\n";
-                }
-            }
 
-            if (endpointUrlProperties == null){
-                this.view.getEndpointUrlTextField()
-                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions");
-            }
-            else {
-                this.view.getEndpointUrlTextField().setText((String) endpointUrlProperties);
-            }
-            if (secretReservationKeysProperties == null){
-                this.view.getSecretReservationKeysTextArea().setText(""
-                        + "urn:wisebed:testbeduzl1:,1234\n"
-                        + "urn:wisebed:testbeduzl2:,1234\n"
-                        + "urn:wisebed:testbeduzl3:,1234"
-                );
-            }
-            else {
-                this.view.getSecretReservationKeysTextArea().setText(secretReservationKeysProperties);
-            }
-            if (controllerEndpointUrlProperties == null){
-                this.view.getControllerTextField()
-                        .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller");
-            } else {
-                this.view.getControllerTextField().setText((String) controllerEndpointUrlProperties);
-            }
+                this.view.getEndpointUrlTextField().setText(
+						properties.getProperty(
+								WSNClientProperties.SESSIONMANAGEMENT_CLIENT_ENDPOINTURL,
+								"http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions"
+						)
+				);
+				this.view.getSecretReservationKeysTextArea().setText(
+						WSNClientProperties.readList(properties, WSNClientProperties.SESSIONMANAGEMENT_CLIENT_SECRETRESERVATIONKEYS, "")
+				);
+                this.view.getControllerEndpointTextField().setText(
+						properties.getProperty(
+								WSNClientProperties.SESSIONMANAGEMENT_CLIENT_CONTROLLERENDPOINTURL,
+								"http://" + InetAddress.getLocalHost().getHostName() + ":8081/controller"
+						)
+				);
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

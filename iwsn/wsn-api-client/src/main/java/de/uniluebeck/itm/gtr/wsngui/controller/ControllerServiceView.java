@@ -27,68 +27,40 @@ import javax.swing.*;
 import java.awt.*;
 
 
-public class ControllerView extends JPanel {
+public class ControllerServiceView extends JPanel {
 
-    private ControllerModel controllerModel;
+	private JTextField endpointUrlTextField;
 
-    private JPanel panel;
+	private JCheckBox startServiceCheckbox;
 
-    private JButton receiveButton;
+	public ControllerServiceView() {
 
-    private JButton receiveStatusButton;
+		super(new FlowLayout());
+		((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-    private JLabel endpointUrlLabel;
+		final JPanel panel = new JPanel(new GridLayout(2, 2));
 
-    private JTextField endpointUrlTextField;
+		{
+			endpointUrlTextField = new JTextField();
 
-    private JPanel superPanel;
+			panel.add(new JLabel("Controller API Endpoint URL"));
+			panel.add(endpointUrlTextField);
+		}
+		{
+			startServiceCheckbox = new JCheckBox("Start service");
+			panel.add(new JLabel());
+			panel.add(startServiceCheckbox);
+		}
 
+		add(panel);
 
-    public ControllerView(ControllerModel controllerModel) {
+	}
 
-        super(new FlowLayout());
-        ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
+	public JTextField getEndpointUrlTextField() {
+		return endpointUrlTextField;
+	}
 
-        this.controllerModel = controllerModel;
-
-        this.superPanel = new JPanel(new GridLayout(4, 1));
-        this.panel = new JPanel(new GridLayout(3, 2));
-        this.superPanel.add(this.panel);
-
-        {
-            endpointUrlLabel = new JLabel("Endpoint URL");
-            endpointUrlTextField = new JTextField();
-
-            panel.add(endpointUrlLabel);
-            panel.add(endpointUrlTextField);
-        }
-        {
-            receiveButton = new JButton("receive()");
-
-            panel.add(new JLabel());
-            panel.add(receiveButton);
-        }
-        {
-            receiveStatusButton = new JButton("receiveStatus()");
-
-            panel.add(new JLabel());
-            panel.add(receiveStatusButton);
-        }
-
-        add(superPanel);
-
-    }
-
-    public JButton getReceiveButton() {
-        return receiveButton;
-    }
-
-    public JButton getReceiveStatusButton() {
-        return receiveStatusButton;
-    }
-
-    public JTextField getEndpointUrlTextField() {
-        return endpointUrlTextField;
-    }
-
+	public JCheckBox getStartServiceCheckbox() {
+		return startServiceCheckbox;
+	}
 }
