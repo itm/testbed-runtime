@@ -26,16 +26,14 @@ package de.uniluebeck.itm.gtr.wsngui.rs;
 import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientView;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.testbed.api.rs.v1.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -85,6 +83,107 @@ public class RSClientController {
         }
     };
 
+    private ActionListener getReservationsButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+
+                DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                RS rsService = RSServiceHelper.getRSService(endpointUrl);
+                List<PublicReservationData> reservations = rsService.getReservations(parseFrom(), parseUntil());
+
+                String[] columns = new String[]{"From", "Until", "Node-URNs", "UserData"};
+                String[][] rows = new String[reservations.size()][];
+
+                for (int row = 0; row < reservations.size(); row++) {
+                    rows[row] = new String[4];
+                    rows[row][0] = reservations.get(row).getFrom().toString();
+                    rows[row][1] = reservations.get(row).getTo().toString();
+                    StringBuilder nodeUrnString = new StringBuilder();
+                    List<String> rowNodeUrnList = reservations.get(row).getNodeURNs();
+                    for (int nodeUrnIndex = 0; nodeUrnIndex < rowNodeUrnList.size(); nodeUrnIndex++) {
+                        nodeUrnString.append(rowNodeUrnList.get(nodeUrnIndex));
+                        if (nodeUrnIndex < rowNodeUrnList.size() - 1) {
+                            nodeUrnString.append(",");
+                        }
+                    }
+                    rows[row][2] = nodeUrnString.toString();
+                    rows[row][3] = reservations.get(row).getUserData();
+                }
+
+                JTable table = new JTable(rows, columns);
+                JScrollPane scrollPane = new JScrollPane(table);
+                table.setFillsViewportHeight(true);
+                JOptionPane.showMessageDialog(null, scrollPane);
+
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
+
+        }
+    };
+
+    private XMLGregorianCalendar parseFrom() {
+
+        try {
+
+            DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+            DateTime from = new DateTime(view.getFromDateTextField().getValue());
+            return datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar());
+
+        } catch (Exception e) {
+            log.error("" + e, e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private XMLGregorianCalendar parseUntil() {
+
+        try {
+
+            DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+            DateTime until = new DateTime(view.getUntilDateTextField().getValue());
+            return datatypeFactory.newXMLGregorianCalendar(until.toGregorianCalendar());
+
+        } catch (Exception e) {
+            log.error("" + e, e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private GetReservations parsePeriod() {
+
+        GetReservations period = new GetReservations();
+        period.setFrom(parseFrom());
+        period.setTo(parseUntil());
+
+        return period;
+    }
+
+    private ActionListener getConfidentialReservationsButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                RS rsService = RSServiceHelper.getRSService(endpointUrl);
+                List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
+
+
+                rsService.getConfidentialReservations(authenticationData, parsePeriod());
+
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
+
+        }
+    };
+
     private void displaySecretReservationKeysResult(List<SecretReservationKey> secretReservationKeyList) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < secretReservationKeyList.size(); i++) {
@@ -106,7 +205,7 @@ public class RSClientController {
             ConfidentialReservationData data = new ConfidentialReservationData();
             DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
             DateTime fromDate = new DateTime(view.getFromDateTextField().getValue());
-            DateTime toDate = new DateTime(view.getToDateTextField().getValue());
+            DateTime toDate = new DateTime(view.getUntilDateTextField().getValue());
             data.setFrom(datatypeFactory.newXMLGregorianCalendar(fromDate.toGregorianCalendar()));
             data.setTo(datatypeFactory.newXMLGregorianCalendar(toDate.toGregorianCalendar()));
             data.setUserData("");
@@ -186,14 +285,18 @@ public class RSClientController {
         );
 
         if (presetUntilDateSet) {
-            this.view.getToDateTextField().setText(presetUntilDateStr);
+            this.view.getUntilDateTextField().setText(presetUntilDateStr);
         } else {
-            this.view.getToDateTextField().setValue(then.toDate());
+            this.view.getUntilDateTextField().setValue(then.toDate());
         }
         this.view.getNodeUrnsTextField().setText(
                 properties.getProperty(WSNClientProperties.RS_CLIENT_NODEURNS, "")
         );
+
         this.view.getMakeReservationButton().addActionListener(makeReservationButtonActionListener);
+        this.view.getGetReservationsButton().addActionListener(getReservationsButtonActionListener);
+        this.view.getGetConfidentialReservationsButton().addActionListener(getConfidentialReservationsButtonActionListener);
+
         this.view.getCopySecretReservationKeysButton().addActionListener(copySecretReservationKeysButtonActionListener);
 
     }

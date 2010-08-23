@@ -34,7 +34,7 @@ public class RSClientView extends JPanel {
 
     private JFormattedTextField fromDateTextField;
 
-    private JFormattedTextField toDateTextField;
+    private JFormattedTextField untilDateTextField;
 
     private JButton makeReservationButton;
 
@@ -44,11 +44,17 @@ public class RSClientView extends JPanel {
 
     private JButton copySecretReservationKeysButton;
 
+    private JButton getReservationsButton;
+    
+    private JButton getConfidentialReservationsButton;
+
     public RSClientView() {
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        JPanel panel = new JPanel(new GridLayout(8, 2));
+        JPanel superPanel = new JPanel();
+        JPanel panel = new JPanel(new GridLayout(10, 2));
+        superPanel.add(panel);
 
         {
             endpointUrlTextField = new JTextField();
@@ -68,9 +74,9 @@ public class RSClientView extends JPanel {
             panel.add(fromDateTextField);
         }
         {
-            toDateTextField = new JFormattedTextField(DateFormat.getInstance());
+            untilDateTextField = new JFormattedTextField(DateFormat.getInstance());
             panel.add(new JLabel("Date Until"));
-            panel.add(toDateTextField);
+            panel.add(untilDateTextField);
         }
         {
             nodeUrnsTextField = new JTextField();
@@ -81,6 +87,16 @@ public class RSClientView extends JPanel {
             makeReservationButton = new JButton("makeReservation()");
             panel.add(new JLabel());
             panel.add(makeReservationButton);
+        }
+        {
+            getReservationsButton = new JButton("getReservations()");
+            panel.add(new JLabel());
+            panel.add(getReservationsButton);
+        }
+        {
+            getConfidentialReservationsButton = new JButton("getConfidentialReservations()");
+            panel.add(new JLabel());
+            panel.add(getConfidentialReservationsButton);
         }
         {
             secretReservationKeysTextArea = new JTextArea();
@@ -95,11 +111,15 @@ public class RSClientView extends JPanel {
             panel.add(copySecretReservationKeysButton);
         }
 
-        add(panel);
+        add(superPanel);
     }
 
     public JButton getCopySecretReservationKeysButton() {
         return copySecretReservationKeysButton;
+    }
+
+    public JButton getGetConfidentialReservationsButton() {
+        return getConfidentialReservationsButton;
     }
 
     public JTextField getEndpointUrlTextField() {
@@ -114,8 +134,8 @@ public class RSClientView extends JPanel {
         return fromDateTextField;
     }
 
-    public JFormattedTextField getToDateTextField() {
-        return toDateTextField;
+    public JFormattedTextField getUntilDateTextField() {
+        return untilDateTextField;
     }
 
     public JButton getMakeReservationButton() {
@@ -128,5 +148,9 @@ public class RSClientView extends JPanel {
 
     public JTextArea getSecretReservationKeysTextArea() {
         return secretReservationKeysTextArea;
+    }
+
+    public JButton getGetReservationsButton() {
+        return getReservationsButton;
     }
 }
