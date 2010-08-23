@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.gtr.wsngui.rs;
 
 import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
-import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementView;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientView;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
@@ -48,139 +48,154 @@ import java.util.Properties;
 
 public class RSClientController {
 
-	private static final Logger log = LoggerFactory.getLogger(RSClientController.class);
+    private static final Logger log = LoggerFactory.getLogger(RSClientController.class);
 
-	private RSClientView view;
+    private RSClientView view;
 
-	private SessionManagementView sessionManagementView;
+    private SessionManagementClientView sessionManagementClientView;
 
-	private ActionListener makeReservationButtonActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
+    private ActionListener makeReservationButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
 
-			try {
+            try {
 
-				String endpointUrl = view.getEndpointUrlTextField().getText();
-				RS rsService = RSServiceHelper.getRSService(endpointUrl);
-				List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
-				ConfidentialReservationData reservation = parseConfidentialReservationData();
-				List<SecretReservationKey> secretReservationKeyList =
-						rsService.makeReservation(authenticationData, reservation);
-				displaySecretReservationKeysResult(secretReservationKeyList);
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                RS rsService = RSServiceHelper.getRSService(endpointUrl);
+                List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
+                ConfidentialReservationData reservation = parseConfidentialReservationData();
+                List<SecretReservationKey> secretReservationKeyList =
+                        rsService.makeReservation(authenticationData, reservation);
+                displaySecretReservationKeysResult(secretReservationKeyList);
 
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
-
-
-		}
-
-	};
-
-	private ActionListener copySecretReservationKeysButtonActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			sessionManagementView.getSecretReservationKeysTextArea()
-					.setText(view.getSecretReservationKeysTextArea().getText());
-		}
-	};
-
-	private void displaySecretReservationKeysResult(List<SecretReservationKey> secretReservationKeyList) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < secretReservationKeyList.size(); i++) {
-			builder.append(secretReservationKeyList.get(i).getUrnPrefix());
-			builder.append(",");
-			builder.append(secretReservationKeyList.get(i).getSecretReservationKey());
-			if (i < secretReservationKeyList.size() - 1) {
-				builder.append("\n");
-			}
-		}
-		view.getSecretReservationKeysTextArea().setText(builder.toString());
-	}
-
-	private ConfidentialReservationData parseConfidentialReservationData() {
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
+            }
 
 
-		try {
+        }
 
-			ConfidentialReservationData data = new ConfidentialReservationData();
-			DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
-			DateTime fromDate = new DateTime(view.getFromDateTextField().getValue());
-			DateTime toDate = new DateTime(view.getToDateTextField().getValue());
-			data.setFrom(datatypeFactory.newXMLGregorianCalendar(fromDate.toGregorianCalendar()));
-			data.setTo(datatypeFactory.newXMLGregorianCalendar(toDate.toGregorianCalendar()));
-			data.setUserData("");
-			data.getNodeURNs().addAll(parseNodeUrns());
+    };
 
-			return data;
+    private ActionListener copySecretReservationKeysButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            sessionManagementClientView.getSecretReservationKeysTextArea()
+                    .setText(view.getSecretReservationKeysTextArea().getText());
+        }
+    };
 
-		} catch (Exception e) {
-			log.warn("" + e, e);
-			JOptionPane.showMessageDialog(null, e.getMessage());
-		}
+    private void displaySecretReservationKeysResult(List<SecretReservationKey> secretReservationKeyList) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < secretReservationKeyList.size(); i++) {
+            builder.append(secretReservationKeyList.get(i).getUrnPrefix());
+            builder.append(",");
+            builder.append(secretReservationKeyList.get(i).getSecretReservationKey());
+            if (i < secretReservationKeyList.size() - 1) {
+                builder.append("\n");
+            }
+        }
+        view.getSecretReservationKeysTextArea().setText(builder.toString());
+    }
 
-		return null;
+    private ConfidentialReservationData parseConfidentialReservationData() {
 
-	}
 
-	private List<String> parseNodeUrns() {
-		return Arrays.asList(view.getNodeUrnsTextField().getText().split(","));
-	}
+        try {
 
-	private List<SecretAuthenticationKey> parseAuthenticationData() {
+            ConfidentialReservationData data = new ConfidentialReservationData();
+            DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+            DateTime fromDate = new DateTime(view.getFromDateTextField().getValue());
+            DateTime toDate = new DateTime(view.getToDateTextField().getValue());
+            data.setFrom(datatypeFactory.newXMLGregorianCalendar(fromDate.toGregorianCalendar()));
+            data.setTo(datatypeFactory.newXMLGregorianCalendar(toDate.toGregorianCalendar()));
+            data.setUserData("");
+            data.getNodeURNs().addAll(parseNodeUrns());
 
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>();
-		String text = view.getSecretAuthenticationKeysTextArea().getText();
+            return data;
 
-		for (String line : text.split("\n")) {
+        } catch (Exception e) {
+            log.warn("" + e, e);
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
 
-			String[] values = line.split(",");
+        return null;
 
-			if (values.length == 3) {
-				SecretAuthenticationKey key = new SecretAuthenticationKey();
-				key.setUrnPrefix(values[0].trim());
-				key.setUsername(values[1].trim());
-				key.setSecretAuthenticationKey(values[2].trim());
-				keys.add(key);
-			}
-		}
+    }
 
-		return keys;
-	}
+    private List<String> parseNodeUrns() {
+        return Arrays.asList(view.getNodeUrnsTextField().getText().split(","));
+    }
 
-	public RSClientController(final RSClientView view, SessionManagementView sessionManagementView,
-							  Properties properties) {
+    private List<SecretAuthenticationKey> parseAuthenticationData() {
 
-		this.view = view;
-		this.sessionManagementView = sessionManagementView;
+        List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>();
+        String text = view.getSecretAuthenticationKeysTextArea().getText();
 
-		try {
+        for (String line : text.split("\n")) {
 
-			view.getEndpointUrlTextField().setText(
-					properties.getProperty(
-							WSNClientProperties.RS_CLIENT_ENDPOINTURL,
-							"http://" + InetAddress.getLocalHost().getHostName() + ":8889/rs"
-					)
-			);
+            String[] values = line.split(",");
 
-		} catch (UnknownHostException e) {
-			log.error("" + e, e);
-		}
+            if (values.length == 3) {
+                SecretAuthenticationKey key = new SecretAuthenticationKey();
+                key.setUrnPrefix(values[0].trim());
+                key.setUsername(values[1].trim());
+                key.setSecretAuthenticationKey(values[2].trim());
+                keys.add(key);
+            }
+        }
 
-		DateTime now = new DateTime();
-		DateTime then = now.plusMinutes(30);
+        return keys;
+    }
 
-		this.view.getFromDateTextField().setValue(now.toDate());
-		this.view.getSecretAuthenticationKeysTextArea().setText(
-				WSNClientProperties.readList(properties, WSNClientProperties.RS_CLIENT_SECRETAUTHENTICATIONKEYS, "")
-		);
-		this.view.getToDateTextField().setValue(then.toDate());
-		this.view.getNodeUrnsTextField().setText(
-				properties.getProperty(WSNClientProperties.RS_CLIENT_NODEURNS, "")
-		);
-		this.view.getMakeReservationButton().addActionListener(makeReservationButtonActionListener);
-		this.view.getCopySecretReservationKeysButton().addActionListener(copySecretReservationKeysButtonActionListener);
+    public RSClientController(final RSClientView view, SessionManagementClientView sessionManagementClientView,
+                              Properties properties) {
 
-	}
+        this.view = view;
+        this.sessionManagementClientView = sessionManagementClientView;
+
+        try {
+
+            view.getEndpointUrlTextField().setText(
+                    properties.getProperty(
+                            WSNClientProperties.RS_CLIENT_ENDPOINTURL,
+                            "http://" + InetAddress.getLocalHost().getHostName() + ":8889/rs"
+                    )
+            );
+
+        } catch (UnknownHostException e) {
+            log.error("" + e, e);
+        }
+
+        DateTime now = new DateTime();
+        DateTime then = now.plusMinutes(30);
+
+        String presetFromDateStr = properties.getProperty(WSNClientProperties.RS_CLIENT_DATEFROM);
+        String presetUntilDateStr = properties.getProperty(WSNClientProperties.RS_CLIENT_DATEUNTIL);
+
+        boolean presetFromDateSet = presetFromDateStr != null && !"".equals(presetFromDateStr);
+        boolean presetUntilDateSet = presetUntilDateStr != null && !"".equals(presetUntilDateStr);
+
+        if (presetFromDateSet) {
+            this.view.getFromDateTextField().setText(presetFromDateStr);
+        } else {
+            this.view.getFromDateTextField().setValue(now.toDate());
+        }
+        this.view.getSecretAuthenticationKeysTextArea().setText(
+                WSNClientProperties.readList(properties, WSNClientProperties.RS_CLIENT_SECRETAUTHENTICATIONKEYS, "")
+        );
+
+        if (presetUntilDateSet) {
+            this.view.getToDateTextField().setText(presetUntilDateStr);
+        } else {
+            this.view.getToDateTextField().setValue(then.toDate());
+        }
+        this.view.getNodeUrnsTextField().setText(
+                properties.getProperty(WSNClientProperties.RS_CLIENT_NODEURNS, "")
+        );
+        this.view.getMakeReservationButton().addActionListener(makeReservationButtonActionListener);
+        this.view.getCopySecretReservationKeysButton().addActionListener(copySecretReservationKeysButtonActionListener);
+
+    }
 
 }

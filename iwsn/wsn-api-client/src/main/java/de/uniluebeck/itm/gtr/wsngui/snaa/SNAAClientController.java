@@ -22,6 +22,7 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.gtr.wsngui.snaa;
 
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.Action;
@@ -38,22 +39,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 
 public class SNAAClientController {
 
     private static final Logger log = LoggerFactory.getLogger(SNAAClientController.class);
 
-    private SNAAClientModel model;
-
+    private SNAAClientView view;
     private RSClientView rsClientView;
 
-	private Map<String, String> properties;
-
-	private SNAAClientView view;
-
-    private ActionListener isAuthenticatedActionListener = new ActionListener() {
+    private ActionListener authenticatedActionListener = new ActionListener() {
         @Override
         public void actionPerformed(final ActionEvent e) {
 
@@ -74,12 +70,6 @@ public class SNAAClientController {
 
         }
 
-    };
-    private ActionListener copyToRSButtonActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            rsClientView.getSecretAuthenticationKeysTextArea().setText(view.getSecretAuthenticationKeysTextArea().getText());
-        }
     };
 
     private List<SecretAuthenticationKey> parseSecretAuthenticationKeys() {
@@ -158,22 +148,45 @@ public class SNAAClientController {
 
     }
 
-    public SNAAClientController(final SNAAClientView view, final SNAAClientModel model, RSClientView rsClientView,
-								final Map<String, String> properties) {
+    private ActionListener copyToRSButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            rsClientView.getSecretAuthenticationKeysTextArea().setText(view.getSecretAuthenticationKeysTextArea().getText());
+        }
+    };
+
+    public SNAAClientController(final SNAAClientView view, final RSClientView rsClientView, final Properties properties) {
 
         this.view = view;
-        this.model = model;
         this.rsClientView = rsClientView;
-		this.properties = properties;
 
-		this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
-        this.view.getAuthenticatedButton().addActionListener(isAuthenticatedActionListener);
+        this.view.getAuthenticateButton().addActionListener(authenticateActionListener);
+        this.view.getAuthenticatedButton().addActionListener(authenticatedActionListener);
         this.view.getCopyToRSButton().addActionListener(copyToRSButtonActionListener);
 
-        this.view.getAuthenticationTriplesTextArea().setText("urn:wisebed:uzl1:,testbeduzl1,testbeduzl1");
+        this.view.getAuthenticationTriplesTextArea().setText(
+                WSNClientProperties.readList(
+                        properties,
+                        WSNClientProperties.SNAA_CLIENT_CREDENTIALS,
+                        ""
+                )
+        );
+        this.view.getSecretAuthenticationKeysTextArea().setText(
+                WSNClientProperties.readList(
+                        properties,
+                        WSNClientProperties.SNAA_CLIENT_SECRETAUTHENTICATIONKEYS,
+                        ""
+                )
+        );
+        this.view.getActionTextField().setText(properties.getProperty(WSNClientProperties.SNAA_CLIENT_ACTION, ""));
+
         try {
-            this.view.getEndpointUrlTextField()
-                    .setText("http://" + InetAddress.getLocalHost().getHostName() + ":8890/snaa");
+
+            this.view.getEndpointUrlTextField().setText(properties.getProperty(
+                    WSNClientProperties.SNAA_CLIENT_ENDPOINTURL,
+                    "http://" + InetAddress.getLocalHost().getHostName() + ":8890/snaa"
+            ));
+
         } catch (UnknownHostException e) {
             log.error("" + e, e);
         }

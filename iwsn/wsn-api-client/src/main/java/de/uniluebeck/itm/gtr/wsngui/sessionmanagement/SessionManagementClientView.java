@@ -27,7 +27,7 @@ import javax.swing.*;
 import java.awt.*;
 
 
-public class SessionManagementView extends JPanel {
+public class SessionManagementClientView extends JPanel {
 
     private JTextField endpointUrlTextField;
 
@@ -45,7 +45,7 @@ public class SessionManagementView extends JPanel {
 
     private JButton getNetworkButton;
 
-    public SessionManagementView() {
+    public SessionManagementClientView() {
 
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);

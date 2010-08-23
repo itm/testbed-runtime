@@ -28,8 +28,6 @@ import java.awt.*;
 
 public class SNAAClientView extends JPanel {
 
-    private SNAAClientModel model;
-
     private JTextField endpointUrlTextField;
 
     private JButton isAuthenticatedButton;
@@ -44,11 +42,9 @@ public class SNAAClientView extends JPanel {
 
     private JButton copyToRSButton;
 
-    public SNAAClientView(final SNAAClientModel model) {
+    public SNAAClientView() {
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
-
-        this.model = model;
 
         JPanel panel = new JPanel(new GridLayout(7, 2));
 

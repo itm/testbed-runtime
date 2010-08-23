@@ -44,9 +44,9 @@ import java.util.List;
         portName = "WSNPort",
         endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
 )
-public class WSNServiceDummyImpl implements WSN {
+public class WSNServiceImpl implements WSN {
 
-    private static final Logger log = LoggerFactory.getLogger(WSNServiceDummyImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
 
     private String endpointUrl;
 
@@ -54,7 +54,7 @@ public class WSNServiceDummyImpl implements WSN {
 
     private SecureIdGenerator generator = new SecureIdGenerator();
 
-    public WSNServiceDummyImpl(String endpointUrl) {
+    public WSNServiceImpl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
@@ -93,109 +93,109 @@ public class WSNServiceDummyImpl implements WSN {
 
     @Override
     public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds, @WebParam(name = "message", targetNamespace = "") Message message) {
-        log.info("WSNServiceDummyImpl.send");
+        log.info("WSNServiceImpl.send");
         return generator.getNextId();
     }
 
     @Override
     public String getVersion() {
-        log.info("WSNServiceDummyImpl.getVersion");
+        log.info("WSNServiceImpl.getVersion");
         return "2.1";
     }
 
     @Override
     public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
-        log.info("WSNServiceDummyImpl.checkAreNodesAlive");
+        log.info("WSNServiceImpl.checkAreNodesAlive");
         return generator.getNextId();
     }
 
     @Override
     public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-        log.info("WSNServiceDummyImpl.defineNetwork");
+        log.info("WSNServiceImpl.defineNetwork");
         return generator.getNextId();
     }
 
     @Override
     public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability) throws UnsupportedOperationException_Exception {
-        log.info("WSNServiceDummyImpl.describeCapabilities");
+        log.info("WSNServiceImpl.describeCapabilities");
         return generator.getNextId();
     }
 
     @Override
     public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode, @WebParam(name = "targetNode", targetNamespace = "") String targetNode) {
-        log.info("WSNServiceDummyImpl.destroyVirtualLink");
+        log.info("WSNServiceImpl.destroyVirtualLink");
         return generator.getNextId();
     }
 
     @Override
     public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
-        log.info("WSNServiceDummyImpl.disableNode");
+        log.info("WSNServiceImpl.disableNode");
         return generator.getNextId();
     }
 
     @Override
     public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA, @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
-        log.info("WSNServiceDummyImpl.disablePhysicalLink");
+        log.info("WSNServiceImpl.disablePhysicalLink");
         return generator.getNextId();
     }
 
     @Override
     public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
-        log.info("WSNServiceDummyImpl.enableNode");
+        log.info("WSNServiceImpl.enableNode");
         return generator.getNextId();
     }
 
     @Override
     public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA, @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
-        log.info("WSNServiceDummyImpl.enablePhysicalLink");
+        log.info("WSNServiceImpl.enablePhysicalLink");
         return generator.getNextId();
     }
 
     @Override
     public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds, @WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices, @WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
-        log.info("WSNServiceDummyImpl.flashPrograms");
+        log.info("WSNServiceImpl.flashPrograms");
         return generator.getNextId();
     }
 
     @Override
     public List<String> getFilters() {
-        log.info("WSNServiceDummyImpl.getFilters");
+        log.info("WSNServiceImpl.getFilters");
         return new ArrayList<String>();
     }
 
     @Override
     public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node) throws UnknownNodeUrnException_Exception {
-        log.info("WSNServiceDummyImpl.getNeighbourhood");
+        log.info("WSNServiceImpl.getNeighbourhood");
         return new ArrayList<String>();
     }
 
     @Override
     public String getNetwork() {
-        log.info("WSNServiceDummyImpl.getNetwork");
+        log.info("WSNServiceImpl.getNetwork");
         return "<network>dummy network description</network>";
     }
 
     @Override
     public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node, @WebParam(name = "propertyName", targetNamespace = "") String propertyName) throws UnknownNodeUrnException_Exception {
-        log.info("WSNServiceDummyImpl.getPropertyValueOf");
+        log.info("WSNServiceImpl.getPropertyValueOf");
         return generator.getNextId();
     }
 
     @Override
     public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
-        log.info("WSNServiceDummyImpl.resetNodes");
+        log.info("WSNServiceImpl.resetNodes");
         return generator.getNextId();
     }
 
     @Override
     public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-        log.info("WSNServiceDummyImpl.setStartTime");
+        log.info("WSNServiceImpl.setStartTime");
         return generator.getNextId();
     }
 
     @Override
     public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode, @WebParam(name = "targetNode", targetNamespace = "") String targetNode, @WebParam(name = "remoteServiceInstance", targetNamespace = "") String remoteServiceInstance, @WebParam(name = "parameters", targetNamespace = "") List<String> parameters, @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
-        log.info("WSNServiceDummyImpl.setVirtualLink");
+        log.info("WSNServiceImpl.setVirtualLink");
         return generator.getNextId();
     }
 }

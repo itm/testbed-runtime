@@ -25,7 +25,7 @@ package de.uniluebeck.itm.gtr.wsngui.wsn;
 
 
 import de.uniluebeck.itm.gtr.wsngui.Dialogs;
-import eu.wisebed.testbed.api.wsn.Constants;
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.FlashPrograms;
 import eu.wisebed.testbed.api.wsn.v211.Message;
@@ -35,27 +35,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.xml.namespace.QName;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 
 public class WSNClientController {
 
-    private static final QName wsnServiceQName = new QName(Constants.NAMESPACE_WSN_SERVICE, "WSNService");
-
     private static final Logger log = LoggerFactory.getLogger(WSNClientController.class);
 
-    private WSNClientView clientView;
+    private WSNClientView view;
 
-    private WSNClientModel clientModel;
-
-	private Map<String, String> properties;
+	private Properties properties;
 
 	private WSN getWSNService() {
-        return WSNServiceHelper.getWSNService(clientView.getEndpointUrlTextField().getText());
+        return WSNServiceHelper.getWSNService(view.getEndpointUrlTextField().getText());
     }
 
     private ActionListener buttonActionListener = new ActionListener() {
@@ -73,7 +68,7 @@ public class WSNClientController {
             try {
                 if (wsnService != null) {
 
-                    if (e.getSource() == clientView.getAreNodesAliveButton()) {
+                    if (e.getSource() == view.getAreNodesAliveButton()) {
 
                         Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
                         Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
@@ -87,42 +82,42 @@ public class WSNClientController {
                             log.info("AreNodesAlive called -> got requestId {}", requestId);
                         }
 
-                    } else if (e.getSource() == clientView.getDefineNetworkButton()) {
+                    } else if (e.getSource() == view.getDefineNetworkButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getDescribeCapabilitiesButton()) {
+                    } else if (e.getSource() == view.getDescribeCapabilitiesButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getDestroyVirtualLinkButton()) {
+                    } else if (e.getSource() == view.getDestroyVirtualLinkButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getDisableNodeButton()) {
+                    } else if (e.getSource() == view.getDisableNodeButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getDisablePhysicalLinkButton()) {
+                    } else if (e.getSource() == view.getDisablePhysicalLinkButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getEnableNodeButton()) {
+                    } else if (e.getSource() == view.getEnableNodeButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getEnablePhysicalLinkButton()) {
+                    } else if (e.getSource() == view.getEnablePhysicalLinkButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getFlashProgramsButton()) {
+                    } else if (e.getSource() == view.getFlashProgramsButton()) {
 
                         // fundamentals set
                         Dialogs.FlashProgramsPanel flashProgramsPanel = new Dialogs.FlashProgramsPanel();
@@ -141,31 +136,31 @@ public class WSNClientController {
                             log.info("FlashPrograms called -> got requestId: {}", requestId);
                         }
 
-                    } else if (e.getSource() == clientView.getGetFiltersButton()) {
+                    } else if (e.getSource() == view.getGetFiltersButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getGetNeighborhoodButton()) {
+                    } else if (e.getSource() == view.getGetNeighborhoodButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getGetNetworkButton()) {
+                    } else if (e.getSource() == view.getGetNetworkButton()) {
 
                         Dialogs.showTextDialog(wsnService.getNetwork(), true);
 
-                    } else if (e.getSource() == clientView.getGetPropertyValueOfButton()) {
+                    } else if (e.getSource() == view.getGetPropertyValueOfButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getGetVersionButton()) {
+                    } else if (e.getSource() == view.getGetVersionButton()) {
 
                         // fundamentals set
                         JOptionPane.showMessageDialog(null, wsnService.getVersion());
 
-                    } else if (e.getSource() == clientView.getResetNodesButton()) {
+                    } else if (e.getSource() == view.getResetNodesButton()) {
 
                         Dialogs.StringListPanel stringListPanel = new Dialogs.StringListPanel();
                         Dialogs.InputDialog<List<String>> dialog = new Dialogs.InputDialog<List<String>>(
@@ -179,7 +174,7 @@ public class WSNClientController {
                             log.info("ResetNodes called -> got requestId: {}", requestId);
                         }
 
-                    } else if (e.getSource() == clientView.getSendButton()) {
+                    } else if (e.getSource() == view.getSendButton()) {
 
                         // fundamentals set
                         Dialogs.SendMessagePanel panel = new Dialogs.SendMessagePanel();
@@ -196,12 +191,12 @@ public class WSNClientController {
                             log.info("Send called -> got requestId: {}", requestId);
                         }
 
-                    } else if (e.getSource() == clientView.getSetStartTimeButton()) {
+                    } else if (e.getSource() == view.getSetStartTimeButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
 
-                    } else if (e.getSource() == clientView.getSetVirtualLinkButton()) {
+                    } else if (e.getSource() == view.getSetVirtualLinkButton()) {
 
                         // TODO
                         JOptionPane.showMessageDialog(null, "TODO");
@@ -215,31 +210,33 @@ public class WSNClientController {
         }
     };
 
-    public WSNClientController(WSNClientView clientView, WSNClientModel clientModel,
-							   final Map<String, String> properties) {
+    public WSNClientController(WSNClientView view, final Properties properties) {
 
-        this.clientView = clientView;
-        this.clientModel = clientModel;
+        this.view = view;
 		this.properties = properties;
 
-        this.clientView.getAreNodesAliveButton().addActionListener(buttonActionListener);
-        this.clientView.getDefineNetworkButton().addActionListener(buttonActionListener);
-        this.clientView.getDescribeCapabilitiesButton().addActionListener(buttonActionListener);
-        this.clientView.getDestroyVirtualLinkButton().addActionListener(buttonActionListener);
-        this.clientView.getDisableNodeButton().addActionListener(buttonActionListener);
-        this.clientView.getDisablePhysicalLinkButton().addActionListener(buttonActionListener);
-        this.clientView.getEnableNodeButton().addActionListener(buttonActionListener);
-        this.clientView.getEnablePhysicalLinkButton().addActionListener(buttonActionListener);
-        this.clientView.getFlashProgramsButton().addActionListener(buttonActionListener);
-        this.clientView.getGetFiltersButton().addActionListener(buttonActionListener);
-        this.clientView.getGetNeighborhoodButton().addActionListener(buttonActionListener);
-        this.clientView.getGetNetworkButton().addActionListener(buttonActionListener);
-        this.clientView.getGetPropertyValueOfButton().addActionListener(buttonActionListener);
-        this.clientView.getGetVersionButton().addActionListener(buttonActionListener);
-        this.clientView.getResetNodesButton().addActionListener(buttonActionListener);
-        this.clientView.getSendButton().addActionListener(buttonActionListener);
-        this.clientView.getSetStartTimeButton().addActionListener(buttonActionListener);
-        this.clientView.getSetVirtualLinkButton().addActionListener(buttonActionListener);
+        this.view.getEndpointUrlTextField().setText(
+                properties.getProperty(WSNClientProperties.WSN_CLIENT_ENDPOINTURL, "")
+        );
+
+        this.view.getAreNodesAliveButton().addActionListener(buttonActionListener);
+        this.view.getDefineNetworkButton().addActionListener(buttonActionListener);
+        this.view.getDescribeCapabilitiesButton().addActionListener(buttonActionListener);
+        this.view.getDestroyVirtualLinkButton().addActionListener(buttonActionListener);
+        this.view.getDisableNodeButton().addActionListener(buttonActionListener);
+        this.view.getDisablePhysicalLinkButton().addActionListener(buttonActionListener);
+        this.view.getEnableNodeButton().addActionListener(buttonActionListener);
+        this.view.getEnablePhysicalLinkButton().addActionListener(buttonActionListener);
+        this.view.getFlashProgramsButton().addActionListener(buttonActionListener);
+        this.view.getGetFiltersButton().addActionListener(buttonActionListener);
+        this.view.getGetNeighborhoodButton().addActionListener(buttonActionListener);
+        this.view.getGetNetworkButton().addActionListener(buttonActionListener);
+        this.view.getGetPropertyValueOfButton().addActionListener(buttonActionListener);
+        this.view.getGetVersionButton().addActionListener(buttonActionListener);
+        this.view.getResetNodesButton().addActionListener(buttonActionListener);
+        this.view.getSendButton().addActionListener(buttonActionListener);
+        this.view.getSetStartTimeButton().addActionListener(buttonActionListener);
+        this.view.getSetVirtualLinkButton().addActionListener(buttonActionListener);
 
     }
 

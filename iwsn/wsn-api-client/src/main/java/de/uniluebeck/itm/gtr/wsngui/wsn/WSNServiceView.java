@@ -34,17 +34,15 @@ import java.awt.event.ActionListener;
 import java.util.Map;
 
 
-public class WSNServiceDummyView extends JPanel {
+public class WSNServiceView extends JPanel {
 
-    private static final Logger log = LoggerFactory.getLogger(WSNServiceDummyView.class);
+    private static final Logger log = LoggerFactory.getLogger(WSNServiceView.class);
 
 	private JTextField endpointUrlTextField;
 
     private JCheckBox startServiceCheckbox;
 
-    private WSNServiceDummyImpl wsnService;
-
-	public WSNServiceDummyView(Map<String, String> properties) {
+	public WSNServiceView() {
 
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
@@ -52,43 +50,15 @@ public class WSNServiceDummyView extends JPanel {
 		final JPanel panel = new JPanel(new GridLayout(2, 2));
 
 		{
-			panel.add(new JLabel("WSN API Endpoint URL"));
-            Object wsnServerDummyEndpointUrlProperties = properties.get(WSNClientProperties.KEY_WSN_SERVER_DUMMY + "." + WSNClientProperties.KEY_ENDPOINT_URL);
+            endpointUrlTextField = new JTextField();
 
-            if (wsnServerDummyEndpointUrlProperties == null){
-			    endpointUrlTextField = new JTextField("http://localhost:8082/wsn/dummy");
-            } else {
-                endpointUrlTextField = new JTextField((String) wsnServerDummyEndpointUrlProperties);
-            }
-			panel.add(endpointUrlTextField);
+            panel.add(new JLabel("WSN API Endpoint URL"));
+            panel.add(endpointUrlTextField);
 		}
 		{
 			startServiceCheckbox = new JCheckBox("Start service");
-			startServiceCheckbox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (startServiceCheckbox.isSelected()) {
-
-                        String endpointUrl = endpointUrlTextField.getText();
-                        wsnService = new WSNServiceDummyImpl(endpointUrl);
-
-                        try {
-                            wsnService.start();
-                        } catch (Exception e1) {
-                            JOptionPane.showMessageDialog(
-                                    null,
-                                    "Failed to start controller service on URL " + endpointUrl,
-                                    "Failed to start controller service!",
-                                    JOptionPane.WARNING_MESSAGE
-                            );
-                            log.error("Exception while starting controller service", e1);
-                        }
-
-                    } else {
-                        wsnService.stop();
-                    }
-                }
-            });
+            
+            panel.add(new JLabel());
             panel.add(startServiceCheckbox);
         }
 
@@ -96,4 +66,11 @@ public class WSNServiceDummyView extends JPanel {
 
     }
 
+    public JTextField getEndpointUrlTextField() {
+        return endpointUrlTextField;
+    }
+
+    public JCheckBox getStartServiceCheckbox() {
+        return startServiceCheckbox;
+    }
 }

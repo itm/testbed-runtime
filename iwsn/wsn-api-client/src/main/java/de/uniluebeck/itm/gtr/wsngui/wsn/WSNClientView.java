@@ -29,8 +29,6 @@ import java.awt.*;
 
 public class WSNClientView extends JPanel {
 
-    private WSNClientModel clientModel;
-
     private JTextField endpointUrlTextField;
 
     private JButton areNodesAliveButton;
@@ -69,15 +67,12 @@ public class WSNClientView extends JPanel {
 
     private JButton setVirtualLinkButton;
 
-    private JPanel panel;
-
-    public WSNClientView(WSNClientModel clientModel) {
+    public WSNClientView() {
 
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        this.panel = new JPanel(new GridLayout(11, 2));
-        this.clientModel = clientModel;
+        JPanel panel = new JPanel(new GridLayout(11, 2));
 
         {
             panel.add(new JLabel("WSN API Endpoint URL"));
@@ -92,43 +87,43 @@ public class WSNClientView extends JPanel {
         {
             // defineNetwork
             defineNetworkButton = new JButton("defineNetwork()");
-            defineNetworkButton.setEnabled(false); // TODO
+            defineNetworkButton.setEnabled(false);
             panel.add(defineNetworkButton);
         }
         {
             // describeCapabilitiesButton
             describeCapabilitiesButton = new JButton("describeCapabilitiesButton()");
-            describeCapabilitiesButton.setEnabled(false); // TODO
+            describeCapabilitiesButton.setEnabled(false);
             panel.add(describeCapabilitiesButton);
         }
         {
             // destroyVirtualLinkButton
             destroyVirtualLinkButton = new JButton("destroyVirtualLinkButton()");
-            destroyVirtualLinkButton.setEnabled(false); // TODO
+            destroyVirtualLinkButton.setEnabled(false);
             panel.add(destroyVirtualLinkButton);
         }
         {
             // disableNodeButton
             disableNodeButton = new JButton("disableNodeButton()");
-            disableNodeButton.setEnabled(false); // TODO
+            disableNodeButton.setEnabled(false);
             panel.add(disableNodeButton);
         }
         {
             // disablePhysicalLinkButton
             disablePhysicalLinkButton = new JButton("disablePhysicalLinkButton()");
-            disablePhysicalLinkButton.setEnabled(false); // TODO
+            disablePhysicalLinkButton.setEnabled(false);
             panel.add(disablePhysicalLinkButton);
         }
         {
             // enableNode
             enableNodeButton = new JButton("enableNode()");
-            enableNodeButton.setEnabled(false); // TODO
+            enableNodeButton.setEnabled(false);
             panel.add(enableNodeButton);
         }
         {
             // enablePhysicalLink
             enablePhysicalLinkButton = new JButton("enablePhysicalLink()");
-            enablePhysicalLinkButton.setEnabled(false); // TODO
+            enablePhysicalLinkButton.setEnabled(false);
             panel.add(enablePhysicalLinkButton);
         }
         {
@@ -139,13 +134,13 @@ public class WSNClientView extends JPanel {
         {
             // getFilters
             getFiltersButton = new JButton("getFilters()");
-            getFiltersButton.setEnabled(false); // TODO
+            getFiltersButton.setEnabled(false);
             panel.add(getFiltersButton);
         }
         {
             // getNeighborhoodButton
             getNeighborhoodButton = new JButton("getNeighborhoodButton()");
-            getNeighborhoodButton.setEnabled(false); // TODO
+            getNeighborhoodButton.setEnabled(false);
             panel.add(getNeighborhoodButton);
         }
         {
@@ -156,7 +151,7 @@ public class WSNClientView extends JPanel {
         {
             // getPropertyValueOf
             getPropertyValueOfButton = new JButton("getPropertyValueOf()");
-            getPropertyValueOfButton.setEnabled(false); // TODO
+            getPropertyValueOfButton.setEnabled(false);
             panel.add(getPropertyValueOfButton);
         }
         {
@@ -177,13 +172,13 @@ public class WSNClientView extends JPanel {
         {
             // setStartTime
             setStartTimeButton = new JButton("setStartTime()");
-            setStartTimeButton.setEnabled(false); // TODO
+            setStartTimeButton.setEnabled(false);
             panel.add(setStartTimeButton);
         }
         {
             // setVirtualLink
             setVirtualLinkButton = new JButton("setVirtualLink()");
-            setVirtualLinkButton.setEnabled(false); // TODO
+            setVirtualLinkButton.setEnabled(false);
             panel.add(setVirtualLinkButton);
         }
 

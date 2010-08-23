@@ -20,9 +20,69 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-package de.uniluebeck.itm.gtr.wsngui.snaa;
+
+package de.uniluebeck.itm.gtr.wsngui.wsn;
+
+import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
 
 
-public class SNAAClientModel {
+public class WSNServiceController {
 
+    private static final Logger log = LoggerFactory.getLogger(WSNServiceController.class);
+    
+    private WSNServiceView view;
+
+    private WSNServiceImpl wsnService;
+
+    private ActionListener startServiceCheckboxActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (view.getStartServiceCheckbox().isSelected()) {
+
+                String endpointUrl = view.getEndpointUrlTextField().getText();
+                wsnService = new WSNServiceImpl(endpointUrl);
+
+                try {
+                    wsnService.start();
+                } catch (Exception e1) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Failed to start controller service on URL " + endpointUrl,
+                            "Failed to start controller service!",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    log.error("Exception while starting controller service", e1);
+                }
+
+            } else {
+                wsnService.stop();
+            }
+        }
+    };
+
+    public WSNServiceController(final WSNServiceView view, final Properties properties) {
+
+        this.view = view;
+
+        try {
+            this.view.getEndpointUrlTextField().setText(
+                    properties.getProperty(
+                            WSNClientProperties.WSN_SERVICE_ENDPOINTURL,
+                            "http://" + InetAddress.getLocalHost().getHostName() + ":8888/wsn"
+                    )
+            );
+        } catch (UnknownHostException e) {
+            log.error("" + e, e);
+        }
+        this.view.getStartServiceCheckbox().addActionListener(startServiceCheckboxActionListener);
+    }
 }

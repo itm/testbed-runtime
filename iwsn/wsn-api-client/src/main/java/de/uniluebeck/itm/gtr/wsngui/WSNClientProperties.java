@@ -64,12 +64,14 @@ public class WSNClientProperties {
 
 	public static String readList(final Properties properties, final String propertyPrefix, final String defaultValue) {
 		StringBuilder builder = new StringBuilder();
+        boolean found = false;
 		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-			if (((String) entry.getKey()).startsWith(propertyPrefix)) {
+            if (((String) entry.getKey()).startsWith(propertyPrefix)) {
+                found = true;
 				builder.append((String) entry.getValue());
 				builder.append("\n");
 			}
 		}
-
+        return found ? builder.toString() : defaultValue;
 	}
 }

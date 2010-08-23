@@ -42,9 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class SessionManagementController {
+public class SessionManagementClientController {
 
-    private SessionManagementView view;
+    private SessionManagementClientView view;
 
     private WSNClientView wsnClientView;
 
@@ -132,7 +132,7 @@ public class SessionManagementController {
         }
     };
 
-    public SessionManagementController(SessionManagementView view, WSNClientView wsnClientView, Properties properties) {
+    public SessionManagementClientController(SessionManagementClientView view, WSNClientView wsnClientView, Properties properties) {
 
         this.view = view;
         this.wsnClientView = wsnClientView;
@@ -146,7 +146,7 @@ public class SessionManagementController {
                 this.view.getEndpointUrlTextField().setText(
 						properties.getProperty(
 								WSNClientProperties.SESSIONMANAGEMENT_CLIENT_ENDPOINTURL,
-								"http://" + InetAddress.getLocalHost().getHostName() + ":10001/sessions"
+								"http://" + InetAddress.getLocalHost().getHostName() + ":8888/sessions"
 						)
 				);
 				this.view.getSecretReservationKeysTextArea().setText(

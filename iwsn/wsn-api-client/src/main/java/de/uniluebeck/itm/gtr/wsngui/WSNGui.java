@@ -23,21 +23,21 @@
 
 package de.uniluebeck.itm.gtr.wsngui;
 
+import com.google.common.base.Preconditions;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceView;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientView;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
-import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementController;
-import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementView;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientController;
+import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientView;
 import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientController;
-import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientModel;
 import de.uniluebeck.itm.gtr.wsngui.snaa.SNAAClientView;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientController;
-import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientModel;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
-import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceDummyView;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceController;
+import de.uniluebeck.itm.gtr.wsngui.wsn.WSNServiceView;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -60,11 +60,13 @@ public class WSNGui {
 
     private JTextArea outputTextPane;
 
-	public WSNGui(Properties properties) {
+	public WSNGui(final Properties properties) {
+
+        Preconditions.checkNotNull(properties);
 
         JPanel panel = new JPanel(new BorderLayout());
 
-		JTabbedPane tabs = new JTabbedPane();
+        JTabbedPane tabs = new JTabbedPane();
 
         panel.add(tabs, BorderLayout.NORTH);
 
@@ -72,34 +74,31 @@ public class WSNGui {
             ControllerClientView controllerClientView = new ControllerClientView();
             new ControllerClientController(controllerClientView, properties);
 
-			ControllerServiceView controllerServiceView = new ControllerServiceView();
-			new ControllerServiceController(controllerServiceView, properties);
+            ControllerServiceView controllerServiceView = new ControllerServiceView();
+            new ControllerServiceController(controllerServiceView, properties);
 
-            WSNClientModel wsnClientModel = new WSNClientModel();
-            WSNClientView wsnClientView = new WSNClientView(wsnClientModel);
-            new WSNClientController(wsnClientView, wsnClientModel, properties);
+            WSNClientView wsnClientView = new WSNClientView();
+            new WSNClientController(wsnClientView, properties);
 
-            SessionManagementModel sessionManagementModel = new SessionManagementModel();
-            SessionManagementView sessionManagementView = new SessionManagementView(sessionManagementModel);
-            new SessionManagementController(sessionManagementView, sessionManagementModel, wsnClientView, properties);
+            SessionManagementClientView sessionManagementClientView = new SessionManagementClientView();
+            new SessionManagementClientController(sessionManagementClientView, wsnClientView, properties);
 
-            RSClientModel rsClientModel = new RSClientModel();
-            RSClientView rsClientView = new RSClientView(rsClientModel);
-            new RSClientController(rsClientView, rsClientModel, sessionManagementView, properties);
+            RSClientView rsClientView = new RSClientView();
+            new RSClientController(rsClientView, sessionManagementClientView, properties);
 
-            SNAAClientModel snaaClientModel = new SNAAClientModel();
-            SNAAClientView snaaClientView = new SNAAClientView(snaaClientModel);
-            new SNAAClientController(snaaClientView, snaaClientModel, rsClientView, properties);
+            SNAAClientView snaaClientView = new SNAAClientView();
+            new SNAAClientController(snaaClientView, rsClientView, properties);
 
-            WSNServiceDummyView wsnServiceDummyView = new WSNServiceDummyView(properties);
+            WSNServiceView wsnServiceView = new WSNServiceView();
+            new WSNServiceController(wsnServiceView, properties);
 
             tabs.addTab("SNAA Client", snaaClientView);
             tabs.addTab("RS Client", rsClientView);
             tabs.addTab("Controller Client", controllerClientView);
             tabs.addTab("Controller Service Dummy", controllerServiceView);
-            tabs.addTab("Session Management Client", sessionManagementView);
+            tabs.addTab("Session Management Client", sessionManagementClientView);
             tabs.addTab("WSN Client", wsnClientView);
-            tabs.addTab("WSN Server Dummy", wsnServiceDummyView);
+            tabs.addTab("WSN Server Dummy", wsnServiceView);
 
         }
 
@@ -129,21 +128,20 @@ public class WSNGui {
     }
 
     public static void main(String[] args) {
-        String propertyFile = null;
+        String propertyFile;
         // create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
         options.addOption("f", "file", true, "A property file containing values to override autodetected field values (optional)");
 
-        CommandLine line = null;
-        Properties properties = null;
+        CommandLine line;
+        Properties properties = new Properties();
         try {
 
             line = parser.parse(options, args);
 
             if (line.hasOption('f')) {
                 propertyFile = line.getOptionValue('f');
-                properties = new Properties();
 				properties.load(new FileReader(propertyFile));
             }
 
@@ -151,6 +149,7 @@ public class WSNGui {
             log.error(e.getMessage() + "\n Start aborted!");
             System.exit(1);
         }
+
 		new WSNGui(properties).frame.setVisible(true);
 	}
 
