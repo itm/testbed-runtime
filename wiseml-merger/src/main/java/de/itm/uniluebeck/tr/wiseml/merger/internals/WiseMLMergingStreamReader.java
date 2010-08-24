@@ -297,8 +297,8 @@ public class WiseMLMergingStreamReader implements XMLStreamReader {
         return new ElementScanningDelegate(
                 createReaderFromString(
                         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                                "<wiseml version=\"1.0\" xmlns=\"http://wisebed.eu/ns/wiseml/1.0\">" +
-                                "<setup></setup></wiseml>", null),
+                        "<wiseml version=\"1.0\" xmlns=\"http://wisebed.eu/ns/wiseml/1.0\">" +
+                        "<setup></setup></wiseml>", null),
                 "setup") {
             @Override
             protected void onLocalNameApplies() {
