@@ -114,6 +114,11 @@
 							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
+                            <!-- each architecture needs his own fileSet.
+                            To seperate between architectures the last folder's name must be called like the architecture you want to use (linux32, macosx, windows64, ...).
+                            To use the arm-architecture just simply add an arm- subfolder. (carefull: the libs of linux64 will be overwritten)
+                            If you don't want to separate just add an directory to the fileset.
+                             -->
 							<binlibs>
 								<fileSet>
 									<directory>${project.basedir}/src/main/resources/linux32</directory>
