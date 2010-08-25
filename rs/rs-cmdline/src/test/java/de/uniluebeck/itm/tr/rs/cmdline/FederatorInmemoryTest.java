@@ -100,31 +100,21 @@ public class FederatorInmemoryTest {
 
 		List<String> urnPrefixe = new LinkedList<String>();
 		urnPrefixe.add("urn:wisebed1:testbed1");
-		urnPrefixe.add("urn:wisebed1:testbed2");
 		urnPrefixe.add("urn:wisebed2:testbed1");
-		urnPrefixe.add("urn:wisebed2:testbed2");
 
 		Set<String> testbed1 = new HashSet<String>();
 		testbed1.add(urnPrefixe.get(0));
 		Set<String> testbed2 = new HashSet<String>();
 		testbed2.add(urnPrefixe.get(1));
-		Set<String> testbed3 = new HashSet<String>();
-		testbed3.add(urnPrefixe.get(2));
-		Set<String> testbed4 = new HashSet<String>();
-		testbed4.add(urnPrefixe.get(3));
 
 		snaaPrefixSet = new HashMap<String, Set<String>>();
 		snaaPrefixSet.put("http://localhost:8080/snaa/dummy1", testbed1);
-		snaaPrefixSet.put("http://localhost:8080/snaa/dummy2", testbed2);
-		snaaPrefixSet.put("http://localhost:8090/snaa/dummy1", testbed3);
-		snaaPrefixSet.put("http://localhost:8090/snaa/dummy2", testbed4);
+		snaaPrefixSet.put("http://localhost:8090/snaa/dummy1", testbed2);
 		snaaFederator = new FederatorSNAA(snaaPrefixSet);
 
 		rsPrefixSet = new HashMap<String, Set<String>>();
 		rsPrefixSet.put("http://localhost:9090/rs/inmemory1", testbed1);
 		rsPrefixSet.put("http://localhost:9090/rs/inmemory2", testbed2);
-		rsPrefixSet.put("http://localhost:9090/rs/inmemory3", testbed3);
-		rsPrefixSet.put("http://localhost:9090/rs/inmemory4", testbed4);
 		rsFederator = new FederatorRS(rsPrefixSet);
 
 
@@ -157,17 +147,13 @@ public class FederatorInmemoryTest {
 		List<Data> dataList = new LinkedList<Data>();
 		Data data = new Data();
 		data.setUrnPrefix("urn:wisebed1:testbed1");
-		data.setUrnPrefix("urn:wisebed1:testbed2");
 		data.setUrnPrefix("urn:wisebed2:testbed1");
-		data.setUrnPrefix("urn:wisebed2:testbed2");
 		data.setUsername("Nils Rohwedder");
 		dataList.add(data);
 
 		List<String> urns = new LinkedList<String>();
 		urns.add("urn:wisebed1:testbed1");
-		urns.add("urn:wisebed1:testbed2");
 		urns.add("urn:wisebed2:testbed1");
-		urns.add("urn:wisebed2:testbed2");
 		//Creating confi-data
 		for (int i = 0; i < 12; i++) {
 			Thread.sleep(100);
@@ -403,7 +389,7 @@ public class FederatorInmemoryTest {
 			testTo.setTimeInMillis(to - 30);
 			assertSame(rsFederator.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom),
 					DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)
-			).size(), 4
+			).size(), 2
 			);
 
 			//        //second interval : small overlap second direction
@@ -411,7 +397,7 @@ public class FederatorInmemoryTest {
 			testTo.setTimeInMillis(to + 20);
 			assertSame(rsFederator.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom),
 					DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)
-			).size(), 4
+			).size(), 2
 			);
 
 			//third interval : overlap on the same timeline first direction
@@ -435,7 +421,7 @@ public class FederatorInmemoryTest {
 			testTo.setTimeInMillis(to - 5);
 			assertSame(rsFederator.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom),
 					DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)
-			).size(), 4
+			).size(), 2
 			);
 
 			//fourth interval : absolute overlap second direction
@@ -443,7 +429,7 @@ public class FederatorInmemoryTest {
 			testTo.setTimeInMillis(to + 5);
 			assertSame(rsFederator.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom),
 					DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)
-			).size(), 4
+			).size(), 2
 			);
 		}
 	}
