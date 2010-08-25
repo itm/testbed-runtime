@@ -105,7 +105,7 @@
 			-->
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
 				<version>1.4.5</version>
 				<executions>
 					<execution>
@@ -117,15 +117,51 @@
                             <classifier>onejar</classifier>
 							<binlibs>
 								<fileSet>
-									<directory>${project.basedir}/src/main/resources</directory>
+									<directory>${project.basedir}/src/main/resources/linux32</directory>
 									<includes>
 										<include>librxtxParallel.so</include>
+                                        <include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/src/main/resources/linux64</directory>
+									<includes>
+                                        <include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/src/main/resources/macosx</directory>
+									<includes>
 										<include>librxtxSerial.jnilib</include>
-										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/src/main/resources/windows32</directory>
+									<includes>
 										<include>rxtxParallel.dll</include>
 										<include>rxtxSerial.dll</include>
 									</includes>
 								</fileSet>
+                             <!--   <fileSet>
+                                    <directory>${project.basedir}/src/main/resources/arm</directory>
+                                    <includes>
+                                        <include>librxtxI2C-2.1-7.so</include>
+                                        <include>librxtxI2C.la</include>
+                                        <include>librxtxI2C.so</include>
+                                        <include>librxtxParallel-2.1-7.so</include>
+                                        <include>librxtxParallel.la</include>
+                                        <include>librxtxParallel.so</include>
+                                        <include>librxtxRaw-2.1-7.so</include>
+                                        <include>librxtxRaw.la</include>
+                                        <include>librxtxRaw.so</include>
+                                        <include>librxtxRS485-2.1-7.so</include>
+                                        <include>librxtxRS485.la</include>
+                                        <include>librxtxRS485.so</include>
+                                        <include>librxtxSerial-2.1-7.so</include>
+                                        <include>librxtxSerial.la</include>
+                                        <include>librxtxSerial.so</include>
+                                    </includes>
+                                </fileSet> -->
 							</binlibs>
 						</configuration>
 						<goals>

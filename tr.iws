@@ -2,17 +2,38 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="86adce6a-50eb-4232-a5e1-fe47a324ecfc" name="Default" comment="Ticket #16 updated">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/util/tr.util.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tr.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/impl/PersistentBlockingDequeImpl.java" afterPath="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/impl/PersistentBlockingDequeImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRS485-2.1-7.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxSerial-2.1-7.so" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/librxtxParallel.so" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/linux32/librxtxParallel.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxSerial.la" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRaw.so" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/rxtxParallel.dll" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/windows32/rxtxParallel.dll" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/librxtxSerial.jnilib" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRS485.la" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRaw-2.1-7.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/macosx/README" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxSerial.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/linux64/librxtxSerial.so" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util/src/test/java/PersistentQueueUnitTest.java" afterPath="$PROJECT_DIR$/util/src/test/java/PersistentQueueUnitTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRaw.la" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/librxtxSerial.so" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/linux32/librxtxSerial.so" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/pom.xml" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/pom.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/macosx/librxtxSerial.jnilib" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxParallel.so" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tr.iws" afterPath="$PROJECT_DIR$/tr.iws" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/rxtxSerial.dll" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/windows32/rxtxSerial.dll" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxI2C.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxI2C.la" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxParallel.la" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxI2C-2.1-7.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxParallel-2.1-7.so" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/resources/arm/librxtxRS485.so" />
     </list>
     <list id="906d8542-a75d-4109-b8c8-d413381c3776" name="doNotChange" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Tester.java" afterPath="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Tester.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tr.ipr" afterPath="$PROJECT_DIR$/tr.ipr" />
     </list>
     <ignored path="tr.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Tester.java" changelist="86adce6a-50eb-4232-a5e1-fe47a324ecfc" time="1281110250655" ignored="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +51,45 @@
   <component name="DebuggerManager">
     <line_breakpoints>
       <breakpoint url="file://$PROJECT_DIR$/iwsn/runtime.portal/src/main/java/de/uniluebeck/itm/tr/runtime/portalapp/SessionManagementServiceImpl.java" line="207" class="de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl" package="de.uniluebeck.itm.tr.runtime.portalapp">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/rs/rs-persistence-gcal/src/main/java/de/uniluebeck/itm/tr/rs/persistence/gcal/GCalRSPersistence.java" line="87" class="de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence" package="de.uniluebeck.itm.tr.rs.persistence.gcal">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/SessionManagementController.java" line="130" class="de.uniluebeck.itm.gtr.wsngui.SessionManagementController" package="de.uniluebeck.itm.gtr.wsngui">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/ControllerController.java" line="108" class="de.uniluebeck.itm.gtr.wsngui.ControllerController" package="de.uniluebeck.itm.gtr.wsngui">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -101,75 +161,64 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="PersistentQueueImplSingleFile.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplSingleFile.java">
+      <file leaf-file-name="WSNClient.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="50" column="42" selection-start="2136" selection-end="2165" vertical-scroll-proportion="0.0">
+            <state line="136" column="44" selection-start="6118" selection-end="6118" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PersistentQueue.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/PersistentQueue.java">
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="0" selection-start="270" selection-end="270" vertical-scroll-proportion="0.0">
+            <state line="103" column="13" selection-start="5430" selection-end="5430" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PersistentQueueImplMultiFile.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplMultiFile.java">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/iwsn/runtime.cmdline/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="147" column="42" selection-start="4523" selection-end="4523" vertical-scroll-proportion="0.0">
+            <state line="163" column="46" selection-start="7670" selection-end="7670" vertical-scroll-proportion="0.9775561">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PersistentQueueImplMulitFileUnitTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueImplMulitFileUnitTest.java">
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="37" selection-start="567" selection-end="567" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PersistentQueueUnitTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueUnitTest.java">
+      <file leaf-file-name="WSNServiceDummyView.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNServiceDummyView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="219" column="4" selection-start="7042" selection-end="7042" vertical-scroll-proportion="0.38251367">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PersistentQueueImplSingleFileUnitTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueImplSingleFileUnitTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="82" selection-start="481" selection-end="514" vertical-scroll-proportion="0.0">
+            <state line="61" column="61" selection-start="3809" selection-end="3809" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileUtils.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/FileUtils.java">
+      <file leaf-file-name="WSNClientView.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="72" column="0" selection-start="4202" selection-end="4202" vertical-scroll-proportion="0.0">
+            <state line="86" column="12" selection-start="4058" selection-end="4058" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="File.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/src.jar!/src/java/io/File.java">
+      <file leaf-file-name="WSNClientProperties.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientProperties.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="967" column="20" selection-start="39440" selection-end="39440" vertical-scroll-proportion="0.0">
+            <state line="67" column="118" selection-start="4474" selection-end="4474" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -190,22 +239,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/util/src/test/java/PersistenceQueueImpl2UnitTest.java" />
-        <option value="$PROJECT_DIR$/util/src/test/java/PersistentQueueImpl2UnitTest.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/FileUtils.java" />
-        <option value="$PROJECT_DIR$/util/src/test/java/PersistentQueueImplUnitTest.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/PersistentBlockingQueue.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/impl/PersistentBlockingDeque.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/PersistentBlockingDeque.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImpl2.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/impl/PersistentBlockingDequeImpl.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/PersistentQueue.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplSingleFile2.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplSingleFile.java" />
-        <option value="$PROJECT_DIR$/util/src/test/java/PersistentQueueImplSingleFileUnitTest.java" />
-        <option value="$PROJECT_DIR$/util/src/test/java/PersistentQueueImplMulitFileUnitTest.java" />
-        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplMultiFile.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/PropertyMap.java" />
+        <option value="$PROJECT_DIR$/iwsn/runtime.wsn-app/src/main/java/de/uniluebeck/itm/tr/runtime/wsnapp/WSNDeviceAppGuava.java" />
+        <option value="$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/ExecutorUtils.java" />
+        <option value="$PROJECT_DIR$/iwsn/runtime.wsn-app/src/main/java/de/uniluebeck/itm/tr/runtime/wsnapp/WSNDeviceAppGuavaImpl.java" />
+        <option value="$PROJECT_DIR$/iwsn/runtime.wsn-app/src/main/java/de/uniluebeck/itm/tr/runtime/wsnapp/WSNDeviceAppModule.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/ControllerController.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/ControllerServiceDummyView.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/SessionManagementController.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientView.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNServiceDummyView.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientProperties.java" />
+        <option value="$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClient.java" />
         <option value="$PROJECT_DIR$/util/src/test/java/PersistentQueueUnitTest.java" />
+        <option value="$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Main.java" />
+        <option value="$PROJECT_DIR$/iwsn/runtime.cmdline/pom.xml" />
       </list>
     </option>
   </component>
@@ -237,6 +286,20 @@
         <PATH_ELEMENT>
           <option name="myItemId" value="TR :: Runtime Commandline Client" />
           <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$ProjectNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$RootNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="TR :: Runtime Commandline Client" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$ProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Lifecycle" />
+          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$LifecycleNode" />
         </PATH_ELEMENT>
       </PATH>
     </treeState>
@@ -279,9 +342,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Favorites" />
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -300,27 +360,215 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="rs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="wsn-device-drivers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="wsn-device-drivers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="wsn-device-drivers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="runtime.wsn-app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="runtime.cmdline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="runtime.cmdline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testbed-runtime" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="iwsn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="runtime.cmdline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
+      </pane>
+      <pane id="Favorites" />
+      <pane id="PackagesPane" />
+      <pane id="Scope">
+        <subPane subId="Problems" />
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="project.structure.last.edited" value="Modules" />
     <property name="OverrideImplement.combined" value="true" />
-    <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="recentsLimit" value="5" />
     <property name="options.lastSelected" value="MavenSettings" />
     <property name="MemberChooser.sorted" value="false" />
-    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="recentsLimit" value="5" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -342,45 +590,22 @@
       <recent name="$PROJECT_DIR$/src/site" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PersistentQueueImplSingleFileUnitTest">
-    <configuration default="false" name="Federator" type="Application" factoryName="Application" temporary="true">
+  <component name="RunManager" selected="Application.WSNClient">
+    <configuration default="false" name="WSNClient" type="Application" factoryName="Application" temporary="true">
       <extension name="snapshooter" />
-      <option name="MAIN_CLASS_NAME" value="de.uniluebeck.itm.tr.wsn.federator.Federator" />
+      <option name="MAIN_CLASS_NAME" value="de.uniluebeck.itm.gtr.wsngui.WSNClient" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="-f$PROJECT_DIR$/iwsn/wsn-federator/configs/quick-start-federator/federator.properties" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="PROGRAM_PARAMETERS" value="-f configs/config.properties" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/iwsn/wsn-api-client" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="tr.wsn-federator" />
+      <module name="tr.wsn-api-client" />
       <envs />
       <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="50200" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Tester" type="Application" factoryName="Application" temporary="true">
-      <extension name="snapshooter" />
-      <option name="MAIN_CLASS_NAME" value="de.uniluebeck.itm.tr.runtime.cmdline.Tester" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="tr.runtime.cmdline" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="50147" />
+        <option name="DEBUG_PORT" value="49626" />
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
       </RunnerSettings>
@@ -465,6 +690,34 @@
       <envs />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="49975" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="RSPersistenceGCalTest" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="snapshooter" />
+      <module name="tr.rs-persistence-gcal" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="de.uniluebeck.itm.tr.rs.persistence.gcal.test" />
+      <option name="MAIN_CLASS_NAME" value="de.uniluebeck.itm.tr.rs.persistence.gcal.test.RSPersistenceGCalTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="63884" />
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
       </RunnerSettings>
@@ -837,11 +1090,11 @@
       <method />
     </configuration>
     <list size="13">
-      <item index="0" class="java.lang.String" itemvalue="Application.Federator" />
-      <item index="1" class="java.lang.String" itemvalue="Application.Tester" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.SingleUrnPrefixInmemoryTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.PersistentQueueImplSingleFileUnitTest" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.PersistentQueueImplMulitFileUnitTest" />
+      <item index="0" class="java.lang.String" itemvalue="Application.WSNClient" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.SingleUrnPrefixInmemoryTest" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.PersistentQueueImplSingleFileUnitTest" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.PersistentQueueImplMulitFileUnitTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.RSPersistenceGCalTest" />
       <item index="5" class="java.lang.String" itemvalue="Application.iWSN quick-start-simple" />
       <item index="6" class="java.lang.String" itemvalue="Application.iWSN tubs gateway" />
       <item index="7" class="java.lang.String" itemvalue="Application.iWSN tubs hallway1" />
@@ -898,25 +1151,25 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="801" extended-state="0" />
+    <frame x="0" y="24" width="1440" height="801" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32892805" sideWeight="0.0" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32892805" sideWeight="0.0" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298153" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32997844" sideWeight="0.36417034" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18404026" sideWeight="0.66079295" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32997844" sideWeight="0.66079295" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.43171805" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35682818" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32892805" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32892805" sideWeight="0.0" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298153" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32997844" sideWeight="0.2290749" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3350108" sideWeight="0.6343612" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32997844" sideWeight="0.66079295" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35535976" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35389134" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32892805" sideWeight="0.0" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32986766" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2230311" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -938,7 +1191,7 @@
     <option name="ENABLE_BACKGROUND_PROCESSES" value="false" />
     <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ticket #43 updated" />
+    <option name="LAST_COMMIT_MESSAGE" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -951,8 +1204,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="update for NodeId" />
-    <MESSAGE value="Ticket #43 updated" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -962,121 +1213,89 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/src.jar!/src/java/util/concurrent/LinkedBlockingDeque.java">
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/ControllerServiceDummyView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="556" column="4" selection-start="14917" selection-end="14917" vertical-scroll-proportion="7.6153846" />
+        <state line="59" column="111" selection-start="3652" selection-end="3652" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/impl/PersistentBlockingDequeImpl.java">
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="63" selection-start="731" selection-end="731" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#offerFirst#1;class#PersistentBlockingDequeImpl#0" expanded="false" />
-            <element signature="method#takeFirst#0;class#PersistentBlockingDequeImpl#0" expanded="false" />
-            <element signature="method#pollFirst#0;class#PersistentBlockingDequeImpl#0" expanded="false" />
-            <element signature="method#removeFirstOccurrence#0;class#PersistentBlockingDequeImpl#0" expanded="false" />
-          </folding>
-        </state>
+        <state line="206" column="11" selection-start="8443" selection-end="8443" vertical-scroll-proportion="4.9104476" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentBlockingQueue/PersistentBlockingDeque.java">
+    <entry file="file://$MAVEN_REPOSITORY$/org/dstovall/onejar-maven-plugin-rc8fix/1.4.5/onejar-maven-plugin-rc8fix-1.4.5.pom">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="62" selection-start="407" selection-end="420" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1.jar!/org/junit/runners/model/FrameworkMethod.class">
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/idea.jar!/standardSchemas/XMLSchema-instance.xsd">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1.jar!/org/junit/internal/runners/model/ReflectiveCallable.class">
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/maven/lib/maven.jar!/org/jetbrains/idea/maven/dom/maven-4.0.0.xsd">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="40" selection-start="404" selection-end="404" vertical-scroll-proportion="-5.0">
-          <folding />
-        </state>
+        <state line="24" column="51" selection-start="1267" selection-end="1270" vertical-scroll-proportion="-11.076923" />
       </provider>
     </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/src.jar!/src/java/util/concurrent/locks/Lock.java">
+    <entry file="file://$PROJECT_DIR$/rs/rs-persistence/src/test/java/de/uniluebeck/itm/tr/rs/persistence/EndpointPropertiesTestMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="137" column="0" selection-start="6360" selection-end="6360" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/iwsn/runtime/src/test/java/de/uniluebeck/itm/gtr/ConnectivityTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="272" column="12" selection-start="9041" selection-end="9073" vertical-scroll-proportion="0.3716216">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/src.jar!/src/java/util/concurrent/Future.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="124" column="6" selection-start="4816" selection-end="4816" vertical-scroll-proportion="0.51359516" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplSingleFile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="42" selection-start="2136" selection-end="2165" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/PersistentQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="0" selection-start="270" selection-end="270" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/persistentQueue/impl/PersistentQueueImplMultiFile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="147" column="42" selection-start="4523" selection-end="4523" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueImplMulitFileUnitTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="37" selection-start="567" selection-end="567" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueImplSingleFileUnitTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="82" selection-start="481" selection-end="514" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util/src/main/java/de/uniluebeck/itm/tr/util/FileUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="4202" selection-end="4202" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/src.jar!/src/java/io/File.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="967" column="20" selection-start="39440" selection-end="39440" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-1.2077922" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/util/src/test/java/PersistentQueueUnitTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="219" column="4" selection-start="7042" selection-end="7042" vertical-scroll-proportion="0.38251367">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="224" column="24" selection-start="7460" selection-end="7460" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNServiceDummyView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="61" column="61" selection-start="3809" selection-end="3809" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="86" column="12" selection-start="4058" selection-end="4058" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClientProperties.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="118" selection-start="4474" selection-end="4474" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-api-client/src/main/java/de/uniluebeck/itm/gtr/wsngui/WSNClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="136" column="44" selection-start="6118" selection-end="6118" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="392" column="29" selection-start="14030" selection-end="14034" vertical-scroll-proportion="0.03133159">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/wsn-device-drivers/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/runtime.cmdline/src/main/java/de/uniluebeck/itm/tr/runtime/cmdline/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="103" column="13" selection-start="5430" selection-end="5430" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/iwsn/runtime.cmdline/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="163" column="46" selection-start="7670" selection-end="7670" vertical-scroll-proportion="0.9775561">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1086,13 +1305,7 @@
       <state key="ArtifactsStructureConfigurable.UI">
         <UIState>
           <splitter-proportions>
-            <SplitterProportionsDataImpl>
-              <option name="proportions">
-                <list>
-                  <option value="0.2" />
-                </list>
-              </option>
-            </SplitterProportionsDataImpl>
+            <SplitterProportionsDataImpl />
           </splitter-proportions>
           <settings />
         </UIState>

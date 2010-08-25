@@ -222,7 +222,7 @@ public abstract class PersistentQueueUnitTest{
         PersistentQueue queueSingleFile = new PersistentQueueImplSingleFile("PersistentQueueUnitTestSingleFileCompare", 50);
         PersistentQueue queueMultiFile = new PersistentQueueImplMultiFile("PersistentQueueUnitTestMultiFileCompare", 50);
 
-        int elements = 10000;
+        int elements = 1000;
         //Adding to queue
         System.out.print("\nDuration time for " + elements + " elements:\n\nAdding to queue:\nSingleFileQueue: ");
         long startedTimeInMillis = System.currentTimeMillis();
