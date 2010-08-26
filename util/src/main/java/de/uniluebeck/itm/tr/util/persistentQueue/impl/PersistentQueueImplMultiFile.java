@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.util.persistentQueue.impl;
 
 import java.io.*;
+import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,9 +40,11 @@ public class PersistentQueueImplMultiFile implements PersistentQueue {
     final org.slf4j.Logger log = LoggerFactory.getLogger(PersistentQueueImplMultiFile.class);
 	
     private final Lock lock = new ReentrantLock();
+    
+    private Random random = new Random();
 
     public PersistentQueueImplMultiFile(String dir, long maxSizeInMegaByte) throws IOException, SecurityException {
-		this.dir = new File(dir + File.separator + "PersistentQueueImplMultiFile");
+		this.dir = new File(dir + File.separator + "PersistentQueueImplMultiFile" + random.nextLong());
         this.maxSizeInMegaByte = maxSizeInMegaByte;
 
         this.createAndRemoveDir();
@@ -171,7 +174,7 @@ public class PersistentQueueImplMultiFile implements PersistentQueue {
         }
         assertDirExist();
 
-        this.dir.mkdir();
+        this.dir.mkdirs();
         this.dir.deleteOnExit();
     }
 
