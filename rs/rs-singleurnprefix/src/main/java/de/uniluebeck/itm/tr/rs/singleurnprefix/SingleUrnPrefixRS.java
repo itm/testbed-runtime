@@ -182,14 +182,36 @@ public class SingleUrnPrefixRS implements RS {
 		return res;
 	}
 
-	@Override
+
+    @Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+        
+        //SanityCheck
+        SecretAuthenticationKey key;
+        {
+            key = performSanityCheck(secretAuthenticationKey);
+        }
 
-		// TODO implement
-		throw createRSExceptionException("Not yet implemented!");
+        Action get = new Action();
+        get.setAction("get");
+        //AuthenticationCheck
+        {
+            try {
+                checkAuthentication(key, get);
+            } catch (Exception e) {
+                RSException rse = new RSException();
+                log.warn(e.getMessage());
+                rse.setMessage(e.getMessage());
+                throw new RSExceptionException(e.getMessage(), rse);                
+            }
+        }
+        
+        Interval i = new Interval(new DateTime(period.getFrom().toGregorianCalendar()), new DateTime(period.getTo().toGregorianCalendar()));
+        
+        return persistence.getReservations(i);
 	}
 
 	private void checkNodesAvailable(PublicReservationData reservation)

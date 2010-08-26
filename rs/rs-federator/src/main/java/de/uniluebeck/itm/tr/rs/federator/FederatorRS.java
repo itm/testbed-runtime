@@ -381,6 +381,41 @@ public class FederatorRS implements RS {
 		return map;
 	}
 
+    private Map<String, List<SecretAuthenticationKey>> constructEndpointUrlToAuthenticationMap(
+            List<SecretAuthenticationKey> secretAuthenticationKey) throws RSExceptionException {
+
+        Map<String, List<SecretAuthenticationKey>> map = new HashMap<String, List<SecretAuthenticationKey>>();
+
+        boolean found;
+        for (SecretAuthenticationKey authenticationKey : secretAuthenticationKey) {
+
+            found = false;
+
+            for (Map.Entry<String, Set<String>> entry : prefixSet.entrySet()) {
+                for (String urnPrefix : entry.getValue()) {
+                    if (urnPrefix.equals(authenticationKey.getUrnPrefix())) {
+                        List<SecretAuthenticationKey> secretReservationKeyList = map.get(entry.getKey());
+                        if (secretReservationKeyList == null) {
+                            secretReservationKeyList = new LinkedList<SecretAuthenticationKey>();
+                            map.put(entry.getKey(), secretReservationKeyList);
+                        }
+                        secretReservationKeyList.add(authenticationKey);
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                String msg =
+                        "The node URN prefix " + authenticationKey.getUrnPrefix() + " is not served by this RS instance!";
+                RSException exception = new RSException();
+                exception.setMessage(msg);
+                throw new RSExceptionException(msg, exception);
+            }
+        }
+        return map;
+    }
+
 	private static class GetReservationsCallable implements Callable<List<PublicReservationData>> {
 
 		private String endpointUrl;
@@ -402,6 +437,28 @@ public class FederatorRS implements RS {
 			return port.getReservations(from, to);
 		}
 	}
+
+    private static class GetConfidentialReservationsCallable implements Callable<List<ConfidentialReservationData>> {
+
+        private String endpointUrl;
+
+        private GetReservations period;
+        private List<SecretAuthenticationKey> secretAuthenticationData;
+
+        private GetConfidentialReservationsCallable(String endpointUrl, List<SecretAuthenticationKey> secretAuthenticationData, GetReservations period) {
+            this.endpointUrl = endpointUrl;
+            this.period = period;
+            this.secretAuthenticationData = secretAuthenticationData;
+        }
+
+        @Override
+        public List<ConfidentialReservationData> call() throws Exception {
+            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
+            RS port = service.getRSPort();
+            return port.getConfidentialReservations(secretAuthenticationData, period);
+        }
+    }
+
 
 	@Override
 	public List<PublicReservationData> getReservations(
@@ -440,8 +497,27 @@ public class FederatorRS implements RS {
 			@WebParam(name = "period", targetNamespace = "")
 			GetReservations period) throws RSExceptionException {
 
-		// TODO implement
-		throw createRSExceptionException("Not yet implemented!");
+        //check for null
+        if (period.getFrom() == null || period.getTo() == null) throw createRSExceptionException("could not validate period from: " + period.getFrom() + " to: " + period.getTo());
+
+        List<Future<List<ConfidentialReservationData>>> futures = new LinkedList<Future<List<ConfidentialReservationData>>>();
+        for (String endpointUrl : prefixSet.keySet()) {
+            GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(endpointUrl, constructEndpointUrlToAuthenticationMap(secretAuthenticationKey).get(endpointUrl), period);
+            futures.add(executorService.submit(callable));
+        }
+
+        List<ConfidentialReservationData> confidentialReservationData = new LinkedList<ConfidentialReservationData>();
+        for (Future<List<ConfidentialReservationData>> future : futures) {
+            try {
+                confidentialReservationData.addAll(future.get());
+            } catch (InterruptedException e) {
+                throwRSException("InterruptedException while getting reservations!", e);
+            } catch (ExecutionException e) {
+                throwRSException("ExecutionException while getting reservations!", e);
+            }
+        }
+
+        return confidentialReservationData;
 	}
 
 	private RSExceptionException createRSExceptionException(String s) {
