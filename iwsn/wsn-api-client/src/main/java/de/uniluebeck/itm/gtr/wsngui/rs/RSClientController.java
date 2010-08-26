@@ -223,7 +223,7 @@ public class RSClientController {
     }
 
     private List<String> parseNodeUrns() {
-        return Arrays.asList(view.getNodeUrnsTextField().getText().split(","));
+        return Arrays.asList(view.getNodeUrnsTextArea().getText().split(","));
     }
 
     private List<SecretAuthenticationKey> parseAuthenticationData() {
@@ -289,7 +289,7 @@ public class RSClientController {
         } else {
             this.view.getUntilDateTextField().setValue(then.toDate());
         }
-        this.view.getNodeUrnsTextField().setText(
+        this.view.getNodeUrnsTextArea().setText(
                 properties.getProperty(WSNClientProperties.RS_CLIENT_NODEURNS, "")
         );
 

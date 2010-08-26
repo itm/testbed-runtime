@@ -38,7 +38,7 @@ public class RSClientView extends JPanel {
 
     private JButton makeReservationButton;
 
-    private JTextField nodeUrnsTextField;
+    private JTextArea nodeUrnsTextArea;
 
     private JTextArea secretReservationKeysTextArea;
 
@@ -79,9 +79,12 @@ public class RSClientView extends JPanel {
             panel.add(untilDateTextField);
         }
         {
-            nodeUrnsTextField = new JTextField();
-            panel.add(new JLabel("Node URNs"));
-            panel.add(nodeUrnsTextField);
+            nodeUrnsTextArea = new JTextArea();
+			nodeUrnsTextArea.setLineWrap(true);
+            JScrollPane scrollPane = new JScrollPane(nodeUrnsTextArea);
+            scrollPane.setPreferredSize(new Dimension(400, 50));
+			panel.add(new JLabel("Node URNs"));
+            panel.add(scrollPane);
         }
         {
             makeReservationButton = new JButton("makeReservation()");
@@ -142,8 +145,8 @@ public class RSClientView extends JPanel {
         return makeReservationButton;
     }
 
-    public JTextField getNodeUrnsTextField() {
-        return nodeUrnsTextField;
+    public JTextArea getNodeUrnsTextArea() {
+        return nodeUrnsTextArea;
     }
 
     public JTextArea getSecretReservationKeysTextArea() {

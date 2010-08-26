@@ -293,7 +293,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) throws ExperimentNotRunningException_Exception {
 		for (String node : reservedNodes) {
-			if (!testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node))
+			if (!testbedRuntime.getLocalNodeNames().contains(node) && !testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node))
 				throw new RuntimeException("Node URN " + node + " in RS-ConfidentialReservationData not in testbed-runtime environment.");
 		}
 	}
