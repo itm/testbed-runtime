@@ -393,7 +393,7 @@ class WSNAppImpl implements WSNApp {
 			};
 
 			testbedRuntime.getSingleRequestMultiResponseService()
-					.sendReliableRequestUnreliableResponse(msg, 30, TimeUnit.MINUTES, multiResponseCallback);
+					.sendReliableRequestUnreliableResponse(msg, 5, TimeUnit.MINUTES, multiResponseCallback);
 
 		}
 	}
