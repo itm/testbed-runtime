@@ -188,7 +188,18 @@ public class SingleUrnPrefixRS implements RS {
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
-        
+
+        //checking on null for period
+        //checking on null for secretAuthenticationKey in performSanityCheck
+        {
+            if (period == null || period.getFrom() == null || period.getTo() == null){
+                String message = "Error on checking null for period. Either period, period.from or period.to is null.";
+                log.warn(message);
+                RSException rse = new RSException();
+                rse.setMessage(message);
+                throw new RSExceptionException(message, rse);
+            }
+        }
         //SanityCheck
         SecretAuthenticationKey key;
         {

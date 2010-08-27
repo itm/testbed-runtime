@@ -511,9 +511,13 @@ public class FederatorRS implements RS {
             try {
                 confidentialReservationData.addAll(future.get());
             } catch (InterruptedException e) {
-                throwRSException("InterruptedException while getting reservations!", e);
+                String message = "InterruptedException while getting reservations!";
+                log.warn(message);
+                throwRSException(message, e);
             } catch (ExecutionException e) {
-                throwRSException("ExecutionException while getting reservations!", e);
+                String message = "ExecutionException while getting reservations!";
+                log.warn(message);
+                throwRSException(message, e);
             }
         }
 
