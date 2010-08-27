@@ -68,4 +68,11 @@ public class FileUtils {
 		}
 	}
 
+    public static void deleteDirectory(File dir) throws SecurityException {
+        if (!dir.exists()) return;
+        for (String filename : dir.getAbsoluteFile().list()){
+            new File(dir.getAbsolutePath(), filename).delete();
+        }
+        dir.delete();
+    }
 }

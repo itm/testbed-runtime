@@ -45,6 +45,8 @@ public class MoteListRXTX extends AbstractMoteList {
 		Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
 		System.out.println(((CommPortIdentifier) portIdentifiers.nextElement()).getPortType());
 
+		// TODO this does not work yet...
+
 		return map;
 	}
 

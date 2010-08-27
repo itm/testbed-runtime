@@ -22,15 +22,14 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5.3-SNAPSHOT</version>
+	<version>0.5.4-SNAPSHOT</version>
 	<name>TR</name>
 
 	<modules>
@@ -45,6 +44,7 @@
 		<module>rs/rs-persistence-inmemory</module>
 		<module>rs/rs-persistence-jpa</module>
 
+		<module>iwsn/csv2config</module>
 		<module>iwsn/logcontroller</module>
 		<module>iwsn/runtime</module>
 		<module>iwsn/runtime.cmdline</module>
@@ -73,7 +73,7 @@
 		<module>node-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
-		<!--<module>wiseml-merger</module>-->
+		<module>wiseml-merger</module>
 
 	</modules>
 
@@ -536,11 +536,6 @@
 			<name>ITM UzL Maven snapshots repository</name>
 			<url>scp://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
 		</snapshotRepository>
-		<site>
-			<id>testbed-runtime.site</id>
-			<name>Testbed Runtime Documentation</name>
-			<url>scp://itm01:/www/itm/projects/testbed-runtime-doc/</url>
-		</site>
 	</distributionManagement>
 
 	<properties>

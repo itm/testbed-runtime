@@ -24,6 +24,8 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException;
+import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
 import java.util.List;
@@ -51,4 +53,15 @@ public class SessionManagementHelper {
 		return "wsnInstanceHash" + map.hashCode();
 	}
 
+	public static ExperimentNotRunningException_Exception createExperimentNotRunningException(
+			final String secretReservationKey) {
+
+		String msg = "Experiment with secret reservation key \""+secretReservationKey+"\" either does not exist "
+				+ "or is currently not running.";
+
+		ExperimentNotRunningException exception = new ExperimentNotRunningException();
+		exception.setMessage(msg);
+		ExperimentNotRunningException_Exception e = new ExperimentNotRunningException_Exception(msg, exception);
+		return e;
+	}
 }

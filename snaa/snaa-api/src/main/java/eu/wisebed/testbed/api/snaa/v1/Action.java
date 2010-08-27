@@ -1,3 +1,4 @@
+
 package eu.wisebed.testbed.api.snaa.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for action complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="action">
  *   &lt;complexContent>
@@ -22,34 +23,40 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "action", propOrder = {
-		"action"
+    "action"
 })
 public class Action {
 
-	@XmlElement(required = true)
-	protected String action;
+    @XmlElement(required = true)
+    protected String action;
 
-	/**
-	 * Gets the value of the action property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getAction() {
-		return action;
-	}
+    /**
+     * Gets the value of the action property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAction() {
+        return action;
+    }
 
-	/**
-	 * Sets the value of the action property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setAction(String value) {
-		this.action = value;
-	}
+    /**
+     * Sets the value of the action property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAction(String value) {
+        this.action = value;
+    }
 
 }

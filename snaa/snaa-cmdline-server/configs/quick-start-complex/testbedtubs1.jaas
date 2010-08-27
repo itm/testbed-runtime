@@ -1,6 +1,4 @@
-# START SNIPPET: testbedtubs1_jaas #
 HtpasswdFile {
 	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
 	htpasswdFile = "configs/quick-start-complex/testbedtubs1.htpasswd";
 };
-# END SNIPPET: testbedtubs1_jaas #

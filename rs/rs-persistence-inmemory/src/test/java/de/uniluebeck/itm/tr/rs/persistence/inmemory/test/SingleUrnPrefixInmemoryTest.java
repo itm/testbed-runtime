@@ -36,177 +36,234 @@ import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
 public class SingleUrnPrefixInmemoryTest {
 
-	private static String snaaURL = "http://localhost:8080/snaa/dummy1";
-	private static String urnPrefix = "urn:wisebed:dummy1";
-	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-	private RSPersistence rsPersistence = new InMemoryRSPersistence();
-	private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, rsPersistence);
-	private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
-	private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
-	private static long from = System.currentTimeMillis() + 200000;
-	private static long to = System.currentTimeMillis() + 200000 + 1000;
-	private List<SecretAuthenticationKey> secretAuthenticationKeyList = null;
-	private GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
-	private GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
-	private Map<String, String> endpointPropertiesMap = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed1;
-	private String secretReservationKey = "a1b2c3d4";
+    private static String snaaURL = "http://localhost:8080/snaa/dummy1";
+    private static String urnPrefix = "urn:wisebed:dummy1";
+    private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+    private RSPersistence rsPersistence = new InMemoryRSPersistence();
+    private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, rsPersistence);
+    private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
+    private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
+    private static long from = System.currentTimeMillis() + 200000;
+    private static long to = System.currentTimeMillis() + 200000 + 1000;
+    private List<SecretAuthenticationKey> secretAuthenticationKeyList = null;
+    private GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
+    private GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
+    private Map<String, String> endpointPropertiesMap = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed1;
 
-	@Before
-	public void setUp() throws Exception {
-		//PropertiesMap
-		Properties props = new Properties();
-		for (Object key : endpointPropertiesMap.keySet()) {
-			props.setProperty((String) key, endpointPropertiesMap.get(key));
-		}
+    @Before
+    public void setUp() throws Exception {
+        //PropertiesMap
+        Properties props = new Properties();
+        for (Object key : endpointPropertiesMap.keySet()) {
+            props.setProperty((String) key, endpointPropertiesMap.get(key));
+        }
 
-		//starting endpoint
-		Server.startFromProperties(props);
+        //starting endpoint
+        Server.startFromProperties(props);
 
-		//creating SecretAuthenticationKey
-		secretAuthenticationKeyList = new LinkedList<SecretAuthenticationKey>();
-		SecretAuthenticationKey key = new SecretAuthenticationKey();
-		key.setUsername("Nils Rohwedder");
-		key.setSecretAuthenticationKey(secureIdGenerator.getNextId());
-		key.setUrnPrefix(urnPrefix);
-		secretAuthenticationKeyList.add(key);
+        //creating SecretAuthenticationKey
+        secretAuthenticationKeyList = new LinkedList<SecretAuthenticationKey>();
+        SecretAuthenticationKey key = new SecretAuthenticationKey();
+        key.setUsername("Nils Rohwedder");
+        key.setSecretAuthenticationKey(secureIdGenerator.getNextId());
+        key.setUrnPrefix(urnPrefix);
+        secretAuthenticationKeyList.add(key);
 
-		//creating ConfidentialReservationData
-		ConfidentialReservationData confiData = new ConfidentialReservationData();
-		Data data = new Data();
-		data.setUrnPrefix(urnPrefix);
-		data.setUsername("Nils Rohwedder");
-		data.setSecretReservationKey(this.secretReservationKey);
-		confiData.getData().add(data);
+        //creating ConfidentialReservationData
+        ConfidentialReservationData confiData = new ConfidentialReservationData();
+        Data data = new Data();
+        data.setUrnPrefix(urnPrefix);
+        data.setUsername("Nils Rohwedder");
+        confiData.getData().add(data);
 
-		gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-		gregorianCalendarFrom.setTimeInMillis(from);
+        gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+        gregorianCalendarFrom.setTimeInMillis(from);
 
-		confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+        confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
 
-		gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-		gregorianCalendarTo.setTimeInMillis(to);
-		confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+        gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+        gregorianCalendarTo.setTimeInMillis(to);
+        confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
 
-		//Creating testDataMap
-		for (int i = 0; i < 10; i++) {
-			reservationDataMap.put(i, confiData);
-		}
+        //Creating testDataMap
+        for (int i = 0; i < 10; i++) {
+            reservationDataMap.put(i, confiData);
+        }
 
-	}
+    }
 
-	@Test
-	public void test() throws Throwable {
-		makeReservation();
-		getReservations();
-		getReservationBeforeDeletion();
-		deleteReservationBeforeDeletion();
-		getReservationAfterDeletion();
-		deleteReservationAfterDeletion();
-	}
+    @Test
+    public void test() throws Throwable {
+        makeReservation();
+        getReservations();
+        getConfindentialReservations();
+        getReservationBeforeDeletion();
+        deleteReservationBeforeDeletion();
+        getReservationAfterDeletion();
+        deleteReservationAfterDeletion();
+    }
 
-	public void makeReservation() throws Throwable {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			reservationKeyMap.put(i, singleUrnPrefixRS.makeReservation(secretAuthenticationKeyList, reservationDataMap.get(i)).get(0));
-		}
-	}
+    public void makeReservation() throws Throwable {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+            reservationKeyMap.put(i, singleUrnPrefixRS.makeReservation(secretAuthenticationKeyList, reservationDataMap.get(i)).get(0));
+        }
+    }
 
-	public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
-			assertTrue(equals(reservationDataMap.get(i), singleUrnPrefixRS.getReservation(tempKeyList).get(0)));
-		}
-	}
+    public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
 
-	private boolean equals(ConfidentialReservationData reservationData, ConfidentialReservationData reservationDataOther) {
-		// TODO implement (im moment noch unschoen!!)
-		//if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
-		//if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
-		//if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
-		return Comparison.equals(reservationData, reservationDataOther);
-	}
+            List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
+            tempKeyList.add(reservationKeyMap.get(i));
 
+            ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
+            ConfidentialReservationData receivedCRD = singleUrnPrefixRS.getReservation(tempKeyList).get(0);
 
-	public void getReservationAfterDeletion() throws RSExceptionException {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
-			try {
-				singleUrnPrefixRS.getReservation(tempKeyList).get(0);
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			}
-			catch (ReservervationNotFoundExceptionException e) {
-			}
-		}
-	}
+            assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
+            assertEquals(rememberedCRD.getNodeURNs(), receivedCRD.getNodeURNs());
+            assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
+            assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
+
+            //assertTrue(equals(reservationDataMap.get(i), singleUrnPrefixRS.getReservation(tempKeyList).get(0)));
+        }
+    }
+
+    private boolean equals(ConfidentialReservationData rd1, ConfidentialReservationData rd2) {
+        // TODO implement (im moment noch unschoen!!)
+        //if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
+        //if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
+        //if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
+        return Comparison.equals(rd1, rd2);
+    }
 
 
-	public void getReservations() throws RSExceptionException, DatatypeConfigurationException {
-		//first interval : no overlap first direction
-		GregorianCalendar testFrom = new GregorianCalendar();
-		GregorianCalendar testTo = new GregorianCalendar();
+    public void getReservationAfterDeletion() throws RSExceptionException {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+            List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
+            tempKeyList.add(reservationKeyMap.get(i));
+            try {
+                singleUrnPrefixRS.getReservation(tempKeyList).get(0);
+                fail("Should have raised an ReservervationNotFoundExceptionException");
+            }
+            catch (ReservervationNotFoundExceptionException e) {
+            }
+        }
+    }
 
-		testFrom.setTimeInMillis(from - 20000);
-		testTo.setTimeInMillis(to - 20000);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 0);
 
-		//second interval : small overlap first direction
-		testFrom.setTimeInMillis(from - 20000);
-		testTo.setTimeInMillis(to - 500);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 10);
+    public void getReservations() throws RSExceptionException, DatatypeConfigurationException {
+        //first interval : no overlap first direction
+        XMLGregorianCalendar testFrom = createGregorianCalendar(from - 20000);
+        XMLGregorianCalendar testTo = createGregorianCalendar(from - 20000);
+
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
+
+        //second interval : small overlap first direction
+        testFrom = createGregorianCalendar(from - 20000);
+        testTo = createGregorianCalendar(to - 500);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
 
 //        //second interval : small overlap second direction
-		testFrom.setTimeInMillis(from + 500);
-		testTo.setTimeInMillis(to + 20000);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 10);
+        testFrom = createGregorianCalendar(from + 500);
+        testTo = createGregorianCalendar(to + 20000);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
 
-		//third interval : overlap on the same timeline first direction
-		testFrom.setTimeInMillis(from - 20000);
-		testTo.setTimeInMillis(from);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 0);
+        //third interval : overlap on the same timeline first direction
+        testFrom = createGregorianCalendar(from - 20000);
+        testTo = createGregorianCalendar(from);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
 
-		//third interval : overlap on the same timeline second direction
-		testFrom.setTimeInMillis(to);
-		testTo.setTimeInMillis(to + 20000);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 0);
+        //third interval : overlap on the same timeline second direction
+        testFrom = createGregorianCalendar(to);
+        testTo = createGregorianCalendar(to + 20000);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
 
-		//fourth interval : absolute overlap first direction
-		testFrom.setTimeInMillis(from + 5);
-		testTo.setTimeInMillis(to - 5);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 10);
+        //fourth interval : absolute overlap first direction
+        testFrom = createGregorianCalendar(from + 5);
+        testTo = createGregorianCalendar(to - 5);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
 
-		//fourth interval : absolute overlap second direction
-		testFrom.setTimeInMillis(from - 5);
-		testTo.setTimeInMillis(to + 5);
-		assertSame(singleUrnPrefixRS.getReservations(DatatypeFactory.newInstance().newXMLGregorianCalendar(testFrom), DatatypeFactory.newInstance().newXMLGregorianCalendar(testTo)).size(), 10);
-	}
+        //fourth interval : absolute overlap second direction
+        testFrom = createGregorianCalendar(from - 5);
+        testTo = createGregorianCalendar(to + 5);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
+    }
 
-	public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
-			singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
-		}
-	}
+    private XMLGregorianCalendar createGregorianCalendar(long from) throws DatatypeConfigurationException {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(from);
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+    }
 
-	public void deleteReservationAfterDeletion() throws RSExceptionException {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
-			try {
-				singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			}
-			catch (ReservervationNotFoundExceptionException e) {
-				;
-			}
-		}
-	}
+    public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+            List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
+            tempKeyList.add(reservationKeyMap.get(i));
+            singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+        }
+    }
 
+    public void deleteReservationAfterDeletion() throws RSExceptionException {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+            List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
+            tempKeyList.add(reservationKeyMap.get(i));
+            try {
+                singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+                fail("Should have raised an ReservervationNotFoundExceptionException");
+            }
+            catch (ReservervationNotFoundExceptionException e) {
+                ;
+            }
+        }
+    }
+
+    public void getConfindentialReservations() throws RSExceptionException, DatatypeConfigurationException {
+        GetReservations period = createPeriod(from, to);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+
+        period = createPeriod(from - 20000, to - 20000);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
+
+        //second interval : small overlap first direction
+        period = createPeriod(from - 20000, to - 500);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+
+//        //second interval : small overlap second direction
+        period = createPeriod(from + 500, to + 20000);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+
+        //third interval : overlap on the same timeline first direction
+        period = createPeriod(from - 20000, from);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
+
+        //third interval : overlap on the same timeline second direction
+        period = createPeriod(to, to + 20000);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
+
+        //fourth interval : absolute overlap first direction
+        period = createPeriod(from + 5, to - 5);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+
+        //fourth interval : absolute overlap second direction
+        period = createPeriod(from - 5, to + 5);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+
+    }
+
+    private GetReservations createPeriod(long from, long to) throws DatatypeConfigurationException {
+        GetReservations period = new GetReservations();
+        GregorianCalendar gregFrom = new GregorianCalendar();
+        GregorianCalendar gregTo = new GregorianCalendar();
+        gregFrom.setTimeInMillis(from);
+        gregTo.setTimeInMillis(to);
+        period.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregFrom));
+        period.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregTo));
+        return period;
+    }
 }

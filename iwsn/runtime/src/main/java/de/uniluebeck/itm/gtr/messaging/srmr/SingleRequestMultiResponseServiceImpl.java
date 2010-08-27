@@ -266,8 +266,10 @@ public class SingleRequestMultiResponseServiceImpl
 						matchesMsgType = listener.getSecond().equals(originalMsg.getMsgType());
 
 						if (matchesMsgType && matchesNodeUrn) {
-							listener.getThird()
-									.receiveRequest(originalMsg, new ResponderImpl(testbedRuntime, msg, request));
+							listener.getThird().receiveRequest(
+                                    originalMsg,
+                                    new ResponderImpl(testbedRuntime, msg, request)
+                            );
 						}
 
 					}
@@ -302,7 +304,11 @@ public class SingleRequestMultiResponseServiceImpl
 						}
 
 						// notify callback of original requester
-						requestTuple.getSecond().receive(response.getPayload().toByteArray());
+                        boolean done = requestTuple.getSecond().receive(response.getPayload().toByteArray());
+                        // remove from timed cache so that timeout won't occur later on
+                        if (done) {
+                            timedCache.remove(response.getRequestId());
+                        }
 
 					} else {
 						log.debug("Ignoring response to unknown requestTuple ID");
