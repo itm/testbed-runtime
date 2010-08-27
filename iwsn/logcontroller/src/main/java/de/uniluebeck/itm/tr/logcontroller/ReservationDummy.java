@@ -22,7 +22,7 @@ import java.util.List;
  * Time: 16:45:53
  * To change this template use File | Settings | File Templates.
  */
-@WebService(name = "RSDummy", targetNamespace = "urn:RSServiceDummy")
+@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "urn:RSService")
 public class ReservationDummy implements RS {
     @Override
     public List<PublicReservationData> getReservations(@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from, @WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {

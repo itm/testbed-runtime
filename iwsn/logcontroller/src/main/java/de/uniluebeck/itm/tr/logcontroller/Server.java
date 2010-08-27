@@ -21,13 +21,13 @@ public class Server {
     public static void main(String[] args) {
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("p", "properties", true, "path to propertyfile");
+        options.addOption("f", "file", true, "Path to the configuration file");
         try {
             CommandLine line = parser.parse(options, args);
-            if (line.hasOption("p"))
-                propertyFile = line.getOptionValue("p");
+            if (line.hasOption("f"))
+                propertyFile = line.getOptionValue("f");
             else
-                throw new MissingArgumentException("please supply argument -p");
+                throw new MissingArgumentException("please supply argument -f");
         } catch (Exception e) {
             log.error("invalid commandline: {}", e);
             usage(options);

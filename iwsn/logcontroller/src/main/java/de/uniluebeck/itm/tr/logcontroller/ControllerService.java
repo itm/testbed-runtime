@@ -108,16 +108,16 @@ public class ControllerService {
     }
 
     public String getControllerUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get("controller-proxy-endpoint"),
-                "Property 'controller-proxy-endpoint' not specified!");
-        return _properties.get("controller-proxy-endpoint");
+        Preconditions.checkNotNull(_properties.get("controller-proxy-endpoint-prefix"),
+                "Property 'controller-proxy-endpoint-prefix' not specified!");
+        return _properties.get("controller-proxy-endpoint-prefix");
     }
 
 
     public String getWsnUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get("wsn-proxy-endpoint"),
-                "Property 'wsn-proxy-endpoint' not specified!");
-        return _properties.get("wsn-proxy-endpoint");
+        Preconditions.checkNotNull(_properties.get("wsn-proxy-endpoint-prefix"),
+                "Property 'wsn-proxy-endpoint-prefix' not specified!");
+        return _properties.get("wsn-proxy-endpoint-prefix");
     }
 
     public String getReservationEndpoint() {

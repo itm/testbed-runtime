@@ -123,6 +123,8 @@ public class SessionManagementDelegate implements SessionManagement {
             reservationData =
                     _reservationService.getReservation(convert(reservationKey));
         } catch (Exception e) {
+			// TODO make something more sensible
+			throw new RuntimeException(e);
         }
         long delay = 0;
         for (ConfidentialReservationData data : reservationData)

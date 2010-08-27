@@ -102,4 +102,35 @@
         </dependency>
     </dependencies>
 
+	<build>
+		<plugins>
+
+			<!--
+			Using self-patched version of onejar-maven-plugin to support
+			newer version of One-Jar that includes some bug fixes we need.
+			Can be removed later as soon as onejar-maven-plugin supports
+			the newer versions
+			-->
+			<plugin>
+				<groupId>org.dstovall</groupId>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
+				<version>1.4.5</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.tr.logcontroller.Server</mainClass>
+							<onejarVersion>0.98</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
