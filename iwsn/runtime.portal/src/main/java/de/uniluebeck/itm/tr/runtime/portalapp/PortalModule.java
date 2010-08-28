@@ -59,13 +59,12 @@ public class PortalModule extends AbstractModule {
 	private String sessionManagementEndpointUrl;
 
 	public PortalModule(String urnPrefix, String sessionManagementEndpointUrl, String wsnInstanceBaseUrl,
-						String reservationEndpointUrl, WSNApp wsnApp, final String wiseML, TestbedRuntime testbedRuntime) {
+						String reservationEndpointUrl, final String wiseML, TestbedRuntime testbedRuntime) {
 
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
 		this.wsnInstanceBaseUrl = wsnInstanceBaseUrl;
 		this.reservationEndpointUrl = reservationEndpointUrl;
-		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
 		this.testbedRuntime = testbedRuntime;
 	}
@@ -86,7 +85,6 @@ public class PortalModule extends AbstractModule {
 		bind(ControllerService.class).to(ControllerServiceImpl.class);
 
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
-		bind(WSNApp.class).toInstance(wsnApp);
 
 	}
 

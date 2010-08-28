@@ -28,8 +28,6 @@ import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -74,12 +72,10 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 				wiseMLBuilder.append(wiseMLFileReader.readLine());
 			}
 
-			WSNApp wsnApp = Guice.createInjector(new WSNAppModule(testbedRuntime)).getInstance(WSNApp.class);
-
 			SessionManagementService sessionManagementService = Guice.createInjector(
 					new PortalModule(
 							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
-							reservationEndpointUrl, wsnApp, wiseMLBuilder.toString(),
+							reservationEndpointUrl, wiseMLBuilder.toString(),
 							testbedRuntime)
 			).getInstance(SessionManagementService.class);
 

@@ -38,11 +38,6 @@
 			<clientconnection type="tcp" address="127.0.0.1:20001"/>
 			<clientconnection type="tcp" address="127.0.0.1:20002"/>
 		</clientconnections>
-		<applications>
-
-			<application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory"/>
-
-		</applications>
 	</nodes>
 	<nodes id="2">
 		<names>

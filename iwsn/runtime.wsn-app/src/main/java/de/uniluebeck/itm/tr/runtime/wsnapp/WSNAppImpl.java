@@ -23,10 +23,12 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.internal.Nullable;
+import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -49,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Singleton
-class WSNAppImpl implements WSNApp {
+public class WSNAppImpl implements WSNApp {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
 
@@ -59,11 +61,16 @@ class WSNAppImpl implements WSNApp {
 
 	private TestbedRuntime testbedRuntime;
 
+	private Set<String> reservedNodes;
+
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
 	@Inject
-	public WSNAppImpl(TestbedRuntime testbedRuntime) {
+	public WSNAppImpl(TestbedRuntime testbedRuntime,
+				   @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
+		
 		this.testbedRuntime = testbedRuntime;
+		this.reservedNodes = Sets.newHashSet(reservedNodes);
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
 	}
 
@@ -81,8 +88,6 @@ class WSNAppImpl implements WSNApp {
 
 	private void registerNodeMessageReceiver(boolean register) {
 
-		ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
-
 		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
 				.setNodeName(localNodeName)
 				.setOperation(register ?
@@ -91,18 +96,9 @@ class WSNAppImpl implements WSNApp {
 				)
 				.build();
 
-		for (String destinationNodeName : map.keySet()) {
-
+		for (String destinationNodeName : reservedNodes) {
 			testbedRuntime.getUnreliableMessagingService()
 					.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
-					);
-		}
-
-		// also register ourselves for all local node names
-		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNames()) {
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(localNodeName, currentLocalNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
 							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
 					);
 		}
@@ -120,7 +116,7 @@ class WSNAppImpl implements WSNApp {
 		@Override
 		public void messageReceived(Messages.Msg msg) {
 
-			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType())) {
+			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType()) && reservedNodes.contains(msg.getFrom())) {
 
 				try {
 
