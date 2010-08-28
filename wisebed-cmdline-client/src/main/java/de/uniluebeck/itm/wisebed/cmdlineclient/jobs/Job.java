@@ -26,15 +26,17 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
 import eu.wisebed.testbed.api.wsn.v211.Status;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Job {
-	private static final Logger log = Logger.getLogger(Job.class);
+
+	private static final Logger log = LoggerFactory.getLogger(Job.class);
 
 	private final JobType jobType;
 
@@ -56,12 +58,10 @@ public class Job {
 
 	private Set<JobResultListener> listeners = new HashSet<JobResultListener>();
 
-
 	public enum JobType {
+
 		areNodesAlive, resetNodes, send, flashPrograms, setVirtualLink, destroyVirtualLink
 	}
-
-	;
 
 	public Job(String description, String requestId, List<String> nodeIds, JobType jobType) {
 		this.description = description;
@@ -123,10 +123,20 @@ public class Job {
 	}
 
 	public boolean receive(RequestStatus status) {
-		log.debug("Status update for job " + status.getRequestId() + ": " + StringUtils.jaxbMarshal(status));
+
 		for (Status s : status.getStatus()) {
+
 			boolean done = isDone(s.getValue());
 			boolean error = isError(s.getValue());
+
+			log.debug(
+					"Status update for {} job with request ID {}: {}.",
+					new Object[] {
+						jobType,
+						status.getRequestId(),
+						done ? s.getValue() + " (done)" : error ? s.getValue() + " (error)" : s.getValue()
+					}
+			);
 
 			if (done || error) {
 
@@ -200,9 +210,21 @@ public class Job {
 	}
 
 	private void notifyListeners(JobResult result) {
-		for (JobResultListener l : listeners)
+		for (JobResultListener l : listeners) {
 			l.receiveJobResult(result);
+		}
 
 	}
 
+	public JobType getJobType() {
+		return jobType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public HashSet<String> getNodeIds() {
+		return nodeIds;
+	}
 }
