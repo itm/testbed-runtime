@@ -97,8 +97,18 @@ public class GCalRSPersistence implements RSPersistence {
 			throws RSExceptionException {
 		try {
 
-			ReservationData reservationData = new ReservationData(confidentialReservationData, urnPrefix,
-					secureIdGenerator.getNextId());
+			String secretReservationKeyString = secureIdGenerator.getNextId();
+
+			for (Data data : confidentialReservationData.getData()) {
+				data.setSecretReservationKey(secretReservationKeyString);
+			}
+
+			ReservationData reservationData = new ReservationData(
+					confidentialReservationData,
+					urnPrefix,
+					secretReservationKeyString
+			);
+			
 			String reservationDataXml = marshall(reservationData);
 			String eventTitle = confidentialReservationData.getNodeURNs().size() + " Node(s)";
 
@@ -151,7 +161,7 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 
 			SecretReservationKey key = new SecretReservationKey();
-			key.setSecretReservationKey(reservationData.getSecretReservationKey());
+			key.setSecretReservationKey(secretReservationKeyString);
 			key.setUrnPrefix(urnPrefix);
 			return key;
 
@@ -204,8 +214,9 @@ public class GCalRSPersistence implements RSPersistence {
 			log.debug("Got " + resultFeed.getEntries().size() + " entries for interval: " + interval);
 
 			List<ConfidentialReservationData> reservations = new ArrayList<ConfidentialReservationData>();
-			for (Entry entry : resultFeed.getEntries())
+			for (Entry entry : resultFeed.getEntries()) {
 				reservations.add(convert(entry).getReservation());
+			}
 
 			return reservations;
 
