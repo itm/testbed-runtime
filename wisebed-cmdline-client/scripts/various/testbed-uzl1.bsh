@@ -193,6 +193,8 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.*;
 	));
 	jobs.join();
 
+	System.out.println("Demonstration done. Please press any key to quit...");
+	System.in.read();
 
     //--------------------------------------------------------------------------
    	// Steps n+1: Shutdown WSN API endpoint (optional)
