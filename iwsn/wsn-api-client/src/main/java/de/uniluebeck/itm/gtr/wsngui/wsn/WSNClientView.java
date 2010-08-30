@@ -92,25 +92,25 @@ public class WSNClientView extends JPanel {
         }
         {
             // describeCapabilitiesButton
-            describeCapabilitiesButton = new JButton("describeCapabilitiesButton()");
+            describeCapabilitiesButton = new JButton("describeCapabilities()");
             describeCapabilitiesButton.setEnabled(false);
             panel.add(describeCapabilitiesButton);
         }
         {
             // destroyVirtualLinkButton
-            destroyVirtualLinkButton = new JButton("destroyVirtualLinkButton()");
+            destroyVirtualLinkButton = new JButton("destroyVirtualLink()");
             destroyVirtualLinkButton.setEnabled(false);
             panel.add(destroyVirtualLinkButton);
         }
         {
             // disableNodeButton
-            disableNodeButton = new JButton("disableNodeButton()");
+            disableNodeButton = new JButton("disableNode()");
             disableNodeButton.setEnabled(false);
             panel.add(disableNodeButton);
         }
         {
             // disablePhysicalLinkButton
-            disablePhysicalLinkButton = new JButton("disablePhysicalLinkButton()");
+            disablePhysicalLinkButton = new JButton("disablePhysicalLink()");
             disablePhysicalLinkButton.setEnabled(false);
             panel.add(disablePhysicalLinkButton);
         }
@@ -128,7 +128,7 @@ public class WSNClientView extends JPanel {
         }
         {
             // flashProgramsButton
-            flashProgramsButton = new JButton("flashProgramsButton()");
+            flashProgramsButton = new JButton("flashPrograms()");
             panel.add(flashProgramsButton);
         }
         {
@@ -139,7 +139,7 @@ public class WSNClientView extends JPanel {
         }
         {
             // getNeighborhoodButton
-            getNeighborhoodButton = new JButton("getNeighborhoodButton()");
+            getNeighborhoodButton = new JButton("getNeighborhood()");
             getNeighborhoodButton.setEnabled(false);
             panel.add(getNeighborhoodButton);
         }
