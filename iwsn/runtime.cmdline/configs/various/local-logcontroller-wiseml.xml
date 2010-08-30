@@ -7,19 +7,19 @@
 				<nodeType>Mock</nodeType>
 			</node>
 		</defaults>
-		<node id="urn:wisebed:testbeduzl1:0x0001">
+		<node id="urn:local-logcontroller:0x0001">
 			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:0x0002">
+		<node id="urn:local-logcontroller:0x0002">
 			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:0x0003">
+		<node id="urn:local-logcontroller:0x0003">
 			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:0x0004">
+		<node id="urn:local-logcontroller:0x0004">
 			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:0x0005">
+		<node id="urn:local-logcontroller:0x0005">
 			<nodeType>mock</nodeType>
 		</node>
 	</setup>

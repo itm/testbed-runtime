@@ -174,10 +174,47 @@ public class RSClientController {
                 RS rsService = RSServiceHelper.getRSService(endpointUrl);
                 List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
 
+				List<ConfidentialReservationData> reservations =
+						rsService.getConfidentialReservations(authenticationData, parsePeriod());
 
-                rsService.getConfidentialReservations(authenticationData, parsePeriod());
+                String[] columns = new String[]{"From", "Until", "Node-URNs", "UserData", "Secret Reservation Keys"};
+                String[][] rows = new String[reservations.size()][];
 
-            } catch (Exception e1) {
+                for (int row = 0; row < reservations.size(); row++) {
+                    rows[row] = new String[5];
+                    rows[row][0] = reservations.get(row).getFrom().toString();
+                    rows[row][1] = reservations.get(row).getTo().toString();
+                    StringBuilder nodeUrnString = new StringBuilder();
+                    List<String> rowNodeUrnList = reservations.get(row).getNodeURNs();
+                    for (int nodeUrnIndex = 0; nodeUrnIndex < rowNodeUrnList.size(); nodeUrnIndex++) {
+                        nodeUrnString.append(rowNodeUrnList.get(nodeUrnIndex));
+                        if (nodeUrnIndex < rowNodeUrnList.size() - 1) {
+                            nodeUrnString.append(",");
+                        }
+                    }
+                    rows[row][2] = nodeUrnString.toString();
+                    rows[row][3] = reservations.get(row).getUserData();
+					StringBuilder srks = new StringBuilder();
+					List<Data> rowData = reservations.get(row).getData();
+					for (int i = 0; i < rowData.size(); i++) {
+						srks.append(rowData.get(i).getUrnPrefix());
+						srks.append(",");
+						srks.append(rowData.get(i).getUsername());
+						srks.append(",");
+						srks.append(rowData.get(i).getSecretReservationKey());
+						if (i < rowData.size() - 1) {
+							srks.append(";");
+						}
+					}
+					rows[row][4] = srks.toString();
+                }
+
+                JTable table = new JTable(rows, columns);
+                JScrollPane scrollPane = new JScrollPane(table);
+                table.setFillsViewportHeight(true);
+                JOptionPane.showMessageDialog(null, scrollPane);
+
+			} catch (Exception e1) {
                 JOptionPane.showMessageDialog(null, e1.getMessage());
             }
 

@@ -50,9 +50,6 @@
 					</webservice>
 				</portal:portalapp>
 			</application>
-
-			<!-- <application name="WSNApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory" /> -->
-
 		</applications>
 	</nodes>
 	<nodes id="2">

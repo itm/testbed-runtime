@@ -24,16 +24,106 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.wsn.v211.GetInstance;
 import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.Program;
+import eu.wisebed.testbed.api.wsn.v211.ProgramMetaData;
+import org.joda.time.DateTime;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class BeanShellHelper {
+public class
+		BeanShellHelper {
+
+	private static Program readProgram(String pathname, String name, final String other, final String platform,
+									   final String version) throws Exception {
+
+		final ProgramMetaData programMetaData = new ProgramMetaData();
+		programMetaData.setName(name);
+		programMetaData.setOther(other);
+		programMetaData.setPlatform(platform);
+		programMetaData.setVersion(version);
+
+		Program program = new Program();
+		File programFile = new File(pathname);
+
+		FileInputStream fis = new FileInputStream(programFile);
+		BufferedInputStream bis = new BufferedInputStream(fis);
+		DataInputStream dis = new DataInputStream(bis);
+
+		long length = programFile.length();
+		byte[] binaryData = new byte[(int) length];
+		dis.readFully(binaryData);
+
+		program.setProgram(binaryData);
+		program.setMetaData(programMetaData);
+
+		return program;
+
+	}
+
+	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
+																		   int duration, TimeUnit durationUnit,
+																		   String urnPrefix, String username) {
+
+		try {
+
+			DateTime dtFrom = new DateTime(from);
+			DateTime dtUntil;
+			switch (durationUnit) {
+				case DAYS:
+					dtUntil = dtFrom.plusDays(duration);
+					break;
+				case HOURS:
+					dtUntil = dtFrom.plusHours(duration);
+					break;
+				case MINUTES:
+					dtUntil = dtFrom.plusMinutes(duration);
+					break;
+				case SECONDS:
+					dtUntil = dtFrom.plusSeconds(duration);
+					break;
+				default:
+					dtUntil = dtFrom.plusMillis(duration);
+					break;
+			}
+
+
+			DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+
+			ConfidentialReservationData reservationData = new ConfidentialReservationData();
+			reservationData.getNodeURNs().addAll(nodeURNs);
+			reservationData.setFrom(datatypeFactory.newXMLGregorianCalendar(dtFrom.toGregorianCalendar()));
+			reservationData.setTo(datatypeFactory.newXMLGregorianCalendar(dtUntil.toGregorianCalendar()));
+			reservationData.setUserData("demo-script");
+
+			Data data = new Data();
+			data.setUrnPrefix(urnPrefix);
+			data.setUsername(username);
+
+			reservationData.getData().add(data);
+
+			return reservationData;
+
+		} catch (DatatypeConfigurationException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 
 	public List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String username,
 																		String secretAuthenticationKey) {
@@ -60,11 +150,14 @@ public class BeanShellHelper {
 		return reservations;
 	}
 
-	public List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs(List<SecretAuthenticationKey> snaaKeys) {
-		List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> secretAuthKeys = new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
+	public List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs(
+			List<SecretAuthenticationKey> snaaKeys) {
+		List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> secretAuthKeys =
+				new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
 
 		for (SecretAuthenticationKey snaaKey : snaaKeys) {
-			eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey key = new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
+			eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey key =
+					new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
 			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
 			key.setUrnPrefix(snaaKey.getUrnPrefix());
 			key.setUsername(snaaKey.getUsername());
@@ -76,26 +169,18 @@ public class BeanShellHelper {
 	}
 
 	public List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
-		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> newKeys = new ArrayList<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey>();
+		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> newKeys =
+				new ArrayList<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey>();
 
 		for (SecretReservationKey key : keys) {
-			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey newKey = new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey newKey =
+					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
 			newKey.setSecretReservationKey(key.getSecretReservationKey());
 			newKey.setUrnPrefix(key.getUrnPrefix());
 			newKeys.add(newKey);
 		}
 
 		return newKeys;
-	}
-
-	public GetInstance createGetInstance(String controller,
-										 Collection<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> secretReservationKeys) {
-		GetInstance gi = new GetInstance();
-
-		gi.setController(controller);
-		gi.getSecretReservationKey().addAll(secretReservationKeys);
-
-		return gi;
 	}
 
 	public String toString(Message msg) {

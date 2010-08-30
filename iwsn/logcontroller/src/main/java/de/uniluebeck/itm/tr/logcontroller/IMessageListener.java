@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,24 +21,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.inject.AbstractModule;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
+import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
+import java.util.List;
+import java.util.Map;
 
-public class WSNAppModule extends AbstractModule {
+/**
+ * Messagelistener on an WSNBinding
+ */
+public interface IMessageListener {
+    /**
+     * Intialization
+     * @param properties
+     */
+	void init(Map properties);
 
-	private TestbedRuntime testbedRuntime;
-
-	public WSNAppModule(TestbedRuntime testbedRuntime) {
-		this.testbedRuntime = testbedRuntime;
-	}
-
-	@Override
-	protected void configure() {
-		bind(TestbedRuntime.class).toInstance(testbedRuntime);
-		bind(WSNApp.class).to(WSNAppImpl.class);
-	}
-
+    /**
+     * Action for new Message
+     * @param msg
+     * @param reservationKey
+     */
+	void newMessage(Message msg, String reservationKey);
 }

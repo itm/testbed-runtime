@@ -24,8 +24,12 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.internal.Nullable;
+import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
@@ -33,7 +37,6 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
@@ -50,7 +53,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.UnsupportedOperationException;
 import java.net.URL;
@@ -60,8 +62,13 @@ import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@WebService(serviceName = "WSNService", targetNamespace = Constants.NAMESPACE_WSN_SERVICE, portName = "WSNPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE)
+@Singleton
+@WebService(
+		serviceName = "WSNService",
+		targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
+		portName = "WSNPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
+)
 public class WSNServiceImpl implements WSNService {
 
 	/**
@@ -122,28 +129,25 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private ControllerHelper controllerHelper;
 
-	private String wiseML;
+	private Wiseml wiseML;
 
 	private String urnPrefix;
 
 	private Set<String> reservedNodes;
 
-	/**
-	 * @param urnPrefix
-	 * @param wsnInstanceEndpointUrl
-	 * @param controllerEndpointUrl
-	 * @param wsnApp
-	 * @param wiseML
-	 * @param reservedNodes		  if not null, passes reserved nodes, else all nodes will be handled as reserved
-	 */
-	public WSNServiceImpl(String urnPrefix, URL wsnInstanceEndpointUrl, URL controllerEndpointUrl, WSNApp wsnApp,
-						  final String wiseML, @Nullable Set<String> reservedNodes) {
+	@Inject
+	public WSNServiceImpl(@Named(WSNServiceModule.URN_PREFIX) String urnPrefix,
+						  @Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
+						  @Named(WSNServiceModule.CONTROLLER_SERVICE_ENDPOINT_URL) URL controllerEndpointUrl,
+						  @Named(WSNServiceModule.WISEML) Wiseml wiseML,
+						  @Named(WSNServiceModule.RESERVED_NODES) @Nullable String[] reservedNodes,
+						  WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
 		checkNotNull(controllerEndpointUrl);
-		checkNotNull(wsnApp);
 		checkNotNull(wiseML);
+		checkNotNull(wsnApp);
 
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
@@ -157,11 +161,9 @@ public class WSNServiceImpl implements WSNService {
 		addController(controllerEndpointUrl.toString());
 
 		this.preconditions = new WSNPreconditions();
-		this.preconditions.addServedUrnPrefixes(urnPrefix);
-
 		this.urnPrefix = urnPrefix;
-
-		this.reservedNodes = reservedNodes;
+		this.preconditions.addServedUrnPrefixes(urnPrefix);
+		this.reservedNodes = Sets.newHashSet(reservedNodes);
 	}
 
 	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
@@ -170,11 +172,11 @@ public class WSNServiceImpl implements WSNService {
 
 		private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-		private static final byte MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+		//private static final byte MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
 
-		private static final byte NODE_OUTPUT_TEXT = 50;
+		//private static final byte NODE_OUTPUT_TEXT = 50;
 
-		private static final byte NODE_OUTPUT_BYTE = 51;
+		//private static final byte NODE_OUTPUT_BYTE = 51;
 
 		private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
@@ -314,8 +316,6 @@ public class WSNServiceImpl implements WSNService {
 		}
 	}
 
-	;
-
 	@Override
 	public void start() throws Exception {
 
@@ -333,8 +333,7 @@ public class WSNServiceImpl implements WSNService {
 		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
 
 		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
-		wsnApp.start();
-
+		
 		log.info("Started WSN service!");
 
 	}
@@ -584,19 +583,8 @@ public class WSNServiceImpl implements WSNService {
 
         log.debug("WSNServiceImpl.getNetwork");
 
-        Wiseml wiseml = JAXB.unmarshal(new StringReader(wiseML), Wiseml.class);
-        List<Setup.Node> node = wiseml.getSetup().getNode();
-        Iterator<Setup.Node> nodeIterator = node.iterator();
-
-        while (nodeIterator.hasNext()) {
-            Setup.Node currentNode = nodeIterator.next();
-            if (!reservedNodes.contains(currentNode.getId())) {
-                nodeIterator.remove();
-            }
-        }
-
         StringWriter writer = new StringWriter();
-        JAXB.marshal(wiseml, writer);
+        JAXB.marshal(wiseML, writer);
 
 		return writer.toString();
 	}
@@ -691,7 +679,7 @@ public class WSNServiceImpl implements WSNService {
 
 			WSN remoteServiceEndpoint = WSNServiceHelper.getWSNService(remoteServiceInstance);
 
-			//Create a new immutable map with this sourceNode and all existing <targetNode, WSN> mappings  
+			//Create a new immutable map with this sourceNode and all existing <targetNode, WSN> mappings
 			ImmutableMap.Builder<String, WSN> targetNodeMapBuilder = ImmutableMap.builder();
 
 			//Add potentially existing <targetNode, WSN> mappings for this source node to the new list
@@ -704,7 +692,7 @@ public class WSNServiceImpl implements WSNService {
 			ImmutableMap.Builder<String, ImmutableMap<String, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
 
 			//We now add all existing source nodes to the map except for the current source node
-			//It looks a bit strange but we cannot use putAll and then overwrite an existing key 
+			//It looks a bit strange but we cannot use putAll and then overwrite an existing key
 			//because the ImmutableMapBuider forbids duplicate keys
 			//TODO This is utterly slow, fix this
 			for (String existingSourceNode : virtualLinksMap.keySet()) {
@@ -904,11 +892,6 @@ public class WSNServiceImpl implements WSNService {
 
 		log.debug("WSNServiceImpl.setStartTime");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	public String getWsnInstanceEndpointUrl() {
-		log.debug("WSNServiceImpl.getWsnInstanceEndpointUrl");
-		return wsnInstanceEndpointUrl.toString();
 	}
 
 	private class DeliverVirtualLinkMessageRunnable implements Runnable {

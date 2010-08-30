@@ -1,0 +1,4 @@
+HtpasswdFile {
+	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
+	htpasswdFile = "configs/various/local-logcontroller.htpasswd";
+};

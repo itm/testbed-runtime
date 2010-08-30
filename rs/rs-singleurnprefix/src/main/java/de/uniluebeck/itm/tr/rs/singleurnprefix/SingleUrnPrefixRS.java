@@ -109,10 +109,13 @@ public class SingleUrnPrefixRS implements RS {
             crd.getData().add(data);
 
             try {
-                SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
-                List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
-                keys.add(secretReservationKey);
-                data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
+
+				SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
+
+				data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
+
+				List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
+				keys.add(secretReservationKey);
                 return keys;
 
             } catch (Exception e) {
@@ -299,6 +302,10 @@ public class SingleUrnPrefixRS implements RS {
             //if "from" is later then "to"
             msg = "To is less than From time.";
         }
+
+		if (reservation.getNodeURNs() == null || reservation.getNodeURNs().size() == 0) {
+			msg = "Empty reservation request! At least one node URN must be reserved.";
+		}
 
         if (msg != null) {
             log.warn(msg);

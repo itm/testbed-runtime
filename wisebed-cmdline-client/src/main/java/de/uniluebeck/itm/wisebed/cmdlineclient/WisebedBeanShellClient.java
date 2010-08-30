@@ -28,15 +28,16 @@ import bsh.Interpreter;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WisebedBeanShellClient {
-	private static final Logger log = Logger.getLogger(WisebedBeanShellClient.class);
+
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(WisebedBeanShellClient.class);
 
 	private static List<String> importsForBeanShell = new ArrayList<String>();
 
@@ -49,16 +50,13 @@ public class WisebedBeanShellClient {
 		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v211.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
+		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
+		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.v1.*;");
 	}
 
 
-	/**
-	 * @param args
-	 * @throws EvalError
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	public static void main(String[] args) throws FileNotFoundException, IOException, EvalError {
+	public static void main(String[] args) throws IOException, EvalError {
+
 		File beanShellFile = null;
 
 		// create the command line parser
@@ -85,7 +83,7 @@ public class WisebedBeanShellClient {
 				throw new Exception("Please supply -f");
 
 		} catch (Exception e) {
-			log.fatal("Invalid command line: " + e, e);
+			log.error("Invalid command line: " + e, e);
 			usage(options);
 		}
 
@@ -93,7 +91,7 @@ public class WisebedBeanShellClient {
 		Interpreter i = new Interpreter();
 
 		// Add a logger
-		Logger bshLogger = Logger.getLogger("BeanShellScript");
+		org.slf4j.Logger bshLogger = LoggerFactory.getLogger("BeanShellScript");
 		log.debug("Adding logger to beanshell, use 'log' variable, api is like log4j's");
 		i.set("log", bshLogger);
 
@@ -110,6 +108,7 @@ public class WisebedBeanShellClient {
 
 		// Run the script
 		try {
+			assert beanShellFile != null;
 			i.source(beanShellFile.getAbsolutePath());
 		} catch (Exception e) {
 			log.error("Error while running bean shell script: " + e, e);

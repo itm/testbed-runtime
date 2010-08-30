@@ -170,9 +170,13 @@ public class AsyncJobObserver {
 
 			while (jobList.size() > 0 && !diff.isTimeout()) {
 				jobListEmpty.await(1, TimeUnit.SECONDS);
-				log.debug("Waiting for " + jobList.size() + " unfinished jobs (Timeout: " + timeout + " "
-						+ unit + ")"
-				);
+				if (log.isDebugEnabled()) {
+					log.debug("Waiting for {} unfinished jobs (Timeout: {} {}):", new Object[] {jobList.size(), timeout, unit});
+					for (Job job : jobList.values()) {
+						log.debug("\t {} with request ID {}: {}", new Object[] {job.getJobType(), job.getRequestId(), job.getNodeIds()});
+					}
+				}
+
 			}
 
 			// discard unfinished jobs after timeout

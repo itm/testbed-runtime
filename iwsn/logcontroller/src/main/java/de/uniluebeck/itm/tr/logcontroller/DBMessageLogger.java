@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,28 +21,53 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import com.google.common.base.Preconditions;
+import eu.wisebed.testbed.api.wsn.v211.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.Map;
 
-public class WSNAppFactory implements TestbedApplicationFactory {
+/**
+ * saves all messages to the database
+ */
+public class DBMessageLogger implements IMessageListener {
 
-	private static final Logger log = LoggerFactory.getLogger(WSNAppFactory.class);
+    private static final Logger _log = LoggerFactory.getLogger(DBMessageLogger.class);
 
-	@Override
-	public TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
+    private EntityManager _manager;
 
-		log.debug("Creating WSNApp instance...");
-		Injector injector = Guice.createInjector(new WSNAppModule(testbedRuntime));
-		return injector.getInstance(WSNApp.class);
+    public void init(Map properties) {
+        Preconditions.checkNotNull(properties, "Properties are null!");
+        EntityManagerFactory factory =
+                Persistence.createEntityManagerFactory("dblogger", properties);
+        _manager = factory.createEntityManager();
+        _log.debug("JPA-Entitymanager created");
+    }
 
-	}
-
+    public void newMessage(Message msg, String reservationKey) {
+        AbstractMessage message = AbstractMessage.convertMessage(msg);
+        Preconditions.checkNotNull(reservationKey, "No Reservation Key.");
+        message.reservationKey = reservationKey;
+        synchronized (_manager) {
+            try {
+                _manager.getTransaction().begin();
+                _manager.persist(message);
+                _manager.getTransaction().commit();
+                _log.info("{} from {} saved to Database", message.getClass().getSimpleName(), message.sourceNodeId);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                _manager.getTransaction().rollback();
+            }
+            finally {
+                _manager.clear();
+            }
+        }
+    }
 }
