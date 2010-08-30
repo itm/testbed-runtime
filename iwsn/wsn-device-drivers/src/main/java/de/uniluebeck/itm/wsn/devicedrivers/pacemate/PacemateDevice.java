@@ -818,9 +818,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		byte[] fullMessage = new byte[index];
 		System.arraycopy(message, 0, fullMessage, 0, index);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Received boot loader msg: " + StringUtils.toHexString(fullMessage));
-		}
+		//if (this.isFlashDebugOutput()){ 
+			if (log.isDebugEnabled()) {
+					log.debug("Received boot loader msg: " + StringUtils.toHexString(fullMessage));
+			}
+		//}
 
 		if (returnCode.length() == 0)
 			return message;

@@ -1,27 +1,47 @@
 package de.uniluebeck.itm.testbedconfiggenerator;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.slf4j.LoggerFactory;
+
 import au.com.bytecode.opencsv.CSVReader;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Wsnapp;
-import de.uniluebeck.itm.tr.xml.*;
-import org.apache.commons.cli.*;
-import org.apache.log4j.*;
-import org.apache.log4j.Logger;
-import org.slf4j.*;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import de.uniluebeck.itm.tr.xml.Application;
+import de.uniluebeck.itm.tr.xml.Applications;
+import de.uniluebeck.itm.tr.xml.Node;
+import de.uniluebeck.itm.tr.xml.NodeName;
+import de.uniluebeck.itm.tr.xml.NodeNames;
+import de.uniluebeck.itm.tr.xml.ServerConnection;
+import de.uniluebeck.itm.tr.xml.ServerConnections;
+import de.uniluebeck.itm.tr.xml.Testbed;
 
 
 public class CSV2Config {

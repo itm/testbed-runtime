@@ -85,6 +85,26 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/** */
 	private boolean operationCancelRequestActive = false;
+	
+	/**
+	 * Tells the device to hide debug output during the flash operation 
+	 * and not to verify written blocks and upload bsl patches each time (mainly for telosB device)  
+	 */
+	protected boolean flashDebugOutput = false;
+
+	/**
+	 * @return
+	 */
+	public boolean isFlashDebugOutput() {
+		return flashDebugOutput;
+	}
+
+	/**
+	 * @param flashDebugOutput
+	 */
+	public void setFlashDebugOutput(boolean flashDebugOutput) {
+		this.flashDebugOutput = flashDebugOutput;
+	}
 
 	// -------------------------------------------------------------------------
 	/*
