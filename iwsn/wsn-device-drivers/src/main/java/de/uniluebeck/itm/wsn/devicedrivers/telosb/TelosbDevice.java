@@ -503,23 +503,22 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 		try {
 			// verify if block range is erased
-			if (verify) {
+			if (this.isFlashDebugOutput()) {
 				if (!bsl.verifyBlock(address, len, null)) {
 					throw new FlashProgramFailedException(
 							"Failed to program flash: block range is not erased completely");
 				}
 			}
 
-			if (log.isDebugEnabled()) {
-				log
-						.debug(String
-								.format(
-								"***Programming data block at address: 0x%02x, writing %d bytes.",
+			//if (this.isFlashDebugOutput()) {
+				if (log.isDebugEnabled()) {
+					log.debug(String.format("***Programming data block at address: 0x%02x, writing %d bytes.",
 								address, bytes.length));
-			}
+				}
+			//}
 
 			// execute bsl patch first(only for BSL version <=1.10)
-			if (verify) {
+			if (this.isFlashDebugOutput()) {
 				bsl.executeBSLPatch();
 			}
 
@@ -535,7 +534,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			}
 
 			// verify programmed block
-			if (verify) {
+			if (this.isFlashDebugOutput()) {
 				if (!bsl.verifyBlock(address, len, bytes)) {
 					throw new FlashProgramFailedException(
 							"Failed to program flash: verification of written data failed");
