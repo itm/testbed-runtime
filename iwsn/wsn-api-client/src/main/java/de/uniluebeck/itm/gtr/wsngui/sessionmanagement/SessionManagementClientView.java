@@ -61,7 +61,7 @@ public class SessionManagementClientView extends JPanel {
         {
 			secretReservationKeysTextArea = new JTextArea();
             JScrollPane secretReservationKeysScrollPane = new JScrollPane(secretReservationKeysTextArea);
-            secretReservationKeysScrollPane.setPreferredSize(new Dimension(400, 30));
+            secretReservationKeysScrollPane.setPreferredSize(new Dimension(400, 50));
 
             panel.add(new JLabel("Secret Reservation Keys (one tuple per line: urnPrefix,secretReservationKey)"));
             panel.add(secretReservationKeysScrollPane);
