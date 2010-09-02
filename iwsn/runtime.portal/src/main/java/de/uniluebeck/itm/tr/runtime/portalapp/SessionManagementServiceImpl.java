@@ -258,14 +258,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			URL wsnInstanceEndpointUrl = new URL(wsnInstanceBaseUrl + secureIdGenerator.getNextId());
 			URL controllerEndpointUrl = new URL(controller);
 
-			assert reservedNodes != null;
 			wsnServiceHandleInstance = WSNServiceModule.Factory.create(
 					testbedRuntime,
 					urnPrefix,
 					wsnInstanceEndpointUrl,
 					controllerEndpointUrl,
 					wiseML,
-					reservedNodes.toArray(new String[reservedNodes.size()])
+					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()])
 			);
 
 		} catch (MalformedURLException e) {
