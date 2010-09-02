@@ -247,7 +247,7 @@ public class FederatorSessionManagement implements SessionManagement {
 			String sessionManagementEndpointUrl = entry.getKey();
 
 			GetInstanceCallable getInstanceCallable = new GetInstanceCallable(
-					sessionManagementEndpointUrl, secretReservationKeys, controllerEndpointUrl
+					sessionManagementEndpointUrl, entry.getValue(), controllerEndpointUrl
 			);
 
 			log.debug("Calling getInstance on {}", entry.getKey());
