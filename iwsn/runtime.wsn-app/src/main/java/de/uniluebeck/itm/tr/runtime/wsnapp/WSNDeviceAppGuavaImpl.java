@@ -531,7 +531,7 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 				currentOperationLastProgress = new TimeDiff(1000);
 
 				if (!iSenseDevice.triggerProgram(jennicBinFile, true)) {
-					failedFlashPrograms();
+					failedFlashPrograms("failed to trigger programming.");
 				}
 
 			} catch (Exception e) {
@@ -564,12 +564,12 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 
 	}
 
-	private void failedFlashPrograms() {
+	private void failedFlashPrograms(String reason) {
 
-		log.debug("{} => WSNDeviceAppGuavaImpl.failedFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppImpl.failedFlashPrograms()", nodeUrn);
 
 		// send reply to indicate failure
-		currentOperationResponder.sendResponse(buildRequestStatus(-1, "Failed flashing node"));
+		currentOperationResponder.sendResponse(buildRequestStatus(-1, "Failed flashing node. Reason: " + reason));
 		resetCurrentOperation();
 	}
 
@@ -684,7 +684,7 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 			log.debug("{} => Operation {} canceled.", nodeUrn, operation);
 
 			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
-				failedFlashPrograms();
+				failedFlashPrograms("operation canceled");
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
 				failedReset();
 			}
@@ -696,7 +696,11 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 			log.debug("{} => Operation {} done. Object: {}", new Object[]{nodeUrn, operation, o});
 
 			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
-				doneFlashPrograms();
+				if (o instanceof Exception) {
+					failedFlashPrograms(((Exception) o).getMessage());
+				} else {
+					doneFlashPrograms();
+				}
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
 				doneReset();
 			}
