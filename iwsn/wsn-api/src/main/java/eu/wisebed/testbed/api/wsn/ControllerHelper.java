@@ -24,6 +24,7 @@
 package eu.wisebed.testbed.api.wsn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.internal.Nullable;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,10 @@ public class ControllerHelper {
 	public static final long RETRY_TIMEOUT = 5;
 
 	public static final TimeUnit RETRY_TIMEUNIT = TimeUnit.SECONDS;
+
+	private static final int DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE = 1000;
+
+	private final int maximumDeliveryQueueSize;
 
 	public int getControllerCount() {
 		return controllerEndpoints.size();
@@ -148,10 +153,16 @@ public class ControllerHelper {
 	 */
 	private final ScheduledThreadPoolExecutor executorService;
 
+	public ControllerHelper() {
+		this(DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
+	}
+
 	/**
 	 * Constructs a new {@link ControllerHelper} instance.
 	 */
-	public ControllerHelper() {
+	public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
+		this.maximumDeliveryQueueSize =
+				maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
 		executorService = new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build()
 		);
@@ -192,8 +203,9 @@ public class ControllerHelper {
 	 */
 	public void receive(Message message) {
 
-		if (executorService.getQueue().size() > 100) {
-			log.error("More than 100 messages in the delivery queue. Dropping message!");
+		if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+			log.error("More than {} messages in the delivery queue. Dropping message!", maximumDeliveryQueueSize
+			);
 			// TODO find more elegant solution on how to cope with too much load
 			return;
 		}
@@ -213,8 +225,8 @@ public class ControllerHelper {
 	 */
 	public void receiveStatus(RequestStatus requestStatus) {
 
-		if (executorService.getQueue().size() > 100) {
-			log.error("More than 100 messages in the delivery queue. Dropping requestStatus!");
+		if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+			log.error("More than {} messages in the delivery queue. Dropping requestStatus!", maximumDeliveryQueueSize);
 			// TODO find more elegant solution on how to cope with too much load
 			return;
 		}
@@ -246,5 +258,9 @@ public class ControllerHelper {
 
 		}
 
+	}
+
+	public int getMaximumDeliveryQueueSize() {
+		return maximumDeliveryQueueSize;
 	}
 }
