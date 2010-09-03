@@ -158,9 +158,10 @@ public class Main {
 		String snaaEndpointUrl = props.getProperty(propsPrefix + ".snaaendpointurl",
 				"http://localhost:8080/snaa/dummy1"
 		);
+		String sessionManagementEndpointUrl = props.getProperty(propsPrefix + ".sessionmanagementendpointurl");
 
 		RSPersistence persistence = createRSPersistence(props, propsPrefix + ".persistence");
-		SingleUrnPrefixRS rs = new SingleUrnPrefixRS(urnprefix, snaaEndpointUrl, persistence);
+		SingleUrnPrefixRS rs = new SingleUrnPrefixRS(urnprefix, snaaEndpointUrl, sessionManagementEndpointUrl, persistence);
 
 		HttpContext context = server.createContext(path);
 		Endpoint endpoint = Endpoint.create(rs);

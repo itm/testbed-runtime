@@ -47,7 +47,7 @@ public class SingleUrnPrefixInmemoryTest {
     private static String urnPrefix = "urn:wisebed:dummy1";
     private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
     private RSPersistence rsPersistence = new InMemoryRSPersistence();
-    private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, rsPersistence);
+    private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, null, rsPersistence);
     private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
     private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
     private static long from = System.currentTimeMillis() + 200000;
