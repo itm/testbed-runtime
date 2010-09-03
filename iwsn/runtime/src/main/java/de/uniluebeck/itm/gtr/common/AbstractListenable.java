@@ -37,7 +37,17 @@ public abstract class AbstractListenable<T> implements Listenable<T> {
 
 	@Override
 	public void addListener(T listener) {
-		listeners = (ImmutableList<T>) ImmutableList.builder().addAll(listeners).add(listener).build();
+
+		// assure listener is only contained once
+		ImmutableList.Builder<Object> builder = ImmutableList.builder();
+		for (T t : listeners) {
+			if (t != listener) {
+				builder.add(t);
+			}
+		}
+		builder.add(listener);
+		
+		listeners = (ImmutableList<T>) builder.build();
 	}
 
 	@Override
