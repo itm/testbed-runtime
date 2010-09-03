@@ -141,6 +141,7 @@ public class WSNServiceImpl implements WSNService {
 						  @Named(WSNServiceModule.CONTROLLER_SERVICE_ENDPOINT_URL) URL controllerEndpointUrl,
 						  @Named(WSNServiceModule.WISEML) Wiseml wiseML,
 						  @Named(WSNServiceModule.RESERVED_NODES) @Nullable String[] reservedNodes,
+						  @Named(WSNServiceModule.MAXIMUM_DELIVERY_QUEUE_SIZE) @Nullable Integer maxmimumDeliveryQueueSize,
 						  WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
@@ -156,7 +157,7 @@ public class WSNServiceImpl implements WSNService {
 		executorService = Executors.newSingleThreadScheduledExecutor(
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
-		controllerHelper = new ControllerHelper();
+		controllerHelper = new ControllerHelper(maxmimumDeliveryQueueSize);
 
 		addController(controllerEndpointUrl.toString());
 
@@ -327,6 +328,7 @@ public class WSNServiceImpl implements WSNService {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(wsnInstanceEndpointUrl.toString());
 		log.debug("Endpoint URL: " + wsnInstanceEndpointUrl.toString());
 		log.debug("Binding  URL: " + bindAllInterfacesUrl);
+		log.debug("Maximum delivery queue size: {}", controllerHelper.getMaximumDeliveryQueueSize());
 
 		wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
 

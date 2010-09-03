@@ -24,10 +24,10 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.internal.Nullable;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 
 
 public class PortalModule extends AbstractModule {
@@ -45,21 +45,26 @@ public class PortalModule extends AbstractModule {
 	public static final String NAME_SESSION_MANAGEMENT_ENDPOINT_URL =
 			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_SESSION_MANAGEMENT_ENDPOINT_URL";
 
+	public static final String NAME_MAXIMUM_DELIVERY_QUEUE_SIZE =
+			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_MAXIMUM_DELIVERY_QUEUE_SIZE";
+
 	private String urnPrefix;
 
 	private String wsnInstanceBaseUrl;
 
-	private WSNApp wsnApp;
-
 	private String wiseML;
+
 	private TestbedRuntime testbedRuntime;
+
+	private Integer maximumDeliveryQueueSize;
 
 	private String reservationEndpointUrl;
 
 	private String sessionManagementEndpointUrl;
 
 	public PortalModule(String urnPrefix, String sessionManagementEndpointUrl, String wsnInstanceBaseUrl,
-						String reservationEndpointUrl, final String wiseML, TestbedRuntime testbedRuntime) {
+						String reservationEndpointUrl, final String wiseML, TestbedRuntime testbedRuntime,
+						@Nullable Integer maximumDeliveryQueueSize) {
 
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
@@ -67,6 +72,7 @@ public class PortalModule extends AbstractModule {
 		this.reservationEndpointUrl = reservationEndpointUrl;
 		this.wiseML = wiseML;
 		this.testbedRuntime = testbedRuntime;
+		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
 	}
 
 	@Override
@@ -80,6 +86,15 @@ public class PortalModule extends AbstractModule {
 		bind(String.class).annotatedWith(Names.named(NAME_RESERVATION_ENDPOINT_URL))
 				.toProvider(Providers.of(reservationEndpointUrl));
 		bind(String.class).annotatedWith(Names.named(NAME_WISEML)).toInstance(wiseML);
+
+		if (maximumDeliveryQueueSize == null) {
+			bind(Integer.class).annotatedWith(Names.named(NAME_MAXIMUM_DELIVERY_QUEUE_SIZE))
+					.toProvider(Providers.of((Integer) null));
+		} else {
+			bind(Integer.class).annotatedWith(Names.named(NAME_MAXIMUM_DELIVERY_QUEUE_SIZE))
+					.toInstance(maximumDeliveryQueueSize);
+		}
+
 
 		bind(SessionManagementService.class).to(SessionManagementServiceImpl.class);
 		bind(ControllerService.class).to(ControllerServiceImpl.class);

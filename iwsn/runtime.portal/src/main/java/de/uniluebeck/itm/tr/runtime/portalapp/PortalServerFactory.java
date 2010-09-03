@@ -56,6 +56,7 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			String wsnInstanceBaseUrl = portalapp.getWebservice().getWsninstancebaseurl();
 			String reservationEndpointUrl = portalapp.getWebservice().getReservationendpointurl();
 			String urnPrefix = portalapp.getWebservice().getUrnprefix();
+			Integer maximumDeliveryQueueSize = portalapp.getWebservice().getMaximumdeliveryqueuesize();
 
 			String wiseMLFilename = portalapp.getWebservice().getWisemlfilename();
 			File wiseMLFile = new File(wiseMLFilename);
@@ -78,7 +79,8 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 					new PortalModule(
 							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
 							reservationEndpointUrl, wiseMLBuilder.toString(),
-							testbedRuntime)
+							testbedRuntime,
+							maximumDeliveryQueueSize)
 			).getInstance(SessionManagementService.class);
 
 			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);

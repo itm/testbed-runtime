@@ -68,6 +68,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	private TestbedRuntime testbedRuntime;
 
+	private Integer maximumDeliveryQueueSize;
+
 	private class CleanUpWSNInstanceJob implements Runnable {
 
 		private List<SecretReservationKey> secretReservationKeys;
@@ -146,6 +148,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 										@Named(PortalModule.NAME_WSN_INSTANCE_BASE_URL) String wsnInstanceBaseUrl,
 										@Nullable @Named(PortalModule.NAME_RESERVATION_ENDPOINT_URL)
 										String reservationEndpointUrl,
+										@Nullable @Named(PortalModule.NAME_MAXIMUM_DELIVERY_QUEUE_SIZE)
+										Integer maximumDeliveryQueueSize,
 										@Named(PortalModule.NAME_WISEML) String wiseML,
 										TestbedRuntime testbedRuntime) throws MalformedURLException {
 
@@ -158,8 +162,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.urnPrefix = urnPrefix;
 		this.sessionManagementEndpointUrl = new URL(sessionManagementEndpointUrl);
 		this.reservationEndpointUrl = reservationEndpointUrl == null ? null : new URL(reservationEndpointUrl);
-		this.wsnInstanceBaseUrl =
-				new URL(wsnInstanceBaseUrl.endsWith("/") ? wsnInstanceBaseUrl : wsnInstanceBaseUrl + "/");
+		this.wsnInstanceBaseUrl = new URL(
+				wsnInstanceBaseUrl.endsWith("/") ? wsnInstanceBaseUrl : wsnInstanceBaseUrl + "/"
+		);
+		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
 		this.wiseML = wiseML;
 		this.testbedRuntime = testbedRuntime;
 
@@ -264,7 +270,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					wsnInstanceEndpointUrl,
 					controllerEndpointUrl,
 					wiseML,
-					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()])
+					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+					maximumDeliveryQueueSize
 			);
 
 		} catch (MalformedURLException e) {
