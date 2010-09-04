@@ -51,15 +51,15 @@ public class PublicReservationDataInternal implements Serializable {
 		this.id = id;
 	}
 
-	@org.hibernate.annotations.CollectionOfElements(
-			targetElement = java.lang.String.class
+	@ElementCollection(
+			targetClass = java.lang.String.class
 	)
 	@JoinTable(
 			name = "reservationdata_urns",
 			joinColumns = @JoinColumn(name = "urn_id")
 	)
-	@org.hibernate.annotations.IndexColumn(
-			name = "POSITION", base = 1
+	@OrderColumn(
+			name = "POSITION"
 	)
 	@Column(name = "urns", nullable = false)
 	private List<String> nodeURNs;

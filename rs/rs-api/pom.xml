@@ -39,11 +39,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>persistence-api</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-api</artifactId>
 		</dependency>
