@@ -33,8 +33,8 @@ import eu.wisebed.testbed.api.wsn.v211.Controller;
 import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -50,8 +50,6 @@ public class WSNBinding {
     private Logger _log = LoggerFactory.getLogger(WSNBinding.class);
     private Endpoint _wsnEndpoint;
     private Endpoint _controllerEndpoint;
-    private String _sourceController;
-    private String _sourceWSN;
     private Map<String, String> _secretReservationKey = Maps.newHashMap();
     private final Set<IMessageListener> _listener = Sets.newHashSet();
     private final ControllerHelper _controllerHelper = new ControllerHelper();
@@ -95,7 +93,7 @@ public class WSNBinding {
      */
     public void setController(String controllerEndpoint) {
         Preconditions.checkNotNull(controllerEndpoint, "ControllerEndpoint is null!");
-        _sourceController = controllerEndpoint;
+        _controllerHelper.removeController(controllerEndpoint);
         _controllerHelper.addController(controllerEndpoint);
     }
 
@@ -106,7 +104,6 @@ public class WSNBinding {
      * @return proxy-address
      */
     public String startWSN(String wsnEndpoint) {
-        _sourceWSN = wsnEndpoint;
         WSNDelegate wsn = new WSNDelegate(WSNServiceHelper.getWSNService(wsnEndpoint));
         _wsnProxyAddress = _wsnUrnPrefix + _secureIdGenerator.getNextId();
         _wsnEndpoint = Endpoint.publish(_wsnProxyAddress, wsn);
@@ -147,6 +144,8 @@ public class WSNBinding {
             _wsnEndpoint.stop();
         if (_controllerEndpoint.isPublished())
             _controllerEndpoint.stop();
+        for (IMessageListener listener : _listener)
+            listener.dispose();
     }
 
     public void addMessageListener(IMessageListener listener) {

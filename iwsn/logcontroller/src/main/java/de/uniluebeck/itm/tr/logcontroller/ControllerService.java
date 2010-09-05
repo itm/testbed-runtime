@@ -43,6 +43,7 @@ public class ControllerService {
     private ImmutableMap<String, String> _properties;
     private Endpoint _sessionManagementEndpoint;
     private ImmutableSet<IMessageListener> _listenerSet;
+    private Endpoint _messagestoreEndpoint;
 
     public ControllerService() {
     }
@@ -60,9 +61,9 @@ public class ControllerService {
         for (Map.Entry entry : _properties.entrySet())
             _log.debug("{} : {}", entry.getKey(), entry.getValue());
 
-        Preconditions.checkNotNull(_properties.get("messagelistener"), "No Listenerclass specified!");
+        Preconditions.checkNotNull(_properties.get(Server.MESSAGELISTENER), "No Listenerclass specified!");
         IMessageListener listener =
-                (IMessageListener) Class.forName(_properties.get("messagelistener"))
+                (IMessageListener) Class.forName(_properties.get(Server.MESSAGELISTENER))
                         .newInstance();
         listener.init(_properties);
         _log.debug("Messagelistener {} initialized", listener.getClass().getSimpleName());
@@ -74,16 +75,21 @@ public class ControllerService {
      */
     public void startup()
             throws Exception {
-        Preconditions.checkNotNull(_properties.get("sessionmanagement-endpoint"),
-                "Property 'sessionmanagement-endpoint' not specified!");
+        Preconditions.checkNotNull(_properties.get(Server.SESSIONMANAGEMENT_ENDPOINT),
+                "Property '" + Server.SESSIONMANAGEMENT_ENDPOINT + "' not specified!");
         SessionManagement sessionManagment =
                 WSNServiceHelper.getSessionManagementService(
-                        _properties.get("sessionmanagement-endpoint"));
-        Preconditions.checkNotNull(_properties.get("sessionmanagement-proxy-endpoint"),
-                "Property 'sessionmanagement-proxy-endpoint' not specified!");
-        _sessionManagementEndpoint = Endpoint.publish(_properties.get("sessionmanagement-proxy-endpoint"),
+                        _properties.get(Server.SESSIONMANAGEMENT_ENDPOINT));
+        Preconditions.checkNotNull(_properties.get(Server.SESSIONMANAGEMENT_PROXY),
+                "Property '" + Server.SESSIONMANAGEMENT_PROXY + "' not specified!");
+        _sessionManagementEndpoint = Endpoint.publish(_properties.get(Server.SESSIONMANAGEMENT_PROXY),
                 new SessionManagementDelegate(sessionManagment, this));
-        _log.info("SessionManagement-Service on {} published", _properties.get("sessionmanagement-proxy-endpoint"));
+        _log.info("SessionManagement-Service on {} published", _properties.get(Server.SESSIONMANAGEMENT_PROXY));
+        Preconditions.checkNotNull(_properties.get(Server.MESSAGESTORE_ENDPOINT),
+                "Property '"+Server.MESSAGESTORE_ENDPOINT+"' not specified!");
+        _messagestoreEndpoint = Endpoint.publish(_properties.get(Server.MESSAGESTORE_ENDPOINT),
+                new DBMessageStore(_properties));
+        _log.info("Messagestore-Service on {} published", _properties.get(Server.MESSAGESTORE_ENDPOINT));
     }
 
     /**
@@ -95,6 +101,8 @@ public class ControllerService {
             throws Exception {
         ((SessionManagementDelegate) _sessionManagementEndpoint.getImplementor()).dispose();
         _sessionManagementEndpoint.stop();
+        ((DBMessageStore)_messagestoreEndpoint.getImplementor()).dispose();
+        _messagestoreEndpoint.stop();
         _log.info("{} successfully shut down", getClass().getSimpleName());
     }
 
@@ -108,21 +116,21 @@ public class ControllerService {
     }
 
     public String getControllerUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get("controller-proxy-endpoint-prefix"),
-                "Property 'controller-proxy-endpoint-prefix' not specified!");
-        return _properties.get("controller-proxy-endpoint-prefix");
+        Preconditions.checkNotNull(_properties.get(Server.CONTROLLER_PROXY_PREFIX),
+                "Property '" + Server.CONTROLLER_PROXY_PREFIX + "' not specified!");
+        return _properties.get(Server.CONTROLLER_PROXY_PREFIX);
     }
 
 
     public String getWsnUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get("wsn-proxy-endpoint-prefix"),
-                "Property 'wsn-proxy-endpoint-prefix' not specified!");
-        return _properties.get("wsn-proxy-endpoint-prefix");
+        Preconditions.checkNotNull(_properties.get(Server.WSN_PROXY_PREFIX),
+                "Property '" + Server.WSN_PROXY_PREFIX + "' not specified!");
+        return _properties.get(Server.WSN_PROXY_PREFIX);
     }
 
     public String getReservationEndpoint() {
-        Preconditions.checkNotNull(_properties.get("rs-endpoint"),
-                "Property 'rs-endpoint' not specified!");
-        return _properties.get("rs-endpoint");
+        Preconditions.checkNotNull(_properties.get(Server.RESERVATION_ENDPOINT),
+                "Property '" + Server.RESERVATION_ENDPOINT + "' not specified!");
+        return _properties.get(Server.RESERVATION_ENDPOINT);
     }
 }

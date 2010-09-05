@@ -128,7 +128,7 @@ public class SessionManagementDelegate implements SessionManagement {
         }
         long delay = 0;
         for (ConfidentialReservationData data : reservationData)
-            delay = Math.max(data.getTo().getMillisecond() - System.currentTimeMillis(), delay);
+            delay = Math.max(data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis(), delay);
         _log.debug("Shutdown of WSN-Binding in {} milliseconds", delay);
         String reservationHash = SessionManagementHelper.calculateWSNInstanceHash(
                 reservationKey);

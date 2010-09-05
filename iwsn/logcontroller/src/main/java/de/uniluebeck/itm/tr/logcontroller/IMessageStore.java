@@ -20,59 +20,43 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.base.Preconditions;
 import eu.wisebed.testbed.api.wsn.v211.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import eu.wisebed.testbed.api.wsn.v211.MessageType;
+import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.util.Map;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import java.util.List;
 
 /**
- * saves all messages to the database
+ * Interface for fetching of logged Messages
  */
-public class DBMessageLogger implements IMessageListener {
+@WebService(name = "MessageStore")
+public interface IMessageStore {
 
-    private static final Logger _log = LoggerFactory.getLogger(DBMessageLogger.class);
+    @WebMethod
+    boolean hasMessages(SecretReservationKey secretReservationKey);
 
-    private EntityManager _manager;
+    @WebMethod
+    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey);
 
-    @Override
-    public void init(Map properties) {
-        Preconditions.checkNotNull(properties, "Properties are null!");
-        EntityManagerFactory factory =
-                Persistence.createEntityManagerFactory(Server.PERSISTENCE_CONTEXT, properties);
-        _manager = factory.createEntityManager();
-        _log.debug("JPA-Entitymanager created");
-    }
+    @WebMethod
+    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
+                            int limit);
 
-    @Override
-    public void newMessage(Message msg, String reservationKey) {
-        AbstractMessage message = AbstractMessage.convertMessage(msg);
-        Preconditions.checkNotNull(reservationKey, "No Reservation Key.");
-        message.reservationKey = reservationKey;
-        synchronized (_manager) {
-            try {
-                _manager.getTransaction().begin();
-                _manager.persist(message);
-                _manager.getTransaction().commit();
-                _log.info("{} from {} saved to Database", message.getClass().getSimpleName(), message.sourceNodeId);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                _manager.getTransaction().rollback();
-            }
-        }
-    }
+    @WebMethod
+    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
+                            MessageType messageType);
 
-    @Override
-    public void dispose() {
-        if (_manager.isOpen())
-            _manager.close();
-    }
+    @WebMethod
+    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
+                            MessageType messageType,
+                            int limit);
+
+    /**
+     * frees all resources
+     */
+    void dispose();
 }

@@ -45,4 +45,9 @@ public interface IMessageListener {
      * @param reservationKey
      */
 	void newMessage(Message msg, String reservationKey);
+
+    /**
+     * frees all resources
+     */
+    void dispose();
 }
