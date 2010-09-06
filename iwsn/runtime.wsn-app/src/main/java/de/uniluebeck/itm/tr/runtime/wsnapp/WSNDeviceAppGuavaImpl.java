@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Service;
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.internal.Nullable;
@@ -63,7 +64,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 @Singleton
-class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
+class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceApp.class);
 
@@ -134,9 +135,6 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 	};
 
 	private NodeApi nodeApi;
-    private State state;
-    private ExecutorService executorService = testbedRuntime.getSchedulerService();
-    private final Lock lock = new ReentrantLock();
 
     private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
@@ -173,7 +171,6 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 		} catch (DatatypeConfigurationException e) {
 			log.error(nodeUrn + " => " + e, e);
 		}
-        this.state = Service.State.NEW;
 	}
 
 	private void executeOperation(WSNAppMessages.OperationInvocation invocation, Messages.Msg msg) {
@@ -487,7 +484,8 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 
 	private void executeResetNodes(Messages.Msg msg, WSNAppMessages.OperationInvocation invocation) {
 
-		// TODO check if operation is running
+		// check if operation is running
+        if (!this.isRunning()) return;
 
 		log.debug("{} => WSNDeviceAppGuavaImpl.executeResetNodes()", nodeUrn);
 
@@ -515,7 +513,8 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 
 		log.debug("{} => WSNDeviceAppGuavaImpl.executeFlashPrograms()", nodeUrn);
 
-		// TODO check if other operation is running
+		// check if other operation is running
+        if (!this.isRunning()) return;
 
 		try {
 
@@ -861,7 +860,9 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
 		}
 	};
 
-    private void startRoutine(){
+    //is invoked automatically from AbstractExecutionThreadService when calling start() or startAndWaitMethod()
+    @Override
+    protected void startUp(){
         log.debug("{} => WSNDeviceAppGuavaImpl.start()", nodeUrn);
 
         // first connect to device
@@ -872,52 +873,22 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
         testbedRuntime.getMessageEventService().addListener(messageEventListener);
     }
 
-    //TODO check
-	@Override
-	public Future<State> start() {
-        if (this.state != Service.State.NEW && this.state != Service.State.TERMINATED) return null;
-
-        lock.lock();
-        try {
-            this.state = Service.State.STARTING;
-            this.startRoutine();
-
-            Callable<State> callable = new MakeStateCallable(Service.State.RUNNING);
-            return executorService.submit(callable);
-        } finally {
-            lock.unlock();
-        }
-	}
-
-    //TODO check
+    /**
+     * run this Service. To invoke service to stop call {@link #triggerShutdown()}
+     * @throws Exception
+     */
     @Override
-    public State startAndWait() {
-        if (this.state != Service.State.NEW && this.state != Service.State.TERMINATED) return null;
-
-        lock.lock();
-        try {
-            this.state = Service.State.STARTING;
-            this.startRoutine();
-            
-            return this.state = Service.State.RUNNING;
-        } finally {
-            lock.unlock();
+    protected void run() throws Exception {
+        //calling the startUp()-method
+        this.startAndWait();
+        while(this.isRunning()){
+            //DO NOTHING
         }
     }
 
-    //TODO check
+    //is invoked automatically from the triggerShutdownMethod through the AbstractExecutionThreadService
     @Override
-    public boolean isRunning() {
-        return this.state() == Service.State.RUNNING;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    //TODO check
-    @Override
-    public State state() {
-        return this.state;
-    }
-
-    private void stopRoutine(){
+    protected void shutDown(){
         log.debug("{} => WSNDeviceAppGuavaImpl.stop()", nodeUrn);
 
         // first stop listening to messages
@@ -930,54 +901,16 @@ class WSNDeviceAppGuavaImpl implements WSNDeviceAppGuava {
         iSenseDevice.shutdown();
     }
 
-    //TODO check
+    /**
+     * Invoked to request the service to stop.
+     */
     @Override
-	public synchronized Future<State> stop() {
-        if (this.state == Service.State.STOPPING || this.state == Service.State.TERMINATED || this.state == Service.State.NEW) return null;
-
-        lock.lock();
-        try {
-            this.state = Service.State.STOPPING;
-            this.stopRoutine();
-            
-            Callable<State> callable = new MakeStateCallable(Service.State.TERMINATED);
-            return executorService.submit(callable);
-        } finally {
-            lock.unlock();
-        }
-	}
-
-    //TODO check
-    @Override
-    public synchronized State stopAndWait() {
-        if (this.state == Service.State.STOPPING || this.state == Service.State.TERMINATED || this.state == Service.State.NEW) return null;
-
-        lock.lock();
-        try {
-            this.state = Service.State.STOPPING;
-            this.stopRoutine();
-
-            return this.state = Service.State.TERMINATED;
-        } finally {
-            lock.unlock();
-        }
+    protected void triggerShutdown(){
+        this.stop();
     }
 
     public boolean isExclusiveOperationRunning() {
 		// TODO nicer one...
 		return currentOperationInvocation != null;
 	}
-
-    private class MakeStateCallable implements Callable<State> {
-        private State newState;
-        public MakeStateCallable(State newState) {
-            this.newState = newState;
-        }
-
-        @Override
-        public State call() throws Exception {
-            state = newState;
-            return state;
-        }
-    }
 }
