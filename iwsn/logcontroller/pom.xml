@@ -52,6 +52,10 @@
             <artifactId>tr.rs-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

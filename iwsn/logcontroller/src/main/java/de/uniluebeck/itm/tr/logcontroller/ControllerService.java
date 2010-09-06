@@ -101,7 +101,7 @@ public class ControllerService {
             throws Exception {
         ((SessionManagementDelegate) _sessionManagementEndpoint.getImplementor()).dispose();
         _sessionManagementEndpoint.stop();
-        ((DBMessageStore)_messagestoreEndpoint.getImplementor()).dispose();
+        ((DBMessageStore)_messagestoreEndpoint.getImplementor()).stop();
         _messagestoreEndpoint.stop();
         _log.info("{} successfully shut down", getClass().getSimpleName());
     }

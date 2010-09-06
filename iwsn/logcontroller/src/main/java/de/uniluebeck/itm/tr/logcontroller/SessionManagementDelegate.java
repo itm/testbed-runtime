@@ -29,6 +29,7 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
@@ -50,7 +51,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Proxy for SessionManagment-Service, creates an manages WSN-Bindings
  */
-@WebService(name = "ProxySessionManagement", targetNamespace = "urn:SessionManagementService")
+@WebService(
+		serviceName = "SessionManagementService",
+		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
+		portName = "SessionManagementPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+)
 public class SessionManagementDelegate implements SessionManagement {
     private Logger _log = LoggerFactory.getLogger(SessionManagementDelegate.class);
     private SessionManagement _delegate;
@@ -114,16 +120,21 @@ public class SessionManagementDelegate implements SessionManagement {
 
     @Override
     public String getNetwork() {
-        return _delegate.getNetwork();
+        return _delegate.getNetwork().toString();
     }
 
+    /**
+     * Schedules a new Binding for Shutdown, equivalent to reservationintervall
+     * @param binding
+     * @param reservationKey
+     * @return
+     */
     private Future configurateShutdown(WSNBinding binding, List<SecretReservationKey> reservationKey) {
         List<ConfidentialReservationData> reservationData = null;
         try {
             reservationData =
                     _reservationService.getReservation(convert(reservationKey));
         } catch (Exception e) {
-			// TODO make something more sensible
 			throw new RuntimeException(e);
         }
         long delay = 0;

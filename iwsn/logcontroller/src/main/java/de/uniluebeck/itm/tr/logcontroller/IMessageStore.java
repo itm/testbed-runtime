@@ -28,6 +28,7 @@ import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.xml.ws.RequestWrapper;
 import java.util.List;
 
 /**
@@ -36,27 +37,24 @@ import java.util.List;
 @WebService(name = "MessageStore")
 public interface IMessageStore {
 
+    /**
+     * tests if messages for an reservationkey are stored
+     * @param secretReservationKey
+     * @return true or false
+     */
     @WebMethod
     boolean hasMessages(SecretReservationKey secretReservationKey);
 
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
-                            int limit);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
-                            MessageType messageType);
-
+    /**
+     * fetches Messages for multiple reservationkeys
+     * @param secretReservationKey
+     * @param messageType TEXT for Textmessages, BINARY for Binarymessages,
+     *        NULL for all Messages
+     * @param limit maximum number of messages, 0 for unlimited
+     * @return Array of Messages
+     */
     @WebMethod
     Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
                             MessageType messageType,
                             int limit);
-
-    /**
-     * frees all resources
-     */
-    void dispose();
 }
