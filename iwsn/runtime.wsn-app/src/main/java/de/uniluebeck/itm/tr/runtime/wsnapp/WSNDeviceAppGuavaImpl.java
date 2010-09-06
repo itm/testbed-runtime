@@ -887,7 +887,7 @@ class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
         this.stopAndWait();
     }
 
-    //is invoked automatically from the stopMethod through the AbstractExecutionThreadService
+    //is invoked automatically from the triggerShutdownMethod through the AbstractExecutionThreadService
     @Override
     protected void shutDown(){
         log.debug("{} => WSNDeviceAppGuavaImpl.stop()", nodeUrn);
@@ -900,6 +900,14 @@ class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
         iSenseDevice.deregisterListener(iSenseDeviceListener);
         log.debug("{} => Shutting down iSenseDevice");
         iSenseDevice.shutdown();
+    }
+
+    /**
+     * Invoked to request the service to stop.
+     */
+    @Override
+    protected void triggerShutdown(){
+        this.stop();
     }
 
     public boolean isExclusiveOperationRunning() {
