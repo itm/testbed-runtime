@@ -23,18 +23,16 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
-import de.uniluebeck.itm.motelist.MoteListLinux;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Wsnapp;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -42,7 +40,6 @@ import org.w3c.dom.Node;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
 
 
 public class WSNDeviceAppFactory implements TestbedApplicationFactory {
@@ -59,53 +56,33 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			Wsnapp config = (Wsnapp) unmarshaller.unmarshal((Node) configuration);
 
 			ImmutableList.Builder<WSNDeviceApp> builder = new ImmutableList.Builder<WSNDeviceApp>();
-			MoteListLinux moteList = null;
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
-                
-				String serialInterface = wsnDevice.getSerialinterface();
-				String autodetectionMac = wsnDevice.getAutodetectionMac();
-				String type = wsnDevice.getType();
 
-                StringUtils.assertHexOrDecLongUrnSuffix(wsnDevice.getUrn());
-				String urn = wsnDevice.getUrn();
-
-				if (serialInterface == null || "".equals(serialInterface)) {
-
-					log.debug("Using motelist to detect port for {} mote with MAC address {}", type, autodetectionMac);
-
-					if (moteList == null) {
-						try {
-							moteList = new MoteListLinux();
-						} catch (IOException e) {
-							log.warn("" + e, e);
-							continue;
-						}
-					}
-
-					serialInterface = moteList.getMotePort(type, StringUtils.parseHexOrDecLong(autodetectionMac));
-
-					if (serialInterface == null) {
-						log.warn("No serial interface could be detected for {} mote with MAC address {}", type,
-								autodetectionMac
-						);
-						continue;
-					}
-
-				}
+				String nodeUrn, nodeType, nodeSerialInterface;
+				Integer nodeAPITimeout;
 
 				try {
 
-					log.debug("Trying to connect to {} device on port {}", type, serialInterface);
+					nodeUrn = wsnDevice.getUrn();
+					nodeType = wsnDevice.getType();
+					nodeSerialInterface = wsnDevice.getSerialinterface();
+					nodeAPITimeout = wsnDevice.getNodeapitimeout();
 
-					iSenseDevice device = DeviceFactory.create(type, serialInterface);
-					Injector injector = Guice.createInjector(new WSNDeviceAppModule(urn, device, testbedRuntime));
-					builder.add(injector.getInstance(WSNDeviceApp.class));
+					Preconditions.checkNotNull(nodeUrn);
+					Preconditions.checkNotNull(nodeType);
+					StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
 
 				} catch (Exception e) {
-					log.error("Exception while starting WSNApp: " + e, e);
+					log.error("Ignoring device. Reason: " + e.getMessage(), e);
+					// ignore this device as it is badly configured
+					continue;
 				}
 
+				WSNDeviceAppModule module =
+						new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, testbedRuntime);
+				Injector injector = Guice.createInjector(module);
+				builder.add(injector.getInstance(WSNDeviceApp.class));
 
 			}
 

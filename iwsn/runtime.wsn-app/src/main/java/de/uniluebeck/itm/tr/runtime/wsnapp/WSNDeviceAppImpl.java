@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.internal.Nullable;
@@ -35,11 +36,14 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
+import de.uniluebeck.itm.motelist.AbstractMoteList;
+import de.uniluebeck.itm.motelist.MoteListLinux;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicBinFile;
 import org.slf4j.Logger;
@@ -48,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -60,17 +65,19 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceApp.class);
 
-	public static final String NAME_NODE_ID = "NODE_ID";
-
-	public static final String NAME_NODE_URN = "NODE_URN";
-
 	private String nodeUrn;
+
+	private String nodeType;
+
+	private String nodeSerialInterface;
 
 	private TestbedRuntime testbedRuntime;
 
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
 		@Override
 		public void messageReceived(Messages.Msg msg) {
+
+			Preconditions.checkNotNull(iSenseDevice, "We should only receive message if we're connected to a device");
 
 			boolean isRecipient = nodeUrn.equals(msg.getTo());
 			boolean isOperationInvocation = WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST.equals(msg.getMsgType());
@@ -128,6 +135,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private NodeApi nodeApi;
 
+	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
+
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
 			log.debug("{} => Node {} registered for node outputs", nodeUrn, management.getNodeName());
@@ -149,15 +158,24 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	private SingleRequestMultiResponseListener.Responder currentOperationResponder;
 
 	@Inject
-	public WSNDeviceAppImpl(@Named(WSNDeviceAppImpl.NAME_NODE_URN) String nodeUrn,
-							iSenseDevice iSenseDevice,
+	public WSNDeviceAppImpl(@Named(WSNDeviceAppModule.NAME_NODE_URN) String nodeUrn,
+							@Named(WSNDeviceAppModule.NAME_NODE_TYPE) String nodeType,
+							@Named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE) @Nullable String nodeSerialInterface,
+							@Named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT) @Nullable Integer nodeAPITimeout,
 							TestbedRuntime testbedRuntime) {
 
+		Preconditions.checkNotNull(nodeUrn);
+		Preconditions.checkNotNull(nodeType);
+
 		this.nodeUrn = nodeUrn;
-		this.iSenseDevice = iSenseDevice;
+		this.nodeType = nodeType;
+		this.nodeSerialInterface = nodeSerialInterface;
 		this.testbedRuntime = testbedRuntime;
-		// TODO set timeout realistic
-		this.nodeApi = new NodeApi(nodeApiDeviceAdapter, 100, TimeUnit.SECONDS);
+		this.nodeApi =
+				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
+						TimeUnit.MILLISECONDS
+				);
+
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
@@ -171,7 +189,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			case ARE_NODES_ALIVE:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> checkAreNodesAlive()", nodeUrn);
-				executeAreNodesAlive(invocation, msg);
+				executeAreNodesAlive(msg);
 				break;
 
 			case RESET_NODES:
@@ -183,7 +201,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", nodeUrn);
 				try {
 					WSNAppMessages.Message message = WSNAppMessages.Message.parseFrom(invocation.getArguments());
-					executeSendMessage(message, msg);
+					executeSendMessage(message);
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for send operation: {}. Ignoring...", nodeUrn, e);
 					return;
@@ -337,7 +355,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 	}
 
-	private void executeSendMessage(WSNAppMessages.Message message, Messages.Msg msg) {
+	private void executeSendMessage(WSNAppMessages.Message message) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", nodeUrn);
 
@@ -350,13 +368,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			if (!binaryMessage.hasBinaryType()) {
 
-				/*byte[] requestStatusBytes = buildRequestStatus(0, "Message type missing");
-				testbedRuntime.getUnreliableMessagingService()
-						.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-								requestStatusBytes
-						)
-						);
-				*/
 				log.warn("{} => Message type missing in message {}", nodeUrn, message);
 				return;
 
@@ -380,8 +391,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			log.debug("{} => Delivering text message \"{}\"", message.getTextMessage());
 			WSNAppMessages.Message.TextMessage textMessage = message.getTextMessage();
 
-			messageType = (byte) textMessage.getMessageLevel().getNumber(); // TODO !?
-			messageBytes = textMessage.getMsg().getBytes(); // TODO !?
+			messageType = (byte) textMessage.getMessageLevel().getNumber();
+			messageBytes = textMessage.getMsg().getBytes();
 
 		} else {
 
@@ -453,30 +464,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			}
 
-			// send "ack" to reliable messaging
-			/*testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_ACK,
-							buildRequestStatus(1, null)
-					)
-					);
-			*/
-
 		} catch (Exception e) {
 			log.error("" + e, e);
-			/*byte[] requestStatusBytes = buildRequestStatus(0, "Exception while delivering binary message to node");
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-							requestStatusBytes
-					)
-					);
-			*/
 		}
 
 	}
 
 	private void executeResetNodes(Messages.Msg msg, WSNAppMessages.OperationInvocation invocation) {
-
-		// TODO check if operation is running
 
 		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
 
@@ -495,16 +489,15 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();  // TODO implement
+			log.error("Error while resetting device: " + e, e);
 		}
+
 	}
 
 	private void executeFlashPrograms(WSNAppMessages.OperationInvocation invocation,
 									  SingleRequestMultiResponseListener.Responder responder) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
-
-		// TODO check if other operation is running
 
 		try {
 
@@ -520,17 +513,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				currentOperationLastProgress = new TimeDiff(1000);
 
 				if (!iSenseDevice.triggerProgram(jennicBinFile, true)) {
-					failedFlashPrograms("failed to trigger programming.");
+					failedFlashPrograms("Failed to trigger programming.");
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();  // TODO implement
+				log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
 			}
 
 
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
-			return;
 		}
 
 	}
@@ -596,14 +588,15 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	}
 
-	private void executeAreNodesAlive(WSNAppMessages.OperationInvocation invocation, Messages.Msg msg) {
+	private void executeAreNodesAlive(Messages.Msg msg) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
 
-		// TODO really check if not is alive, e.g. through pinging
+		// to the best of our knowledge, a node is alive if we're connected to it
+		boolean connected = iSenseDevice != null;
 		testbedRuntime.getUnreliableMessagingService()
 				.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-						buildRequestStatus(1, null)
+						buildRequestStatus(connected ? 1 : 0, null)
 				)
 				);
 
@@ -733,7 +726,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			if (content != null && content.length > 1) {
 
-				WSNAppMessages.Message.MessageLevel messageLevel = null;
+				WSNAppMessages.Message.MessageLevel messageLevel;
 
 				switch (content[0]) {
 					case PacketTypes.LogType.FATAL:
@@ -754,7 +747,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				messageBuilder.setTextMessage(textMessageBuilder);
 
 			} else {
-				log.debug("{} => Received text message without content. Ingoring packet: {}", nodeUrn, p);
+				log.debug("{} => Received text message without content. Ignoring packet: {}", nodeUrn, p);
 				return;
 			}
 
@@ -851,19 +844,71 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 	};
 
+	private Runnable connectRunnable = new Runnable() {
+		@Override
+		public void run() {
+
+			if (nodeSerialInterface == null || "".equals(nodeSerialInterface)) {
+
+				Long macAddress = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
+				AbstractMoteList moteList;
+
+				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
+
+				try {
+					moteList = new MoteListLinux();
+				} catch (IOException e) {
+					log.error(
+							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",
+							nodeUrn,
+							e.getMessage()
+					);
+					return;
+				}
+
+				nodeSerialInterface = moteList.getMotePort(nodeType, macAddress);
+
+				if (nodeSerialInterface == null) {
+					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
+							nodeUrn, nodeType
+					);
+					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
+					return;
+				}
+
+			}
+
+			try {
+
+				iSenseDevice = DeviceFactory.create(nodeType, nodeSerialInterface);
+
+			} catch (Exception e) {
+				log.warn("{} => Connection to {} device on serial port {} failed. Reason: {}. Retrying in 30 seconds.",
+						new Object[]{
+								nodeUrn, nodeType, nodeSerialInterface, e.getMessage()
+						}
+				);
+				testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
+				return;
+			}
+
+			// attach as listener to device output
+			iSenseDevice.registerListener(iSenseDeviceListener);
+
+			// now start listening to messages
+			testbedRuntime.getSingleRequestMultiResponseService()
+					.addListener(nodeUrn, WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST, srmrsListener);
+			testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+		}
+	};
+
 	@Override
 	public void start() throws Exception {
 
 		log.debug("{} => WSNDeviceAppImpl.start()", nodeUrn);
 
-		// first connect to device
-		iSenseDevice.registerListener(iSenseDeviceListener);
-
-		// now start listening to messages
-		testbedRuntime.getSingleRequestMultiResponseService()
-				.addListener(nodeUrn, WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST, srmrsListener);
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
-
+		testbedRuntime.getSchedulerService().execute(connectRunnable);
 	}
 
 	@Override
@@ -871,18 +916,20 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.stop()", nodeUrn);
 
+
 		// first stop listening to messages
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
 		// then disconnect from device
-		iSenseDevice.deregisterListener(iSenseDeviceListener);
-		log.debug("{} => Shutting down iSenseDevice");
-		iSenseDevice.shutdown();
+		if (iSenseDevice != null) {
+			iSenseDevice.deregisterListener(iSenseDeviceListener);
+			log.debug("{} => Shutting down iSenseDevice");
+			iSenseDevice.shutdown();
+		}
 	}
 
 	public boolean isExclusiveOperationRunning() {
-		// TODO nicer one...
 		return currentOperationInvocation != null;
 	}
 }
