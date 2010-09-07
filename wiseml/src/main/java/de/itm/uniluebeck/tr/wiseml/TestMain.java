@@ -68,7 +68,7 @@ public class TestMain {
 		node.setId("urn:wisebed:uzl:0xfe81");
 		data = new Data();
 		data.setKey("temperature");
-		data.setContent("15");
+		data.setContent("17");
 		node.getData().add(data);
 
 		t.getTraceItem().add(node);
