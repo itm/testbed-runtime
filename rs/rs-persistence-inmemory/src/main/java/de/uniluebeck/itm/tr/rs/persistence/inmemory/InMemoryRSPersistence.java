@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
 import com.google.common.util.concurrent.NamingThreadFactory;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundException;
 import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
@@ -34,7 +35,6 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,7 +50,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(InMemoryRSPersistence.class);
 
-	private Random random = new SecureRandom();
+	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new NamingThreadFactory("InMemoryRSPersistence-Thread %d"));
 
@@ -82,17 +82,19 @@ public class InMemoryRSPersistence implements RSPersistence {
 	@Override
 	public SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) {
 
-		String secretKey = Long.toString(random.nextLong()) + Long.toString(random.nextLong())
-				+ Long.toString(random.nextLong()) + Long.toString(random.nextLong())
-				+ Long.toString(random.nextLong());
-
+		// construct the return object
 		SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
-		secretReservationKey.setSecretReservationKey(secretKey);
+		secretReservationKey.setSecretReservationKey(secureIdGenerator.getNextId());
+
+		// wrap it so it can be used in a HashMap
 		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
+
+		// remember in the HashMap (aka In-Memory-Storage)
 		reservations.put(secretReservationKeyWrapper, reservationData);
 
 		return secretReservationKey;
+		
 	}
 
 	@Override
@@ -113,6 +115,12 @@ public class InMemoryRSPersistence implements RSPersistence {
 		return res;
 	}
 
+	/**
+	 * This class is used to wrap the JAX-WS-generated {@link SecretReservationKey} class
+	 * with a {@link Object#equals(Object)} and a {@link Object#hashCode()} method so these
+	 * are not lost if the JAX-WS class are newly generated. By wrapping the class it can
+	 * be used e.g. inside a {@link java.util.HashMap}.
+	 */
 	private static class SecretReservationKeyWrapper {
 		public SecretReservationKey secretReservationKey;
 
