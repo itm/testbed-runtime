@@ -139,7 +139,7 @@ sub scan_procfs {
       SerialDevNum => $_->{usbserial}{tts},
       SerialDevName => getSerialDevName($_->{usbserial}{tts}) || "  (none)",
     } }
-    grep { ($_->{Vendor}||"") eq "0403" && ($_->{ProdID}||"") eq "6001" }
+    grep { (($_->{Vendor}||"") eq "0403" && ($_->{ProdID}||"") eq "6001" ) || (($_->{Vendor}||"") eq "10c4" && ($_->{ProdID}||"") eq "ea60" )}
     values %usbtree;
 
   return @ftdidevs;
@@ -330,7 +330,16 @@ EOF
 
   #  Print the usb information
   for my $dev (sort { cmp_usbdev($a,$b) } @devs) {
-    my $desc = join( " ", $dev->{InfoManufacturer}||"", $dev->{InfoProduct}||"" ) || " (none)";
+      
+      if ($dev->{InfoProduct} eq "USB <-> Serial"){
+        $dev->{InfoProduct} = "iSense";
+        $dev->{InfoManufacturer} = "Coalesenses";}
+        
+      if ($dev->{InfoProduct} eq "Pacemate"){
+        $dev->{InfoManufacturer} = "ITM";}
+      
+    my $desc = join( " ", $dev->{InfoProduct}||"" ) || " (none)";
+    #my $desc = join( " ", $dev->{InfoManufacturer}||"", $dev->{InfoProduct}||"" ) || " (none)";
     my @output = ( $dev->{InfoSerial}||" (none)", $dev->{SerialDevName}, $desc );
     @output = ( $dev->{UsbBusNum}, $dev->{UsbDevNum}, $dev->{UsbPath}, @output ) if $Opt{usb};
     if( $Opt{compact} ) {
