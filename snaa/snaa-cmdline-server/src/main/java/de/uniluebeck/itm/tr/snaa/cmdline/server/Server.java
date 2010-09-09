@@ -116,6 +116,7 @@ public class Server {
 	}
 
 	public static void startFromProperties(Properties props) throws Exception {
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
@@ -139,11 +140,8 @@ public class Server {
 				String secretAuthkeyUrl = props.getProperty(snaaName + ".secret_user_key_url",
 						shibbolethSecretUserKeyUrl
 				);
-				String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-						"eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
-				);
 
-				startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, getAuthorizationModule(authorizationClassName));
+				startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl);
 
 			} else if ("jaas".equals(type)) {
 
@@ -237,17 +235,16 @@ public class Server {
 
 	}
 
-	private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL,
-											IUserAuthorization authorization) {
+	private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL) {
 
 		log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
-				+ "], authorization[" + authorization + "]"
+				+ "]"
 		);
 
 		Set<String> prefixes = new HashSet<String>();
 		prefixes.add(prefix);
 
-		ShibbolethSNAA shibSnaa = new ShibbolethSNAA(prefixes, secretKeyURL, authorization);
+		ShibbolethSNAA shibSnaa = new ShibbolethSNAA(prefixes, secretKeyURL);
 
 		HttpContext context = server.createContext(path);
 		Endpoint endpoint = Endpoint.create(shibSnaa);

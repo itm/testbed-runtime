@@ -16,12 +16,17 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.RequestWrapper;
+import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -68,7 +73,7 @@ public class ShibbolethAuthenticator {
 
 	private String authenticationPageContent;
 
-	/**
+    /**
 	 * @throws Exception
 	 */
 	private void resetState() throws Exception {
@@ -208,7 +213,7 @@ public class ShibbolethAuthenticator {
 		return responseHtml;
 	}
 
-	/**
+    /**
 	 * @throws Exception
 	 * @throws
 	 */
@@ -220,7 +225,7 @@ public class ShibbolethAuthenticator {
 		}
 
 		URL finalURL = doGet(url, false);
-		responseHtml = Helper.readBody(response);
+		//responseHtml = Helper.readBody(response);
 		log.debug("Status line: " + response.getStatusLine());
 
 		// Finally check, if we have arrived on the desired page

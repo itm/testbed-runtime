@@ -51,7 +51,7 @@ public class WisebedSnaaFederator implements SNAA {
 		Set<String> urnPrefixUnion = new HashSet<String>();
 		for (Set<String> urnPrefixes : prefixSet.values())
 			urnPrefixUnion.addAll(urnPrefixes);
-		authenticationSnaa = new ShibbolethSNAA(urnPrefixUnion, secretAuthenticationKeyUrl, null);
+		authenticationSnaa = new ShibbolethSNAA(urnPrefixUnion, secretAuthenticationKeyUrl);
 
 		//Authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
 		authorizationFederator = new FederatorSNAA(prefixSet);

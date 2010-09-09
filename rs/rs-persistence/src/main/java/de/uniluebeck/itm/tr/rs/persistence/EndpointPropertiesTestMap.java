@@ -84,7 +84,7 @@ public class EndpointPropertiesTestMap {
 				put("jaas2.module","HtpasswdFile");*/
 	}};
 
-	public static final Map<String, String> RSPropertiesMap = new HashMap<String, String>() {{
+	public static final Map<String, String> RSPropertiesMap1 = new HashMap<String, String>() {{
 
 		put("config.port", "9090");
 		put("config.rsnames", "inmemory1, inmemory2, fed1");
@@ -110,4 +110,62 @@ public class EndpointPropertiesTestMap {
 		put("fed1.inmemory2.endpointurl", "http://localhost:9090/rs/inmemory2");
 
 	}};
+
+    public static final Map<String, String> SNAAPropertiesMapWisebed3 = new HashMap<String, String>(){{
+         put("config.port", "8080");
+         put("config.snaas", "shib1, shib2, fed1, wisebedfed1");
+
+         put("shib1.type", "shibboleth");
+         put("shib1.urnprefix", "urn:wisebed1:shib1");
+         put("shib1.path", "/snaa/shib1");
+
+         put("shib2.type", "shibboleth");
+         put("shib2.urnprefix", "urn:wisebed1:shib2");
+         put("shib2.path", "/snaa/shib2");
+
+         put("fed1.type", "federator");
+         put("fed1.path", "/snaa/fed1");
+         put("fed1.federates","shib1, shib2");
+         put("fed1.shib1.urnprefixes", "urn:wisebed1:shib1");
+         put("fed1.shib1.endpointurl", "http://localhost:8080/snaa/shib1");
+         put("fed1.shib2.urnprefixes", "urn:wisebed1:shib2");
+         put("fed1.shib2.endpointurl", "http://localhost:8080/snaa/shib2");
+
+         put("wisebedfed1.type", "wisebed-federator");
+         put("wisebedfed1.path", "/snaa/wisebedfed1");
+         put("wisebedfed1.secret_user_key_url","https://gridlab23.unibe.ch/portal/SNA/secretUserKey");
+         put("wisebedfed1.federates","shib1");
+         put("wisebedfed1.shib1.urnprefixes", "urn:wisebed1:shib1");
+         put("wisebedfed1.shib1.endpointurl", "http://localhost:8080/snaa/shib1");
+         put("wisebedfed1.shib2.urnprefixes", "urn:wisebed1:shib2");
+         put("wisebedfed1.shib2.endpointurl", "http://localhost:8080/snaa/shib2");
+     }};
+
+     public static final Map<String, String> RSPropertiesMap2 = new HashMap<String, String>() {{
+
+         put("config.port", "9090");
+         put("config.rsnames", "inmemory1, inmemory2, fed1");
+
+         put("inmemory1.type", "singleurnprefix");
+         put("inmemory1.snaaendpointurl", "http://localhost:8080/snaa/shib1");
+         put("inmemory1.persistence", "inmemory");
+         put("inmemory1.urnprefix", "urn:wisebed1:shib1");
+         put("inmemory1.path", "/rs/inmemory1");
+
+         put("inmemory2.type", "singleurnprefix");
+         put("inmemory2.snaaendpointurl", "http://localhost:8080/snaa/shib2");
+         put("inmemory2.persistence", "inmemory");
+         put("inmemory2.urnprefix", "urn:wisebed1:shib2");
+         put("inmemory2.path", "/rs/inmemory2");
+
+         put("fed1.type", "federator");
+         put("fed1.path", "/rs/fed1");
+         put("fed1.federates", "inmemory1, inmemory2");
+         put("fed1.inmemory1.urnprefixes", "urn:wisebed1:testbed1");
+         put("fed1.inmemory1.endpointurl", "http://localhost:9090/rs/inmemory1");
+         put("fed1.inmemory2.urnprefixes", "urn:wisebed2:testbed1");
+         put("fed1.inmemory2.endpointurl", "http://localhost:9090/rs/inmemory2");
+
+     }};
+
 }

@@ -50,8 +50,8 @@ public class SingleUrnPrefixInmemoryTest {
     private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, null, rsPersistence);
     private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
     private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
-    private static long from = System.currentTimeMillis() + 200000;
-    private static long to = System.currentTimeMillis() + 200000 + 1000;
+    private static long from = 0;
+    private static long to = 0;
     private List<SecretAuthenticationKey> secretAuthenticationKeyList = null;
     private GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
     private GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
@@ -76,24 +76,28 @@ public class SingleUrnPrefixInmemoryTest {
         key.setUrnPrefix(urnPrefix);
         secretAuthenticationKeyList.add(key);
 
-        //creating ConfidentialReservationData
-        ConfidentialReservationData confiData = new ConfidentialReservationData();
         Data data = new Data();
         data.setUrnPrefix(urnPrefix);
         data.setUsername("Nils Rohwedder");
-        confiData.getData().add(data);
-
-        gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarFrom.setTimeInMillis(from);
-
-        confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
-
-        gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarTo.setTimeInMillis(to);
-        confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
-
+        
         //Creating testDataMap
         for (int i = 0; i < 10; i++) {
+            Thread.sleep(100);
+            //creating ConfidentialReservationData
+            ConfidentialReservationData confiData = new ConfidentialReservationData();
+            confiData.getData().add(data);
+            confiData.getNodeURNs().add(urnPrefix);
+
+            from = System.currentTimeMillis() + 200000;
+            gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+            gregorianCalendarFrom.setTimeInMillis(from);
+            confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+
+            to = System.currentTimeMillis() + 200000 + 50;
+            gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+            gregorianCalendarTo.setTimeInMillis(to);
+            confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
+            
             reservationDataMap.put(i, confiData);
         }
 
@@ -166,18 +170,18 @@ public class SingleUrnPrefixInmemoryTest {
 
         //second interval : small overlap first direction
         testFrom = createGregorianCalendar(from - 20000);
-        testTo = createGregorianCalendar(to - 500);
+        testTo = createGregorianCalendar(to - 20);
         assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
 
 //        //second interval : small overlap second direction
-        testFrom = createGregorianCalendar(from + 500);
+        testFrom = createGregorianCalendar(from + 20);
         testTo = createGregorianCalendar(to + 20000);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 1);
 
         //third interval : overlap on the same timeline first direction
         testFrom = createGregorianCalendar(from - 20000);
         testTo = createGregorianCalendar(from);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 9);
 
         //third interval : overlap on the same timeline second direction
         testFrom = createGregorianCalendar(to);
@@ -187,12 +191,12 @@ public class SingleUrnPrefixInmemoryTest {
         //fourth interval : absolute overlap first direction
         testFrom = createGregorianCalendar(from + 5);
         testTo = createGregorianCalendar(to - 5);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 1);
 
         //fourth interval : absolute overlap second direction
         testFrom = createGregorianCalendar(from - 5);
         testTo = createGregorianCalendar(to + 5);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
+        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 1);
     }
 
     private XMLGregorianCalendar createGregorianCalendar(long from) throws DatatypeConfigurationException {
@@ -225,22 +229,22 @@ public class SingleUrnPrefixInmemoryTest {
 
     public void getConfindentialReservations() throws RSExceptionException, DatatypeConfigurationException {
         GetReservations period = createPeriod(from, to);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 1);
 
         period = createPeriod(from - 20000, to - 20000);
         assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
 
         //second interval : small overlap first direction
-        period = createPeriod(from - 20000, to - 500);
+        period = createPeriod(from - 20000, to - 20);
         assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
 
 //        //second interval : small overlap second direction
-        period = createPeriod(from + 500, to + 20000);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+        period = createPeriod(from + 20, to + 20000);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 1);
 
         //third interval : overlap on the same timeline first direction
         period = createPeriod(from - 20000, from);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 9);
 
         //third interval : overlap on the same timeline second direction
         period = createPeriod(to, to + 20000);
@@ -248,11 +252,11 @@ public class SingleUrnPrefixInmemoryTest {
 
         //fourth interval : absolute overlap first direction
         period = createPeriod(from + 5, to - 5);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 1);
 
         //fourth interval : absolute overlap second direction
         period = createPeriod(from - 5, to + 5);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 1);
 
     }
 

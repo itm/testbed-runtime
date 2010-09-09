@@ -57,7 +57,7 @@ public class FederatorInmemoryTest {
 
     private Map<String, String> snaaEndpointPropertiesMapWisebed2 = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed2;
 
-    private Map<String, String> rsEndpointPropertiesMap = EndpointPropertiesTestMap.RSPropertiesMap;
+    private Map<String, String> rsEndpointPropertiesMap = EndpointPropertiesTestMap.RSPropertiesMap1;
 
     private List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> rsSecretAuthenticationKeyList =
             new LinkedList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
