@@ -72,6 +72,7 @@
         <module>util</module>
         <module>motelist</module>
         <module>node-api</module>
+		<module>protobuf-api</module>
         <module>wisebed-cmdline-client</module>
         <module>wiseml</module>
         <module>wiseml-merger</module>
