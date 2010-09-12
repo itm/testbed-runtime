@@ -35,7 +35,7 @@
 
 	<artifactId>tr.wiseml</artifactId>
 	<packaging>jar</packaging>
-	<name>WISEML tools</name>
+	<name>TR :: WISEML tools</name>
 
 	<dependencies>
 		<dependency>
