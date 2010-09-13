@@ -24,9 +24,7 @@
 package de.uniluebeck.itm.tr.logcontroller;
 
 import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
-import java.util.List;
 import java.util.Map;
 
 /**
