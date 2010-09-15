@@ -10,6 +10,26 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.stream.WiseMLTreeToXMLStream
 import de.itm.uniluebeck.tr.wiseml.merger.internals.stream.XMLStreamToWiseMLTree;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
+/**
+ * Multiple WiseML files can by merged into one by calling one of the
+ * createMergingWiseMLStreamReader methods with XMLStreamReaders that
+ * stream said input files.
+ * 
+ * The merging behavior can be controlled by providing a
+ * MergerConfiguration.
+ * 
+ * This implementation never reads entire files into memory and is
+ * therefore suitable for big inputs. Since there is only one pass
+ * for each input, some merging operations may be impossible
+ * without further processing of the data beforehand.
+ * (see MergerConfiguration).
+ * 
+ * WiseML files passed to methods of this class are expected to be
+ * valid syntactically and semantically.
+ * 
+ * @author Jacob Kuypers
+ *
+ */
 public class WiseMLMergerFactory {
 	
 	public static final MergerConfiguration getDefaultConfiguration() {

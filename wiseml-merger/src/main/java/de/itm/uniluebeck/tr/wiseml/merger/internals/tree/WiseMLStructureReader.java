@@ -7,9 +7,9 @@ import java.util.List;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 
-public abstract class WiseMLStructureReader implements WiseMLElementReader {
+public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 	
-	public static class Element implements WiseMLElementReader {
+	public static class Element implements WiseMLTreeReader {
 		private WiseMLTag e_tag;
 		private List<WiseMLAttribute> attributes;
 		private String text;

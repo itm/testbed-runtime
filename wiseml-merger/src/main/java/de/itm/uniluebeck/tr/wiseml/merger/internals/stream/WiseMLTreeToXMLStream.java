@@ -28,7 +28,9 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public int getAttributeCount() {
-		// TODO Auto-generated method stub
+		if (reader.isMappedToTag()) {
+			return reader.getAttributeList().size();
+		}
 		return 0;
 	}
 
@@ -282,14 +284,12 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	@Override
 	public void require(int type, String namespaceURI, String localName)
 			throws XMLStreamException {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean standaloneSet() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

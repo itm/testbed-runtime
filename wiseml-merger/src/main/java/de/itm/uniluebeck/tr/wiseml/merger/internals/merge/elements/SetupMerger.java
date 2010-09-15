@@ -8,7 +8,6 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLElementReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.CoordinateReader;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.Coordinate;
@@ -101,7 +100,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		// retrieve properties from inputs
 		SetupProperties[] inputProperties = new SetupProperties[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
-			inputProperties[i] = new SetupProperties(getStructures((WiseMLElementReader)inputs[i]));
+			inputProperties[i] = new SetupProperties(getStructures(inputs[i]));
 		}
 		
 		// merge properties

@@ -1,14 +1,14 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.parse;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLElementReader;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public abstract class WiseMLElementParser<T> {
 	
-	protected WiseMLElementReader reader;
+	protected WiseMLTreeReader reader;
 	protected T structure;
 	
-	public WiseMLElementParser(final WiseMLElementReader reader) {
+	public WiseMLElementParser(final WiseMLTreeReader reader) {
 		this.reader = reader;
 		this.structure = null;
  	}
@@ -22,7 +22,7 @@ public abstract class WiseMLElementParser<T> {
 	
 	protected abstract void parseStructure();
 
-	protected static void assertTag(WiseMLElementReader reader, WiseMLTag tag) {
+	protected static void assertTag(WiseMLTreeReader reader, WiseMLTag tag) {
 		if (!tag.equals(reader.getTag())) {
 			throw new RuntimeException("expected <"+tag.getLocalName()+">, got <"+reader.getTag()+">");
 		}

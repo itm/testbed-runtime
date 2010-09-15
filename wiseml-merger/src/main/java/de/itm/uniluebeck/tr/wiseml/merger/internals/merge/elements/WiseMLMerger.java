@@ -6,7 +6,6 @@ import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLElementReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public class WiseMLMerger extends WiseMLElementMerger {
@@ -89,7 +88,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		
 		for (int i = 0; i < inputs.length; i++) {
 			if (inputs[i].isMappedToTag()) {
-				WiseMLElementReader nextReader = (WiseMLElementReader)inputs[i];
+				WiseMLTreeReader nextReader = inputs[i];
 				if (tag.equals(nextReader.getTag())) {
 					list.add(nextReader);
 				}

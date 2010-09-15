@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
+ <setup>
+  <origin>
+   <coordinate>
+    <x>0</x>
+    <y>0</y>
+   </coordinate>
+  </origin>
+  <timeinfo>
+   <start>2010-01-01T10:00:00+01:00</start>
+   <end>2010-01-01T10:00:08+01:00</end>
+   <unit>seconds</unit>
+  </timeinfo>
+  <description>Test file 1-a</description>
+  <defaults>
+   <node>
+    <position><coordinate><x>0</x><y>1</y><z>0</z></coordinate></position>
+  	<nodeType>Type1</nodeType>
+  	<capability>
+  	 <name>Capability1</name>
+  	 <dataType>integer</dataType>
+  	 <unit>meters</unit>
+  	 <default>0</default>
+  	</capability>
+  	<capability>
+  	 <name>Capability2</name>
+  	 <dataType>decimal</dataType>
+  	 <unit>percentage</unit>
+     <default>0.0</default>
+    </capability>
+   </node>
+   <link>
+    <capability>
+     <name>Capability</name>
+     <dataType>decimal</dataType>
+     <unit>percentage</unit>
+     <default>0.0</default>
+    </capability>
+   </link>
+  </defaults>
+  <node id="urn:wisebed:node:test:1">
+   <position><coordinate><x>1</x><y>0</y><z>0</z></coordinate></position>
+  </node>
+  <node id="urn:wisebed:node:test:2">
+   <position><coordinate><x>0</x><y>0</y><z>1</z></coordinate></position>
+  </node>
+  <node id="urn:wisebed:node:test:3"/>
+ </setup>
+ <trace>
+  <timestamp>0</timestamp>
+  <node id="urn:wisebed:node:test:1">
+   <data key="Capability2">1.25</data>
+  </node>
+  <timestamp>1</timestamp>
+  <node id="urn:wisebed:node:test:1">
+   <position><coordinate><x>2</x><y>1</y><z>1</z></coordinate></position>
+   <data key="Capability1">42</data>
+   <data key="Capability2">6.66</data>
+  </node>
+  <node id="urn:wisebed:node:test:2">
+   <position><coordinate><x>5</x><y>5</y><z>6</z></coordinate></position>
+   <data key="Capability1">23</data>
+   <data key="Capability2">3.1415</data>
+  </node>
+  <timestamp>7</timestamp>
+  <node id="urn:wisebed:node:test:3">
+   <position><coordinate><x>1</x><y>1</y><z>2</z></coordinate></position>
+  </node>
+  <timestamp>8</timestamp>
+  <node id="urn:wisebed:node:test:3">
+   <position><coordinate><x>1</x><y>1</y><z>3</z></coordinate></position>
+  </node>
+ </trace>
+</wiseml>

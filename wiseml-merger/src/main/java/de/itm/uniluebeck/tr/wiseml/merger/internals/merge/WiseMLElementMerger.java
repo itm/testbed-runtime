@@ -11,11 +11,10 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserManager;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.WiseMLElementParser;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLElementReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 
-public abstract class WiseMLElementMerger extends WiseMLTreeMerger implements WiseMLElementReader {
+public abstract class WiseMLElementMerger extends WiseMLTreeMerger {
 	
 	private WiseMLTag tag;
 	protected List<WiseMLTreeReader> queue;
@@ -97,12 +96,12 @@ public abstract class WiseMLElementMerger extends WiseMLTreeMerger implements Wi
 	 * Retrieves all parseable structures from the reader until there are
 	 * no more elements or an un-parseable element is encountered.
 	 */
-	protected static Map<WiseMLTag,Object> getStructures(final WiseMLElementReader reader) {
+	protected static Map<WiseMLTag,Object> getStructures(final WiseMLTreeReader reader) {
 		Map<WiseMLTag,Object> result = new HashMap<WiseMLTag,Object>();
 		while (!reader.isFinished()) {
 			if (reader.nextSubElementReader()) {
 				if (reader.getSubElementReader().isMappedToTag()) {
-					WiseMLElementReader nextReader = (WiseMLElementReader)reader.getSubElementReader();
+					WiseMLTreeReader nextReader = reader.getSubElementReader();
 					
 					WiseMLElementParser<?> parser = ParserManager.sharedInstance().createParser(
 							nextReader.getTag(), nextReader);
