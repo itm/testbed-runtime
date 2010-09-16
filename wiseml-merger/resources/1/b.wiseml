@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
+ <setup>
+  <origin>
+   <coordinate>
+    <x>10</x>
+    <y>-20</y>
+   </coordinate>
+  </origin>
+  <timeinfo>
+   <start>2010-01-01T10:00:05+01:00</start>
+   <end>2010-01-01T10:00:15+01:00</end>
+   <unit>milliseconds</unit>
+  </timeinfo>
+  <description>Test file 1-b</description>
+  <defaults>
+   <node>
+    <position><coordinate><x>0</x><y>0</y><z>0</z></coordinate></position>
+  	<nodeType>Type1</nodeType>
+  	<capability>
+  	 <name>Capability1</name>
+  	 <dataType>integer</dataType>
+  	 <unit>meters</unit>
+  	 <default>0</default>
+  	</capability>
+  	<capability>
+  	 <name>Capability2</name>
+  	 <dataType>decimal</dataType>
+  	 <unit>percentage</unit>
+     <default>100.0</default>
+    </capability>
+   </node>
+   <link>
+    <capability>
+     <name>Capability</name>
+     <dataType>decimal</dataType>
+     <unit>percentage</unit>
+     <default>0.0</default>
+    </capability>
+   </link>
+  </defaults>
+  <node id="urn:wisebed:node:test:1">
+   <position><coordinate><x>1</x><y>0</y><z>0</z></coordinate></position>
+  </node>
+  <node id="urn:wisebed:node:test:2">
+   <position><coordinate><x>0</x><y>0</y><z>1</z></coordinate></position>
+  </node>
+  <node id="urn:wisebed:node:test:4">
+   <position><coordinate><x>2</x><y>22</y><z>222</z></coordinate></position>
+   <capability>
+  	<name>Capability3</name>
+  	<dataType>decimal</dataType>
+  	<unit>percentage</unit>
+    <default>0.0</default>
+   </capability>
+  </node>
+ </setup>
+ <trace>
+  <timestamp>0</timestamp>
+  <node id="urn:wisebed:node:test:4">
+   <data key="Capability3">1.111</data>
+  </node>
+  <timestamp>5000</timestamp>
+  <node id="urn:wisebed:node:test:4">
+   <data key="Capability3">2.222</data>
+  </node>
+  <timestamp>9000</timestamp>
+  <node id="urn:wisebed:node:test:1">
+   <position><coordinate><x>100</x><y>100</y><z>100</z></coordinate></position>
+  </node>
+ </trace>
+</wiseml>

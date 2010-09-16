@@ -27,15 +27,18 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.MessageLevel;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 /**
  * base for jpa-entities
  */
-@MappedSuperclass
+@Entity
+@Table(name = "WsnMessages")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(
+        name = "messagetype",
+        discriminatorType = DiscriminatorType.STRING
+)
 public abstract class AbstractMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Node {
 
-    private Coordinate position;
+    //private Coordinate position;
     private boolean gateway;
     private String programDetails;
     private String nodeType;

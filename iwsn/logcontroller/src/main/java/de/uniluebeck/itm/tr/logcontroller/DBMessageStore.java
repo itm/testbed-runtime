@@ -30,6 +30,7 @@ import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.MessageType;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -39,13 +40,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- * User: jenskluttig
- * Date: 05.09.2010
- * Time: 12:15:15
- * To change this template use File | Settings | File Templates.
+ * Implementation of MessageStore-Interface using JPA 2.0
  */
-@WebService(name = "MessageStore")
+@WebService(targetNamespace = "urn:MessageStore", endpointInterface = "de.uniluebeck.itm.tr.logcontroller.IMessageStore",
+            portName = "MessageStorePort", serviceName = "MessageStore")
 public class DBMessageStore implements IMessageStore, Service {
     private EntityManagerFactory _factory;
 
@@ -63,7 +61,7 @@ public class DBMessageStore implements IMessageStore, Service {
                                            MessageType type,
                                            int limit) {
         StringBuilder builder = new StringBuilder();
-        builder.append("from TextMessage a where 1 = 1");
+        builder.append("from AbstractMessage a where 1 = 1");
         if (keys != null && keys.size() > 0) {
             builder.append(" and ( 0 = 1");
             for (SecretReservationKey key : keys)
@@ -116,11 +114,13 @@ public class DBMessageStore implements IMessageStore, Service {
     }
 
     @Override
+    @WebMethod(exclude = true)
     public void start() throws Exception {
 
     }
 
     @Override
+    @WebMethod(exclude = true)
     public void stop() {
         _factory.close();
     }
