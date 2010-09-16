@@ -225,7 +225,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		try {
 
 			String[] strings = destroyVirtualLinkRequest.getTargetNode().split(":");
-			destinationNode = Long.parseLong(strings[strings.length - 1]);
+			destinationNode = StringUtils.parseHexOrDecLong(strings[strings.length - 1]);
 
 		} catch (Exception e) {
 
@@ -285,7 +285,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		try {
 
 			String[] strings = setVirtualLinkRequest.getTargetNode().split(":");
-			destinationNode = Long.parseLong(strings[strings.length - 1]);
+			destinationNode = StringUtils.parseHexOrDecLong(strings[strings.length - 1]);
 
 		} catch (Exception e) {
 
