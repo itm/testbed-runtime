@@ -29,7 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by IntelliJ IDEA. User: bimschas Date: 26.04.2010 Time: 21:26:15 TODO change
+ * Wrapper class that keeps a list of all {@link de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceApp} instances so they can
+ * be started and stopped on application startup or shutdown.
  */
 public class WSNDeviceAppWrapper implements TestbedApplication {
 

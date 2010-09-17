@@ -3,6 +3,7 @@ package de.itm.uniluebeck.tr.wiseml.merger;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 
 import javax.xml.stream.*;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +100,12 @@ public class WiseMLMergerCmdLine {
         XMLStreamReader mergedStream = WiseMLMergerFactory.createMergingWiseMLStreamReader(
                 new MergerConfiguration(properties), readers);
 
-        connectAndStream(mergedStream, writer);
+        try {
+			new XMLPipe(mergedStream, writer).streamUntilEnd();
+		} catch (XMLStreamException e1) {
+			System.err.println(e1.getMessage());
+			e1.printStackTrace();
+		}
 
         try {
             writer.close();
@@ -115,7 +121,7 @@ public class WiseMLMergerCmdLine {
         }
 
     }
-
+/*
     private static void connectAndStream(XMLStreamReader input, XMLStreamWriter output) {
 		// TODO: fix namespace
 		try {
@@ -184,5 +190,5 @@ public class WiseMLMergerCmdLine {
 			e.printStackTrace();
 		}
 	}
-
+*/
 }

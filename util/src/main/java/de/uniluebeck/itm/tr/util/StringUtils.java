@@ -161,6 +161,11 @@ public class StringUtils {
 		return value.startsWith("0x") ? Long.parseLong(value.substring(2), 16) : Long.parseLong(value, 10);
 	}
 
+	public static Long parseHexOrDecLongFromUrn(String urn) {
+		String[] arr = urn.split(":");
+		String suffix = arr[arr.length - 1];
+		return parseHexOrDecLong(suffix);		
+	}
 
     public static String parseHexOrDecLongUrnSuffix(String value) {
         String[] valueAsArray = value.split(":");

@@ -28,6 +28,8 @@ import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceView;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientView;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessagestoreClientController;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessagestoreClientView;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientController;
@@ -92,6 +94,9 @@ public class WSNGui {
             WSNServiceView wsnServiceView = new WSNServiceView();
             new WSNServiceController(wsnServiceView, properties);
 
+            MessagestoreClientView messageStoreView = new MessagestoreClientView();
+            new MessagestoreClientController(messageStoreView, properties);
+
             tabs.addTab("SNAA Client", snaaClientView);
             tabs.addTab("RS Client", rsClientView);
             tabs.addTab("Controller Client", controllerClientView);
@@ -99,6 +104,7 @@ public class WSNGui {
             tabs.addTab("Session Management Client", sessionManagementClientView);
             tabs.addTab("WSN Client", wsnClientView);
             tabs.addTab("WSN Server Dummy", wsnServiceView);
+            tabs.addTab("Logcontroller Messagestore", messageStoreView);
 
         }
 
@@ -150,7 +156,10 @@ public class WSNGui {
             System.exit(1);
         }
 
-		new WSNGui(properties).frame.setVisible(true);
+        WSNGui gui = new WSNGui(properties);
+		gui.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        gui.frame.setVisible(true);
+
 	}
 
 }

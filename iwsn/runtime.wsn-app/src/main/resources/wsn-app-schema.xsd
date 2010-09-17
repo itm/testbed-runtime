@@ -26,18 +26,16 @@
 	<xsd:element name="wsnapp">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="device" type="WsnDevice" maxOccurs="unbounded"/>
+				<xsd:element name="device" type="WsnDevice" maxOccurs="unbounded" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:complexType name="WsnDevice">
 		<xsd:sequence>
-			<xsd:element name="urn" type="xsd:string"/>
-			<xsd:element name="type" type="xsd:string"/>
-			<xsd:choice>
-				<xsd:element name="serialinterface" type="xsd:string"/>
-				<xsd:element name="autodetection-mac" type="xsd:string"/>
-			</xsd:choice>
+			<xsd:element name="urn" type="xsd:string" />
+			<xsd:element name="type" type="xsd:string" />
+			<xsd:element name="serialinterface" type="xsd:string" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="nodeapitimeout" type="xsd:int" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:schema>
