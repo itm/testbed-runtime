@@ -162,6 +162,8 @@ public class WSNBinding {
         for (String prefix : _secretReservationKey.keySet())
             if (msg.getSourceNodeId().toLowerCase().contains(prefix))
                 key = _secretReservationKey.get(prefix);
+        Preconditions.checkNotNull(key, "No Reservation Key for Node {} found!",
+                msg.getSourceNodeId());
         for (IMessageListener listener : _listener)
             listener.newMessage(msg, key);
     }

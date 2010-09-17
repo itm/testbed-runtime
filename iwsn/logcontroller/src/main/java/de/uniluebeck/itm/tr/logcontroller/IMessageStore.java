@@ -27,36 +27,37 @@ import eu.wisebed.testbed.api.wsn.v211.MessageType;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import java.util.List;
 
 /**
  * Interface for fetching of logged Messages
  */
-@WebService(name = "MessageStore")
+@WebService(name = "MessageStore", targetNamespace = "urn:MessageStore")
 public interface IMessageStore {
 
-    @WebMethod
-    boolean hasMessages(SecretReservationKey secretReservationKey);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
-                            int limit);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
-                            MessageType messageType);
-
-    @WebMethod
-    Message[] fetchMessages(List<SecretReservationKey> secretReservationKey,
-                            MessageType messageType,
-                            int limit);
+    /**
+     * tests if messages for an reservationkey are stored
+     * @param secretReservationKey
+     * @return true or false
+     */
+    @WebMethod(operationName = "hasMessages")
+    @WebResult(name = "messages-found")
+    boolean hasMessages(@WebParam(name = "secretReservationKey") SecretReservationKey secretReservationKey);
 
     /**
-     * frees all resources
+     * fetches Messages for multiple reservationkeys
+     * @param secretReservationKey
+     * @param messageType TEXT for Textmessages, BINARY for Binarymessages,
+     *        NULL for all Messages
+     * @param limit maximum number of messages, 0 for unlimited
+     * @return Array of Messages
      */
-    void dispose();
+    @WebMethod(operationName = "fetchMessages")
+    @WebResult(name = "messages")
+    Message[] fetchMessages(@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKey,
+                            @WebParam(name = "messageType") MessageType messageType,
+                            @WebParam(name = "messageLimit") int limit);
 }
