@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import java.util.Map;
 
+import de.itm.uniluebeck.tr.wiseml.merger.config.DescriptionOutput;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
@@ -43,6 +44,15 @@ public class SetupMerger extends WiseMLElementMerger {
 		public Coordinate getOrigin() {
 			return origin;
 		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public String getCoordinateType() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 		
 	}
@@ -51,7 +61,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	private static final int PROPERTIES = 1;
 	private static final int DEFAULTS = 2;
 	private static final int NODES = 3;
-	private static final int LINKS = 4;
+	//private static final int LINKS = 4;
 	
 	private int state;
 
@@ -125,13 +135,75 @@ public class SetupMerger extends WiseMLElementMerger {
 	}
 	
 	private String mergeDescription(SetupProperties[] inputProperties) {
-		// TODO Auto-generated method stub
-		return null;
+		// check if descriptions are equal
+		boolean conflict = false;
+		for (int i = 1; i < inputProperties.length && !conflict; i++) {
+			if (inputProperties[i].getDescription() == null) {
+				conflict = true;
+			}
+		}
+		for (int i = 1; i < inputProperties.length && !conflict; i++) {
+			if (!inputProperties[i].getDescription().equals(inputProperties[0].getDescription())) {
+				conflict = true;
+			}
+		}
+		if (!conflict) {
+			return inputProperties[0].getDescription();
+		}
+		
+		switch (configuration.getDescriptionConflict()) {
+		case ResolveSilently: break;
+		case ResolveWithWarning: 
+			warn("descriptions not equal");
+			break;
+		case ThrowException: 
+			exception("descriptions not equal", null);
+			break;
+		}
+		
+		if (configuration.getDescriptionOutput() 
+				== DescriptionOutput.UseCustomDescription) {
+			return configuration.getCustomDescriptionText();
+		}
+		
+		String result = "";
+		
+		switch (configuration.getDescriptionOutput()) {
+		case UseCustomPlusInputDescriptions:
+			result = configuration.getCustomDescriptionText();
+		case ListInputDescriptions: {
+			StringBuilder sb = new StringBuilder();
+			sb.append(result);
+			for (int i = 0; i < inputProperties.length; i++) {
+				if (inputProperties[i].getDescription() != null) {
+					sb.append(inputProperties[i].getDescription());
+					sb.append("\n\n");
+				}
+			}
+			result = sb.toString();
+		}
+		}
+		
+		return result;
 	}
 
 	private String mergeCoordinateType(SetupProperties[] inputProperties) {
-		// TODO Auto-generated method stub
-		return null;
+		String[] types = new String[inputProperties.length];
+		for (int i = 0; i < types.length; i++) {
+			types[i] = inputProperties[i].getCoordinateType();
+		}
+		
+		if (allNull(types)) {
+			return null;
+		}
+		
+		for (int i = 1; i < types.length; i++) {
+			if (!types[0].equals(types[i])) {
+				exception("unresolvable conflict: differing coordinate types", null);
+			}
+		}
+		
+		return types[0];
 	}
 
 	private Interpolation mergeInterpolation(SetupProperties[] inputProperties) {
@@ -152,6 +224,13 @@ public class SetupMerger extends WiseMLElementMerger {
 		return result;
 	}
 	
-	
+	private static <T> boolean allNull(String[] strings) {
+		for (String s : strings) {
+			if (s != null) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

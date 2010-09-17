@@ -52,5 +52,9 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	public void exception(String message, Throwable throwable) {
 		throw new WiseMLTreeMergerException(message, throwable, this);
 	}
+	
+	protected void warn(String message) {
+		System.err.println("WARNING: message"); // TODO
+	}
 
 }
