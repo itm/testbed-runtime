@@ -23,20 +23,28 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
+import de.uniluebeck.itm.gtr.common.Service;
+import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.v211.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.Endpoint;
 import java.util.List;
 
 /**
  *  delegate for the wsn-service
  */
-@WebService(name = "WSNProxy", targetNamespace = "urn:WSNService")
+@WebService(
+		serviceName = "WSNService",
+		targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
+		portName = "WSNPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
+)
 public class WSNDelegate implements WSN {
     private WSN _delegate;
-
+    
     public WSNDelegate(WSN delegate) {
         _delegate = delegate;
     }

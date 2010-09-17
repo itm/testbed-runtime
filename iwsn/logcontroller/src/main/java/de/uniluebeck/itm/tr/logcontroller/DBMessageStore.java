@@ -25,28 +25,26 @@ package de.uniluebeck.itm.tr.logcontroller;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import de.uniluebeck.itm.gtr.common.Service;
 import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.MessageType;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- * User: jenskluttig
- * Date: 05.09.2010
- * Time: 12:15:15
- * To change this template use File | Settings | File Templates.
+ * Implementation of MessageStore-Interface using JPA 2.0
  */
-@WebService(name = "MessageStore")
-public class DBMessageStore implements IMessageStore {
+@WebService(targetNamespace = "urn:MessageStore", endpointInterface = "de.uniluebeck.itm.tr.logcontroller.IMessageStore",
+            portName = "MessageStorePort", serviceName = "MessageStore")
+public class DBMessageStore implements IMessageStore, Service {
     private EntityManagerFactory _factory;
 
     public DBMessageStore(Map properties) {
@@ -59,15 +57,11 @@ public class DBMessageStore implements IMessageStore {
         return _factory.createEntityManager();
     }
 
-    private synchronized CriteriaBuilder getCriteriaBuilder() {
-        return _factory.getCriteriaBuilder();
-    }
-
     private Message[] internalFetchMessage(List<SecretReservationKey> keys,
                                            MessageType type,
                                            int limit) {
         StringBuilder builder = new StringBuilder();
-        builder.append("from TextMessage a where 1 = 1");
+        builder.append("from AbstractMessage a where 1 = 1");
         if (keys != null && keys.size() > 0) {
             builder.append(" and ( 0 = 1");
             for (SecretReservationKey key : keys)
@@ -102,22 +96,16 @@ public class DBMessageStore implements IMessageStore {
 
     @Override
     public boolean hasMessages(SecretReservationKey secretReservationKey) {
-        return false;
-    }
-
-    @Override
-    public Message[] fetchMessages(List<SecretReservationKey> secretReservationKey) {
-        return internalFetchMessage(secretReservationKey, null, 0);
-    }
-
-    @Override
-    public Message[] fetchMessages(List<SecretReservationKey> secretReservationKey, int limit) {
-        return internalFetchMessage(secretReservationKey, null, limit);
-    }
-
-    @Override
-    public Message[] fetchMessages(List<SecretReservationKey> secretReservationKey, MessageType messageType) {
-        return internalFetchMessage(secretReservationKey, messageType, 0);
+        EntityManager manager = getManager();
+        try {
+            Object count = manager.createQuery("select count(c) from BinaryMessage c where "
+                    + "c.reservationKey = ?").setParameter(1,
+                    secretReservationKey.getSecretReservationKey()).getSingleResult();
+            return Integer.parseInt(count.toString()) > 0;
+        }
+        finally {
+            manager.close();
+        }
     }
 
     @Override
@@ -126,7 +114,14 @@ public class DBMessageStore implements IMessageStore {
     }
 
     @Override
-    public void dispose() {
+    @WebMethod(exclude = true)
+    public void start() throws Exception {
+
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void stop() {
         _factory.close();
     }
 }

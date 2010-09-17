@@ -59,7 +59,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-api</artifactId>
 		</dependency>
-
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.logcontroller</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
