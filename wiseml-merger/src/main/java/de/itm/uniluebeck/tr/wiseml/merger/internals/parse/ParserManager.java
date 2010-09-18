@@ -6,8 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.CoordinateTypeParser;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.DescriptionParser;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.InterpolationParser;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.OriginParser;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.PositionParser;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.TimeInfoParser;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public class ParserManager {
@@ -17,6 +21,10 @@ public class ParserManager {
 	private ParserManager() {
 		register(WiseMLTag.origin, OriginParser.class);
 		register(WiseMLTag.position, PositionParser.class);
+		register(WiseMLTag.timeinfo, TimeInfoParser.class);
+		register(WiseMLTag.interpolation, InterpolationParser.class);
+		register(WiseMLTag.coordinateType, CoordinateTypeParser.class);
+		register(WiseMLTag.description, DescriptionParser.class);
 		// TODO
 	}
 	

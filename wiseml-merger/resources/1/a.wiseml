@@ -12,6 +12,7 @@
    <end>2010-01-01T10:00:08+01:00</end>
    <unit>seconds</unit>
   </timeinfo>
+  <coordinateType>XYZ</coordinateType>
   <description>Test file 1-a</description>
   <defaults>
    <node>

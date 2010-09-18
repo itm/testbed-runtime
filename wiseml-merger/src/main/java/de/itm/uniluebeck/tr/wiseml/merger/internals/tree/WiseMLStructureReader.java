@@ -30,7 +30,7 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 			this.subElements = (subElements == null)?new Element[0]:subElements;
 			this.text = text;
 			
-			for (Element e : subElements) {
+			for (Element e : this.subElements) {
 				e.parent = this;
 			}
 			
@@ -141,5 +141,13 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 
 	public boolean nextSubElementReader() {
 		return element.nextSubElementReader();
+	}
+	
+	protected static Element createPureTextElement(
+			final WiseMLTreeReader parent, 
+			final WiseMLTag tag, 
+			final String text, 
+			final WiseMLAttribute... attributes) {
+		return new Element(parent, tag, attributes, null, text);
 	}
 }

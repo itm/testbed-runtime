@@ -309,7 +309,11 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 					}
 				}
 			}
-			throw new XMLStreamException("unexpected end of stream", reader.getLocation());
+			if (reader.getLocation() == null) {
+				throw new XMLStreamException("unexpected end of stream");
+			} else {
+				throw new XMLStreamException("unexpected end of stream", reader.getLocation());
+			}
 		} catch (XMLStreamException e) {
 			throw new WiseMLTreeReaderException("exception while skipping to "+tag, e, null);
 		}

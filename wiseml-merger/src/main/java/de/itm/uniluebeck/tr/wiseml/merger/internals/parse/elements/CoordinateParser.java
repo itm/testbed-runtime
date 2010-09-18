@@ -34,8 +34,7 @@ public class CoordinateParser extends WiseMLElementParser<Coordinate> {
 		reader.nextSubElementReader();
 		structure.setY(parseDoubleElement(reader.getSubElementReader()));
 		
-		while (!reader.isFinished()) {
-			reader.nextSubElementReader();
+		while (reader.nextSubElementReader()) {
 			WiseMLTreeReader nextReader = reader.getSubElementReader();
 			
 			switch (nextReader.getTag()) {

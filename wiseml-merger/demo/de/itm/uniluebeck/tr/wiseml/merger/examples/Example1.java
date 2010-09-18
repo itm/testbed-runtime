@@ -10,6 +10,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerFactory;
 import de.itm.uniluebeck.tr.wiseml.merger.XMLPipe;
+import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.WiseMLMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.stream.XMLStreamToWiseMLTree;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
@@ -71,6 +73,14 @@ public class Example1 {
 		
 		System.exit(0);
 	}
+	
+	private static void debug2(XMLStreamReader inputA, XMLStreamReader inputB) {
+		printWiseMLTree(new WiseMLMerger(new WiseMLTreeReader[]{
+				new XMLStreamToWiseMLTree(inputA),
+				new XMLStreamToWiseMLTree(inputB),
+		}, new MergerConfiguration()));
+		
+	}
 
 	/**
 	 * @param args
@@ -84,10 +94,12 @@ public class Example1 {
 		XMLStreamReader inputA = inputFactory.createXMLStreamReader(new FileReader(fileA));
 		XMLStreamReader inputB = inputFactory.createXMLStreamReader(new FileReader(fileB));
 		
-		debug1(inputA);
+		//debug1(inputA);
+		debug2(inputA, inputB);
 		
 		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(inputA, inputB);
 
+		
 		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
 		

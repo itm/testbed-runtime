@@ -12,8 +12,21 @@ public class MergerResources {
 	private Coordinate[] inputOrigins;
 	
 	private Coordinate outputOrigin;
+	private Node outputDefaultNode;
+	private Link outputDefaultLink;
 	
 	public void setOrigins(Coordinate[] inputOrigins, Coordinate outputOrigin) {
-		// TODO
+		this.inputOrigins = inputOrigins;
+		this.outputOrigin = outputOrigin;
+	}
+	
+	public void setDefaultNodes(Node[] inputDefaultNodes, Node outputDefaultNode) {
+		this.inputDefaultNodes = inputDefaultNodes;
+		this.outputDefaultNode = outputDefaultNode;
+	}
+	
+	public void setDefaultLinks(Link[] inputDefaultLinks, Link outputDefaultLink) {
+		this.inputDefaultLinks = inputDefaultLinks;
+		this.outputDefaultLink = outputDefaultLink;
 	}
 }

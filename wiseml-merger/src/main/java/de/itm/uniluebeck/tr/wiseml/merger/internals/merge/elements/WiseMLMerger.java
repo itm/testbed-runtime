@@ -109,8 +109,9 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	private void skipInputsToTag(final WiseMLTag tag) {
 		for (int i = 0; i < inputs.length; i++) {
 			while (true) {
-				if (inputs[i].getSubElementReader().isMappedToTag()) {
-					WiseMLElementMerger input = (WiseMLElementMerger)inputs[i].getSubElementReader();
+				if (inputs[i].getSubElementReader() != null 
+						&& inputs[i].getSubElementReader().isMappedToTag()) {
+					WiseMLTreeReader input = inputs[i].getSubElementReader();
 					if (tag.equals(input.getTag())) {
 						break;
 					}
