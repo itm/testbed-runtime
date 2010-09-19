@@ -9,13 +9,18 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserHelper;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserCallback;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.CoordinateTypeReader;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.DefaultsReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.DescriptionReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.InterpolationReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.OriginReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.TimeInfoReader;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.Coordinate;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.LinkProperties;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 
 public class SetupMerger extends WiseMLElementMerger {
@@ -115,17 +120,73 @@ public class SetupMerger extends WiseMLElementMerger {
 	}
 
 	private boolean mergeDefaults() {
-		// TODO
+		final NodeProperties[] inputDefaultNodes = new NodeProperties[inputs.length];
+		final LinkProperties[] inputDefaultLinks = new LinkProperties[inputs.length];
 		
+		// loop through inputs (<defaults> is optional)
+		for (int i = 0; i < inputs.length; i++) {
+			WiseMLTreeReader defaultsReader = inputs[i].getSubElementReader();
+			if (defaultsReader.isMappedToTag() && defaultsReader.getTag().equals(WiseMLTag.defaults)) {
+				readDefaults(inputDefaultNodes, inputDefaultLinks, i, defaultsReader);
+			}
+		}
 		
-		return false;
+		NodeProperties outputDefaultNode = null;
+		LinkProperties outputDefaultLink = null;
+
+		if (!allNull(inputDefaultNodes)) {
+			if (allEqual(inputDefaultNodes)) {
+				outputDefaultNode = inputDefaultNodes[0];
+			} else {
+				outputDefaultNode = null; // TODO: find fine-grained, mutual defaults
+			}
+		}
+		if (!allNull(inputDefaultLinks)) {
+			if (allEqual(inputDefaultLinks)) {
+				outputDefaultLink = inputDefaultLinks[0];
+			} else {
+				outputDefaultLink = null; // TODO: find fine-grained, mutual defaults
+			}
+		}
+		
+		// save defaults
+		resources.setDefaultNodes(inputDefaultNodes, outputDefaultNode);
+		resources.setDefaultLinks(inputDefaultLinks, outputDefaultLink);
+		
+		// queue defaults
+		if (outputDefaultNode != null && outputDefaultLink != null) {
+			queue.add(new DefaultsReader(this, outputDefaultNode, outputDefaultLink));
+		}
+		
+		return !queue.isEmpty();
 	}
+	
+	private void readDefaults(
+			final NodeProperties[] inputDefaultNodes,
+			final LinkProperties[] inputDefaultLinks,
+			final int index,
+			final WiseMLTreeReader defaultsReader) {
+		ParserHelper.parseStructures(defaultsReader, new ParserCallback(){
+			@Override
+			public void nextStructure(WiseMLTag tag, Object structure) {
+				switch (tag) {
+				case node:
+					inputDefaultNodes[index] = (NodeProperties)structure;
+					break;
+				case link:
+					inputDefaultLinks[index] = (LinkProperties)structure;
+					break;
+				}
+			}
+		});
+	}
+	
 
 	private boolean mergeProperties() {
 		// retrieve properties from inputs
 		SetupProperties[] inputProperties = new SetupProperties[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
-			inputProperties[i] = new SetupProperties(getStructures(inputs[i]));
+			inputProperties[i] = new SetupProperties(ParserHelper.getStructures(inputs[i]));
 		}
 		
 		// merge properties
@@ -260,9 +321,26 @@ public class SetupMerger extends WiseMLElementMerger {
 		return result;
 	}
 	
-	private static <T> boolean allNull(String[] strings) {
-		for (String s : strings) {
-			if (s != null) {
+	private static <T> boolean allNull(final T[] array) {
+		for (T object : array) {
+			if (object != null) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static <T> boolean allEqual(final T[] array) {
+		for (int i = 1; i < array.length; i++) {
+			T a = array[0];
+			T b = array[i];
+			if (a == null && b == null) {
+				continue;
+			}
+			if (a == null || b == null) {
+				return false;
+			}
+			if (!a.equals(b)) {
 				return false;
 			}
 		}

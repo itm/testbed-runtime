@@ -10,7 +10,7 @@ import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
  * Time: 7:04:42 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LinkCapability {
+public class Capability {
 
     private String name;
 
@@ -21,7 +21,7 @@ public class LinkCapability {
     private String defaultValue;
 
 
-    public String getName() {
+	public String getName() {
         return name;
     }
 
@@ -36,4 +36,20 @@ public class LinkCapability {
     public String getDefaultValue() {
         return defaultValue;
     }
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setDataType(DataType dataType) {
+		this.dataType = dataType;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
 }
