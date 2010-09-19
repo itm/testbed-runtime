@@ -8,28 +8,25 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
-public class TraceListMerger extends SortedListMerger<TraceDefinition> {
+public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 
-	public TraceListMerger(
-			final WiseMLTreeMerger parent,
-			final WiseMLTreeReader[] inputs, 
-			final MergerConfiguration configuration,
-			final MergerResources resources) {
+	protected LinkListMerger(WiseMLTreeMerger parent,
+			WiseMLTreeReader[] inputs, MergerConfiguration configuration,
+			MergerResources resources) {
 		super(parent, inputs, configuration, resources);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Set<TraceDefinition> items) {
+	protected WiseMLTreeReader mergeItems(Set<LinkDefinition> items) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected TraceDefinition readNextItem(int inputIndex) {
+	protected LinkDefinition readNextItem(int inputIndex) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 }

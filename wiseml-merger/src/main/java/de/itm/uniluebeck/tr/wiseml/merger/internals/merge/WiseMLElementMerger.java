@@ -13,18 +13,16 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 public abstract class WiseMLElementMerger extends WiseMLTreeMerger {
 	
 	private WiseMLTag tag;
-	protected List<WiseMLTreeReader> queue;
 	private List<WiseMLAttribute> attributeList;
 	
 	public WiseMLElementMerger(
-			WiseMLTreeMerger parent,
-			WiseMLTreeReader[] inputs, 
-			MergerConfiguration configuration,
-			MergerResources resources, 
-			WiseMLTag tag) {
+			final WiseMLTreeMerger parent,
+			final WiseMLTreeReader[] inputs, 
+			final MergerConfiguration configuration,
+			final MergerResources resources, 
+			final WiseMLTag tag) {
 		super(parent, inputs, configuration, resources);
 		this.tag = tag;
-		this.queue = new LinkedList<WiseMLTreeReader>();
 		this.attributeList = new ArrayList<WiseMLAttribute>();
 	}
 
@@ -47,31 +45,6 @@ public abstract class WiseMLElementMerger extends WiseMLTreeMerger {
 	public WiseMLTag getTag() {
 		return tag;
 	}
-	
-	@Override
-	public boolean nextSubElementReader() {
-		if (finished) {
-			return false;
-		}
-		
-		if (currentChild != null) {
-			WiseMLTreeReaderHelper.skipToEnd(currentChild);
-			currentChild = null;
-		}
-		
-		if (queue.isEmpty()) {
-			fillQueue();
-		}
-		
-		if (!queue.isEmpty()) {
-			currentChild = queue.remove(0);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	protected abstract void fillQueue();
 	/*
 	protected static List<WiseMLElementReader> getSubElementReaders(final WiseMLElementReader reader) {
 		List<WiseMLElementReader> result = new ArrayList<WiseMLElementReader>();

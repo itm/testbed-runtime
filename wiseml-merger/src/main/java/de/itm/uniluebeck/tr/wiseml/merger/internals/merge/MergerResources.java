@@ -1,5 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodePropertiesTransformer;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.Coordinate;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.LinkProperties;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
@@ -15,6 +16,8 @@ public class MergerResources {
 	private NodeProperties outputDefaultNode;
 	private LinkProperties outputDefaultLink;
 	
+	private NodePropertiesTransformer nodePropertiesTransformer;
+	
 	public void setOrigins(Coordinate[] inputOrigins, Coordinate outputOrigin) {
 		this.inputOrigins = inputOrigins;
 		this.outputOrigin = outputOrigin;
@@ -28,5 +31,9 @@ public class MergerResources {
 	public void setDefaultLinks(LinkProperties[] inputDefaultLinks, LinkProperties outputDefaultLink) {
 		this.inputDefaultLinks = inputDefaultLinks;
 		this.outputDefaultLink = outputDefaultLink;
+	}
+
+	public NodePropertiesTransformer getNodePropertiesTransformer() {
+		return nodePropertiesTransformer;
 	}
 }

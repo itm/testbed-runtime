@@ -164,4 +164,8 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 		
 		return result.toArray(new Element[result.size()]);
 	}
+	
+	public Element getTopElement() {
+		return element;
+	}
 }

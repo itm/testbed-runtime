@@ -3,9 +3,6 @@ package de.itm.uniluebeck.tr.wiseml.merger.structures;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.itm.uniluebeck.tr.wiseml.merger.enums.DataType;
-import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
-
 /**
  * Created by IntelliJ IDEA.
  * User: jacob

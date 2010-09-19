@@ -1,5 +1,7 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.DescriptionOutput;
@@ -9,8 +11,8 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserCallback;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.CoordinateTypeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.elements.DefaultsReader;
@@ -109,14 +111,46 @@ public class SetupMerger extends WiseMLElementMerger {
 		finished = true;
 	}
 	
-	private boolean mergeLinks() {
-		// TODO Auto-generated method stub
-		return false;
+	private WiseMLTreeReader[] getListReaders(WiseMLTag tag) {
+		boolean found = false;
+		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
+		for (int i = 0; i < inputs.length; i++) {
+			WiseMLTreeReader nextReader = inputs[i].getSubElementReader();
+			if (nextReader.isList()) {
+				if (nextReader.getSubElementReader() == null) {
+					nextReader.nextSubElementReader();
+				}
+				if (nextReader.getSubElementReader().getTag().equals(tag)) {
+					found = true;
+					nodeListInputs[i] = nextReader;
+				}
+			}
+		}
+		return found?nodeListInputs:null;
 	}
 
 	private boolean mergeNodes() {
-		// TODO Auto-generated method stub
-		return false;
+		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node);
+		
+		if (nodeListInputs != null) {
+			queue.add(new NodeListMerger(this, nodeListInputs, null, null));
+		}
+		
+		state++;
+		
+		return !queue.isEmpty();
+	}
+	
+	private boolean mergeLinks() {
+		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link);
+		
+		if (linkListInputs != null) {
+			queue.add(new LinkListMerger(this, linkListInputs, null, null));
+		}
+		
+		state++;
+		
+		return !queue.isEmpty();
 	}
 
 	private boolean mergeDefaults() {
@@ -157,6 +191,9 @@ public class SetupMerger extends WiseMLElementMerger {
 		if (outputDefaultNode != null && outputDefaultLink != null) {
 			queue.add(new DefaultsReader(this, outputDefaultNode, outputDefaultLink));
 		}
+		
+		// next state
+		state++;
 		
 		return !queue.isEmpty();
 	}
