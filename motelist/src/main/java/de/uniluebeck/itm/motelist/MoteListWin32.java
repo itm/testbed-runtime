@@ -13,19 +13,21 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 
-public class MoteListLinux extends AbstractMoteList {
+public class MoteListWin32 extends AbstractMoteList {
 
-	private static final Logger log = LoggerFactory.getLogger(MoteListLinux.class);
+	private static final Logger log = LoggerFactory.getLogger(MoteListWin32.class);
 
 	private ProcessBuilder pb;
 
 	private File tmpFile;
 
-	public MoteListLinux() throws IOException {
-		if (SystemUtils.IS_OS_LINUX) {
-			copyScriptToTmpFile("motelist-linux");
+	public MoteListWin32() throws IOException {
+		if (SystemUtils.IS_OS_WINDOWS){
+			copyScriptToTmpFile("motelist-win32.exe");
 			pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
 		}
+		else
+			log.warn("This motelist version supports windows only");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -33,10 +35,10 @@ public class MoteListLinux extends AbstractMoteList {
 
 		if (args.length > 1) {
 			log.info("Searching for {} device with MAC address: {}", args[0], args[1]);
-			log.info("Found: {}", new MoteListLinux().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
+			log.info("Found: {}", new MoteListWin32().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
 		}
 		else {
-			log.info("Displaying all connected devices: \n{}", new MoteListLinux().getMoteList());
+			log.info("Displaying all connected devices: \n{}", new MoteListWin32().getMoteList());
 		}
 
 	}
@@ -106,32 +108,32 @@ public class MoteListLinux extends AbstractMoteList {
 			String reference, port, type;
 
 			while ((text = in.readLine()) != null) {
-				System.out.println("testline "+text);
 				StringTokenizer tokenizer = new StringTokenizer(text, ",");
 				
 
-				if (tokenizer.countTokens() != 3) {
+				if (tokenizer.countTokens() != 4) {
 					log.warn("Unexpected token count of {} in line \"{}\"", tokenizer.countTokens(), text);
 				} else {
 
 					reference = tokenizer.nextToken();
 					port = tokenizer.nextToken();
+					tokenizer.nextToken(); // Skip reference count 
 					type = tokenizer.nextToken();
 
 					//lin: XBOW Crossbow Telos Rev.B
 					//win32: Crossbow Telos Rev.B
 					if (type.contains("Telos")) {
-						motes.put("telosb", port);
+						motes.put("telosb", port.replaceAll("[_[^\\w\\d‰¸ˆƒ‹÷\\+\\- ]]", ""));
 					}
 					
 					// ITM Pacemate
 					if (type.contains("Pacemate")) {
-						motes.put("pacemate", port);
+						motes.put("pacemate", port.replaceAll("[_[^\\w\\d‰¸ˆƒ‹÷\\+\\- ]]", ""));
 					}
 					
 					// Coalesenses iSense
 					if (type.contains("iSense")) {
-						motes.put("isense", port);
+						motes.put("isense", port.replaceAll("[_[^\\w\\d‰¸ˆƒ‹÷\\+\\- ]]", ""));
 					}
 
 				}

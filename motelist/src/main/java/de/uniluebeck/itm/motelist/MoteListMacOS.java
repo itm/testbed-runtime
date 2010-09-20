@@ -13,17 +13,17 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 
-public class MoteListLinux extends AbstractMoteList {
+public class MoteListMacOS extends AbstractMoteList {
 
-	private static final Logger log = LoggerFactory.getLogger(MoteListLinux.class);
+	private static final Logger log = LoggerFactory.getLogger(MoteListMacOS.class);
 
 	private ProcessBuilder pb;
 
 	private File tmpFile;
 
-	public MoteListLinux() throws IOException {
-		if (SystemUtils.IS_OS_LINUX) {
-			copyScriptToTmpFile("motelist-linux");
+	public MoteListMacOS() throws IOException {
+		if (SystemUtils.IS_OS_MAC_OSX) {
+			copyScriptToTmpFile("motelist-macos");
 			pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
 		}
 	}
@@ -33,10 +33,10 @@ public class MoteListLinux extends AbstractMoteList {
 
 		if (args.length > 1) {
 			log.info("Searching for {} device with MAC address: {}", args[0], args[1]);
-			log.info("Found: {}", new MoteListLinux().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
+			log.info("Found: {}", new MoteListMacOS().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
 		}
 		else {
-			log.info("Displaying all connected devices: \n{}", new MoteListLinux().getMoteList());
+			log.info("Displaying all connected devices: \n{}", new MoteListMacOS().getMoteList());
 		}
 
 	}
