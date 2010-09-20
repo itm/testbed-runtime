@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.examples;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -11,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerFactory;
 import de.itm.uniluebeck.tr.wiseml.merger.XMLPipe;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.WiseMLMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.stream.XMLStreamToWiseMLTree;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
@@ -38,30 +40,40 @@ public class Example1 {
 			System.out.print(indentation);
 			System.out.print('<');
 			System.out.print(reader.getTag());
-			System.out.println('>');
+			
+			List<WiseMLAttribute> attributes = reader.getAttributeList();
+			for (WiseMLAttribute attribute : attributes) {
+				System.out.print(' ');
+				System.out.print(attribute.getName());
+				System.out.print("=\"");
+				System.out.print(attribute.getValue());
+				System.out.print('\"');
+			}
 			if (reader.getTag().isTextOnly()) {
-				System.out.print(indentation);
-				System.out.println(reader.getText());
-			}
-			while (!reader.isFinished()) {
-				if (reader.nextSubElementReader()) {
-					printWiseMLTree(reader.getSubElementReader());
+				System.out.print('>');
+				System.out.print(reader.getText());
+			} else {
+				System.out.println('>');
+				while (!reader.isFinished()) {
+					if (reader.nextSubElementReader()) {
+						printWiseMLTree(reader.getSubElementReader());
+					}
 				}
+				System.out.print(indentation);
 			}
-			System.out.print(indentation);
 			System.out.print("</");
 			System.out.print(reader.getTag());
 			System.out.println('>');
 		} else if (reader.isList()) {
 			System.out.print(indentation);
-			System.out.println("( LIST BEGIN )");
+			System.out.println("<!-- LIST BEGIN -->");
 			while (!reader.isFinished()) {
 				if (reader.nextSubElementReader()) {
 					printWiseMLTree(reader.getSubElementReader());
 				}
 			}
 			System.out.print(indentation);
-			System.out.println("( LIST END )");
+			System.out.println("<!-- LIST END -->");
 		} else {
 			throw new IllegalStateException();
 		}

@@ -61,6 +61,8 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 			return true;
 		}
 		
+		finished = true;
+		
 		return false;
 	}
 	

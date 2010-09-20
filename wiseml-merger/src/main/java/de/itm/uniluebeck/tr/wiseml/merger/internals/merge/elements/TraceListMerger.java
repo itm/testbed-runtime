@@ -1,6 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Set;
+import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
@@ -20,7 +20,7 @@ public class TraceListMerger extends SortedListMerger<TraceDefinition> {
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Set<TraceDefinition> items) {
+	protected WiseMLTreeReader mergeItems(Collection<TraceDefinition> items) {
 		// TODO Auto-generated method stub
 		return null;
 	}
