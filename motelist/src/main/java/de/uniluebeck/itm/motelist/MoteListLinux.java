@@ -43,7 +43,7 @@ public class MoteListLinux extends AbstractMoteList {
 
 	private void copyScriptToTmpFile() throws IOException {
 
-		InputStream from = getClass().getClassLoader().getResourceAsStream("motelistv2");
+		InputStream from = getClass().getClassLoader().getResourceAsStream("motelist-linux");
 		FileOutputStream to = null;
 
 		try {
@@ -101,12 +101,11 @@ public class MoteListLinux extends AbstractMoteList {
 
 		try {
 
-			in.readLine(); // Information about how we had got this information.
+			//in.readLine(); // Information about how we had got this information.
 
 			String reference, port, type;
 
 			while ((text = in.readLine()) != null) {
-
 				StringTokenizer tokenizer = new StringTokenizer(text, ",");
 
 
@@ -118,13 +117,19 @@ public class MoteListLinux extends AbstractMoteList {
 					port = tokenizer.nextToken();
 					type = tokenizer.nextToken();
 
-					if (type.contains("XBOW")) {
+					//lin: XBOW Crossbow Telos Rev.B
+					//win32: Crossbow Telos Rev.B
+					if (type.contains("Telos")) {
 						motes.put("telosb", port);
 					}
+					
+					// ITM Pacemate
 					if (type.contains("Pacemate")) {
 						motes.put("pacemate", port);
 					}
-					if (type.contains("FTDI")) {
+					
+					// Coalesenses iSense
+					if (type.contains("iSense")) {
 						motes.put("isense", port);
 					}
 
