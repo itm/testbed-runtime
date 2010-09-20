@@ -36,8 +36,9 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
-import de.uniluebeck.itm.motelist.AbstractMoteList;
-import de.uniluebeck.itm.motelist.MoteListLinux;
+import de.uniluebeck.itm.motelist.MoteList;
+import de.uniluebeck.itm.motelist.MoteListFactory;
+import de.uniluebeck.itm.motelist.MoteType;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
@@ -52,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -851,13 +851,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			if (nodeSerialInterface == null || "".equals(nodeSerialInterface)) {
 
 				Long macAddress = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
-				AbstractMoteList moteList;
+				MoteList moteList;
 
 				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
 
 				try {
-					moteList = new MoteListLinux();
-				} catch (IOException e) {
+					moteList = MoteListFactory.create();
+				} catch (Exception e) {
 					log.error(
 							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",
 							nodeUrn,
@@ -866,7 +866,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					return;
 				}
 
-				nodeSerialInterface = moteList.getMotePort(nodeType, macAddress);
+				nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType), macAddress);
 
 				if (nodeSerialInterface == null) {
 					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",

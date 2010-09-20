@@ -2,102 +2,29 @@ package de.uniluebeck.itm.motelist;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 
-public class MoteListMacOS extends AbstractMoteList {
+class MoteListMacOS extends AbstractMoteList {
 
 	private static final Logger log = LoggerFactory.getLogger(MoteListMacOS.class);
 
-	private ProcessBuilder pb;
-
-	private File tmpFile;
-
-	public MoteListMacOS() throws IOException {
-		if (SystemUtils.IS_OS_MAC_OSX) {
-			copyScriptToTmpFile("motelist-macos");
-			pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
+	public MoteListMacOS() {
+		if (!SystemUtils.IS_OS_MAC_OSX) {
+			throw new RuntimeException("This class only works on Mac OS X");
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		Logging.setLoggingDefaults();
+	protected Multimap<MoteType, String> parseMoteList(final BufferedReader in) {
 
-		if (args.length > 1) {
-			log.info("Searching for {} device with MAC address: {}", args[0], args[1]);
-			log.info("Found: {}", new MoteListMacOS().getMotePort(args[0], StringUtils.parseHexOrDecLong(args[1])));
-		}
-		else {
-			log.info("Displaying all connected devices: \n{}", new MoteListMacOS().getMoteList());
-		}
-
-	}
-
-	private void copyScriptToTmpFile(String motelistResource) throws IOException {
-
-		InputStream from = getClass().getClassLoader().getResourceAsStream(motelistResource);
-		FileOutputStream to = null;
-
-		try {
-
-			tmpFile = File.createTempFile("motelist", "");
-			to = new FileOutputStream(tmpFile);
-			byte[] buffer = new byte[4096];
-			int bytesRead;
-
-			while ((bytesRead = from.read(buffer)) != -1) {
-				to.write(buffer, 0, bytesRead);
-			} // write
-
-		} finally {
-			if (from != null) {
-				try {
-					from.close();
-				} catch (IOException e) {
-					log.debug("" + e, e);
-				}
-			}
-			if (to != null) {
-				try {
-					to.close();
-				} catch (IOException e) {
-					log.debug("" + e, e);
-				}
-			}
-		}
-
-		tmpFile.setExecutable(true);
-
-	}
-
-	@Override
-	public Multimap<String, String> getMoteList() {
-		BufferedReader in;
-		try {
-			Process p = pb.start();
-			// Eingabestream holen
-			in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			// parsing
-			return parseMoteList(in);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private Multimap<String, String> parseMoteList(final BufferedReader in) {
-
-		Multimap<String, String> motes = LinkedListMultimap.create(3);
-		String text = "";
+		Multimap<MoteType, String> motes = LinkedListMultimap.create(3);
+		String text;
 
 		try {
 
@@ -106,9 +33,8 @@ public class MoteListMacOS extends AbstractMoteList {
 			String reference, port, type;
 
 			while ((text = in.readLine()) != null) {
-				System.out.println("testline "+text);
 				StringTokenizer tokenizer = new StringTokenizer(text, ",");
-				
+
 
 				if (tokenizer.countTokens() != 3) {
 					log.warn("Unexpected token count of {} in line \"{}\"", tokenizer.countTokens(), text);
@@ -121,17 +47,17 @@ public class MoteListMacOS extends AbstractMoteList {
 					//lin: XBOW Crossbow Telos Rev.B
 					//win32: Crossbow Telos Rev.B
 					if (type.contains("Telos")) {
-						motes.put("telosb", port);
+						motes.put(MoteType.TELOSB, port);
 					}
-					
+
 					// ITM Pacemate
 					if (type.contains("Pacemate")) {
-						motes.put("pacemate", port);
+						motes.put(MoteType.PACEMATE, port);
 					}
-					
+
 					// Coalesenses iSense
 					if (type.contains("iSense")) {
-						motes.put("isense", port);
+						motes.put(MoteType.ISENSE, port);
 					}
 
 				}
@@ -141,5 +67,10 @@ public class MoteListMacOS extends AbstractMoteList {
 		}
 
 		return motes;
+	}
+
+	@Override
+	public String getScriptName() {
+		return "motelist-macos";
 	}
 }
