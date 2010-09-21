@@ -26,13 +26,6 @@ package de.uniluebeck.itm.tr.rs.persistence;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by IntelliJ IDEA.
- * User: rohwedder
- * Date: 27.04.2010
- * Time: 12:29:43
- * To change this template use File | Settings | File Templates.
- */
 public class EndpointPropertiesTestMap {
 
 	public static final Map<String, String> SNAAPropertiesMapWisebed1 = new HashMap<String, String>() {{
@@ -43,6 +36,7 @@ public class EndpointPropertiesTestMap {
 		put("dummy1.type", "dummy");
 		put("dummy1.urnprefix", "urn:wisebed1:testbed1");
 		put("dummy1.path", "/snaa/dummy1");
+		
 	}};
 
 	public static final Map<String, String> SNAAPropertiesMapWisebed2 = new HashMap<String, String>() {{
