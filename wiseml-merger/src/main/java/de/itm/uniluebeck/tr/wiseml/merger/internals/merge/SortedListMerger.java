@@ -1,10 +1,10 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
@@ -13,7 +13,7 @@ public abstract class SortedListMerger<ListItem extends Comparable<ListItem>>
 extends WiseMLListMerger {
 	
 	private List<ListItem> bufferedItems;
-	private SortedSet<ListItem> itemQueue;
+	private List<ListItem> itemQueue;
 	
 	protected SortedListMerger(
 			final WiseMLTreeMerger parent,
@@ -23,7 +23,11 @@ extends WiseMLListMerger {
 		super(parent, inputs, configuration, resources);
 		
 		bufferedItems = new ArrayList<ListItem>(inputs.length);
-		itemQueue = new TreeSet<ListItem>();
+		for (int i = 0; i < inputs.length; i++) {
+			bufferedItems.add(null);
+		}
+		
+		itemQueue = new LinkedList<ListItem>();
 	}
 	
 	/**
@@ -38,7 +42,7 @@ extends WiseMLListMerger {
 	 * @param items
 	 * @return
 	 */
-	protected abstract WiseMLTreeReader mergeItems(Set<ListItem> items);
+	protected abstract WiseMLTreeReader mergeItems(Collection<ListItem> items);
 	
 	@Override
 	protected void fillQueue() {
@@ -50,7 +54,8 @@ extends WiseMLListMerger {
 		}
 		
 		// find equal items
-		Set<ListItem> items = new TreeSet<ListItem>();
+		Collections.sort(itemQueue);
+		List<ListItem> items = new LinkedList<ListItem>();
 		ListItem firstItem = null;
 		for (ListItem item : itemQueue) {
 			if (firstItem == null) {

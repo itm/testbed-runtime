@@ -32,5 +32,10 @@ public class NodeDefinition implements Comparable<NodeDefinition> {
 	public int getInputIndex() {
 		return inputIndex;
 	}
+	
+	@Override
+	public String toString() {
+		return inputIndex+"#"+id;
+	}
 
 }

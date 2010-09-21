@@ -1,6 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Set;
+import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
@@ -17,7 +17,7 @@ public class ScenarioListMerger extends SortedListMerger<ScenarioDefinition> {
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Set<ScenarioDefinition> items) {
+	protected WiseMLTreeReader mergeItems(Collection<ScenarioDefinition> items) {
 		// TODO Auto-generated method stub
 		return null;
 	}

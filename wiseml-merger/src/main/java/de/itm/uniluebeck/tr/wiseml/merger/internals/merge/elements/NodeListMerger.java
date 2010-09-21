@@ -1,6 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Set;
+import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
@@ -23,13 +23,15 @@ public class NodeListMerger extends SortedListMerger<NodeDefinition> {
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Set<NodeDefinition> items) {
+	protected WiseMLTreeReader mergeItems(Collection<NodeDefinition> items) {
 		NodeDefinition firstItem = null;
 		String outputID = null;
 		NodeProperties outputProperties = null;
 		for (NodeDefinition item : items) {
 			if (firstItem == null) {
 				firstItem = item;
+				outputID = firstItem.getId();
+				outputProperties = firstItem.getNodeProperties();
 			} else {
 				if (!item.getNodeProperties().equals(firstItem.getNodeProperties())) {
 					// conflict
@@ -51,11 +53,13 @@ public class NodeListMerger extends SortedListMerger<NodeDefinition> {
 		}
 		WiseMLTreeReader nodeReader = input.getSubElementReader();
 		
-		return new NodeDefinition(
+		NodeDefinition result = new NodeDefinition(
 				WiseMLTreeReaderHelper.getAttributeValue(
 						nodeReader.getAttributeList(), "id"),
 						new NodePropertiesParser(nodeReader).getParsedStructure(),
 						inputIndex);
+		input.nextSubElementReader();
+		return result;
 	}
 
 }

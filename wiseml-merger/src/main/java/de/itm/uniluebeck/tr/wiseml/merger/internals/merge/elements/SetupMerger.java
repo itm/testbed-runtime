@@ -162,6 +162,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			WiseMLTreeReader defaultsReader = inputs[i].getSubElementReader();
 			if (defaultsReader.isMappedToTag() && defaultsReader.getTag().equals(WiseMLTag.defaults)) {
 				readDefaults(inputDefaultNodes, inputDefaultLinks, i, defaultsReader);
+				inputs[i].nextSubElementReader();
 			}
 		}
 		
@@ -305,7 +306,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		
 		switch (configuration.getDescriptionOutput()) {
 		case UseCustomPlusInputDescriptions:
-			result = configuration.getCustomDescriptionText();
+			result = configuration.getCustomDescriptionText() + "\n\n";
 		case ListInputDescriptions: {
 			StringBuilder sb = new StringBuilder();
 			sb.append(result);

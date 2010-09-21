@@ -1,6 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Set;
+import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
@@ -18,7 +18,7 @@ public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Set<LinkDefinition> items) {
+	protected WiseMLTreeReader mergeItems(Collection<LinkDefinition> items) {
 		// TODO Auto-generated method stub
 		return null;
 	}
