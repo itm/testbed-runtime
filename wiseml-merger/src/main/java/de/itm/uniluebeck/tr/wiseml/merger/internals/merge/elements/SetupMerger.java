@@ -1,7 +1,5 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.DescriptionOutput;
@@ -84,6 +82,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	//private static final int LINKS = 4;
 	
 	private int state;
+	private boolean[] skip; // true if input i should be incremented
 
 	public SetupMerger(
 			final WiseMLTreeMerger parent, 
@@ -92,6 +91,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			final MergerResources resources) {
 		super(parent, inputs, configuration, resources, WiseMLTag.setup);
 		this.state = INIT;
+		this.skip = new boolean[inputs.length];
 	}
 
 	@Override
@@ -116,25 +116,46 @@ public class SetupMerger extends WiseMLElementMerger {
 		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
 			WiseMLTreeReader nextReader = inputs[i].getSubElementReader();
+			if (nextReader.isFinished()) {
+				inputs[i].nextSubElementReader();
+				nextReader = inputs[i].getSubElementReader();
+			}
 			if (nextReader.isList()) {
 				if (nextReader.getSubElementReader() == null) {
-					nextReader.nextSubElementReader();
+					if (!nextReader.nextSubElementReader()) {
+						return null;
+					}
 				}
 				if (nextReader.getSubElementReader().getTag().equals(tag)) {
 					found = true;
 					nodeListInputs[i] = nextReader;
+					skip[i] = true;
 				}
 			}
 		}
 		return found?nodeListInputs:null;
 	}
+	
+	private void updateInputs() {
+		for (int i = 0; i < skip.length; i++) {
+			if (skip[i]) {
+				inputs[i].nextSubElementReader();
+				skip[i] = false;
+			}
+		}
+	}
 
 	private boolean mergeNodes() {
+		updateInputs();
+		printInputState("before <node>*");
 		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node);
+		
 		
 		if (nodeListInputs != null) {
 			queue.add(new NodeListMerger(this, nodeListInputs, null, null));
 		}
+		
+		printInputState("after <node>*");
 		
 		state++;
 		
@@ -142,11 +163,16 @@ public class SetupMerger extends WiseMLElementMerger {
 	}
 	
 	private boolean mergeLinks() {
+		updateInputs();
+		printInputState("before <link>*");
 		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link);
+		
 		
 		if (linkListInputs != null) {
 			queue.add(new LinkListMerger(this, linkListInputs, null, null));
 		}
+		
+		printInputState("after <link>*");
 		
 		state++;
 		
@@ -154,15 +180,22 @@ public class SetupMerger extends WiseMLElementMerger {
 	}
 
 	private boolean mergeDefaults() {
-		final NodeProperties[] inputDefaultNodes = new NodeProperties[inputs.length];
-		final LinkProperties[] inputDefaultLinks = new LinkProperties[inputs.length];
+		final NodeProperties[] inputDefaultNodes = 
+			new NodeProperties[inputs.length];
+		final LinkProperties[] inputDefaultLinks = 
+			new LinkProperties[inputs.length];
+		
+		printInputState("before <defaults>");
 		
 		// loop through inputs (<defaults> is optional)
 		for (int i = 0; i < inputs.length; i++) {
 			WiseMLTreeReader defaultsReader = inputs[i].getSubElementReader();
-			if (defaultsReader.isMappedToTag() && defaultsReader.getTag().equals(WiseMLTag.defaults)) {
-				readDefaults(inputDefaultNodes, inputDefaultLinks, i, defaultsReader);
-				inputs[i].nextSubElementReader();
+			if (defaultsReader.isMappedToTag() 
+					&& defaultsReader.getTag().equals(WiseMLTag.defaults)) {
+				readDefaults(inputDefaultNodes, inputDefaultLinks, 
+						i, defaultsReader);
+				
+				skip[i] = true;
 			}
 		}
 		
@@ -190,13 +223,33 @@ public class SetupMerger extends WiseMLElementMerger {
 		
 		// queue defaults
 		if (outputDefaultNode != null && outputDefaultLink != null) {
-			queue.add(new DefaultsReader(this, outputDefaultNode, outputDefaultLink));
+			queue.add(new DefaultsReader(
+					this, outputDefaultNode, outputDefaultLink));
 		}
 		
 		// next state
 		state++;
 		
+		printInputState("after <defaults>");
+		
 		return !queue.isEmpty();
+	}
+	
+	private void printInputState(String msg) {
+		if (msg != null) {
+			System.err.print(msg);
+			System.err.print(" ");
+		}
+		for (int i = 0; i < inputs.length; i++) {
+			System.err.print(i);
+			System.err.print(": ");
+			System.err.print(inputs[i]);
+			if (skip[i]) {
+				System.err.print("#SKIP");
+			}
+			System.err.print(' ');
+		}
+		System.err.println();
 	}
 	
 	private void readDefaults(

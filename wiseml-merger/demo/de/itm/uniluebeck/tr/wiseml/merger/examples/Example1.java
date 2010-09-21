@@ -107,7 +107,8 @@ public class Example1 {
 		XMLStreamReader inputB = inputFactory.createXMLStreamReader(new FileReader(fileB));
 		
 		//debug1(inputA);
-		debug2(inputA, inputB);
+		debug1(inputB);
+		//debug2(inputA, inputB);
 		
 		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(inputA, inputB);
 

@@ -1,5 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.structures;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,9 +13,6 @@ import java.util.Map;
  */
 public class LinkProperties {
 
-    private String source;
-    private String target;
-
     private Boolean encrypted;
     private Boolean virtual;
 
@@ -25,22 +23,6 @@ public class LinkProperties {
     public LinkProperties() {
     	this.capabilities = new HashMap<String,Capability>();
     }
-
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	public String getTarget() {
-		return target;
-	}
-
-	public void setTarget(String target) {
-		this.target = target;
-	}
 
 	public Boolean getEncrypted() {
 		return encrypted;
@@ -76,6 +58,10 @@ public class LinkProperties {
 
 	public void setRssi(RSSI rssi) {
 		this.rssi = rssi;
+	}
+
+	public Collection<Capability> getCapabilities() {
+		return this.capabilities.values();
 	}
 
 }
