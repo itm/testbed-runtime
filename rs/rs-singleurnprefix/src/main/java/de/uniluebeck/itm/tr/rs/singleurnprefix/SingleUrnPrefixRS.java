@@ -116,6 +116,7 @@ public class SingleUrnPrefixRS implements RS {
 			data.setUsername(secretAuthenticationKey.getUsername());
 			//data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
 			crd.getData().add(data);
+			crd.setUserData(reservation.getUserData());
 
 			try {
 
@@ -410,7 +411,7 @@ public class SingleUrnPrefixRS implements RS {
 		try {
 			SNAA service = SNAAServiceHelper.getSNAAService(snaaEndpointUrl);
 			authorized = service.isAuthorized(l, action);
-			log.info("Authorization result: " + authorized);
+			log.debug("Authorization result: " + authorized);
 		} catch (SNAAExceptionException e) {
 			RSException rse = new RSException();
 			log.warn(e.getMessage());
