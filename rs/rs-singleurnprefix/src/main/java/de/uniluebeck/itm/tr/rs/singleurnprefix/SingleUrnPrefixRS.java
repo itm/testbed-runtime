@@ -83,7 +83,7 @@ public class SingleUrnPrefixRS implements RS {
 		// Sanity check
 		{
 			performSanityCheck(reservation);
-			secretAuthenticationKey = performSanityCheck(authenticationData);
+			secretAuthenticationKey = performAuthenticationSanityCheck(authenticationData);
 			performServingNodeUrnsCheck(reservation.getNodeURNs());
 		}
 
@@ -152,7 +152,7 @@ public class SingleUrnPrefixRS implements RS {
 			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		SecretReservationKey secretReservationKey = performSanityCheck(secretReservationKeys);
+		SecretReservationKey secretReservationKey = performReservationSanityCheck(secretReservationKeys);
 		ConfidentialReservationData reservation = persistence.getReservation(secretReservationKey);
 
 		if (reservation == null) {
@@ -216,7 +216,7 @@ public class SingleUrnPrefixRS implements RS {
 		//SanityCheck
 		SecretAuthenticationKey key;
 		{
-			key = performSanityCheck(secretAuthenticationKey);
+			key = performAuthenticationSanityCheck(secretAuthenticationKey);
 		}
 
 		Action get = new Action();
@@ -314,7 +314,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private SecretReservationKey performSanityCheck(List<SecretReservationKey> secretReservationKeys)
+	private SecretReservationKey performReservationSanityCheck(List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException {
 		String msg = null;
 		SecretReservationKey srk = null;
@@ -368,7 +368,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	public SecretAuthenticationKey performSanityCheck(List<SecretAuthenticationKey> authenticationData)
+	public SecretAuthenticationKey performAuthenticationSanityCheck(List<SecretAuthenticationKey> authenticationData)
 			throws RSExceptionException {
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
