@@ -44,6 +44,12 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbDevice;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.awt.datatransfer.ToolkitThreadBlockedHandler;
@@ -520,8 +526,16 @@ class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
 
 			WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
 
-			JennicBinFile jennicBinFile =
-					new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			IDeviceBinFile iSenseBinFile = null;
+			
+			if (iSenseDevice instanceof JennicDevice){
+				iSenseBinFile = new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}else if (iSenseDevice instanceof TelosbDevice){
+				iSenseBinFile = new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}else if (iSenseDevice instanceof PacemateDevice){
+				iSenseBinFile = new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}
+			
 			try {
 
 				// remember invocation message to be able to send asynchronous replies
@@ -529,7 +543,7 @@ class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
 				currentOperationResponder = responder;
 				currentOperationLastProgress = new TimeDiff(1000);
 
-				if (!iSenseDevice.triggerProgram(jennicBinFile, true)) {
+				if (!iSenseDevice.triggerProgram(iSenseBinFile, true)) {
 					failedFlashPrograms("failed to trigger programming.");
 				}
 
@@ -541,6 +555,8 @@ class WSNDeviceAppGuavaImpl extends AbstractExecutionThreadService {
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
 			return;
+		} catch (Exception e) {
+			log.error("Error reading bin file "+e);
 		}
 
 	}
