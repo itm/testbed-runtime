@@ -50,9 +50,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("restriction")
-public class Server {
+public class SNAAServer {
 
-	private static final Logger log = LoggerFactory.getLogger(Server.class);
+	private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
 	private static final String shibbolethSecretUserKeyUrl = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
 
