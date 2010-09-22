@@ -1,19 +1,39 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodePropertiesTransformer;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.Coordinate;
-import de.itm.uniluebeck.tr.wiseml.merger.structures.Link;
-import de.itm.uniluebeck.tr.wiseml.merger.structures.Node;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.LinkProperties;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
 
 public class MergerResources {
 	
 	private int inputCount;
-	private Node[] inputDefaultNodes;
-	private Link[] inputDefaultLinks;
+	private NodeProperties[] inputDefaultNodes;
+	private LinkProperties[] inputDefaultLinks;
 	private Coordinate[] inputOrigins;
 	
 	private Coordinate outputOrigin;
+	private NodeProperties outputDefaultNode;
+	private LinkProperties outputDefaultLink;
+	
+	private NodePropertiesTransformer nodePropertiesTransformer;
 	
 	public void setOrigins(Coordinate[] inputOrigins, Coordinate outputOrigin) {
-		// TODO
+		this.inputOrigins = inputOrigins;
+		this.outputOrigin = outputOrigin;
+	}
+	
+	public void setDefaultNodes(NodeProperties[] inputDefaultNodes, NodeProperties outputDefaultNode) {
+		this.inputDefaultNodes = inputDefaultNodes;
+		this.outputDefaultNode = outputDefaultNode;
+	}
+	
+	public void setDefaultLinks(LinkProperties[] inputDefaultLinks, LinkProperties outputDefaultLink) {
+		this.inputDefaultLinks = inputDefaultLinks;
+		this.outputDefaultLink = outputDefaultLink;
+	}
+
+	public NodePropertiesTransformer getNodePropertiesTransformer() {
+		return nodePropertiesTransformer;
 	}
 }

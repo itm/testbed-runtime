@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.rs.cmdline;
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
 import de.uniluebeck.itm.tr.rs.persistence.Comparison;
 import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
-import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
+import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import eu.wisebed.testbed.api.rs.v1.*;
 import eu.wisebed.testbed.api.snaa.v1.Action;
@@ -93,8 +93,8 @@ public class FederatorInmemoryTest {
         }
 
         //starting SNAA-Server
-        Server.startFromProperties(SNAAProps1);
-        Server.startFromProperties(SNAAProps2);
+        SNAAServer.startFromProperties(SNAAProps1);
+        SNAAServer.startFromProperties(SNAAProps2);
         //starting RS-Server
         Main.startFromProperties(RSProps);
 
@@ -280,7 +280,7 @@ public class FederatorInmemoryTest {
         catch (RSExceptionException e) {
             // do nothing
         }
-        //testing if makeReservation on empty authenticationData and reservation-data returns empty SecretReservationKey-list
+        //testing if makeReservations on empty authenticationData and reservation-data returns empty SecretReservationKey-list
         List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
         ConfidentialReservationData resData = new ConfidentialReservationData();
         resData.getNodeURNs();

@@ -12,6 +12,7 @@
    <end>2010-01-01T10:00:08+01:00</end>
    <unit>seconds</unit>
   </timeinfo>
+  <coordinateType>XYZ</coordinateType>
   <description>Test file 1-a</description>
   <defaults>
    <node>
@@ -46,6 +47,16 @@
    <position><coordinate><x>0</x><y>0</y><z>1</z></coordinate></position>
   </node>
   <node id="urn:wisebed:node:test:3"/>
+  <link source="urn:wisebed:node:test:1" target="urn:wisebed:node:test:2">
+   <encrypted>false</encrypted>
+   <rssi datatype="decimal" unit="dBm" default="12.3"/>
+   <capability>
+    <name>Capability4</name>
+    <dataType>integer</dataType>
+    <unit>lux</unit>
+    <default>9001</default>
+   </capability>
+  </link>
  </setup>
  <trace>
   <timestamp>0</timestamp>
