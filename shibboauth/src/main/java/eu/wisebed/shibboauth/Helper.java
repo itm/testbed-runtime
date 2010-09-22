@@ -61,6 +61,7 @@ public class Helper {
 			BufferedReader is = new BufferedReader(new InputStreamReader(entity.getContent()));
 			for (String s = is.readLine(); s != null; s = is.readLine()) {
 				sb.append(s);
+                sb.append("\n");
 			}
 		}
 		return sb.toString();

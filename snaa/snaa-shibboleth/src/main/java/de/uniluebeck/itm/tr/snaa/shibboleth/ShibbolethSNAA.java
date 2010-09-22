@@ -25,18 +25,16 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.shibboauth.ShibbolethAuthenticator;
-import eu.wisebed.shibboauth.ShibbolethAuthorizer;
 import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
+import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
 
@@ -49,13 +47,16 @@ public class ShibbolethSNAA implements SNAA {
 
     protected String secretAuthenticationKeyUrl;
 
+    protected IUserAuthorization authorization;
+
     /**
      * @param urnPrefixes
      * @param secretAuthenticationKeyUrl
      */
-    public ShibbolethSNAA(Set<String> urnPrefixes, String secretAuthenticationKeyUrl) {
+    public ShibbolethSNAA(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization) {
         this.urnPrefixes = new HashSet<String>(urnPrefixes);
         this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
+        this.authorization = authorization;
     }
 
     @Override
@@ -81,7 +82,7 @@ public class ShibbolethSNAA implements SNAA {
                 sa.authenticate();
 
                 if (sa.isAuthenticated()) {
-                    String sak = sa.getAuthenticationPageContent();
+                    String sak = sa.getAuthenticationPageContent().trim();
                     log.info("Authentication suceeded for urn[" + urn + "] and user[" + triple.getUsername()
                             + "]. Secret authentication key is " + sak);
 
@@ -113,6 +114,7 @@ public class ShibbolethSNAA implements SNAA {
             @WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
 
         boolean authorized = true;
+        Map<String, List<Object>> authorizeMap = null;
 
         // Check if we serve all URNs
         assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
@@ -123,12 +125,28 @@ public class ShibbolethSNAA implements SNAA {
             //check if authorized
             try {
                 ShibbolethSecretAuthenticationKey ssak = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-                ShibbolethAuthorizer sa = new ShibbolethAuthorizer();
+                ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
                 sa.setUrl(secretAuthenticationKeyUrl);
                 sa.setSecretAuthenticationKey(ssak.getSecretAuthenticationKey());
-                sa.setCookies(ssak.getCookies());
                 //check authorization
-                authorized = sa.isAuthorized();
+                authorizeMap = sa.isAuthorized(ssak.getCookies());
+
+                if (authorizeMap == null){
+                    return false;
+                }
+
+                //create Authorization from map
+                IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
+                details.setUsername(key.getUsername());
+                
+                //temp
+                List<Object> l = new LinkedList<Object>();
+                l.add("true");
+                authorizeMap.put(action.getAction(), l);
+                
+                details.setUserDetails(authorizeMap);
+
+                authorized = authorization.isAuthorized(action, details);
             } catch (Exception e) {
                 throw createSNAAException("Authorization failed :" + e);
             }

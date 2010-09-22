@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.ActionDetails;
+import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.UserDetails;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +37,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -152,9 +153,11 @@ public class JAASSNAA implements SNAA {
 
 		// Perform Authorization
 		if (authorization != null) {
-			ActionDetails details = new ActionDetails();
+			IUserAuthorization.UserDetails details = new UserDetails();
 			details.setUsername(secretAuthenticationKey.getUsername());
-			details.getUserDetails().put("subject", auth.subject);
+            List<Object> subjects = new LinkedList<Object>();
+            subjects.add(auth.subject);
+			details.getUserDetails().put("subject", subjects);
 			authorized = authorization.isAuthorized(action, details);
 			log.debug("Authorization result[" + authorized + "] for action[" + action + "], authdata[" + details + "]");
 		}

@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.snaa.wisebed;
 
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
+import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class WisebedSnaaFederator implements SNAA {
 		Set<String> urnPrefixUnion = new HashSet<String>();
 		for (Set<String> urnPrefixes : prefixSet.values())
 			urnPrefixUnion.addAll(urnPrefixes);
-		authenticationSnaa = new ShibbolethSNAA(urnPrefixUnion, secretAuthenticationKeyUrl);
+		authenticationSnaa = new ShibbolethSNAA(urnPrefixUnion, secretAuthenticationKeyUrl, null);
 
 		//Authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
 		authorizationFederator = new FederatorSNAA(prefixSet);

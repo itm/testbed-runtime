@@ -23,14 +23,66 @@
 
 package eu.wisebed.testbed.api.snaa.authorization;
 
+import eu.wisebed.testbed.api.snaa.helpers.Helper;
 import eu.wisebed.testbed.api.snaa.v1.Action;
 import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 
-public class AlwaysAllowAuthorization implements IUserAuthorization {
+import java.util.List;
+import java.util.Map;
 
-	@Override
-	public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
-		return true;
-	}
+public class AttributeBasedAuthorization implements IUserAuthorization {
 
+    private Map<String, String> attributes;
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
+        try {
+            //check on action
+            List<Object> actionValues = details.getUserDetails().get(action.getAction());
+            if (actionValues == null) return false;
+
+            for (Object actionValue : actionValues){
+                if (!Boolean.valueOf((String) actionValue)) return false;
+            }
+
+            //check on authorization-attributes
+            for (Object key : details.getUserDetails().keySet()) {
+                String regex = getRegex(key);
+                if (regex != null) {
+                    List<Object> cmpValues = details.getUserDetails().get(key);
+                    if (!compareValues(regex, cmpValues)) return false;
+                }
+            }
+
+        }
+        catch (Exception e) {
+            throw Helper.createSNAAException(e.getMessage());
+        }
+        return true;
+    }
+
+    private String getRegex(Object key) {
+        for (Object keyRegex : attributes.keySet()) {
+            String keyRegexString = (String) keyRegex;
+            if (((String) key).matches(keyRegexString)) {
+                return keyRegexString;
+            }
+        }
+        return null;
+    }
+
+    private boolean compareValues(String regex, List<Object> cmpValues) {
+        for (Object value : cmpValues) {
+            if (!compareValue(regex, value)) return false;
+        }
+        return true;
+    }
+
+    private boolean compareValue(String regex, Object value) {
+        return (((String) value).matches(attributes.get(regex)));
+    }
 }
