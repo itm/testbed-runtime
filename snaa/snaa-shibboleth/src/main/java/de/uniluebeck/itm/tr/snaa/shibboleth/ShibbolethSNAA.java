@@ -137,13 +137,7 @@ public class ShibbolethSNAA implements SNAA {
 
                 //create Authorization from map
                 IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
-                details.setUsername(key.getUsername());
-                
-                //temp
-                List<Object> l = new LinkedList<Object>();
-                l.add("true");
-                authorizeMap.put(action.getAction(), l);
-                
+                details.setUsername(key.getUsername());                
                 details.setUserDetails(authorizeMap);
 
                 authorized = authorization.isAuthorized(action, details);

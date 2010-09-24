@@ -1,4 +1,4 @@
-import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
+import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 
 import java.util.*;
 
@@ -55,7 +55,7 @@ public class SNAAFederatorTest {
         List<String> urnPrefixe = new LinkedList<String>();
         urnPrefixe.add("urn:wisebed1:testbed1");
 
-        Server.startFromProperties(SNAAProps1);
+        SNAAServer.startFromProperties(SNAAProps1);
         Set<String> testbed1 = new HashSet<String>();
         testbed1.add(urnPrefixe.get(0));
 
