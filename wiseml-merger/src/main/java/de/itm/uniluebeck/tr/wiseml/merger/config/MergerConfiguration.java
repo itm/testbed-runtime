@@ -300,6 +300,70 @@ public class MergerConfiguration {
 		this.customDescriptionText = customDescriptionText;
 	}
 
+	public ConflictResolution getInterpolationConflict() {
+		return interpolationConflict;
+	}
+
+	public void setInterpolationConflict(ConflictResolution interpolationConflict) {
+		this.interpolationConflict = interpolationConflict;
+	}
+
+	public InterpolationOutput getInterpolationOutput() {
+		return interpolationOutput;
+	}
+
+	public void setInterpolationOutput(InterpolationOutput interpolationOutput) {
+		this.interpolationOutput = interpolationOutput;
+	}
+
+	public Interpolation getCustomInterpolation() {
+		return customInterpolation;
+	}
+
+	public void setCustomInterpolation(Interpolation customInterpolation) {
+		this.customInterpolation = customInterpolation;
+	}
+
+	public ConflictResolution getCoordinateTypeConflict() {
+		return coordinateTypeConflict;
+	}
+
+	public void setCoordinateTypeConflict(ConflictResolution coordinateTypeConflict) {
+		this.coordinateTypeConflict = coordinateTypeConflict;
+	}
+
+	public CoordinateTypeOutput getCoordinateTypeOutput() {
+		return coordinateTypeOutput;
+	}
+
+	public void setCoordinateTypeOutput(CoordinateTypeOutput coordinateTypeOutput) {
+		this.coordinateTypeOutput = coordinateTypeOutput;
+	}
+
+	public String getCustomCoordinateType() {
+		return customCoordinateType;
+	}
+
+	public void setCustomCoordinateType(String customCoordinateType) {
+		this.customCoordinateType = customCoordinateType;
+	}
+
+	public Indentation getWriteIndentation() {
+		return writeIndentation;
+	}
+
+	public void setWriteIndentation(Indentation writeIndentation) {
+		this.writeIndentation = writeIndentation;
+	}
+
+	public boolean isWriteNewlines() {
+		return writeNewlines;
+	}
+
+	public void setWriteNewlines(boolean writeNewlines) {
+		this.writeNewlines = writeNewlines;
+	}
+
 	private static final <E extends Enum<E>> E readEnumProperty(
 			final Properties properties, final String propertyName, 
 			final Class<E> enumClass) {

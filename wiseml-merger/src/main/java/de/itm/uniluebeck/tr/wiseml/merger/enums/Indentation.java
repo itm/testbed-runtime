@@ -15,7 +15,7 @@ public enum Indentation {
 		this.string = string;
 	}
 	
-	public String getString() {
+	public String getIndentationElement() {
 		return string;
 	}
 }

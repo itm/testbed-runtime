@@ -11,6 +11,8 @@ public class XMLPipe {
 	private final XMLStreamWriter writer;
 	private int namespaceIndex = 0;
 	
+	private boolean atStart = true;
+	
 	public XMLPipe(final XMLStreamReader reader, final XMLStreamWriter writer) {
 		this.reader = reader;
 		this.writer = writer;
@@ -20,31 +22,28 @@ public class XMLPipe {
 		return reader.hasNext();
 	}
 	
-	public int next() throws XMLStreamException {
+	private void writeCurrentEvent() throws XMLStreamException {
 		switch (reader.getEventType()) {
 		case XMLStreamConstants.START_DOCUMENT:
-			writer.writeStartDocument(reader.getEncoding(), reader.getVersion());
+			writer.writeStartDocument(
+					reader.getEncoding(), 
+					reader.getVersion());
 			break;
 		case XMLStreamConstants.END_DOCUMENT:
 			writer.writeEndDocument();
+			writer.flush();
 			break;
 		case XMLStreamConstants.START_ELEMENT:
-			writer.writeStartElement(reader.getPrefix(), reader.getLocalName(), reader.getNamespaceURI());
+			writeStartElement(
+					reader.getPrefix(), 
+					reader.getLocalName(), 
+					reader.getNamespaceURI());
 			for (int i = 0; i < reader.getAttributeCount(); i++) {
-				String prefix = reader.getAttributePrefix(i);
-				String namespace = reader.getAttributeNamespace(i);
-				String localName = reader.getAttributeLocalName(i);
-				String value = reader.getAttributeValue(i);
-
-				if (prefix == null || prefix.equals("")) {
-					if (namespace == null) {
-						writer.writeAttribute(localName, value);
-					} else {
-						writer.writeAttribute(namespace, localName, value);
-					}
-				} else {
-					writer.writeAttribute(prefix, namespace, localName, value);
-				}
+				writeAttribute(
+						reader.getAttributePrefix(i), 
+						reader.getAttributeNamespace(i), 
+						reader.getAttributeLocalName(i), 
+						reader.getAttributeValue(i));
 			}
 			break;
 		case XMLStreamConstants.END_ELEMENT:
@@ -70,15 +69,65 @@ public class XMLPipe {
 			writer.writeCharacters(reader.getText());
 			break;
 		case XMLStreamConstants.PROCESSING_INSTRUCTION:
-			writer.writeProcessingInstruction(reader.getPITarget(), reader.getPIData());
+			writer.writeProcessingInstruction(
+					reader.getPITarget(), 
+					reader.getPIData());
 			break;
 		case XMLStreamConstants.ENTITY_REFERENCE:
 			writer.writeEntityRef(reader.getText());
 			break;
 		case XMLStreamConstants.DTD:
 			writer.writeDTD(reader.getText());
+			break;
+		default:
+			throw new IllegalStateException("unknown event type: " + 
+					reader.getEventType());
 		}
-		return reader.next();
+	}
+	
+	private void writeAttribute(
+			final String prefix, 
+			final String localName, 
+			final String namespaceURI, 
+			final String value) throws XMLStreamException {
+		if (prefix == null || prefix.equals("")) {
+			if (namespaceURI == null) {
+				writer.writeAttribute(localName, value);
+			} else {
+				writer.writeAttribute(namespaceURI, localName, value);
+			}
+		} else {
+			writer.writeAttribute(prefix, namespaceURI, localName, value);
+		}
+	}
+	
+	private void writeStartElement(
+			final String prefix, 
+			final String localName, 
+			final String namespaceURI) throws XMLStreamException {
+		if (prefix == null || prefix.equals("")) {
+			if (namespaceURI == null) {
+				writer.writeStartElement(localName);
+			} else {
+				writer.writeStartElement(namespaceURI, localName);
+			}
+		} else {
+			writer.writeStartElement(prefix, localName, namespaceURI);
+		}
+	}
+	
+	public int next() throws XMLStreamException {
+		if (atStart) {
+			writeCurrentEvent();
+			atStart = false;
+		}
+		int nextEvent = reader.next();
+		writeCurrentEvent();
+		return nextEvent;
+	}
+	
+	public int getEventType() {
+		return reader.getEventType();
 	}
 	
 	public void streamUntilEnd() throws XMLStreamException {
