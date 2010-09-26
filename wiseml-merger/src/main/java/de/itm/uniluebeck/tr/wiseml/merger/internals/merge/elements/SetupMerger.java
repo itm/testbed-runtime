@@ -340,7 +340,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			return inputProperties[0].getDescription();
 		}
 		
-		switch (configuration.getDescriptionConflict()) {
+		switch (configuration.getDescriptionResolution()) {
 		case ResolveSilently: break;
 		case ResolveWithWarning: 
 			warn("descriptions not equal");
@@ -352,14 +352,14 @@ public class SetupMerger extends WiseMLElementMerger {
 		
 		if (configuration.getDescriptionOutput() 
 				== DescriptionOutput.UseCustomDescription) {
-			return configuration.getCustomDescriptionText();
+			return configuration.getCustomDescription();
 		}
 		
 		String result = "";
 		
 		switch (configuration.getDescriptionOutput()) {
 		case UseCustomPlusInputDescriptions:
-			result = configuration.getCustomDescriptionText() + "\n\n";
+			result = configuration.getCustomDescription() + "\n\n";
 		case ListInputDescriptions: {
 			StringBuilder sb = new StringBuilder();
 			sb.append(result);

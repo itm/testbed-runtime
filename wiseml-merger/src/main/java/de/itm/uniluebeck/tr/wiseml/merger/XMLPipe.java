@@ -9,7 +9,6 @@ public class XMLPipe {
 	
 	private final XMLStreamReader reader;
 	private final XMLStreamWriter writer;
-	private int namespaceIndex = 0;
 	
 	private boolean atStart = true;
 	
@@ -41,19 +40,19 @@ public class XMLPipe {
 			for (int i = 0; i < reader.getAttributeCount(); i++) {
 				writeAttribute(
 						reader.getAttributePrefix(i), 
-						reader.getAttributeNamespace(i), 
 						reader.getAttributeLocalName(i), 
+						reader.getAttributeNamespace(i), 
 						reader.getAttributeValue(i));
 			}
 			break;
 		case XMLStreamConstants.END_ELEMENT:
 			writer.writeEndElement();
 			break;
-		case XMLStreamConstants.NAMESPACE:
+/*		case XMLStreamConstants.NAMESPACE:
 			writer.writeNamespace(reader.getNamespacePrefix(namespaceIndex),
 					reader.getNamespaceURI(namespaceIndex));
 			namespaceIndex++;
-			break;
+			break;*/
 		case XMLStreamConstants.CHARACTERS:
 			//writer.writeCharacters(new String(reader.getTextCharacters()));
 			writer.writeCharacters(reader.getText());
@@ -90,11 +89,21 @@ public class XMLPipe {
 			final String localName, 
 			final String namespaceURI, 
 			final String value) throws XMLStreamException {
+		if (value == null) {
+			throw new IllegalArgumentException("value cannot be null");
+		}
+		if (localName == null) {
+			throw new IllegalArgumentException("localName cannot be null");
+		}
 		if (prefix == null || prefix.equals("")) {
 			if (namespaceURI == null) {
 				writer.writeAttribute(localName, value);
 			} else {
-				writer.writeAttribute(namespaceURI, localName, value);
+				if (writer.getPrefix(namespaceURI) == null) {
+					writer.writeAttribute(localName, value);
+				} else {
+					writer.writeAttribute(namespaceURI, localName, value);
+				}
 			}
 		} else {
 			writer.writeAttribute(prefix, namespaceURI, localName, value);
@@ -109,7 +118,12 @@ public class XMLPipe {
 			if (namespaceURI == null) {
 				writer.writeStartElement(localName);
 			} else {
-				writer.writeStartElement(namespaceURI, localName);
+				if (writer.getPrefix(namespaceURI) == null) {
+					writer.writeStartElement(localName);
+					writer.writeDefaultNamespace(namespaceURI);
+				} else {
+					writer.writeStartElement(namespaceURI, localName);
+				}
 			}
 		} else {
 			writer.writeStartElement(prefix, localName, namespaceURI);

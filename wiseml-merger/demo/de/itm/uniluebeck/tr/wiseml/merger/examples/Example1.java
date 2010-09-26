@@ -2,9 +2,10 @@ package de.itm.uniluebeck.tr.wiseml.merger.examples;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
-import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -161,28 +162,80 @@ public class Example1 {
 			break;
 		}
 	}
-	
-	private static void debug4(XMLStreamReader reader) {
-		try {
-			XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
-			XMLPipe pipe = new XMLPipe(reader, output);
-			pipe.streamUntilEnd();
-		} catch (FactoryConfigurationError e) {
-			throw new RuntimeException(e);
-		} catch (XMLStreamException e) {
-			throw new RuntimeException(e);
-		}
+
+	private static void debug4(XMLStreamReader reader) throws Exception {
+		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+		XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
+		XMLPipe pipe = new XMLPipe(reader, output);
+		pipe.streamUntilEnd();
 	}
-	
+
 	private static void debug5(XMLStreamReader reader) throws Exception {
 		WiseMLTreeReader tree = new XMLStreamToWiseMLTree(reader);
 		XMLStreamReader input = new WiseMLTreeToXMLStream(tree, new MergerConfiguration());
 		
-		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
+		XMLStreamWriter output = createStandardOutputStreamWriter("UTF-8");
 		XMLPipe pipe = new XMLPipe(input, output);
 		pipe.streamUntilEnd();
+	}
+
+	private static void debug6(XMLStreamReader reader) throws Exception {
+		while (true) {
+			switch (reader.getEventType()) {
+			case XMLStreamConstants.START_ELEMENT:
+				printElementInfo(reader);
+				for (int i = 0; i < reader.getAttributeCount(); i++) {
+					printAttributeInfo(reader, i);
+				}
+				System.out.println();
+				break;
+			default:
+				break;
+			}
+			if (reader.hasNext()) {
+				reader.next();
+			} else {
+				break;
+			}
+		}
+	}
+	
+	private static void printElementInfo(XMLStreamReader reader) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Element")
+			//.append(" at ").append(reader.getLocation())
+			.append(":\n");
+		sb.append('\t').append("QName: ").append(reader.getName()).append('\n');
+		sb.append('\t').append("LocalName: ").append(reader.getLocalName()).append('\n');
+		sb.append('\t').append("Prefix: ").append(reader.getPrefix()).append('\n');
+		sb.append('\t').append("Namespace: ").append(reader.getNamespaceURI()).append('\n');
+		sb.append('\t').append("# Namespaces: ").append(reader.getNamespaceCount()).append('\n');
+		System.out.print(sb.toString());
+	}
+	
+	private static void printAttributeInfo(XMLStreamReader reader, int index) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Attribute #").append(index)
+			.append(" for element ").append(reader.getLocalName())
+			//.append(" at ").append(reader.getLocation())
+			.append(":\n");
+		sb.append('\t').append("QName: ").append(reader.getAttributeName(index)).append('\n');
+		sb.append('\t').append("LocalName: ").append(reader.getAttributeLocalName(index)).append('\n');
+		sb.append('\t').append("Prefix: ").append(reader.getAttributePrefix(index)).append('\n');
+		sb.append('\t').append("Namespace: ").append(reader.getAttributeNamespace(index)).append('\n');
+		sb.append('\t').append("Type: ").append(reader.getAttributeType(index)).append('\n');
+		sb.append('\t').append("Value: ").append(reader.getAttributeValue(index)).append('\n');
+		System.out.print(sb.toString());
+	}
+	
+	private static OutputStreamWriter createStandardOutput(String encoding) throws Exception {
+		return new OutputStreamWriter(System.out, encoding);
+	}
+	
+	private static XMLStreamWriter createStandardOutputStreamWriter(String encoding) throws Exception {
+		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+		XMLStreamWriter output = outputFactory.createXMLStreamWriter(createStandardOutput(encoding));
+		return output;
 	}
 
 	/**
@@ -203,6 +256,7 @@ public class Example1 {
 		//debug3(inputA);
 		//debug4(inputA);
 		debug5(inputA);
+		//debug6(inputA);
 		System.exit(0);
 		
 		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(inputA, inputB);

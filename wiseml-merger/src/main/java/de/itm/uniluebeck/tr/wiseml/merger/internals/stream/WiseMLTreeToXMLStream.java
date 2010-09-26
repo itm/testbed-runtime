@@ -11,19 +11,17 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.enums.PrefixOutput;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	
-	/*
-	 * TODO: implement namespaces/prefixes
-	 */
 	
 	private static final int BUFFERED_INDENTATIONS = 12;
-	private static final String NAMESPACE_URI = "";
-	//	"http://wisebed.eu/ns/wiseml/1.0";
+	private static final String NAMESPACE_URI =
+		"http://wisebed.eu/ns/wiseml/1.0";
 	private static final String ENCODING = "UTF-8";
 	
 	private class Event {
@@ -45,14 +43,17 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 		private final String elementLocalName;
 		private final String[] elementAttributeNames;
 		private final String[] elementAttributeValues;
+		private final String[] elementNamespaces;
 		
 		public TagEvent(
 				final int type, final String localName, 
-				final String[] attributeNames, final String[] attributeValues) {
+				final String[] attributeNames, final String[] attributeValues,
+				final String[] namespaces) {
 			super(type);
 			this.elementLocalName = localName;
 			this.elementAttributeNames = attributeNames;
 			this.elementAttributeValues = attributeValues;
+			this.elementNamespaces = namespaces;
 		}
 		
 		public void activate() {
@@ -61,6 +62,7 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 			attributeNames = this.elementAttributeNames;
 			attributeValues = this.elementAttributeValues;
 			whitespace = false;
+			namespaces = elementNamespaces;
 		}
 		
 		@Override
@@ -151,9 +153,10 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	private String text;
 	private boolean whitespace;
 	private boolean finished;
+	private String[] namespaces;
 	
 	private int level;
-	
+		
 	private WiseMLTreeReader currentReader;
 	
 	public WiseMLTreeToXMLStream(
@@ -217,7 +220,13 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 				XMLStreamConstants.START_ELEMENT, 
 				tag.getLocalName(),
 				attributeNames,
-				attributeValues));
+				attributeValues,
+				((tag.equals(WiseMLTag.wiseml)
+						?
+							new String[]{NAMESPACE_URI}
+						:
+							null))
+				));
 		
 		// add text
 		if (tag.isTextOnly()) {
@@ -242,6 +251,7 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 		queueEvent(new TagEvent(
 				XMLStreamConstants.END_ELEMENT, 
 				tag.getLocalName(),
+				null,
 				null,
 				null));
 		
@@ -337,14 +347,13 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	}
 	
 	private String indentation(int level) {
+		if (config.getIndentation().preventWhitespace()) {
+			return null;
+		}
 		if (indentations != null && level < indentations.length) {
 			return indentations[level];
 		}
-		String indent_str = 
-			config.getWriteIndentation().getIndentationElement();
-		if (indent_str == null) {
-			return null;
-		}
+		String indent_str = config.getIndentation().getIndentationElement();
 		StringBuilder sb = new StringBuilder(1+level*indent_str.length());
 		sb.append('\n');
 		for (int i = 0; i < level; i++) {
@@ -384,7 +393,7 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	}
 	
 	private QName toQName(String localName) {
-		return new QName(null, localName);
+		return new QName(NAMESPACE_URI, localName);
 	}
 
 	@Override
@@ -412,14 +421,25 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public String getAttributeNamespace(int index) {
-		//return NAMESPACE_URI;
 		return null;
+	}
+	
+	private String getConfiguredPrefix() {
+		switch (config.getPrefixOutput()) {
+		case DefaultNamespaceOnly:
+			return "";
+		case WiseMLPrefix:
+			return "wiseml";
+		case CustomPrefix:
+			return config.getCustomPrefix();
+		default:
+			throw new RuntimeException("unknown prefix output: "+config.getPrefixOutput());
+		}
 	}
 
 	@Override
 	public String getAttributePrefix(int index) {
-		//return "wiseml";
-		return null;
+		return getConfiguredPrefix();
 	}
 
 	@Override
@@ -543,23 +563,33 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public int getNamespaceCount() {
-		return 0;
+		if (namespaces == null) {
+			return 0;
+		}
+		return namespaces.length;
 	}
 
 	@Override
 	public String getNamespacePrefix(int index) {
-		return "wiseml";
+		if (namespaces == null || index > 0) {
+			return null;
+		}
+		return getConfiguredPrefix();
 	}
 
 	@Override
 	public String getNamespaceURI() {
-		//return NAMESPACE_URI;
+		if (eventType == XMLStreamConstants.START_ELEMENT && localName.equals("wiseml")) {
+			if (config.getPrefixOutput() == PrefixOutput.DefaultNamespaceOnly) {
+				return NAMESPACE_URI;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public String getNamespaceURI(String prefix) {
-		if (prefix.equals("wiseml")) {
+		if (prefix.equals(getConfiguredPrefix())) {
 			return NAMESPACE_URI;
 		}
 		return null;
@@ -567,8 +597,10 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public String getNamespaceURI(int index) {
-		//return NAMESPACE_URI;
-		return null;
+		if (namespaces == null || index > 0) {
+			return null;
+		}
+		return namespaces[0];
 	}
 
 	@Override
@@ -583,8 +615,7 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public String getPrefix() {
-		//return "wiseml";
-		return null;
+		return getConfiguredPrefix();
 	}
 
 	@Override
@@ -654,7 +685,7 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 
 	@Override
 	public boolean hasNext() throws XMLStreamException {
-		return !eventQueue.isEmpty();
+		return !finished;
 	}
 
 	@Override
