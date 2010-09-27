@@ -1,5 +1,6 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.DescriptionOutput;
@@ -7,6 +8,7 @@ import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.VecMath;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserCallback;
@@ -25,12 +27,16 @@ import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 
 public class SetupMerger extends WiseMLElementMerger {
 	
+	// TODO: remove this class, replace with arrays
+	/*
 	protected static class SetupProperties {
 		private final Coordinate origin;
 		private final TimeInfo timeInfo;
 		private final Interpolation interpolation;
 		private final String coordinateType;
 		private final String description;
+		
+		
 		
 		public SetupProperties(final Map<WiseMLTag,Object> structures) {
 			this.origin = (Coordinate)structures.get(WiseMLTag.origin);
@@ -74,6 +80,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		}
 		
 	}
+	*/
 	
 	private static final int INIT = 0;
 	private static final int PROPERTIES = 1;
@@ -83,6 +90,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	
 	private int state;
 	private boolean[] skip; // true if input i should be incremented
+	
 
 	public SetupMerger(
 			final WiseMLTreeMerger parent, 
@@ -147,7 +155,7 @@ public class SetupMerger extends WiseMLElementMerger {
 
 	private boolean mergeNodes() {
 		updateInputs();
-		printInputState("before <node>*");
+		//printInputState("before <node>*");
 		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node);
 		
 		
@@ -155,7 +163,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			queue.add(new NodeListMerger(this, nodeListInputs, null, null));
 		}
 		
-		printInputState("after <node>*");
+		//printInputState("after <node>*");
 		
 		state++;
 		
@@ -164,7 +172,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	
 	private boolean mergeLinks() {
 		updateInputs();
-		printInputState("before <link>*");
+		//printInputState("before <link>*");
 		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link);
 		
 		
@@ -172,7 +180,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			queue.add(new LinkListMerger(this, linkListInputs, null, null));
 		}
 		
-		printInputState("after <link>*");
+		//printInputState("after <link>*");
 		
 		state++;
 		
@@ -185,7 +193,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		final LinkProperties[] inputDefaultLinks = 
 			new LinkProperties[inputs.length];
 		
-		printInputState("before <defaults>");
+		//printInputState("before <defaults>");
 		
 		// loop through inputs (<defaults> is optional)
 		for (int i = 0; i < inputs.length; i++) {
@@ -230,11 +238,11 @@ public class SetupMerger extends WiseMLElementMerger {
 		// next state
 		state++;
 		
-		printInputState("after <defaults>");
+		//printInputState("after <defaults>");
 		
 		return !queue.isEmpty();
 	}
-	
+	/*
 	private void printInputState(String msg) {
 		if (msg != null) {
 			System.err.print(msg);
@@ -251,7 +259,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		}
 		System.err.println();
 	}
-	
+	*/
 	private void readDefaults(
 			final NodeProperties[] inputDefaultNodes,
 			final LinkProperties[] inputDefaultLinks,
@@ -274,25 +282,30 @@ public class SetupMerger extends WiseMLElementMerger {
 	
 
 	private boolean mergeProperties() {
+		
+		// create arrays
+		Coordinate[] origins = new Coordinate[inputs.length];
+		TimeInfo[] timeInfos = new TimeInfo[inputs.length];
+		Interpolation[] interpolations = new Interpolation[inputs.length];
+		String[] coordinateTypes = new String[inputs.length];
+		String[] descriptions = new String[inputs.length];
+		
 		// retrieve properties from inputs
-		SetupProperties[] inputProperties = new SetupProperties[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
-			inputProperties[i] = new SetupProperties(ParserHelper.getStructures(inputs[i]));
+			Map<WiseMLTag, Object> map = ParserHelper.getStructures(inputs[i]);
+			origins[i] = (Coordinate)map.get(WiseMLTag.origin);
+			timeInfos[i] = (TimeInfo)map.get(WiseMLTag.timeinfo);
+			interpolations[i] = (Interpolation)map.get(WiseMLTag.interpolation);
+			coordinateTypes[i] = (String)map.get(WiseMLTag.coordinateType);
+			descriptions[i] = (String)map.get(WiseMLTag.description);
 		}
 		
 		// merge properties
-		SetupProperties outputProperties = new SetupProperties(
-				mergeOrigin(inputProperties),
-				mergeTimeInfo(inputProperties),
-				mergeInterpolation(inputProperties),
-				mergeCoordinateType(inputProperties),
-				mergeDescription(inputProperties));
-		
-		// save origins
-		resources.setOrigins(getOrigins(inputProperties), outputProperties.getOrigin());
-		
-		// push properties into queue
-		queueProperties(outputProperties);
+		mergeOrigin(origins);
+		mergeTimeInfo(timeInfos);
+		mergeInterpolation(interpolations);
+		mergeCoordinateType(coordinateTypes);
+		mergeDescription(descriptions);
 		
 		// next state
 		state++;
@@ -300,116 +313,187 @@ public class SetupMerger extends WiseMLElementMerger {
 		return !queue.isEmpty();
 	}
 	
-	private void queueProperties(SetupProperties properties) {
-		if (properties.getOrigin() != null) {
-			queue.add(new OriginReader(this, properties.getOrigin()));
-		}
-		if (properties.getTimeInfo() != null) {
-			queue.add(new TimeInfoReader(this, properties.getTimeInfo()));
-		}
-		if (properties.getInterpolation() != null) {
-			queue.add(new InterpolationReader(this, properties.getInterpolation()));
-		}
-		if (properties.getCoordinateType() != null) {
-			queue.add(new CoordinateTypeReader(this, properties.getCoordinateType()));
-		}
-		if (properties.getDescription() != null) {
-			queue.add(new DescriptionReader(this, properties.getDescription()));
-		}
-	}
-
-	private Coordinate[] getOrigins(SetupProperties[] propertiesArray) {
-		return null; // TODO
-	}
-	
-	private String mergeDescription(SetupProperties[] inputProperties) {
-		// check if descriptions are equal
-		boolean conflict = false;
-		for (int i = 1; i < inputProperties.length && !conflict; i++) {
-			if (inputProperties[i].getDescription() == null) {
-				conflict = true;
-			}
-		}
-		for (int i = 1; i < inputProperties.length && !conflict; i++) {
-			if (!inputProperties[i].getDescription()
-					.equals(inputProperties[0].getDescription())) {
-				conflict = true;
-			}
-		}
-		if (!conflict) {
-			return inputProperties[0].getDescription();
-		}
-		
-		switch (configuration.getDescriptionResolution()) {
-		case ResolveSilently: break;
-		case ResolveWithWarning: 
-			warn("descriptions not equal");
-			break;
-		case ThrowException: 
-			exception("descriptions not equal", null);
-			break;
-		}
-		
-		if (configuration.getDescriptionOutput() 
-				== DescriptionOutput.UseCustomDescription) {
-			return configuration.getCustomDescription();
-		}
-		
-		String result = "";
-		
-		switch (configuration.getDescriptionOutput()) {
-		case UseCustomPlusInputDescriptions:
-			result = configuration.getCustomDescription() + "\n\n";
-		case ListInputDescriptions: {
-			StringBuilder sb = new StringBuilder();
-			sb.append(result);
-			for (int i = 0; i < inputProperties.length; i++) {
-				if (inputProperties[i].getDescription() != null) {
-					sb.append(inputProperties[i].getDescription());
-					sb.append("\n\n");
+	private void mergeDescription(String[] descriptions) {
+		boolean conflict = !allEqual(descriptions);
+		if (configuration.isForceResolveDescription() || conflict) {
+			if (conflict) {
+				switch (configuration.getDescriptionResolution()) {
+				case ResolveSilently: break;
+				case ResolveWithWarning: 
+					warn("descriptions not equal, resolving");
+					break;
+				case ThrowException: 
+					exception("descriptions not equal", null);
+					break;
 				}
 			}
-			result = sb.toString();
+			
+			String description = "";
+			
+			switch (configuration.getDescriptionOutput()) {
+			case UseCustomPlusInputDescriptions:
+				description = configuration.getCustomDescription() + "\n\n";
+			case ListInputDescriptions: {
+				StringBuilder sb = new StringBuilder();
+				sb.append(description);
+				for (int i = 0; i < descriptions.length; i++) {
+					if (descriptions[i] != null) {
+						sb.append(descriptions[i]);
+						sb.append("\n\n");
+					}
+				}
+				description = sb.toString();
+			}
+			}
+			
+			queue.add(new DescriptionReader(this, description));
 		}
-		}
-		
-		return result;
 	}
 
-	private String mergeCoordinateType(SetupProperties[] inputProperties) {
-		String[] types = new String[inputProperties.length];
-		for (int i = 0; i < types.length; i++) {
-			types[i] = inputProperties[i].getCoordinateType();
-		}
+	private void mergeCoordinateType(String[] coordinateTypes) {
+		String coordinateType = null;
 		
-		if (allNull(types)) {
-			return null;
-		}
-		
-		for (int i = 1; i < types.length; i++) {
-			if (!types[0].equals(types[i])) {
-				exception("unresolvable conflict: differing coordinate types", null);
+		if (allEqual(coordinateTypes)) {
+			coordinateType = coordinateTypes[0];
+		} else {
+			switch (configuration.getCoordinateTypeResolution()) {
+			case ResolveSilently: break;
+			case ResolveWithWarning:
+				warn("coordinate types not equal, resolving (not recommended!)");
+				break;
+			case ThrowException:
+				exception("coordinate types not equal", null);
+				break;
+			}
+			
+			
+			switch (configuration.getCoordinateTypeOutput()) {
+			case UseCustom:
+				coordinateType = configuration.getCustomCoordinateType();
+				break;
+			case UseFirstFile:
+				coordinateType = coordinateTypes[0];
+				break;
 			}
 		}
 		
-		return types[0];
+		if (coordinateType != null) {
+			queue.add(new CoordinateTypeReader(this, coordinateType));
+		}
 	}
 
-	private Interpolation mergeInterpolation(SetupProperties[] inputProperties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private TimeInfo mergeTimeInfo(SetupProperties[] inputProperties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Coordinate mergeOrigin(SetupProperties[] inputProperties) {
-		Coordinate result = null; // TODO
+	private void mergeInterpolation(Interpolation[] interpolations) {
+		Interpolation interpolation = null;
 		
+		if (allEqual(interpolations)) {
+			interpolation = interpolations[0];
+		} else {
+			switch (configuration.getInterpolationResolution()) {
+			case ResolveSilently: break;
+			case ResolveWithWarning:
+				warn("interpolations not equal, resolving");
+				break;
+			case ThrowException:
+				exception("interpolations not equal", null);
+				break;
+			}
+			
+			switch (configuration.getInterpolationOutput()) {
+			case UseBest: {
+				int max = -1;
+				for (int i = 0; i < interpolations.length; i++) {
+					if (interpolations[i] != null && 
+							(interpolation == null || interpolations[i].getQuality() > max)) {
+						interpolation = interpolations[i];
+						max = interpolation.getQuality();
+					}
+				}
+			} break;
+			case UseFirstFile:
+				interpolation = interpolations[0];
+				break;
+			case UseCustom:
+				interpolation = configuration.getCustomInterpolation();
+				break;
+			}
+		}
 		
-		return result;
+		if (interpolation != null) {
+			queue.add(new InterpolationReader(this, interpolation));
+		}
+	}
+
+	private void mergeTimeInfo(TimeInfo[] timeInfos) {
+		TimeInfo timeInfo = null;
+		
+		if (allEqual(timeInfos)) {
+			timeInfo = timeInfos[0];
+		} else {
+			// TODO
+		}
+		
+		if (timeInfo != null) {
+			queue.add(new TimeInfoReader(this, timeInfo));
+		}
+	}
+
+	private void mergeOrigin(Coordinate[] origins) {
+		Coordinate origin = null;
+		
+		if (allEqual(origins)) {
+			origin = origins[0];
+		} else {
+			// check if origins have the same dimensions
+			Coordinate first = null;
+			for (int i = 0; i < origins.length; i++) {
+				if (first == null) {
+					first = origins[i];
+				} else if (origins[i] != null){
+					if (!first.isComparableTo(origins[i])) {
+						exception("origins not mergeable", null);
+					}
+				}
+			}
+			
+			boolean doTransform = false;
+						
+			switch (configuration.getOriginOutput()) {
+			case UseFirstOriginAndTransform:
+				for (int i = 0; i < origins.length; i++) {
+					if (origins[i] != null) {
+						origin = origins[i];
+						break;
+					}
+				}
+				break;
+			case UseCentralOriginAndTransform:
+				try {
+					origin = VecMath.computeCenter(origins);
+				} catch (Exception e) {
+					exception("could not merge origins", e);
+				}
+				break;
+			}
+			
+			if (doTransform) {
+				// TODO: create transform for each input
+				
+				switch (configuration.getOriginResolution()) {
+				case ResolveSilently: break;
+				case ResolveWithWarning:
+					warn("Resolving origin conflict using this strategy: " + 
+							configuration.getOriginOutput());
+					break;
+				case ThrowException:
+					exception("unresolved origin conflict", null);
+					break;
+				}
+			}
+		}
+		
+		if (origin != null) {
+			queue.add(new OriginReader(this, origin));
+		}
 	}
 	
 	private static <T> boolean allNull(final T[] array) {
@@ -436,6 +520,15 @@ public class SetupMerger extends WiseMLElementMerger {
 			}
 		}
 		return true;
+	}
+	
+	private static <T> T firstNonNull(final T[] array) {
+		for (int i = 1; i < array.length; i++) {
+			if (array[i] != null) {
+				return array[i];
+			}
+		}
+		return null;
 	}
 
 }

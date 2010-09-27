@@ -15,23 +15,26 @@ public class TimeInfoParser extends WiseMLElementParser<TimeInfo> {
 	@Override
 	protected void parseStructure() {
 		reader.nextSubElementReader(); // <start>
-		String startText = reader.getSubElementReader().getText();
+		String start = reader.getSubElementReader().getText();
 		
 		reader.nextSubElementReader(); // <end> or <duration>
 		boolean endDefined = (reader.getSubElementReader().getTag().equals(WiseMLTag.end));
 		String end = null;
-		String duration = null;
+		long duration = 0;
 		if (endDefined) {
 			end = reader.getSubElementReader().getText();
 		} else {
-			duration = reader.getSubElementReader().getText();
+			duration = Long.parseLong(reader.getSubElementReader().getText());
 		}
 		
 		reader.nextSubElementReader(); // <unit>
 		Unit unit = Unit.valueOf(reader.getSubElementReader().getText());
 		
-		// TODO
-		this.structure = new TimeInfo(); // TODO
+		if (endDefined) {
+			this.structure = new TimeInfo(start, end, unit);
+		} else {
+			this.structure = new TimeInfo(start, duration, unit);
+		}
 	}
 
 }

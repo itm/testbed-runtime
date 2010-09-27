@@ -24,7 +24,7 @@ public class TimeInfoReader extends WiseMLStructureReader {
 						createPureTextElement(
 								null,
 								WiseMLTag.duration,
-								timeInfo.getDuration())),
+								Long.toString(timeInfo.getDuration()))),
 				createPureTextElement(
 						null,
 						WiseMLTag.unit,

@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerFactory;
 import de.itm.uniluebeck.tr.wiseml.merger.XMLPipe;
+import de.itm.uniluebeck.tr.wiseml.merger.config.ConflictResolution;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.WiseMLMerger;
@@ -255,15 +256,15 @@ public class Example1 {
 		//debug2(inputA, inputB);
 		//debug3(inputA);
 		//debug4(inputA);
-		debug5(inputA);
+		//debug5(inputA);
 		//debug6(inputA);
-		System.exit(0);
+		//System.exit(0);
 		
-		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(inputA, inputB);
+		MergerConfiguration config = new MergerConfiguration();
+		config.setOriginResolution(ConflictResolution.ResolveSilently);
+		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(config, inputA, inputB);
 
-		
-		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
+		XMLStreamWriter output = createStandardOutputStreamWriter("UTF-8");
 		
 		new XMLPipe(merger, output).streamUntilEnd();
 	}
