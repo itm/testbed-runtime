@@ -6,13 +6,18 @@ import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.NodePropertiesParser;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
 
 public class ScenarioListMerger extends SortedListMerger<ScenarioDefinition> {
 
-	public ScenarioListMerger(WiseMLTreeMerger parent,
-			WiseMLTreeReader[] inputs, MergerConfiguration configuration,
-			MergerResources resources) {
+	public ScenarioListMerger(
+			final WiseMLTreeMerger parent,
+			final WiseMLTreeReader[] inputs, 
+			final MergerConfiguration configuration,
+			final MergerResources resources) {
 		super(parent, inputs, configuration, resources);
 	}
 
@@ -24,8 +29,23 @@ public class ScenarioListMerger extends SortedListMerger<ScenarioDefinition> {
 
 	@Override
 	protected ScenarioDefinition readNextItem(int inputIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		WiseMLTreeReader input = inputs[inputIndex];
+		if (input.isFinished()) {
+			return null;
+		}
+		if (input.getSubElementReader() == null 
+				&& !input.nextSubElementReader()) {
+			return null;
+		}
+		WiseMLTreeReader nodeReader = input.getSubElementReader();
+		
+		ScenarioDefinition result = new ScenarioDefinition(
+				WiseMLTreeReaderHelper.getAttributeValue(
+						nodeReader.getAttributeList(),
+						"id"));
+		
+		input.nextSubElementReader();
+		return result;
 	}
 
 	

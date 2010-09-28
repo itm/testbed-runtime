@@ -9,13 +9,13 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public abstract class WiseMLListMerger extends WiseMLTreeMerger implements WiseMLTreeReader {
 
-	protected WiseMLListMerger(WiseMLTreeMerger parent,
-			WiseMLTreeReader[] inputs, MergerConfiguration configuration,
-			MergerResources resources) {
+	protected WiseMLListMerger(
+			final WiseMLTreeMerger parent,
+			final WiseMLTreeReader[] inputs, 
+			final MergerConfiguration configuration,
+			final MergerResources resources) {
 		super(parent, inputs, configuration, resources);
-		// TODO Auto-generated constructor stub
 	}
-// TODO
 	
 	@Override
 	public final boolean isList() {
