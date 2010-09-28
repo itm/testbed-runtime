@@ -39,6 +39,7 @@ public class NodeListMerger extends SortedListMerger<NodeDefinition> {
 				}
 			}
 		}
+		
 		return new NodePropertiesReader(this, outputID, outputProperties);
 	}
 
@@ -48,15 +49,22 @@ public class NodeListMerger extends SortedListMerger<NodeDefinition> {
 		if (input.isFinished()) {
 			return null;
 		}
-		if (input.getSubElementReader() == null && !input.nextSubElementReader()) {
+		if (input.getSubElementReader() == null 
+				&& !input.nextSubElementReader()) {
 			return null;
 		}
 		WiseMLTreeReader nodeReader = input.getSubElementReader();
 		
+		// parse properties and transform
+		NodeProperties properties = 
+			new NodePropertiesParser(nodeReader).getParsedStructure();
+		properties = resources.getNodePropertiesTransformer().transform(
+				properties, inputIndex);
+		
 		NodeDefinition result = new NodeDefinition(
 				WiseMLTreeReaderHelper.getAttributeValue(
 						nodeReader.getAttributeList(), "id"),
-						new NodePropertiesParser(nodeReader).getParsedStructure(),
+						properties,
 						inputIndex);
 		input.nextSubElementReader();
 		return result;

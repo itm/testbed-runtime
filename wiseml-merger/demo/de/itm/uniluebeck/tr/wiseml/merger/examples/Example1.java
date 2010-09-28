@@ -2,7 +2,6 @@ package de.itm.uniluebeck.tr.wiseml.merger.examples;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
@@ -15,7 +14,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerFactory;
 import de.itm.uniluebeck.tr.wiseml.merger.XMLPipe;
-import de.itm.uniluebeck.tr.wiseml.merger.config.ConflictResolution;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.WiseMLMerger;
@@ -85,13 +83,13 @@ public class Example1 {
 		}
 	}
 	
-	private static void debug1(XMLStreamReader input) {
+	public static void debug1(XMLStreamReader input) {
 		XMLStreamToWiseMLTree xml2tree = new XMLStreamToWiseMLTree(input);
 		printWiseMLTree(xml2tree);
 		
 	}
 	
-	private static void debug2(XMLStreamReader inputA, XMLStreamReader inputB) {
+	public static void debug2(XMLStreamReader inputA, XMLStreamReader inputB) {
 		printWiseMLTree(new WiseMLMerger(new WiseMLTreeReader[]{
 				new XMLStreamToWiseMLTree(inputA),
 				new XMLStreamToWiseMLTree(inputB),
@@ -99,7 +97,7 @@ public class Example1 {
 		
 	}
 	
-	private static void debug3(XMLStreamReader input) {
+	public static void debug3(XMLStreamReader input) {
 		try {
 			printEvent(input);
 			while (input.hasNext()) {
@@ -164,14 +162,14 @@ public class Example1 {
 		}
 	}
 
-	private static void debug4(XMLStreamReader reader) throws Exception {
+	public static void debug4(XMLStreamReader reader) throws Exception {
 		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter output = outputFactory.createXMLStreamWriter(System.out);
 		XMLPipe pipe = new XMLPipe(reader, output);
 		pipe.streamUntilEnd();
 	}
 
-	private static void debug5(XMLStreamReader reader) throws Exception {
+	public static void debug5(XMLStreamReader reader) throws Exception {
 		WiseMLTreeReader tree = new XMLStreamToWiseMLTree(reader);
 		XMLStreamReader input = new WiseMLTreeToXMLStream(tree, new MergerConfiguration());
 		
@@ -180,7 +178,7 @@ public class Example1 {
 		pipe.streamUntilEnd();
 	}
 
-	private static void debug6(XMLStreamReader reader) throws Exception {
+	public static void debug6(XMLStreamReader reader) throws Exception {
 		while (true) {
 			switch (reader.getEventType()) {
 			case XMLStreamConstants.START_ELEMENT:
@@ -261,7 +259,6 @@ public class Example1 {
 		//System.exit(0);
 		
 		MergerConfiguration config = new MergerConfiguration();
-		config.setOriginResolution(ConflictResolution.ResolveSilently);
 		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(config, inputA, inputB);
 
 		XMLStreamWriter output = createStandardOutputStreamWriter("UTF-8");

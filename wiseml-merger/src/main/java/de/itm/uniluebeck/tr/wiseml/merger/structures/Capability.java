@@ -52,4 +52,26 @@ public class Capability {
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Capability)) {
+			return false;
+		}
+		Capability other = (Capability)obj;
+		return equals(this.name, other.name)
+			&& equals(this.dataType, other.dataType)
+			&& equals(this.unit, other.unit)
+			&& equals(this.defaultValue, other.defaultValue);
+	}
+	
+	private static <T> boolean equals(T a, T b) {
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		return a.equals(b);
+	}
 }

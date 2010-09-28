@@ -2,7 +2,6 @@ package de.itm.uniluebeck.tr.wiseml.merger.structures;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -78,12 +77,12 @@ public class NodeProperties {
 			return false;
 		}
 		NodeProperties other = (NodeProperties)obj;
-		return equals(this.capabilities, other.capabilities)
-			&& equals(this.description, other.description)
+		return equals(this.description, other.description)
 			&& equals(this.gateway, other.gateway)
 			&& equals(this.nodeType, other.nodeType)
 			&& equals(this.position, other.position)
-			&& equals(this.programDetails, other.programDetails);
+			&& equals(this.programDetails, other.programDetails)
+			&& this.capabilities.equals(other.capabilities);
 	}
 	
 	private static boolean equals(Object a, Object b) {

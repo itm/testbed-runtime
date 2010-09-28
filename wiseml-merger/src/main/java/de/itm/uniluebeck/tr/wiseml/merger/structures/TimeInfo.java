@@ -27,7 +27,7 @@ public class TimeInfo {
 		this.end = end;
 		this.unit = unit;
 		
-		this.duration = convertMillisToDuration(new Interval(start, end).toDurationMillis(), unit);
+		computeDuration();
 		this.endDefined = true;
 	}
 	
@@ -36,8 +36,18 @@ public class TimeInfo {
 		this.duration = duration;
 		this.unit = unit;
 		
-		this.end = new Interval(start, new Duration(convertDurationToMillis(duration, unit))).getEnd();
+		computeEnd();
 		this.endDefined = false;
+	}
+	
+	private void computeDuration() {
+		this.duration = convertMillisToDuration(
+				new Interval(start, end).toDurationMillis(), unit);
+	}
+	
+	private void computeEnd() {
+		this.end = new Interval(start, new Duration(
+				convertDurationToMillis(duration, unit))).getEnd();
 	}
 	
 	public DateTime getStart() {
@@ -74,6 +84,62 @@ public class TimeInfo {
 		case seconds: return duration * 1000;
 		default: throw new IllegalArgumentException("'"+unit+"' is not a time unit");
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof TimeInfo)) {
+			return false;
+		}
+		TimeInfo other = (TimeInfo)obj;
+		return this.start.equals(other.start)
+			&& this.end.equals(other.end)
+			&& this.unit.equals(other.unit)
+			&& this.duration == other.duration;
+	}
+
+	public void setStart(DateTime start) {
+		if (start.isAfter(this.end)) {
+			throw new IllegalArgumentException("start after end");
+		}
+		this.start = start;
+		computeDuration();
+	}
+
+	public void setEnd(DateTime end) {
+		if (end.isBefore(this.start)) {
+			throw new IllegalArgumentException("end before start");
+		}
+		this.end = end;
+		computeDuration();
+	}
+
+	public void setDuration(long duration) {
+		if (duration < 0) {
+			throw new IllegalArgumentException("negative duration");
+		}
+		this.duration = duration;
+		computeEnd();
+	}
+
+	public void setUnit(Unit unit) {
+		if (this.unit.equals(unit)) {
+			return;
+		}
+		switch (unit) {
+		case milliseconds:
+			this.duration *= 1000;
+		case seconds:
+			this.duration /= 1000;
+			break;
+		default:
+			throw new IllegalArgumentException("'"+unit+"' is not a time unit");
+		}
+		this.unit = unit;
+	}
+
+	public void setEndDefined(boolean endDefined) {
+		this.endDefined = endDefined;
 	}
 
 }

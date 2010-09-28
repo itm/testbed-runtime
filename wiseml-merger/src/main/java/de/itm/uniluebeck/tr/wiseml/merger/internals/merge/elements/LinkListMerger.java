@@ -56,12 +56,18 @@ public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 		}
 		WiseMLTreeReader linkReader = input.getSubElementReader();
 		
+		// parse properties and transform
+		LinkProperties properties = 
+			new LinkPropertiesParser(linkReader).getParsedStructure();
+		properties = resources.getLinkPropertiesTransformer().transform(
+				properties, inputIndex);
+		
 		LinkDefinition result = new LinkDefinition(
 				WiseMLTreeReaderHelper.getAttributeValue(
 						linkReader.getAttributeList(), "source"),
 				WiseMLTreeReaderHelper.getAttributeValue(
 						linkReader.getAttributeList(), "target"),
-				new LinkPropertiesParser(linkReader).getParsedStructure(),
+				properties,
 				inputIndex);
 		input.nextSubElementReader();
 		return result;

@@ -63,5 +63,27 @@ public class LinkProperties {
 	public Collection<Capability> getCapabilities() {
 		return this.capabilities.values();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof LinkProperties)) {
+			return false;
+		}
+		LinkProperties other = (LinkProperties)obj;
+		return equals(this.encrypted, other.encrypted)
+			&& equals(this.virtual, other.virtual)
+			&& equals(this.rssi, other.rssi)
+			&& this.capabilities.equals(other.capabilities);
+	}
+	
+	private static boolean equals(Object a, Object b) {
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		return a.equals(b);
+	}
 
 }

@@ -35,7 +35,7 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 				e.parent = this;
 			}
 			
-			this.subElementIndex = 0;
+			this.subElementIndex = -1;
 		}
 		
 		@Override
@@ -65,12 +65,16 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 		
 		@Override
 		public WiseMLTreeReader getSubElementReader() {
+			if (subElementIndex < 0) {
+				return null;
+			}
 			return subElements[subElementIndex];
 		}
 		
 		@Override
 		public boolean isFinished() {
-			return subElementIndex == subElements.length;
+			return subElements.length == 0 
+				|| subElementIndex == subElements.length;
 		}
 		
 		@Override

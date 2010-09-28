@@ -1,11 +1,12 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
-import de.itm.uniluebeck.tr.wiseml.merger.config.DescriptionOutput;
+import org.joda.time.DateTime;
+
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
+import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.VecMath;
@@ -214,20 +215,30 @@ public class SetupMerger extends WiseMLElementMerger {
 			if (allEqual(inputDefaultNodes)) {
 				outputDefaultNode = inputDefaultNodes[0];
 			} else {
-				outputDefaultNode = null; // TODO: find fine-grained, mutual defaults
+				outputDefaultNode = null; // TODO: find good defaults
 			}
 		}
 		if (!allNull(inputDefaultLinks)) {
 			if (allEqual(inputDefaultLinks)) {
 				outputDefaultLink = inputDefaultLinks[0];
 			} else {
-				outputDefaultLink = null; // TODO: find fine-grained, mutual defaults
+				outputDefaultLink = null; // TODO: find good defaults
 			}
 		}
 		
 		// save defaults
-		resources.setDefaultNodes(inputDefaultNodes, outputDefaultNode);
-		resources.setDefaultLinks(inputDefaultLinks, outputDefaultLink);
+		//resources.setDefaultNodes(inputDefaultNodes, outputDefaultNode);
+		//resources.setDefaultLinks(inputDefaultLinks, outputDefaultLink);
+		
+		// create transformers
+		resources.setNodePropertiesTransformer(
+				new NodePropertiesTransformer(
+						inputDefaultNodes, 
+						outputDefaultNode));
+		resources.setLinkPropertiesTransformer(
+				new LinkPropertiesTransformer(
+						inputDefaultLinks, 
+						outputDefaultLink));
 		
 		// queue defaults
 		if (outputDefaultNode != null && outputDefaultLink != null) {
@@ -429,7 +440,96 @@ public class SetupMerger extends WiseMLElementMerger {
 		if (allEqual(timeInfos)) {
 			timeInfo = timeInfos[0];
 		} else {
-			// TODO
+			timeInfo = firstNonNull(timeInfos);
+			
+			// check for duration/end conflicts
+			boolean durationConflict = false;
+			for (int i = 0; i < timeInfos.length; i++) {
+				if (timeInfos[i] != null) {
+					if (timeInfo.isEndDefined() 
+							!= timeInfos[i].isEndDefined()) {
+						durationConflict = true;
+						break;
+					}
+				}
+			}
+			if (durationConflict) {
+				switch (configuration.getTimeInfoDurationResolution()) {
+				case ResolveSilently: break;
+				case ResolveWithWarning:
+					warn("timeinfo definitions not equal, resolving");
+					break;
+				case ThrowException:
+					exception("timeinfo definition not equal", null);
+					break;
+				}
+			}
+			
+			// check for unit conflicts
+			boolean unitConflict = false;
+			for (int i = 0; i < timeInfos.length; i++) {
+				if (timeInfos[i] != null) {
+					if (!timeInfo.getUnit().equals(timeInfos[i].getUnit())) {
+						unitConflict = true;
+						break;
+					}
+				}
+			}
+			if (unitConflict) {
+				switch (configuration.getTimeInfoUnitResolution()) {
+				case ResolveSilently: break;
+				case ResolveWithWarning:
+					warn("timeinfo units not equal, resolving");
+					break;
+				case ThrowException:
+					exception("timeinfo units not equal", null);
+					break;
+				}
+			}
+			
+			boolean useEnd = timeInfo.isEndDefined();
+			Unit unit = timeInfo.getUnit();
+			
+			switch (configuration.getTimeInfoDurationOutput()) {
+			case FirstFileSelect: break;
+			case OverrideUseDuration:
+				useEnd = false;
+				break;
+			case OverrideUseEnd:
+				useEnd = true;
+				break;
+			}
+			
+			switch (configuration.getTimeInfoUnitOutput()) {
+			case Best:
+				unit = Unit.milliseconds; // TODO: check if seconds can be used as well
+				break;
+			case FirstFileSelect:
+				break;
+			case Custom:
+				unit = configuration.getCustomTimeInfoUnit();
+				break;
+			}
+			
+			// combine timeinfos
+			for (int i = 0; i < timeInfos.length; i++) {
+				if (timeInfos[i] != null) {
+					if (!timeInfo.equals(timeInfos[i])) {
+						DateTime start = timeInfos[i].getStart();
+						DateTime end = timeInfos[i].getEnd();
+						
+						if (start.isBefore(timeInfo.getStart())) {
+							timeInfo.setStart(start);
+						}
+						if (end.isAfter(timeInfo.getEnd())) {
+							timeInfo.setEnd(end);
+						}
+					}
+				}
+			}
+			
+			timeInfo.setEndDefined(useEnd);
+			timeInfo.setUnit(unit);
 		}
 		
 		if (timeInfo != null) {
