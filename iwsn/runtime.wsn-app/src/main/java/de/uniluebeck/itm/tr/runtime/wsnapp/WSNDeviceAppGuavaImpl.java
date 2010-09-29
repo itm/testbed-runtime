@@ -885,7 +885,7 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 				nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType), macAddress);
 
 				if (nodeSerialInterface == null) {
-					log.warn("{}Ê=> No serial interface could be detected for {} mote. Retrying in 30 seconds.",
+                    log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
 							nodeUrn, nodeType
 					);
 					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
