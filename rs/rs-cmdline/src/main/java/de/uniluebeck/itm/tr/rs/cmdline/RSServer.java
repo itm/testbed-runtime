@@ -104,7 +104,7 @@ public class RSServer {
 
 	}
 
-	public static void startFromProperties(Properties props) throws Exception {
+	public static HttpServer startFromProperties(Properties props) throws Exception {
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
@@ -149,6 +149,8 @@ public class RSServer {
 			}
 
 		}
+
+        return server;
 
 	}
 

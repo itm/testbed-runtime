@@ -116,7 +116,7 @@ public class SNAAServer {
 
     }
 
-    public static void startFromProperties(Properties props) throws Exception {
+    public static HttpServer startFromProperties(Properties props) throws Exception {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
         int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
@@ -216,6 +216,9 @@ public class SNAAServer {
             }
 
         }
+
+        return server;
+
     }
 
     private static IUserAuthorization getAuthorizationModule(String className) throws ClassNotFoundException,
