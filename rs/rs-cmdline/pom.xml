@@ -106,7 +106,7 @@
 					<execution>
 						<phase>package</phase>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.rs.cmdline.RSServer</mainClass>
 							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
