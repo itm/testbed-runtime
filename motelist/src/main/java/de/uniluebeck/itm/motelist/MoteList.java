@@ -11,7 +11,7 @@ public interface MoteList {
 	 *
 	 * @return mapping type -> {port}
 	 */
-	Multimap<MoteType, String> getMoteList();
+	Multimap<MoteType, MoteData> getMoteList();
 
 	/**
 	 * Returns the port (e.g. /dev/ttyUSB0) of the a device of type {@code type} (e.g. iSense) that has the MAC-address
