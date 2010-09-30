@@ -64,6 +64,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-device-drivers</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.util</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
