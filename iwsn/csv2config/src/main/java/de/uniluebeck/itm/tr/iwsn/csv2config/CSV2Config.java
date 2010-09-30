@@ -121,7 +121,7 @@ public class CSV2Config {
 			node = new Setup.Node();
 			nodes.add(node);
 
-			node.setId(cmdLineParameters.testbedPrefix + nextLine[columns.get(NODE_ID)]);
+			node.setId(cmdLineParameters.testbedPrefix + nextLine[columns.get(NODE_ID)].toLowerCase());
 			node.setDescription(nextLine[columns.get(NODE_DESCRIPTION)]);
 			node.setGateway(Boolean.parseBoolean(nextLine[columns.get(NODE_GATEWAY)].toLowerCase()));
 			node.setNodeType(nextLine[columns.get(NODE_TYPE)]);
@@ -288,7 +288,7 @@ public class CSV2Config {
 		portalNode.setId(cmdLineParameters.portalHostname);
 		NodeNames portalNodeNames = new NodeNames();
 		NodeName portalNodeName = new NodeName();
-		portalNodeName.setName(cmdLineParameters.portalHostname);
+		portalNodeName.setName(cmdLineParameters.portalHostname.toLowerCase());
 		portalNodeNames.getNodename().add(portalNodeName);
 		portalNode.setNames(portalNodeNames);
 		ServerConnections portalServerConnections = new ServerConnections();
@@ -323,7 +323,7 @@ public class CSV2Config {
 		while ((nextLine = reader.readNext()) != null) {
 
 			// add overlay node name if not yet existing
-			String hostname = nextLine[columns.get(HOSTNAME)];
+			String hostname = nextLine[columns.get(HOSTNAME)].toLowerCase();
 			Node node = nodeMap.get(hostname);
 			if (node == null) {
 
@@ -343,7 +343,7 @@ public class CSV2Config {
 			}
 
 			// add device urn as node name to overlay node
-			String currentNodeName = nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)];
+			String currentNodeName = nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)].toLowerCase();
 			NodeNames nodeNames = node.getNames();
 			if (nodeNames == null) {
 				nodeNames = new NodeNames();
