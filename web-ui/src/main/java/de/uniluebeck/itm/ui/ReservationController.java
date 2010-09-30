@@ -153,7 +153,8 @@ public class ReservationController implements Controller {
         return new Table.ValueChangeListener() {
 
             public void valueChange(ValueChangeEvent event) {
-                /* In multiselect mode, a Set of itemIds is returned,
+                /*
+                 * In multiselect mode, a Set of itemIds is returned,
                  * in singleselect mode the itemId is returned directly
                  */
                 Set<?> value = (Set<?>) event.getProperty().getValue();
