@@ -26,7 +26,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class AuthenticationView extends VerticalLayout {
 
@@ -88,6 +88,6 @@ public class AuthenticationView extends VerticalLayout {
 
         addComponent(frmAuthentication);
         setExpandRatio(frmAuthentication, 1);
-        //setComponentAlignment(frmAuthentication, Alignment.TOP_CENTER);
+        //setComponentAlignment(frmAuthentication, Alignment.MIDDLE_CENTER);
     }
 }

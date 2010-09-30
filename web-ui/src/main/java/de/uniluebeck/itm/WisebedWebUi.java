@@ -27,7 +27,7 @@ import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.ui.UiController;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class WisebedWebUi extends Application {
 

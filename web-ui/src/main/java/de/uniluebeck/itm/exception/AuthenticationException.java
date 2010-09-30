@@ -25,7 +25,7 @@ package de.uniluebeck.itm.exception;
 import java.io.Serializable;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class AuthenticationException extends Exception implements Serializable {
 

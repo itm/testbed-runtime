@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class SNAAServiceAdapter implements Serializable {
 

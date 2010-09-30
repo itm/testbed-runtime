@@ -23,7 +23,7 @@
 package de.uniluebeck.itm.ui;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class UiController implements Controller {
 

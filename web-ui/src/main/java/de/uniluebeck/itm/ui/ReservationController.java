@@ -42,7 +42,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class ReservationController implements Controller {
 

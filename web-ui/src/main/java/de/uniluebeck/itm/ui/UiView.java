@@ -28,7 +28,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public class UiView extends Window {
 

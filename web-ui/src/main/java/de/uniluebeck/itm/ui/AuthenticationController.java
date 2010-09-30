@@ -31,7 +31,7 @@ import de.uniluebeck.itm.exception.AuthenticationException;
 import de.uniluebeck.itm.ws.SNAAServiceAdapter;
 
 /**
- * @author Sönke Nommensen
+ * @author Soenke Nommensen
  */
 public final class AuthenticationController implements Controller {
 
