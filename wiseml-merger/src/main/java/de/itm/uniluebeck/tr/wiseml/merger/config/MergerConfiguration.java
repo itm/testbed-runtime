@@ -138,7 +138,19 @@ public class MergerConfiguration {
 	
 	@Property(category = XML_OUTPUT_CATEGORY, name = "prefix.custom", defaultValue = "wiseml")
 	private String customPrefix;
+
+	@Property(category = "lists", name = "scenario.mode", defaultValue = "SameIDsSortedAlphanumerically")
+	private ListMergingMode scenarioListMergingMode;
 	
+	@Property(category = "lists", name = "scenario.customid", defaultValue = "0")
+	private String customScenarioID;
+	
+	@Property(category = "lists", name = "trace.mode", defaultValue = "SameIDsSortedAlphanumerically")
+	private String traceListMergingMode;
+	
+	@Property(category = "lists", name = "trace.customid", defaultValue = "0")
+	private String customTraceID;
+
 	public MergerConfiguration() {
 		this(getDefaultProperties(), false);
 	}
@@ -473,6 +485,38 @@ public class MergerConfiguration {
 
 	public void setCustomPrefix(String customPrefix) {
 		this.customPrefix = customPrefix;
+	}
+	
+	public ListMergingMode getScenarioListMergingMode() {
+		return scenarioListMergingMode;
+	}
+
+	public void setScenarioListMergingMode(ListMergingMode scenarioListMergingMode) {
+		this.scenarioListMergingMode = scenarioListMergingMode;
+	}
+
+	public String getCustomScenarioID() {
+		return customScenarioID;
+	}
+
+	public void setCustomScenarioID(String customScenarioID) {
+		this.customScenarioID = customScenarioID;
+	}
+
+	public String getTraceListMergingMode() {
+		return traceListMergingMode;
+	}
+
+	public void setTraceListMergingMode(String traceListMergingMode) {
+		this.traceListMergingMode = traceListMergingMode;
+	}
+
+	public String getCustomTraceID() {
+		return customTraceID;
+	}
+
+	public void setCustomTraceID(String customTraceID) {
+		this.customTraceID = customTraceID;
 	}
 	
 }

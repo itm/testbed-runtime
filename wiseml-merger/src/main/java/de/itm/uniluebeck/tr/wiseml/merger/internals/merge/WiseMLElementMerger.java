@@ -11,7 +11,7 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 public abstract class WiseMLElementMerger extends WiseMLTreeMerger {
 	
 	private WiseMLTag tag;
-	private List<WiseMLAttribute> attributeList;
+	protected List<WiseMLAttribute> attributeList;
 	
 	public WiseMLElementMerger(
 			final WiseMLTreeMerger parent,

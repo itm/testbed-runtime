@@ -28,60 +28,6 @@ import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 
 public class SetupMerger extends WiseMLElementMerger {
 	
-	// TODO: remove this class, replace with arrays
-	/*
-	protected static class SetupProperties {
-		private final Coordinate origin;
-		private final TimeInfo timeInfo;
-		private final Interpolation interpolation;
-		private final String coordinateType;
-		private final String description;
-		
-		
-		
-		public SetupProperties(final Map<WiseMLTag,Object> structures) {
-			this.origin = (Coordinate)structures.get(WiseMLTag.origin);
-			this.timeInfo = (TimeInfo)structures.get(WiseMLTag.timeinfo);
-			this.interpolation = (Interpolation)structures.get(WiseMLTag.interpolation);
-			this.coordinateType = (String)structures.get(WiseMLTag.coordinateType);
-			this.description = (String)structures.get(WiseMLTag.description);
-		}
-
-		public SetupProperties(
-				final Coordinate origin, 
-				final TimeInfo timeInfo,
-				final Interpolation interpolation, 
-				final String coordinateType,
-				final String description) {
-			this.origin = origin;
-			this.timeInfo = timeInfo;
-			this.interpolation = interpolation;
-			this.coordinateType = coordinateType;
-			this.description = description;
-		}
-
-		public Coordinate getOrigin() {
-			return this.origin;
-		}
-
-		public String getDescription() {
-			return this.description;
-		}
-
-		public String getCoordinateType() {
-			return this.coordinateType;
-		}
-
-		public TimeInfo getTimeInfo() {
-			return this.timeInfo;
-		}
-
-		public Interpolation getInterpolation() {
-			return this.interpolation;
-		}
-		
-	}
-	*/
 	
 	private static final int INIT = 0;
 	private static final int PROPERTIES = 1;
@@ -533,6 +479,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		}
 		
 		if (timeInfo != null) {
+			resources.setTimeInfo(timeInfo);
 			queue.add(new TimeInfoReader(this, timeInfo));
 		}
 	}
