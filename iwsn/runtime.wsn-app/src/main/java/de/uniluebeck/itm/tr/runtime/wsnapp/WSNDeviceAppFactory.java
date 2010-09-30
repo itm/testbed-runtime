@@ -59,7 +59,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 			for (WsnDevice wsnDevice : config.getDevice()) {
 
-				String nodeUrn, nodeType, nodeSerialInterface;
+				String nodeUrn, nodeType, nodeSerialInterface, nodeUSBChipID;
 				Integer nodeAPITimeout;
 
 				try {
@@ -68,6 +68,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 					nodeType = wsnDevice.getType();
 					nodeSerialInterface = wsnDevice.getSerialinterface();
 					nodeAPITimeout = wsnDevice.getNodeapitimeout();
+                    nodeUSBChipID = wsnDevice.getUsbchipid();
 
 					Preconditions.checkNotNull(nodeUrn);
 					Preconditions.checkNotNull(nodeType);
@@ -80,7 +81,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				}
 
 				WSNDeviceAppModule module =
-						new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, testbedRuntime);
+						new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, nodeUSBChipID, testbedRuntime);
 				Injector injector = Guice.createInjector(module);
 				builder.add(injector.getInstance(WSNDeviceApp.class));
 

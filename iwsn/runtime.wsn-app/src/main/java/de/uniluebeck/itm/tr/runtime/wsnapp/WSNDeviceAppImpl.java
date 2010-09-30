@@ -60,9 +60,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.nio.ByteBuffer;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -143,7 +141,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
 
-	private void executeManagement(WSNAppMessages.ListenerManagement management) {
+    private String nodeUSBChipID;
+
+    private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
 			log.debug("{} => Node {} registered for node outputs", nodeUrn, management.getNodeName());
 			nodeMessageListeners.add(management.getNodeName());
@@ -168,14 +168,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 							@Named(WSNDeviceAppModule.NAME_NODE_TYPE) String nodeType,
 							@Named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE) @Nullable String nodeSerialInterface,
 							@Named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT) @Nullable Integer nodeAPITimeout,
+                            @Named(WSNDeviceAppModule.NAME_USB_CHIP_ID) @Nullable String nodeUSBChipID,
 							TestbedRuntime testbedRuntime) {
 
-		Preconditions.checkNotNull(nodeUrn);
-		Preconditions.checkNotNull(nodeType);
+        Preconditions.checkNotNull(nodeUrn);
+        Preconditions.checkNotNull(nodeType);
 
-		this.nodeUrn = nodeUrn;
-		this.nodeType = nodeType;
-		this.nodeSerialInterface = nodeSerialInterface;
+        this.nodeUrn = nodeUrn;
+        this.nodeType = nodeType;
+        this.nodeUSBChipID = nodeUSBChipID;
+        this.nodeSerialInterface = nodeSerialInterface;
 		this.testbedRuntime = testbedRuntime;
 		this.nodeApi =
 				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
@@ -872,8 +874,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
 
 				try {
-					moteList = MoteListFactory.create(null);
-				} catch (Exception e) {
+                    Map<String, String> telosBReferenceToMACMap = null;
+                    if ("telosb".equals(nodeType) && nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
+                        telosBReferenceToMACMap = new HashMap<String, String>() {{
+                            put(nodeUSBChipID, StringUtils.getUrnSuffix(nodeUrn));
+                        }};
+                    }
+                    moteList = MoteListFactory.create(telosBReferenceToMACMap);
+                } catch (Exception e) {
 					log.error(
 							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",
 							nodeUrn,
@@ -890,7 +898,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					);
 					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
 					return;
-				}
+				} else {
+                    log.debug("{} => Found {} node on serial port {}.", new Object[] {nodeUrn, nodeType, nodeSerialInterface});
+                }
 
 			}
 
@@ -907,6 +917,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
 				return;
 			}
+
+            log.debug("{} => Successfully connected to {} node on serial port {}", new Object[] {nodeUrn, nodeType, nodeSerialInterface});
 
 			// attach as listener to device output
 			iSenseDevice.registerListener(iSenseDeviceListener);

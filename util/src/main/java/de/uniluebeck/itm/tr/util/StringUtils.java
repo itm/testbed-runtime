@@ -212,4 +212,8 @@ public class StringUtils {
 			throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
 	}
 
+    public static String getUrnSuffix(String urn) {
+        String[] arr = urn.split(":");
+        return arr[arr.length - 1];  
+    }
 }
