@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.snaa.wisebed;
 
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
+import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

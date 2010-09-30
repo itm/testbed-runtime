@@ -27,15 +27,16 @@ import eu.wisebed.testbed.api.snaa.v1.Action;
 import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface IUserAuthorization {
 
-	public static class ActionDetails {
+	public static class UserDetails {
 
 		private String username;
 
-		private Map<String, Object> userDetails;
+		private Map<String, List<Object>> userDetails;
 
 		public String getUsername() {
 			return username;
@@ -45,20 +46,20 @@ public interface IUserAuthorization {
 			this.username = username;
 		}
 
-		public Map<String, Object> getUserDetails() {
+		public Map<String, List<Object>> getUserDetails() {
 			if (userDetails == null) {
-				userDetails = new HashMap<String, Object>();
+				userDetails = new HashMap<String, List<Object>>();
 			}
 			return userDetails;
 		}
 
-		public void setUserDetails(Map<String, Object> userDetails) {
+		public void setUserDetails(Map<String, List<Object>> userDetails) {
 			this.userDetails = userDetails;
 		}
 
 
 	}
 
-	boolean isAuthorized(Action action, ActionDetails details) throws SNAAExceptionException;
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException;
 
 }

@@ -68,11 +68,9 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	
 	private XMLStreamToWiseMLTree currentChild;
 	
-	/**
-	 * Stores the first item of a list, so that it can be stored in
-	 * currentChild once nextSubElementReader is called.
-	 */
-	private XMLStreamToWiseMLTree firstListItem;
+	private XMLStreamToWiseMLTree nextChild;
+	
+	private boolean omitTagSkipping;
 	
 	private boolean finished;
 	
@@ -116,8 +114,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		
 		if (listTags != null) {
 			// read the next element - it will be used later in nextSubElementReader
-			firstListItem = new XMLStreamToWiseMLTree(this, reader, 
-					findSet(tagMap.get(reader.getLocalName())));
+			nextChild = new XMLStreamToWiseMLTree(this, reader, findSet(tagMap.get(reader.getLocalName())));
 		} else {
 			// read local name
 			tag = tagMap.get(reader.getLocalName());
@@ -185,23 +182,32 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		}
 
 		if (isMappedToTag()) {
-			if (reader.isEndElement() && tagMap.get(reader.getLocalName()).equals(this.tag)) {
+			if (reader.isEndElement() 
+					&& tagMap.get(reader.getLocalName()).equals(this.tag)) {
 				// the end tag has been reached, no need for skipping
 				finished = true;
 				return false;
 			}
 		} else {
-			if (firstListItem != null) {
-				currentChild = firstListItem;
-				firstListItem = null;
+			if (nextChild != null) {
+				currentChild = nextChild;
+				nextChild = null;
 				return true;
 			}
 		}
 		
 		// go to the next tag
-		skipToTag();
+		if (omitTagSkipping) {
+			omitTagSkipping = false;
+		} else {
+			skipToTag();
+		}
 		WiseMLTag nextTag = tagMap.get(reader.getLocalName());
-		
+		/*
+		if (nextTag.equals(WiseMLTag.link)) {
+			System.err.println("LINK");
+		}
+		*/
 		if (isList()) {
 			if (reader.isStartElement()) {
 				if (listTags.contains(nextTag)) {
@@ -210,6 +216,12 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 				} else {
 					// next tag does not belong to this list => finished
 					finished = true;
+					
+					// tell parent to omit skipping the next tag
+					if (parent != null) {
+						parent.omitTagSkipping = true;
+					}
+					
 					return false;
 				}
 			} else {
@@ -309,7 +321,11 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 					}
 				}
 			}
-			throw new XMLStreamException("unexpected end of stream", reader.getLocation());
+			if (reader.getLocation() == null) {
+				throw new XMLStreamException("unexpected end of stream");
+			} else {
+				throw new XMLStreamException("unexpected end of stream", reader.getLocation());
+			}
 		} catch (XMLStreamException e) {
 			throw new WiseMLTreeReaderException("exception while skipping to "+tag, e, null);
 		}
@@ -336,6 +352,31 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 			set.add(tag);
 		}
 		sets.add(set);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (isList()) {
+			sb.append("[list]");
+			sb.append('[');
+			for (WiseMLTag tag : listTags) {
+				sb.append(tag);
+				sb.append(' ');
+			}
+			sb.append(']');
+		} else {
+			sb.append("[tag]");
+			sb.append('[');
+			sb.append(tag);
+			sb.append(']');
+		}
+		sb.append('{');
+		if (currentChild != null) {
+			sb.append(currentChild.toString());
+		}
+		sb.append('}');
+		return sb.toString();
 	}
 	
 }

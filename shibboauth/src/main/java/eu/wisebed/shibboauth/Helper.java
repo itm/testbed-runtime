@@ -20,13 +20,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreProtocolPNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,6 +61,7 @@ public class Helper {
 			BufferedReader is = new BufferedReader(new InputStreamReader(entity.getContent()));
 			for (String s = is.readLine(); s != null; s = is.readLine()) {
 				sb.append(s);
+                sb.append("\n");
 			}
 		}
 		return sb.toString();
@@ -289,5 +287,4 @@ public class Helper {
 
 		return httpclient;
 	}
-
 }

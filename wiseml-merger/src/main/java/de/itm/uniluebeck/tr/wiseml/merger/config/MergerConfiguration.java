@@ -1,8 +1,14 @@
 package de.itm.uniluebeck.tr.wiseml.merger.config;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
+import de.itm.uniluebeck.tr.wiseml.merger.enums.Indentation;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
+import de.itm.uniluebeck.tr.wiseml.merger.enums.PrefixOutput;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
 
 /**
@@ -10,74 +16,128 @@ import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
  * Main objective is to select strategies for the resolution of various
  * conflicts that may arise.
  * 
- * @author kuypers
+ * @author Jacob Kuypers
  *
  */
 public class MergerConfiguration {
 	
 	/*
-	 * Adding a configuration property:
-	 * (1) define a constant for the property name
-	 * (2) declare a property variable
-	 * (3) add a line to the constructor
-	 * (4) add a line to getProperties
-	 * (5) add a line to getDefaultProperties
-	 * ... add setter/getter
+	 * Adding a new configuration property:
 	 * 
-	 * If a property uses a constant set of possible values, define an enum.
+	 * 1. Add a new member variable. The property can be of any primitive type and 
+	 * of any class which contains a static valueOf(String) function. 
+	 * 
+	 * 2. Choose an annotation, either Property or Conflict.
+	 * 		Conflict is used for merging conflict resolution strategies.
+	 * 		For each conflict type (identified by a name) there may be
+	 * 			- a resolution strategy (throw exception, warn etc)
+	 * 			- an output method (how to merge or what to use instead...)
+	 * 			- some custom value, used in certain output methods
+	 * 
+	 * 3. Set an appropriate default value (in the annotation, as a string)
+	 * 
+	 * 4. Generate getters and setters.
+	 * 
+	 * Everything else is done through reflection.
+	 * 
 	 */
 	
-	// property names (1)
-	public static final String ORIGIN_CONFLICT = 
-		"wiseml.merger.conflict.origin";
-	public static final String ORIGIN_OUTPUT =
-		"wiseml.merger.output.origin";
-	public static final String TIMEINFO_DURATION_CONFLICT =
-		"wiseml.merger.conflict.timeinfo_duration";
-	public static final String TIMEINFO_DURATION_OUTPUT = 
-		"wiseml.merger.output.timeinfo_duration";
-	public static final String TIMEINFO_UNIT_CONFLICT = 
-		"wiseml.merger.conflict.timeinfo_unit";
-	public static final String TIMEINFO_UNIT_OUTPUT =
-		"wiseml.merger.output.timeinfo_unit";
-	public static final String TIMEINFO_UNIT_CUSTOM =
-		"wiseml.merger.custom.timeinfo_unit";
-	public static final String INTERPOLATION_CONFLICT =
-		"wiseml.merger.conflict.interpolation";
-	public static final String INTERPOLATION_OUTPUT =
-		"wiseml.merger.output.interpolation";
-	public static final String INTERPOLATION_CUSTOM =
-		"wiseml.merger.custom.interpolation";
-	public static final String COORDINATE_TYPE_CONFLICT =
-		"wiseml.merger.conflict.coordinate_type";
-	public static final String COORDINATE_TYPE_OUTPUT =
-		"wiseml.merger.output.coordinate_type";
-	public static final String COORDINATE_TYPE_CUSTOM =
-		"wiseml.merger.custom.coordinate_type";
-	public static final String DESCRIPTION_CONFLICT = 
-		"wiseml.merger.conflict.description";
-	public static final String DESCRIPTION_OUTPUT = 
-		"wiseml.merger.output.description";
-	public static final String DESCRIPTION_CUSTOM = 
-		"wiseml.merger.custom.description";
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface Conflict {
+		enum Item { 
+			Resolution("resolution"), 
+			Output("output"), 
+			CustomValue("custom"),
+			;
+			
+			private String categoryName;
+			
+			Item(String categoryName) {
+				this.categoryName = categoryName;
+			}
+			
+			public String key() {
+				return this.categoryName;
+			}
+		}
+		
+		String name();
+		Conflict.Item item();
+		String defaultValue();
+	}
 	
-	// property variables (2)
-	private ConflictResolution originConflict;
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface Property {
+		String category();
+		String name();
+		String defaultValue();
+	}
+	
+	private static final String MERGER_PREFIX =
+		"de.itm.uniluebeck.tr.wiseml.merger.";
+	
+	private static final String CONFLICT_CATEGORY = "conflict";
+	private static final String XML_OUTPUT_CATEGORY = "xmloutput";
+	
+	@Conflict(name = "origin", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
+	private ConflictResolution originResolution;
+	
+	@Conflict(name = "origin", item = Conflict.Item.Output, defaultValue = "UseCentralOriginAndTransform")
 	private OriginOutput originOutput;
-	private ConflictResolution timeInfoDurationConflict;
+	
+	@Conflict(name = "timeInfoDuration", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
+	private ConflictResolution timeInfoDurationResolution;
+	
+	@Conflict(name = "timeInfoDuration", item = Conflict.Item.Output, defaultValue = "FirstFileSelect")
 	private TimeInfoDurationOutput timeInfoDurationOutput;
-	private ConflictResolution timeInfoUnitConflict;
+	
+	@Conflict(name = "timeInfoUnit", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
+	private ConflictResolution timeInfoUnitResolution;
+	
+	@Conflict(name = "timeInfoUnit", item = Conflict.Item.Output, defaultValue = "Best")
 	private TimeInfoUnitOutput timeInfoUnitOutput;
+	
+	@Conflict(name = "timeInfoUnit", item = Conflict.Item.CustomValue, defaultValue = "milliseconds")
 	private Unit customTimeInfoUnit;
-	private ConflictResolution interpolationConflict;
+	
+	@Conflict(name = "interpolation", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
+	private ConflictResolution interpolationResolution;
+	
+	@Conflict(name = "interpolation", item = Conflict.Item.Output, defaultValue = "UseCustom")
 	private InterpolationOutput interpolationOutput;
+	
+	@Conflict(name = "interpolation", item = Conflict.Item.CustomValue, defaultValue = "none")
 	private Interpolation customInterpolation;
-	private ConflictResolution coordinateTypeConflict;
+	
+	@Conflict(name = "coordinateType", item = Conflict.Item.Resolution, defaultValue = "ThrowException")
+	private ConflictResolution coordinateTypeResolution;
+	
+	@Conflict(name = "coordinateType", item = Conflict.Item.Output, defaultValue = "UseFirstFile")
 	private CoordinateTypeOutput coordinateTypeOutput;
+	
+	@Conflict(name = "coordinateType", item = Conflict.Item.CustomValue, defaultValue = "XYZ")
 	private String customCoordinateType;
-	private ConflictResolution descriptionConflict;
+	
+	@Conflict(name = "description", item = Conflict.Item.Resolution, defaultValue = "ResolveSilently")
+	private ConflictResolution descriptionResolution;
+	
+	@Conflict(name = "description", item = Conflict.Item.Output, defaultValue = "UseCustomPlusInputDescriptions")
 	private DescriptionOutput descriptionOutput;
-	private String customDescriptionText;
+	
+	@Conflict(name = "description", item = Conflict.Item.CustomValue, defaultValue = "Created by merging multiple files.\nOriginal descriptions:\n")
+	private String customDescription;
+	
+	@Property(category = "conflict", name = "description.forceResolve", defaultValue = "false")
+	private boolean forceResolveDescription;
+	
+	@Property(category = XML_OUTPUT_CATEGORY, name = "indentation", defaultValue = "OneSpace")
+	private Indentation indentation;
+	
+	@Property(category = XML_OUTPUT_CATEGORY, name = "prefix.output", defaultValue = "DefaultNamespaceOnly")
+	private PrefixOutput prefixOutput;
+	
+	@Property(category = XML_OUTPUT_CATEGORY, name = "prefix.custom", defaultValue = "wiseml")
+	private String customPrefix;
 	
 	public MergerConfiguration() {
 		this(getDefaultProperties(), false);
@@ -99,114 +159,164 @@ public class MergerConfiguration {
         } else {
             settings = getDefaultProperties();
         }
-		
-		// read properties to property variables (3)
-		originConflict = readEnumProperty(settings, ORIGIN_CONFLICT,
-				ConflictResolution.class);
-		originOutput = readEnumProperty(settings, ORIGIN_OUTPUT, 
-				OriginOutput.class);
-		timeInfoDurationConflict = readEnumProperty(settings, 
-				TIMEINFO_DURATION_CONFLICT, ConflictResolution.class);
-		timeInfoDurationOutput = readEnumProperty(settings, 
-				TIMEINFO_DURATION_OUTPUT, TimeInfoDurationOutput.class);
-		timeInfoUnitConflict = readEnumProperty(settings, 
-				TIMEINFO_UNIT_CONFLICT, ConflictResolution.class);
-		timeInfoUnitOutput = readEnumProperty(settings, TIMEINFO_UNIT_OUTPUT, 
-				TimeInfoUnitOutput.class);
-		customTimeInfoUnit = readEnumProperty(settings, TIMEINFO_UNIT_CUSTOM, 
-				Unit.class);
-		interpolationConflict = readEnumProperty(settings, 
-				INTERPOLATION_CONFLICT, ConflictResolution.class);
-		interpolationOutput = readEnumProperty(settings, INTERPOLATION_OUTPUT, 
-				InterpolationOutput.class);
-		customInterpolation = readEnumProperty(settings, INTERPOLATION_CUSTOM, 
-				Interpolation.class);
-		coordinateTypeConflict = readEnumProperty(settings, 
-				COORDINATE_TYPE_CONFLICT, ConflictResolution.class);
-		coordinateTypeOutput = readEnumProperty(settings, 
-				COORDINATE_TYPE_OUTPUT, CoordinateTypeOutput.class);
-		customCoordinateType = readStringProperty(settings, 
-				COORDINATE_TYPE_CUSTOM);
-		descriptionConflict = readEnumProperty(settings, DESCRIPTION_CONFLICT, 
-				ConflictResolution.class);
-		descriptionOutput = readEnumProperty(settings, DESCRIPTION_OUTPUT, 
-				DescriptionOutput.class);
-		customDescriptionText = readStringProperty(settings, 
-				DESCRIPTION_CUSTOM);
+        
+        Field[] fields = MergerConfiguration.class.getDeclaredFields();
+		for (Field field : fields) {
+			if (isMappedProperty(field)) {
+				writeCurrentValue(field, settings.getProperty(getPropertyKey(field)));
+			}
+		}
 	}
-	
+
 	public Properties getProperties() {
 		Properties result = new Properties();
 		
-		// write property variables to properties (4)
-		writeEnumProperty(result, ORIGIN_CONFLICT, originConflict);
-		writeEnumProperty(result, ORIGIN_OUTPUT, originOutput);
-		writeEnumProperty(result, TIMEINFO_DURATION_CONFLICT, 
-				timeInfoDurationConflict);
-		writeEnumProperty(result, TIMEINFO_DURATION_OUTPUT, 
-				timeInfoDurationOutput);
-		writeEnumProperty(result, TIMEINFO_UNIT_CONFLICT, timeInfoUnitConflict);
-		writeEnumProperty(result, TIMEINFO_UNIT_OUTPUT, timeInfoUnitOutput);
-		writeEnumProperty(result, TIMEINFO_UNIT_CUSTOM, customTimeInfoUnit);
-		writeEnumProperty(result, INTERPOLATION_CONFLICT, 
-				interpolationConflict);
-		writeEnumProperty(result, INTERPOLATION_OUTPUT, interpolationOutput);
-		writeEnumProperty(result, INTERPOLATION_CUSTOM, customInterpolation);
-		writeEnumProperty(result, COORDINATE_TYPE_CONFLICT, 
-				coordinateTypeConflict);
-		writeEnumProperty(result, COORDINATE_TYPE_OUTPUT, coordinateTypeOutput);
-		writeStringProperty(result, COORDINATE_TYPE_CUSTOM, 
-				customCoordinateType);
-		writeEnumProperty(result, DESCRIPTION_CONFLICT, descriptionConflict);
-		writeEnumProperty(result, DESCRIPTION_OUTPUT, descriptionOutput);
-		writeStringProperty(result, DESCRIPTION_CUSTOM, customDescriptionText);
-		
+		Field[] fields = MergerConfiguration.class.getDeclaredFields();
+		for (Field field : fields) {
+			if (isMappedProperty(field)) {
+				result.setProperty(getPropertyKey(field), getCurrentValue(field));
+			}
+		}
 		return result;
 	}
 	
 	public static final Properties getDefaultProperties() {
 		Properties result = new Properties();
 		
-		// write default properties (5)
-		writeEnumProperty(result, ORIGIN_CONFLICT, 
-				ConflictResolution.ResolveWithWarning);
-		writeEnumProperty(result, ORIGIN_OUTPUT, 
-				OriginOutput.UseFirstOriginAndTransform);
-		writeEnumProperty(result, TIMEINFO_DURATION_CONFLICT, 
-				ConflictResolution.ResolveSilently);
-		writeEnumProperty(result, TIMEINFO_DURATION_OUTPUT, 
-				TimeInfoDurationOutput.FirstFileSelect);
-		writeEnumProperty(result, TIMEINFO_UNIT_CONFLICT, 
-				ConflictResolution.ResolveWithWarning);
-		writeEnumProperty(result, TIMEINFO_UNIT_OUTPUT, 
-				TimeInfoUnitOutput.FirstFileSelect);
-		writeEnumProperty(result, TIMEINFO_UNIT_CUSTOM, Unit.milliseconds);
-		writeEnumProperty(result, INTERPOLATION_CONFLICT, 
-				ConflictResolution.ResolveWithWarning);
-		writeEnumProperty(result, INTERPOLATION_OUTPUT, 
-				InterpolationOutput.UseBest);
-		writeEnumProperty(result, INTERPOLATION_CUSTOM, Interpolation.none);
-		writeEnumProperty(result, COORDINATE_TYPE_CONFLICT, 
-				ConflictResolution.ThrowException);
-		writeEnumProperty(result, COORDINATE_TYPE_OUTPUT, 
-				CoordinateTypeOutput.UseFirstFile);
-		writeStringProperty(result, COORDINATE_TYPE_CUSTOM, "XYZ");
-		writeEnumProperty(result, DESCRIPTION_CONFLICT, 
-				ConflictResolution.ResolveSilently);
-		writeEnumProperty(result, DESCRIPTION_OUTPUT, 
-				DescriptionOutput.UseCustomPlusInputDescriptions);
-		writeStringProperty(result, DESCRIPTION_CUSTOM, 
-				"WiseML file generated by merging multiple sources.");
+		Field[] fields = MergerConfiguration.class.getDeclaredFields();
 		
+		for (Field field : fields) {
+			if (isMappedProperty(field)) {
+				result.setProperty(getPropertyKey(field), getDefaultValue(field));
+			}
+		}
 		return result;
 	}
 	
-	public ConflictResolution getOriginConflict() {
-		return originConflict;
+	private static boolean isMappedProperty(Field field) {
+		if (!field.isAccessible()) {
+			field.setAccessible(true);
+		}
+		
+		return field.getAnnotation(Property.class) != null
+			|| field.getAnnotation(Conflict.class) != null;
+	}
+	
+	private static String getDefaultValue(Field field) {
+		Property property = field.getAnnotation(Property.class);
+		if (property != null) {
+			return property.defaultValue();
+		}
+		Conflict conflict = field.getAnnotation(Conflict.class);
+		if (conflict != null) {
+			return conflict.defaultValue();
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the current value of a field using the toString() method.
+	 * 
+	 * @param field
+	 * @return
+	 * @throws NullPointerException if the value is null.
+	 */
+	private String getCurrentValue(Field field) {
+		field.setAccessible(true);
+		try {
+			return field.get(this).toString();
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Sets a field to a value encoded in a string.
+	 * 
+	 * @param field
+	 * @param value
+	 * @throws IllegalArgumentException if the value could not be parsed
+	 */
+	private void writeCurrentValue(Field field, String value) {
+		if (value == null) {
+			throw new IllegalArgumentException("cannot set "+field.getName()+" to null");
+		}
+		
+		field.setAccessible(true);
+		Class<?> fieldClass = field.getType();
+		try {
+			// Strings
+			if (fieldClass.isAssignableFrom(String.class)) {
+				field.set(this, value);
+				return;
+			}
+			
+			// Classes with a static valueOf method
+			try {
+				Method valueOfMethod = fieldClass.getMethod("valueOf", String.class);
+				if (valueOfMethod.getReturnType().equals(fieldClass)) {
+					Object obj = valueOfMethod.invoke(null, value);
+					field.set(this, obj);
+					return;
+				}
+			} catch (NoSuchMethodException e) {
+			}
+			
+			// primitive types
+			if (fieldClass.isPrimitive()) {
+				if (fieldClass.equals(boolean.class)) {
+					field.setBoolean(this, Boolean.valueOf(value).booleanValue());
+				} else if (fieldClass.equals(int.class)) {
+					field.setInt(this, Integer.valueOf(value).intValue());
+				} else if (fieldClass.equals(short.class)) {
+					field.setShort(this, Short.valueOf(value).shortValue());
+				} else if (fieldClass.equals(long.class)) {
+					field.setLong(this, Long.valueOf(value).longValue());
+				} else if (fieldClass.equals(float.class)) {
+					field.setFloat(this, Float.valueOf(value).floatValue());
+				} else if (fieldClass.equals(double.class)) {
+					field.setDouble(this, Double.valueOf(value).doubleValue());
+				} else if (fieldClass.equals(byte.class)) {
+					field.setByte(this, Byte.valueOf(value).byteValue());
+				} else if (fieldClass.equals(char.class)) {
+					field.setChar(this, value.charAt(0));
+				} else {
+					throw new IllegalArgumentException("could not assign '"+value+"' to member "+field.getName());
+				}
+				return;
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException("could not assign '"+value+"' to member "+field.getName(), e);
+		}
+		throw new IllegalArgumentException("could not assign '"+value+"' to member "+field.getName());
+	}
+	
+	/**
+	 * Generates a property key string for a field using annotations.
+	 * 
+	 * @param field annotated field
+	 * @return property key or null if no annotation found
+	 */
+	private static String getPropertyKey(Field field) {
+		Property property = field.getAnnotation(Property.class);
+		if (property != null) {
+			return MERGER_PREFIX + property.category() + "." + property.name();
+		}
+		Conflict conflict = field.getAnnotation(Conflict.class);
+		if (conflict != null) {
+			return MERGER_PREFIX + "." + CONFLICT_CATEGORY + "." + conflict.item().key() + "." + conflict.name();
+		}
+		return null;
 	}
 
-	public void setOriginConflict(ConflictResolution originConflict) {
-		this.originConflict = originConflict;
+	public ConflictResolution getOriginResolution() {
+		return originResolution;
+	}
+
+	public void setOriginResolution(ConflictResolution originResolution) {
+		this.originResolution = originResolution;
 	}
 
 	public OriginOutput getOriginOutput() {
@@ -217,13 +327,13 @@ public class MergerConfiguration {
 		this.originOutput = originOutput;
 	}
 
-	public ConflictResolution getTimeInfoDurationConflict() {
-		return timeInfoDurationConflict;
+	public ConflictResolution getTimeInfoDurationResolution() {
+		return timeInfoDurationResolution;
 	}
 
-	public void setTimeInfoDurationConflict(
-			ConflictResolution timeInfoDurationConflict) {
-		this.timeInfoDurationConflict = timeInfoDurationConflict;
+	public void setTimeInfoDurationResolution(
+			ConflictResolution timeInfoDurationResolution) {
+		this.timeInfoDurationResolution = timeInfoDurationResolution;
 	}
 
 	public TimeInfoDurationOutput getTimeInfoDurationOutput() {
@@ -235,12 +345,12 @@ public class MergerConfiguration {
 		this.timeInfoDurationOutput = timeInfoDurationOutput;
 	}
 
-	public ConflictResolution getTimeInfoUnitConflict() {
-		return timeInfoUnitConflict;
+	public ConflictResolution getTimeInfoUnitResolution() {
+		return timeInfoUnitResolution;
 	}
 
-	public void setTimeInfoUnitConflict(ConflictResolution timeInfoUnitConflict) {
-		this.timeInfoUnitConflict = timeInfoUnitConflict;
+	public void setTimeInfoUnitResolution(ConflictResolution timeInfoUnitResolution) {
+		this.timeInfoUnitResolution = timeInfoUnitResolution;
 	}
 
 	public TimeInfoUnitOutput getTimeInfoUnitOutput() {
@@ -259,12 +369,62 @@ public class MergerConfiguration {
 		this.customTimeInfoUnit = customTimeInfoUnit;
 	}
 
-	public ConflictResolution getDescriptionConflict() {
-		return descriptionConflict;
+	public ConflictResolution getInterpolationResolution() {
+		return interpolationResolution;
 	}
 
-	public void setDescriptionConflict(ConflictResolution descriptionConflict) {
-		this.descriptionConflict = descriptionConflict;
+	public void setInterpolationResolution(
+			ConflictResolution interpolationResolution) {
+		this.interpolationResolution = interpolationResolution;
+	}
+
+	public InterpolationOutput getInterpolationOutput() {
+		return interpolationOutput;
+	}
+
+	public void setInterpolationOutput(InterpolationOutput interpolationOutput) {
+		this.interpolationOutput = interpolationOutput;
+	}
+
+	public Interpolation getCustomInterpolation() {
+		return customInterpolation;
+	}
+
+	public void setCustomInterpolation(Interpolation customInterpolation) {
+		this.customInterpolation = customInterpolation;
+	}
+
+	public ConflictResolution getCoordinateTypeResolution() {
+		return coordinateTypeResolution;
+	}
+
+	public void setCoordinateTypeResolution(
+			ConflictResolution coordinateTypeResolution) {
+		this.coordinateTypeResolution = coordinateTypeResolution;
+	}
+
+	public CoordinateTypeOutput getCoordinateTypeOutput() {
+		return coordinateTypeOutput;
+	}
+
+	public void setCoordinateTypeOutput(CoordinateTypeOutput coordinateTypeOutput) {
+		this.coordinateTypeOutput = coordinateTypeOutput;
+	}
+
+	public String getCustomCoordinateType() {
+		return customCoordinateType;
+	}
+
+	public void setCustomCoordinateType(String customCoordinateType) {
+		this.customCoordinateType = customCoordinateType;
+	}
+
+	public ConflictResolution getDescriptionResolution() {
+		return descriptionResolution;
+	}
+
+	public void setDescriptionResolution(ConflictResolution descriptionResolution) {
+		this.descriptionResolution = descriptionResolution;
 	}
 
 	public DescriptionOutput getDescriptionOutput() {
@@ -275,57 +435,44 @@ public class MergerConfiguration {
 		this.descriptionOutput = descriptionOutput;
 	}
 
-	public String getCustomDescriptionText() {
-		return customDescriptionText;
+	public String getCustomDescription() {
+		return customDescription;
 	}
 
-	public void setCustomDescriptionText(String customDescriptionText) {
-		this.customDescriptionText = customDescriptionText;
+	public void setCustomDescription(String customDescription) {
+		this.customDescription = customDescription;
 	}
 
-	private static final <E extends Enum<E>> E readEnumProperty(
-			final Properties properties, final String propertyName, 
-			final Class<E> enumClass) {
-		String value = properties.getProperty(propertyName);
-		if (value == null) {
-			throw new IllegalArgumentException("value for property '" + 
-					propertyName + "' not found");
-		}
-		try {
-			return Enum.valueOf(enumClass, value);
-		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException("illegal value for property '"
-					+ propertyName + "': " + value);
-		}
-	}
-	
-	private static final String readStringProperty(
-			final Properties properties, final String propertyName) {
-		String value = properties.getProperty(propertyName);
-		if (value == null) {
-			throw new IllegalArgumentException("value for property '" + 
-					propertyName + "' not found");
-		}
-		return value;
-	}
-	
-	private static final <E extends Enum<E>> void writeEnumProperty(
-			final Properties properties, final String propertyName, 
-			final E enumValue) {
-		 if (enumValue == null) {
-			 throw new IllegalArgumentException("value for property '" + 
-					 propertyName + "' is null");
-		 }
-		 properties.setProperty(propertyName, enumValue.toString());
-	}
-	
-	private static final void writeStringProperty(final Properties properties, 
-			final String propertyName, final String stringValue) {
-		if (stringValue == null) {
-			 throw new IllegalArgumentException("value for property '" + 
-					 propertyName + "' is null");
-		 }
-		properties.setProperty(propertyName, stringValue);
+	public boolean isForceResolveDescription() {
+		return forceResolveDescription;
 	}
 
+	public void setForceResolveDescription(boolean forceResolveDescription) {
+		this.forceResolveDescription = forceResolveDescription;
+	}
+
+	public Indentation getIndentation() {
+		return indentation;
+	}
+
+	public void setIndentation(Indentation indentation) {
+		this.indentation = indentation;
+	}
+
+	public PrefixOutput getPrefixOutput() {
+		return prefixOutput;
+	}
+
+	public void setPrefixOutput(PrefixOutput prefixOutput) {
+		this.prefixOutput = prefixOutput;
+	}
+
+	public String getCustomPrefix() {
+		return customPrefix;
+	}
+
+	public void setCustomPrefix(String customPrefix) {
+		this.customPrefix = customPrefix;
+	}
+	
 }

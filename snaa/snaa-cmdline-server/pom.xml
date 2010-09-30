@@ -81,6 +81,12 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>        
 	</dependencies>
 
 	<build>
@@ -93,7 +99,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>de.uniluebeck.itm.tr.snaa.cmdline.server.Server</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServerrver</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -125,7 +131,7 @@
                     <execution>
                         <phase>package</phase>
                         <configuration>
-                            <mainClass>de.uniluebeck.itm.tr.snaa.cmdline.server.Server</mainClass>
+                            <mainClass>de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer</mainClass>
                             <onejarVersion>0.97-RC10</onejarVersion>
                             <attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>

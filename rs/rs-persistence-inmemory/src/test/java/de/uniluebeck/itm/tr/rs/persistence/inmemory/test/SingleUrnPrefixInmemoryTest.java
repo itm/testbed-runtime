@@ -23,96 +23,250 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 
-import de.uniluebeck.itm.tr.rs.persistence.Comparison;
-import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
+import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
+import de.uniluebeck.itm.tr.util.PropertiesUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.rs.v1.*;
+import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.BindException;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
 public class SingleUrnPrefixInmemoryTest {
 
-    private static String snaaURL = "http://localhost:8080/snaa/dummy1";
-    private static String urnPrefix = "urn:wisebed:dummy1";
     private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-    private RSPersistence rsPersistence = new InMemoryRSPersistence();
-    private SingleUrnPrefixRS singleUrnPrefixRS = new SingleUrnPrefixRS(urnPrefix, snaaURL, null, rsPersistence);
-    private Map<Integer, ConfidentialReservationData> reservationDataMap = new HashMap<Integer, ConfidentialReservationData>();
+
+    private RSPersistence rsPersistence;
+
+    private SingleUrnPrefixRS rs;
+
+    private Map<Integer, ConfidentialReservationData> reservationDataMap =
+            new HashMap<Integer, ConfidentialReservationData>();
+
     private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
-    private static long from = System.currentTimeMillis() + 200000;
-    private static long to = System.currentTimeMillis() + 200000 + 1000;
+
     private List<SecretAuthenticationKey> secretAuthenticationKeyList = null;
-    private GregorianCalendar gregorianCalendarFrom = new GregorianCalendar();
-    private GregorianCalendar gregorianCalendarTo = new GregorianCalendar();
-    private Map<String, String> endpointPropertiesMap = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed1;
+
+    /**
+     * The point in time that all reservations of this unit test will start from.
+     */
+    private static DateTime reservationStartingTime = new DateTime().plusHours(1);
+
+    /**
+     * The point in time that all reservation of this unit test will end on.
+     */
+    private static DateTime reservationEndingTime = reservationStartingTime.plusMinutes(30);
+
+    private static final String TESTBED_PREFIX = "urn:unittest:testbed1:";
+
+    private static final int RESERVATION_COUNT = 5;
+
+    private static class IntervalData {
+
+        public DateTime from;
+
+        public DateTime until;
+
+        public Integer expectedReservationCount;
+
+        public String description;
+
+        public IntervalData(final DateTime from, final DateTime until, final Integer expectedReservationCount,
+                            final String description) {
+            this.from = from;
+            this.until = until;
+            this.expectedReservationCount = expectedReservationCount;
+            this.description = description;
+        }
+    }
+
+    /**
+     * Map that contains a mapping between tuples of {@link org.joda.time.DateTime} instances (start, end) that stand for
+     * intervals and an {@link Integer} value indicating how many reservations there should be in the interval. Used in
+     * {@link SingleUrnPrefixInmemoryTest#getConfidentialReservations()} and {@link SingleUrnPrefixInmemoryTest#getConfidentialReservations()}.
+     */
+    private static final List<IntervalData> intervals = new ArrayList<IntervalData>();
+
+    private static final DatatypeFactory datatypeFactory;
+
+    private static int snaaPort;
+
+    static {
+
+        try {
+            datatypeFactory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+
+        String description;
+
+        description =
+                "query interval overlaps, ranging from the exact starting point until the exact ending point in time";
+        intervals.add(new IntervalData(reservationStartingTime, reservationEndingTime, RESERVATION_COUNT, description));
+
+        description = "query interval does not overlap, since it lies before reservation interval";
+        intervals.add(new IntervalData(reservationStartingTime.minusMillis(20000),
+                reservationStartingTime.minusMillis(1), 0, description
+        )
+        );
+
+        description = "query interval does not overlap, since it lies after reservation interval";
+        intervals.add(new IntervalData(reservationEndingTime.plusMillis(1), reservationEndingTime.plusMillis(20000), 0,
+                description
+        )
+        );
+
+        description = "query interval overlaps on the end of the reservation interval";
+        intervals.add(new IntervalData(reservationEndingTime.minusMillis(1), reservationEndingTime.plusMillis(20000),
+                RESERVATION_COUNT, description
+        )
+        );
+
+        description = "query interval overlaps on the start of the reservation interval";
+        intervals
+                .add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime.plusMillis(1),
+                        RESERVATION_COUNT, description
+                )
+                );
+
+        description = "query interval overlaps on the exact millisecond on reservation start";
+        intervals.add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime, 0,
+                description
+        )
+        );
+
+        description = "query interval overlaps on the exact millisecond on reservation end";
+        intervals.add(new IntervalData(reservationEndingTime, reservationEndingTime.plusMillis(20000), 0, description));
+
+        description =
+                "query interval fully overlaps, ranging from a point after reservation start until before reservation end";
+        intervals.add(new IntervalData(reservationStartingTime.plusMillis(5), reservationEndingTime.minusMillis(5),
+                RESERVATION_COUNT, description
+        )
+        );
+
+        description =
+                "query interval fully overlaps, ranging from a point before reservation start until after reservation interval";
+        intervals.add(new IntervalData(reservationStartingTime.minusMillis(5), reservationEndingTime.plusMillis(5),
+                RESERVATION_COUNT, description
+        )
+        );
+
+        // start SNAA endpoint
+        snaaPort = UrlUtils.getRandomUnprivilegedPort();
+        final HashMap<String, String> snaaConfig = new HashMap<String, String>() {{
+
+            // choose an arbitrary port between 1024 and 65535
+            put("config.port", "" + snaaPort);
+            put("config.snaas", "dummy1");
+
+            put("dummy1.type", "dummy");
+            put("dummy1.urnprefix", TESTBED_PREFIX);
+            put("dummy1.path", "/snaa/dummy1");
+
+        }};
+        boolean started = false;
+
+        while (!started) {
+            try {
+                SNAAServer.startFromProperties(PropertiesUtils.copyToProperties(snaaConfig));
+            } catch (Exception e) {
+                if (e.getCause() instanceof BindException) {
+                    snaaPort = UrlUtils.getRandomUnprivilegedPort();
+                    snaaConfig.put("config.port", "" + snaaPort);
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+            started = true;
+        }
+        
+    }
 
     @Before
     public void setUp() throws Exception {
-        //PropertiesMap
-        Properties props = new Properties();
-        for (Object key : endpointPropertiesMap.keySet()) {
-            props.setProperty((String) key, endpointPropertiesMap.get(key));
-        }
 
-        //starting endpoint
-        Server.startFromProperties(props);
+        rsPersistence = new InMemoryRSPersistence();
+        String snaaEndpointUrl = "http://localhost:" + snaaPort + "/snaa/dummy1";
+        rs = new SingleUrnPrefixRS(TESTBED_PREFIX, snaaEndpointUrl, null, rsPersistence);
 
-        //creating SecretAuthenticationKey
+        // create SecretAuthenticationKey for use with dummy SNAA (no pwd check)
         secretAuthenticationKeyList = new LinkedList<SecretAuthenticationKey>();
         SecretAuthenticationKey key = new SecretAuthenticationKey();
-        key.setUsername("Nils Rohwedder");
+        key.setUsername("username");
         key.setSecretAuthenticationKey(secureIdGenerator.getNextId());
-        key.setUrnPrefix(urnPrefix);
+        key.setUrnPrefix(TESTBED_PREFIX);
         secretAuthenticationKeyList.add(key);
 
-        //creating ConfidentialReservationData
-        ConfidentialReservationData confiData = new ConfidentialReservationData();
-        Data data = new Data();
-        data.setUrnPrefix(urnPrefix);
-        data.setUsername("Nils Rohwedder");
-        confiData.getData().add(data);
+        // create 10 reservations of 10 different nodes (node 1 to 10)
+        for (int i = 0; i < RESERVATION_COUNT; i++) {
 
-        gregorianCalendarFrom.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarFrom.setTimeInMillis(from);
+            // create ConfidentialReservationData
+            ConfidentialReservationData confiData = new ConfidentialReservationData();
+            Data data = new Data();
+            data.setUrnPrefix(TESTBED_PREFIX);
+            data.setUsername("username");
+            confiData.getData().add(data);
 
-        confiData.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarFrom));
+            confiData.setFrom(datatypeFactory.newXMLGregorianCalendar(
+                    reservationStartingTime.toGregorianCalendar()
+            )
+            );
+            confiData.setTo(datatypeFactory.newXMLGregorianCalendar(
+                    reservationEndingTime.toGregorianCalendar()
+            )
+            );
+            confiData.setUserData("username");
+            confiData.getNodeURNs().add(TESTBED_PREFIX + (i + 1));
 
-        gregorianCalendarTo.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        gregorianCalendarTo.setTimeInMillis(to);
-        confiData.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendarTo));
-
-        //Creating testDataMap
-        for (int i = 0; i < 10; i++) {
+            // remember the node in a map that will be used when reserving nodes
             reservationDataMap.put(i, confiData);
+
         }
 
     }
 
+    @After
+    public void tearDown() throws Exception {
+        secretAuthenticationKeyList = null;
+        reservationDataMap = null;
+    }
+
     @Test
     public void test() throws Throwable {
-        makeReservation();
-        getReservations();
-        getConfindentialReservations();
+        makeReservations();
         getReservationBeforeDeletion();
         deleteReservationBeforeDeletion();
         getReservationAfterDeletion();
         deleteReservationAfterDeletion();
     }
 
-    public void makeReservation() throws Throwable {
+    /**
+     * Makes {@link de.uniluebeck.itm.tr.rs.persistence.inmemory.test.SingleUrnPrefixInmemoryTest#RESERVATION_COUNT}
+     * reservations, each for different node URNs, starting at {@link de.uniluebeck.itm.tr.rs.persistence.inmemory.test.SingleUrnPrefixInmemoryTest#reservationStartingTime}
+     * and stopping at {@link de.uniluebeck.itm.tr.rs.persistence.inmemory.test.SingleUrnPrefixInmemoryTest#reservationEndingTime}.
+     *
+     * @throws Exception
+     */
+    private void makeReservations() throws Exception {
         for (int i = 0; i < reservationDataMap.size(); i++) {
-            reservationKeyMap.put(i, singleUrnPrefixRS.makeReservation(secretAuthenticationKeyList, reservationDataMap.get(i)).get(0));
+            reservationKeyMap.put(i, rs.makeReservation(
+                    secretAuthenticationKeyList, reservationDataMap.get(i)
+            ).get(0)
+            );
         }
     }
 
@@ -123,7 +277,7 @@ public class SingleUrnPrefixInmemoryTest {
             tempKeyList.add(reservationKeyMap.get(i));
 
             ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
-            ConfidentialReservationData receivedCRD = singleUrnPrefixRS.getReservation(tempKeyList).get(0);
+            ConfidentialReservationData receivedCRD = rs.getReservation(tempKeyList).get(0);
 
             assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
             assertEquals(rememberedCRD.getNodeURNs(), receivedCRD.getNodeURNs());
@@ -134,21 +288,12 @@ public class SingleUrnPrefixInmemoryTest {
         }
     }
 
-    private boolean equals(ConfidentialReservationData rd1, ConfidentialReservationData rd2) {
-        // TODO implement (im moment noch unschoen!!)
-        //if (!reservationData.getUsers().get(0).getUsername().equals(reservationDataOther.getUsers().get(0).getUsername())) return false;
-        //if (reservationData.getFrom().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getFrom().toGregorianCalendar().getTimeInMillis()) return false;
-        //if (reservationData.getTo().toGregorianCalendar().getTimeInMillis() != reservationDataOther.getTo().toGregorianCalendar().getTimeInMillis()) return false;
-        return Comparison.equals(rd1, rd2);
-    }
-
-
     public void getReservationAfterDeletion() throws RSExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
             try {
-                singleUrnPrefixRS.getReservation(tempKeyList).get(0);
+                rs.getReservation(tempKeyList).get(0);
                 fail("Should have raised an ReservervationNotFoundExceptionException");
             }
             catch (ReservervationNotFoundExceptionException e) {
@@ -156,56 +301,37 @@ public class SingleUrnPrefixInmemoryTest {
         }
     }
 
+    /**
+     * @throws RSExceptionException
+     * @throws DatatypeConfigurationException
+     */
+    @Test
+    public void testGetReservations() throws Exception {
 
-    public void getReservations() throws RSExceptionException, DatatypeConfigurationException {
-        //first interval : no overlap first direction
-        XMLGregorianCalendar testFrom = createGregorianCalendar(from - 20000);
-        XMLGregorianCalendar testTo = createGregorianCalendar(from - 20000);
+        makeReservations();
 
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
+        for (IntervalData id : intervals) {
+            assertSame(rs.getReservations(createXmlCal(id.from), createXmlCal(id.until)).size(), id.expectedReservationCount);
+        }
 
-        //second interval : small overlap first direction
-        testFrom = createGregorianCalendar(from - 20000);
-        testTo = createGregorianCalendar(to - 500);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
-
-//        //second interval : small overlap second direction
-        testFrom = createGregorianCalendar(from + 500);
-        testTo = createGregorianCalendar(to + 20000);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
-
-        //third interval : overlap on the same timeline first direction
-        testFrom = createGregorianCalendar(from - 20000);
-        testTo = createGregorianCalendar(from);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
-
-        //third interval : overlap on the same timeline second direction
-        testFrom = createGregorianCalendar(to);
-        testTo = createGregorianCalendar(to + 20000);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 0);
-
-        //fourth interval : absolute overlap first direction
-        testFrom = createGregorianCalendar(from + 5);
-        testTo = createGregorianCalendar(to - 5);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
-
-        //fourth interval : absolute overlap second direction
-        testFrom = createGregorianCalendar(from - 5);
-        testTo = createGregorianCalendar(to + 5);
-        assertSame(singleUrnPrefixRS.getReservations(testFrom, testTo).size(), 10);
     }
 
-    private XMLGregorianCalendar createGregorianCalendar(long from) throws DatatypeConfigurationException {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(from);
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+    /**
+     * Creates a {@link javax.xml.datatype.XMLGregorianCalendar} instance with the given date and time.
+     *
+     * @param dateTime the date and time the newly created instance shall be set to
+     * @return a {@link javax.xml.datatype.XMLGregorianCalendar} instance with the given date and time
+     */
+    private XMLGregorianCalendar createXmlCal(DateTime dateTime) {
+        return datatypeFactory.newXMLGregorianCalendar(dateTime.toGregorianCalendar());
     }
 
-    public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
+    public void deleteReservationBeforeDeletion()
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
-            singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+            rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
         }
     }
 
@@ -214,56 +340,37 @@ public class SingleUrnPrefixInmemoryTest {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
             try {
-                singleUrnPrefixRS.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+                rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
                 fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservervationNotFoundExceptionException e) {
-                ;
+            catch (ReservervationNotFoundExceptionException expected) {
             }
         }
     }
 
-    public void getConfindentialReservations() throws RSExceptionException, DatatypeConfigurationException {
-        GetReservations period = createPeriod(from, to);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+    /**
+     * Checks if the reservations that have been made before are found when querying the RS with various time periods.
+     *
+     * @throws RSExceptionException
+     * @throws DatatypeConfigurationException
+     */
+    @Test
+    public void getConfidentialReservations() throws Exception {
 
-        period = createPeriod(from - 20000, to - 20000);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
+        makeReservations();
 
-        //second interval : small overlap first direction
-        period = createPeriod(from - 20000, to - 500);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
-
-//        //second interval : small overlap second direction
-        period = createPeriod(from + 500, to + 20000);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
-
-        //third interval : overlap on the same timeline first direction
-        period = createPeriod(from - 20000, from);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
-
-        //third interval : overlap on the same timeline second direction
-        period = createPeriod(to, to + 20000);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 0);
-
-        //fourth interval : absolute overlap first direction
-        period = createPeriod(from + 5, to - 5);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
-
-        //fourth interval : absolute overlap second direction
-        period = createPeriod(from - 5, to + 5);
-        assertSame(singleUrnPrefixRS.getConfidentialReservations(secretAuthenticationKeyList, period).size(), 10);
+        for (IntervalData id : intervals) {
+            GetReservations period = createPeriod(id.from, id.until);
+            int actualReservationCount = rs.getConfidentialReservations(secretAuthenticationKeyList, period).size();
+            assertSame(actualReservationCount, id.expectedReservationCount);
+        }
 
     }
 
-    private GetReservations createPeriod(long from, long to) throws DatatypeConfigurationException {
+    private GetReservations createPeriod(DateTime from, DateTime to) throws DatatypeConfigurationException {
         GetReservations period = new GetReservations();
-        GregorianCalendar gregFrom = new GregorianCalendar();
-        GregorianCalendar gregTo = new GregorianCalendar();
-        gregFrom.setTimeInMillis(from);
-        gregTo.setTimeInMillis(to);
-        period.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregFrom));
-        period.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(gregTo));
+        period.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
+        period.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
         return period;
     }
 }

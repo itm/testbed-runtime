@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
- *   promote products derived from this software without specific prior written permission.                           *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,36 +21,54 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.motelist;
+package eu.wisebed.shibboauth;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import gnu.io.CommPortIdentifier;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import java.io.Serializable;
+import java.util.*;
 
-import java.util.Enumeration;
+public class ShibbolethSecretAuthenticationKey implements Serializable {
+    private List<LinkedHashMap<String, Object>> cookieMaps;
+    private String secretAuthenticationKey;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 27.07.2010
- * Time: 20:49:57
- * TODO change
- */
-public class MoteListRXTX extends AbstractMoteList {
-	@Override
-	public Multimap<String, String> getMoteList() {
+    public ShibbolethSecretAuthenticationKey(String secretAuthenticationKey, List<Cookie> cookies){
+        this.secretAuthenticationKey = secretAuthenticationKey;
+        setCookieMaps(cookies);
+    }
 
-		Multimap<String, String> map = HashMultimap.create();
+    private void setCookieMaps(List<Cookie> cookies) {
+       cookieMaps = new LinkedList<LinkedHashMap<String, Object>>();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                LinkedHashMap<String, Object> cookieMap = new LinkedHashMap<String, Object>();
+                cookieMap.put("name", cookie.getName());
+                cookieMap.put("value", cookie.getValue());
+                cookieMap.put("version", cookie.getVersion());
+                cookieMap.put("domain", cookie.getDomain());
+                cookieMap.put("path", cookie.getPath());
+                cookieMap.put("expiryDate", cookie.getExpiryDate());
+                cookieMap.put("isSecure", cookie.isSecure());
+                cookieMaps.add(cookieMap);
+            }
+        }
+    }
 
-		Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
-		System.out.println(((CommPortIdentifier) portIdentifiers.nextElement()).getPortType());
+    public List<Cookie> getCookies() {
+        List<Cookie> cookieList = new LinkedList<Cookie>();
+        for (LinkedHashMap<String, Object> map : cookieMaps) {
+            BasicClientCookie cookie = new BasicClientCookie((String) map.get("name"), (String) map.get("value"));
+            cookie.setVersion((Integer) map.get("version"));
+            cookie.setDomain((String) map.get("domain"));
+            cookie.setPath((String) map.get("path"));
+            cookie.setExpiryDate((Date) map.get("expiryDate"));
+            cookie.setSecure((Boolean) map.get("isSecure"));
+            cookieList.add(cookie);
+        }
+        return cookieList;
+    }
 
-		// TODO this does not work yet...
-
-		return map;
-	}
-
-	public static void main(String[] args) {
-		new MoteListRXTX().getMoteList();
-	}
+    public String getSecretAuthenticationKey() {
+        return secretAuthenticationKey;
+    }
 }

@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 public class UrlUtils {
 
@@ -41,5 +42,14 @@ public class UrlUtils {
 	public static String convertHostToZeros(String oldUrl) throws MalformedURLException {
 		return convertHostToZeros(new URL(oldUrl)).toString();
 	}
+
+    private static Random random;
+
+    public static int getRandomUnprivilegedPort() {
+        if (random == null) {
+            random = new Random();
+        }
+        return random.nextInt(((int) (Math.pow(2, 16)) - 1) - 1024) + 1024;
+    }
 
 }

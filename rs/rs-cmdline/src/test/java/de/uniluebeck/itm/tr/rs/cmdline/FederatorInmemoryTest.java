@@ -23,21 +23,24 @@
 
 package de.uniluebeck.itm.tr.rs.cmdline;
 
+import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
 import de.uniluebeck.itm.tr.rs.persistence.Comparison;
-import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
-import de.uniluebeck.itm.tr.snaa.cmdline.server.Server;
+import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
+import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.rs.v1.*;
 import eu.wisebed.testbed.api.snaa.v1.Action;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.BindException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -53,12 +56,6 @@ public class FederatorInmemoryTest {
 
     private FederatorSNAA snaaFederator = null;
 
-    private Map<String, String> snaaEndpointPropertiesMapWisebed1 = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed1;
-
-    private Map<String, String> snaaEndpointPropertiesMapWisebed2 = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed2;
-
-    private Map<String, String> rsEndpointPropertiesMap = EndpointPropertiesTestMap.RSPropertiesMap;
-
     private List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> rsSecretAuthenticationKeyList =
             new LinkedList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
 
@@ -73,30 +70,113 @@ public class FederatorInmemoryTest {
 
     private Map<Integer, List<SecretReservationKey>> reservationKeyMap = null;
 
+    private Properties snaa1Properties;
+
+    private Properties snaa2Properties;
+
+    private Properties rsProperties;
+    
+    private HttpServer snaa2HttpServer;
+    
+    private HttpServer snaa1HttpServer;
+    
+    private HttpServer rsHttpServer;
+
     @Before
     public void setUp() throws Exception {
-        //PropertiesMap SNAA1
-        Properties SNAAProps1 = new Properties();
-        for (String key : snaaEndpointPropertiesMapWisebed1.keySet()) {
-            SNAAProps1.setProperty(key, snaaEndpointPropertiesMapWisebed1.get(key));
-        }
-        //PropertiesMap SNAA2
-        Properties SNAAProps2 = new Properties();
-        for (String key : snaaEndpointPropertiesMapWisebed2.keySet()) {
-            SNAAProps2.setProperty(key, snaaEndpointPropertiesMapWisebed2.get(key));
+
+        // start SNAA 1
+        snaa1Properties = new Properties() {{
+
+            setProperty("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+            setProperty("config.snaas", "dummy1");
+
+            setProperty("dummy1.type", "dummy");
+            setProperty("dummy1.urnprefix", "urn:wisebed1:testbed1");
+            setProperty("dummy1.path", "/snaa/dummy1");
+
+        }};
+        boolean startedSNAA1 = false;
+        while (!startedSNAA1) {
+            try {
+                snaa1HttpServer = SNAAServer.startFromProperties(snaa1Properties);
+                startedSNAA1 = true;
+            } catch (Exception e) {
+                if (e.getCause() instanceof BindException) {
+                    snaa1Properties.setProperty("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
-        //Properties RS
-        Properties RSProps = new Properties();
-        for (String key : rsEndpointPropertiesMap.keySet()) {
-            RSProps.setProperty(key, rsEndpointPropertiesMap.get(key));
+        // start SNAA 2
+        snaa2Properties = new Properties() {{
+
+            put("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+            put("config.snaas", "dummy1");
+
+            put("dummy1.type", "dummy");
+            put("dummy1.urnprefix", "urn:wisebed2:testbed1");
+            put("dummy1.path", "/snaa/dummy1");
+
+        }};
+        boolean startedSNAA2 = false;
+        while (!startedSNAA2) {
+            try {
+                snaa2HttpServer = SNAAServer.startFromProperties(snaa2Properties);
+                startedSNAA2 = true;
+            } catch (Exception e) {
+                if (e.getCause() instanceof BindException) {
+                    snaa2Properties.setProperty("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
-        //starting SNAA-Server
-        Server.startFromProperties(SNAAProps1);
-        Server.startFromProperties(SNAAProps2);
-        //starting RS-Server
-        Main.startFromProperties(RSProps);
+        // start Reservation Systems
+        rsProperties = new Properties() {{
+
+            setProperty("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+            setProperty("config.rsnames", "inmemory1, inmemory2, fed1");
+
+            setProperty("inmemory1.type", "singleurnprefix");
+            setProperty("inmemory1.snaaendpointurl", "http://localhost:" + snaa1Properties.getProperty("config.port") + "/snaa/dummy1");
+            setProperty("inmemory1.persistence", "inmemory");
+            setProperty("inmemory1.urnprefix", "urn:wisebed1:testbed1");
+            setProperty("inmemory1.path", "/rs/inmemory1");
+
+            setProperty("inmemory2.type", "singleurnprefix");
+            setProperty("inmemory2.snaaendpointurl", "http://localhost:" + snaa1Properties.getProperty("config.port") + "/snaa/dummy1");
+            setProperty("inmemory2.persistence", "inmemory");
+            setProperty("inmemory2.urnprefix", "urn:wisebed2:testbed1");
+            setProperty("inmemory2.path", "/rs/inmemory2");
+
+            setProperty("fed1.type", "federator");
+            setProperty("fed1.path", "/rs/fed1");
+            setProperty("fed1.federates", "inmemory1, inmemory2");
+            setProperty("fed1.inmemory1.urnprefixes", "urn:wisebed1:testbed1");
+            setProperty("fed1.inmemory1.endpointurl", "http://localhost:" + getProperty("config.port") + "/rs/inmemory1");
+            setProperty("fed1.inmemory2.urnprefixes", "urn:wisebed2:testbed1");
+            setProperty("fed1.inmemory2.endpointurl", "http://localhost:" + getProperty("config.port") + "/rs/inmemory2");
+
+        }};
+        boolean startedRS = false;
+        while (!startedRS) {
+            try {
+                rsHttpServer = RSServer.startFromProperties(rsProperties);
+                startedRS = true;
+            } catch (Exception e) {
+                if (e.getCause() instanceof BindException) {
+                    rsProperties.setProperty("config.port", "" + UrlUtils.getRandomUnprivilegedPort());
+                    rsProperties.setProperty("fed1.inmemory1.endpointurl", "http://localhost:" + rsProperties.getProperty("config.port") + "/rs/inmemory1");
+                    rsProperties.setProperty("fed1.inmemory2.endpointurl", "http://localhost:" + rsProperties.getProperty("config.port") + "/rs/inmemory2");
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
         List<String> urnPrefixe = new LinkedList<String>();
         urnPrefixe.add("urn:wisebed1:testbed1");
@@ -108,13 +188,13 @@ public class FederatorInmemoryTest {
         testbed2.add(urnPrefixe.get(1));
 
         snaaPrefixSet = new HashMap<String, Set<String>>();
-        snaaPrefixSet.put("http://localhost:8080/snaa/dummy1", testbed1);
-        snaaPrefixSet.put("http://localhost:8090/snaa/dummy1", testbed2);
+        snaaPrefixSet.put("http://localhost:" + snaa1Properties.getProperty("config.port") + "/snaa/dummy1", testbed1);
+        snaaPrefixSet.put("http://localhost:" + snaa2Properties.getProperty("config.port") + "/snaa/dummy1", testbed2);
         snaaFederator = new FederatorSNAA(snaaPrefixSet);
 
         rsPrefixSet = new HashMap<String, Set<String>>();
-        rsPrefixSet.put("http://localhost:9090/rs/inmemory1", testbed1);
-        rsPrefixSet.put("http://localhost:9090/rs/inmemory2", testbed2);
+        rsPrefixSet.put("http://localhost:" + rsProperties.getProperty("config.port") + "/rs/inmemory1", testbed1);
+        rsPrefixSet.put("http://localhost:" + rsProperties.getProperty("config.port") + "/rs/inmemory2", testbed2);
         rsFederator = new FederatorRS(rsPrefixSet);
 
 
@@ -174,6 +254,13 @@ public class FederatorInmemoryTest {
 
             reservationDataMap.put(i, confidentialReservationData);
         }
+    }
+
+    @After
+    public void tearDown() {
+        snaa1HttpServer.stop(0);
+        snaa2HttpServer.stop(0);
+        rsHttpServer.stop(0);
     }
 
     private boolean equals(ConfidentialReservationData reservationData,
@@ -280,7 +367,7 @@ public class FederatorInmemoryTest {
         catch (RSExceptionException e) {
             // do nothing
         }
-        //testing if makeReservation on empty authenticationData and reservation-data returns empty SecretReservationKey-list
+        //testing if makeReservations on empty authenticationData and reservation-data returns empty SecretReservationKey-list
         List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
         ConfidentialReservationData resData = new ConfidentialReservationData();
         resData.getNodeURNs();

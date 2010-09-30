@@ -36,8 +36,9 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
-import de.uniluebeck.itm.motelist.AbstractMoteList;
-import de.uniluebeck.itm.motelist.MoteListLinux;
+import de.uniluebeck.itm.motelist.MoteList;
+import de.uniluebeck.itm.motelist.MoteListFactory;
+import de.uniluebeck.itm.motelist.MoteType;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
@@ -46,13 +47,18 @@ import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbBinFile;
+import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbDevice;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -503,8 +509,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
 
-			JennicBinFile jennicBinFile =
-					new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			IDeviceBinFile iSenseBinFile = null;
+			
+			if (iSenseDevice instanceof JennicDevice){
+				iSenseBinFile = new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}else if (iSenseDevice instanceof TelosbDevice){
+				iSenseBinFile = new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}else if (iSenseDevice instanceof PacemateDevice){
+				iSenseBinFile = new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}
+			
 			try {
 
 				// remember invocation message to be able to send asynchronous replies
@@ -512,7 +526,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				currentOperationResponder = responder;
 				currentOperationLastProgress = new TimeDiff(1000);
 
-				if (!iSenseDevice.triggerProgram(jennicBinFile, true)) {
+				if (!iSenseDevice.triggerProgram(iSenseBinFile, true)) {
 					failedFlashPrograms("Failed to trigger programming.");
 				}
 
@@ -523,6 +537,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
+		} catch (Exception e) {
+			log.error("Error reading bin file "+e);
 		}
 
 	}
@@ -851,13 +867,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			if (nodeSerialInterface == null || "".equals(nodeSerialInterface)) {
 
 				Long macAddress = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
-				AbstractMoteList moteList;
+				MoteList moteList;
 
 				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
 
 				try {
-					moteList = new MoteListLinux();
-				} catch (IOException e) {
+					moteList = MoteListFactory.create();
+				} catch (Exception e) {
 					log.error(
 							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",
 							nodeUrn,
@@ -866,7 +882,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					return;
 				}
 
-				nodeSerialInterface = moteList.getMotePort(nodeType, macAddress);
+				nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType), macAddress);
 
 				if (nodeSerialInterface == null) {
 					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",

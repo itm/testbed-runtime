@@ -46,11 +46,11 @@ import java.util.*;
 import java.util.concurrent.Executors;
 
 @SuppressWarnings("restriction")
-public class Main {
+public class RSServer {
 
 	private static HttpServer server;
 
-	private static final Logger log = Logger.getLogger(Main.class);
+	private static final Logger log = Logger.getLogger(RSServer.class);
 
 	/**
 	 * @param args
@@ -104,7 +104,7 @@ public class Main {
 
 	}
 
-	public static void startFromProperties(Properties props) throws Exception {
+	public static HttpServer startFromProperties(Properties props) throws Exception {
 		int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
 		startHttpServer(port);
@@ -149,6 +149,8 @@ public class Main {
 			}
 
 		}
+
+        return server;
 
 	}
 
@@ -223,7 +225,7 @@ public class Main {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(Main.class.getCanonicalName(), options);
+		formatter.printHelp(RSServer.class.getCanonicalName(), options);
 		System.exit(1);
 	}
 

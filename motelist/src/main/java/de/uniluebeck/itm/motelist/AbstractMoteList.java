@@ -28,131 +28,283 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MacAddress;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.Operation;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDeviceListenerAdapter;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.util.Collection;
 import java.util.Map;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 27.07.2010
- * Time: 20:51:12
- * TODO change
- */
-public abstract class AbstractMoteList {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+abstract class AbstractMoteList implements MoteList {
 
-	/**
-	 *
-	 * @return mapping type -> {port}
-	 */
-	abstract Multimap<String, String> getMoteList();
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * port -> (type, mac)
-	 */
-	private BiMap<String, Tuple<String, MacAddress>> devices;
+    private ProcessBuilder pb;
 
-	/**
-	 * @param type	   one of "isense", "telosb", "pacemate"
-	 * @param macAddress
-	 * @return {@code null} if not found, serial device (e.g. /dev/ttyUSB0) otherwise
-	 */
-	public String getMotePort(String type, long macAddress) {
+    private File tmpFile;
 
-		Multimap<String, String> moteList = getMoteList();
+    private Map<String, String> telosBReferenceToMACMap;
 
-		/* port -> (type,mac) */
-		if (devices == null) {
+    public AbstractMoteList(Map<String, String> telosBReferenceToMACMap) {
+        this.telosBReferenceToMACMap = telosBReferenceToMACMap;
+    }
 
-			devices = HashBiMap.create();
+    @Override
+    public String getMotePort(MoteType type, long macAddress) {
 
-			for (final String port : moteList.get(type)) {
+        // create a mapping from node ports to the MAC addresses of the devices that are attached to them
+        BiMap<String, MacAddress> map;
+        Collection<MoteData> portList = getMoteList().get(type);
+        if (MoteType.ISENSE == type) {
+            map = createISenseMap(portList);
+        } else if (MoteType.TELOSB == type) {
+            if (telosBReferenceToMACMap == null) {
+                throw new RuntimeException("TelosB nodes are not supported since it is not possible to read out the MAC "
+                        + "address of a node by using hardware functions. If you whatsoever want to detect Telos B " +
+                        "motes please pass in a Map instance that MAPs Telos B USB chip IDs to their corresponding MAC " +
+                        "address."
+                );
+            } else {
+                map = createTelosBMap(portList);
+            }
+        } else if (MoteType.PACEMATE == type) {
+            map = createPacemateMap(portList);
+        } else {
+            throw new RuntimeException("This only happens if you forgot to add a new MoteType to this check ;-)");
+        }
 
-				log.debug("Probing {}", port);
+        // check for equality and return node if found
+        byte[] searchLower16 = new byte[2];
+        searchLower16[0] = (byte) (macAddress >> 8 & 0xFF);
+        searchLower16[1] = (byte) (macAddress & 0xFF);
 
-				TimeDiff diff = new TimeDiff(1000);
-				JennicDevice device = new JennicDevice(port);
+        log.debug("Searching for device with MAC address: {}", StringUtils.toHexString(searchLower16));
 
-				if (device.isConnected()) {
-					log.info("Connected to device at {}", port);
-					device.registerListener(new iSenseDeviceListenerAdapter() {
+        for (Map.Entry<String, MacAddress> entry : map.entrySet()) {
 
-						@Override
-						public void receivePacket(final MessagePacket p) {/* nothing to do */}
+            byte[] found = entry.getValue().getMacBytes();
+            byte[] foundLower16 = new byte[2];
+            foundLower16[0] = found[6];
+            foundLower16[1] = found[7];
 
-						@Override
-						public void operationDone(final Operation op, final Object result) {
-							if (result instanceof Exception) {
-								Exception e = (Exception) result;
-								log.error("Caught exception when trying to read MAC address: " + e, e);
-							} else if (op == Operation.READ_MAC && result != null) {
-								log.info("Found iSense device on port {} with MAC address {}", port, result);
-								devices.put(port, new Tuple<String, MacAddress>("isense", (MacAddress) result));
-							}
-						}
+            log.debug("{} == {} ?", StringUtils.toHexString(searchLower16), StringUtils.toHexString(foundLower16));
 
-					}
-					);
-					device.triggerGetMacAddress(true);
-				}
+            boolean sameMac =
+                    searchLower16[0] == foundLower16[0] &&
+                            searchLower16[1] == foundLower16[1];
 
-				while (!diff.isTimeout()) {
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						log.error("" + e, e);
-					}
-				}
+            if (sameMac) {
+                return entry.getKey(); // port
+            }
+        }
 
-				if (device.getOperation() == Operation.READ_MAC) {
-					device.cancelOperation(Operation.READ_MAC);
-				}
+        // no node with the given MAC address was found so return null
+        return null;
 
-				// TODO pacemate and telosb
+    }
 
-				device.shutdown();
+    @Override
+    public Multimap<MoteType, MoteData> getMoteList() {
 
-			}
+        File tmpFile = copyScriptToTmpFile();
+        pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
 
-		}
+        BufferedReader in;
+        try {
+            Process p = pb.start();
+            // Eingabestream holen
+            in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            // parsing
+            return parseMoteList(in);
 
-		byte[] searchLower16 = new byte[2];
-		searchLower16[0] = (byte) (macAddress >> 8 & 0xFF);
-		searchLower16[1] = (byte) (macAddress & 0xFF);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-		log.debug("Searching for device with MAC address: {}", StringUtils.toHexString(searchLower16));
+    private File copyScriptToTmpFile() {
 
-		for (Map.Entry<String, Tuple<String, MacAddress>> entry : devices.entrySet()) {
-			
-			boolean sameType = entry.getValue().getFirst().equals(type);
+        if (tmpFile == null || !tmpFile.exists()) {
 
-			byte [] found = entry.getValue().getSecond().getMacBytes();
-			byte[] foundLower16 = new byte[2];
-			foundLower16[0] = found[6];
-			foundLower16[1] = found[7];
+            try {
 
-			log.debug("{} == {} ?", StringUtils.toHexString(searchLower16), StringUtils.toHexString(foundLower16));
+                InputStream from = getClass().getClassLoader().getResourceAsStream(getScriptName());
+                FileOutputStream to = null;
 
-			boolean sameMac =
-					searchLower16[0] == foundLower16[0] &&
-					searchLower16[1] == foundLower16[1];
+                try {
 
-			if (sameType && sameMac) {
-				return entry.getKey(); // port
-			}
-		}
+                    tmpFile = File.createTempFile("motelist", "");
+                    to = new FileOutputStream(tmpFile);
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
 
-		return null;
+                    while ((bytesRead = from.read(buffer)) != -1) {
+                        to.write(buffer, 0, bytesRead);
+                    } // write
 
-	}
+                } finally {
+                    if (from != null) {
+                        try {
+                            from.close();
+                        } catch (IOException e) {
+                            log.debug("" + e, e);
+                        }
+                    }
+                    if (to != null) {
+                        try {
+                            to.close();
+                        } catch (IOException e) {
+                            log.debug("" + e, e);
+                        }
+                    }
+                }
 
+                tmpFile.setExecutable(true);
+                return tmpFile;
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+        return tmpFile;
+
+    }
+
+    protected abstract Multimap<MoteType, MoteData> parseMoteList(final BufferedReader in);
+
+    /**
+     * @param datas
+     * @return a mapping port -> (type, macaddress)
+     */
+    private BiMap<String, MacAddress> createISenseMap(Collection<MoteData> datas) {
+
+        final BiMap<String, MacAddress> devices = HashBiMap.create();
+
+        for (final MoteData data : datas) {
+
+            log.debug("Probing {}", data);
+
+            TimeDiff diff = new TimeDiff(1000);
+            JennicDevice device = new JennicDevice(data.port);
+
+            if (device.isConnected()) {
+                log.info("Connected to device at {}", data.port);
+                device.registerListener(new iSenseDeviceListenerAdapter() {
+
+                    @Override
+                    public void receivePacket(final MessagePacket p) {/* nothing to do */}
+
+                    @Override
+                    public void operationDone(final Operation op, final Object result) {
+                        if (result instanceof Exception) {
+                            Exception e = (Exception) result;
+                            log.error("Caught exception when trying to read MAC address: " + e, e);
+                        } else if (op == Operation.READ_MAC && result != null) {
+                            log.info("Found iSense device on port {} with MAC address {}", data.port, result);
+                            devices.put(data.port, (MacAddress) result);
+                        }
+                    }
+
+                }
+                );
+                device.triggerGetMacAddress(true);
+            }
+
+            while (!diff.isTimeout()) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    log.error("" + e, e);
+                }
+            }
+
+            if (device.getOperation() == Operation.READ_MAC) {
+                device.cancelOperation(Operation.READ_MAC);
+            }
+
+            device.shutdown();
+
+        }
+
+        return devices;
+    }
+
+    private BiMap<String, MacAddress> createPacemateMap(final Collection<MoteData> portList) {
+
+        final BiMap<String, MacAddress> devices = HashBiMap.create();
+
+        for (final MoteData data : portList) {
+
+            log.debug("Probing {}", data.port);
+
+            TimeDiff diff = new TimeDiff(1000);
+            PacemateDevice device = new PacemateDevice(data.port);
+
+            if (device.isConnected()) {
+                log.info("Connected to device at {}", data.port);
+                device.registerListener(new iSenseDeviceListenerAdapter() {
+
+                    @Override
+                    public void receivePacket(final MessagePacket p) {/* nothing to do */}
+
+                    @Override
+                    public void operationDone(final Operation op, final Object result) {
+                        if (result instanceof Exception) {
+                            Exception e = (Exception) result;
+                            log.error("Caught exception when trying to read MAC address: " + e, e);
+                        } else if (op == Operation.READ_MAC && result != null) {
+                            log.info("Found Pacemate device on port {} with MAC address {}", data.port, result);
+                            devices.put(data.port, (MacAddress) result);
+                        }
+                    }
+
+                }
+                );
+                device.triggerGetMacAddress(true);
+            }
+
+            while (!diff.isTimeout()) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    log.error("" + e, e);
+                }
+            }
+
+            if (device.getOperation() == Operation.READ_MAC) {
+                device.cancelOperation(Operation.READ_MAC);
+            }
+
+            device.shutdown();
+
+        }
+
+        return devices;
+
+    }
+
+    private BiMap<String, MacAddress> createTelosBMap(final Collection<MoteData> portList) {
+        BiMap<String, MacAddress> retMap = HashBiMap.create(portList.size());
+        for (MoteData data : portList) {
+            if (telosBReferenceToMACMap.containsKey(data.reference)) {
+                Long mac = StringUtils.parseHexOrDecLong(telosBReferenceToMACMap.get(data.reference));
+                MacAddress address = new MacAddress(mac.intValue());
+                retMap.put(data.port, address);
+                log.info("Found Telos B device on port {} with MAC address {}", data.port, address);
+            }
+        }
+        return retMap;
+    }
+
+    public abstract String getScriptName();
 }

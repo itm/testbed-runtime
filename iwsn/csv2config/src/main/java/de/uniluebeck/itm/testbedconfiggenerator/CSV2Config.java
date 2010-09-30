@@ -228,7 +228,6 @@ public class CSV2Config {
 			WsnDevice wsnDevice = new WsnDevice();
 			wsnDevice.setType(nextLine[columnMap.inverse().get(NODE_TYPE)]);
 			wsnDevice.setUrn(nextLine[columnMap.inverse().get(URN_TESTBED_PREFIX)] + nextLine[columnMap.inverse().get(NODE_ID)]);
-			wsnDevice.setAutodetectionMac(nextLine[columnMap.inverse().get(NODE_ID)]);
 
 			Wsnapp wsnApp = (Wsnapp) application.getAny();
 			wsnApp.getDevice().add(wsnDevice);

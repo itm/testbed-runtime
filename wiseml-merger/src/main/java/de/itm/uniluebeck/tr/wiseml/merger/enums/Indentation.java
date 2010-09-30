@@ -2,7 +2,8 @@ package de.itm.uniluebeck.tr.wiseml.merger.enums;
 
 public enum Indentation {
 	
-	None(""),
+	NoneWithoutNewlines(null),
+	NoneWithNewlines(""),
 	Tabulator("\t"),
 	OneSpace(" "),
 	TwoSpaces("  "),
@@ -15,7 +16,11 @@ public enum Indentation {
 		this.string = string;
 	}
 	
-	public String getString() {
+	public String getIndentationElement() {
 		return string;
+	}
+	
+	public boolean preventWhitespace() {
+		return string == null;
 	}
 }
