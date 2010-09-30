@@ -182,7 +182,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		serialPort.setDTR(false);
 		Thread.sleep(200);
 		serialPort.setRTS(false);
-		log.error("Entered programming mode the Pacemate style");
+		log.info("Entered programming mode the Pacemate style");
 
 		// log.debug("Com port in programming mode");
 		return true;
@@ -762,8 +762,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			try {
 				message[index] = (byte) inStream.read();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("" + e, e);
 			}
 			if (message[index] == -1)
 				a = false;
