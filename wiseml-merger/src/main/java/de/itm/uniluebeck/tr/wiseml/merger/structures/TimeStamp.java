@@ -1,16 +1,40 @@
 package de.itm.uniluebeck.tr.wiseml.merger.structures;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
 
 public class TimeStamp {
 	
-	private long offset;
+	private int offset;
 	private Unit unit;
 	private DateTime start;
+	private DateTime instant;
 	
-	public long getOffset() {
+	private boolean offsetDefined;
+	
+	public TimeStamp(int offset, Unit unit, DateTime start) {
+		this.offset = offset;
+		this.unit = unit;
+		this.start = start;
+		this.offsetDefined = true;
+		computeInstant();
+	}
+	
+	public TimeStamp(DateTime instant, Unit unit, DateTime start) {
+		this.instant = instant;
+		this.unit = unit;
+		this.start = start;
+		this.offsetDefined = false;
+		computeOffset();
+	}
+	
+	public boolean isOffsetDefined() {
+		return offsetDefined;
+	}
+
+	public int getOffset() {
 		return offset;
 	}
 	
@@ -21,17 +45,32 @@ public class TimeStamp {
 	public DateTime getStart() {
 		return start;
 	}
-	
-	public void setOffset(long offset) {
-		this.offset = offset;
+		
+	public DateTime getInstant() {
+		return instant;
 	}
 	
-	public void setUnit(Unit unit) {
-		this.unit = unit;
+	private void computeInstant() {
+		switch (unit) {
+		case seconds: 
+			instant = start.plusSeconds(offset);
+			break;
+		case milliseconds: 
+			instant = start.plusMillis(offset);
+			break;
+		}
 	}
 	
-	public void setStart(DateTime start) {
-		this.start = start;
+	private void computeOffset() {
+		Interval interval = new Interval(start, instant);
+		switch (unit) {
+		case seconds: 
+			offset = (int)(interval.toDurationMillis() / 1000);
+			break;
+		case milliseconds: 
+			offset = (int)(interval.toDurationMillis());
+			break;
+		}
 	}
 
 }
