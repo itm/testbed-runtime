@@ -28,571 +28,574 @@ import java.util.*;
 
 public class CSV2Config {
 
-	public static final String HOSTNAME = "hostname";
+    public static final String HOSTNAME = "hostname";
 
-	public static final String NODE_ID = "node.id";
+    public static final String NODE_ID = "node.id";
 
-	public static final String NODE_PORT = "node.port";
+    public static final String NODE_PORT = "node.port";
 
-	public static final String NODE_REFERENCE = "node.reference";
+    public static final String NODE_REFERENCE = "node.reference";
 
-	public static final String NODE_TYPE = "node.type";
+    public static final String NODE_TYPE = "node.type";
 
-	public static final String NODE_GATEWAY = "node.gateway";
+    public static final String NODE_GATEWAY = "node.gateway";
 
-	public static final String NODE_DESCRIPTION = "node.description";
+    public static final String NODE_DESCRIPTION = "node.description";
 
-	public static final String URN_TESTBED_PREFIX = "urn.testbed.prefix";
+    public static final String URN_TESTBED_PREFIX = "urn.testbed.prefix";
 
-	public static final String NODE_POSITION_X = "node.position.x";
+    public static final String NODE_POSITION_X = "node.position.x";
 
-	public static final String NODE_POSITION_Y = "node.position.y";
+    public static final String NODE_POSITION_Y = "node.position.y";
 
-	public static final String NODE_POSITION_Z = "node.position.z";
+    public static final String NODE_POSITION_Z = "node.position.z";
 
-	public static final String META_ROOM_NAME = "meta.room.name";
+    public static final String META_ROOM_NAME = "meta.room.name";
 
-	public static final String META_ROOM_NUMBER = "meta.room.number";
+    public static final String META_ROOM_NUMBER = "meta.room.number";
 
-	public static final String META_NODE_CAPABILITY_PREFIX = "node.capability.";
+    public static final String META_NODE_CAPABILITY_PREFIX = "node.capability.";
 
-	public static final String META_NODE_CAPABILITY_SUFFIX_URN = ".urn";
+    public static final String META_NODE_CAPABILITY_SUFFIX_URN = ".urn";
 
-	public static final String META_NODE_CAPABILITY_SUFFIX_DATATYPE = ".datatype";
+    public static final String META_NODE_CAPABILITY_SUFFIX_DATATYPE = ".datatype";
 
-	public static final String META_NODE_CAPABILITY_SUFFIX_UNIT = ".unit";
+    public static final String META_NODE_CAPABILITY_SUFFIX_UNIT = ".unit";
 
-	public static final String META_NODE_CAPABILITY_SUFFIX_DEFAULT = ".default";
+    public static final String META_NODE_CAPABILITY_SUFFIX_DEFAULT = ".default";
 
-	private void createWiseMLFile() throws JAXBException, IOException {
+    private void createWiseMLFile() throws JAXBException, IOException {
 
-		// ====== create WiseML file ======
+        // ====== create WiseML file ======
 
-		Wiseml wiseml = new Wiseml();
-		wiseml.setVersion("1.0");
+        Wiseml wiseml = new Wiseml();
+        wiseml.setVersion("1.0");
 
-		Setup setup = new Setup();
-		wiseml.setSetup(setup);
+        Setup setup = new Setup();
+        wiseml.setSetup(setup);
 
-		// TODO fill out default values
-		//setup.setCoordinateType(coordinateType);
-		//setup.setDefaults(defaults);
-		//setup.setDescription(description);
-		//setup.setInterpolation(interpolation);
-		//setup.setOrigin(origin);
-		//setup.setTimeinfo(timeInfo);
-
-		List<Setup.Node> nodes = setup.getNode();
+        // TODO fill out default values
+        //setup.setCoordinateType(coordinateType);
+        //setup.setDefaults(defaults);
+        //setup.setDescription(description);
+        //setup.setInterpolation(interpolation);
+        //setup.setOrigin(origin);
+        //setup.setTimeinfo(timeInfo);
 
-		CSVReader reader = new CSVReader(
-				new FileReader(cmdLineParameters.csvFile),
-				CSVReader.DEFAULT_SEPARATOR,
-				CSVReader.DEFAULT_QUOTE_CHARACTER,
-				0
-		);
-
-		String[] nextLine;
-
-		// detect column by looking for property names in the first line
-		BiMap<Integer, String> columnMap = HashBiMap.create();
-		if ((nextLine = reader.readNext()) != null) {
-
-			for (int column = 0; column < nextLine.length; column++) {
-				columnMap.put(column, nextLine[column]);
-			}
+        List<Setup.Node> nodes = setup.getNode();
 
-			Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_ID));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_REFERENCE));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_PORT));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_TYPE));
-			Preconditions.checkNotNull(columnMap.containsValue(URN_TESTBED_PREFIX));
+        CSVReader reader = new CSVReader(
+                new FileReader(cmdLineParameters.csvFile),
+                CSVReader.DEFAULT_SEPARATOR,
+                CSVReader.DEFAULT_QUOTE_CHARACTER,
+                0
+        );
+
+        String[] nextLine;
+
+        // detect column by looking for property names in the first line
+        BiMap<Integer, String> columnMap = HashBiMap.create();
+        if ((nextLine = reader.readNext()) != null) {
+
+            for (int column = 0; column < nextLine.length; column++) {
+                columnMap.put(column, nextLine[column]);
+            }
+
+            Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_ID));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_REFERENCE));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_PORT));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_TYPE));
+            Preconditions.checkNotNull(columnMap.containsValue(URN_TESTBED_PREFIX));
 
-		} else {
-			throw new RuntimeException(
-					"CSV file must have at least one file containing one line that defines property names for the columns"
-			);
-		}
+        } else {
+            throw new RuntimeException(
+                    "CSV file must have at least one file containing one line that defines property names for the columns"
+            );
+        }
 
-		Setup.Node node;
-		BiMap<String, Integer> columns = columnMap.inverse();
-		while ((nextLine = reader.readNext()) != null) {
+        Setup.Node node;
+        BiMap<String, Integer> columns = columnMap.inverse();
+        while ((nextLine = reader.readNext()) != null) {
 
-			node = new Setup.Node();
-			nodes.add(node);
+            node = new Setup.Node();
+            nodes.add(node);
 
-			node.setId(cmdLineParameters.testbedPrefix + nextLine[columns.get(NODE_ID)].toLowerCase());
-			node.setDescription(nextLine[columns.get(NODE_DESCRIPTION)]);
-			node.setGateway(Boolean.parseBoolean(nextLine[columns.get(NODE_GATEWAY)].toLowerCase()));
-			node.setNodeType(nextLine[columns.get(NODE_TYPE)]);
-			Coordinate position = new Coordinate();
-			// TODO set something sensible here
-			//position.setPhi(phi);
-			//position.setTheta(theta);
-			position.setX(Double.parseDouble(nextLine[columns.get(NODE_POSITION_X)].replace(',', '.')));
-			position.setY(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Y)].replace(',', '.')));
-			position.setZ(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Z)].replace(',', '.')));
-			node.setPosition(position);
+            node.setId(cmdLineParameters.testbedPrefix + nextLine[columns.get(NODE_ID)].toLowerCase());
+            node.setDescription(nextLine[columns.get(NODE_DESCRIPTION)]);
+            node.setGateway(Boolean.parseBoolean(nextLine[columns.get(NODE_GATEWAY)].toLowerCase()));
+            node.setNodeType(nextLine[columns.get(NODE_TYPE)]);
+            Coordinate position = new Coordinate();
+            // TODO set something sensible here
+            //position.setPhi(phi);
+            //position.setTheta(theta);
+            position.setX(Double.parseDouble(nextLine[columns.get(NODE_POSITION_X)].replace(',', '.')));
+            position.setY(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Y)].replace(',', '.')));
+            position.setZ(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Z)].replace(',', '.')));
+            node.setPosition(position);
 
-			Set<String> columnSet = columns.keySet();
-			Map<Integer, Capability> capabilityMap = new HashMap<Integer, Capability>();
-			for (String column : columnSet) {
+            Set<String> columnSet = columns.keySet();
+            Map<Integer, Capability> capabilityMap = new HashMap<Integer, Capability>();
+            for (String column : columnSet) {
 
-				if (column.startsWith(META_NODE_CAPABILITY_PREFIX)) {
+                if (column.startsWith(META_NODE_CAPABILITY_PREFIX)) {
 
-					int capabilityNum = Integer.parseInt(
-							column.substring(
-									META_NODE_CAPABILITY_PREFIX.length(),
-									column.indexOf(".", META_NODE_CAPABILITY_PREFIX.length()
-							)
-					));
+                    int capabilityNum = Integer.parseInt(
+                            column.substring(
+                                    META_NODE_CAPABILITY_PREFIX.length(),
+                                    column.indexOf(".", META_NODE_CAPABILITY_PREFIX.length()
+                                    )
+                            ));
 
-					Capability capability = capabilityMap.get(capabilityNum);
-					boolean hadData = false;
-					if (capability == null) {
-						capability = new Capability();
-					}
+                    if (nextLine.length > columns.get(column)) {
 
-					if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_URN)) {
-						String value = nextLine[columns.get(column)];
-						if (value != null && !"".equals(value)) {
-							capability.setName(nextLine[columns.get(column)]);
-							hadData = true;
-						}
-					} else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_DATATYPE)) {
-						String value = nextLine[columns.get(column)];
-						if (value != null && !"".equals(value)) {
-							capability.setDatatype(Dtypes.fromValue(value));
-							hadData = true;
-						}
-					} else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_DEFAULT)) {
-						String value = nextLine[columns.get(column)];
-						if (value != null && !"".equals(value)) {
-							capability.setDefault(value);
-							hadData = true;
-						}
-					} else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_UNIT)) {
-						String value = nextLine[columns.get(column)];
-						if (value != null && !"".equals(value)) {
-							capability.setUnit(Units.fromValue(value));
-							hadData = true;
-						}
-					}
+                        Capability capability = capabilityMap.get(capabilityNum);
+                        boolean hadData = false;
+                        if (capability == null) {
+                            capability = new Capability();
+                        }
 
-					if (hadData) {
-						capabilityMap.put(capabilityNum, capability);
-					}
+                        if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_URN)) {
+                            String value = nextLine[columns.get(column)];
+                            if (value != null && !"".equals(value)) {
+                                capability.setName(nextLine[columns.get(column)]);
+                                hadData = true;
+                            }
+                        } else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_DATATYPE)) {
+                            String value = nextLine[columns.get(column)];
+                            if (value != null && !"".equals(value)) {
+                                capability.setDatatype(Dtypes.fromValue(value));
+                                hadData = true;
+                            }
+                        } else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_DEFAULT)) {
+                            String value = nextLine[columns.get(column)];
+                            if (value != null && !"".equals(value)) {
+                                capability.setDefault(value);
+                                hadData = true;
+                            }
+                        } else if (column.endsWith(META_NODE_CAPABILITY_SUFFIX_UNIT)) {
+                            String value = nextLine[columns.get(column)];
+                            if (value != null && !"".equals(value)) {
+                                capability.setUnit(Units.fromValue(value));
+                                hadData = true;
+                            }
+                        }
 
-				}
-			}
-			for (Capability capability : capabilityMap.values()) {
-				node.getCapability().add(capability);
-			}
-		}
+                        if (hadData) {
+                            capabilityMap.put(capabilityNum, capability);
+                        }
+                    }
 
-		JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
-		Marshaller marshaller = jc.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		FileWriter writer = new FileWriter(cmdLineParameters.wisemlOutputFile.getAbsolutePath());
-		marshaller.marshal(wiseml, writer);
+                }
+            }
+            for (Capability capability : capabilityMap.values()) {
+                node.getCapability().add(capability);
+            }
+        }
 
-	}
-
-	private PosixParser cmdLineParser;
-
-	private org.slf4j.Logger log;
-
-	private Options cmdLineOptions;
-
-	private class CmdLineParameters {
-
-		public File csvFile = null;
-
-		public String testbedPrefix = null;
-
-		public File outputFile = null;
-
-		public File wisemlOutputFile = null;
-
-		public String portalInternalAddress = null;
-
-		public String sessionmanagementendpointurl = null;
-
-		public String wsninstancebaseurl = null;
-
-		public String wisemlfilename = null;
-
-		public String portalHostname = null;
-
-		public boolean useHexValues = false;
-
-		public boolean useAutodetection = false;
-
-		public String reservationSystemEndpointURL;
-
-	}
-
-	private CmdLineParameters cmdLineParameters = new CmdLineParameters();
-
-	public static void main(String[] args) throws IOException, JAXBException {
-
-		CSV2Config csv2Config = new CSV2Config();
-		csv2Config.configureLoggingDefaults();
-		csv2Config.setUpCmdLineParameters();
-		csv2Config.parseCmdLineParameters(args);
-		csv2Config.createTRConfig();
-		csv2Config.createWiseMLFile();
-
-
-	}
-
-	private void createTRConfig() throws IOException, JAXBException {
-
-		// ====== parse CSV file ======
-
-		CSVReader reader = new CSVReader(
-				new FileReader(cmdLineParameters.csvFile),
-				CSVReader.DEFAULT_SEPARATOR,
-				CSVReader.DEFAULT_QUOTE_CHARACTER,
-				0
-		);
-
-		String[] nextLine;
-
-		// detect column by looking for property names in the first line
-		BiMap<Integer, String> columnMap = HashBiMap.create();
-		if ((nextLine = reader.readNext()) != null) {
-
-			for (int column = 0; column < nextLine.length; column++) {
-				columnMap.put(column, nextLine[column]);
-			}
-
-			Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_ID));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_REFERENCE));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_PORT));
-			Preconditions.checkNotNull(columnMap.containsValue(NODE_TYPE));
-			Preconditions.checkNotNull(columnMap.containsValue(URN_TESTBED_PREFIX));
-
-		} else {
-			throw new RuntimeException(
-					"CSV file must have at least one file containing one line that defines property names for the columns"
-			);
-		}
-
-		Testbed testbed = new Testbed();
-
-		// ====== create configuration for portal server ======
-
-		Node portalNode = new Node();
-		portalNode.setId(cmdLineParameters.portalHostname);
-		NodeNames portalNodeNames = new NodeNames();
-		NodeName portalNodeName = new NodeName();
-		portalNodeName.setName(cmdLineParameters.portalHostname.toLowerCase());
-		portalNodeNames.getNodename().add(portalNodeName);
-		portalNode.setNames(portalNodeNames);
-		ServerConnections portalServerConnections = new ServerConnections();
-		ServerConnection portalServerConnection = new ServerConnection();
-		portalServerConnection.setAddress(cmdLineParameters.portalInternalAddress);
-		portalServerConnection.setType("tcp");
-		portalServerConnections.getServerconnection().add(portalServerConnection);
-		portalNode.setServerconnections(portalServerConnections);
-		Applications portalApplications = new Applications();
-		Application portalApplication = new Application();
-		portalApplication.setName("Portal");
-		portalApplication.setFactoryclass(PortalServerFactory.class.getCanonicalName());
-		Portalapp portalapp = new Portalapp();
-		WebService webservice = new WebService();
-		webservice.setReservationendpointurl(cmdLineParameters.reservationSystemEndpointURL);
-		webservice.setSessionmanagementendpointurl(cmdLineParameters.sessionmanagementendpointurl);
-		webservice.setUrnprefix(cmdLineParameters.testbedPrefix);
-		webservice.setWisemlfilename(cmdLineParameters.wisemlfilename);
-		webservice.setWsninstancebaseurl(cmdLineParameters.wsninstancebaseurl);
-		portalapp.setWebservice(webservice);
-		portalApplication.setAny(portalapp);
-		portalApplications.getApplication().add(portalApplication);
-		portalNode.setApplications(portalApplications);
-		testbed.getNodes().add(portalNode);
-
-		// ====== create configuration for overlay nodeMap ======
-
-		Map<String, Node> nodeMap = new HashMap<String, Node>();
-		Map<String, Application> applicationMap = new HashMap<String, Application>();
-		BiMap<String, Integer> columns = columnMap.inverse();
-
-		while ((nextLine = reader.readNext()) != null) {
-
-			// add overlay node name if not yet existing
-			String hostname = nextLine[columns.get(HOSTNAME)].toLowerCase();
-			Node node = nodeMap.get(hostname);
-			if (node == null) {
-
-				node = new Node();
-				node.setId(hostname);
-				nodeMap.put(hostname, node);
-
-				ServerConnection serverConnection = new ServerConnection();
-				serverConnection.setType("tcp");
-				serverConnection.setAddress(hostname + ":8880");
-
-				ServerConnections serverConnections = new ServerConnections();
-				serverConnections.getServerconnection().add(serverConnection);
-				node.setServerconnections(serverConnections);
-
-				testbed.getNodes().add(node);
-			}
-
-			// add device urn as node name to overlay node
-			String currentNodeName = nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)].toLowerCase();
-			NodeNames nodeNames = node.getNames();
-			if (nodeNames == null) {
-				nodeNames = new NodeNames();
-				node.setNames(nodeNames);			
-			}
-			NodeName nodeName = new NodeName();
-			nodeName.setName(currentNodeName);
-			nodeNames.getNodename().add(nodeName);
-
-			// add WSN application if not yet existing
-			Application application = applicationMap.get(hostname);
-			if (application == null) {
-
-				application = new Application();
-				application.setName("WSNDeviceApp");
-				application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
-				application.setAny(new Wsnapp());
-
-				Applications applications = new Applications();
-				applications.getApplication().add(application);
-				node.setApplications(applications);
-
-				applicationMap.put(hostname, application);
-			}
-
-			// add WSN device (current row of CSV)
-			WsnDevice wsnDevice = new WsnDevice();
-			wsnDevice.setType(nextLine[columns.get(NODE_TYPE)]);
-			wsnDevice.setUrn(nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]);
-
-			String nodePort = nextLine[columns.get(NODE_PORT)];
-			if (nodePort != null && !"".equals(nodePort)) {
-				wsnDevice.setSerialinterface(nodePort);
-			}
-
-			String nodeReference = nextLine[columns.get(NODE_REFERENCE)];
-			if (nodeReference != null && !"".equals(nodeReference)) {
-				wsnDevice.setUsbchipid(nodeReference);
-			}
-
-			Wsnapp wsnApp = (Wsnapp) application.getAny();
-			wsnApp.getDevice().add(wsnDevice);
-
-		}
-
-		// ====== write configuration file ======
-
-		JAXBContext jc = JAXBContext.newInstance(
-				Testbed.class,
-				Portalapp.class,
-				Wsnapp.class
-		);
-		Marshaller marshaller = jc.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		FileWriter writer = new FileWriter(cmdLineParameters.outputFile.getAbsolutePath());
-		marshaller.marshal(testbed, writer);
-
-	}
-
-	private void parseCmdLineParameters(String[] args) {
-
-		// ====== parse command line parameters ======
-
-		Properties properties = new Properties();
-
-		try {
-
-			CommandLine line = cmdLineParser.parse(cmdLineOptions, args);
-
-			if (line.hasOption('c')) {
-
-				String xmlFilename = line.getOptionValue('c');
-				cmdLineParameters.csvFile = new File(xmlFilename);
-
-				if (!cmdLineParameters.csvFile.exists()) {
-					throw new Exception(
-							"The given file name " + cmdLineParameters.csvFile.getAbsolutePath() + " does not exist!"
-					);
-				}
-
-				if (!cmdLineParameters.csvFile.canRead()) {
-					throw new Exception(
-							"The given file " + cmdLineParameters.csvFile.getAbsolutePath() + " is not readable!"
-					);
-				}
-
-			} else {
-				throw new Exception("Please supply -c");
-			}
-
-			if (line.hasOption('p')) {
-
-				properties.load(new FileInputStream(line.getOptionValue('p')));
-
-				if (properties.getProperty("urnprefix") != null) {
-					cmdLineParameters.testbedPrefix = properties.getProperty("urnprefix");
-				} else {
-					throw new Exception("Property file is missing the urnprefix property");
-				}
-
-				if (properties.getProperty("portal.hostname") != null) {
-					cmdLineParameters.portalHostname = properties.getProperty("portal.hostname");
-					cmdLineParameters.portalInternalAddress =
-							properties.getProperty("portal.hostname") + ":" + properties
-									.getProperty("portal.overlayport", "8880");
-				} else {
-					throw new Exception("Property file is missing the portal.hostname property");
-				}
-
-				if (properties.getProperty("portal.sessionmanagementurl") != null) {
-					cmdLineParameters.sessionmanagementendpointurl =
-							properties.getProperty("portal.sessionmanagementurl");
-				} else {
-					cmdLineParameters.sessionmanagementendpointurl =
-							"http://" + properties.getProperty("portal.hostname") + ":8888/sessions";
-				}
-
-				if (properties.getProperty("portal.wsninstancebaseurl") != null) {
-					cmdLineParameters.wsninstancebaseurl = properties.getProperty("portal.wsninstancebaseurl");
-				} else {
-					cmdLineParameters.wsninstancebaseurl =
-							"http://" + properties.getProperty("portal.hostname") + ":8888/wsn/";
-				}
-
-				if (properties.getProperty("portal.wisemlpath") != null) {
-					cmdLineParameters.wisemlfilename = properties.getProperty("portal.wisemlpath");
-				} else {
-					throw new Exception("Property file is missing the portal.wisemlpath property");
-				}
-
-				cmdLineParameters.useAutodetection =
-						Boolean.parseBoolean(properties.getProperty("mac-autodetection", "true"));
-				cmdLineParameters.useHexValues = Boolean.parseBoolean(properties.getProperty("hex", "true"));
-				cmdLineParameters.reservationSystemEndpointURL = properties.getProperty("portal.reservationsystem");
-
-			} else {
-				throw new Exception("Please supply -p");
-			}
-
-			if (line.hasOption('v')) {
-				Logger.getRootLogger().setLevel(Level.DEBUG);
-				Logger.getLogger("de.uniluebeck.itm").setLevel(Level.DEBUG);
-			}
-
-			if (line.hasOption('l')) {
-				Level level = Level.toLevel(line.getOptionValue('l'));
-				Logger.getRootLogger().setLevel(level);
-				Logger.getLogger("de.uniluebeck.itm").setLevel(level);
-			}
-
-			if (line.hasOption('h')) {
-				usage(cmdLineOptions);
-			}
-
-			if (line.hasOption('o')) {
-
-				String configFilename = line.getOptionValue('o');
-
-				cmdLineParameters.outputFile = new File(configFilename).getAbsoluteFile();
-
-				if (!cmdLineParameters.outputFile.exists()) {
-					cmdLineParameters.outputFile.getParentFile().mkdirs();
-					cmdLineParameters.outputFile.createNewFile();
-				}
-
-				if (!cmdLineParameters.outputFile.canWrite()) {
-					throw new Exception(
-							"The given file " + cmdLineParameters.outputFile.getAbsolutePath() + " is not writable!"
-					);
-				}
-
-				log.info("Using output file: {}", cmdLineParameters.outputFile.getAbsolutePath());
-
-			} else {
-				throw new Exception("Please supply -o");
-			}
-
-			if (line.hasOption('w')) {
-
-				String wisemlOutputFilename = line.getOptionValue('w');
-				cmdLineParameters.wisemlOutputFile = new File(wisemlOutputFilename).getAbsoluteFile();
-
-				if (!cmdLineParameters.wisemlOutputFile.exists()) {
-					cmdLineParameters.wisemlOutputFile.getParentFile().mkdirs();
-					cmdLineParameters.wisemlOutputFile.createNewFile();
-				}
-
-				if (!cmdLineParameters.wisemlOutputFile.canWrite()) {
-					throw new Exception("The given file " + cmdLineParameters.wisemlOutputFile
-							.getAbsolutePath() + " is not writable!"
-					);
-				}
-
-				log.info("Using WiseML output file: {}", cmdLineParameters.wisemlOutputFile.getAbsolutePath());
-
-			} else {
-				throw new Exception("Please supply -w");
-			}
-
-		} catch (Exception e) {
-			log.error("Invalid command line: " + e, e);
-			usage(cmdLineOptions);
-		}
-
-	}
-
-	private void configureLoggingDefaults() {
-
-		// ====== configure logging defaults ======
-
-		{
-			Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"));
-
-			Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
-
-			if (!itmLogger.getAllAppenders().hasMoreElements()) {
-				itmLogger.addAppender(appender);
-				itmLogger.setLevel(Level.INFO);
-			}
-		}
-
-		log = LoggerFactory.getLogger(CSV2Config.class);
-
-	}
-
-	private void setUpCmdLineParameters() {
-
-		// ====== set up command line parameters ======
-
-		cmdLineParser = new PosixParser();
-		cmdLineOptions = new Options();
-
-		cmdLineOptions.addOption("c", "csv", true, "CSV nodes file");
-		cmdLineOptions.addOption("p", "properties", true, "Properties file");
-		cmdLineOptions.addOption("o", "output", true, "Testbed Runtime config file to be generated");
-		cmdLineOptions.addOption("w", "wisemloutput", true, "WiseML file to be generated");
-
-		cmdLineOptions.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
-		cmdLineOptions.addOption("l", "logging", true,
-				"Set logging level (one of [" + Level.TRACE + "," + Level.DEBUG + "," + Level.INFO + "," + Level.WARN + "," + Level.ERROR + "]), optional"
-		);
-		cmdLineOptions.addOption("h", "help", false, "Display this help output, optional");
-
-	}
-
-	private static void usage(Options options) {
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(CSV2Config.class.getCanonicalName(), options);
-		System.exit(1);
-	}
+        JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        FileWriter writer = new FileWriter(cmdLineParameters.wisemlOutputFile.getAbsolutePath());
+        marshaller.marshal(wiseml, writer);
+
+    }
+
+    private PosixParser cmdLineParser;
+
+    private org.slf4j.Logger log;
+
+    private Options cmdLineOptions;
+
+    private class CmdLineParameters {
+
+        public File csvFile = null;
+
+        public String testbedPrefix = null;
+
+        public File outputFile = null;
+
+        public File wisemlOutputFile = null;
+
+        public String portalInternalAddress = null;
+
+        public String sessionmanagementendpointurl = null;
+
+        public String wsninstancebaseurl = null;
+
+        public String wisemlfilename = null;
+
+        public String portalHostname = null;
+
+        public boolean useHexValues = false;
+
+        public boolean useAutodetection = false;
+
+        public String reservationSystemEndpointURL;
+
+    }
+
+    private CmdLineParameters cmdLineParameters = new CmdLineParameters();
+
+    public static void main(String[] args) throws IOException, JAXBException {
+
+        CSV2Config csv2Config = new CSV2Config();
+        csv2Config.configureLoggingDefaults();
+        csv2Config.setUpCmdLineParameters();
+        csv2Config.parseCmdLineParameters(args);
+        csv2Config.createTRConfig();
+        csv2Config.createWiseMLFile();
+
+
+    }
+
+    private void createTRConfig() throws IOException, JAXBException {
+
+        // ====== parse CSV file ======
+
+        CSVReader reader = new CSVReader(
+                new FileReader(cmdLineParameters.csvFile),
+                CSVReader.DEFAULT_SEPARATOR,
+                CSVReader.DEFAULT_QUOTE_CHARACTER,
+                0
+        );
+
+        String[] nextLine;
+
+        // detect column by looking for property names in the first line
+        BiMap<Integer, String> columnMap = HashBiMap.create();
+        if ((nextLine = reader.readNext()) != null) {
+
+            for (int column = 0; column < nextLine.length; column++) {
+                columnMap.put(column, nextLine[column]);
+            }
+
+            Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_ID));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_REFERENCE));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_PORT));
+            Preconditions.checkNotNull(columnMap.containsValue(NODE_TYPE));
+            Preconditions.checkNotNull(columnMap.containsValue(URN_TESTBED_PREFIX));
+
+        } else {
+            throw new RuntimeException(
+                    "CSV file must have at least one file containing one line that defines property names for the columns"
+            );
+        }
+
+        Testbed testbed = new Testbed();
+
+        // ====== create configuration for portal server ======
+
+        Node portalNode = new Node();
+        portalNode.setId(cmdLineParameters.portalHostname);
+        NodeNames portalNodeNames = new NodeNames();
+        NodeName portalNodeName = new NodeName();
+        portalNodeName.setName(cmdLineParameters.portalHostname.toLowerCase());
+        portalNodeNames.getNodename().add(portalNodeName);
+        portalNode.setNames(portalNodeNames);
+        ServerConnections portalServerConnections = new ServerConnections();
+        ServerConnection portalServerConnection = new ServerConnection();
+        portalServerConnection.setAddress(cmdLineParameters.portalInternalAddress);
+        portalServerConnection.setType("tcp");
+        portalServerConnections.getServerconnection().add(portalServerConnection);
+        portalNode.setServerconnections(portalServerConnections);
+        Applications portalApplications = new Applications();
+        Application portalApplication = new Application();
+        portalApplication.setName("Portal");
+        portalApplication.setFactoryclass(PortalServerFactory.class.getCanonicalName());
+        Portalapp portalapp = new Portalapp();
+        WebService webservice = new WebService();
+        webservice.setReservationendpointurl(cmdLineParameters.reservationSystemEndpointURL);
+        webservice.setSessionmanagementendpointurl(cmdLineParameters.sessionmanagementendpointurl);
+        webservice.setUrnprefix(cmdLineParameters.testbedPrefix);
+        webservice.setWisemlfilename(cmdLineParameters.wisemlfilename);
+        webservice.setWsninstancebaseurl(cmdLineParameters.wsninstancebaseurl);
+        portalapp.setWebservice(webservice);
+        portalApplication.setAny(portalapp);
+        portalApplications.getApplication().add(portalApplication);
+        portalNode.setApplications(portalApplications);
+        testbed.getNodes().add(portalNode);
+
+        // ====== create configuration for overlay nodeMap ======
+
+        Map<String, Node> nodeMap = new HashMap<String, Node>();
+        Map<String, Application> applicationMap = new HashMap<String, Application>();
+        BiMap<String, Integer> columns = columnMap.inverse();
+
+        while ((nextLine = reader.readNext()) != null) {
+
+            // add overlay node name if not yet existing
+            String hostname = nextLine[columns.get(HOSTNAME)].toLowerCase();
+            Node node = nodeMap.get(hostname);
+            if (node == null) {
+
+                node = new Node();
+                node.setId(hostname);
+                nodeMap.put(hostname, node);
+
+                ServerConnection serverConnection = new ServerConnection();
+                serverConnection.setType("tcp");
+                serverConnection.setAddress(hostname + ":8880");
+
+                ServerConnections serverConnections = new ServerConnections();
+                serverConnections.getServerconnection().add(serverConnection);
+                node.setServerconnections(serverConnections);
+
+                testbed.getNodes().add(node);
+            }
+
+            // add device urn as node name to overlay node
+            String currentNodeName = nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)].toLowerCase();
+            NodeNames nodeNames = node.getNames();
+            if (nodeNames == null) {
+                nodeNames = new NodeNames();
+                node.setNames(nodeNames);
+            }
+            NodeName nodeName = new NodeName();
+            nodeName.setName(currentNodeName);
+            nodeNames.getNodename().add(nodeName);
+
+            // add WSN application if not yet existing
+            Application application = applicationMap.get(hostname);
+            if (application == null) {
+
+                application = new Application();
+                application.setName("WSNDeviceApp");
+                application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
+                application.setAny(new Wsnapp());
+
+                Applications applications = new Applications();
+                applications.getApplication().add(application);
+                node.setApplications(applications);
+
+                applicationMap.put(hostname, application);
+            }
+
+            // add WSN device (current row of CSV)
+            WsnDevice wsnDevice = new WsnDevice();
+            wsnDevice.setType(nextLine[columns.get(NODE_TYPE)]);
+            wsnDevice.setUrn(nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]);
+
+            String nodePort = nextLine[columns.get(NODE_PORT)];
+            if (nodePort != null && !"".equals(nodePort)) {
+                wsnDevice.setSerialinterface(nodePort);
+            }
+
+            String nodeReference = nextLine[columns.get(NODE_REFERENCE)];
+            if (nodeReference != null && !"".equals(nodeReference)) {
+                wsnDevice.setUsbchipid(nodeReference);
+            }
+
+            Wsnapp wsnApp = (Wsnapp) application.getAny();
+            wsnApp.getDevice().add(wsnDevice);
+
+        }
+
+        // ====== write configuration file ======
+
+        JAXBContext jc = JAXBContext.newInstance(
+                Testbed.class,
+                Portalapp.class,
+                Wsnapp.class
+        );
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        FileWriter writer = new FileWriter(cmdLineParameters.outputFile.getAbsolutePath());
+        marshaller.marshal(testbed, writer);
+
+    }
+
+    private void parseCmdLineParameters(String[] args) {
+
+        // ====== parse command line parameters ======
+
+        Properties properties = new Properties();
+
+        try {
+
+            CommandLine line = cmdLineParser.parse(cmdLineOptions, args);
+
+            if (line.hasOption('c')) {
+
+                String xmlFilename = line.getOptionValue('c');
+                cmdLineParameters.csvFile = new File(xmlFilename);
+
+                if (!cmdLineParameters.csvFile.exists()) {
+                    throw new Exception(
+                            "The given file name " + cmdLineParameters.csvFile.getAbsolutePath() + " does not exist!"
+                    );
+                }
+
+                if (!cmdLineParameters.csvFile.canRead()) {
+                    throw new Exception(
+                            "The given file " + cmdLineParameters.csvFile.getAbsolutePath() + " is not readable!"
+                    );
+                }
+
+            } else {
+                throw new Exception("Please supply -c");
+            }
+
+            if (line.hasOption('p')) {
+
+                properties.load(new FileInputStream(line.getOptionValue('p')));
+
+                if (properties.getProperty("urnprefix") != null) {
+                    cmdLineParameters.testbedPrefix = properties.getProperty("urnprefix");
+                } else {
+                    throw new Exception("Property file is missing the urnprefix property");
+                }
+
+                if (properties.getProperty("portal.hostname") != null) {
+                    cmdLineParameters.portalHostname = properties.getProperty("portal.hostname");
+                    cmdLineParameters.portalInternalAddress =
+                            properties.getProperty("portal.hostname") + ":" + properties
+                                    .getProperty("portal.overlayport", "8880");
+                } else {
+                    throw new Exception("Property file is missing the portal.hostname property");
+                }
+
+                if (properties.getProperty("portal.sessionmanagementurl") != null) {
+                    cmdLineParameters.sessionmanagementendpointurl =
+                            properties.getProperty("portal.sessionmanagementurl");
+                } else {
+                    cmdLineParameters.sessionmanagementendpointurl =
+                            "http://" + properties.getProperty("portal.hostname") + ":8888/sessions";
+                }
+
+                if (properties.getProperty("portal.wsninstancebaseurl") != null) {
+                    cmdLineParameters.wsninstancebaseurl = properties.getProperty("portal.wsninstancebaseurl");
+                } else {
+                    cmdLineParameters.wsninstancebaseurl =
+                            "http://" + properties.getProperty("portal.hostname") + ":8888/wsn/";
+                }
+
+                if (properties.getProperty("portal.wisemlpath") != null) {
+                    cmdLineParameters.wisemlfilename = properties.getProperty("portal.wisemlpath");
+                } else {
+                    throw new Exception("Property file is missing the portal.wisemlpath property");
+                }
+
+                cmdLineParameters.useAutodetection =
+                        Boolean.parseBoolean(properties.getProperty("mac-autodetection", "true"));
+                cmdLineParameters.useHexValues = Boolean.parseBoolean(properties.getProperty("hex", "true"));
+                cmdLineParameters.reservationSystemEndpointURL = properties.getProperty("portal.reservationsystem");
+
+            } else {
+                throw new Exception("Please supply -p");
+            }
+
+            if (line.hasOption('v')) {
+                Logger.getRootLogger().setLevel(Level.DEBUG);
+                Logger.getLogger("de.uniluebeck.itm").setLevel(Level.DEBUG);
+            }
+
+            if (line.hasOption('l')) {
+                Level level = Level.toLevel(line.getOptionValue('l'));
+                Logger.getRootLogger().setLevel(level);
+                Logger.getLogger("de.uniluebeck.itm").setLevel(level);
+            }
+
+            if (line.hasOption('h')) {
+                usage(cmdLineOptions);
+            }
+
+            if (line.hasOption('o')) {
+
+                String configFilename = line.getOptionValue('o');
+
+                cmdLineParameters.outputFile = new File(configFilename).getAbsoluteFile();
+
+                if (!cmdLineParameters.outputFile.exists()) {
+                    cmdLineParameters.outputFile.getParentFile().mkdirs();
+                    cmdLineParameters.outputFile.createNewFile();
+                }
+
+                if (!cmdLineParameters.outputFile.canWrite()) {
+                    throw new Exception(
+                            "The given file " + cmdLineParameters.outputFile.getAbsolutePath() + " is not writable!"
+                    );
+                }
+
+                log.info("Using output file: {}", cmdLineParameters.outputFile.getAbsolutePath());
+
+            } else {
+                throw new Exception("Please supply -o");
+            }
+
+            if (line.hasOption('w')) {
+
+                String wisemlOutputFilename = line.getOptionValue('w');
+                cmdLineParameters.wisemlOutputFile = new File(wisemlOutputFilename).getAbsoluteFile();
+
+                if (!cmdLineParameters.wisemlOutputFile.exists()) {
+                    cmdLineParameters.wisemlOutputFile.getParentFile().mkdirs();
+                    cmdLineParameters.wisemlOutputFile.createNewFile();
+                }
+
+                if (!cmdLineParameters.wisemlOutputFile.canWrite()) {
+                    throw new Exception("The given file " + cmdLineParameters.wisemlOutputFile
+                            .getAbsolutePath() + " is not writable!"
+                    );
+                }
+
+                log.info("Using WiseML output file: {}", cmdLineParameters.wisemlOutputFile.getAbsolutePath());
+
+            } else {
+                throw new Exception("Please supply -w");
+            }
+
+        } catch (Exception e) {
+            log.error("Invalid command line: " + e, e);
+            usage(cmdLineOptions);
+        }
+
+    }
+
+    private void configureLoggingDefaults() {
+
+        // ====== configure logging defaults ======
+
+        {
+            Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"));
+
+            Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
+
+            if (!itmLogger.getAllAppenders().hasMoreElements()) {
+                itmLogger.addAppender(appender);
+                itmLogger.setLevel(Level.INFO);
+            }
+        }
+
+        log = LoggerFactory.getLogger(CSV2Config.class);
+
+    }
+
+    private void setUpCmdLineParameters() {
+
+        // ====== set up command line parameters ======
+
+        cmdLineParser = new PosixParser();
+        cmdLineOptions = new Options();
+
+        cmdLineOptions.addOption("c", "csv", true, "CSV nodes file");
+        cmdLineOptions.addOption("p", "properties", true, "Properties file");
+        cmdLineOptions.addOption("o", "output", true, "Testbed Runtime config file to be generated");
+        cmdLineOptions.addOption("w", "wisemloutput", true, "WiseML file to be generated");
+
+        cmdLineOptions.addOption("v", "verbose", false, "Verbose logging output (equal to -l DEBUG)");
+        cmdLineOptions.addOption("l", "logging", true,
+                "Set logging level (one of [" + Level.TRACE + "," + Level.DEBUG + "," + Level.INFO + "," + Level.WARN + "," + Level.ERROR + "]), optional"
+        );
+        cmdLineOptions.addOption("h", "help", false, "Display this help output, optional");
+
+    }
+
+    private static void usage(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(CSV2Config.class.getCanonicalName(), options);
+        System.exit(1);
+    }
 
 }
