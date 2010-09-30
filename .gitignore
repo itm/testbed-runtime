@@ -9,3 +9,4 @@ target/
 rs/rs-persistence-jpa/derby.log
 scripts/logs/
 .DS_Store
+.idea
