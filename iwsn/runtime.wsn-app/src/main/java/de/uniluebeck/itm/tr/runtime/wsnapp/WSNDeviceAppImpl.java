@@ -890,9 +890,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					return;
 				}
 
-				nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType), macAddress);
+                try {
+                    nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType.toLowerCase()), macAddress);
+                } catch (Exception e) {
+                    log.warn("{} => Exception while detecting serial interface: {}", nodeUrn, e);
+                }
 
-				if (nodeSerialInterface == null) {
+                if (nodeSerialInterface == null) {
 					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
 							nodeUrn, nodeType
 					);
