@@ -343,11 +343,15 @@ public class CSV2Config {
 			}
 
 			// add device urn as node name to overlay node
+			String currentNodeName = nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)];
+			NodeNames nodeNames = node.getNames();
+			if (nodeNames == null) {
+				nodeNames = new NodeNames();
+				node.setNames(nodeNames);			
+			}
 			NodeName nodeName = new NodeName();
-			nodeName.setName(nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]);
-			NodeNames nodeNames = new NodeNames();
+			nodeName.setName(currentNodeName);
 			nodeNames.getNodename().add(nodeName);
-			node.setNames(nodeNames);
 
 			// add WSN application if not yet existing
 			Application application = applicationMap.get(hostname);
