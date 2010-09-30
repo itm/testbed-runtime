@@ -52,6 +52,8 @@ public class CSV2Config {
 
 	public static final String NODE_PORT = "node.port";
 
+	public static final String NODE_REFERENCE = "node.reference";
+
 	public static final String NODE_TYPE = "node.type";
 
 	public static final String URN_TESTBED_PREFIX = "urn.testbed.prefix";
@@ -136,6 +138,7 @@ public class CSV2Config {
 
 			Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
 			Preconditions.checkNotNull(columnMap.containsValue(NODE_ID));
+			Preconditions.checkNotNull(columnMap.containsValue(NODE_REFERENCE));
 			Preconditions.checkNotNull(columnMap.containsValue(NODE_PORT));
 			Preconditions.checkNotNull(columnMap.containsValue(NODE_TYPE));
 			Preconditions.checkNotNull(columnMap.containsValue(URN_TESTBED_PREFIX));
@@ -184,11 +187,12 @@ public class CSV2Config {
 
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		Map<String, Application> applicationMap = new HashMap<String, Application>();
+		BiMap<String, Integer> columns = columnMap.inverse();
 
 		while ((nextLine = reader.readNext()) != null) {
 
 			// add overlay node name if not yet existing
-			String hostname = nextLine[columnMap.inverse().get(HOSTNAME)];
+			String hostname = nextLine[columns.get(HOSTNAME)];
 			Node node = nodeMap.get(hostname);
 			if (node == null) {
 
@@ -200,15 +204,19 @@ public class CSV2Config {
 				serverConnection.setType("tcp");
 				serverConnection.setAddress(hostname + ":8880");
 
-				node.getServerconnections().getServerconnection().add(serverConnection);
+				ServerConnections serverConnections = new ServerConnections();
+				serverConnections.getServerconnection().add(serverConnection);
+				node.setServerconnections(serverConnections);
 
 				testbed.getNodes().add(node);
 			}
 
 			// add device urn as node name to overlay node
 			NodeName nodeName = new NodeName();
-			nodeName.setName(nextLine[columnMap.inverse().get(URN_TESTBED_PREFIX)] + nextLine[columnMap.inverse().get(NODE_ID)]);
-			node.getNames().getNodename().add(nodeName);
+			nodeName.setName(nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]);
+			NodeNames nodeNames = new NodeNames();
+			nodeNames.getNodename().add(nodeName);
+			node.setNames(nodeNames);
 
 			// add WSN application if not yet existing
 			Application application = applicationMap.get(hostname);
@@ -219,15 +227,27 @@ public class CSV2Config {
 				application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
 				application.setAny(new Wsnapp());
 
-				node.getApplications().getApplication().add(application);
+				Applications applications = new Applications();
+				applications.getApplication().add(application);
+				node.setApplications(applications);
 
 				applicationMap.put(hostname, application);
 			}
 
 			// add WSN device (current row of CSV)
 			WsnDevice wsnDevice = new WsnDevice();
-			wsnDevice.setType(nextLine[columnMap.inverse().get(NODE_TYPE)]);
-			wsnDevice.setUrn(nextLine[columnMap.inverse().get(URN_TESTBED_PREFIX)] + nextLine[columnMap.inverse().get(NODE_ID)]);
+			wsnDevice.setType(nextLine[columns.get(NODE_TYPE)]);
+			wsnDevice.setUrn(nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]);
+
+			String nodePort = nextLine[columns.get(NODE_PORT)];
+			if (nodePort != null && !"".equals(nodePort)) {
+				wsnDevice.setSerialinterface(nodePort);
+			}
+
+			String nodeReference = nextLine[columns.get(NODE_REFERENCE)];
+			if (nodeReference != null && !"".equals(nodeReference)) {
+				wsnDevice.setUsbchipid(nodeReference);
+			}
 
 			Wsnapp wsnApp = (Wsnapp) application.getAny();
 			wsnApp.getDevice().add(wsnDevice);
