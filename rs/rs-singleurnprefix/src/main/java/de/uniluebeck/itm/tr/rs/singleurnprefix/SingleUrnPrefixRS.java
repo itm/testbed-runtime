@@ -288,9 +288,19 @@ public class SingleUrnPrefixRS implements RS {
 				}
 
 				List<String> networkNodes = WiseMLHelper.getNodeUrns(sessionManagementEndpoint.getNetwork());
-				
+
+				boolean contained;
 				for (String nodeUrn : nodeUrns) {
-					if (!networkNodes.contains(nodeUrn)) {
+
+					contained = false;
+
+					for (String networkNode : networkNodes) {
+						if (networkNode.equalsIgnoreCase(nodeUrn)) {
+							contained = true;
+						}
+					}
+
+					if (!contained) {
 						unservedNodes.add(nodeUrn);
 					}
 				}
