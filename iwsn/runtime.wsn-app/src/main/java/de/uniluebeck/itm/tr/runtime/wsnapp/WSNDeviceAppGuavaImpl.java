@@ -872,7 +872,7 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
 
 				try {
-					moteList = MoteListFactory.create();
+					moteList = MoteListFactory.create(null);
 				} catch (Exception e) {
 					log.error(
 							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",

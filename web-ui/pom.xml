@@ -6,7 +6,7 @@
     <artifactId>web-ui</artifactId>
     <packaging>war</packaging>
     <version>0.5.4-SNAPSHOT</version>
-    <name>TR :: WISEBED Web UI</name>
+    <name>TR :: Wisebed Web UI</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -146,19 +146,19 @@
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.snaa-api</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.wsn-api</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.wiseml</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
     </dependencies>
