@@ -31,7 +31,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class AuthenticationView extends VerticalLayout {
 
     private static final String USERNAME_LABEL = "Username";
-    private static final String URN_LABEL = "URN";
+    private static final String URN_LABEL = "URN (+)";
     private static final String PASSWORD_LABEL = "Password";
     private static final String AUTHENTICATION_BUTTON_LABEL = "Authenticate";
     private static final String AUTHENTICATION_LABEL = "Authentication";
@@ -71,7 +71,7 @@ public class AuthenticationView extends VerticalLayout {
         txtUrn.setWidth(COMMON_FIELD_WIDTH_EM, UNITS_EM);
         txtUrn.setRequired(true);
         txtUrn.setRequiredError(String.format(REQUIRED_ERROR_TEXT, URN_LABEL));
-        txtUrn.setValue("urn:");
+        txtUrn.setValue("urn:wisebed:uzl1:");
         frmAuthentication.addField(URN_LABEL, txtUrn);
 
         txtPassword.setWidth(COMMON_FIELD_WIDTH_EM, UNITS_EM);
