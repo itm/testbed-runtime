@@ -127,8 +127,19 @@ public class RSClientController {
 	private ActionListener selectNodeUrnsButtonActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			
-		}
+            Set<String> nodeUrns = Dialogs.showNodeUrnSelectionDialog();
+            if (nodeUrns != null) {
+                String nodeUrnString = "";
+                for (Iterator<String> nodeUrnIterator = nodeUrns.iterator(); nodeUrnIterator.hasNext();) {
+                    String nodeUrn = nodeUrnIterator.next();
+                    nodeUrnString += nodeUrn;
+                    if (nodeUrnIterator.hasNext()) {
+                        nodeUrnString += ",";
+                    }
+                }
+                view.getNodeUrnsTextArea().setText(nodeUrnString);
+            }
+        }
 	};
 
 	private XMLGregorianCalendar parseFrom() {
