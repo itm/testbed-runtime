@@ -24,12 +24,15 @@
 package de.uniluebeck.itm.gtr.wsngui;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import javax.xml.bind.JAXBContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.awt.*;
@@ -37,708 +40,863 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: User: bimschas Date: 05.03.2010 Time: 13:39:44
  */
 public class Dialogs {
 
-    public static void showTextDialog(final String text, boolean tidyXml) {
-        String displayText = text;
-        if (tidyXml) {
-            try {
-                JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
-                Wiseml wiseml = (Wiseml) jc.createUnmarshaller().unmarshal(new StringReader(text));
-                displayText = StringUtils.jaxbMarshal(wiseml);
-            } catch (Exception e) {
-                // silently catch and display as normal string
-            }
-        }
-        JTextArea textArea = new JTextArea(displayText);
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        //textArea.setPreferredSize(new Dimension(800, 600));
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(800, 600));
-        JOptionPane.showMessageDialog(null, scrollPane);
-    }
-
-    public static class InputDialog<T> extends JDialog {
-
-        private AbstractResultPanel<T> contentPane;
-
-        private JPanel panel;
-
-        private JButton okButton;
-
-        private JButton cancelButton;
-
-        private T result = null;
-
-        private ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == okButton) {
-                    result = contentPane.getResult();
-                    setVisible(false);
-                } else if (e.getSource() == cancelButton) {
-                    result = null;
-                    setVisible(false);
-                }
-            }
-        };
-
-        public InputDialog(String title, AbstractResultPanel<T> contentPane) {
-
-            super((Window) null, title);
-            setModal(true);
-            setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-
-            this.contentPane = contentPane;
-            panel = new JPanel(new GridBagLayout());
-
-            GridBagConstraints c;
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            c.gridwidth = 3;
-            panel.add(contentPane, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            panel.add(new JLabel(), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            cancelButton = new JButton("Cancel");
-            cancelButton.addActionListener(actionListener);
-            panel.add(cancelButton, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 2;
-            c.gridy = 1;
-            okButton = new JButton("OK");
-            okButton.addActionListener(actionListener);
-            panel.add(okButton, c);
-
-            setContentPane(panel);
-
-        }
-
-        public T getResult() {
-            return result;
-        }
-
-        @Override
-        public void setVisible(boolean b) {
-            if (b) {
-                pack();
-            }
-            super.setVisible(b);
-        }
-    }
-
-    public static abstract class AbstractResultPanel<T> extends JPanel {
-
-        protected AbstractResultPanel(LayoutManager layout) {
-            super(layout);
-        }
-
-        public abstract T getResult();
-
-    }
-
-    public static class FlashProgramsPanel extends AbstractResultPanel<FlashPrograms> {
-
-        private FieldHelper.StringListJTextField programIndicesTextField;
-
-        private FieldHelper.StringListJTextField nodeUrnsTextField;
-
-        private JTabbedPane programsTabs;
-
-        private JButton addButton;
-
-        private JButton removeButton;
-
-        private ActionListener addRemoveActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == addButton) {
-                    int index = programsTabs.getTabCount();
-                    programsTabs.add("Program " + index, new ProgramPanel());
-                } else if (e.getSource() == removeButton) {
-                    programsTabs.remove(programsTabs.getTabCount() - 1);
-                }
-            }
-        };
+	public static Set<String> showNodeUrnSelectionDialog() {
+		Dialogs.SelectNodeURNsPanel selectNodeURNsPanel = new Dialogs.SelectNodeURNsPanel();
+		Dialogs.InputDialog<Set<String>> dialog = new Dialogs.InputDialog<Set<String>>(
+				"Select Node URNs",
+				selectNodeURNsPanel
+		);
+		dialog.setVisible(true);
+		return dialog.getResult();
+	}
+
+	public static void showTextDialog(final String text, boolean tidyXml) {
+		String displayText = text;
+		if (tidyXml) {
+			try {
+				JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
+				Wiseml wiseml = (Wiseml) jc.createUnmarshaller().unmarshal(new StringReader(text));
+				displayText = StringUtils.jaxbMarshal(wiseml);
+			} catch (Exception e) {
+				// silently catch and display as normal string
+			}
+		}
+		JTextArea textArea = new JTextArea(displayText);
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		//textArea.setPreferredSize(new Dimension(800, 600));
+		JScrollPane scrollPane = new JScrollPane(textArea);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setPreferredSize(new Dimension(800, 600));
+		JOptionPane.showMessageDialog(null, scrollPane);
+	}
+
+	public static class InputDialog<T> extends JDialog {
+
+		private AbstractResultPanel<T> contentPane;
+
+		private JPanel panel;
+
+		private JButton okButton;
+
+		private JButton cancelButton;
+
+		private T result = null;
+
+		private ActionListener actionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == okButton) {
+					result = contentPane.getResult();
+					setVisible(false);
+				} else if (e.getSource() == cancelButton) {
+					result = null;
+					setVisible(false);
+				}
+			}
+		};
+
+		public InputDialog(String title, AbstractResultPanel<T> contentPane) {
+
+			super((Window) null, title);
+			setModal(true);
+			setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+
+			this.contentPane = contentPane;
+			panel = new JPanel(new GridBagLayout());
+
+			GridBagConstraints c;
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.gridwidth = 3;
+			panel.add(contentPane, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			panel.add(new JLabel(), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(actionListener);
+			panel.add(cancelButton, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 2;
+			c.gridy = 1;
+			okButton = new JButton("OK");
+			okButton.addActionListener(actionListener);
+			panel.add(okButton, c);
+
+			setContentPane(panel);
+
+		}
+
+		public T getResult() {
+			return result;
+		}
 
-        public FlashProgramsPanel() {
+		@Override
+		public void setVisible(boolean b) {
+			if (b) {
+				pack();
+			}
+			super.setVisible(b);
+		}
+	}
 
-            super(new GridBagLayout());
-
-            // nodeUrns: List<String>
-            // programIndices: List<Integer>
-            // programs: List<Program>
-
-            GridBagConstraints c;
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Node URNs"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            nodeUrnsTextField = new FieldHelper.StringListJTextField();
-            add(nodeUrnsTextField, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Program indices"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            programIndicesTextField = new FieldHelper.StringListJTextField("0");
-            add(programIndicesTextField, c);
+	public static abstract class AbstractResultPanel<T> extends JPanel {
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 2;
-            add(new JLabel(), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 2;
-            JPanel addRemovePanel = new JPanel(new FlowLayout());
-            addButton = new JButton("+");
-            addButton.addActionListener(addRemoveActionListener);
-            removeButton = new JButton("-");
-            removeButton.addActionListener(addRemoveActionListener);
-            addRemovePanel.add(addButton);
-            addRemovePanel.add(removeButton);
-            add(addRemovePanel, c);
+		protected AbstractResultPanel(LayoutManager layout) {
+			super(layout);
+		}
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 3;
-            c.gridwidth = 2;
-            c.fill = GridBagConstraints.BOTH;
-            programsTabs = new JTabbedPane();
-            programsTabs.addTab("Program " + 0, new ProgramPanel());
-            add(programsTabs, c);
+		public abstract T getResult();
 
-        }
+	}
 
-        @Override
-        public FlashPrograms getResult() {
-            FlashPrograms flashPrograms = new FlashPrograms();
-            flashPrograms.getNodeIds().addAll(nodeUrnsTextField.getValue());
-            List<Program> programs = new ArrayList<Program>();
-            for (int i = 0; i < programsTabs.getTabCount(); i++) {
-                ProgramPanel programPanel = (ProgramPanel) programsTabs.getComponentAt(i);
-                programs.add(programPanel.getResult());
-            }
-            flashPrograms.getPrograms().addAll(programs);
-            List<String> indices = programIndicesTextField.getValue();
-            for (String index : indices) {
-                flashPrograms.getProgramIndices().add(Integer.parseInt(index));
-            }
-            return flashPrograms;
-        }
+	public static class SelectNodeURNsPanel extends AbstractResultPanel<Set<String>> {
 
-    }
+		private JTable table;
 
-    public static class ProgramPanel extends AbstractResultPanel<Program> {
+		private JTextField sessionManagementEndpointURLTextField;
 
-        private static final Logger log = LoggerFactory.getLogger(ProgramPanel.class);
+		private MyTableModel tableModel;
 
-        private JFileChooser programFileChooser;
+		private static class MyTableModel extends AbstractTableModel {
 
-        private ProgramMetaDataPanel programMetaDataPanel;
+			private String[] tableColumns = new String[]{"urn", "type"};
 
-        public ProgramPanel() {
+			private Object[][] tableData;
 
-            super(new GridBagLayout());
+			private MyTableModel(final Object[][] tableData) {
+				this.tableData = tableData;
+			}
 
-            // program: byte[]
-            // metaData: ProgramMetaDataPanel
+			@Override
+			public String getColumnName(final int column) {
+				return tableColumns[column];
+			}
 
-            GridBagConstraints c;
+			@Override
+			public int findColumn(final String columnName) {
+				return "urn".equals(columnName) ? 0 : 1;
+			}
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            programFileChooser = new JFileChooser();
-            add(programFileChooser, c);
+			@Override
+			public Class<?> getColumnClass(final int columnIndex) {
+				return String.class;
+			}
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            programMetaDataPanel = new ProgramMetaDataPanel();
-            add(programMetaDataPanel, c);
+			@Override
+			public int getRowCount() {
+				return tableData.length;
+			}
 
-        }
+			@Override
+			public int getColumnCount() {
+				return 2;
+			}
 
-        @Override
-        public Program getResult() {
+			@Override
+			public Object getValueAt(final int rowIndex, final int columnIndex) {
+				return tableData[rowIndex][columnIndex];
+			}
 
-            Program program = new Program();
-            File programFile = programFileChooser.getSelectedFile();
-            try {
-                FileInputStream fis = new FileInputStream(programFile);
-                BufferedInputStream bis = new BufferedInputStream(fis);
-                DataInputStream dis = new DataInputStream(bis);
+			public void setTableData(final Object[][] tableData) {
+				this.tableData = tableData;
+				fireTableDataChanged();
+			}
 
-                long length = programFile.length();
-                byte[] binaryData = new byte[(int) length];
-                dis.readFully(binaryData);
-
-                program.setProgram(binaryData);
-                program.setMetaData(programMetaDataPanel.getResult());
-
-                return program;
+		}
 
+		public SelectNodeURNsPanel() {
 
-            } catch (FileNotFoundException e) {
-                log.error("FileNotFoundException while reading file {}", programFile.getAbsolutePath(), e);
-            } catch (IOException e) {
-                log.error("IOException while reading file {}", programFile.getAbsolutePath(), e);
-            }
+			super(new GridBagLayout());
 
-            return null;
+			GridBagConstraints c;
 
-        }
+			tableModel = new MyTableModel(new Object[0][]);
 
-    }
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Session Management Endpoint URL"), c);
 
-    public static class ProgramMetaDataPanel extends AbstractResultPanel<ProgramMetaData> {
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			sessionManagementEndpointURLTextField = new JTextField();
+			add(sessionManagementEndpointURLTextField, c);
 
-        private JTextField versionTextField;
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel(), c);
 
-        private JTextField nameTextField;
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			JButton refreshTableButton = new JButton("Refresh table");
+			refreshTableButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
 
-        private JTextField platformTextField;
+					try {
 
-        private JTextField otherTextField;
+						String endpointUrl = sessionManagementEndpointURLTextField.getText();
+						SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+						setTableData(smService.getNetwork());
 
-        public ProgramMetaDataPanel() {
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(null, e1.getMessage());
+					}
 
-            super(new GridBagLayout());
-            setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "ProgramMetaData"));
+				}
+			}
+			);
+			add(refreshTableButton, c);
 
-            // version: String
-            // name: String
-            // platform: String
-            // other: String
+			table = new JTable(tableModel);
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 2;
+			c.ipadx = 2;
+			add(table, c);
 
-            GridBagConstraints c;
+		}
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Version"), c);
+		private void setTableData(String wisemlString) throws Exception {
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            versionTextField = new JTextField();
-            add(versionTextField, c);
+			JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
+			Wiseml wiseml = (Wiseml) jc.createUnmarshaller().unmarshal(new StringReader(wisemlString));
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Name"), c);
+			List<Setup.Node> nodes = wiseml.getSetup().getNode();
+			Object[][] tableData = new Object[nodes.size()][];
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            nameTextField = new JTextField();
-            Dimension preferredSize = nameTextField.getPreferredSize();
-            nameTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
-            add(nameTextField, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 2;
-            add(new JLabel("Platform"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 2;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            platformTextField = new JTextField();
-            add(platformTextField, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 3;
-            add(new JLabel("Other"), c);
+			int i = 0;
+			for (Setup.Node node : nodes) {
+				tableData[i] = new Object[2];
+				tableData[i][0] = node.getId();
+				tableData[i][1] = node.getNodeType();
+				i++;
+			}
+
+			tableModel.setTableData(tableData);
+
+		}
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 3;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            otherTextField = new JTextField();
-            add(otherTextField, c);
+		@Override
+		public Set<String> getResult() {
+			int[] selectedRows = table.getSelectedColumns();
+			Set<String> selectedNodeUrns = new HashSet<String>(selectedRows.length);
+			for (int row = 0; row < tableModel.getRowCount(); row++) {
+				selectedNodeUrns.add((String) tableModel.getValueAt(row, 0));
+			}
+			return selectedNodeUrns;
+		}
+
+	}
+
+	public static class FlashProgramsPanel extends AbstractResultPanel<FlashPrograms> {
+
+		private FieldHelper.StringListJTextField programIndicesTextField;
+
+		private FieldHelper.StringListJTextField nodeUrnsTextField;
+
+		private JTabbedPane programsTabs;
+
+		private JButton addButton;
+
+		private JButton removeButton;
+
+		private ActionListener addRemoveActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == addButton) {
+					int index = programsTabs.getTabCount();
+					programsTabs.add("Program " + index, new ProgramPanel());
+				} else if (e.getSource() == removeButton) {
+					programsTabs.remove(programsTabs.getTabCount() - 1);
+				}
+			}
+		};
 
-        }
+		public FlashProgramsPanel() {
 
-        @Override
-        public ProgramMetaData getResult() {
-            ProgramMetaData programMetaData = new ProgramMetaData();
-            programMetaData.setName(nameTextField.getText());
-            programMetaData.setOther(otherTextField.getText());
-            programMetaData.setPlatform(platformTextField.getText());
-            programMetaData.setVersion(versionTextField.getText());
-            return programMetaData;
-        }
+			super(new GridBagLayout());
 
-    }
-
-    public static class RequestStatusPanel extends AbstractResultPanel<RequestStatus> {
-
-        private static final Logger log = LoggerFactory.getLogger(Dialogs.RequestStatusPanel.class);
-
-        private JTextArea statusListTextArea;
+			// nodeUrns: List<String>
+			// programIndices: List<Integer>
+			// programs: List<Program>
 
-        private JTextField requestIdTextField;
-
-        public RequestStatusPanel() {
-
-            super(new GridBagLayout());
-
-            // nodeIds: List<String>
-            // message: Message
-
-            GridBagConstraints c;
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Request ID"), c);
+			GridBagConstraints c;
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Node URNs"), c);
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            this.requestIdTextField = new JTextField();
-            add(requestIdTextField, c);
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			nodeUrnsTextField = new FieldHelper.StringListJTextField();
+			add(nodeUrnsTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("Program indices"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			programIndicesTextField = new FieldHelper.StringListJTextField("0");
+			add(programIndicesTextField, c);
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("One Status per line,\n denoted by \"nodeId,value,msg\""), c);
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 2;
+			add(new JLabel(), c);
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            this.statusListTextArea = new JTextArea(10, 50);
-            add(statusListTextArea, c);
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 2;
+			JPanel addRemovePanel = new JPanel(new FlowLayout());
+			addButton = new JButton("+");
+			addButton.addActionListener(addRemoveActionListener);
+			removeButton = new JButton("-");
+			removeButton.addActionListener(addRemoveActionListener);
+			addRemovePanel.add(addButton);
+			addRemovePanel.add(removeButton);
+			add(addRemovePanel, c);
 
-        }
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 3;
+			c.gridwidth = 2;
+			c.fill = GridBagConstraints.BOTH;
+			programsTabs = new JTabbedPane();
+			programsTabs.addTab("Program " + 0, new ProgramPanel());
+			add(programsTabs, c);
 
-        @Override
-        public RequestStatus getResult() {
-            BufferedReader reader = new BufferedReader(new StringReader(statusListTextArea.getText()));
-            String line;
-            List<Status> statusList = new ArrayList<Status>();
-            try {
-                while ((line = reader.readLine()) != null) {
-                    String[] args = line.split(",");
-                    Status status = new Status();
-                    status.setNodeId(args[0]);
-                    status.setValue(Integer.parseInt(args[1]));
-                    status.setMsg(args[2]);
-                    statusList.add(status);
-                }
-            } catch (Exception e) {
-                log.error("IOException while reading input {}", e);
-                return null;
-            }
-            RequestStatus requestStatus = new RequestStatus();
-            requestStatus.setRequestId(requestIdTextField.getText());
-            requestStatus.getStatus().addAll(statusList);
-            return requestStatus;
-        }
+		}
 
-    }
-
-    public static class SendMessagePanel extends AbstractResultPanel<Send> {
+		@Override
+		public FlashPrograms getResult() {
+			FlashPrograms flashPrograms = new FlashPrograms();
+			flashPrograms.getNodeIds().addAll(nodeUrnsTextField.getValue());
+			List<Program> programs = new ArrayList<Program>();
+			for (int i = 0; i < programsTabs.getTabCount(); i++) {
+				ProgramPanel programPanel = (ProgramPanel) programsTabs.getComponentAt(i);
+				programs.add(programPanel.getResult());
+			}
+			flashPrograms.getPrograms().addAll(programs);
+			List<String> indices = programIndicesTextField.getValue();
+			for (String index : indices) {
+				flashPrograms.getProgramIndices().add(Integer.parseInt(index));
+			}
+			return flashPrograms;
+		}
 
-        private FieldHelper.StringListJTextField nodeUrnsTextField;
-
-        private MessagePanel messagePanel;
+	}
 
-        public SendMessagePanel() {
+	public static class ProgramPanel extends AbstractResultPanel<Program> {
 
-            super(new GridBagLayout());
+		private static final Logger log = LoggerFactory.getLogger(ProgramPanel.class);
 
-            // nodeIds: List<String>
-            // message: Message
+		private JFileChooser programFileChooser;
 
-            GridBagConstraints c;
+		private ProgramMetaDataPanel programMetaDataPanel;
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Node URNs"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            nodeUrnsTextField = new FieldHelper.StringListJTextField();
-            add(nodeUrnsTextField, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            c.gridwidth = 2;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            messagePanel = new MessagePanel();
-            add(messagePanel, c);
+		public ProgramPanel() {
 
-        }
+			super(new GridBagLayout());
 
-        @Override
-        public Send getResult() {
-            Send send = new Send();
-            send.setMessage(messagePanel.getResult());
-            send.getNodeIds().addAll(nodeUrnsTextField.getValue());
-            return send;
-        }
+			// program: byte[]
+			// metaData: ProgramMetaDataPanel
 
-    }
+			GridBagConstraints c;
 
-    public static class MessagePanel extends AbstractResultPanel<Message> {
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			programFileChooser = new JFileChooser();
+			add(programFileChooser, c);
 
-        private JTextField sourceNodeUrnTextField;
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			programMetaDataPanel = new ProgramMetaDataPanel();
+			add(programMetaDataPanel, c);
 
-        private JTabbedPane tabs;
+		}
 
-        private FieldHelper.XMLGregorianCalendarDateChooserPanel timestampTextField;
+		@Override
+		public Program getResult() {
 
-        private TextMessagePanel textMessagePanel;
+			Program program = new Program();
+			File programFile = programFileChooser.getSelectedFile();
+			try {
+				FileInputStream fis = new FileInputStream(programFile);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+				DataInputStream dis = new DataInputStream(bis);
 
-        private BinaryMessagePanel binaryMessagePanel;
+				long length = programFile.length();
+				byte[] binaryData = new byte[(int) length];
+				dis.readFully(binaryData);
 
-        public MessagePanel() {
+				program.setProgram(binaryData);
+				program.setMetaData(programMetaDataPanel.getResult());
 
-            super(new GridBagLayout());
-            setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Message"));
+				return program;
 
-            // sourceNodeId: String
-            // timestamp: XMLGregorianCalendar
-            // textmessage: TextMessage
-            // binaryMessage: BinaryMessage
 
-            GridBagConstraints c;
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Source node URN"), c);
+			} catch (FileNotFoundException e) {
+				log.error("FileNotFoundException while reading file {}", programFile.getAbsolutePath(), e);
+			} catch (IOException e) {
+				log.error("IOException while reading file {}", programFile.getAbsolutePath(), e);
+			}
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            sourceNodeUrnTextField = new JTextField();
-            add(sourceNodeUrnTextField, c);
+			return null;
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Timestamp"), c);
+		}
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            timestampTextField = new FieldHelper.XMLGregorianCalendarDateChooserPanel();
-            add(timestampTextField, c);
+	}
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 2;
-            c.gridwidth = 2;
-            tabs = new JTabbedPane();
-            tabs.setPreferredSize(new Dimension(800, 300));
-            add(tabs, c);
+	public static class ProgramMetaDataPanel extends AbstractResultPanel<ProgramMetaData> {
 
-            textMessagePanel = new TextMessagePanel();
-            tabs.add("TextMessage", textMessagePanel);
+		private JTextField versionTextField;
 
-            binaryMessagePanel = new BinaryMessagePanel();
-            tabs.add("BinaryMessage", binaryMessagePanel);
+		private JTextField nameTextField;
 
-        }
+		private JTextField platformTextField;
 
-        @Override
-        public Message getResult() {
+		private JTextField otherTextField;
 
-            Message msg = new Message();
-            msg.setSourceNodeId(sourceNodeUrnTextField.getText());
-            try {
-                msg.setTimestamp(timestampTextField.getValue());
-            } catch (DatatypeConfigurationException e) {
-                //TODO display some error on the GUI
-            }
+		public ProgramMetaDataPanel() {
 
-            if (tabs.getSelectedIndex() == 0) {
-                msg.setTextMessage(textMessagePanel.getResult());
-            } else {
-                msg.setBinaryMessage(binaryMessagePanel.getResult());
-            }
-            return msg;
+			super(new GridBagLayout());
+			setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "ProgramMetaData"));
 
-        }
+			// version: String
+			// name: String
+			// platform: String
+			// other: String
 
-    }
+			GridBagConstraints c;
 
-    public static class TextMessagePanel extends AbstractResultPanel<TextMessage> {
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Version"), c);
 
-        private JTextField jTextField;
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			versionTextField = new JTextField();
+			add(versionTextField, c);
 
-        private FieldHelper.EnumJComboBox messageLevelJComboBox;
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("Name"), c);
 
-        public TextMessagePanel() {
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			nameTextField = new JTextField();
+			Dimension preferredSize = nameTextField.getPreferredSize();
+			nameTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
+			add(nameTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 2;
+			add(new JLabel("Platform"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 2;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			platformTextField = new JTextField();
+			add(platformTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 3;
+			add(new JLabel("Other"), c);
 
-            super(new GridBagLayout());
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 3;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			otherTextField = new JTextField();
+			add(otherTextField, c);
 
-            // string: String
-            // messageLevel: MessageLevel (enum)
+		}
 
-            GridBagConstraints c;
+		@Override
+		public ProgramMetaData getResult() {
+			ProgramMetaData programMetaData = new ProgramMetaData();
+			programMetaData.setName(nameTextField.getText());
+			programMetaData.setOther(otherTextField.getText());
+			programMetaData.setPlatform(platformTextField.getText());
+			programMetaData.setVersion(versionTextField.getText());
+			return programMetaData;
+		}
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Text message"), c);
+	}
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            jTextField = new JTextField();
-            Dimension preferredSize = jTextField.getPreferredSize();
-            jTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
-            add(jTextField, c);
+	public static class RequestStatusPanel extends AbstractResultPanel<RequestStatus> {
+
+		private static final Logger log = LoggerFactory.getLogger(Dialogs.RequestStatusPanel.class);
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Message level"), c);
+		private JTextArea statusListTextArea;
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            messageLevelJComboBox = new FieldHelper.EnumJComboBox(MessageLevel.class);
-            add(messageLevelJComboBox, c);
+		private JTextField requestIdTextField;
 
-        }
+		public RequestStatusPanel() {
+
+			super(new GridBagLayout());
+
+			// nodeIds: List<String>
+			// message: Message
+
+			GridBagConstraints c;
 
-        @Override
-        public TextMessage getResult() {
-            TextMessage textMessage = new TextMessage();
-            textMessage.setMessageLevel((MessageLevel) messageLevelJComboBox.getValue());
-            textMessage.setMsg(jTextField.getText());
-            return textMessage;
-        }
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Request ID"), c);
 
-    }
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			this.requestIdTextField = new JTextField();
+			add(requestIdTextField, c);
 
-    public static class BinaryMessagePanel extends AbstractResultPanel<BinaryMessage> {
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("One Status per line,\n denoted by \"nodeId,value,msg\""), c);
 
-        private FieldHelper.ByteArrayJTextArea byteArrayTextArea;
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			this.statusListTextArea = new JTextArea(10, 50);
+			add(statusListTextArea, c);
 
-        private FieldHelper.ByteJTextField byteJTextField;
+		}
 
-        public BinaryMessagePanel() {
+		@Override
+		public RequestStatus getResult() {
+			BufferedReader reader = new BufferedReader(new StringReader(statusListTextArea.getText()));
+			String line;
+			List<Status> statusList = new ArrayList<Status>();
+			try {
+				while ((line = reader.readLine()) != null) {
+					String[] args = line.split(",");
+					Status status = new Status();
+					status.setNodeId(args[0]);
+					status.setValue(Integer.parseInt(args[1]));
+					status.setMsg(args[2]);
+					statusList.add(status);
+				}
+			} catch (Exception e) {
+				log.error("IOException while reading input {}", e);
+				return null;
+			}
+			RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(requestIdTextField.getText());
+			requestStatus.getStatus().addAll(statusList);
+			return requestStatus;
+		}
 
-            super(new GridBagLayout());
+	}
 
-            // binaryData: byte[]
-            // binaryType: Byte
+	public static class SendMessagePanel extends AbstractResultPanel<Send> {
 
-            GridBagConstraints c;
+		private FieldHelper.StringListJTextField nodeUrnsTextField;
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Binary data (HEX)"), c);
+		private MessagePanel messagePanel;
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            byteArrayTextArea = new FieldHelper.ByteArrayJTextArea();
-            Dimension preferredSize1 = byteArrayTextArea.getPreferredSize();
-            byteArrayTextArea.setPreferredSize(new Dimension(400, 200));
-            add(byteArrayTextArea, c);
+		public SendMessagePanel() {
 
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Binary type (HEX)"), c);
+			super(new GridBagLayout());
 
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            byteJTextField = new FieldHelper.ByteJTextField();
-            Dimension preferredSize = byteJTextField.getPreferredSize();
-            byteJTextField.setPreferredSize(new Dimension(50, (int) preferredSize.getHeight()));
-            add(byteJTextField, c);
+			// nodeIds: List<String>
+			// message: Message
 
-        }
+			GridBagConstraints c;
 
-        @Override
-        public BinaryMessage getResult() {
-            BinaryMessage msg = new BinaryMessage();
-            msg.setBinaryData(byteArrayTextArea.getValue(16));
-            msg.setBinaryType(byteJTextField.getValue(16));
-            return msg;
-        }
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Node URNs"), c);
 
-    }
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			nodeUrnsTextField = new FieldHelper.StringListJTextField();
+			add(nodeUrnsTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			c.gridwidth = 2;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			messagePanel = new MessagePanel();
+			add(messagePanel, c);
 
-    public static class StringListPanel extends AbstractResultPanel<List<String>> {
+		}
 
-        private FieldHelper.StringListJTextField urnListTextField;
+		@Override
+		public Send getResult() {
+			Send send = new Send();
+			send.setMessage(messagePanel.getResult());
+			send.getNodeIds().addAll(nodeUrnsTextField.getValue());
+			return send;
+		}
 
-        public StringListPanel() {
+	}
 
-            super(new GridLayout(1, 2));
+	public static class MessagePanel extends AbstractResultPanel<Message> {
 
-            {
-                add(new JLabel("Node URNs (comma separated)"));
+		private JTextField sourceNodeUrnTextField;
 
-                urnListTextField = new FieldHelper.StringListJTextField();
-                Dimension preferredSize = urnListTextField.getPreferredSize();
-                urnListTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
-                add(urnListTextField);
-            }
+		private JTabbedPane tabs;
 
-        }
+		private FieldHelper.XMLGregorianCalendarDateChooserPanel timestampTextField;
 
-        @Override
-        public List<String> getResult() {
-            return urnListTextField.getValue();
-        }
+		private TextMessagePanel textMessagePanel;
 
-    }
+		private BinaryMessagePanel binaryMessagePanel;
+
+		public MessagePanel() {
+
+			super(new GridBagLayout());
+			setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY), "Message"));
+
+			// sourceNodeId: String
+			// timestamp: XMLGregorianCalendar
+			// textmessage: TextMessage
+			// binaryMessage: BinaryMessage
+
+			GridBagConstraints c;
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Source node URN"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			sourceNodeUrnTextField = new JTextField();
+			add(sourceNodeUrnTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("Timestamp"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			timestampTextField = new FieldHelper.XMLGregorianCalendarDateChooserPanel();
+			add(timestampTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 2;
+			c.gridwidth = 2;
+			tabs = new JTabbedPane();
+			tabs.setPreferredSize(new Dimension(800, 300));
+			add(tabs, c);
+
+			textMessagePanel = new TextMessagePanel();
+			tabs.add("TextMessage", textMessagePanel);
+
+			binaryMessagePanel = new BinaryMessagePanel();
+			tabs.add("BinaryMessage", binaryMessagePanel);
+
+		}
+
+		@Override
+		public Message getResult() {
+
+			Message msg = new Message();
+			msg.setSourceNodeId(sourceNodeUrnTextField.getText());
+			try {
+				msg.setTimestamp(timestampTextField.getValue());
+			} catch (DatatypeConfigurationException e) {
+				//TODO display some error on the GUI
+			}
+
+			if (tabs.getSelectedIndex() == 0) {
+				msg.setTextMessage(textMessagePanel.getResult());
+			} else {
+				msg.setBinaryMessage(binaryMessagePanel.getResult());
+			}
+			return msg;
+
+		}
+
+	}
+
+	public static class TextMessagePanel extends AbstractResultPanel<TextMessage> {
+
+		private JTextField jTextField;
+
+		private FieldHelper.EnumJComboBox messageLevelJComboBox;
+
+		public TextMessagePanel() {
+
+			super(new GridBagLayout());
+
+			// string: String
+			// messageLevel: MessageLevel (enum)
+
+			GridBagConstraints c;
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Text message"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			jTextField = new JTextField();
+			Dimension preferredSize = jTextField.getPreferredSize();
+			jTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
+			add(jTextField, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("Message level"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			messageLevelJComboBox = new FieldHelper.EnumJComboBox(MessageLevel.class);
+			add(messageLevelJComboBox, c);
+
+		}
+
+		@Override
+		public TextMessage getResult() {
+			TextMessage textMessage = new TextMessage();
+			textMessage.setMessageLevel((MessageLevel) messageLevelJComboBox.getValue());
+			textMessage.setMsg(jTextField.getText());
+			return textMessage;
+		}
+
+	}
+
+	public static class BinaryMessagePanel extends AbstractResultPanel<BinaryMessage> {
+
+		private FieldHelper.ByteArrayJTextArea byteArrayTextArea;
+
+		private FieldHelper.ByteJTextField byteJTextField;
+
+		public BinaryMessagePanel() {
+
+			super(new GridBagLayout());
+
+			// binaryData: byte[]
+			// binaryType: Byte
+
+			GridBagConstraints c;
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			add(new JLabel("Binary data (HEX)"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			byteArrayTextArea = new FieldHelper.ByteArrayJTextArea();
+			Dimension preferredSize1 = byteArrayTextArea.getPreferredSize();
+			byteArrayTextArea.setPreferredSize(new Dimension(400, 200));
+			add(byteArrayTextArea, c);
+
+			c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 1;
+			add(new JLabel("Binary type (HEX)"), c);
+
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			byteJTextField = new FieldHelper.ByteJTextField();
+			Dimension preferredSize = byteJTextField.getPreferredSize();
+			byteJTextField.setPreferredSize(new Dimension(50, (int) preferredSize.getHeight()));
+			add(byteJTextField, c);
+
+		}
+
+		@Override
+		public BinaryMessage getResult() {
+			BinaryMessage msg = new BinaryMessage();
+			msg.setBinaryData(byteArrayTextArea.getValue(16));
+			msg.setBinaryType(byteJTextField.getValue(16));
+			return msg;
+		}
+
+	}
+
+	public static class StringListPanel extends AbstractResultPanel<List<String>> {
+
+		private FieldHelper.StringListJTextField urnListTextField;
+
+		public StringListPanel() {
+
+			super(new GridLayout(1, 2));
+
+			{
+				add(new JLabel("Node URNs (comma separated)"));
+
+				urnListTextField = new FieldHelper.StringListJTextField();
+				Dimension preferredSize = urnListTextField.getPreferredSize();
+				urnListTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
+				add(urnListTextField);
+			}
+
+		}
+
+		@Override
+		public List<String> getResult() {
+			return urnListTextField.getValue();
+		}
+
+	}
 
 }
