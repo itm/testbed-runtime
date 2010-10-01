@@ -148,11 +148,9 @@ public class ReservationController implements Controller {
                  */
                 Set<?> value = (Set<?>) event.getProperty().getValue();
                 if (null != value && !value.isEmpty()) {
-                    System.out.println("Value changed: ");
                     _markedRows.clear();
                     for (Object o : value) {
                         _markedRows.add(o);
-                        System.out.println(o + " ; ");
                     }
                 }
             }
