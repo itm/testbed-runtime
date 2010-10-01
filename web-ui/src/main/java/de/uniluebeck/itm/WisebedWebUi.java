@@ -23,7 +23,9 @@
 package de.uniluebeck.itm;
 
 import com.vaadin.Application;
+import com.vaadin.ui.Window;
 import de.uniluebeck.itm.common.UiUtil;
+import de.uniluebeck.itm.ui.Controller;
 import de.uniluebeck.itm.ui.UiController;
 
 /**
@@ -31,9 +33,11 @@ import de.uniluebeck.itm.ui.UiController;
  */
 public class WisebedWebUi extends Application {
 
+    final Controller uiController = new UiController();
+
     @Override
     public void init() {
-        setMainWindow(UiController.get().view());
+        setMainWindow((Window) uiController.view());
         UiUtil.setMainWindow(getMainWindow());
     }
 }

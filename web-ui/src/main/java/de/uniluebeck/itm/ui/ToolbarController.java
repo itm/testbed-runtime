@@ -27,18 +27,10 @@ package de.uniluebeck.itm.ui;
  */
 class ToolbarController implements Controller {
 
-    private static ToolbarController _instance = null;
     private ToolbarView _view;
 
-    private ToolbarController() {
+    public ToolbarController() {
         _view = new ToolbarView();
-    }
-
-    public static ToolbarController get() {
-        if (_instance == null) {
-            _instance = new ToolbarController();
-        }
-        return _instance;
     }
 
     public ToolbarView view() {

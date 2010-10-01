@@ -27,22 +27,21 @@ package de.uniluebeck.itm.ui;
  */
 public class UiController implements Controller {
 
-    private static UiController _instance = null;
-    private static UiView _view;
+    private final Controller toolbarController = new ToolbarController();
+    private final Controller tabController = new TabController();
+    private final Controller authenticationController = new AuthenticationController();
+    private final Controller reservationController = new ReservationController();
+    private final UiView _view;
 
-    private UiController() {
-        _view = new UiView();
-    }
-
-    public static UiController get() {
-        if (_instance == null) {
-            _instance = new UiController();
-        }
-        return _instance;
+    public UiController() {
+        _view = new UiView(
+                toolbarController.view(),
+                tabController.view(),
+                authenticationController.view(),
+                reservationController.view());
     }
 
     public UiView view() {
         return _view;
     }
-
 }

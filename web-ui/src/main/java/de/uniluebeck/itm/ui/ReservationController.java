@@ -46,11 +46,10 @@ import java.util.Set;
  */
 public class ReservationController implements Controller {
 
-    private static ReservationController _instance = null;
     private final ReservationView _view;
     private final Set<Object> _markedRows = new HashSet<Object>();
 
-    private ReservationController() {
+    public ReservationController() {
         _view = new ReservationView();
 
         _view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
@@ -66,16 +65,6 @@ public class ReservationController implements Controller {
 
         _view.btnReload.addListener(createReloadButtonListener());
         _view.btnClearAll.addListener(createClearAllButtonListener());
-    }
-
-    /**
-     * @return Singelton reference
-     */
-    public static ReservationController get() {
-        if (_instance == null) {
-            _instance = new ReservationController();
-        }
-        return _instance;
     }
 
     /**

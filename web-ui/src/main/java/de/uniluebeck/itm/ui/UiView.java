@@ -22,6 +22,7 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.ui;
 
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -36,11 +37,12 @@ public class UiView extends Window {
     private static final String RESERVATION_TAB_LABEL = "Reservation";
     final VerticalLayout screen;
     final HorizontalLayout toolbar;
-    final TabView tabView;
-    final VerticalLayout login;
+    final TabView tabs;
+    final VerticalLayout authentication;
     final HorizontalLayout reservation;
 
-    public UiView() {
+    public UiView(AbstractComponent toolbar, AbstractComponent tabs,
+            AbstractComponent authentication, AbstractComponent reservation) {
         super("WISEBED Web UI");
 
         screen = new VerticalLayout();
@@ -52,17 +54,17 @@ public class UiView extends Window {
         setContent(screen);
 
         /* Init sub-views */
-        toolbar = ToolbarController.get().view();
-        tabView = TabController.get().view();
-        login = AuthenticationController.get().view();
-        reservation = ReservationController.get().view();
+        this.toolbar = (HorizontalLayout) toolbar;
+        this.tabs = (TabView) tabs;
+        this.authentication = (VerticalLayout) authentication;
+        this.reservation = (HorizontalLayout) reservation;
 
-        tabView.addTab(login, AUTHENTICATION_TAB_LABEL, null);
-        tabView.addTab(reservation, RESERVATION_TAB_LABEL, null);
+        this.tabs.addTab(this.authentication, AUTHENTICATION_TAB_LABEL, null);
+        this.tabs.addTab(this.reservation, RESERVATION_TAB_LABEL, null);
 
-        screen.addComponent(toolbar);
-        screen.addComponent(tabView);
-        screen.setExpandRatio(tabView, 1);
+        screen.addComponent(this.toolbar);
+        screen.addComponent(this.tabs);
+        screen.setExpandRatio(this.tabs, 1);
     }
 
 }

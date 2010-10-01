@@ -25,20 +25,12 @@ package de.uniluebeck.itm.ui;
 /**
  * @author Soenke Nommensen
  */
-public class TabController {
-
-    private static TabController _instance = null;
+public class TabController implements Controller {
+    
     private TabView _view;
 
-    private TabController() {
+    public TabController() {
         _view = new TabView();
-    }
-
-    public static TabController get() {
-        if (_instance == null) {
-            _instance = new TabController();
-        }
-        return _instance;
     }
 
     public TabView view() {

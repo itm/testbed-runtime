@@ -35,10 +35,9 @@ import de.uniluebeck.itm.ws.SNAAServiceAdapter;
  */
 public final class AuthenticationController implements Controller {
 
-    private static AuthenticationController _instance = null;
     private final AuthenticationView _view;
 
-    private AuthenticationController() {
+    public AuthenticationController() {
         _view = new AuthenticationView();
         _view.btnAuthenticate.addListener(
                 new Button.ClickListener() {
@@ -48,16 +47,6 @@ public final class AuthenticationController implements Controller {
                         startSNAAAuthentication();
                     }
                 });
-    }
-
-    /**
-     * @return Singelton reference
-     */
-    public static AuthenticationController get() {
-        if (_instance == null) {
-            _instance = new AuthenticationController();
-        }
-        return _instance;
     }
 
     /**
@@ -81,7 +70,7 @@ public final class AuthenticationController implements Controller {
         } catch (AuthenticationException ex) {
             UiUtil.showNotification(
                     UiUtil.createNotificationCenteredTop(
-                            "Login failed",
+                            "Authentication failed",
                             ex.getMessage(),
                             Window.Notification.TYPE_WARNING_MESSAGE));
             success = false;
