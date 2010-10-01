@@ -23,13 +23,9 @@
 
 <xsd:schema targetNamespace="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml"
 			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-	<xsd:element name="wsnapp">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="device" type="WsnDevice" maxOccurs="unbounded" />
-			</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element>
+
+	<xsd:element name="device" type="WsnDevice" />
+
 	<xsd:complexType name="WsnDevice">
 		<xsd:sequence>
 			<xsd:element name="urn" type="xsd:string" />
@@ -39,4 +35,5 @@
 			<xsd:element name="usbchipid" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
+
 </xsd:schema>

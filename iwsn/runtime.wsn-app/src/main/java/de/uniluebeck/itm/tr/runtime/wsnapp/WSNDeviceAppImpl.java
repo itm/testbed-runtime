@@ -871,7 +871,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				Long macAddress = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
 				MoteList moteList;
 
-				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
+				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeUrn, nodeType);
 
 				try {
                     Map<String, String> telosBReferenceToMACMap = null;
@@ -956,7 +956,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		// then disconnect from device
 		if (iSenseDevice != null) {
 			iSenseDevice.deregisterListener(iSenseDeviceListener);
-			log.debug("{} => Shutting down iSenseDevice");
+			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 			iSenseDevice.shutdown();
 		}
 	}
