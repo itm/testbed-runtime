@@ -22,7 +22,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
 	<setup>
-		<description>The WSN testbed of the University of Tuebingen, Germany</description>
+		<description>The WSN testbed of the University of Braunschweig, Germany</description>
 		<defaults>
 			<node>
 				<nodeType>iSense</nodeType>
@@ -40,13 +40,19 @@
 				</capability>
 			</node>
 		</defaults>
-		<node id="urn:wisebed:testbedtubs1:1">
+		<node id="urn:wisebed:tubs1:1">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbedtubs1:2">
+		<node id="urn:wisebed:tubs1:2">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbedtubs1:3">
+		<node id="urn:wisebed:tubs1:3">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:tubs1:4">
+			<nodeType>iSense</nodeType>
+		</node>
+		<node id="urn:wisebed:tubs1:5">
 			<nodeType>iSense</nodeType>
 		</node>
 	</setup>

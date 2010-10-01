@@ -40,19 +40,19 @@
 				</capability>
 			</node>
 		</defaults>
-		<node id="urn:wisebed:testbeduzl1:1">
+		<node id="urn:wisebed:uzl1:1">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:2">
+		<node id="urn:wisebed:uzl1:2">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:3">
+		<node id="urn:wisebed:uzl1:3">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:4">
+		<node id="urn:wisebed:uzl1:4">
 			<nodeType>iSense</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:5">
+		<node id="urn:wisebed:uzl1:5">
 			<nodeType>iSense</nodeType>
 		</node>
 	</setup>

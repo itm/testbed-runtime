@@ -21,59 +21,58 @@
   ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  ~
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml" xmlns:ns4="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 
-	<nodes id="testbeduzl1">
-		<names>
-			<nodename name="urn:wisebed:testbeduzl1:1" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:2" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:3" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:4" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:10" description=""/>
-		</names>
-		<applications>
-			<application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
-				<portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
-					<webservice>
-						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
-						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
-						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
-						<wisemlfilename>
-							testbeduzl1-wiseml.xml
-						</wisemlfilename>
-					</webservice>
-				</portal:portalapp>
-			</application>
-			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:wsnapp xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<device>
-						<urn>urn:wisebed:testbeduzl1:1</urn>
-						<type>null</type>
-						<serialinterface>/dev/ttyUSB1</serialinterface>
-					</device>
-					<device>
-						<urn>urn:wisebed:testbeduzl1:2</urn>
-						<type>null</type>
-						<serialinterface>/dev/ttyUSB2</serialinterface>
-					</device>
-					<device>
-						<urn>urn:wisebed:testbeduzl1:3</urn>
-						<type>null</type>
-						<serialinterface>/dev/ttyUSB3</serialinterface>
-					</device>
-					<device>
-						<urn>urn:wisebed:testbeduzl1:4</urn>
-						<type>null</type>
-						<serialinterface>/dev/ttyUSB4</serialinterface>
-					</device>
-					<device>
-						<urn>urn:wisebed:testbeduzl1:10</urn>
-						<type>null</type>
-						<serialinterface>/dev/ttyUSB5</serialinterface>
-					</device>
-				</wsn:wsnapp>
-			</application>
-		</applications>
-	</nodes>
+    <nodes id="wisebed.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:1" description=""/>
+            <nodename name="urn:wisebed:uzl1:2" description=""/>
+            <nodename name="urn:wisebed:uzl1:3" description=""/>
+            <nodename name="urn:wisebed:uzl1:4" description=""/>
+            <nodename name="urn:wisebed:uzl1:5" description=""/>
+        </names>
+        <applications>
+            <application name="PortalServer" factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory">
+                <portal:portalapp xmlns:portal="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+                    <webservice>
+                        <urnprefix>urn:wisebed:uzl1:</urnprefix>
+                        <sessionmanagementendpointurl>http://wisebed.itm.uni-luebeck.de:10011/sessions</sessionmanagementendpointurl>
+                        <wsninstancebaseurl>http://wisebed.itm.uni-luebeck.de:10011/wsn</wsninstancebaseurl>
+                        <wisemlfilename>testbeduzl1-wiseml.xml</wisemlfilename>
+                    </webservice>
+                </portal:portalapp>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:device>
+                    <urn>urn:wisebed:uzl1:1</urn>
+                    <type>isense</type>
+                </ns4:device>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:device>
+                    <urn>urn:wisebed:uzl1:2</urn>
+                    <type>isense</type>
+                </ns4:device>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:device>
+                    <urn>urn:wisebed:uzl1:3</urn>
+                    <type>isense</type>
+                </ns4:device>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:device>
+                    <urn>urn:wisebed:uzl1:4</urn>
+                    <type>isense</type>
+                </ns4:device>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:device>
+                    <urn>urn:wisebed:uzl1:5</urn>
+                    <type>isense</type>
+                </ns4:device>
+            </application>
+        </applications>
+    </nodes>
 
 </ns2:testbed>
