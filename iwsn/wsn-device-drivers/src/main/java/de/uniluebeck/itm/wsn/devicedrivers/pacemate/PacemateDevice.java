@@ -998,6 +998,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		return new PacemateBinFile(fileName);
 	}
 
+	@Override
 	public boolean isConnected() {
 		return connected;
 	}

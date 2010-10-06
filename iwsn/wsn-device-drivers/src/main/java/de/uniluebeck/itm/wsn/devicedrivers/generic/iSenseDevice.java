@@ -182,4 +182,7 @@ public abstract class iSenseDevice {
 	 *
 	 */
 	public abstract void shutdown();
+
+	public abstract boolean isConnected();
+
 }

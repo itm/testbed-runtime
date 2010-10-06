@@ -487,17 +487,18 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			currentOperationInvocation = invocation;
 			currentOperationInvocationMsg = msg;
 
+			if (!iSenseDevice.isConnected()) {
+				failedReset("Failed resetting node. Reason: Device is not connected.");
+			}
+			
 			boolean triggered = iSenseDevice.triggerReboot();
 			if (!triggered) {
-				testbedRuntime.getUnreliableMessagingService()
-						.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-								buildRequestStatus(0, "Unable to trigger reboot")
-						)
-						);
+				failedReset("Failed resetting node. Reason: Could not trigger reboot.");
 			}
 
 		} catch (Exception e) {
 			log.error("Error while resetting device: " + e, e);
+			failedReset("Failed resetting node. Reason: " + e.getMessage());
 		}
 
 	}
@@ -528,12 +529,20 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				currentOperationResponder = responder;
 				currentOperationLastProgress = new TimeDiff(1000);
 
+				if (!iSenseDevice.isConnected()) {
+					failedFlashPrograms("Failed flashing node. Reason: Node is not connected.");
+					return;
+				}
+
 				if (!iSenseDevice.triggerProgram(iSenseBinFile, true)) {
 					failedFlashPrograms("Failed to trigger programming.");
+					return;
 				}
 
 			} catch (Exception e) {
 				log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
+				failedFlashPrograms("Error while flashing device. Reason: " + e.getMessage());
+				return;
 			}
 
 
@@ -611,7 +620,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
 
 		// to the best of our knowledge, a node is alive if we're connected to it
-		boolean connected = iSenseDevice != null;
+		boolean connected = iSenseDevice != null && iSenseDevice.isConnected();
 		testbedRuntime.getUnreliableMessagingService()
 				.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 						buildRequestStatus(connected ? 1 : 0, null)
@@ -686,7 +695,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
 				failedFlashPrograms("operation canceled");
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
-				failedReset();
+				failedReset("Failed resetting node. Reason: Operation canceled.");
 			}
 		}
 
@@ -702,7 +711,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					doneFlashPrograms();
 				}
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
-				doneReset();
+				if (o == null) {
+					failedFlashPrograms("Could not reset node");
+				} else if (o instanceof Boolean && ((Boolean) o).booleanValue()) {
+					doneReset();
+				} else {
+					failedFlashPrograms("Could not reset node");//urn:wisebed:uzl-staging:0xe301,urn:wisebed:uzl-staging:0x2504,urn:wisebed:uzl-staging:0x0d99,urn:wisebed:uzl-staging:0x2bbb
+				}
 			}
 		}
 
@@ -819,14 +834,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		resetCurrentOperation();
 	}
 
-	private void failedReset() {
+	private void failedReset(String reason) {
 
 		log.debug("{} => WSNDeviceAppImpl.failedReset()", nodeUrn);
 
 		// send reply to indicate failure
 		testbedRuntime.getUnreliableMessagingService().sendAsync(
 				MessageTools.buildReply(currentOperationInvocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-						buildRequestStatus(0, "Failed resetting node")
+						buildRequestStatus(0, reason)
 				)
 		);
 		resetCurrentOperation();
