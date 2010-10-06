@@ -30,6 +30,7 @@ import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class StringUtils {
@@ -38,6 +39,7 @@ public class StringUtils {
 
 	/**
 	 * @param jaxbObject
+	 *
 	 * @return
 	 */
 	public static String jaxbMarshal(Object jaxbObject) {
@@ -57,7 +59,9 @@ public class StringUtils {
 
 	/**
 	 * @param jaxbObject
+	 *
 	 * @return
+	 *
 	 * @throws JAXBException
 	 * @throws Exception
 	 */
@@ -114,12 +118,48 @@ public class StringUtils {
 	public static String toHexString(byte[] tmp, int offset, int length) {
 		StringBuffer s = new StringBuffer();
 		for (int i = offset; i < offset + length; ++i) {
-			if (s.length() > 0)
+			if (s.length() > 0) {
 				s.append(' ');
+			}
 			s.append("0x");
 			s.append(Integer.toHexString(tmp[i] & 0xFF));
 		}
 		return s.toString();
+	}
+
+	/**
+	 *
+	 */
+	public static String toString(short[] l, int offset, int length) {
+		LinkedList<Short> ll = new LinkedList<Short>();
+		for (int i = offset; i < offset + length; ++i) {
+			ll.add(l[i]);
+		}
+
+		return toString(ll, ", ");
+	}
+
+	/**
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	public static String toString(Collection l, String divider) {
+		StringBuffer b = new StringBuffer();
+
+		if (l == null) {
+			return "<null>";
+		}
+
+		for (Object o : l) {
+			String t = o != null ? o.toString() : "{null}";
+			if (b.length() > 0) {
+				b.append(divider);
+			}
+
+			b.append(t);
+		}
+
+		return b.toString().trim();
 	}
 
 	// -------------------------------------------------------------------------
@@ -139,8 +179,9 @@ public class StringUtils {
 	public static String toHexStringReverseDirection(byte[] tmp, int offset, int length) {
 		byte reverse[] = new byte[length];
 
-		for (int i = 0; i < length; ++i)
+		for (int i = 0; i < length; ++i) {
 			reverse[i] = tmp[offset + length - i - 1];
+		}
 
 		return toHexString(reverse);
 	}
@@ -150,8 +191,9 @@ public class StringUtils {
 	}
 
 	public static String toString(Collection<? extends Object> list) {
-		if (list == null)
+		if (list == null) {
 			return "null";
+		}
 
 		return Arrays.toString(list.toArray());
 	}
@@ -164,35 +206,36 @@ public class StringUtils {
 	public static Long parseHexOrDecLongFromUrn(String urn) {
 		String[] arr = urn.split(":");
 		String suffix = arr[arr.length - 1];
-		return parseHexOrDecLong(suffix);		
+		return parseHexOrDecLong(suffix);
 	}
 
-    public static String parseHexOrDecLongUrnSuffix(String value) {
-        String[] valueAsArray = value.split(":");
-        String suffix = valueAsArray[valueAsArray.length - 1];
-        return getPrefixAsStringFromStringArray(valueAsArray) + ":" + (suffix.startsWith("0x") ? Long.parseLong(suffix.substring(2), 16) : Long.parseLong(suffix, 10));
-    }
+	public static String parseHexOrDecLongUrnSuffix(String value) {
+		String[] valueAsArray = value.split(":");
+		String suffix = valueAsArray[valueAsArray.length - 1];
+		return getPrefixAsStringFromStringArray(valueAsArray) + ":" + (suffix.startsWith("0x") ?
+				Long.parseLong(suffix.substring(2), 16) : Long.parseLong(suffix, 10));
+	}
 
-    private static String getPrefixAsStringFromStringArray(String[] value){
-        StringBuffer result = new StringBuffer();
-        if (value.length > 0) {
-            result.append(value[0]);
-            for (int i = 1; i < value.length - 1; i++) {
-                result.append(":");
-                result.append(value[i]);
-            }
-        }
-        return result.toString();
-    }
+	private static String getPrefixAsStringFromStringArray(String[] value) {
+		StringBuffer result = new StringBuffer();
+		if (value.length > 0) {
+			result.append(value[0]);
+			for (int i = 1; i < value.length - 1; i++) {
+				result.append(":");
+				result.append(value[i]);
+			}
+		}
+		return result.toString();
+	}
 
-    public static boolean assertHexOrDecLongValue(String value){
-        try {
-            parseHexOrDecLong(value);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
-    }
+	public static boolean assertHexOrDecLongValue(String value) {
+		try {
+			parseHexOrDecLong(value);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
 
 	public static boolean hasHexOrDecLongUrnSuffix(String value) {
 		String[] arr = value.split(":");
@@ -201,19 +244,37 @@ public class StringUtils {
 	}
 
 	/**
-	 * Asserts that the given String {@code value} is a URN that has a suffix which can be parsed as a long value,
-	 * either hex-encoded (starting with 0x) or decimal-encoded.
+	 * Asserts that the given String {@code value} is a URN that has a suffix which can be parsed as a long value, either
+	 * hex-encoded (starting with 0x) or decimal-encoded.
 	 *
 	 * @param value
+	 *
 	 * @throws RuntimeException if suffix can not be parse as long value
 	 */
 	public static void assertHexOrDecLongUrnSuffix(String value) throws RuntimeException {
-		if (!StringUtils.hasHexOrDecLongUrnSuffix(value))
+		if (!StringUtils.hasHexOrDecLongUrnSuffix(value)) {
 			throw new RuntimeException("Suffix of {" + value + "} has to be an integer-value!");
+		}
 	}
 
-    public static String getUrnSuffix(String urn) {
-        String[] arr = urn.split(":");
-        return arr[arr.length - 1];  
-    }
+	public static String getUrnSuffix(String urn) {
+		String[] arr = urn.split(":");
+		return arr[arr.length - 1];
+	}
+
+	/**
+	 *
+	 * @param i
+	 * @return
+	 */
+	public static String toHexString(int i) {
+		String tmp = "";
+		if (i > 0xFF) {
+			tmp += toHexString((byte) (i >> 8 & 0xFF)) + " ";
+		} else {
+			tmp += "    ";
+		}
+		tmp += toHexString((byte) (i & 0xFF));
+		return tmp;
+	}
 }
