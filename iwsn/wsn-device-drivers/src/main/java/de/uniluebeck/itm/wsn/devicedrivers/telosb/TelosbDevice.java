@@ -521,18 +521,18 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			if (this.isFlashDebugOutput()) {
 				bsl.executeBSLPatch();
 			}
-
+			log.debug("1");
 			// program block
 			bsl.sendBSLCommand(BSLTelosb.CMD_TXDATABLOCK, address, len, bytes,
 					false);
-
+			log.debug("2");
 			reply = bsl.receiveBSLReply();
-
+			log.debug("3");
 			if ((reply[0] & 0xFF) != BSLTelosb.DATA_ACK) {
 				throw new FlashProgramFailedException(
 						"Failed to program flash: received no ACK");
 			}
-
+			log.debug("4");
 			// verify programmed block
 			if (this.isFlashDebugOutput()) {
 				if (!bsl.verifyBlock(address, len, bytes)) {
@@ -540,6 +540,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 							"Failed to program flash: verification of written data failed");
 				}
 			}
+			log.debug("5");
 		} catch (Exception e) {
 			throw new FlashProgramFailedException("Failed to program flash: "
 					+ e);
@@ -719,11 +720,10 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 		// perform mass erase to reset the password to default password
 		log.info("Erasing flash memory...");
-		bsl
-				.sendBSLCommand(BSLTelosb.CMD_MASSERASE, 0xFFFF, 0xA506, null,
-						false);
+		log.info("Erasing flash memory...2");
+		bsl.sendBSLCommand(BSLTelosb.CMD_MASSERASE, 0xFFFF, 0xA506, null,false);
 		reply = bsl.receiveBSLReply();
-
+		log.info("Erasing flash memory...3");
 		if ((reply[0] & 0xff) == BSLTelosb.DATA_NACK) {
 			if (log.isDebugEnabled()) {
 				log.error("Failed to perform mass erase, NACK received.");
