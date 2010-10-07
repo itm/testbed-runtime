@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.wsn.devicedrivers.pacemate;
 
+import java.io.IOException;
+
 import de.uniluebeck.itm.wsn.devicedrivers.exceptions.InvalidChecksumException;
 import de.uniluebeck.itm.wsn.devicedrivers.exceptions.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
@@ -58,10 +60,15 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			log.error("Unable to enter programming mode");
 			return false;
 		}
-		device.clearStreamData();
-
+		try {
+			device.clearStreamData();
+		} catch (IOException e) {
+			log.error("Error while clear stream"+e);
+			e.printStackTrace();
+		}
+		log.debug("autobaud");
 		device.autobaud();
-
+		log.debug("autobaud ready");
 		// device.echoOff();
 
 		// Wait for a connection
@@ -126,7 +133,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			try {
 				device.writeToRAM(device.startAdressInRam, block.data.length);
 			} catch (Exception e) {
-				log.debug("Error while write to RAM! Operation will be cancelled!");
+				log.debug("Error while write to RAM! Operation will be cancelled!"+e);
 				device.operationCancelled(this);
 				return false;
 			}

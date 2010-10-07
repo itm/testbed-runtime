@@ -123,7 +123,7 @@ public class Messages {
 	/**
 	 * Pacemate Style
 	 */
-	public static final String SYNCHRONIZED = "SYNCHRONIZED";
+	public static final String SYNCHRONIZED = "Synchronized";
 
 	/**
 	 * Pacemate Style

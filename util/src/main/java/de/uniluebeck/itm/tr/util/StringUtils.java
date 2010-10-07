@@ -121,6 +121,30 @@ public class StringUtils {
 		}
 		return s.toString();
 	}
+	
+	// -------------------------------------------------------------------------
+	
+	/**
+	 * @param tmp
+	 * @return
+	 */
+	public static String toASCIIString(byte [] tmp) {
+		StringBuffer sb = new StringBuffer("");
+
+		for (byte b : tmp ) {
+			if(b == 0x0D)
+				sb.append("<CR>");
+			else if (b == 0x0A)
+				sb.append("<LF>");
+			else
+			{
+				char chr = (char)b;
+		  		sb.append(chr);
+			}
+		}
+		
+		return sb.toString();
+	}
 
 	// -------------------------------------------------------------------------
 
