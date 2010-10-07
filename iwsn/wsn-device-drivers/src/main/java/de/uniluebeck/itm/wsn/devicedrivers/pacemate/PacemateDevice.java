@@ -376,7 +376,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// Send flash program request
 		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.writeToRAMRequestMessage(address, len));
-		System.out.println("send ready");
+		//System.out.println("send ready");
 		// Read flash program response
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
@@ -746,9 +746,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		boolean a = true;
 		while ((inStream.available() > 0) && (a == true) && (index < 255)) {
 			try {
-				System.out.println("************ Reading from stream");
+				//System.out.println("************ Reading from stream");
 				message[index] = (byte) inStream.read();
-				System.out.println("************ Done reading from stream");
+				//System.out.println("************ Done reading from stream");
 			} catch (IOException e) {
 				log.error("" + e, e);
 			}
@@ -899,7 +899,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		
 		if ((i+3 < reply.length) && (reply[i] == 48)) { // copy the line and skip the answer and cr lf
 			System.arraycopy(reply, i+3, lineFromFlash, 0, len);
-			System.out.println(StringUtils.toASCIIString(lineFromFlash));
+			//System.out.println(StringUtils.toASCIIString(lineFromFlash));
 			return lineFromFlash;
 		}
 		
