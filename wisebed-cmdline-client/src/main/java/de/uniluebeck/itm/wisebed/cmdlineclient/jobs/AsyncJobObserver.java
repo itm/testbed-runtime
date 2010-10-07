@@ -169,7 +169,7 @@ public class AsyncJobObserver {
 		try {
 
 			while (jobList.size() > 0 && !diff.isTimeout()) {
-				jobListEmpty.await(1, TimeUnit.SECONDS);
+				jobListEmpty.await(3, TimeUnit.SECONDS);
 				if (log.isDebugEnabled()) {
 					log.debug("Waiting for {} unfinished jobs (Timeout: {} {}):", new Object[] {jobList.size(), timeout, unit});
 					for (Job job : jobList.values()) {
