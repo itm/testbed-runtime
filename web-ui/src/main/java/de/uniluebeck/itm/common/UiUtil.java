@@ -29,10 +29,10 @@ import com.vaadin.ui.Window;
  */
 public class UiUtil {
 
-    private static Window _mainWindow = null;
+    private static Window mainWindow = null;
 
-    public static void setMainWindow(Window mainWindow) {
-        _mainWindow = mainWindow;
+    public static void setMainWindow(Window window) {
+        mainWindow = window;
     }
 
     /**
@@ -88,7 +88,7 @@ public class UiUtil {
      * @param notification The notification that will be displayed on the specified window
      */
     public static void showNotification(final Window.Notification notification) {
-        _mainWindow.showNotification(notification);
+        mainWindow.showNotification(notification);
     }
 
     /**
@@ -100,7 +100,7 @@ public class UiUtil {
      * @param position    Sets the notification's position
      */
     public static void showNotification(final String caption, final String description, final int type, final int position) {
-        _mainWindow.showNotification(createNotification(caption, description, type, position));
+        mainWindow.showNotification(createNotification(caption, description, type, position));
     }
 
     /**
@@ -111,7 +111,7 @@ public class UiUtil {
      * @param type        Sets the notification type (choose from Window.Notification.TYPE_...)
      */
     public static void showNotification(final String caption, final String description, int type) {
-        _mainWindow.showNotification(createNotification(caption, description, type));
+        mainWindow.showNotification(createNotification(caption, description, type));
     }
 
     /**

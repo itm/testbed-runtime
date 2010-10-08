@@ -8,6 +8,13 @@
     <version>0.5.4-SNAPSHOT</version>
     <name>TR :: Wisebed Web UI</name>
 
+    <parent>
+        <groupId>de.uniluebeck.itm</groupId>
+        <artifactId>tr</artifactId>
+        <version>0.5.4-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -103,7 +110,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.2</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
@@ -143,6 +149,13 @@
           <scope>provided</scope>
         </dependency>
         -->
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.snaa-api</artifactId>

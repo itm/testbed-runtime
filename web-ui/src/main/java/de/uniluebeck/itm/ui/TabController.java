@@ -27,13 +27,13 @@ package de.uniluebeck.itm.ui;
  */
 public class TabController implements Controller {
     
-    private TabView _view;
+    private TabView view;
 
     public TabController() {
-        _view = new TabView();
+        view = new TabView();
     }
 
     public TabView view() {
-        return _view;
+        return view;
     }
 }

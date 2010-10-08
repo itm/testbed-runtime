@@ -27,13 +27,13 @@ package de.uniluebeck.itm.ui;
  */
 class ToolbarController implements Controller {
 
-    private ToolbarView _view;
+    private ToolbarView view;
 
     public ToolbarController() {
-        _view = new ToolbarView();
+        view = new ToolbarView();
     }
 
     public ToolbarView view() {
-        return _view;
+        return view;
     }
 }

@@ -23,21 +23,25 @@
 package de.uniluebeck.itm;
 
 import com.vaadin.Application;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Window;
 import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.ui.Controller;
 import de.uniluebeck.itm.ui.UiController;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Soenke Nommensen
  */
 public class WisebedWebUi extends Application {
 
-    final Controller uiController = new UiController();
+    private final Controller uiController = new UiController();
 
     @Override
     public void init() {
         setMainWindow((Window) uiController.view());
         UiUtil.setMainWindow(getMainWindow());
+
+        HttpSession httpSession = ((WebApplicationContext) getContext()).getHttpSession();
     }
 }

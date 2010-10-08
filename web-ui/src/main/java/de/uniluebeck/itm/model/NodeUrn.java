@@ -29,16 +29,16 @@ import java.io.Serializable;
  */
 public class NodeUrn implements Serializable {
 
-    private String _prefix;
-    private String _project;
-    private String _testbed;
-    private String _node;
+    private String prefix;
+    private String project;
+    private String testbed;
+    private String node;
 
     public NodeUrn(String prefix, String project, String testbed, String node) {
-        this._prefix = prefix;
-        this._project = project;
-        this._testbed = testbed;
-        this._node = node;
+        this.prefix = prefix;
+        this.project = project;
+        this.testbed = testbed;
+        this.node = node;
     }
 
     @Override
@@ -47,35 +47,35 @@ public class NodeUrn implements Serializable {
     }
 
     public String getPrefix() {
-        return _prefix;
+        return prefix;
     }
 
     public void setPrefix(String prefix) {
-        this._prefix = prefix;
+        this.prefix = prefix;
     }
 
     public String getProject() {
-        return _project;
+        return project;
     }
 
     public void setProject(String project) {
-        this._project = project;
+        this.project = project;
     }
 
     public String getTestbed() {
-        return _testbed;
+        return testbed;
     }
 
     public void setTestbed(String testbed) {
-        this._testbed = testbed;
+        this.testbed = testbed;
     }
 
     public String getNode() {
-        return _node;
+        return node;
     }
 
     public void setNode(String node) {
-        this._node = node;
+        this.node = node;
     }
 
 }

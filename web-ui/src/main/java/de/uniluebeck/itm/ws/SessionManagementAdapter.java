@@ -37,19 +37,19 @@ import java.util.List;
 public class SessionManagementAdapter {
 
     private static final String SESSION_MANAGEMENT_ENDPOINT_URL = "http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl";
-    private SessionManagement _sessionManagement;
+    private SessionManagement sessionManagement;
 
     public SessionManagementAdapter() {
-        _sessionManagement = WSNServiceHelper.getSessionManagementService(SESSION_MANAGEMENT_ENDPOINT_URL);
+        sessionManagement = WSNServiceHelper.getSessionManagementService(SESSION_MANAGEMENT_ENDPOINT_URL);
     }
 
     public List<String> getNetworkAsString() {
-        return WiseMLHelper.getNodeUrns(_sessionManagement.getNetwork());
+        return WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
     }
 
     public NodeUrnContainer getNetworkAsContainer() throws InstantiationException, IllegalAccessException {
         NodeUrnContainer container = new NodeUrnContainer();
-        List<String> nodes = WiseMLHelper.getNodeUrns(_sessionManagement.getNetwork());
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() liefert WiseML Beschreibung vom Testbed
 
         for (String s : nodes) {
             String[] n = s.split(":");
@@ -63,7 +63,7 @@ public class SessionManagementAdapter {
 
     public List<NodeUrn> getNetworkAsList() throws InstantiationException, IllegalAccessException {
         List<NodeUrn> list = new ArrayList();
-        List<String> nodes = WiseMLHelper.getNodeUrns(_sessionManagement.getNetwork());
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
 
         for (String s : nodes) {
             String[] n = s.split(":");

@@ -34,7 +34,7 @@ public class AuthenticationView extends VerticalLayout {
     private static final String URN_LABEL = "URN (+)";
     private static final String PASSWORD_LABEL = "Password";
     private static final String AUTHENTICATION_BUTTON_LABEL = "Authenticate";
-    private static final String AUTHENTICATION_LABEL = "Authentication";
+    private static final String AUTHENTICATION_LABEL = "Please login";
     private static final String REQUIRED_ERROR_TEXT = "Please provide a valid %s!";
     private static final int COMMON_FIELD_WIDTH_EM = 20;
     
@@ -60,7 +60,7 @@ public class AuthenticationView extends VerticalLayout {
         frmAuthentication.setWriteThrough(false); // we want explicit 'apply'
         frmAuthentication.setInvalidCommitted(false); // no invalid values in login details
 
-        //btnAuthenticate.addStyleName(Reindeer.BUTTON_SMALL);
+        btnAuthenticate.addStyleName(Reindeer.BUTTON_DEFAULT);
 
         txtUsername.setWidth(COMMON_FIELD_WIDTH_EM, UNITS_EM);
         txtUsername.setRequired(true);

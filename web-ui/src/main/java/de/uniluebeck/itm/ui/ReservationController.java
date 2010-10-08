@@ -46,32 +46,32 @@ import java.util.Set;
  */
 public class ReservationController implements Controller {
 
-    private final ReservationView _view;
-    private final Set<Object> _markedRows = new HashSet<Object>();
+    private final ReservationView view;
+    private final Set<Object> markedRows = new HashSet<Object>();
 
     public ReservationController() {
-        _view = new ReservationView();
+        view = new ReservationView();
 
-        _view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
-        _view.tblNetwork.setDragMode(Table.TableDragMode.MULTIROW);
-        _view.tblNetwork.setDropHandler(createTableDropHandler());
-        _view.tblNetwork.addListener(createTableValueChangeListener());
+        view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
+        view.tblNetwork.setDragMode(Table.TableDragMode.MULTIROW);
+        view.tblNetwork.setDropHandler(createTableDropHandler());
+        view.tblNetwork.addListener(createTableValueChangeListener());
 
-        _view.tblReservation.setContainerDataSource(
+        view.tblReservation.setContainerDataSource(
                 initEmptyNodeUrnContainer());
-        _view.tblReservation.setDragMode(Table.TableDragMode.MULTIROW);
-        _view.tblReservation.setDropHandler(createTableDropHandler());
-        _view.tblReservation.addListener(createTableValueChangeListener());
+        view.tblReservation.setDragMode(Table.TableDragMode.MULTIROW);
+        view.tblReservation.setDropHandler(createTableDropHandler());
+        view.tblReservation.addListener(createTableValueChangeListener());
 
-        _view.btnReload.addListener(createReloadButtonListener());
-        _view.btnClearAll.addListener(createClearAllButtonListener());
+        view.btnReload.addListener(createReloadButtonListener());
+        view.btnClearAll.addListener(createClearAllButtonListener());
     }
 
     /**
      * @return Reference to the view
      */
     public ReservationView view() {
-        return _view;
+        return view;
     }
 
     private ClickListener createReloadButtonListener() {
@@ -82,16 +82,16 @@ public class ReservationController implements Controller {
                 NodeUrnContainer container;
                 try {
                     container = sessionManagementAdapter.getNetworkAsContainer();
-                    _view.tblNetwork.setContainerDataSource(container);
+                    view.tblNetwork.setContainerDataSource(container);
                 } catch (InstantiationException ex) {
                     UiUtil.showNotification(
                             UiUtil.createNotificationCenteredTop(
-                                    "Instantiation error", ex.getMessage(),
+                                    "Instantiation error", "<br/>" + ex.getMessage(),
                                     Window.Notification.TYPE_WARNING_MESSAGE));
                 } catch (IllegalAccessException ex) {
                     UiUtil.showNotification(
                             UiUtil.createNotificationCenteredTop(
-                                    "Illegal access error", ex.getMessage(),
+                                    "Illegal access error", "<br/>" + ex.getMessage(),
                                     Window.Notification.TYPE_ERROR_MESSAGE));
                 }
             }
@@ -102,7 +102,7 @@ public class ReservationController implements Controller {
         return new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
-                _view.tblReservation.getContainerDataSource().removeAllItems();
+                view.tblReservation.getContainerDataSource().removeAllItems();
             }
         };
     }
@@ -118,17 +118,17 @@ public class ReservationController implements Controller {
                     return;
                 }
 
-                if (_markedRows.isEmpty()) {
+                if (markedRows.isEmpty()) {
                     ((Table) targetDetails.getTarget()).getContainerDataSource().
                             addItem(transferable.getItemId());
                     transferable.getSourceContainer().removeItem(
                             transferable.getItemId());
                 } else {
-                    for (Object markedRow : _markedRows) {
+                    for (Object markedRow : markedRows) {
                         ((Table) targetDetails.getTarget()).getContainerDataSource().addItem(markedRow);
                         transferable.getSourceContainer().removeItem(markedRow);
                     }
-                    _markedRows.clear();
+                    markedRows.clear();
                 }
             }
 
@@ -148,9 +148,9 @@ public class ReservationController implements Controller {
                  */
                 Set<?> value = (Set<?>) event.getProperty().getValue();
                 if (null != value && !value.isEmpty()) {
-                    _markedRows.clear();
+                    markedRows.clear();
                     for (Object o : value) {
-                        _markedRows.add(o);
+                        markedRows.add(o);
                     }
                 }
             }
@@ -164,12 +164,12 @@ public class ReservationController implements Controller {
         } catch (InstantiationException ex) {
             UiUtil.showNotification(
                     UiUtil.createNotificationCenteredTop(
-                            "Instantiation error", ex.getMessage(),
+                            "Instantiation error", "<br/>" + ex.getMessage(),
                             Window.Notification.TYPE_WARNING_MESSAGE));
         } catch (IllegalAccessException ex) {
             UiUtil.showNotification(
                     UiUtil.createNotificationCenteredTop(
-                            "Illegal access error", ex.getMessage(),
+                            "Illegal access error", "<br/>" + ex.getMessage(),
                             Window.Notification.TYPE_ERROR_MESSAGE));
         }
         return container;

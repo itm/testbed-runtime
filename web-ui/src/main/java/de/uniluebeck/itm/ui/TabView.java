@@ -25,7 +25,7 @@ package de.uniluebeck.itm.ui;
 import com.vaadin.ui.TabSheet;
 
 /**
- * @author soenke
+ * @author Soenke Nommensen
  */
 public class TabView extends TabSheet {
 

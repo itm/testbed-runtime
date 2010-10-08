@@ -35,15 +35,15 @@ import de.uniluebeck.itm.ws.SNAAServiceAdapter;
  */
 public final class AuthenticationController implements Controller {
 
-    private final AuthenticationView _view;
+    private final AuthenticationView view;
 
     public AuthenticationController() {
-        _view = new AuthenticationView();
-        _view.btnAuthenticate.addListener(
+        view = new AuthenticationView();
+        view.btnAuthenticate.addListener(
                 new Button.ClickListener() {
 
                     public void buttonClick(ClickEvent event) {
-                        _view.frmAuthentication.commit();
+                        view.frmAuthentication.commit();
                         startSNAAAuthentication();
                     }
                 });
@@ -53,7 +53,7 @@ public final class AuthenticationController implements Controller {
      * @return Reference to the view
      */
     public VerticalLayout view() {
-        return _view;
+        return view;
     }
 
     /**
@@ -88,14 +88,14 @@ public final class AuthenticationController implements Controller {
     }
 
     private String getUsername() {
-        return _view.txtUsername.getValue().toString().trim();
+        return view.txtUsername.getValue().toString().trim();
     }
 
     private String getPassword() {
-        return _view.txtPassword.getValue().toString().trim();
+        return view.txtPassword.getValue().toString().trim();
     }
 
     private String getUrn() {
-        return _view.txtUrn.getValue().toString().trim();
+        return view.txtUrn.getValue().toString().trim();
     }
 }

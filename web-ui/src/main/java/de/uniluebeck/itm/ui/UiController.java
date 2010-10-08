@@ -31,10 +31,10 @@ public class UiController implements Controller {
     private final Controller tabController = new TabController();
     private final Controller authenticationController = new AuthenticationController();
     private final Controller reservationController = new ReservationController();
-    private final UiView _view;
+    private final UiView view;
 
     public UiController() {
-        _view = new UiView(
+        view = new UiView(
                 toolbarController.view(),
                 tabController.view(),
                 authenticationController.view(),
@@ -42,6 +42,6 @@ public class UiController implements Controller {
     }
 
     public UiView view() {
-        return _view;
+        return view;
     }
 }

@@ -24,6 +24,7 @@ package de.uniluebeck.itm.ui;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
@@ -33,8 +34,11 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class UiView extends Window {
 
+    private static final String APPLICATION_NAME = "WISEBED Experimentation Facility";
     private static final String AUTHENTICATION_TAB_LABEL = "Authentication";
     private static final String RESERVATION_TAB_LABEL = "Reservation";
+    private static final String EXPERIMENTATION_TAB_LABEL = "Experimentation";
+    private static final String ADMINISTRATION_TAB_LABEL = "Administration";
     final VerticalLayout screen;
     final HorizontalLayout toolbar;
     final TabView tabs;
@@ -43,7 +47,7 @@ public class UiView extends Window {
 
     public UiView(AbstractComponent toolbar, AbstractComponent tabs,
             AbstractComponent authentication, AbstractComponent reservation) {
-        super("WISEBED Web UI");
+        super(APPLICATION_NAME);
 
         screen = new VerticalLayout();
         screen.setSizeFull();
@@ -61,10 +65,11 @@ public class UiView extends Window {
 
         this.tabs.addTab(this.authentication, AUTHENTICATION_TAB_LABEL, null);
         this.tabs.addTab(this.reservation, RESERVATION_TAB_LABEL, null);
+        this.tabs.addTab(new Label(EXPERIMENTATION_TAB_LABEL), EXPERIMENTATION_TAB_LABEL, null);
+        this.tabs.addTab(new Label(ADMINISTRATION_TAB_LABEL), ADMINISTRATION_TAB_LABEL, null);
 
         screen.addComponent(this.toolbar);
         screen.addComponent(this.tabs);
         screen.setExpandRatio(this.tabs, 1);
     }
-
 }

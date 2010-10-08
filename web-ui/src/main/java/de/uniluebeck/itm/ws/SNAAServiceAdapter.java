@@ -36,13 +36,13 @@ import java.util.List;
 public class SNAAServiceAdapter implements Serializable {
 
     private static final String SNAA_ENDPOINT_URL = "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl";
-    private SNAA _snaaService;
-    private List<AuthenticationTriple> _authenticationTripleList;
-    private List<SecretAuthenticationKey> _result;
+    private SNAA snaaService;
+    private List<AuthenticationTriple> authenticationTripleList;
+    private List<SecretAuthenticationKey> secretAuthenticationKeyList;
 
     public SNAAServiceAdapter() {
-        _snaaService = SNAAServiceHelper.getSNAAService(SNAA_ENDPOINT_URL);
-        _authenticationTripleList = new ArrayList<AuthenticationTriple>(1);
+        snaaService = SNAAServiceHelper.getSNAAService(SNAA_ENDPOINT_URL);
+        authenticationTripleList = new ArrayList<AuthenticationTriple>(1);
     }
 
     public void addAuthenticationTriple(final String user, final String urn, final String password) {
@@ -50,12 +50,12 @@ public class SNAAServiceAdapter implements Serializable {
         authenticationTriple.setUsername(user);
         authenticationTriple.setUrnPrefix(urn);
         authenticationTriple.setPassword(password);
-        _authenticationTripleList.add(authenticationTriple);
+        authenticationTripleList.add(authenticationTriple);
     }
 
     public void authenticate() throws AuthenticationException {
         try {
-            _result = _snaaService.authenticate(_authenticationTripleList);
+            secretAuthenticationKeyList = snaaService.authenticate(authenticationTripleList);
         } catch (AuthenticationExceptionException ex) {
             throw new AuthenticationException("Authentication failed", ex);
         } catch (SNAAExceptionException ex) {
@@ -65,7 +65,7 @@ public class SNAAServiceAdapter implements Serializable {
         }
     }
 
-    public List<SecretAuthenticationKey> getResult() {
-        return _result;
+    public List<SecretAuthenticationKey> getSecretAuthenticationKeyList() {
+        return secretAuthenticationKeyList;
     }
 }
