@@ -912,7 +912,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
                 }
 
                 if (nodeSerialInterface == null) {
-					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
+					log.warn("{} => No serial interface could be detected for {} node. Retrying in 30 seconds.",
 							nodeUrn, nodeType
 					);
 					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
