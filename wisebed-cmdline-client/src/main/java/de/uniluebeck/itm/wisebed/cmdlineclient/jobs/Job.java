@@ -130,8 +130,9 @@ public class Job {
 			boolean error = isError(s.getValue());
 
 			log.debug(
-					"Status update for {} job with request ID {}: {}.",
+					"Status update from node {} for {} job with request ID {}: {}.",
 					new Object[] {
+						s.getNodeId(),
 						jobType,
 						status.getRequestId(),
 						done ? s.getValue() + " (done)" : error ? s.getValue() + " (error)" : s.getValue()
