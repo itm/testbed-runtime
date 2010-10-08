@@ -85,7 +85,7 @@ abstract class AbstractMoteList implements MoteList {
         searchLower16[0] = (byte) (macAddress >> 8 & 0xFF);
         searchLower16[1] = (byte) (macAddress & 0xFF);
 
-        log.debug("Searching for device with MAC address: {}", StringUtils.toHexString(searchLower16));
+        log.debug("Searching for {} device with MAC address: {}", type, StringUtils.toHexString(searchLower16));
         for (Map.Entry<String, MacAddress> entry : map.entrySet()) {
 
             byte[] found = entry.getValue().getMacBytes();
