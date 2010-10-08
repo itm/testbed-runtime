@@ -11,3 +11,6 @@ scripts/logs/
 .DS_Store
 .idea
 nb-configuration.xml
+.classpath
+.settings
+.project

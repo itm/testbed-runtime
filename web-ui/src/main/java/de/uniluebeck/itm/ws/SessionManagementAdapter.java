@@ -49,7 +49,7 @@ public class SessionManagementAdapter {
 
     public NodeUrnContainer getNetworkAsContainer() throws InstantiationException, IllegalAccessException {
         NodeUrnContainer container = new NodeUrnContainer();
-        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() liefert WiseML Beschreibung vom Testbed
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() provides a WiseML testbed description
 
         for (String s : nodes) {
             String[] n = s.split(":");

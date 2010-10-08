@@ -42,6 +42,7 @@ public class WisebedWebUi extends Application {
         setMainWindow((Window) uiController.view());
         UiUtil.setMainWindow(getMainWindow());
 
+        /* Store login details in http session... */
         HttpSession httpSession = ((WebApplicationContext) getContext()).getHttpSession();
     }
 }
