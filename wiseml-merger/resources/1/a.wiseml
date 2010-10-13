@@ -58,6 +58,20 @@
    </capability>
   </link>
  </setup>
+ <scenario id="0">
+  <timestamp>5</timestamp>
+  <disableLink source="urn:wisebed:node:test:1" target="urn:wisebed:node:test:2"/>
+  <node id="urn:wisebed:node:test:3">
+   <position><coordinate><x>10</x><y>20</y><z>30</z></coordinate></position>
+   <data key="Capability1">999</data>
+  </node>
+  <timestamp>6</timestamp>
+  <enableLink source="urn:wisebed:node:test:1" target="urn:wisebed:node:test:2"/>
+  <timestamp>7</timestamp>
+  <disableLink source="urn:wisebed:node:test:1" target="urn:wisebed:node:test:2"/>
+  <timestamp>8</timestamp>
+  <enableLink source="urn:wisebed:node:test:1" target="urn:wisebed:node:test:2"/>
+ </scenario>
  <trace>
   <timestamp>0</timestamp>
   <node id="urn:wisebed:node:test:1">

@@ -70,6 +70,17 @@
    <rssi datatype="decimal" unit="dBm" default="42.0"/>
   </link>
  </setup>
+ <scenario id="0">
+  <timestamp>0</timestamp>
+   <disableNode id="urn:wisebed:node:test:4"/>
+   <disableNode id="urn:wisebed:node:test:2"/>
+  <timestamp>2010-01-01T10:00:06+01:00</timestamp>
+   <enableNode id="urn:wisebed:node:test:2"/>
+   <disableLink source="urn:wisebed:node:test:2" target="urn:wisebed:node:test:4"/>
+  <timestamp>10000</timestamp>
+   <enableNode id="urn:wisebed:node:test:4"/>
+   <enableLink source="urn:wisebed:node:test:2" target="urn:wisebed:node:test:4"/>
+ </scenario>
  <trace>
   <timestamp>0</timestamp>
   <node id="urn:wisebed:node:test:4">

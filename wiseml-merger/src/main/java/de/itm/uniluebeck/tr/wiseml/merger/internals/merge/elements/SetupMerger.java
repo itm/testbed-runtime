@@ -66,7 +66,10 @@ public class SetupMerger extends WiseMLElementMerger {
 		finished = true;
 	}
 	
-	private WiseMLTreeReader[] getListReaders(WiseMLTag tag) {
+	private static WiseMLTreeReader[] getListReaders(
+			final WiseMLTag tag,
+			final WiseMLTreeReader[] inputs,
+			final boolean[] skip) {
 		boolean found = false;
 		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
@@ -103,7 +106,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	private boolean mergeNodes() {
 		updateInputs();
 		//printInputState("before <node>*");
-		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node);
+		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node, inputs, skip);
 		
 		
 		if (nodeListInputs != null) {
@@ -120,7 +123,7 @@ public class SetupMerger extends WiseMLElementMerger {
 	private boolean mergeLinks() {
 		updateInputs();
 		//printInputState("before <link>*");
-		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link);
+		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link, inputs, skip);
 		
 		
 		if (linkListInputs != null) {

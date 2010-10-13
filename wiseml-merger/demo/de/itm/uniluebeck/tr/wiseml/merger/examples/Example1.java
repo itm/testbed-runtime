@@ -35,14 +35,14 @@ public class Example1 extends Examples {
 		XMLStreamReader inputA = inputFactory.createXMLStreamReader(new FileReader(fileA));
 		XMLStreamReader inputB = inputFactory.createXMLStreamReader(new FileReader(fileB));
 		
-		//debug1(inputA);
+		debug1(inputA);
 		//debug1(inputB);
 		//debug2(inputA, inputB);
 		//debug3(inputA);
 		//debug4(inputA);
 		//debug5(inputA);
 		//debug6(inputA);
-		//System.exit(0);
+		System.exit(0);
 		
 		MergerConfiguration config = new MergerConfiguration();
 		XMLStreamReader merger = WiseMLMergerFactory.createMergingWiseMLStreamReader(config, inputA, inputB);
