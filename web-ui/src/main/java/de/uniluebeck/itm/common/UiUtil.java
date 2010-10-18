@@ -150,4 +150,10 @@ public class UiUtil {
     public static void showNotification(final Window window, final String caption, final String description, final int type) {
         window.showNotification(createNotification(caption, description, type));
     }
+    
+    public static void showExceptionNotification(final Throwable throwable) {
+    	UiUtil.showNotification(UiUtil.createNotificationCenteredTop(
+                        "Instantiation error", "<br/>" + throwable.getMessage(),
+                        Window.Notification.TYPE_WARNING_MESSAGE));
+    }
 }

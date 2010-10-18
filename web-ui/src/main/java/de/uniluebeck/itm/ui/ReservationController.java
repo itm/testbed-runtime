@@ -52,19 +52,19 @@ public class ReservationController implements Controller {
     public ReservationController() {
         view = new ReservationView();
 
-        view.tblNetwork.setContainerDataSource(emptyNodeUrnContainer());
+        view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
         view.tblNetwork.setDragMode(Table.TableDragMode.MULTIROW);
-        view.tblNetwork.setDropHandler(tableDropHandler());
-        view.tblNetwork.addListener(tableValueChangeListener());
+        view.tblNetwork.setDropHandler(createTableDropHandler());
+        view.tblNetwork.addListener(createTableValueChangeListener());
 
         view.tblReservation.setContainerDataSource(
-                emptyNodeUrnContainer());
+                initEmptyNodeUrnContainer());
         view.tblReservation.setDragMode(Table.TableDragMode.MULTIROW);
-        view.tblReservation.setDropHandler(tableDropHandler());
-        view.tblReservation.addListener(tableValueChangeListener());
+        view.tblReservation.setDropHandler(createTableDropHandler());
+        view.tblReservation.addListener(createTableValueChangeListener());
 
-        view.btnReload.addListener(reloadButtonListener());
-        view.btnClearAll.addListener(clearAllButtonListener());
+        view.btnReload.addListener(createReloadButtonListener());
+        view.btnClearAll.addListener(createClearAllButtonListener());
     }
 
     /**
@@ -74,7 +74,7 @@ public class ReservationController implements Controller {
         return view;
     }
 
-    private ClickListener reloadButtonListener() {
+    private ClickListener createReloadButtonListener() {
         return new Button.ClickListener() {
 
             public void buttonClick(Button.ClickEvent event) {
@@ -98,7 +98,7 @@ public class ReservationController implements Controller {
         };
     }
 
-    private ClickListener clearAllButtonListener() {
+    private ClickListener createClearAllButtonListener() {
         return new Button.ClickListener() {
 
             public void buttonClick(ClickEvent event) {
@@ -107,7 +107,7 @@ public class ReservationController implements Controller {
         };
     }
 
-    private DropHandler tableDropHandler() {
+    private DropHandler createTableDropHandler() {
         return new DropHandler() {
 
             public void drop(DragAndDropEvent event) {
@@ -138,7 +138,7 @@ public class ReservationController implements Controller {
         };
     }
 
-    private Table.ValueChangeListener tableValueChangeListener() {
+    private Table.ValueChangeListener createTableValueChangeListener() {
         return new Table.ValueChangeListener() {
 
             public void valueChange(ValueChangeEvent event) {
@@ -157,7 +157,7 @@ public class ReservationController implements Controller {
         };
     }
 
-    private NodeUrnContainer emptyNodeUrnContainer() {
+    private NodeUrnContainer initEmptyNodeUrnContainer() {
         NodeUrnContainer container = null;
         try {
             container = new NodeUrnContainer();

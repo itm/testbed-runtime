@@ -22,13 +22,17 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.ws;
 
-import de.uniluebeck.itm.exception.AuthenticationException;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.uniluebeck.itm.exception.AuthenticationException;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.testbed.api.snaa.v1.SNAA;
+import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
+import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 
 /**
  * @author Soenke Nommensen
@@ -41,8 +45,12 @@ public class SNAAServiceAdapter implements Serializable {
     private List<SecretAuthenticationKey> secretAuthenticationKeyList;
 
     public SNAAServiceAdapter() {
-        snaaService = SNAAServiceHelper.getSNAAService(SNAA_ENDPOINT_URL);
-        authenticationTripleList = new ArrayList<AuthenticationTriple>(1);
+        this(SNAA_ENDPOINT_URL);
+    }
+    
+    public SNAAServiceAdapter(String url) {
+    	snaaService = SNAAServiceHelper.getSNAAService(url);
+    	authenticationTripleList = new ArrayList<AuthenticationTriple>(1);
     }
 
     public void addAuthenticationTriple(final String user, final String urn, final String password) {
@@ -60,8 +68,6 @@ public class SNAAServiceAdapter implements Serializable {
             throw new AuthenticationException("Authentication failed", ex);
         } catch (SNAAExceptionException ex) {
             throw new AuthenticationException("Authentication failed due to an error", ex);
-        } catch (com.sun.xml.internal.ws.client.ClientTransportException ex) {
-            throw new AuthenticationException("Operation timed out", ex);
         }
     }
 

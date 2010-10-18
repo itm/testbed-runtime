@@ -42,6 +42,10 @@ public class SessionManagementAdapter {
     public SessionManagementAdapter() {
         sessionManagement = WSNServiceHelper.getSessionManagementService(SESSION_MANAGEMENT_ENDPOINT_URL);
     }
+    
+    public SessionManagementAdapter(String url) {
+    	sessionManagement = WSNServiceHelper.getSessionManagementService(url);
+    }
 
     public List<String> getNetworkAsString() {
         return WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
@@ -49,7 +53,7 @@ public class SessionManagementAdapter {
 
     public NodeUrnContainer getNetworkAsContainer() throws InstantiationException, IllegalAccessException {
         NodeUrnContainer container = new NodeUrnContainer();
-        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() provides a WiseML testbed description
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() liefert WiseML Beschreibung vom Testbed
 
         for (String s : nodes) {
             String[] n = s.split(":");

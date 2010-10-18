@@ -29,7 +29,7 @@ public class UiController implements Controller {
 
     private final Controller toolbarController = new ToolbarController();
     private final Controller tabController = new TabController();
-    private final Controller authenticationController = new AuthenticationController();
+    private final Controller authenticationController = new AuthenticationController(new AuthenticationView());
     private final Controller reservationController = new ReservationController();
     private final UiView view;
 
