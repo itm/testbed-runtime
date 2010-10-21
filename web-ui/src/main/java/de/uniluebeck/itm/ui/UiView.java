@@ -67,7 +67,6 @@ public class UiView extends Window {
         this.tabs.addTab(this.reservation, RESERVATION_TAB_LABEL, null);
         this.tabs.addTab(new Label(EXPERIMENTATION_TAB_LABEL), EXPERIMENTATION_TAB_LABEL, null);
         this.tabs.addTab(new Label(ADMINISTRATION_TAB_LABEL), ADMINISTRATION_TAB_LABEL, null);
-        this.tabs.addTab(new Label("Maick"), "Maick", null);
 
         screen.addComponent(this.toolbar);
         screen.addComponent(this.tabs);

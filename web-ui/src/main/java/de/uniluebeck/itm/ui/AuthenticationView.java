@@ -22,62 +22,29 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.ui;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 import de.uniluebeck.itm.model.NodeUrn;
 import de.uniluebeck.itm.model.TestbedConfiguration;
+import de.uniluebeck.itm.ui.components.UiLoginForm;
 
 /**
  * @author Soenke Nommensen
  */
 public class AuthenticationView extends VerticalLayout {
 
-    private static final String COMMON_FIELD_WIDTH = "20em";
-
-    private class UserFieldFactory extends DefaultFieldFactory {
-
-        @Override
-        public Field createField(Item item, Object propertyId, Component uiContext) {
-            Field f = super.createField(item, propertyId, uiContext);
-            if ("username".equals(propertyId)) {
-                TextField tf = (TextField) f;
-                tf.setRequired(true);
-                tf.setRequiredError("Please enter a First Name");
-                tf.setWidth(COMMON_FIELD_WIDTH);
-                tf.addValidator(
-                        new StringLengthValidator(
-                                "Username must be 3-25 characters", 3, 25, false));
-            } else if ("password".equals(propertyId)) {
-                TextField tf = (TextField) f;
-                tf.setSecret(true);
-                tf.setRequired(true);
-                tf.setRequiredError("Please enter a password");
-                tf.setWidth(COMMON_FIELD_WIDTH);
-                tf.addValidator(
-                        new StringLengthValidator(
-                                "Password must be 6-20 characters", 6, 20, false));
-            }
-
-            return f;
-        }
-    }
-
-    private static final String AUTHENTICATION_BUTTON_LABEL = "Login";
     private static final String RELOAD_BUTTON_LABEL = "Reload";
-    private static final String AUTHENTICATION_LABEL = "Authentication";
+    private static final String TESTBED_SELECTION_LABEL = "Testbed Selection";
     private static final String CONNECT_BUTTON_LABEL = "Connect to Testbed...";
     /* UI elements */
-    private final Button loginButton = new Button(AUTHENTICATION_BUTTON_LABEL);
-    private final Button reloadButton = new Button(RELOAD_BUTTON_LABEL);
-    private final Button connectButton = new Button(CONNECT_BUTTON_LABEL);
-    private final ListSelect testBeds = new ListSelect("Testbeds");
-    private final Table devices = new Table("Network");
-    private final Form form = new Form();
-    private final Window loginWindow = new Window();
-    private final Panel detailsPanel = new Panel();
+    private final Button btnReload = new Button(RELOAD_BUTTON_LABEL);
+    private final Button btnConnect = new Button(CONNECT_BUTTON_LABEL);
+    private final ListSelect lstTestbedConfigurations = new ListSelect();
+    private final Table tblDevices = new Table();
+    private final LoginForm frmLogin = new UiLoginForm();
+    private final Window wdwLogin = new Window();
+    private final Panel pnlDetails = new Panel();
 
     public AuthenticationView() {
         setSizeFull();
@@ -88,16 +55,17 @@ public class AuthenticationView extends VerticalLayout {
         // Initialize the parent layout.
         final VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
-        initHeader(layout);
 
         final HorizontalLayout innerLayout = new HorizontalLayout();
         innerLayout.setWidth(100, UNITS_PERCENTAGE);
         innerLayout.setSpacing(true);
+        innerLayout.setMargin(true);
         initTestbedSelection(innerLayout);
         initDeviceTable(innerLayout);
         layout.addComponent(innerLayout);
 
-        initAuthenticationWindow(loginWindow);
+        initLoginWindow(wdwLogin);
+
         addComponent(layout);
         setExpandRatio(layout, 1);
     }
@@ -106,107 +74,105 @@ public class AuthenticationView extends VerticalLayout {
         VerticalLayout innerLayout = new VerticalLayout();
         innerLayout.setSpacing(true);
 
-        devices.setWidth(100, UNITS_PERCENTAGE);
-        devices.setHeight(506, UNITS_PIXELS);
-        devices.setContainerDataSource(new BeanItemContainer<NodeUrn>(NodeUrn.class));
-        devices.setNullSelectionAllowed(false);
-        innerLayout.addComponent(devices);
-        innerLayout.addComponent(reloadButton);
-        innerLayout.setComponentAlignment(reloadButton, Alignment.MIDDLE_RIGHT);
+//        tblDevices.setWidth(100, UNITS_PERCENTAGE);
+//        tblDevices.setHeight(506, UNITS_PIXELS);
+       
+        Label lblTestbedInfo = new Label("Testbed Info");
+        lblTestbedInfo.addStyleName(Reindeer.LABEL_H2);
+        innerLayout.addComponent(lblTestbedInfo);
+
+        tblDevices.setSizeFull();
+        tblDevices.setContainerDataSource(new BeanItemContainer<NodeUrn>(NodeUrn.class));
+        tblDevices.setNullSelectionAllowed(false);
+        innerLayout.addComponent(tblDevices);
+       
+
+        innerLayout.addComponent(btnReload);
+        innerLayout.setComponentAlignment(btnReload, Alignment.MIDDLE_RIGHT);
 
         layout.addComponent(innerLayout);
         layout.setExpandRatio(innerLayout, 0.75f);
     }
 
-    private void initHeader(Layout layout) {
-        final Label lblLogin = new Label(AUTHENTICATION_LABEL);
-        lblLogin.addStyleName(Reindeer.LABEL_H2);
-        layout.addComponent(lblLogin);
-        layout.addComponent(new Label("Select a Testbed to connect."));
-    }
-
     private void initTestbedSelection(HorizontalLayout layout) {
         VerticalLayout innerLayout = new VerticalLayout();
         innerLayout.setSpacing(true);
-        testBeds.setWidth(100, UNITS_PERCENTAGE);
-        testBeds.setHeight(250, UNITS_PIXELS);
-        testBeds.setNullSelectionAllowed(false);
-        testBeds.setImmediate(true);
-        testBeds.setContainerDataSource(new BeanItemContainer<TestbedConfiguration>(TestbedConfiguration.class));
-        innerLayout.addComponent(testBeds);
 
-        detailsPanel.setWidth(100, UNITS_PERCENTAGE);
-        detailsPanel.setHeight(250, UNITS_PIXELS);
-        innerLayout.addComponent(detailsPanel);
+        final Label lblTestbedSelection = new Label(TESTBED_SELECTION_LABEL);
+        lblTestbedSelection.addStyleName(Reindeer.LABEL_H2);
+        innerLayout.addComponent(lblTestbedSelection);
 
-        innerLayout.addComponent(connectButton);
-        innerLayout.setComponentAlignment(connectButton, Alignment.MIDDLE_RIGHT);
+        lstTestbedConfigurations.setWidth(100, UNITS_PERCENTAGE);
+        lstTestbedConfigurations.setHeight(50, UNITS_PERCENTAGE);
+        lstTestbedConfigurations.setNullSelectionAllowed(false);
+        lstTestbedConfigurations.setImmediate(true);
+        lstTestbedConfigurations.setContainerDataSource(new BeanItemContainer<TestbedConfiguration>(TestbedConfiguration.class));
+        innerLayout.addComponent(lstTestbedConfigurations);
+
+        pnlDetails.setWidth(100, UNITS_PERCENTAGE);
+        pnlDetails.setHeight(50, UNITS_PERCENTAGE);
+        innerLayout.addComponent(pnlDetails);
+
+        innerLayout.addComponent(btnConnect);
+        innerLayout.setComponentAlignment(btnConnect, Alignment.MIDDLE_RIGHT);
         layout.addComponent(innerLayout);
         layout.setExpandRatio(innerLayout, 0.25f);
     }
 
-    private void initAuthenticationWindow(Window loginWindow) {
-        loginWindow.setModal(true);
-        loginWindow.setWidth(365, UNITS_PIXELS);
-        loginWindow.setHeight(210, UNITS_PIXELS);
-        VerticalLayout panelLayout = (VerticalLayout) loginWindow.getContent();
-        panelLayout.setSpacing(true);
+    private void initLoginWindow(Window window) {
+        window.setModal(true);
+        window.setWidth(330, UNITS_PIXELS);
+        window.setHeight(190, UNITS_PIXELS);
 
-        form.setWriteThrough(false);
-        form.setInvalidCommitted(false);
-        form.setFormFieldFactory(new UserFieldFactory());
-        loginWindow.addComponent(form);
-        loginWindow.addComponent(loginButton);
-        panelLayout.setComponentAlignment(loginButton, Alignment.MIDDLE_RIGHT);
-    }
+        VerticalLayout panelLayout = (VerticalLayout) wdwLogin.getContent();
 
-    public Form getForm() {
-        return form;
+        window.addComponent(frmLogin);
+        panelLayout.setComponentAlignment(frmLogin, Alignment.MIDDLE_CENTER);
     }
 
     public void addTestBed(TestbedConfiguration testbedConfiguration) {
-        testBeds.addItem(testbedConfiguration);
-    }
-
-    public Button getSubmitButton() {
-        return loginButton;
+        lstTestbedConfigurations.addItem(testbedConfiguration);
     }
 
     public Button getReloadButton() {
-        return reloadButton;
+        return btnReload;
     }
 
     public void setDeviceContainer(BeanItemContainer<?> container) {
-        devices.setContainerDataSource(container);
+        tblDevices.setContainerDataSource(container);
     }
 
-    public ListSelect getTestBedSelect() {
-        return testBeds;
+    public ListSelect getTestbedConfigurationSelect() {
+        return lstTestbedConfigurations;
     }
 
     public void clear() {
-        devices.removeAllItems();
+        tblDevices.removeAllItems();
     }
 
     public Button getConnectButton() {
-        return connectButton;
+        return btnConnect;
     }
 
     public Window getLoginWindow() {
-        return loginWindow;
+        return wdwLogin;
     }
 
     public void setShowLoginWindow(boolean visible) {
         if (visible) {
-            getWindow().addWindow(loginWindow);
-            loginWindow.center();
+            getWindow().addWindow(wdwLogin);
+            wdwLogin.center();
         } else {
-            getWindow().removeWindow(loginWindow);
+            getWindow().removeWindow(wdwLogin);
         }
     }
 
     public void setDetailsText(String details) {
-        detailsPanel.removeAllComponents();
-        detailsPanel.addComponent(new Label(details));
+        pnlDetails.removeAllComponents();
+        pnlDetails.addComponent(new Label(details));
+    }
+
+    LoginForm getLoginForm() {
+        return frmLogin;
     }
 }

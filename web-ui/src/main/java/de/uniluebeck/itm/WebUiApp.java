@@ -29,20 +29,20 @@ import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.ui.Controller;
 import de.uniluebeck.itm.ui.UiController;
 import javax.servlet.http.HttpSession;
-import org.vaadin.mvp.eventbus.EventBusManager;
-import org.vaadin.mvp.presenter.IPresenterFactory;
-import org.vaadin.mvp.presenter.PresenterFactory;
+//import org.vaadin.mvp.eventbus.EventBusManager;
+//import org.vaadin.mvp.presenter.IPresenterFactory;
+//import org.vaadin.mvp.presenter.PresenterFactory;
 
 /**
  * @author Soenke Nommensen
  */
 public class WebUiApp extends Application {
 
-    /** Per application (session) event bus manager */
-    private EventBusManager ebm = new EventBusManager();
-    /** Per application presenter factory */
-    private PresenterFactory presenterFactory;
-    // -------------------------------------------
+//    /** Per application (session) event bus manager */
+//    private EventBusManager ebm = new EventBusManager();
+//    /** Per application presenter factory */
+//    private PresenterFactory presenterFactory;
+//    // -------------------------------------------
     private final Controller uiController = new UiController();
 
     @Override
@@ -53,7 +53,7 @@ public class WebUiApp extends Application {
         HttpSession httpSession = ((WebApplicationContext) getContext()).getHttpSession();
     }
 
-    public IPresenterFactory getPresenterFactory() {
-        return this.presenterFactory;
-    }
+//    public IPresenterFactory getPresenterFactory() {
+//        return this.presenterFactory;
+//    }
 }

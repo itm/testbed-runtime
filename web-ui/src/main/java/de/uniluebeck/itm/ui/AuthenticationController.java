@@ -23,16 +23,14 @@
 package de.uniluebeck.itm.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Form;
+import com.vaadin.ui.LoginForm;
+import com.vaadin.ui.LoginForm.LoginEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -54,35 +52,29 @@ public final class AuthenticationController implements Controller {
 
     static {
         TestbedConfiguration testbedConfiguration = new TestbedConfiguration(
-                "Wisebed Federated Testbed",
+                "WISEBED UZL Tested",
                 "http://testbedurl.eu",
-                "Wisebed Fedaration Testbed Description",
+                "WISEBED Testbed in Lübeck, Germany.",
                 "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl",
                 "",
                 "http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl",
-                true);
+                false);
         testbedConfiguration.getUrnPrefixList().add("urn:wisebed:uzl1:");
         TESTBEDS.add(testbedConfiguration);
     }
 
     public AuthenticationController() {
-        view.getSubmitButton().addListener(new ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                onSubmitButtonClick();
-            }
-        });
         view.getConnectButton().addListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
                 onConnectButtonClick();
             }
         });
-        view.getTestBedSelect().addListener(new Property.ValueChangeListener() {
+        view.getTestbedConfigurationSelect().addListener(new Property.ValueChangeListener() {
 
             public void valueChange(ValueChangeEvent event) {
-                TestbedConfiguration bed = (TestbedConfiguration) event.getProperty().getValue();
-                onSelectTestbed(bed);
+                TestbedConfiguration testbedConfiguration = (TestbedConfiguration) event.getProperty().getValue();
+                onSelectTestbedConfiguration(testbedConfiguration);
             }
         });
         view.getReloadButton().addListener(new ClickListener() {
@@ -91,6 +83,12 @@ public final class AuthenticationController implements Controller {
                 if (currentTestbedConfiguration != null) {
                     onLoadNetwork(currentTestbedConfiguration.getSessionmanagementEndointUrl());
                 }
+            }
+        });
+        view.getLoginForm().addListener(new LoginForm.LoginListener() {
+
+            public void onLogin(LoginEvent event) {
+                connectToTestBed(event.getLoginParameter("username"), event.getLoginParameter("password"));
             }
         });
 
@@ -103,23 +101,8 @@ public final class AuthenticationController implements Controller {
     }
 
     private void onConnectButtonClick() {
-        view.getForm().setItemDataSource(new BeanItem<TestbedConfiguration>(currentTestbedConfiguration), Arrays.asList(new String[]{"username", "password"}));
         view.getLoginWindow().setCaption("Login to " + currentTestbedConfiguration.getName());
         view.setShowLoginWindow(true);
-    }
-
-    private void onSubmitButtonClick() {
-        boolean success = true;
-        final Form form = view.getForm();
-        try {
-            form.commit();
-        } catch (Exception e) {
-            view.getLoginWindow().setHeight(240, Sizeable.UNITS_PIXELS);
-            success = false;
-        }
-        if (success) {
-            connectToTestBed(view.getForm().getField("username").getValue() + "", view.getForm().getField("password").getValue() + "");
-        }
     }
 
     private void connectToTestBed(String username, String password) {
@@ -149,7 +132,7 @@ public final class AuthenticationController implements Controller {
         }
     }
 
-    private void onSelectTestbed(TestbedConfiguration testbedConfiguration) {
+    private void onSelectTestbedConfiguration(TestbedConfiguration testbedConfiguration) {
         currentTestbedConfiguration = testbedConfiguration;
 
         String details = testbedConfiguration.getDescription();

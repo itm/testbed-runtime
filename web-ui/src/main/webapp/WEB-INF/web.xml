@@ -12,7 +12,7 @@
         <init-param>
             <description>WISEBED Web UI</description>
             <param-name>application</param-name>
-            <param-value>de.uniluebeck.itm.WisebedWebUi</param-value>
+            <param-value>de.uniluebeck.itm.WebUiApp</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>

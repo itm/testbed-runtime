@@ -1,12 +1,13 @@
 package de.uniluebeck.itm.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Soenke Nommensen
  */
-public class TestbedConfiguration {
+public class TestbedConfiguration implements Serializable {
 
     private String name;
     private String testbedUrl;
@@ -60,5 +61,10 @@ public class TestbedConfiguration {
 
     public boolean isFederated() {
         return isFederated;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }
