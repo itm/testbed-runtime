@@ -1,0 +1,16 @@
+*.ipr
+*.iml
+**/*.iml
+**/**/*.iml
+*.iws
+target/
+**/target/
+**/**/target/
+rs/rs-persistence-jpa/derby.log
+scripts/logs/
+.DS_Store
+.idea
+nb-configuration.xml
+.classpath
+.settings
+.project

@@ -75,6 +75,7 @@
         <module>wisebed-cmdline-client</module>
         <module>wiseml</module>
         <module>wiseml-merger</module>
+        <module>web-ui</module>
 
     </modules>
 
