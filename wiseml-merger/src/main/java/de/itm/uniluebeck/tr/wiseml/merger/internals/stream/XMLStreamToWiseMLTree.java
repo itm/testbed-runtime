@@ -41,7 +41,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		tagMap = new HashMap<String,WiseMLTag>();
 		WiseMLTag[] tags = WiseMLTag.values();
 		for (WiseMLTag tag : tags) {
-			tagMap.put(tag.getLocalName(), tag);
+			tagMap.put(tag.getLocalName().toLowerCase(), tag);
 		}
 		
 		listTagSets = new HashMap<WiseMLTag,List<Set<WiseMLTag>>>();
@@ -114,10 +114,14 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		
 		if (listTags != null) {
 			// read the next element - it will be used later in nextSubElementReader
-			nextChild = new XMLStreamToWiseMLTree(this, reader, findSet(tagMap.get(reader.getLocalName())));
+			nextChild = new XMLStreamToWiseMLTree(this, reader, findSet(localNameToTag(reader.getLocalName())));
 		} else {
 			// read local name
-			tag = tagMap.get(reader.getLocalName());
+			tag = localNameToTag(reader.getLocalName());
+			
+			if (tag == null) {
+				this.exception("unrecognized tag: "+reader.getLocalName(), null);
+			}
 			
 			// read attributes
 			attributeList = new ArrayList<WiseMLAttribute>(reader.getAttributeCount());
@@ -183,7 +187,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 
 		if (isMappedToTag()) {
 			if (reader.isEndElement() 
-					&& tagMap.get(reader.getLocalName()).equals(this.tag)) {
+					&& localNameToTag(reader.getLocalName()).equals(this.tag)) {
 				// the end tag has been reached, no need for skipping
 				finished = true;
 				return false;
@@ -202,7 +206,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		} else {
 			skipToTag();
 		}
-		WiseMLTag nextTag = tagMap.get(reader.getLocalName());
+		WiseMLTag nextTag = localNameToTag(reader.getLocalName()); //tagMap.get(reader.getLocalName());
 		/*
 		if (nextTag.equals(WiseMLTag.link)) {
 			System.err.println("LINK");
@@ -377,6 +381,10 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		}
 		sb.append('}');
 		return sb.toString();
+	}
+	
+	private static WiseMLTag localNameToTag(final String localName) {
+		return tagMap.get(localName.toLowerCase());
 	}
 	
 }

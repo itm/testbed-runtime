@@ -2,10 +2,10 @@
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
  <setup>
   <origin>
-   <coordinate>
+   
     <x>10</x>
     <y>-20</y>
-   </coordinate>
+   
   </origin>
   <timeinfo>
    <start>2010-01-01T10:00:05+01:00</start>
@@ -16,7 +16,7 @@
   <description>Test file 1-b</description>
   <defaults>
    <node>
-    <position><coordinate><x>0</x><y>0</y><z>0</z></coordinate></position>
+    <position><x>0</x><y>0</y><z>0</z></position>
   	<nodeType>Type1</nodeType>
   	<capability>
   	 <name>Capability1</name>
@@ -41,13 +41,13 @@
    </link>
   </defaults>
   <node id="urn:wisebed:node:test:1">
-   <position><coordinate><x>1</x><y>0</y><z>0</z></coordinate></position>
+   <position><x>1</x><y>0</y><z>0</z></position>
   </node>
   <node id="urn:wisebed:node:test:2">
-   <position><coordinate><x>0</x><y>0</y><z>1</z></coordinate></position>
+   <position><x>0</x><y>0</y><z>1</z></position>
   </node>
   <node id="urn:wisebed:node:test:4">
-   <position><coordinate><x>2</x><y>22</y><z>222</z></coordinate></position>
+   <position><x>2</x><y>22</y><z>222</z></position>
    <capability>
   	<name>Capability3</name>
   	<dataType>decimal</dataType>
@@ -92,7 +92,7 @@
   </node>
   <timestamp>9000</timestamp>
   <node id="urn:wisebed:node:test:1">
-   <position><coordinate><x>100</x><y>100</y><z>100</z></coordinate></position>
+   <position><x>100</x><y>100</y><z>100</z></position>
   </node>
  </trace>
 </wiseml>
