@@ -29,20 +29,17 @@ import java.util.List;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Form;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.exception.AuthenticationException;
 import de.uniluebeck.itm.model.NodeUrnContainer;
-import de.uniluebeck.itm.model.Testbed;
+import de.uniluebeck.itm.model.TestbedConfiguration;
 import de.uniluebeck.itm.ws.SNAAServiceAdapter;
 import de.uniluebeck.itm.ws.SessionManagementAdapter;
 
@@ -51,19 +48,21 @@ import de.uniluebeck.itm.ws.SessionManagementAdapter;
  */
 public final class AuthenticationController implements Controller {
 
-    private static final List<Testbed> TESTBEDS = new ArrayList<Testbed>();
+    private static final List<TestbedConfiguration> TESTBEDS = new ArrayList<TestbedConfiguration>();
     private final AuthenticationView view = new AuthenticationView();
-    private Testbed currentTestBed = null;
+    private TestbedConfiguration currentTestbedConfiguration = null;
 
     static {
-        Testbed testbed = new Testbed("Wisebed Federated Testbed",
-                "urn:wisebed:uzl1:",
+        TestbedConfiguration testbedConfiguration = new TestbedConfiguration(
+                "Wisebed Federated Testbed",
+                "http://testbedurl.eu",
                 "Wisebed Fedaration Testbed Description",
                 "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl",
                 "",
                 "http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl",
                 true);
-        TESTBEDS.add(testbed);
+        testbedConfiguration.getUrnPrefixList().add("urn:wisebed:uzl1:");
+        TESTBEDS.add(testbedConfiguration);
     }
 
     public AuthenticationController() {
@@ -82,21 +81,21 @@ public final class AuthenticationController implements Controller {
         view.getTestBedSelect().addListener(new Property.ValueChangeListener() {
 
             public void valueChange(ValueChangeEvent event) {
-                Testbed bed = (Testbed) event.getProperty().getValue();
+                TestbedConfiguration bed = (TestbedConfiguration) event.getProperty().getValue();
                 onSelectTestbed(bed);
             }
         });
         view.getReloadButton().addListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
-                if (currentTestBed != null) {
-                    onLoadNetwork(currentTestBed.getSessionmanagementUrl());
+                if (currentTestbedConfiguration != null) {
+                    onLoadNetwork(currentTestbedConfiguration.getSessionmanagementEndointUrl());
                 }
             }
         });
 
-        for (Testbed bed : TESTBEDS) {
-            view.addTestBed(bed);
+        for (TestbedConfiguration testbedConfiguration : TESTBEDS) {
+            view.addTestBed(testbedConfiguration);
         }
 
         view.getConnectButton().setEnabled(false);
@@ -104,8 +103,8 @@ public final class AuthenticationController implements Controller {
     }
 
     private void onConnectButtonClick() {
-        view.getForm().setItemDataSource(new BeanItem<Testbed>(currentTestBed), Arrays.asList(new String[]{"username", "password"}));
-        view.getLoginWindow().setCaption("Login to " + currentTestBed.getName());
+        view.getForm().setItemDataSource(new BeanItem<TestbedConfiguration>(currentTestbedConfiguration), Arrays.asList(new String[]{"username", "password"}));
+        view.getLoginWindow().setCaption("Login to " + currentTestbedConfiguration.getName());
         view.setShowLoginWindow(true);
     }
 
@@ -119,15 +118,13 @@ public final class AuthenticationController implements Controller {
             success = false;
         }
         if (success) {
-            connectToTestBed(currentTestBed);
+            connectToTestBed(view.getForm().getField("username").getValue() + "", view.getForm().getField("password").getValue() + "");
         }
     }
 
-    private void connectToTestBed(Testbed testbed) {
-        final String username = testbed.getUsername();
-        final String password = testbed.getPassword();
-        final List<String> exceptions = new ArrayList<String>(testbed.getUrnPrefixList().size());
-        for (final String urn : testbed.getUrnPrefixList()) {
+    private void connectToTestBed(String username, String password) {
+        final List<String> exceptions = new ArrayList<String>(currentTestbedConfiguration.getUrnPrefixList().size());
+        for (final String urn : currentTestbedConfiguration.getUrnPrefixList()) {
             try {
                 authenticate(urn, username, password);
             } catch (AuthenticationException e) {
@@ -139,7 +136,7 @@ public final class AuthenticationController implements Controller {
             view.setShowLoginWindow(false);
             UiUtil.showNotification(UiUtil.createNotificationCenteredTop(
                     "Authentication successful", "User: \"" + username
-                    + "\" authenticated for: \"" + currentTestBed.getName() + "\"",
+                    + "\" authenticated for: \"" + currentTestbedConfiguration.getName() + "\"",
                     Window.Notification.TYPE_HUMANIZED_MESSAGE));
         } else {
             String title = "Authentication error";
@@ -152,14 +149,14 @@ public final class AuthenticationController implements Controller {
         }
     }
 
-    private void onSelectTestbed(Testbed testbed) {
-        currentTestBed = testbed;
+    private void onSelectTestbed(TestbedConfiguration testbedConfiguration) {
+        currentTestbedConfiguration = testbedConfiguration;
 
-        String details = testbed.getDescription();
+        String details = testbedConfiguration.getDescription();
 
         view.setDetailsText(details);
-        view.getConnectButton().setEnabled(currentTestBed != null);
-        onLoadNetwork(testbed.getSessionmanagementUrl());
+        view.getConnectButton().setEnabled(currentTestbedConfiguration != null);
+        onLoadNetwork(testbedConfiguration.getSessionmanagementEndointUrl());
     }
 
     private void onLoadNetwork(String url) {
@@ -188,7 +185,7 @@ public final class AuthenticationController implements Controller {
      * @throws AuthenticationException
      */
     private void authenticate(String urn, String username, String password) throws AuthenticationException {
-        SNAAServiceAdapter snaaServiceAdapter = new SNAAServiceAdapter(currentTestBed.getSnaaUrl());
+        SNAAServiceAdapter snaaServiceAdapter = new SNAAServiceAdapter(currentTestbedConfiguration.getSnaaEndpointUrl());
         snaaServiceAdapter.addAuthenticationTriple(username, urn, password);
         snaaServiceAdapter.authenticate();
     }

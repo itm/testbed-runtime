@@ -25,25 +25,10 @@ package de.uniluebeck.itm.ui;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.validator.StringLengthValidator;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
-
 import de.uniluebeck.itm.model.NodeUrn;
-import de.uniluebeck.itm.model.Testbed;
+import de.uniluebeck.itm.model.TestbedConfiguration;
 
 /**
  * @author Soenke Nommensen
@@ -62,21 +47,24 @@ public class AuthenticationView extends VerticalLayout {
                 tf.setRequired(true);
                 tf.setRequiredError("Please enter a First Name");
                 tf.setWidth(COMMON_FIELD_WIDTH);
-                tf.addValidator(new StringLengthValidator(
-                        "Username must be 3-25 characters", 3, 25, false));
+                tf.addValidator(
+                        new StringLengthValidator(
+                                "Username must be 3-25 characters", 3, 25, false));
             } else if ("password".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setSecret(true);
                 tf.setRequired(true);
                 tf.setRequiredError("Please enter a password");
                 tf.setWidth(COMMON_FIELD_WIDTH);
-                tf.addValidator(new StringLengthValidator(
-                        "Password must be 6-20 characters", 6, 20, false));
+                tf.addValidator(
+                        new StringLengthValidator(
+                                "Password must be 6-20 characters", 6, 20, false));
             }
 
             return f;
         }
     }
+
     private static final String AUTHENTICATION_BUTTON_LABEL = "Login";
     private static final String RELOAD_BUTTON_LABEL = "Reload";
     private static final String AUTHENTICATION_LABEL = "Authentication";
@@ -144,7 +132,7 @@ public class AuthenticationView extends VerticalLayout {
         testBeds.setHeight(250, UNITS_PIXELS);
         testBeds.setNullSelectionAllowed(false);
         testBeds.setImmediate(true);
-        testBeds.setContainerDataSource(new BeanItemContainer<Testbed>(Testbed.class));
+        testBeds.setContainerDataSource(new BeanItemContainer<TestbedConfiguration>(TestbedConfiguration.class));
         innerLayout.addComponent(testBeds);
 
         detailsPanel.setWidth(100, UNITS_PERCENTAGE);
@@ -176,8 +164,8 @@ public class AuthenticationView extends VerticalLayout {
         return form;
     }
 
-    public void addTestBed(Testbed bed) {
-        testBeds.addItem(bed);
+    public void addTestBed(TestbedConfiguration testbedConfiguration) {
+        testBeds.addItem(testbedConfiguration);
     }
 
     public Button getSubmitButton() {
