@@ -38,16 +38,16 @@ import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.exception.AuthenticationException;
 import de.uniluebeck.itm.model.NodeUrnContainer;
 import de.uniluebeck.itm.model.TestbedConfiguration;
-import de.uniluebeck.itm.ws.SNAAServiceAdapter;
-import de.uniluebeck.itm.ws.SessionManagementAdapter;
+import de.uniluebeck.itm.services.SNAAServiceAdapter;
+import de.uniluebeck.itm.services.SessionManagementAdapter;
 
 /**
  * @author Soenke Nommensen
  */
-public final class AuthenticationController implements Controller {
+public final class TestbedSelectionController implements Controller {
 
     private static final List<TestbedConfiguration> TESTBEDS = new ArrayList<TestbedConfiguration>();
-    private final AuthenticationView view = new AuthenticationView();
+    private final TestbedSelectionView view = new TestbedSelectionView();
     private TestbedConfiguration currentTestbedConfiguration = null;
 
     static {
@@ -63,7 +63,7 @@ public final class AuthenticationController implements Controller {
         TESTBEDS.add(testbedConfiguration);
     }
 
-    public AuthenticationController() {
+    public TestbedSelectionController() {
         view.getConnectButton().addListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {

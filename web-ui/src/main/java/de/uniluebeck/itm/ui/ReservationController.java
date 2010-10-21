@@ -36,7 +36,8 @@ import com.vaadin.ui.Table.TableTransferable;
 import com.vaadin.ui.Window;
 import de.uniluebeck.itm.common.UiUtil;
 import de.uniluebeck.itm.model.NodeUrnContainer;
-import de.uniluebeck.itm.ws.SessionManagementAdapter;
+import de.uniluebeck.itm.model.TestbedConfiguration;
+import de.uniluebeck.itm.services.SessionManagementAdapter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,23 +49,36 @@ public class ReservationController implements Controller {
 
     private final ReservationView view;
     private final Set<Object> markedRows = new HashSet<Object>();
+    private static String rsEndpointUrl = null;
+
+    static {
+        TestbedConfiguration testbedConfiguration = new TestbedConfiguration(
+                "WISEBED UZL Tested",
+                "http://testbedurl.eu",
+                "WISEBED Testbed in Lübeck, Germany.",
+                "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl",
+                "",
+                "http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl",
+                false);
+        rsEndpointUrl = testbedConfiguration.getRsEndpointUrl();
+    }
 
     public ReservationController() {
         view = new ReservationView();
-
-        view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
-        view.tblNetwork.setDragMode(Table.TableDragMode.MULTIROW);
-        view.tblNetwork.setDropHandler(createTableDropHandler());
-        view.tblNetwork.addListener(createTableValueChangeListener());
-
-        view.tblReservation.setContainerDataSource(
-                initEmptyNodeUrnContainer());
-        view.tblReservation.setDragMode(Table.TableDragMode.MULTIROW);
-        view.tblReservation.setDropHandler(createTableDropHandler());
-        view.tblReservation.addListener(createTableValueChangeListener());
-
-        view.btnReload.addListener(createReloadButtonListener());
-        view.btnClearAll.addListener(createClearAllButtonListener());
+//
+//        view.tblNetwork.setContainerDataSource(initEmptyNodeUrnContainer());
+//        view.tblNetwork.setDragMode(Table.TableDragMode.MULTIROW);
+//        view.tblNetwork.setDropHandler(createTableDropHandler());
+//        view.tblNetwork.addListener(createTableValueChangeListener());
+//
+//        view.tblReservation.setContainerDataSource(
+//                initEmptyNodeUrnContainer());
+//        view.tblReservation.setDragMode(Table.TableDragMode.MULTIROW);
+//        view.tblReservation.setDropHandler(createTableDropHandler());
+//        view.tblReservation.addListener(createTableValueChangeListener());
+//
+//        view.btnReload.addListener(createReloadButtonListener());
+//        view.btnClearAll.addListener(createClearAllButtonListener());
     }
 
     /**
@@ -74,104 +88,104 @@ public class ReservationController implements Controller {
         return view;
     }
 
-    private ClickListener createReloadButtonListener() {
-        return new Button.ClickListener() {
-
-            public void buttonClick(Button.ClickEvent event) {
-                SessionManagementAdapter sessionManagementAdapter = new SessionManagementAdapter();
-                NodeUrnContainer container;
-                try {
-                    container = sessionManagementAdapter.getNetworkAsContainer();
-                    view.tblNetwork.setContainerDataSource(container);
-                } catch (InstantiationException ex) {
-                    UiUtil.showNotification(
-                            UiUtil.createNotificationCenteredTop(
-                                    "Instantiation error", "<br/>" + ex.getMessage(),
-                                    Window.Notification.TYPE_WARNING_MESSAGE));
-                } catch (IllegalAccessException ex) {
-                    UiUtil.showNotification(
-                            UiUtil.createNotificationCenteredTop(
-                                    "Illegal access error", "<br/>" + ex.getMessage(),
-                                    Window.Notification.TYPE_ERROR_MESSAGE));
-                }
-            }
-        };
-    }
-
-    private ClickListener createClearAllButtonListener() {
-        return new Button.ClickListener() {
-
-            public void buttonClick(ClickEvent event) {
-                view.tblReservation.getContainerDataSource().removeAllItems();
-            }
-        };
-    }
-
-    private DropHandler createTableDropHandler() {
-        return new DropHandler() {
-
-            public void drop(DragAndDropEvent event) {
-                TableTransferable transferable = (TableTransferable) event.getTransferable();
-                TargetDetails targetDetails = event.getTargetDetails();
-
-                if (!(transferable.getSourceContainer() instanceof NodeUrnContainer)) {
-                    return;
-                }
-
-                if (markedRows.isEmpty()) {
-                    ((Table) targetDetails.getTarget()).getContainerDataSource().
-                            addItem(transferable.getItemId());
-                    transferable.getSourceContainer().removeItem(
-                            transferable.getItemId());
-                } else {
-                    for (Object markedRow : markedRows) {
-                        ((Table) targetDetails.getTarget()).getContainerDataSource().addItem(markedRow);
-                        transferable.getSourceContainer().removeItem(markedRow);
-                    }
-                    markedRows.clear();
-                }
-            }
-
-            public AcceptCriterion getAcceptCriterion() {
-                return AcceptAll.get();
-            }
-        };
-    }
-
-    private Table.ValueChangeListener createTableValueChangeListener() {
-        return new Table.ValueChangeListener() {
-
-            public void valueChange(ValueChangeEvent event) {
-                /*
-                 * In multiselect mode, a Set of itemIds is returned,
-                 * in singleselect mode the itemId is returned directly
-                 */
-                Set<?> value = (Set<?>) event.getProperty().getValue();
-                if (null != value && !value.isEmpty()) {
-                    markedRows.clear();
-                    for (Object o : value) {
-                        markedRows.add(o);
-                    }
-                }
-            }
-        };
-    }
-
-    private NodeUrnContainer initEmptyNodeUrnContainer() {
-        NodeUrnContainer container = null;
-        try {
-            container = new NodeUrnContainer();
-        } catch (InstantiationException ex) {
-            UiUtil.showNotification(
-                    UiUtil.createNotificationCenteredTop(
-                            "Instantiation error", "<br/>" + ex.getMessage(),
-                            Window.Notification.TYPE_WARNING_MESSAGE));
-        } catch (IllegalAccessException ex) {
-            UiUtil.showNotification(
-                    UiUtil.createNotificationCenteredTop(
-                            "Illegal access error", "<br/>" + ex.getMessage(),
-                            Window.Notification.TYPE_ERROR_MESSAGE));
-        }
-        return container;
-    }
+//    private ClickListener createReloadButtonListener() {
+//        return new Button.ClickListener() {
+//
+//            public void buttonClick(Button.ClickEvent event) {
+//                SessionManagementAdapter sessionManagementAdapter = new SessionManagementAdapter();
+//                NodeUrnContainer container;
+//                try {
+//                    container = sessionManagementAdapter.getNetworkAsContainer();
+//                    view.tblNetwork.setContainerDataSource(container);
+//                } catch (InstantiationException ex) {
+//                    UiUtil.showNotification(
+//                            UiUtil.createNotificationCenteredTop(
+//                            "Instantiation error", "<br/>" + ex.getMessage(),
+//                            Window.Notification.TYPE_WARNING_MESSAGE));
+//                } catch (IllegalAccessException ex) {
+//                    UiUtil.showNotification(
+//                            UiUtil.createNotificationCenteredTop(
+//                            "Illegal access error", "<br/>" + ex.getMessage(),
+//                            Window.Notification.TYPE_ERROR_MESSAGE));
+//                }
+//            }
+//        };
+//    }
+//
+//    private ClickListener createClearAllButtonListener() {
+//        return new Button.ClickListener() {
+//
+//            public void buttonClick(ClickEvent event) {
+//                view.tblReservation.getContainerDataSource().removeAllItems();
+//            }
+//        };
+//    }
+//
+//    private DropHandler createTableDropHandler() {
+//        return new DropHandler() {
+//
+//            public void drop(DragAndDropEvent event) {
+//                TableTransferable transferable = (TableTransferable) event.getTransferable();
+//                TargetDetails targetDetails = event.getTargetDetails();
+//
+//                if (!(transferable.getSourceContainer() instanceof NodeUrnContainer)) {
+//                    return;
+//                }
+//
+//                if (markedRows.isEmpty()) {
+//                    ((Table) targetDetails.getTarget()).getContainerDataSource().
+//                            addItem(transferable.getItemId());
+//                    transferable.getSourceContainer().removeItem(
+//                            transferable.getItemId());
+//                } else {
+//                    for (Object markedRow : markedRows) {
+//                        ((Table) targetDetails.getTarget()).getContainerDataSource().addItem(markedRow);
+//                        transferable.getSourceContainer().removeItem(markedRow);
+//                    }
+//                    markedRows.clear();
+//                }
+//            }
+//
+//            public AcceptCriterion getAcceptCriterion() {
+//                return AcceptAll.get();
+//            }
+//        };
+//    }
+//
+//    private Table.ValueChangeListener createTableValueChangeListener() {
+//        return new Table.ValueChangeListener() {
+//
+//            public void valueChange(ValueChangeEvent event) {
+//                /*
+//                 * In multiselect mode, a Set of itemIds is returned,
+//                 * in singleselect mode the itemId is returned directly
+//                 */
+//                Set<?> value = (Set<?>) event.getProperty().getValue();
+//                if (null != value && !value.isEmpty()) {
+//                    markedRows.clear();
+//                    for (Object o : value) {
+//                        markedRows.add(o);
+//                    }
+//                }
+//            }
+//        };
+//    }
+//
+//    private NodeUrnContainer initEmptyNodeUrnContainer() {
+//        NodeUrnContainer container = null;
+//        try {
+//            container = new NodeUrnContainer();
+//        } catch (InstantiationException ex) {
+//            UiUtil.showNotification(
+//                    UiUtil.createNotificationCenteredTop(
+//                    "Instantiation error", "<br/>" + ex.getMessage(),
+//                    Window.Notification.TYPE_WARNING_MESSAGE));
+//        } catch (IllegalAccessException ex) {
+//            UiUtil.showNotification(
+//                    UiUtil.createNotificationCenteredTop(
+//                    "Illegal access error", "<br/>" + ex.getMessage(),
+//                    Window.Notification.TYPE_ERROR_MESSAGE));
+//        }
+//        return container;
+//    }
 }

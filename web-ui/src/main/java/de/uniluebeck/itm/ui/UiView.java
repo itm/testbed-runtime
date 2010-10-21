@@ -35,7 +35,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class UiView extends Window {
 
     private static final String APPLICATION_NAME = "WISEBED Experimentation Facility";
-    private static final String AUTHENTICATION_TAB_LABEL = "Authentication";
+    private static final String AUTHENTICATION_TAB_LABEL = "Testbeds";
     private static final String RESERVATION_TAB_LABEL = "Reservation";
     private static final String EXPERIMENTATION_TAB_LABEL = "Experimentation";
     private static final String ADMINISTRATION_TAB_LABEL = "Administration";
@@ -46,7 +46,7 @@ public class UiView extends Window {
     final HorizontalLayout reservation;
 
     public UiView(AbstractComponent toolbar, AbstractComponent tabs,
-            AbstractComponent authentication, AbstractComponent reservation) {
+            AbstractComponent authentication, AbstractComponent reservation, AbstractComponent xml) {
         super(APPLICATION_NAME);
 
         screen = new VerticalLayout();
@@ -67,6 +67,7 @@ public class UiView extends Window {
         this.tabs.addTab(this.reservation, RESERVATION_TAB_LABEL, null);
         this.tabs.addTab(new Label(EXPERIMENTATION_TAB_LABEL), EXPERIMENTATION_TAB_LABEL, null);
         this.tabs.addTab(new Label(ADMINISTRATION_TAB_LABEL), ADMINISTRATION_TAB_LABEL, null);
+        this.tabs.addTab(xml, "WiseML Native", null);
 
         screen.addComponent(this.toolbar);
         screen.addComponent(this.tabs);

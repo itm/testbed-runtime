@@ -20,58 +20,61 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
-package de.uniluebeck.itm.ws;
+package de.uniluebeck.itm.services;
 
-import java.io.Serializable;
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.model.NodeUrn;
+import de.uniluebeck.itm.model.NodeUrnContainer;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import de.uniluebeck.itm.exception.AuthenticationException;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 
 /**
  * @author Soenke Nommensen
  */
-public class SNAAServiceAdapter implements Serializable {
+public class SessionManagementAdapter {
 
-    private static final String SNAA_ENDPOINT_URL = "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl";
-    private SNAA snaaService;
-    private List<AuthenticationTriple> authenticationTripleList;
-    private List<SecretAuthenticationKey> secretAuthenticationKeyList;
-
-    public SNAAServiceAdapter() {
-        this(SNAA_ENDPOINT_URL);
-    }
+    private SessionManagement sessionManagement;
     
-    public SNAAServiceAdapter(String url) {
-    	snaaService = SNAAServiceHelper.getSNAAService(url);
-    	authenticationTripleList = new ArrayList<AuthenticationTriple>(1);
+    public SessionManagementAdapter(String url) {
+    	sessionManagement = WSNServiceHelper.getSessionManagementService(url);
     }
 
-    public void addAuthenticationTriple(final String user, final String urn, final String password) {
-        AuthenticationTriple authenticationTriple = new AuthenticationTriple();
-        authenticationTriple.setUsername(user);
-        authenticationTriple.setUrnPrefix(urn);
-        authenticationTriple.setPassword(password);
-        authenticationTripleList.add(authenticationTriple);
+    public List<String> getNetworkAsStringList() {
+        return WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
     }
 
-    public void authenticate() throws AuthenticationException {
-        try {
-            secretAuthenticationKeyList = snaaService.authenticate(authenticationTripleList);
-        } catch (AuthenticationExceptionException ex) {
-            throw new AuthenticationException("Authentication failed", ex);
-        } catch (SNAAExceptionException ex) {
-            throw new AuthenticationException("Authentication failed due to an error", ex);
+    public NodeUrnContainer getNetworkAsContainer() throws InstantiationException, IllegalAccessException {
+        NodeUrnContainer container = new NodeUrnContainer();
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork()); // getNetwork() liefert WiseML Beschreibung vom Testbed
+
+        for (String s : nodes) {
+            String[] n = s.split(":");
+            if (n.length == 4) {
+                container.addBean(new NodeUrn(n[0], n[1], n[2], n[3]));
+            }
         }
+
+        return container;
     }
 
-    public List<SecretAuthenticationKey> getSecretAuthenticationKeyList() {
-        return secretAuthenticationKeyList;
+    public List<NodeUrn> getNetworkAsList() throws InstantiationException, IllegalAccessException {
+        List<NodeUrn> list = new ArrayList();
+        List<String> nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
+
+        for (String s : nodes) {
+            String[] n = s.split(":");
+            if (n.length == 4) {
+                list.add(new NodeUrn(n[0], n[1], n[2], n[3]));
+            }
+        }
+
+        return list;
+    }
+
+    public String getNetworkAsString() throws InstantiationException, IllegalAccessException {
+        return sessionManagement.getNetwork();
     }
 }

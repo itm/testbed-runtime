@@ -32,21 +32,20 @@ import de.uniluebeck.itm.ui.components.UiLoginForm;
 /**
  * @author Soenke Nommensen
  */
-public class AuthenticationView extends VerticalLayout {
+public class TestbedSelectionView extends VerticalLayout {
 
     private static final String RELOAD_BUTTON_LABEL = "Reload";
     private static final String TESTBED_SELECTION_LABEL = "Testbed Selection";
     private static final String CONNECT_BUTTON_LABEL = "Connect to Testbed...";
-    /* UI elements */
     private final Button btnReload = new Button(RELOAD_BUTTON_LABEL);
     private final Button btnConnect = new Button(CONNECT_BUTTON_LABEL);
     private final ListSelect lstTestbedConfigurations = new ListSelect();
-    private final Table tblDevices = new Table();
+    private final Table tblTestbedInfo = new Table();
     private final LoginForm frmLogin = new UiLoginForm();
     private final Window wdwLogin = new Window();
     private final Panel pnlDetails = new Panel();
 
-    public AuthenticationView() {
+    public TestbedSelectionView() {
         setSizeFull();
         setSpacing(true);
         setMargin(true);
@@ -61,7 +60,7 @@ public class AuthenticationView extends VerticalLayout {
         innerLayout.setSpacing(true);
         innerLayout.setMargin(true);
         initTestbedSelection(innerLayout);
-        initDeviceTable(innerLayout);
+        initTestbedInfos(innerLayout);
         layout.addComponent(innerLayout);
 
         initLoginWindow(wdwLogin);
@@ -70,22 +69,21 @@ public class AuthenticationView extends VerticalLayout {
         setExpandRatio(layout, 1);
     }
 
-    private void initDeviceTable(HorizontalLayout layout) {
+    private void initTestbedInfos(HorizontalLayout layout) {
         VerticalLayout innerLayout = new VerticalLayout();
         innerLayout.setSpacing(true);
 
-//        tblDevices.setWidth(100, UNITS_PERCENTAGE);
-//        tblDevices.setHeight(506, UNITS_PIXELS);
-       
+        tblTestbedInfo.setWidth(100, UNITS_PERCENTAGE);
+        tblTestbedInfo.setHeight(506, UNITS_PIXELS);
+
         Label lblTestbedInfo = new Label("Testbed Info");
         lblTestbedInfo.addStyleName(Reindeer.LABEL_H2);
         innerLayout.addComponent(lblTestbedInfo);
 
-        tblDevices.setSizeFull();
-        tblDevices.setContainerDataSource(new BeanItemContainer<NodeUrn>(NodeUrn.class));
-        tblDevices.setNullSelectionAllowed(false);
-        innerLayout.addComponent(tblDevices);
-       
+        tblTestbedInfo.setSizeFull();
+        tblTestbedInfo.setContainerDataSource(new BeanItemContainer<NodeUrn>(NodeUrn.class));
+        tblTestbedInfo.setNullSelectionAllowed(false);
+        innerLayout.addComponent(tblTestbedInfo);
 
         innerLayout.addComponent(btnReload);
         innerLayout.setComponentAlignment(btnReload, Alignment.MIDDLE_RIGHT);
@@ -103,14 +101,14 @@ public class AuthenticationView extends VerticalLayout {
         innerLayout.addComponent(lblTestbedSelection);
 
         lstTestbedConfigurations.setWidth(100, UNITS_PERCENTAGE);
-        lstTestbedConfigurations.setHeight(50, UNITS_PERCENTAGE);
+        lstTestbedConfigurations.setHeight(250, UNITS_PIXELS);
         lstTestbedConfigurations.setNullSelectionAllowed(false);
         lstTestbedConfigurations.setImmediate(true);
         lstTestbedConfigurations.setContainerDataSource(new BeanItemContainer<TestbedConfiguration>(TestbedConfiguration.class));
         innerLayout.addComponent(lstTestbedConfigurations);
 
         pnlDetails.setWidth(100, UNITS_PERCENTAGE);
-        pnlDetails.setHeight(50, UNITS_PERCENTAGE);
+        pnlDetails.setHeight(250, UNITS_PIXELS);
         innerLayout.addComponent(pnlDetails);
 
         innerLayout.addComponent(btnConnect);
@@ -121,7 +119,7 @@ public class AuthenticationView extends VerticalLayout {
 
     private void initLoginWindow(Window window) {
         window.setModal(true);
-        window.setWidth(330, UNITS_PIXELS);
+        window.setWidth(345, UNITS_PIXELS);
         window.setHeight(190, UNITS_PIXELS);
 
         VerticalLayout panelLayout = (VerticalLayout) wdwLogin.getContent();
@@ -139,7 +137,7 @@ public class AuthenticationView extends VerticalLayout {
     }
 
     public void setDeviceContainer(BeanItemContainer<?> container) {
-        tblDevices.setContainerDataSource(container);
+        tblTestbedInfo.setContainerDataSource(container);
     }
 
     public ListSelect getTestbedConfigurationSelect() {
@@ -147,7 +145,7 @@ public class AuthenticationView extends VerticalLayout {
     }
 
     public void clear() {
-        tblDevices.removeAllItems();
+        tblTestbedInfo.removeAllItems();
     }
 
     public Button getConnectButton() {

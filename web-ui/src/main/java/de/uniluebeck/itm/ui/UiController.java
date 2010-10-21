@@ -29,16 +29,18 @@ public class UiController implements Controller {
 
     private final Controller toolbarController = new ToolbarController();
     private final Controller tabController = new TabController();
-    private final Controller authenticationController = new AuthenticationController();
+    private final Controller testbedSelectionController = new TestbedSelectionController();
     private final Controller reservationController = new ReservationController();
+    private final Controller xmlController = new XmlController();
     private final UiView view;
 
     public UiController() {
         view = new UiView(
                 toolbarController.view(),
                 tabController.view(),
-                authenticationController.view(),
-                reservationController.view());
+                testbedSelectionController.view(),
+                reservationController.view(),
+                xmlController.view());
     }
 
     public UiView view() {
