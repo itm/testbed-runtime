@@ -43,6 +43,7 @@ public class EndpointPropertiesTestMap {
         put("shib2.urnprefix", "urn:wisebed1:shib2");
         put("shib2.path", "/snaa/shib2");
         put("shib2.authorization_class", "eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization");
+        put("shib2.authorization.datasource", "eu.wisebed.testbed.api.snaa.authorization.datasource.MySQLDataSource");
         put("shib2.authorization.1.key","homeOrganization");
         put("shib2.authorization.1.value","wisebed1.itm.uni-luebeck.de");
 

@@ -21,86 +21,63 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package eu.wisebed.testbed.api.snaa.authorization;
+package eu.wisebed.testbed.api.snaa.authorization.datasource;
 
-import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
+import de.uniluebeck.itm.tr.util.MySQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+import java.sql.SQLException;
 
-import java.util.List;
-import java.util.Map;
+public class MySQLDataSource implements AuthorizationDataSource {
 
-public class AttributeBasedAuthorization implements IUserAuthorization {
+    private static final Logger log = LoggerFactory.getLogger(MySQLDataSource.class);
 
-    private Map<String, String> attributes;
+    private MySQLConnection connection;
+    private static String dbUser = "root";
+    private static String dbPwd = "";
+    private static String dbUrl = "jdbc:mysql://localhost:3306/snaportal";
 
-    private static final Logger log = LoggerFactory.getLogger(AttributeBasedAuthorization.class);
+    private static String userIDQuery = "SELECT user_id FROM User WHERE user_uid = '{}'";
+    private static String actionIDQuery = "SELECT action_id from Action WHERE action_name = '{}'";
+    private static String subscriptionRole = "SELECT subscription_role FROM Subscription, ActionManager WHERE Subscription.subscription_role = ActionManager.role_id " +
+            " AND Subscription.subscription_user = '{}' AND Subscription.subscription_state ='1' AND ActionManager.action_id = '{}'";
 
-    private AuthorizationDataSource dataSource;
+    //sql-connects
 
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
+    public int getUserId(String user_uid) throws SQLException {
+        return connection.getSingleInt(MessageFormatter.format(userIDQuery, user_uid.trim()), "user_id");
     }
 
-    public void setDataSource(AuthorizationDataSource dataSource) {
-        this.dataSource = dataSource;
+    public int getActionId(String action) throws SQLException {
+        return connection.getSingleInt(MessageFormatter.format(actionIDQuery, action.trim()), "action_id");
     }
+
+    public int getSubscriptionRole(int userId, int actionId) throws Exception {
+        return connection.getSingleInt(MessageFormatter.format(subscriptionRole, userId, actionId), "subscription_role");
+    }
+
 
     @Override
-    public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
-        String puid = null;
-        //check if user is authorised in datasource
+    public boolean isAuthorized(String puid, String action) throws Exception {
         try {
-            //get uid
+            connection = new MySQLConnection(dbUrl, dbUser, dbPwd);
 
-            List<Object> uidList = details.getUserDetails().get("personUniqueID");
-            if (uidList == null) return false;
+            int user_id = getUserId(puid);
+            int action_id = getActionId(action);
 
-            puid = (String) uidList.get(0);
+            //get role for user and action
+            //if no role found for user and action a NullPointerException is thrown
+            getSubscriptionRole(user_id, action_id);
 
-            //check authorization for attribute-Map
-            for (Object key : details.getUserDetails().keySet()) {
-                String regex = getRegex(key);
-                if (regex != null) {
-                    if (!compareValues(regex, details.getUserDetails().get(key))) throw new Exception();
-                }
-            }
-
-            //check datasource
-            return dataSource.isAuthorized(puid, action.getAction());
+            return true;
         }
         catch (Exception e) {
             log.warn(e.getMessage());
             return false;
         }
-    }
-
-
-    private String getRegex(Object key) {
-        if (attributes == null) return null;
-        for (Object keyRegex : attributes.keySet()) {
-            String keyRegexString = (String) keyRegex;
-            if (((String) key).matches(keyRegexString)) {
-                return keyRegexString;
-            }
+        finally {
+            connection.disconnect();
         }
-        return null;
     }
-
-    private boolean compareValues(String regex, List<Object> cmpValues) {
-        for (Object value : cmpValues) {
-            if (!compareValue(regex, value)) {
-                log.warn("no matching of: " + regex + " on " + value);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean compareValue(String regex, Object value) {
-        return (((String) value).matches(attributes.get(regex)));
-    }
-
 }

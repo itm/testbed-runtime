@@ -39,12 +39,14 @@ public class MySQLConnection {
         return statement.executeQuery(s);
     }
 
-    public int getSingleInt(String query, String column) throws SQLException {
+    //returns integer-value for query
+    //if result is empty a NullPointerException is thrown
+    public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
         ResultSet rs = getQuery(query);
         while (rs.next()){
             return rs.getInt(column);
         }
-        throw new SQLException("Warning: Result of query: " + query + " is empty");
+        throw new NullPointerException("Warning: Result of query: " + query + " is empty");
     }
 
     public void disconnect() throws SQLException {

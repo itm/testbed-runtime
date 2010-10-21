@@ -33,6 +33,8 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.MySQLDataSource;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -436,15 +438,27 @@ public class SNAAServer {
 
     }
 
-    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) {
+    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
         ((AttributeBasedAuthorization) authorization).setAttributes(attributes);
+        ((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
     }
 
     private static String authorizationAtt = ".authorization";
     private static String authorizationKeyAtt = ".key";
     private static String authorizationValAtt = ".value";
-    private static String authorizationCompAtt = ".comp";
+    private static String authorizationDataSource = ".datasource";
+
+    private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        for (Object o : props.keySet()){
+            if (o.equals(snaaName + authorizationAtt + authorizationDataSource)){
+                String dataSource = props.getProperty((String) o);
+                return ((AuthorizationDataSource) Class.forName(dataSource).newInstance());
+            }
+        }
+        //set default
+        return new MySQLDataSource();
+    }
 
     private static Map<String, String> createAuthorizationAttributeMap(String snaaName, Properties props) {
         Map<String, String> attributes = new HashMap<String, String>();
