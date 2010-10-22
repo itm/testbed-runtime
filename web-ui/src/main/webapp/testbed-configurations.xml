@@ -1,0 +1,10 @@
+<configurations>
+  <configuration isFederated="false">
+    <name>WISEBED UZL Tested</name>
+    <testbedUrl>http://testbedurl.eu</testbedUrl>
+    <description>WISEBED Testbed in Lübeck, Germany.</description>
+    <snaaEndpointUrl>http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl</snaaEndpointUrl>
+    <sessionmanagementEndointUrl>http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl</sessionmanagementEndointUrl>
+    <urnPrefix>urn:wisebed:uzl1:</urnPrefix>
+  </configuration>
+</configurations>

@@ -4,18 +4,32 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
 /**
  * @author Soenke Nommensen
  */
+@XStreamAlias("configuration")
 public class TestbedConfiguration implements Serializable {
 
     private String name;
+    
     private String testbedUrl;
+    
     private String description;
+    
     private String snaaEndpointUrl;
+    
     private String rsEndpointUrl;
+    
     private String sessionmanagementEndointUrl;
+    
+	@XStreamImplicit(itemFieldName="urnPrefix")
     private List<String> urnPrefixList;
+	
+	@XStreamAsAttribute
     private boolean isFederated;
 
     public TestbedConfiguration(String name, String testbedUrl, String description,
@@ -27,7 +41,7 @@ public class TestbedConfiguration implements Serializable {
         this.snaaEndpointUrl = snaaEndpointUrl;
         this.rsEndpointUrl = rsEndpointUrl;
         this.sessionmanagementEndointUrl = sessionmanagementEndointUrl;
-        this.urnPrefixList = new ArrayList();
+        this.urnPrefixList = new ArrayList<String>();
         this.isFederated = isFederated;
     }
 

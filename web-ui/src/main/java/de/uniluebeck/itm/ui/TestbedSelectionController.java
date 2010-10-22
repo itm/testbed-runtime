@@ -40,28 +40,17 @@ import de.uniluebeck.itm.model.NodeUrnContainer;
 import de.uniluebeck.itm.model.TestbedConfiguration;
 import de.uniluebeck.itm.services.SNAAServiceAdapter;
 import de.uniluebeck.itm.services.SessionManagementAdapter;
+import de.uniluebeck.itm.services.TestbedConfigurationService;
+import de.uniluebeck.itm.services.XmlFileTestbedConfigurationService;
 
 /**
  * @author Soenke Nommensen
  */
 public final class TestbedSelectionController implements Controller {
 
-    private static final List<TestbedConfiguration> TESTBEDS = new ArrayList<TestbedConfiguration>();
+    private List<TestbedConfiguration> testbeds;
     private final TestbedSelectionView view = new TestbedSelectionView();
     private TestbedConfiguration currentTestbedConfiguration = null;
-
-    static {
-        TestbedConfiguration testbedConfiguration = new TestbedConfiguration(
-                "WISEBED UZL Tested",
-                "http://testbedurl.eu",
-                "WISEBED Testbed in Lübeck, Germany.",
-                "http://wisebed.itm.uni-luebeck.de:8890/snaa?wsdl",
-                "",
-                "http://wisebed.itm.uni-luebeck.de:8888/sessions?wsdl",
-                false);
-        testbedConfiguration.getUrnPrefixList().add("urn:wisebed:uzl1:");
-        TESTBEDS.add(testbedConfiguration);
-    }
 
     public TestbedSelectionController() {
         view.getConnectButton().addListener(new ClickListener() {
@@ -92,13 +81,19 @@ public final class TestbedSelectionController implements Controller {
             }
         });
 
-        for (TestbedConfiguration testbedConfiguration : TESTBEDS) {
-            view.addTestBed(testbedConfiguration);
-        }
+        loadConfigurations();
 
         view.getConnectButton().setEnabled(false);
         view.getReloadButton().setEnabled(false);
     }
+    
+	private void loadConfigurations() {
+		TestbedConfigurationService service = new XmlFileTestbedConfigurationService();
+		testbeds = service.getConfigurations();
+		for (TestbedConfiguration bed : testbeds) {
+			view.addTestBed(bed);
+		}
+	}
 
     private void onConnectButtonClick() {
         view.getLoginWindow().setCaption("Login to " + currentTestbedConfiguration.getName());
