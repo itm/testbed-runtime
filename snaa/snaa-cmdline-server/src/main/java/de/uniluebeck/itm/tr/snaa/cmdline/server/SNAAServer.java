@@ -34,7 +34,7 @@ import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.testbed.api.snaa.authorization.datasource.MySQLDataSource;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.MySqlDataSource;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -457,7 +457,7 @@ public class SNAAServer {
             }
         }
         //set default
-        return new MySQLDataSource();
+        return new MySqlDataSource();
     }
 
     private static Map<String, String> createAuthorizationAttributeMap(String snaaName, Properties props) {

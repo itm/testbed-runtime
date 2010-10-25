@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import java.sql.SQLException;
 
-public class MySQLDataSource implements AuthorizationDataSource {
+public class MySqlDataSource implements AuthorizationDataSource {
 
-    private static final Logger log = LoggerFactory.getLogger(MySQLDataSource.class);
+    private static final Logger log = LoggerFactory.getLogger(MySqlDataSource.class);
 
     private MySQLConnection connection;
     private static String dbUser = "root";
