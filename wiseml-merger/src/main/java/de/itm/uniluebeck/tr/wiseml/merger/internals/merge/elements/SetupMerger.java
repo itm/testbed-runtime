@@ -73,7 +73,13 @@ public class SetupMerger extends WiseMLElementMerger {
 		boolean found = false;
 		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
+			if (inputs[i].isFinished()) {
+				continue;
+			}
+			
 			WiseMLTreeReader nextReader = inputs[i].getSubElementReader();
+			
+			
 			if (nextReader.isFinished()) {
 				inputs[i].nextSubElementReader();
 				nextReader = inputs[i].getSubElementReader();
