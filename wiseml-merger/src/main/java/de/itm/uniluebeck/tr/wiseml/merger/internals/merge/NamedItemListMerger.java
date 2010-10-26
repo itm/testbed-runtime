@@ -13,8 +13,8 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 public abstract class NamedItemListMerger extends SortedListMerger<NamedListItem> {
 	
 	private WiseMLTag itemTag;
-	private ListMergingMode mergingMode;
-	private String customID;
+	protected ListMergingMode mergingMode;
+	protected String customID;
 	
 	private boolean[] inputRead;
 	private Set<String> knownIDs;
@@ -30,6 +30,7 @@ public abstract class NamedItemListMerger extends SortedListMerger<NamedListItem
 		
 		this.inputRead = new boolean[inputs.length];
 		this.knownIDs = new HashSet<String>();
+		
 	}
 
 	@Override

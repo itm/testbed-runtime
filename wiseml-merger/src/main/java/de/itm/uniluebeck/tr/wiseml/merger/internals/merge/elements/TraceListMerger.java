@@ -14,7 +14,14 @@ public class TraceListMerger extends NamedItemListMerger {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources, WiseMLTag.trace);
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.trace);
+		this.mergingMode = this.configuration.getTraceListMergingMode();
+		this.customID = this.configuration.getCustomTraceID();
 	}
 
 	@Override

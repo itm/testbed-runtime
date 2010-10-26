@@ -14,7 +14,14 @@ public class ScenarioListMerger extends NamedItemListMerger {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources, WiseMLTag.scenario);
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.scenario);
+		this.mergingMode = this.configuration.getScenarioListMergingMode();
+		this.customID = this.configuration.getCustomScenarioID();
 	}
 
 	@Override
