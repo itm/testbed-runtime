@@ -1,6 +1,7 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.LinkPropertiesTransformer;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodeItemTransformer;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodePropertiesTransformer;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 
@@ -18,6 +19,9 @@ public class MergerResources {
 	private NodePropertiesTransformer nodePropertiesTransformer;
 	private LinkPropertiesTransformer linkPropertiesTransformer;
 	private TimeInfo timeInfo;
+	
+	private NodeItemTransformer nodeItemTransformer;
+	
 	/*
 	public void setOrigins(Coordinate[] inputOrigins, Coordinate outputOrigin) {
 		this.inputOrigins = inputOrigins;
@@ -59,5 +63,15 @@ public class MergerResources {
 	public void setTimeInfo(TimeInfo timeInfo) {
 		this.timeInfo = timeInfo;
 	}
+
+	public NodeItemTransformer getNodeItemTransformer() {
+		return nodeItemTransformer;
+	}
+
+	public void setNodeItemTransformer(NodeItemTransformer nodeItemTransformer) {
+		this.nodeItemTransformer = nodeItemTransformer;
+	}
+
+	
 	
 }

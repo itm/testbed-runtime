@@ -73,4 +73,16 @@ public class TimeStamp {
 		}
 	}
 
+	public void setStart(DateTime start) {
+		this.start = start;
+		computeOffset();
+	}
+
+	public void setUnit(Unit unit) {
+		if (!this.unit.equals(unit)) {
+			this.unit = unit;
+			computeOffset();
+		}
+	}
+
 }

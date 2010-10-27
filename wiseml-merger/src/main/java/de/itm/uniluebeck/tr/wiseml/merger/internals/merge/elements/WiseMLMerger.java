@@ -1,7 +1,5 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.ArrayList;
-
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;

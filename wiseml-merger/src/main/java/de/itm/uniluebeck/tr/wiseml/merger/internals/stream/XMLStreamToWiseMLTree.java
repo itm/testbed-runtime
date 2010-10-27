@@ -58,8 +58,8 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 				WiseMLTag.enableLink,
 				WiseMLTag.disableLink,
 				WiseMLTag.node);
-		addList(WiseMLTag.node, WiseMLTag.data);
-		addList(WiseMLTag.link, WiseMLTag.data);
+		//addList(WiseMLTag.node, WiseMLTag.data);
+		//addList(WiseMLTag.link, WiseMLTag.data);
 	}
 
 	private XMLStreamReader reader;

@@ -22,8 +22,19 @@ public class TraceMerger extends WiseMLElementMerger {
 
 	@Override
 	protected void fillQueue() {
-		// TODO Auto-generated method stub
-		
+		WiseMLTreeReader[] readers = new WiseMLTreeReader[inputs.length];
+		for (int i = 0; i < readers.length; i++) {
+			if (inputs[i].isFinished()) {
+				return;
+			}
+			if (inputs[i].getSubElementReader() == null 
+					&& !inputs[i].nextSubElementReader()) {
+				return;
+			}
+			readers[i] = inputs[i].getSubElementReader();
+		}
+		queue.add(new TraceItemListMerger(
+				this, readers, configuration, resources));
 	}
 
 }

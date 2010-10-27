@@ -154,6 +154,10 @@ public class SetupMerger extends WiseMLElementMerger {
 				new LinkPropertiesTransformer(
 						inputDefaultLinks, 
 						outputDefaultLink));
+		resources.setNodeItemTransformer(
+				new NodeItemTransformer(
+						inputDefaultNodes, 
+						outputDefaultNode));
 		
 		// queue defaults
 		if (outputDefaultNode != null && outputDefaultLink != null) {

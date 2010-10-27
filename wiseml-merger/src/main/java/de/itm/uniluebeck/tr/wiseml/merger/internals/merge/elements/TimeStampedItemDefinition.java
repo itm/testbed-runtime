@@ -3,20 +3,23 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeStamp;
 
-public class ScenarioItemDefinition 
-implements Comparable<ScenarioItemDefinition>{
+public class TimeStampedItemDefinition 
+implements Comparable<TimeStampedItemDefinition>{
 	
 	private TimeStamp timeStamp;
 	private WiseMLTreeReader parentReader;
+	private int inputIndex;
 
-	public ScenarioItemDefinition(TimeStamp timeStamp,
-			WiseMLTreeReader parentReader) {
+	public TimeStampedItemDefinition(TimeStamp timeStamp,
+			WiseMLTreeReader parentReader,
+			int inputIndex) {
 		this.timeStamp = timeStamp;
 		this.parentReader = parentReader;
+		this.inputIndex = inputIndex;
 	}
 
 	@Override
-	public int compareTo(ScenarioItemDefinition o) {
+	public int compareTo(TimeStampedItemDefinition o) {
 		return timeStamp.getInstant().compareTo(o.timeStamp.getInstant());
 	}
 
@@ -26,6 +29,10 @@ implements Comparable<ScenarioItemDefinition>{
 
 	public WiseMLTreeReader getParentReader() {
 		return parentReader;
+	}
+
+	public int getInputIndex() {
+		return inputIndex;
 	}
 
 }

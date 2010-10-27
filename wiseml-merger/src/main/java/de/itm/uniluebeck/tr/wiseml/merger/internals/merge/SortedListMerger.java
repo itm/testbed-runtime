@@ -79,7 +79,10 @@ extends WiseMLListMerger {
 		itemQueue.removeAll(items);
 		
 		// merge and add new reader to queue
-		queue.add(mergeItems(items));
+		WiseMLTreeReader nextReader = mergeItems(items);
+		if (nextReader != null) {
+			queue.add(nextReader);
+		}
 	}
 
 	private void fetchNewItems() {
