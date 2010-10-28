@@ -23,25 +23,44 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.util.concurrent.NamingThreadFactory;
-import de.uniluebeck.itm.tr.util.*;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.WSNPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.util.concurrent.NamingThreadFactory;
+
+import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
+import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.WSNPreconditions;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.Program;
+import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v211.UnsupportedOperationException_Exception;
+import eu.wisebed.testbed.api.wsn.v211.WSN;
 
 
 @WebService(
@@ -489,8 +508,21 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public String getNetwork() {
-		// TODO implement
-		throw new RuntimeException("Not yet implemented.");
+		List<String> networkStrings = new ArrayList<String>();
+		
+		//Collection<WSN> endpoints = nodeUrnPrefixEndpointMapping.values();
+		// TODO: get network definitions, put into networkStrings
+		//executorService.invokeAll(tasks)
+		
+		// Merger configuration (default)
+		MergerConfiguration config = new MergerConfiguration();
+		
+		// return merged network definitions
+		try {
+			return WiseMLMergerHelper.mergeFromStrings(config, networkStrings);
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	// =================================================================================================================
