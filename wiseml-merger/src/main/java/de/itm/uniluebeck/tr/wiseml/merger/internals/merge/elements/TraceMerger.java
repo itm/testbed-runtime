@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
@@ -22,19 +23,11 @@ public class TraceMerger extends WiseMLElementMerger {
 
 	@Override
 	protected void fillQueue() {
-		WiseMLTreeReader[] readers = new WiseMLTreeReader[inputs.length];
-		for (int i = 0; i < readers.length; i++) {
-			if (inputs[i].isFinished()) {
-				return;
-			}
-			if (inputs[i].getSubElementReader() == null 
-					&& !inputs[i].nextSubElementReader()) {
-				return;
-			}
-			readers[i] = inputs[i].getSubElementReader();
-		}
 		queue.add(new TraceItemListMerger(
-				this, readers, configuration, resources));
+				this, 
+				findSequenceReaders(WiseMLSequence.TraceItem), 
+				configuration, 
+				resources));
 	}
 
 }

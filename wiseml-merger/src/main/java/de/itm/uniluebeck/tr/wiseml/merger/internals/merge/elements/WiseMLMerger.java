@@ -1,6 +1,7 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
@@ -8,57 +9,45 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public class WiseMLMerger extends WiseMLElementMerger {
 	
-	private static final int INIT 			= 0;
 	private static final int SETUP 			= 1;
 	private static final int SCENARIOS 		= 2;
-	//private static final int TRACES 		= 3;
+	private static final int TRACES 		= 3;
 	
 	private int state;
 	
-	private boolean[] skip;
-
 	public WiseMLMerger( 
 			WiseMLTreeReader[] inputs,
 			MergerConfiguration configuration) {
 		super(null, inputs, configuration, new MergerResources(), WiseMLTag.wiseml);
-		this.state = INIT;
-		this.skip = new boolean[inputs.length];
+		this.state = SETUP;
 	}
 
 	@Override
 	protected void fillQueue() {
-		if (state == INIT) {
+		if (state == SETUP) {
 			mergeSetups(); // <setup> is required
 			return;
 		}
-		if (state == SETUP && mergeScenarioLists()) {
+		if (state == SCENARIOS && mergeScenarioLists()) {
 			return;
 		}
-		if (state == SCENARIOS && mergeTraceLists()) {
+		if (state == TRACES && mergeTraceLists()) {
 			return;
 		}
 		finished = true;
 	}
 	
 	private void mergeSetups() {
-		skipInputsToTag(WiseMLTag.setup);
-		queue.add(new SetupMerger(this, getInputSubElementReaders(), null, null));
+		queue.add(new SetupMerger(this, findElementReaders(WiseMLTag.setup), null, null));
 		state++;
 	}
 	
 	private boolean mergeScenarioLists() {
-		for (int i = 0; i < inputs.length; i++) {
-			inputs[i].nextSubElementReader();
-		}
+		System.out.println("next: scenario list");
 		
-		// select readers with <scenario> tags
-		//WiseMLTreeReader[] scenarioInputs = getInputElementReadersWithTag(WiseMLTag.scenario);
-		WiseMLTreeReader[] scenarioInputs = getListReaders(WiseMLTag.scenario, inputs, skip);
-		
-		// add list merger to queue
 		queue.add(new ScenarioListMerger(
 				this,
-				scenarioInputs,
+				findSequenceReaders(WiseMLSequence.Scenario),
 				null,
 				null));
 		
@@ -67,16 +56,14 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		
 		return !queue.isEmpty();
 	}
-	
+
 	private boolean mergeTraceLists() {
-		// select readers with <trace> tags
-		//WiseMLTreeReader[] traceInputs = getInputElementReadersWithTag(WiseMLTag.trace);
-		WiseMLTreeReader[] traceInputs = getListReaders(WiseMLTag.trace, inputs, skip);
+		System.out.println("next: trace list");
 		
 		// add list merger to queue
 		queue.add(new TraceListMerger(
 				this,
-				traceInputs,
+				findSequenceReaders(WiseMLSequence.Trace),
 				null,
 				null));
 		
@@ -85,22 +72,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		
 		return !queue.isEmpty();
 	}
-/*
-	private WiseMLTreeReader[] getInputElementReadersWithTag(final WiseMLTag tag) {
-		ArrayList<WiseMLTreeReader> list = new ArrayList<WiseMLTreeReader>();
-		
-		for (int i = 0; i < inputs.length; i++) {
-			if (inputs[i].isMappedToTag()) {
-				WiseMLTreeReader nextReader = inputs[i];
-				if (tag.equals(nextReader.getTag())) {
-					list.add(nextReader);
-				}
-			}
-		}
-
-		return list.toArray(new WiseMLTreeReader[list.size()]);
-	}
-*/
+	/*
 	private WiseMLTreeReader[] getInputSubElementReaders() {
 		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
 		for (int i = 0; i < result.length; i++) {
@@ -108,7 +80,8 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		}
 		return result;
 	}
-	
+	*/
+	/*
 	private void skipInputsToTag(final WiseMLTag tag) {
 		for (int i = 0; i < inputs.length; i++) {
 			while (true) {
@@ -124,6 +97,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 			}
 		}
 	}
+	*/
 /*
 	private WiseMLTreeReader nextTag(WiseMLTreeReader reader) {
 		if (reader == null) {

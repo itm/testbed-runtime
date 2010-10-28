@@ -3,6 +3,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
@@ -19,7 +20,7 @@ public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
+		super(parent, inputs, configuration, resources, WiseMLSequence.SetupLink);
 	}
 
 	@Override
@@ -47,14 +48,10 @@ public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 
 	@Override
 	protected LinkDefinition readNextItem(int inputIndex) {
-		WiseMLTreeReader input = inputs[inputIndex];
-		if (input.isFinished()) {
+		if (!nextSubInputReader(inputIndex)) {
 			return null;
 		}
-		if (input.getSubElementReader() == null && !input.nextSubElementReader()) {
-			return null;
-		}
-		WiseMLTreeReader linkReader = input.getSubElementReader();
+		WiseMLTreeReader linkReader = getSubInputReader(inputIndex);
 		
 		// parse properties and transform
 		LinkProperties properties = 
@@ -69,7 +66,6 @@ public class LinkListMerger extends SortedListMerger<LinkDefinition> {
 						linkReader.getAttributeList(), "target"),
 				properties,
 				inputIndex);
-		input.nextSubElementReader();
 		return result;
 	}
 

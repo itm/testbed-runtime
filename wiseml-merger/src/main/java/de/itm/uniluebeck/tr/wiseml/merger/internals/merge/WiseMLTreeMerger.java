@@ -2,15 +2,18 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 
 public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	
-	protected WiseMLTreeReader[] inputs;
+	private WiseMLTreeReader[] inputs;
 	protected boolean finished;
 	protected WiseMLTreeMerger parent;
 	protected WiseMLTreeReader currentChild;
@@ -19,6 +22,7 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	protected MergerResources resources;
 	
 	protected List<WiseMLTreeReader> queue;
+	private boolean[] hold;
 	
 	protected WiseMLTreeMerger(
 			final WiseMLTreeMerger parent, 
@@ -40,6 +44,41 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 		}
 
 		this.queue = new LinkedList<WiseMLTreeReader>();
+		
+		this.hold = new boolean[inputs.length];
+	}
+	
+	protected boolean isInputFinished(int input) {
+		if (inputs[input] == null) {
+			return true;
+		}
+		return inputs[input].isFinished();
+	}
+	
+	protected void holdInput(int input) {
+		hold[input] = true;
+	}
+	
+	protected boolean nextSubInputReader(int input) {
+		if (hold[input]) {
+			hold[input] = false;
+			return getSubInputReader(input) != null;
+		}
+		if (inputs[input] == null) {
+			return false;
+		}
+		return inputs[input].nextSubElementReader();
+	}
+	
+	protected WiseMLTreeReader getSubInputReader(int input) {
+		if (inputs[input] == null) {
+			return null;
+		}
+		return inputs[input].getSubElementReader();
+	}
+	
+	protected int inputCount() {
+		return inputs.length;
 	}
 
 	@Override
@@ -93,6 +132,43 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 		System.err.println("WARNING: "+message); // TODO
 	}
 	
+	protected final WiseMLTreeReader[] findSequenceReaders(WiseMLSequence sequence) {
+		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
+		for (int i = 0; i < inputs.length; i++) {
+			if (!nextSubInputReader(i)) {
+				continue;
+			}
+			
+			WiseMLTreeReader reader = getSubInputReader(i);
+			if (reader.isList() && reader.getSequence().equals(sequence)) {
+				result[i] = reader;
+			} else {
+				holdInput(i);
+			}
+		}
+		
+		return result;
+	}
+	
+	protected final WiseMLTreeReader[] findElementReaders(WiseMLTag tag) {
+		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
+		for (int i = 0; i < inputs.length; i++) {
+			if (!nextSubInputReader(i)) {
+				continue;
+			}
+			
+			WiseMLTreeReader reader = getSubInputReader(i);
+			if (reader.isMappedToTag() && reader.getTag().equals(tag)) {
+				result[i] = reader;
+			} else {
+				holdInput(i);
+			}
+		}
+		
+		return result;
+	}
+	
+	/*
 	protected static WiseMLTreeReader[] getListReaders(
 			final WiseMLTag tag,
 			final WiseMLTreeReader[] inputs,
@@ -133,5 +209,10 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 		}
 		return found?nodeListInputs:null;
 	}
+*/
 
+	protected final Map<WiseMLTag, Object> getStructures(final int input) {
+		return ParserHelper.getStructures(inputs[input]);
+	}
+	
 }

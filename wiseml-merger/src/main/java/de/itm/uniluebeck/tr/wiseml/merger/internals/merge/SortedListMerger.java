@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
 public abstract class SortedListMerger<ListItem extends Comparable<ListItem>> 
@@ -19,8 +20,9 @@ extends WiseMLListMerger {
 			final WiseMLTreeMerger parent,
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
-			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
+			final MergerResources resources,
+			final WiseMLSequence sequence) {
+		super(parent, inputs, configuration, resources, sequence);
 		
 		bufferedItems = new ArrayList<ListItem>(inputs.length);
 		for (int i = 0; i < inputs.length; i++) {
@@ -86,8 +88,9 @@ extends WiseMLListMerger {
 	}
 
 	private void fetchNewItems() {
-		for (int i = 0; i < inputs.length; i++) {
+		for (int i = 0; i < inputCount(); i++) {
 			if (bufferedItems.get(i) == null) {
+				/*
 				if (inputs[i] != null) {
 					if (inputs[i].isFinished()) {
 						inputs[i] = null;
@@ -101,6 +104,12 @@ extends WiseMLListMerger {
 						continue;
 					}
 					
+					bufferedItems.set(i, item);
+					itemQueue.add(item);
+				}
+				*/
+				ListItem item = readNextItem(i);
+				if (item != null) {
 					bufferedItems.set(i, item);
 					itemQueue.add(item);
 				}

@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.NodeItemParser;
@@ -18,7 +19,7 @@ extends TimeStampedItemListMerger {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
+		super(parent, inputs, configuration, resources, WiseMLSequence.ScenarioItem);
 	}
 
 	@Override

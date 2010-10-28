@@ -3,6 +3,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 import java.util.Collection;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
@@ -22,21 +23,17 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 			final WiseMLTreeMerger parent,
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
-			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
+			final MergerResources resources,
+			final WiseMLSequence sequence) {
+		super(parent, inputs, configuration, resources, sequence);
 	}
 
 	@Override
 	protected TimeStampedItemDefinition readNextItem(int inputIndex) {
-		WiseMLTreeReader input = inputs[inputIndex];
-		if (input.isFinished()) {
+		if (!nextSubInputReader(inputIndex)) {
 			return null;
 		}
-		if (input.getSubElementReader() == null 
-				&& !input.nextSubElementReader()) {
-			return null;
-		}
-		WiseMLTreeReader timestampReader = input.getSubElementReader();
+		WiseMLTreeReader timestampReader = getSubInputReader(inputIndex);
 		
 		if (!WiseMLTag.timestamp.equals(timestampReader.getTag())) {
 			throw new IllegalStateException(
@@ -52,10 +49,7 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 				timestampReader,
 				resources.getTimeInfo()).getParsedStructure();
 		
-		inputs[inputIndex].nextSubElementReader();
-		
-		return new TimeStampedItemDefinition(
-				timestamp, inputs[inputIndex], inputIndex);
+		return new TimeStampedItemDefinition(timestamp, inputIndex);
 	}
 	
 	@Override
@@ -64,12 +58,16 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 			super.fillQueue();
 		} else {
 			for (TimeStampedItemDefinition item : this.items) {
-				WiseMLTreeReader reader = 
-					item.getParentReader().getSubElementReader();
-				if (reader != null) {
-					if (!reader.getTag().equals(WiseMLTag.timestamp)) {
-						handleReader(reader, item.getInputIndex());
-						item.getParentReader().nextSubElementReader();
+				int input = item.getInputIndex();
+				if (nextSubInputReader(input)) {
+					WiseMLTreeReader reader = getSubInputReader(input);
+					
+					System.out.println("next reader for input "+input+": "+reader);
+					
+					if (reader.getTag().equals(WiseMLTag.timestamp)) {
+						holdInput(item.getInputIndex());
+					} else {
+						handleReader(reader, input);
 					}
 				}
 			}

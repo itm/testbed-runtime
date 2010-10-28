@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 
 public abstract class WiseMLStructureReader implements WiseMLTreeReader {
@@ -96,6 +97,11 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 			subElementIndex++;
 			return !isFinished();
 		}
+
+		@Override
+		public WiseMLSequence getSequence() {
+			return null;
+		}
 	}
 	
 	private Element element;
@@ -171,5 +177,10 @@ public abstract class WiseMLStructureReader implements WiseMLTreeReader {
 	
 	public Element getTopElement() {
 		return element;
+	}
+
+	@Override
+	public WiseMLSequence getSequence() {
+		return null;
 	}
 }

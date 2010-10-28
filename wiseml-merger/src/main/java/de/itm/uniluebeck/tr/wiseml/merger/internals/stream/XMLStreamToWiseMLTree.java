@@ -2,7 +2,6 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.stream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderException;
@@ -34,7 +34,9 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	/**
 	 * Defines which tags start a sequence in a given parent tag.
 	 */
-	private static Map<WiseMLTag,List<Set<WiseMLTag>>> listTagSets;
+	//private static Map<WiseMLTag,List<Set<WiseMLTag>>> listTagSets;
+	
+	private static Map<WiseMLTag,List<WiseMLSequence>> tagSequenceMap;
 	
 	// create maps
 	static {
@@ -44,6 +46,17 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 			tagMap.put(tag.getLocalName().toLowerCase(), tag);
 		}
 		
+		tagSequenceMap = new HashMap<WiseMLTag,List<WiseMLSequence>>();
+		addSequence(WiseMLTag.wiseml, WiseMLSequence.Scenario);
+		addSequence(WiseMLTag.wiseml, WiseMLSequence.Trace);
+		addSequence(WiseMLTag.node, WiseMLSequence.NodePropertiesCapability);
+		addSequence(WiseMLTag.link, WiseMLSequence.LinkPropertiesCapability);
+		addSequence(WiseMLTag.setup, WiseMLSequence.SetupNode);
+		addSequence(WiseMLTag.setup, WiseMLSequence.SetupLink);
+		addSequence(WiseMLTag.scenario, WiseMLSequence.ScenarioItem);
+		addSequence(WiseMLTag.trace, WiseMLSequence.TraceItem);
+		
+		/*
 		listTagSets = new HashMap<WiseMLTag,List<Set<WiseMLTag>>>();
 		addList(WiseMLTag.wiseml, WiseMLTag.scenario);
 		addList(WiseMLTag.wiseml, WiseMLTag.trace);
@@ -60,6 +73,11 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 				WiseMLTag.node);
 		//addList(WiseMLTag.node, WiseMLTag.data);
 		//addList(WiseMLTag.link, WiseMLTag.data);
+		addList(WiseMLTag.trace,
+				WiseMLTag.timestamp,
+				WiseMLTag.node,
+				WiseMLTag.link);
+		*/
 	}
 
 	private XMLStreamReader reader;
@@ -78,12 +96,15 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	private String text;
 	private List<WiseMLAttribute> attributeList;
 	
+	private WiseMLSequence sequence;
+	
 	/**
 	 * If the current object is supposed to read a list, the tag of
 	 * each sub-element must be in this set. Otherwise, the list
 	 * is pronounced finished.
 	 */
 	private Set<WiseMLTag> listTags;
+
 
 	/**
 	 * Creates a WiseMLTreeReader which reads from a
@@ -103,18 +124,23 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	private XMLStreamToWiseMLTree(
 			final XMLStreamToWiseMLTree parent, 
 			final XMLStreamReader reader, 
-			final Set<WiseMLTag> listTags) {
+			final WiseMLSequence sequence) {
 		// precondition: reader must be at a start tag
 		
 		this.parent = parent;
 		this.reader = reader;
-		this.listTags = listTags;
 		finished = false;
 		currentChild = null;
 		
-		if (listTags != null) {
+		if (sequence != null) {
+			this.listTags = sequence.getTagSet();
+			this.sequence = sequence;
+			
 			// read the next element - it will be used later in nextSubElementReader
-			nextChild = new XMLStreamToWiseMLTree(this, reader, findSet(localNameToTag(reader.getLocalName())));
+			nextChild = new XMLStreamToWiseMLTree(
+					this, 
+					reader, 
+					findSequence(localNameToTag(reader.getLocalName())));
 		} else {
 			// read local name
 			tag = localNameToTag(reader.getLocalName());
@@ -215,7 +241,8 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		if (isList()) {
 			if (reader.isStartElement()) {
 				if (listTags.contains(nextTag)) {
-					currentChild = new XMLStreamToWiseMLTree(this, reader, findSet(nextTag));
+					currentChild = new XMLStreamToWiseMLTree(
+							this, reader, findSequence(nextTag));
 					return true;
 				} else {
 					// next tag does not belong to this list => finished
@@ -235,7 +262,8 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 			}
 		} else {
 			if (reader.isStartElement()) {
-				currentChild = new XMLStreamToWiseMLTree(this, reader, findSet(nextTag));
+				currentChild = new XMLStreamToWiseMLTree(
+						this, reader, findSequence(nextTag));
 				return true;
 			} else {
 				if (nextTag.equals(this.tag)) {
@@ -249,7 +277,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		}
 	}
 	
-	/**
+	/*
 	 * If the tag of a child element matches one from one of the
 	 * sets defined for the tag of this object to start a new list,
 	 * that set is returned.
@@ -257,7 +285,8 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	 * @param tag Tag of a child element
 	 * @return Set of tags for the next list or null for no list.
 	 */
-	private Set<WiseMLTag> findSet(WiseMLTag tag) {
+	private WiseMLSequence findSequence(WiseMLTag tag) {
+		/*
 		List<Set<WiseMLTag>> sets = listTagSets.get(this.tag);
 		if (sets == null) {
 			return null;
@@ -269,6 +298,18 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 			}
 		}
 		
+		return null;
+		*/
+		List<WiseMLSequence> sequences = tagSequenceMap.get(this.tag);
+		if (sequences == null) {
+			return null;
+		}
+		
+		for (WiseMLSequence sequence : sequences) {
+			if (sequence.getTagSet().contains(tag)) {
+				return sequence;
+			}
+		}
 		return null;
 	}
 
@@ -345,7 +386,7 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	 * @param container
 	 * @param listItemTags
 	 */
-	private static void addList(WiseMLTag container, WiseMLTag... listItemTags) {
+	/*private static void addList(WiseMLTag container, WiseMLTag... listItemTags) {
 		List<Set<WiseMLTag>> sets = listTagSets.get(container);
 		if (sets == null) {
 			sets = new LinkedList<Set<WiseMLTag>>();
@@ -356,6 +397,15 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 			set.add(tag);
 		}
 		sets.add(set);
+	}*/
+	
+	private static void addSequence(WiseMLTag parent, WiseMLSequence sequence) {
+		List<WiseMLSequence> sequences = tagSequenceMap.get(parent);
+		if (sequences == null) {
+			sequences = new LinkedList<WiseMLSequence>();
+			tagSequenceMap.put(parent, sequences);
+		}
+		sequences.add(sequence);
 	}
 	
 	@Override
@@ -364,10 +414,13 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 		if (isList()) {
 			sb.append("[list]");
 			sb.append('[');
+			/*
 			for (WiseMLTag tag : listTags) {
 				sb.append(tag);
 				sb.append(' ');
 			}
+			*/
+			sb.append(sequence);
 			sb.append(']');
 		} else {
 			sb.append("[tag]");
@@ -385,6 +438,11 @@ public class XMLStreamToWiseMLTree implements WiseMLTreeReader {
 	
 	private static WiseMLTag localNameToTag(final String localName) {
 		return tagMap.get(localName.toLowerCase());
+	}
+
+	@Override
+	public WiseMLSequence getSequence() {
+		return sequence;
 	}
 	
 }

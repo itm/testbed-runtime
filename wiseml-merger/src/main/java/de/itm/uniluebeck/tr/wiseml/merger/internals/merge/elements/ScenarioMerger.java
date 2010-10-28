@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
@@ -22,18 +23,23 @@ public class ScenarioMerger extends WiseMLElementMerger {
 
 	@Override
 	protected void fillQueue() {
-		WiseMLTreeReader[] readers = new WiseMLTreeReader[inputs.length];
+		/*
+		WiseMLTreeReader[] readers = new WiseMLTreeReader[inputCount()];
 		for (int i = 0; i < readers.length; i++) {
-			if (inputs[i].isFinished()) {
-				return;
+			if (nextSubInputReader(i)) {
+				readers[i] = getSubInputReader(i);
 			}
-			if (inputs[i].getSubElementReader() == null 
-					&& !inputs[i].nextSubElementReader()) {
-				return;
-			}
-			readers[i] = inputs[i].getSubElementReader();
 		}
+		*/
+		// TODO: problem: when is this supposed to finish?
+		queue.add(new ScenarioItemListMerger(
+				this, 
+				findSequenceReaders(WiseMLSequence.ScenarioItem), 
+				configuration, 
+				resources));
+		/*
 		queue.add(new ScenarioItemListMerger(
 				this, readers, configuration, resources));
+			*/
 	}
 }
