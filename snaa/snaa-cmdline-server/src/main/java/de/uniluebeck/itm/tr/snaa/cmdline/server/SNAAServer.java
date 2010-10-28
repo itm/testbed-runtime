@@ -34,7 +34,7 @@ import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.testbed.api.snaa.authorization.datasource.MySqlDataSource;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("restriction")
 public class SNAAServer {
 
-	private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
+    private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
     private static final String shibbolethSecretUserKeyUrl = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
 
@@ -448,16 +448,35 @@ public class SNAAServer {
     private static String authorizationKeyAtt = ".key";
     private static String authorizationValAtt = ".value";
     private static String authorizationDataSource = ".datasource";
+    private static String authorizationDataSourceUsername = ".username";
+    private static String authorizationDataSourcePassword = ".password";
+    private static String authorizationDataSourceUrl = ".url";
 
     private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        for (Object o : props.keySet()){
-            if (o.equals(snaaName + authorizationAtt + authorizationDataSource)){
-                String dataSource = props.getProperty((String) o);
-                return ((AuthorizationDataSource) Class.forName(dataSource).newInstance());
+        for (Object o : props.keySet()) {
+            String dataSourceName = snaaName + authorizationAtt + authorizationDataSource;
+            if (o.equals(dataSourceName)) {
+                AuthorizationDataSource dataSource = (AuthorizationDataSource) Class.forName(props.getProperty((String) o)).newInstance();
+
+                String dataSourceUsername = props.getProperty(dataSourceName + authorizationDataSourceUsername);
+                String dataSourcePassword = props.getProperty(dataSourceName + authorizationDataSourcePassword);
+                String dataSourceUrl = props.getProperty(dataSourceName + authorizationDataSourceUrl);
+
+                if (dataSourceUsername != null) {
+                    dataSource.setUsername(dataSourceUsername);
+                }
+                if (dataSourcePassword != null) {
+                    dataSource.setPassword(dataSourcePassword);
+                }
+                if (dataSourceUrl != null) {
+                    dataSource.setUrl(dataSourceUrl);
+                }
+
+                return dataSource;
             }
         }
         //set default
-        return new MySqlDataSource();
+        return new ShibbolethDataSource();
     }
 
     private static Map<String, String> createAuthorizationAttributeMap(String snaaName, Properties props) {
@@ -471,14 +490,14 @@ public class SNAAServer {
             }
         }
 
-        for (String k : keys){
+        for (String k : keys) {
             String key = props.getProperty(k);
             //getting plain key-number from properties
             String plainKeyProperty = k.replaceAll(snaaName + authorizationAtt + ".", "");
             plainKeyProperty = plainKeyProperty.replaceAll(authorizationKeyAtt, "");
 
             String keyPrefix = snaaName + authorizationAtt + "." + plainKeyProperty;
-            
+
             //building value-property-string
             String value = props.getProperty(keyPrefix + authorizationValAtt);
 

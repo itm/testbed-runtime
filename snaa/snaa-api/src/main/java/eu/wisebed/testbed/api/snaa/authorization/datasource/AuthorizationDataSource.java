@@ -24,5 +24,8 @@
 package eu.wisebed.testbed.api.snaa.authorization.datasource;
 
 public interface AuthorizationDataSource {
+    public void setUsername(String username);
+    public void setPassword(String password);
+    public void setUrl(String url);
     public boolean isAuthorized(String puid, String action) throws Exception;
 }

@@ -29,14 +29,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import java.sql.SQLException;
 
-public class MySqlDataSource implements AuthorizationDataSource {
+public class ShibbolethDataSource implements AuthorizationDataSource {
 
-    private static final Logger log = LoggerFactory.getLogger(MySqlDataSource.class);
+    private static final Logger log = LoggerFactory.getLogger(ShibbolethDataSource.class);
 
     private MySQLConnection connection;
-    private static String dbUser = "root";
-    private static String dbPwd = "";
-    private static String dbUrl = "jdbc:mysql://localhost:3306/snaportal";
+    private String dbUser;
+    private String dbPwd;
+    private String dbUrl;
 
     private static String userIDQuery = "SELECT user_id FROM User WHERE user_uid = '{}'";
     private static String actionIDQuery = "SELECT action_id from Action WHERE action_name = '{}'";
@@ -57,6 +57,21 @@ public class MySqlDataSource implements AuthorizationDataSource {
         return connection.getSingleInt(MessageFormatter.format(subscriptionRole, userId, actionId), "subscription_role");
     }
 
+
+    @Override
+    public void setUsername(String username) {
+        this.dbUser = username;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.dbPwd = password;
+    }
+
+    @Override
+    public void setUrl(String url) {
+        this.dbUrl = url;
+    }
 
     @Override
     public boolean isAuthorized(String puid, String action) throws Exception {
