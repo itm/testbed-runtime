@@ -54,6 +54,9 @@ extends SortedListMerger<ScenarioItemDefinition>{
 	protected WiseMLTreeReader mergeItems(
 			Collection<ScenarioItemDefinition> items) {
 		// TODO Auto-generated method stub
+		
+		System.err.println("mergeItems");
+		
 		return null;
 	}
 

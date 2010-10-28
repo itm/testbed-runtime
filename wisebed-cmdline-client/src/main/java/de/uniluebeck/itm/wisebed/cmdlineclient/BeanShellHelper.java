@@ -33,6 +33,8 @@ import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.Program;
 import eu.wisebed.testbed.api.wsn.v211.ProgramMetaData;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -40,14 +42,15 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class
-		BeanShellHelper {
+public class BeanShellHelper {
+
+	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
 
 	private static Program readProgram(String pathname, String name, final String other, final String platform,
 									   final String version) throws Exception {
@@ -210,6 +213,78 @@ public class
 		b.append("]");
 
 		return b.toString();
+	}
+
+	public static Vector<String> getExternalHostIps() {
+		HashSet<String> ips = new HashSet<String>();
+		Vector<String> external = new Vector<String>();
+
+		try {
+			InetAddress i;
+			NetworkInterface iface = null;
+
+			for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+				iface = (NetworkInterface) ifaces.nextElement();
+				for (Enumeration ifaceips = iface.getInetAddresses(); ifaceips.hasMoreElements();) {
+					i = (InetAddress) ifaceips.nextElement();
+					if (i instanceof Inet4Address)
+						ips.add(i.getHostAddress());
+				}
+			}
+
+		} catch (Throwable t) {
+			log.error("Unable to retrieve external ips: " + t, t);
+
+			try {
+				log.debug("Trying different lookup scheme");
+
+				InetAddress li = InetAddress.getLocalHost();
+				String strli = li.getHostName();
+				InetAddress ia[] = InetAddress.getAllByName(strli);
+				for (int i = 0; i < ia.length; i++)
+					ips.add(ia[i].getHostAddress());
+			} catch (Throwable t2) {
+				log.error("Also unable to retrieve external ips: " + t2, t2);
+			}
+
+		}
+
+		for (String ip : ips)
+			if (isExternalIp(ip)) {
+				log.debug("Found external ip: " + ip);
+				external.add(ip);
+			}
+
+		return external;
+	}
+	
+	/**
+	 * 127.0.0.0   - 127.255.255.255 (localhost)
+	 * 10.0.0.0    - 10.255.255.255  (10/8 prefix)
+	 * 172.16.0.0  - 172.31.255.255  (172.16/12 prefix)
+	 * 192.168.0.0 - 192.168.255.255 (192.168/16 prefix)
+	 *
+	 * @param ip
+	 * @return
+	 */
+	public static boolean isExternalIp(String ip) {
+		boolean external = true;
+
+		if (ip == null)
+			external = false;
+		else if (ip.startsWith("127."))
+			external = false;
+		else if (ip.startsWith("10."))
+			external = false;
+		else if (ip.startsWith("192.168."))
+			external = false;
+
+		for (int i = 16; i <= 31; ++i)
+			if (ip.startsWith("172." + i + "."))
+				external = false;
+
+		log.debug("IP " + ip + " is an " + (external ? "external" : "internal") + " address");
+		return external;
 	}
 
 }

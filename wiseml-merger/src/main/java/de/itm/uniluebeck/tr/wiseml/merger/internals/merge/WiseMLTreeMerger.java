@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 
@@ -90,6 +91,47 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	
 	protected void warn(String message) {
 		System.err.println("WARNING: "+message); // TODO
+	}
+	
+	protected static WiseMLTreeReader[] getListReaders(
+			final WiseMLTag tag,
+			final WiseMLTreeReader[] inputs,
+			final boolean[] skip) {
+		for (int i = 0; i < skip.length; i++) {
+			if (skip[i]) {
+				inputs[i].nextSubElementReader();
+				skip[i] = false;
+			}
+		}
+		
+		boolean found = false;
+		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
+		for (int i = 0; i < inputs.length; i++) {
+			if (inputs[i].isFinished()) {
+				continue;
+			}
+			
+			WiseMLTreeReader nextReader = inputs[i].getSubElementReader();
+			
+			
+			if (nextReader.isFinished()) {
+				inputs[i].nextSubElementReader();
+				nextReader = inputs[i].getSubElementReader();
+			}
+			if (nextReader.isList()) {
+				if (nextReader.getSubElementReader() == null) {
+					if (!nextReader.nextSubElementReader()) {
+						return null;
+					}
+				}
+				if (nextReader.getSubElementReader().getTag().equals(tag)) {
+					found = true;
+					nodeListInputs[i] = nextReader;
+					skip[i] = true;
+				}
+			}
+		}
+		return found?nodeListInputs:null;
 	}
 
 }

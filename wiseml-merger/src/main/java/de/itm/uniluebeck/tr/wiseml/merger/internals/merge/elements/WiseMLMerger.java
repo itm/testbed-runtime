@@ -16,12 +16,15 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	//private static final int TRACES 		= 3;
 	
 	private int state;
+	
+	private boolean[] skip;
 
 	public WiseMLMerger( 
 			WiseMLTreeReader[] inputs,
 			MergerConfiguration configuration) {
 		super(null, inputs, configuration, new MergerResources(), WiseMLTag.wiseml);
 		this.state = INIT;
+		this.skip = new boolean[inputs.length];
 	}
 
 	@Override
@@ -51,7 +54,8 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		}
 		
 		// select readers with <scenario> tags
-		WiseMLTreeReader[] scenarioInputs = getInputElementReadersWithTag(WiseMLTag.scenario);
+		//WiseMLTreeReader[] scenarioInputs = getInputElementReadersWithTag(WiseMLTag.scenario);
+		WiseMLTreeReader[] scenarioInputs = getListReaders(WiseMLTag.scenario, inputs, skip);
 		
 		// add list merger to queue
 		queue.add(new ScenarioListMerger(
@@ -68,7 +72,8 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	
 	private boolean mergeTraceLists() {
 		// select readers with <trace> tags
-		WiseMLTreeReader[] traceInputs = getInputElementReadersWithTag(WiseMLTag.trace);
+		//WiseMLTreeReader[] traceInputs = getInputElementReadersWithTag(WiseMLTag.trace);
+		WiseMLTreeReader[] traceInputs = getListReaders(WiseMLTag.trace, inputs, skip);
 		
 		// add list merger to queue
 		queue.add(new TraceListMerger(
@@ -82,7 +87,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		
 		return !queue.isEmpty();
 	}
-
+/*
 	private WiseMLTreeReader[] getInputElementReadersWithTag(final WiseMLTag tag) {
 		ArrayList<WiseMLTreeReader> list = new ArrayList<WiseMLTreeReader>();
 		
@@ -97,7 +102,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 
 		return list.toArray(new WiseMLTreeReader[list.size()]);
 	}
-	
+*/
 	private WiseMLTreeReader[] getInputSubElementReaders() {
 		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
 		for (int i = 0; i < result.length; i++) {

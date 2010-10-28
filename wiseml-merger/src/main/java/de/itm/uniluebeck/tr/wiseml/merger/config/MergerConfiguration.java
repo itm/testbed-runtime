@@ -146,7 +146,7 @@ public class MergerConfiguration {
 	private String customScenarioID;
 	
 	@Property(category = "lists", name = "trace.mode", defaultValue = "SameIDsSortedAlphanumerically")
-	private String traceListMergingMode;
+	private ListMergingMode traceListMergingMode;
 	
 	@Property(category = "lists", name = "trace.customid", defaultValue = "0")
 	private String customTraceID;
@@ -503,11 +503,11 @@ public class MergerConfiguration {
 		this.customScenarioID = customScenarioID;
 	}
 
-	public String getTraceListMergingMode() {
+	public ListMergingMode getTraceListMergingMode() {
 		return traceListMergingMode;
 	}
 
-	public void setTraceListMergingMode(String traceListMergingMode) {
+	public void setTraceListMergingMode(ListMergingMode traceListMergingMode) {
 		this.traceListMergingMode = traceListMergingMode;
 	}
 
