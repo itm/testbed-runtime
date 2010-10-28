@@ -127,7 +127,6 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 * @param port
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	public void setSerialPort(String port) throws Exception {
 		log.debug("JennicDevice.setSerialPort({})", port);
 		CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);

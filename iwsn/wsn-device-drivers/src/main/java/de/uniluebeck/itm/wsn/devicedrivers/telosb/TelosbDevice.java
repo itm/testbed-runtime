@@ -98,7 +98,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 	private boolean connected;
 
-	private boolean verify = true;
+	//private boolean verify = true;
 
 	/**
 	 * @param serialPortName
@@ -108,7 +108,6 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		connect();
 	}
 
-	@SuppressWarnings("unchecked")
 	private boolean connect() {
 		Enumeration allIdentifiers = null;
 		CommPortIdentifier portIdentifier = null;

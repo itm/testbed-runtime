@@ -357,7 +357,10 @@ public class PacemateBinFile implements IDeviceBinFile {
 
 	@Override
 	public ChipType getFileType() {
-		return ChipType.LPC2136;
+		if ((bytes[0] == (byte) 0x12) && (bytes[1] == (byte) 0x00) 
+				&& (bytes[2] == (byte) 0x00) && (bytes[3] == (byte) 0xea))
+			return ChipType.LPC2136;
+		return ChipType.Unknown;
 	}
 
 	@Override
