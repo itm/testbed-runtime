@@ -6,6 +6,7 @@ import eu.wisebed.ns.wiseml._1.Wiseml;
 
 import javax.xml.bind.JAXB;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,6 +45,16 @@ public class WiseMLHelper {
 
 	public static Wiseml deserialize(String serializedWiseML) {
 		return JAXB.unmarshal(new StringReader(serializedWiseML), Wiseml.class);
+	}
+
+	public static String serialize(Wiseml wiseML) {
+		StringWriter writer = new StringWriter();
+		JAXB.marshal(wiseML, writer);
+		return writer.toString();
+	}
+
+	public static String prettyPrintWiseML(String serializedWiseML) {
+		return serialize(deserialize(serializedWiseML));
 	}
 
 }
