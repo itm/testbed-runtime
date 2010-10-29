@@ -116,6 +116,18 @@ message DestroyVirtualLinkRequest {
 }
 
 
+// === disablePhysicalLink ===
+message DisablePhysicalLink {
+	required string nodeB = 2;
+}
+
+
+// === enablePhysicalLink ===
+message EnablePhysicalLink {
+	required string nodeB = 2;
+}
+
+
 
 // ==== operation invocation ====
 message OperationInvocation {
@@ -128,14 +140,14 @@ message OperationInvocation {
          RESET_NODES = 3;
          SET_VIRTUAL_LINK = 4;
 		 DESTROY_VIRTUAL_LINK = 5;
+         DISABLE_NODE = 6;
+         ENABLE_NODE = 7;
+         DISABLE_PHYSICAL_LINK = 8;
+         ENABLE_PHYSICAL_LINK = 9;
 
          //GET_VERSION
          //DEFINE_NETWORK
          //DESCRIBE_CAPABILITIES
-         //DISABLE_NODE
-         //DISABLE_PHYSICAL_LINK
-         //ENABLE_NODE
-         //ENABLE_PHYSICAL_LINK
          //GET_FILTERS
          //GET_NEIGHBORHOOD
          //GET_NETWORK
@@ -174,40 +186,6 @@ message OperationInvocation {
 //}
 
 //message DestroyVirtualLinkResponse {
-//	required string response = 1;
-//}
-
-//message DisableNodeRequest {
-//	required string node = 1;
-//}
-
-//message DisableNodeResponse {
-//	required string response = 1;
-//}
-
-//message DisablePhysicalLinkRequest {
-//	required string nodeA = 1;
-//	required string nodeB = 2;
-//}
-
-//message DisablePhysicalLinkResponse {
-//	required string response = 1;
-//}
-
-//message EnableNodeRequest {
-//	required string node = 1;
-//}
-
-//message EnableNodeResponse {
-//	required string response = 1;
-//}
-
-//message EnablePhysicalLinkRequest {
-//	required string nodeA = 1;
-//	required string nodeB = 2;
-//}
-
-//message EnablePhysicalLinkResponse {
 //	required string response = 1;
 //}
 

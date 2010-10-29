@@ -838,6 +838,8 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkEnableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
+		
+
 		log.debug("WSNServiceImpl.enableNode");
 		throw new UnsupportedOperationException("Method is not yet implemented.");
 	}
