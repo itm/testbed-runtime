@@ -169,7 +169,7 @@ public class JennicBinFile implements IDeviceBinFile {
 		}
 		
 		if (headerStart >= 0 && headerLength > 0) {
-			log.debug("Writing header for chip type " + chipType + ": " + headerLength + "bytes @ " + headerStart);
+			log.debug("Writing header for chip type " + chipType + ": " + headerLength + "bytes @ " + headerStart +" header="+StringUtils.toHexString(b));
 			insertAt(headerStart, headerLength, b);
 			return true;
 		}
