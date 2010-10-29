@@ -25,6 +25,8 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.BiMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
+import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
@@ -33,15 +35,13 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 import java.util.concurrent.*;
@@ -411,16 +411,39 @@ public class FederatorSessionManagement implements SessionManagement {
 	@Override
 	public String getNetwork() {
 
-		// call all federated Session Management API endpoints and collect their
-		// network information (fork)
+		List<String> networkStrings = new ArrayList<String>();
 
-		// wait for all calls to return (join)
+		// fork getNetwork() calls to federated testbeds
+		Collection<String> federatedSMs = sessionManagementEndpointUrlPrefixSet.keySet();
+		List<Future<String>> futures = new ArrayList<Future<String>>(federatedSMs.size());
+		for (final String smEndpointUrl : federatedSMs) {
+			futures.add(executorService.submit(new Callable<String>() {
+				@Override
+				public String call() throws Exception {
+					return WSNServiceHelper.getSessionManagementService(smEndpointUrl).getNetwork();
+				}
+			}
+			));
+		}
 
-		// merge results into one WiseML document
-		// TODO check if there's something like an XPath expression that does
-		// this job for us
+		// join getNetwork() calls
+		for (Future<String> future : futures) {
+			try {
+				networkStrings.add(future.get());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 
-		return null; // TODO implement
+		// Merger configuration (default)
+		MergerConfiguration config = new MergerConfiguration();
+
+		// return merged network definitions
+		try {
+			return WiseMLMergerHelper.mergeFromStrings(config, networkStrings);
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e);
+		}
 
 	}
 }

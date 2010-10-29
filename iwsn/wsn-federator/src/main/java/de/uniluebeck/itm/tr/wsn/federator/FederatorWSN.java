@@ -23,44 +23,26 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.util.concurrent.NamingThreadFactory;
+import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
+import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.uniluebeck.itm.tr.util.*;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.WSNPreconditions;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.v211.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.util.concurrent.NamingThreadFactory;
-
-import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.WSNPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.Program;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.UnsupportedOperationException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.WSN;
+import java.util.*;
+import java.util.concurrent.*;
 
 
 @WebService(
@@ -89,7 +71,8 @@ public class FederatorWSN implements WSN {
 	private final TimedCache<String, WSN> nodeUrnPrefixEndpointMapping =
 			new TimedCache<String, WSN>(10, TimeUnit.MINUTES);
 
-	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamingThreadFactory("FederatorWSN-Thread %d"));
+	private final ScheduledExecutorService executorService =
+			Executors.newScheduledThreadPool(1, new NamingThreadFactory("FederatorWSN-Thread %d"));
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
@@ -158,6 +141,7 @@ public class FederatorWSN implements WSN {
 	 * node IDs.
 	 *
 	 * @param nodeIds list of node IDs
+	 *
 	 * @return see above
 	 */
 	private Map<WSN, List<String>> calculateEndpointNodeIdsMapping(List<String> nodeIds) {
@@ -508,15 +492,34 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public String getNetwork() {
+
 		List<String> networkStrings = new ArrayList<String>();
-		
-		//Collection<WSN> endpoints = nodeUrnPrefixEndpointMapping.values();
-		// TODO: get network definitions, put into networkStrings
-		//executorService.invokeAll(tasks)
-		
+
+		// fork getNetwork() calls to federated testbeds
+		Collection<WSN> federatedWSNs = nodeUrnEndpointMapping.values();
+		List<Future<String>> futures = new ArrayList<Future<String>>(federatedWSNs.size());
+		for (final WSN wsn : federatedWSNs) {
+			futures.add(executorService.submit(new Callable<String>() {
+				@Override
+				public String call() throws Exception {
+					return wsn.getNetwork();
+				}
+			}
+			));
+		}
+
+		// join getNetwork() calls
+		for (Future<String> future : futures) {
+			try {
+				networkStrings.add(future.get());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		// Merger configuration (default)
 		MergerConfiguration config = new MergerConfiguration();
-		
+
 		// return merged network definitions
 		try {
 			return WiseMLMergerHelper.mergeFromStrings(config, networkStrings);
