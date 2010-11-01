@@ -41,6 +41,7 @@ public class JobResult {
 	private String description;
 
 	public static class Result {
+
 		public String message;
 
 		public boolean success;
@@ -49,6 +50,7 @@ public class JobResult {
 			this.success = success;
 			this.message = message;
 		}
+		
 	}
 
 	public JobResult(JobType jobType) {
@@ -108,4 +110,12 @@ public class JobResult {
 		return description;
 	}
 
+	@Override
+	public String toString() {
+		return "JobResult{" +
+				"jobType=" + jobType +
+				", description='" + description + '\'' +
+				", results=" + results +
+				'}';
+	}
 }

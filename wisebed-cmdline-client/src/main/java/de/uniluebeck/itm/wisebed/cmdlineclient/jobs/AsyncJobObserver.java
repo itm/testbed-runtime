@@ -25,6 +25,8 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.tr.util.TimedCacheListener;
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -63,19 +65,32 @@ public class AsyncJobObserver {
 
 	private Condition jobListEmpty = lock.newCondition();
 
+
+
 	public AsyncJobObserver(int timeout, TimeUnit unit) {
 		this.timeout = timeout;
 		this.unit = unit;
+		jobList.setListener(new TimedCacheListener<String, Job>() {
+			@Override
+			public Tuple<Long, TimeUnit> timeout(final String key, final Job value) {
+				value.timeout();
+				return null;
+			}
+		});
 	}
 
 	public void submit(Job job) {
+		submit(job, timeout, unit);
+	}
+
+	public void submit(Job job, int timeout, TimeUnit timeUnit) {
 
 		log.debug("Submitted job with request Id {}", job.getRequestId());
 
 		lock.lock();
 		try {
 
-			jobList.put(job.getRequestId(), job);
+			jobList.put(job.getRequestId(), job, timeout, timeUnit);
 			job.setStartTime(new DateTime());
 
 			for (JobResultListener l : listeners) {
@@ -97,6 +112,8 @@ public class AsyncJobObserver {
 		}
 
 	}
+
+
 
 	public void receive(RequestStatus status) {
 
