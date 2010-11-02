@@ -22,24 +22,16 @@ public class ScenarioMerger extends WiseMLElementMerger {
 	}
 
 	@Override
-	protected void fillQueue() {
-		/*
-		WiseMLTreeReader[] readers = new WiseMLTreeReader[inputCount()];
-		for (int i = 0; i < readers.length; i++) {
-			if (nextSubInputReader(i)) {
-				readers[i] = getSubInputReader(i);
-			}
+	protected void fillQueue() {		
+		WiseMLTreeReader[] inputs = 
+			findSequenceReaders(WiseMLSequence.ScenarioItem);
+		
+		if (inputs != null) {
+			queue.add(new ScenarioItemListMerger(
+					this, 
+					inputs, 
+					configuration, 
+					resources));
 		}
-		*/
-		// TODO: problem: when is this supposed to finish?
-		queue.add(new ScenarioItemListMerger(
-				this, 
-				findSequenceReaders(WiseMLSequence.ScenarioItem), 
-				configuration, 
-				resources));
-		/*
-		queue.add(new ScenarioItemListMerger(
-				this, readers, configuration, resources));
-			*/
 	}
 }

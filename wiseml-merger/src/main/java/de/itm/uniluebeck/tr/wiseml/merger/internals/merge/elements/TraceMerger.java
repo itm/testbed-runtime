@@ -23,11 +23,15 @@ public class TraceMerger extends WiseMLElementMerger {
 
 	@Override
 	protected void fillQueue() {
-		queue.add(new TraceItemListMerger(
-				this, 
-				findSequenceReaders(WiseMLSequence.TraceItem), 
-				configuration, 
-				resources));
+		WiseMLTreeReader[] inputs = findSequenceReaders(WiseMLSequence.TraceItem);
+		
+		if (inputs != null) {
+			queue.add(new TraceItemListMerger(
+					this, 
+					inputs, 
+					configuration, 
+					resources));
+		}
 	}
 
 }

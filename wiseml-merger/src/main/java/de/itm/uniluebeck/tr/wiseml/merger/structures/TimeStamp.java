@@ -84,5 +84,17 @@ public class TimeStamp {
 			computeOffset();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		if (offsetDefined) {
+			return Integer.toString(offset);
+		}
+		return instant.toString();
+	}
+
+	public void setOffsetDefined(boolean offsetDefined) {
+		this.offsetDefined = offsetDefined;
+	}
 
 }

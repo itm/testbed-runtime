@@ -134,6 +134,8 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	
 	protected final WiseMLTreeReader[] findSequenceReaders(WiseMLSequence sequence) {
 		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
+		int numResults = 0;
+		
 		for (int i = 0; i < inputs.length; i++) {
 			if (!nextSubInputReader(i)) {
 				continue;
@@ -142,9 +144,14 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 			WiseMLTreeReader reader = getSubInputReader(i);
 			if (reader.isList() && reader.getSequence().equals(sequence)) {
 				result[i] = reader;
+				numResults++;
 			} else {
 				holdInput(i);
 			}
+		}
+		
+		if (numResults == 0) {
+			return null;
 		}
 		
 		return result;
@@ -152,6 +159,8 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 	
 	protected final WiseMLTreeReader[] findElementReaders(WiseMLTag tag) {
 		WiseMLTreeReader[] result = new WiseMLTreeReader[inputs.length];
+		int numResults = 0;
+		
 		for (int i = 0; i < inputs.length; i++) {
 			if (!nextSubInputReader(i)) {
 				continue;
@@ -160,9 +169,14 @@ public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
 			WiseMLTreeReader reader = getSubInputReader(i);
 			if (reader.isMappedToTag() && reader.getTag().equals(tag)) {
 				result[i] = reader;
+				numResults++;
 			} else {
 				holdInput(i);
 			}
+		}
+		
+		if (numResults == 0) {
+			return null;
 		}
 		
 		return result;
