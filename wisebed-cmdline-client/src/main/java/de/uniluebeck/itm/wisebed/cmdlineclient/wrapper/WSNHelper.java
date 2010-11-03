@@ -16,13 +16,13 @@ public class WSNHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNHelper.class);
 
-	public static void disableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL) {
+	public static boolean disableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL) {
 
 		try {
 
 			WSNAsyncWrapper wrapper = WSNAsyncWrapper.of(wsn, localControllerEndpointURL);
 			List<String> nodeURNs = WiseMLHelper.getNodeUrns(wrapper.getNetwork().get());
-			disableAllPhysicalLinks(wrapper, nodeURNs);
+			return disableAllPhysicalLinks(wrapper, nodeURNs);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -30,12 +30,12 @@ public class WSNHelper {
 
 	}
 
-	public static void disableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL, List<String> nodeURNs) {
+	public static boolean disableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL, List<String> nodeURNs) {
 
 		try {
 
 			WSNAsyncWrapper wrapper = WSNAsyncWrapper.of(wsn, localControllerEndpointURL);
-			disableAllPhysicalLinks(wrapper, nodeURNs);
+			return disableAllPhysicalLinks(wrapper, nodeURNs);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -43,9 +43,11 @@ public class WSNHelper {
 
 	}
 
-	public static void disableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeURNs) {
+	public static boolean disableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeURNs) {
 
-		try {
+        try {
+
+            boolean allSuccessful = true;
 
 			List<Future<JobResult>> allFutures = Lists.newLinkedList();
 			for (String nodeUrn : nodeURNs) {
@@ -53,10 +55,14 @@ public class WSNHelper {
 					allFutures.add(wsn.disablePhysicalLink(nodeUrn, otherNodeUrn));
 				}
 			}
+
 			for (Future<JobResult> future : allFutures) {
 				JobResult jobResult = future.get();
+                allSuccessful = jobResult.getSuccessPercent() == 100 && allSuccessful;
 				log.debug("{}", jobResult);
 			}
+
+            return allSuccessful;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -64,12 +70,12 @@ public class WSNHelper {
 
 	}
 
-	public static void enableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL, List<String> nodeUrns) {
+	public static boolean enableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL, List<String> nodeUrns) {
 
 		try {
 
 			WSNAsyncWrapper wrapper = WSNAsyncWrapper.of(wsn, localControllerEndpointURL);
-			enableAllPhysicalLinks(wrapper, nodeUrns);
+			return enableAllPhysicalLinks(wrapper, nodeUrns);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -77,33 +83,40 @@ public class WSNHelper {
 
 	}
 
-	public static void enableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL) {
+	public static boolean enableAllPhysicalLinks(WSN wsn, String localControllerEndpointURL) {
 
 		try {
 
 			WSNAsyncWrapper wrapper = WSNAsyncWrapper.of(wsn, localControllerEndpointURL);
 			List<String> nodeUrns = WiseMLHelper.getNodeUrns(wrapper.getNetwork().get());
-			enableAllPhysicalLinks(wrapper, nodeUrns);
+			return enableAllPhysicalLinks(wrapper, nodeUrns);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static void enableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeUrns) {
+	public static boolean enableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeUrns) {
 
-		try {
+        try {
+
+            boolean allSuccessful = true;
 
 			List<Future<JobResult>> futures = Lists.newLinkedList();
-			for (String nodeUrn : nodeUrns) {
+
+            for (String nodeUrn : nodeUrns) {
 				for (String otherNodeUrn : nodeUrns) {
 					futures.add(wsn.enablePhysicalLink(nodeUrn, otherNodeUrn));
 				}
 			}
+
 			for (Future<JobResult> future : futures) {
 				JobResult jobResult = future.get();
+                allSuccessful = jobResult.getSuccessPercent() == 100 && allSuccessful;
 				log.debug("{}", jobResult);
 			}
+
+            return allSuccessful;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -111,14 +124,16 @@ public class WSNHelper {
 
 	}
 
-	public static void setVirtualLinks(WSN wsn, String localControllerEndpointURL, Multimap neighborhoodMap, String remoteServiceInstance) {
-		setVirtualLinks(WSNAsyncWrapper.of(wsn, localControllerEndpointURL), neighborhoodMap, remoteServiceInstance);
+	public static boolean setVirtualLinks(WSN wsn, String localControllerEndpointURL, Multimap neighborhoodMap, String remoteServiceInstance) {
+		return setVirtualLinks(WSNAsyncWrapper.of(wsn, localControllerEndpointURL), neighborhoodMap, remoteServiceInstance);
 	}
 
-	public static void setVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
+	public static boolean setVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
 									   String remoteServiceInstance) {
 
 		try {
+
+            boolean allSuccessful = true;
 
 			List<Future<JobResult>> futures = Lists.newLinkedList();
 
@@ -130,8 +145,11 @@ public class WSNHelper {
 
 			for (Future<JobResult> future : futures) {
 				JobResult jobResult = future.get();
+                allSuccessful = jobResult.getSuccessPercent() == 100 && allSuccessful;
 				log.debug("{}", jobResult);
 			}
+
+            return allSuccessful;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -139,13 +157,15 @@ public class WSNHelper {
 
 	}
 
-	public static void destroyVirtualLinks(WSN wsn, String localControllerEndpointURL, Multimap<String, String> neighborhoodMap) {
-		destroyVirtualLinks(WSNAsyncWrapper.of(wsn, localControllerEndpointURL), neighborhoodMap);
+	public static boolean destroyVirtualLinks(WSN wsn, String localControllerEndpointURL, Multimap<String, String> neighborhoodMap) {
+		return destroyVirtualLinks(WSNAsyncWrapper.of(wsn, localControllerEndpointURL), neighborhoodMap);
 	}
 
-	public static void destroyVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap) {
+	public static boolean destroyVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap) {
 
 		try {
+
+            boolean allSuccessful = true;
 
 			List<Future<JobResult>> futures = Lists.newLinkedList();
 
@@ -157,8 +177,11 @@ public class WSNHelper {
 
 			for (Future<JobResult> future : futures) {
 				JobResult jobResult = future.get();
+                allSuccessful = jobResult.getSuccessPercent() == 100 && allSuccessful;
 				log.debug("{}", jobResult);
 			}
+
+            return allSuccessful;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);

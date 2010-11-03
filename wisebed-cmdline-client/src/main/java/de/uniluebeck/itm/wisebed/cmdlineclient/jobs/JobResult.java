@@ -50,8 +50,18 @@ public class JobResult {
 			this.success = success;
 			this.message = message;
 		}
-		
-	}
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Result");
+            sb.append("{message='").append(message).append('\'');
+            sb.append(", success=").append(success);
+            sb.append('}');
+            return sb.toString();
+        }
+        
+    }
 
 	public JobResult(JobType jobType) {
 		this.jobType = jobType;
