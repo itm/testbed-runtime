@@ -215,7 +215,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 					WSNAppMessages.DisablePhysicalLink disablePhysicalLink =
 							WSNAppMessages.DisablePhysicalLink.parseFrom(invocation.getArguments());
-					long nodeB = Long.parseLong(disablePhysicalLink.getNodeB());
+					long nodeB = StringUtils.parseHexOrDecLongFromUrn(disablePhysicalLink.getNodeB());
 					executeDisablePhysicalLink(msg, nodeB);
 
 				} catch (InvalidProtocolBufferException e) {
@@ -241,7 +241,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 					WSNAppMessages.EnablePhysicalLink enablePhysicalLink =
 							WSNAppMessages.EnablePhysicalLink.parseFrom(invocation.getArguments());
-					long nodeB = Long.parseLong(enablePhysicalLink.getNodeB());
+					long nodeB = StringUtils.parseHexOrDecLongFromUrn(enablePhysicalLink.getNodeB());
 					executeEnablePhysicalLink(msg, nodeB);
 
 				} catch (InvalidProtocolBufferException e) {
