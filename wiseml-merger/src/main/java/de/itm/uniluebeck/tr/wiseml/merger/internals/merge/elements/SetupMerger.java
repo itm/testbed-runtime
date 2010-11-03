@@ -5,6 +5,7 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.config.TimestampStyle;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
@@ -357,6 +358,8 @@ public class SetupMerger extends WiseMLElementMerger {
 	private void mergeTimeInfo(TimeInfo[] timeInfos) {
 		TimeInfo timeInfo = null;
 		
+		resources.setInputTimeInfos(timeInfos);
+		
 		if (allEqual(timeInfos)) {
 			timeInfo = timeInfos[0];
 		} else {
@@ -450,10 +453,15 @@ public class SetupMerger extends WiseMLElementMerger {
 			
 			timeInfo.setEndDefined(useEnd);
 			timeInfo.setUnit(unit);
+			
+			// timestamp style
+			resources.setTimestampOffsetDefined(
+					configuration.getCustomTimestampStyle()
+					== TimestampStyle.Offsets);
 		}
 		
 		if (timeInfo != null) {
-			resources.setTimeInfo(timeInfo);
+			resources.setOutputTimeInfo(timeInfo);
 			queue.add(new TimeInfoReader(this, timeInfo));
 		}
 	}

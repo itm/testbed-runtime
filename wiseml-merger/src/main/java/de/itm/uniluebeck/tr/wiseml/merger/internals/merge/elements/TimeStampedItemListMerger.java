@@ -40,14 +40,18 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 					"expected <timestamp>, got <"+timestampReader.getTag()+">");
 		}
 		
-		if (resources.getTimeInfo() == null) {
+		if (resources.getOutputTimeInfo() == null) {
 			exception("encountered timestamp, but missing timeinfo", null);
 		}
 		
-		// read timestamp
 		TimeStamp timestamp = new TimeStampParser(
 				timestampReader,
-				resources.getTimeInfo()).getParsedStructure();
+				resources.getInputTimeInfo(inputIndex)).getParsedStructure();
+		
+		TimeInfo ti = resources.getOutputTimeInfo();
+		timestamp.setStart(ti.getStart());
+		timestamp.setUnit(ti.getUnit());
+		timestamp.setOffsetDefined(resources.isTimestampOffsetDefined());
 		
 		return new TimeStampedItemDefinition(timestamp, inputIndex);
 	}
@@ -61,8 +65,6 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 				int input = item.getInputIndex();
 				if (nextSubInputReader(input)) {
 					WiseMLTreeReader reader = getSubInputReader(input);
-					
-					System.out.println("next reader for input "+input+": "+reader);
 					
 					if (reader.getTag().equals(WiseMLTag.timestamp)) {
 						holdInput(item.getInputIndex());
@@ -88,12 +90,6 @@ extends SortedListMerger<TimeStampedItemDefinition> {
 		
 		TimeStampedItemDefinition item = items.iterator().next();
 		TimeStamp timestamp = item.getTimeStamp();
-		TimeInfo timeinfo = this.resources.getTimeInfo();
-		
-		timestamp.setStart(timeinfo.getStart());
-		timestamp.setUnit(timeinfo.getUnit());
-		
-		// TODO: offsetDefined
 		
 		this.queue.add(new TimeStampReader(this, timestamp));
 		

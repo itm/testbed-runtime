@@ -815,7 +815,29 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkNodeReserved(node, reservedNodes);
 
 		log.debug("WSNServiceImpl.disableNode");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		try {
+
+			wsnApp.disableNode(node, new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(final Exception e) {
+					// TODO throw declared type
+					throw new RuntimeException(e);
+				}
+			});
+
+		} catch (UnknownNodeUrnException_Exception e) {
+			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+		}
+
+		return requestId;
 	}
 
 	@Override
@@ -828,7 +850,30 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
 
 		log.debug("WSNServiceImpl.disablePhysicalLink");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		try {
+
+			wsnApp.disablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(final Exception e) {
+					// TODO throw declared type
+					throw new RuntimeException(e);
+				}
+			});
+
+		} catch (UnknownNodeUrnException_Exception e) {
+			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+		}
+
+		return requestId;
+
 	}
 
 	@Override
@@ -838,10 +883,31 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkEnableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
-		
-
 		log.debug("WSNServiceImpl.enableNode");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		try {
+
+			wsnApp.enableNode(node, new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(final Exception e) {
+					// TODO throw declared type
+					throw new RuntimeException(e);
+				}
+			});
+
+		} catch (UnknownNodeUrnException_Exception e) {
+			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+		}
+
+		return requestId;
+
 	}
 
 	@Override
@@ -854,7 +920,30 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
 
 		log.debug("WSNServiceImpl.enablePhysicalLink");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		try {
+
+			wsnApp.enablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(final Exception e) {
+					// TODO throw declared type
+					throw new RuntimeException(e);
+				}
+			});
+
+		} catch (UnknownNodeUrnException_Exception e) {
+			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+		}
+
+		return requestId;
+		
 	}
 
 	@Override

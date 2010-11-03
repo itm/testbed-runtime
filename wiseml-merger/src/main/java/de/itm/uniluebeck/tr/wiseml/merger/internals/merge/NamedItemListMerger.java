@@ -45,7 +45,7 @@ public abstract class NamedItemListMerger extends SortedListMerger<NamedListItem
 		String id = WiseMLTreeReaderHelper.getAttributeValue(
 				nodeReader.getAttributeList(), "id");
 		
-		System.out.println("next "+itemTag+" id for input "+inputIndex+": "+id);
+		//System.out.println("next "+itemTag+" id for input "+inputIndex+": "+id);
 		
 		switch (mergingMode) {
 		case NoMerging: {

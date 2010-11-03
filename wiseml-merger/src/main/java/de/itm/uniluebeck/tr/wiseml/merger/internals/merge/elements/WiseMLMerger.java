@@ -43,7 +43,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	}
 	
 	private boolean mergeScenarioLists() {
-		System.out.println("next: scenario list");
+		//System.out.println("next: scenario list");
 		
 		queue.add(new ScenarioListMerger(
 				this,
@@ -58,7 +58,7 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	}
 
 	private boolean mergeTraceLists() {
-		System.out.println("next: trace list");
+		//System.out.println("next: trace list");
 		
 		// add list merger to queue
 		queue.add(new TraceListMerger(

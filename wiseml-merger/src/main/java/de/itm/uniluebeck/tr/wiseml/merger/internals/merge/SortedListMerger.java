@@ -90,24 +90,6 @@ extends WiseMLListMerger {
 	private void fetchNewItems() {
 		for (int i = 0; i < inputCount(); i++) {
 			if (bufferedItems.get(i) == null) {
-				/*
-				if (inputs[i] != null) {
-					if (inputs[i].isFinished()) {
-						inputs[i] = null;
-						continue;
-					}
-					
-					ListItem item = readNextItem(i);
-					
-					if (item == null) {
-						inputs[i] = null;
-						continue;
-					}
-					
-					bufferedItems.set(i, item);
-					itemQueue.add(item);
-				}
-				*/
 				ListItem item = readNextItem(i);
 				if (item != null) {
 					bufferedItems.set(i, item);
