@@ -27,7 +27,6 @@ import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +38,9 @@ import java.util.*;
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
-public class ShibbolethSNAA implements SNAA {
+public class ShibbolethSNAAImpl implements SNAA {
 
-    private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAA.class);
+    private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
     protected Set<String> urnPrefixes;
 
@@ -53,7 +52,7 @@ public class ShibbolethSNAA implements SNAA {
      * @param urnPrefixes
      * @param secretAuthenticationKeyUrl
      */
-    public ShibbolethSNAA(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization) {
+    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization) {
         this.urnPrefixes = new HashSet<String>(urnPrefixes);
         this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
         this.authorization = authorization;
