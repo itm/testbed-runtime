@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
+import com.google.inject.Injector;
+import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
@@ -48,14 +50,18 @@ public class ShibbolethSNAAImpl implements SNAA {
 
     protected IUserAuthorization authorization;
 
+    private Injector injector;
+
     /**
      * @param urnPrefixes
      * @param secretAuthenticationKeyUrl
+     * @param injector
      */
-    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization) {
+    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization, Injector injector) {
         this.urnPrefixes = new HashSet<String>(urnPrefixes);
         this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
         this.authorization = authorization;
+        this.injector = injector;
     }
 
     @Override
@@ -70,7 +76,7 @@ public class ShibbolethSNAAImpl implements SNAA {
         assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
 
         for (AuthenticationTriple triple : authenticationData) {
-            ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
+            IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
             String urn = triple.getUrnPrefix();
 
             try {
@@ -124,7 +130,7 @@ public class ShibbolethSNAAImpl implements SNAA {
             //check if authorized
             try {
                 ShibbolethSecretAuthenticationKey ssak = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-                ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
+                IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
                 sa.setUrl(secretAuthenticationKeyUrl);
                 sa.setSecretAuthenticationKey(ssak.getSecretAuthenticationKey());
                 //check authorization

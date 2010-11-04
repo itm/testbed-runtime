@@ -35,7 +35,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-public class ShibbolethAuthenticator {
+public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     private static final Logger log = Logger.getLogger(ShibbolethAuthenticator.class);
 
@@ -115,6 +115,7 @@ public class ShibbolethAuthenticator {
     /**
      * @throws Exception
      */
+    @Override
     public String authenticate() throws Exception {
         resetState();
 
@@ -223,6 +224,7 @@ public class ShibbolethAuthenticator {
         return responseHtml;
     }
 
+    @Override
     public Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception {
         resetState();
 

@@ -39,7 +39,11 @@
 
 	<dependencies>
 
-		<dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-api</artifactId>
 		</dependency>

@@ -24,12 +24,15 @@
 package de.uniluebeck.itm.tr.snaa.cmdline.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
@@ -124,6 +127,8 @@ public class SNAAServer {
 
         startHttpServer(port);
 
+        Injector shibboInjector = Guice.createInjector(new ShibbolethSNAAModule());
+
         Set<String> snaaNames = parseCSV(props.getProperty("config.snaas", ""));
 
         String type, urnprefix, path;
@@ -155,7 +160,7 @@ public class SNAAServer {
                         shibbolethSecretUserKeyUrl
                 );
 
-                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization);
+                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibboInjector);
 
             } else if ("jaas".equals(type)) {
 
@@ -211,7 +216,7 @@ public class SNAAServer {
 
                 }
 
-                startFederator(fedType, path, secretAuthkeyUrl, federatedUrnPrefixes);
+                startFederator(fedType, path, secretAuthkeyUrl, shibboInjector, federatedUrnPrefixes);
 
             } else {
                 log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
@@ -258,7 +263,7 @@ public class SNAAServer {
 
     }
 
-    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization) {
+    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization, Injector injector) {
 
         log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
                 + "]"
@@ -267,7 +272,7 @@ public class SNAAServer {
         Set<String> prefixes = new HashSet<String>();
         prefixes.add(prefix);
 
-        ShibbolethSNAA shibSnaa = new ShibbolethSNAA(prefixes, secretKeyURL, authorization);
+        ShibbolethSNAAImpl shibSnaa = new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shibSnaa);
@@ -277,7 +282,7 @@ public class SNAAServer {
 
     }
 
-    private static void startFederator(FederatorType type, String path, String secretAuthKeyURL,
+    private static void startFederator(FederatorType type, String path, String secretAuthKeyURL, Injector injector,
                                        Map<String, Set<String>>... prefixSets) {
 
         // union the prefix sets to one set
@@ -301,7 +306,7 @@ public class SNAAServer {
                 federator = new FederatorSNAA(prefixSet);
                 break;
             case WISEBED:
-                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL);
+                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector);
                 break;
         }
 
