@@ -24,10 +24,13 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.ns.wiseml._1.Setup;
+import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
+import eu.wisebed.testbed.api.wsn.v211.BinaryMessage;
 import eu.wisebed.testbed.api.wsn.v211.GetInstance;
 import eu.wisebed.testbed.api.wsn.v211.Message;
 import eu.wisebed.testbed.api.wsn.v211.Program;
@@ -35,6 +38,8 @@ import eu.wisebed.testbed.api.wsn.v211.ProgramMetaData;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -285,6 +290,41 @@ public class BeanShellHelper {
 
 		log.debug("IP " + ip + " is an " + (external ? "external" : "internal") + " address");
 		return external;
+	}
+	
+	/**
+	 * Get a List with all give node ids for use in a bean shell scrip
+	 * @param nodes
+	 * @return List with nodes
+	 */
+	public static List<String> getNodeList( String... nodes) {
+
+		List<String> nodeUrns = Lists.newArrayList(nodes);
+
+		return nodeUrns;
+	}
+	
+	/**
+	 * Generate a binary message to be send to a node with timestamop = now and src node id = 0xffff
+	 * @param type Type of the binary message
+	 * @param data Payload of the binary message
+	 * @return the binary message
+	 */
+	public static Message buildBinaryMessage(byte type, byte[] data){
+		Message msg = new Message();
+		BinaryMessage bmsg = new BinaryMessage();
+		bmsg.setBinaryData(data);
+		bmsg.setBinaryType(type);
+		msg.setBinaryMessage(bmsg);
+		msg.setSourceNodeId("urn:wisebed:uzl1:0xffff");
+		try {
+			msg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
+		} catch (DatatypeConfigurationException e) {
+			log.error("Error creating timestamp "+e);
+			e.printStackTrace();
+		}
+		
+		return msg;
 	}
 
 }
