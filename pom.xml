@@ -68,6 +68,7 @@
         <module>snaa/snaa-wisebed</module>
 
         <module>assembly</module>
+        <module>assembly-federator</module>
         <module>shibboauth</module>
         <module>util</module>
         <module>motelist</module>
@@ -267,6 +268,12 @@
             <dependency>
                 <groupId>de.uniluebeck.itm</groupId>
                 <artifactId>tr.wisebed-cmdline-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.uniluebeck.itm</groupId>
+                <artifactId>tr.wsn-federator</artifactId>
+                <classifier>onejar</classifier>                
                 <version>${project.version}</version>
             </dependency>
             <dependency>
