@@ -79,11 +79,7 @@ public class FederatorSNAA implements SNAA {
 
 		@Override
 		public Boolean call() throws Exception {
-
-			URL url = new URL(wsEndpointUrl);
-			SNAAService federatorSNAAService = new SNAAService(url, SNAAServiceQName);
-
-			return federatorSNAAService.getSNAAPort().isAuthorized(secretAuthenticationKeys, action);
+			return SNAAServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(secretAuthenticationKeys, action);
 		}
 
 	}
