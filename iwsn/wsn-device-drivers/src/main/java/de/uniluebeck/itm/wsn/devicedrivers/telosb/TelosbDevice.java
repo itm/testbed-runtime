@@ -105,6 +105,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	 */
 	public TelosbDevice(String serialPortName) {
 		this.serialPortName = serialPortName;
+		connected = false;
 		connect();
 	}
 
@@ -117,10 +118,12 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		boolean portFound = false;
 
 		if (serialPort != null) {
+			connected = false;
 			return true;
 		}
 
 		if (serialPortName == null) {
+			connected = false;
 			return false;
 		}
 
@@ -136,6 +139,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			log.debug("Failed to connect to port '" + serialPortName
 					+ "': port does not exist."
 			);
+			connected = false;
 			return false;
 		}
 
@@ -157,6 +161,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 					log.debug("Port '" + serialPortName
 							+ "' is already in use, failed to connect."
 					);
+					connected = false;
 					return false;
 				}
 			}
@@ -167,6 +172,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			log.debug("Com Port '" + serialPortName
 					+ "' is no serial port, will not connect."
 			);
+			connected = false;
 			return false;
 		}
 
@@ -180,6 +186,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			log.error("Failed to connect to port '" + serialPortName + "'. "
 					+ e.getMessage(), e
 			);
+			connected = false;
 			return false;
 		}
 
@@ -195,6 +202,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			log.error("Unable to get I/O streams of port " + serialPortName
 					+ ", failed to connect.", e
 			);
+			connected = false;
 			return false;
 		}
 
@@ -204,6 +212,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			log.error("Unable to register as event listener for serial port "
 					+ serialPortName, e
 			);
+			connected = false;
 			return false;
 		}
 		serialPort.notifyOnDataAvailable(true);
