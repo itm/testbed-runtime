@@ -32,14 +32,14 @@ import com.google.common.collect.*;
 String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
 
 // Authentication credentials and other relevant information used again and again as method parameters
-String urnPrefix 					= "urn:wisebed:uzl1:";
+String urnPrefix 					= "urn:wisebed:uzl-staging:";
 String username						= "testbeduzl1";
 String password						= "testbeduzl1";
     
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
-String snaaEndpointURL 				= "http://wisebed.itm.uni-luebeck.de:8890/snaa";
-String rsEndpointURL				= "http://wisebed.itm.uni-luebeck.de:8889/rs";
-String sessionManagementEndpointURL	= "http://wisebed.itm.uni-luebeck.de:8888/sessions";
+String snaaEndpointURL 				= "http://wisebed-staging.itm.uni-luebeck.de:8890/snaa";
+String rsEndpointURL				= "http://wisebed-staging.itm.uni-luebeck.de:8889/rs";
+String sessionManagementEndpointURL	= "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
 
 // Retrieve Java proxies of the endpoint URLs above
 SNAA authenticationSystem 			= SNAAServiceHelper.getSNAAService(snaaEndpointURL);
@@ -100,24 +100,6 @@ log.info("Successfully reserved nodes: {}", nodeURNs);
 // 3rd step: start local controller instance
 //--------------------------------------------------------------------------
 
-/*AsyncJobObserver jobs = new AsyncJobObserver(1, TimeUnit.MINUTES); //Timeout for join until unfinished jobs are removed
-
-public class MyController implements Controller{
-	public void receive(Message msg) {
-		String s = helper.toString(msg);
-		log.debug("Received message: " + s);
-	}
-	public void receiveStatus(RequestStatus status) {
-		jobs.receive(status);
-	}
-}
-
-DelegatingController delegator = new DelegatingController(new MyController());
-delegator.publish(localControllerEndpointURL);
-log.info("Local controller published on url: {}", localControllerEndpointURL);
-*/
-
-
 //--------------------------------------------------------------------------
 // 4th step: get WSN API instance URL --> call getInstance() on Session Management service
 //--------------------------------------------------------------------------
@@ -134,8 +116,22 @@ String wsnEndpointURL = sessionManagement.getInstance(
 
 log.info("Got an WSN instance URL, endpoint is: {}", wsnEndpointURL);
 WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
-WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService, localControllerEndpointURL);
+final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService, localControllerEndpointURL);
 
+Controller controller = new Controller() {
+	@Override
+	public void receive(@WebParam(name = "msg", targetNamespace = "") final Message msg) {
+		// nothing to do
+	}
+	@Override
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final RequestStatus status) {
+		wsn.receive(status);
+	}
+};
+
+DelegatingController delegator = new DelegatingController(controller);
+delegator.publish(localControllerEndpointURL);
+log.info("Local controller published on url: {}", localControllerEndpointURL);
 
 //--------------------------------------------------------------------------
 // Steps 5..n: Experiment control using the WSN API
@@ -146,18 +142,26 @@ Thread.sleep(2000);
 
 log.info("Checking if nodes are alive.");
 
-Future areNodesAliveFuture = wsn.areNodesAlive(nodeURNs);
+Future areNodesAliveFuture = wsn.areNodesAlive(nodeURNs, 10, TimeUnit.SECONDS);
 try {
-	log.info("{}", areNodesAliveFuture.get());
+	JobResult areNodesAliveResult = areNodesAliveFuture.get();
+	log.info("RESULT: {}", areNodesAliveResult);
+	if (areNodesAliveResult.getSuccessPercent() < 100) {
+		System.out.println("Not all nodes are alive. Exiting...");
+		System.exit(1);
+	}
 } catch (Exception e) {
 	log.error("" + e, e);
 	System.exit(1);
 }
 
-
 //--------------------------------------------------------------------------
 // Build data structures to resemble grid topology
 //--------------------------------------------------------------------------
+
+System.out.println("Please press ENTER to continue building the topology data structures...");
+System.in.read();
+
 List nodesToAlign = new ArrayList(nodeURNs);
 java.util.Collections.shuffle(nodesToAlign);
 
@@ -184,6 +188,8 @@ for (int row=0; row<grid.length; row++) {
 	}
 	System.out.println();
 }
+
+System.out.println();
 
 // setup neighbor list
 ImmutableMultimap.Builder neighborMapBuilder = ImmutableMultimap.builder();
@@ -223,25 +229,72 @@ for (int nodeIdx=0; nodeIdx<nodeURNs.size(); nodeIdx++) {
 	}
 	System.out.println("]");
 }
+System.out.println();
 
 //--------------------------------------------------------------------------
 // Setup grid topology on testbed
 //--------------------------------------------------------------------------
 
+System.out.println("Please press ENTER to disable all physical links...");
+System.in.read();
+
 // disable all physical links
 log.info("Disabling all physical links...");
-WSNHelper.disableAllPhysicalLinks(wsn, nodeURNs);
+if (!WSNHelper.disableAllPhysicalLinks(wsn, nodeURNs, 20, TimeUnit.SECONDS)) {
+	System.out.println("Not all physical links could be activated. Exiting...");
+	System.exit(1);
+}
+
+System.out.println();
+System.out.println("Please press ENTER to set the virtual links...");
+System.in.read();
 
 log.info("Setting grid virtual links...");
-WSNHelper.setVirtualLinks(wsn, neighborMap, wsnEndpointURL);
+if(!WSNHelper.setVirtualLinks(wsn, neighborMap, wsnEndpointURL, 20, TimeUnit.SECONDS)) {
+	System.out.println("Not all virtual links could be set. Exiting...");
+	System.exit(1);
+}
 
+/*Message startMsg = new Message();
+BinaryMessage startBinaryMsg = new BinaryMessage();
+startBinaryMsg.setBinaryData(new byte[]{0x1});
+startBinaryMsg.setBinaryType((byte) 0xb);
+startMsg.setBinaryMessage(startBinaryMsg);
+startMsg.setSourceNodeId("urn:wisebed:uzl-staging:0xffff");
+startMsg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
+Future sendFuture = wsn.send(nodeURNs, startMsg, 10, TimeUnit.SECONDS);
+if (sendFuture.get().getSuccessPercent() < 100) {
+	System.out.println("Start command could not be sent to all nodes!!! Exiting...");
+	System.exit(1);
+}*/
    	
 //--------------------------------------------------------------------------
 // Steps 5..n: Shutdown experiment and exit
 //--------------------------------------------------------------------------
 
+System.out.println();
+System.out.println("Done. Please press ENTER to exit.");
+System.in.read();
+
+Message stopMsg = new Message();
+BinaryMessage stopBinaryMsg = new BinaryMessage();
+stopBinaryMsg.setBinaryData(new byte[]{0x0});
+stopBinaryMsg.setBinaryType((byte) 0xb);
+stopMsg.setBinaryMessage(stopBinaryMsg);
+stopMsg.setSourceNodeId("urn:wisebed:uzl-staging:0xffff");
+stopMsg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
+Future sendFuture = wsn.send(nodeURNs, stopMsg);
+if (sendFuture.get().getSuccessPercent() < 100) {
+    System.out.println("Start command could not be sent to all nodes!!! Exiting...");
+    System.exit(1);
+}
+
 log.info("Done running experiments. Now freeing WSN service instance...");
-sessionManagement.free(helper.copyRsToWsn(secretReservationKeys));
+try {
+	sessionManagement.free(helper.copyRsToWsn(secretReservationKeys));
+} catch (Exception e) {
+	// ignore silently
+}
 
 log.info("Freed WSN service instance. Shutting down...");
 System.exit(0);

@@ -1,18 +1,17 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
 import com.google.common.util.concurrent.ValueFuture;
-import de.uniluebeck.itm.wisebed.cmdlineclient.DelegatingController;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.AsyncJobObserver;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResultListener;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v211.Program;
+import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v211.WSN;
 
-import javax.jws.WebParam;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.lang.UnsupportedOperationException;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -49,27 +48,16 @@ public class WSNAsyncWrapper {
 
 	private WSN wsn;
 
-	private WSNAsyncWrapper(final WSN wsn, final String localControllerEndpointURL) {
+	private WSNAsyncWrapper(final WSN wsn) {
 		this.wsn = wsn;
-		DelegatingController delegator = new DelegatingController(new Controller() {
-			@Override
-			public void receive(@WebParam(name = "msg", targetNamespace = "") final Message msg) {
-				// nothing to do
-			}
-			@Override
-			public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final RequestStatus status) {
-				jobs.receive(status);
-			}
-		});
-		try {
-			delegator.publish(localControllerEndpointURL);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
-	public static WSNAsyncWrapper of(final WSN wsn, final String localControllerEndpointURL) {
-		return new WSNAsyncWrapper(wsn, localControllerEndpointURL);
+	public static WSNAsyncWrapper of(final WSN wsn) {
+		return new WSNAsyncWrapper(wsn);
+	}
+
+	public void receive(RequestStatus requestStatus) {
+		jobs.receive(requestStatus);
 	}
 
 	public Future<Void> addController(final String controllerEndpointUrl) {
@@ -94,11 +82,11 @@ public class WSNAsyncWrapper {
 		);
 	}
 
-	public Future<JobResult> send(List<String> nodeIds, Message message) {
+	public Future<JobResult> send(List<String> nodeIds, Message message, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("send", wsn.send(nodeIds, message), nodeIds, Job.JobType.send);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
@@ -112,11 +100,11 @@ public class WSNAsyncWrapper {
 		);
 	}
 
-	public Future<JobResult> areNodesAlive(List<String> nodes) {
+	public Future<JobResult> areNodesAlive(List<String> nodes, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("areNodesAlive", wsn.areNodesAlive(nodes), nodes, Job.JobType.areNodesAlive);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
@@ -128,59 +116,61 @@ public class WSNAsyncWrapper {
 		throw new UnsupportedOperationException("Not yet implemented!");
 	}
 
-	public Future<JobResult> destroyVirtualLink(String sourceNode, String targetNode) {
+	public Future<JobResult> destroyVirtualLink(String sourceNode, String targetNode, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("destroyVirtualLink", wsn.destroyVirtualLink(sourceNode, targetNode), sourceNode,
 				Job.JobType.destroyVirtualLink
 		);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
-	public Future<JobResult> disableNode(String node) {
+	public Future<JobResult> disableNode(String node, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("disableNode", wsn.disableNode(node), node, Job.JobType.disableNode);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
-	public Future<JobResult> disablePhysicalLink(String nodeA, String nodeB) {
+	public Future<JobResult> disablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("disablePhysicalLink", wsn.disablePhysicalLink(nodeA, nodeB), nodeA,
 				Job.JobType.disablePhysicalLink
 		);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
-	public Future<JobResult> enableNode(String node) {
+	public Future<JobResult> enableNode(String node, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("enableNode", wsn.enableNode(node), node, Job.JobType.enableNode);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
-	public Future<JobResult> enablePhysicalLink(String nodeA, String nodeB) {
+	public Future<JobResult> enablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("enablePhysicalLink", wsn.enablePhysicalLink(nodeA, nodeB), nodeA,
 				Job.JobType.enablePhysicalLink
 		);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
-	public Future<JobResult> flashPrograms(List<String> nodeIds, List<Integer> programIndices, List<Program> programs) {
+	public Future<JobResult> flashPrograms(List<String> nodeIds, List<Integer> programIndices, List<Program> programs,
+										   int timeout, TimeUnit timeUnit) {
+
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("flashPrograms", wsn.flashPrograms(nodeIds, programIndices, programs), nodeIds,
 				Job.JobType.flashPrograms
 		);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 180, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
@@ -224,11 +214,11 @@ public class WSNAsyncWrapper {
 		);
 	}
 
-	public Future<JobResult> resetNodes(List<String> nodes) {
+	public Future<JobResult> resetNodes(List<String> nodes, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("resetNodes", wsn.resetNodes(nodes), nodes, Job.JobType.resetNodes);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
@@ -237,7 +227,8 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance,
-											List<String> parameters, List<String> filters) {
+											List<String> parameters, List<String> filters, int timeout,
+											TimeUnit timeUnit) {
 
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job(
@@ -253,7 +244,7 @@ public class WSNAsyncWrapper {
 				Job.JobType.setVirtualLink
 		);
 		job.addListener(new FutureJobResultListener(future));
-		jobs.submit(job, 10, TimeUnit.SECONDS);
+		jobs.submit(job, timeout, timeUnit);
 		return future;
 	}
 
