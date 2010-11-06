@@ -21,6 +21,18 @@ public class WiseMLHelper {
 	 * contained in the setup-part of the document.
 	 *
 	 * @param serializedWiseML a serialized WiseML document
+	 *
+	 * @return a List of node URNs
+	 */
+	public static List<String> getNodeUrns(String serializedWiseML) {
+		return getNodeUrns(serializedWiseML, (String[]) null);
+	}
+
+	/**
+	 * Parses the WiseML document that is passed in as String in {@code wiseML} and reads out all node URNs that are
+	 * contained in the setup-part of the document.
+	 *
+	 * @param serializedWiseML a serialized WiseML document
 	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB motes
 	 *                         contained in the WiseML document
 	 *
@@ -28,7 +40,7 @@ public class WiseMLHelper {
 	 */
 	public static List<String> getNodeUrns(String serializedWiseML, String... types) {
 
-		List<String> nodeTypes = Lists.newArrayList(types);
+		List<String> nodeTypes = types == null ? null : Lists.newArrayList(types);
 		List<String> nodeUrns = new LinkedList<String>();
 
 		Wiseml wiseml = deserialize(serializedWiseML);

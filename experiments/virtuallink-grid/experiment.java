@@ -30,71 +30,17 @@ import com.google.common.collect.*;
 
 // Endpoint URL of local controller instance, the testbed will use this URL to send us node outputs
 String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
+String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
 
-// Authentication credentials and other relevant information used again and again as method parameters
-String urnPrefix 					= "urn:wisebed:uzl-staging:";
-String username						= "testbeduzl1";
-String password						= "testbeduzl1";
-    
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
-String snaaEndpointURL 				= "http://wisebed-staging.itm.uni-luebeck.de:8890/snaa";
-String rsEndpointURL				= "http://wisebed-staging.itm.uni-luebeck.de:8889/rs";
-String sessionManagementEndpointURL	= "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
+String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 
 // Retrieve Java proxies of the endpoint URLs above
-SNAA authenticationSystem 			= SNAAServiceHelper.getSNAAService(snaaEndpointURL);
-RS reservationSystem				= RSServiceHelper.getRSService(rsEndpointURL);
 SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL); 
-
-
 
 //--------------------------------------------------------------------------
 // Application logic
 //--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-// 1st step: authenticate with the system
-//--------------------------------------------------------------------------
-
-// build argument types
-AuthenticationTriple credentials = new AuthenticationTriple();
-credentials.setUrnPrefix(urnPrefix);
-credentials.setUsername(username);
-credentials.setPassword(password);
-List credentialsList = new ArrayList();
-credentialsList.add(credentials);
-
-// do the authentication
-log.info("Authenticating...");
-List secretAuthenticationKeys = authenticationSystem.authenticate(credentialsList);
-log.info("Successfully authenticated!");
-
-
-//--------------------------------------------------------------------------
-// 2nd step: reserve some nodes (here: all nodes)
-//--------------------------------------------------------------------------
-
-// retrieve the node URNs of all iSense nodes
-String serializedWiseML = sessionManagement.getNetwork();
-List nodeURNs = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {"isense"});
-log.info("Retrieved the node URNs of all iSense nodes: {}", Arrays.toString(nodeURNs.toArray()));
-
-// create reservation request data to reserve all iSense nodes for 10 minutes
-ConfidentialReservationData reservationData = helper.generateConfidentialReservationData(
-		nodeURNs,
-		new Date(), 10, TimeUnit.MINUTES,
-		urnPrefix, username
-);
-
-// do the reservation
-log.info("Trying to reserve the following nodes: {}", nodeURNs);
-List secretReservationKeys = reservationSystem.makeReservation(
-		helper.copySnaaToRs(secretAuthenticationKeys),
-		reservationData
-);
-log.info("Successfully reserved nodes: {}", nodeURNs);
-
-
 
 //--------------------------------------------------------------------------
 // 3rd step: start local controller instance
@@ -105,26 +51,30 @@ log.info("Successfully reserved nodes: {}", nodeURNs);
 //--------------------------------------------------------------------------
 
 log.debug("Using the following parameters for calling getInstance(): {}, {}",
-		StringUtils.jaxbMarshal(helper.copyRsToWsn(secretReservationKeys)),
+		StringUtils.jaxbMarshal(helper.parseSecretReservationKeys(secretReservationKeys)),
 		localControllerEndpointURL
 );
 
-String wsnEndpointURL = sessionManagement.getInstance(
-		helper.copyRsToWsn(secretReservationKeys),
-		localControllerEndpointURL
-);
+String wsnEndpointURL = null;
+try {
+	wsnEndpointURL = sessionManagement.getInstance(
+			helper.parseSecretReservationKeys(secretReservationKeys),
+			localControllerEndpointURL
+	);
+} catch (UnknownReservationIdException_Exception e) {
+	log.warn("There was not reservation found with the given secret reservation key. Exiting.");
+	System.exit(1);
+}
 
 log.info("Got an WSN instance URL, endpoint is: {}", wsnEndpointURL);
 WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
-final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService, localControllerEndpointURL);
+final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 Controller controller = new Controller() {
-	@Override
-	public void receive(@WebParam(name = "msg", targetNamespace = "") final Message msg) {
+	public void receive(Message msg) {
 		// nothing to do
 	}
-	@Override
-	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final RequestStatus status) {
+	public void receiveStatus(RequestStatus status) {
 		wsn.receive(status);
 	}
 };
@@ -132,6 +82,10 @@ Controller controller = new Controller() {
 DelegatingController delegator = new DelegatingController(controller);
 delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
+
+// retrieve reserved node URNs from testbed
+List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
+log.info("Retrieved the following node URNs: {}", nodeURNs);
 
 //--------------------------------------------------------------------------
 // Steps 5..n: Experiment control using the WSN API
@@ -255,7 +209,10 @@ if(!WSNHelper.setVirtualLinks(wsn, neighborMap, wsnEndpointURL, 20, TimeUnit.SEC
 	System.exit(1);
 }
 
-/*Message startMsg = new Message();
+System.out.println("Please press ENTER to let nodes emit virtual link messages!");
+System.in.read();
+
+Message startMsg = new Message();
 BinaryMessage startBinaryMsg = new BinaryMessage();
 startBinaryMsg.setBinaryData(new byte[]{0x1});
 startBinaryMsg.setBinaryType((byte) 0xb);
@@ -266,7 +223,7 @@ Future sendFuture = wsn.send(nodeURNs, startMsg, 10, TimeUnit.SECONDS);
 if (sendFuture.get().getSuccessPercent() < 100) {
 	System.out.println("Start command could not be sent to all nodes!!! Exiting...");
 	System.exit(1);
-}*/
+}
    	
 //--------------------------------------------------------------------------
 // Steps 5..n: Shutdown experiment and exit
@@ -283,18 +240,10 @@ stopBinaryMsg.setBinaryType((byte) 0xb);
 stopMsg.setBinaryMessage(stopBinaryMsg);
 stopMsg.setSourceNodeId("urn:wisebed:uzl-staging:0xffff");
 stopMsg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()));
-Future sendFuture = wsn.send(nodeURNs, stopMsg);
+Future sendFuture = wsn.send(nodeURNs, stopMsg, 10, TimeUnit.SECONDS);
 if (sendFuture.get().getSuccessPercent() < 100) {
-    System.out.println("Start command could not be sent to all nodes!!! Exiting...");
+    System.out.println("Stop command could not be sent to all nodes!!! Exiting...");
     System.exit(1);
 }
 
-log.info("Done running experiments. Now freeing WSN service instance...");
-try {
-	sessionManagement.free(helper.copyRsToWsn(secretReservationKeys));
-} catch (Exception e) {
-	// ignore silently
-}
-
-log.info("Freed WSN service instance. Shutting down...");
 System.exit(0);
