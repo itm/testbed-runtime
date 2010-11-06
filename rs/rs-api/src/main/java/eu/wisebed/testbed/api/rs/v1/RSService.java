@@ -16,31 +16,10 @@ import java.util.logging.Logger;
  * Generated source version: 2.1
  */
 @WebServiceClient(name = "RSService", targetNamespace = "urn:RSService", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
-public class RSService
-		extends Service {
+public class RSService extends Service {
 
-	private final static URL RSSERVICE_WSDL_LOCATION;
-	private final static Logger logger = Logger.getLogger(eu.wisebed.testbed.api.rs.v1.RSService.class.getName());
-
-	static {
-		URL url = null;
-		try {
-			URL baseUrl;
-			baseUrl = eu.wisebed.testbed.api.rs.v1.RSService.class.getResource(".");
-			url = new URL(baseUrl, "REPLACE_WITH_ACTUAL_URL");
-		} catch (MalformedURLException e) {
-			logger.warning("Failed to create URL for the wsdl Location: 'REPLACE_WITH_ACTUAL_URL', retrying as a local file");
-			logger.warning(e.getMessage());
-		}
-		RSSERVICE_WSDL_LOCATION = url;
-	}
-
-	public RSService(URL wsdlLocation, QName serviceName) {
-		super(wsdlLocation, serviceName);
-	}
-
-	public RSService() {
-		super(RSSERVICE_WSDL_LOCATION, new QName("urn:RSService", "RSService"));
+	public RSService(URL wsdlLocation) {
+		super(wsdlLocation, new QName("urn:RSService", "RSService"));
 	}
 
 	/**
