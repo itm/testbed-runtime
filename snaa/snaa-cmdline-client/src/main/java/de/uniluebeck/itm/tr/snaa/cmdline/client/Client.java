@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.cmdline.client;
 
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -103,8 +104,7 @@ public class Client {
 			printUsageAndExit(options);
 		}
 
-		SNAAService service = new SNAAService(url, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
-		SNAA port = service.getPort(SNAA.class);
+		SNAA port = SNAAServiceHelper.getSNAAService(url.toString());
 
 		if (operation == Operation.authenticate) {
 			AuthenticationTriple auth1 = new AuthenticationTriple();

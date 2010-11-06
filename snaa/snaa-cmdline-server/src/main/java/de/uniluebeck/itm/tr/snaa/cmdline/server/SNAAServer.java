@@ -35,6 +35,7 @@ import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -348,13 +349,9 @@ public class SNAAServer {
     private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/shib1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+		SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
 
-        AuthenticationTriple auth1 = new AuthenticationTriple();
+		AuthenticationTriple auth1 = new AuthenticationTriple();
         auth1.setUrnPrefix("urn:wisebed:shib1");
         auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
         auth1.setPassword("xxx");
@@ -372,11 +369,7 @@ public class SNAAServer {
     private static void callFederatorAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/fed1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+        SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/fed1");
 
         List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
 
