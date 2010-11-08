@@ -53,7 +53,7 @@ public class BeanShellHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
 
-	private static Program readProgram(String pathname, String name, final String other, final String platform,
+	public static Program readProgram(String pathname, String name, final String other, final String platform,
 									   final String version) throws Exception {
 
 		final ProgramMetaData programMetaData = new ProgramMetaData();
