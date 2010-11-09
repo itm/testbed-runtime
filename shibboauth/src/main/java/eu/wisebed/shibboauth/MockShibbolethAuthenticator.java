@@ -1,14 +1,26 @@
-import eu.wisebed.shibboauth.IShibbolethAuthenticator;
+package eu.wisebed.shibboauth;
+
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class MockShibbolethSNAAImpl implements IShibbolethAuthenticator{
-    private String pageContent = "pageContent";
+/**
+ * Created by IntelliJ IDEA.
+ * User: nrohwedder
+ * Date: 09.11.2010
+ * Time: 12:58:47
+ * To change this template use File | Settings | File Templates.
+ */
+
+public class MockShibbolethAuthenticator implements IShibbolethAuthenticator {
+    private String pageContent = "123456";
+
     @Override
     public String authenticate() throws Exception {
         return pageContent;
@@ -16,11 +28,7 @@ public class MockShibbolethSNAAImpl implements IShibbolethAuthenticator{
 
     @Override
     public Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception {
-        //create List for unit-test-authorization
-        List<Object> authorizeList = new LinkedList<Object>();
-        
-        Map<String, List<Object>> returnMap = new HashMap<String, List<Object>>();
-        return null;
+        return new HashMap<String, List<Object>>();
     }
 
     @Override
@@ -55,7 +63,6 @@ public class MockShibbolethSNAAImpl implements IShibbolethAuthenticator{
 
     @Override
     public CookieStore getCookieStore() {
-        //TODO implementation
-        return null;
+        return new BasicCookieStore();
     }
 }

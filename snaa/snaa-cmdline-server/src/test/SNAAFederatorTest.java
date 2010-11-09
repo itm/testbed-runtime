@@ -21,11 +21,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 
 import java.util.*;
 
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
@@ -63,6 +66,7 @@ public class SNAAFederatorTest {
 
     @Before
     public void setUp() throws Exception {
+        Injector injector = Guice.createInjector(new ShibbolethSNAAModule());
         Properties SNAAProps1 = new Properties();
         for (String key : SNAAPropertiesMapWisebed1.keySet()) {
             SNAAProps1.setProperty(key, SNAAPropertiesMapWisebed1.get(key));
@@ -77,7 +81,7 @@ public class SNAAFederatorTest {
 
         Map<String, Set<String>> snaaPrefixSet = new HashMap<String, Set<String>>();
         snaaPrefixSet.put("http://localhost:8080/snaa/shib1", testbed1);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://gridlab23.unibe.ch/portal/SNA/secretUserKey");
+        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://gridlab23.unibe.ch/portal/SNA/secretUserKey", injector);
     }
 
     @Test

@@ -31,6 +31,7 @@ import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
+import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
@@ -65,6 +66,8 @@ public class SNAAServer {
     private static SNAA federator;
 
     private static HttpServer server;
+
+    private static Injector shibbolethInjector = Guice.createInjector(new ShibbolethSNAAModule());
 
     private enum FederatorType {
         GENERIC, WISEBED
@@ -121,13 +124,12 @@ public class SNAAServer {
 
     }
 
+
     public static HttpServer startFromProperties(Properties props) throws Exception {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
         int port = Integer.parseInt(props.getProperty("config.port", "8080"));
 
         startHttpServer(port);
-
-        Injector shibboInjector = Guice.createInjector(new ShibbolethSNAAModule());
 
         Set<String> snaaNames = parseCSV(props.getProperty("config.snaas", ""));
 
@@ -160,7 +162,7 @@ public class SNAAServer {
                         shibbolethSecretUserKeyUrl
                 );
 
-                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibboInjector);
+                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector);
 
             } else if ("jaas".equals(type)) {
 
@@ -216,7 +218,7 @@ public class SNAAServer {
 
                 }
 
-                startFederator(fedType, path, secretAuthkeyUrl, shibboInjector, federatedUrnPrefixes);
+                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, federatedUrnPrefixes);
 
             } else {
                 log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
@@ -511,5 +513,9 @@ public class SNAAServer {
         }
 
         return attributes;
+    }
+
+    public static void setMockShibbolethInjector(){
+        shibbolethInjector = Guice.createInjector(new MockShibbolethSNAAModule());
     }
 }

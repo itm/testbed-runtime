@@ -26,7 +26,6 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import com.google.inject.Injector;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
-import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
