@@ -27,13 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: nrohwedder
- * Date: 07.05.2010
- * Time: 11:44:57
- * To change this template use File | Settings | File Templates.
- */
 public class Comparison {
 
 	//TODO performance-verbesserung

@@ -23,13 +23,12 @@
 
 package eu.wisebed.testbed.api.snaa.authorization;
 
-import de.uniluebeck.itm.tr.util.MySQLConnection;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
 import eu.wisebed.testbed.api.snaa.v1.Action;
 import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
-import java.sql.SQLException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -37,37 +36,29 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
 
     private Map<String, String> attributes;
 
-    private static String dbUser = "root";
-    private static String dbPwd = "";
-    private static String dbUrl = "jdbc:mysql://localhost:3306/snaportal";
-
-    private MySQLConnection connection;
-
     private static final Logger log = LoggerFactory.getLogger(AttributeBasedAuthorization.class);
+
+    private AuthorizationDataSource dataSource;
 
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
 
+    public void setDataSource(AuthorizationDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
-        String uid = null;
-        //check if user is authorised in Database
+        String puid = null;
+        //check if user is authorised in datasource
         try {
             //get uid
 
             List<Object> uidList = details.getUserDetails().get("personUniqueID");
             if (uidList == null) return false;
 
-            uid = (String) uidList.get(0);
-
-            connection = new MySQLConnection(dbUrl, dbUser, dbPwd);
-            int user_id = getUserId(uid);
-            int action_id = getActionId(action.getAction());
-
-            getSubscriptionRole(user_id, action_id);
-
-            connection.disconnect();
+            puid = (String) uidList.get(0);
 
             //check authorization for attribute-Map
             for (Object key : details.getUserDetails().keySet()) {
@@ -77,13 +68,13 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
                 }
             }
 
+            //check datasource
+            return dataSource.isAuthorized(puid, action.getAction());
         }
         catch (Exception e) {
-            log.warn("Warning: User: " + uid + " not authorized for action: " + action.getAction());
+            log.warn(e.getMessage());
             return false;
         }
-
-        return true;
     }
 
 
@@ -112,21 +103,4 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
         return (((String) value).matches(attributes.get(regex)));
     }
 
-    private static String userIDQuery = "SELECT user_id FROM User WHERE user_uid = '{}'";
-    private static String actionIDQuery = "SELECT action_id from Action WHERE action_name = '{}'";
-    private static String subscriptionRole = "SELECT subscription_role FROM Subscription, ActionManager WHERE Subscription.subscription_role = ActionManager.role_id " +
-                " AND Subscription.subscription_user = '{}' AND Subscription.subscription_state ='1' AND ActionManager.action_id = '{}'";
-
-    //sql-connects
-    private int getUserId(String user_uid) throws SQLException {
-        return connection.getSingleInt(MessageFormatter.format(userIDQuery, user_uid.trim()), "user_id");
-    }
-
-    public int getActionId(String action) throws SQLException {
-        return connection.getSingleInt(MessageFormatter.format(actionIDQuery, action.trim()), "action_id");
-    }
-
-    public int getSubscriptionRole(int userId, int actionId) throws Exception {
-        return connection.getSingleInt(MessageFormatter.format(subscriptionRole, userId, actionId), "subscription_role");
-    }
 }

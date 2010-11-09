@@ -5,8 +5,10 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.config.TimestampStyle;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Interpolation;
 import de.itm.uniluebeck.tr.wiseml.merger.enums.Unit;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.VecMath;
@@ -29,15 +31,12 @@ import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 public class SetupMerger extends WiseMLElementMerger {
 	
 	
-	private static final int INIT = 0;
 	private static final int PROPERTIES = 1;
 	private static final int DEFAULTS = 2;
 	private static final int NODES = 3;
-	//private static final int LINKS = 4;
+	private static final int LINKS = 4;
 	
-	private int state;
-	private boolean[] skip; // true if input i should be incremented
-	
+	private int state;	
 
 	public SetupMerger(
 			final WiseMLTreeMerger parent, 
@@ -45,65 +44,34 @@ public class SetupMerger extends WiseMLElementMerger {
 			final MergerConfiguration configuration, 
 			final MergerResources resources) {
 		super(parent, inputs, configuration, resources, WiseMLTag.setup);
-		this.state = INIT;
-		this.skip = new boolean[inputs.length];
+		this.state = PROPERTIES;
 	}
 
 	@Override
 	public void fillQueue() {
-		if (state == INIT && mergeProperties()) {
+		if (state == PROPERTIES && mergeProperties()) {
 			return;
 		}
-		if (state == PROPERTIES && mergeDefaults()) {
+		if (state == DEFAULTS && mergeDefaults()) {
 			return;
 		}
-		if (state == DEFAULTS && mergeNodes()) {
+		if (state == NODES && mergeNodes()) {
 			return;
 		}
-		if (state == NODES && mergeLinks()) {
+		if (state == LINKS && mergeLinks()) {
 			return;
 		}
 		finished = true;
 	}
 	
-	private WiseMLTreeReader[] getListReaders(WiseMLTag tag) {
-		boolean found = false;
-		WiseMLTreeReader[] nodeListInputs = new WiseMLTreeReader[inputs.length];
-		for (int i = 0; i < inputs.length; i++) {
-			WiseMLTreeReader nextReader = inputs[i].getSubElementReader();
-			if (nextReader.isFinished()) {
-				inputs[i].nextSubElementReader();
-				nextReader = inputs[i].getSubElementReader();
-			}
-			if (nextReader.isList()) {
-				if (nextReader.getSubElementReader() == null) {
-					if (!nextReader.nextSubElementReader()) {
-						return null;
-					}
-				}
-				if (nextReader.getSubElementReader().getTag().equals(tag)) {
-					found = true;
-					nodeListInputs[i] = nextReader;
-					skip[i] = true;
-				}
-			}
-		}
-		return found?nodeListInputs:null;
-	}
 	
-	private void updateInputs() {
-		for (int i = 0; i < skip.length; i++) {
-			if (skip[i]) {
-				inputs[i].nextSubElementReader();
-				skip[i] = false;
-			}
-		}
-	}
+	
 
 	private boolean mergeNodes() {
-		updateInputs();
+		//updateInputs();
 		//printInputState("before <node>*");
-		WiseMLTreeReader[] nodeListInputs = getListReaders(WiseMLTag.node);
+		WiseMLTreeReader[] nodeListInputs = 
+			findSequenceReaders(WiseMLSequence.SetupNode);
 		
 		
 		if (nodeListInputs != null) {
@@ -118,9 +86,10 @@ public class SetupMerger extends WiseMLElementMerger {
 	}
 	
 	private boolean mergeLinks() {
-		updateInputs();
+		//updateInputs();
 		//printInputState("before <link>*");
-		WiseMLTreeReader[] linkListInputs = getListReaders(WiseMLTag.link);
+		WiseMLTreeReader[] linkListInputs = 
+			findSequenceReaders(WiseMLSequence.SetupLink);
 		
 		
 		if (linkListInputs != null) {
@@ -136,21 +105,22 @@ public class SetupMerger extends WiseMLElementMerger {
 
 	private boolean mergeDefaults() {
 		final NodeProperties[] inputDefaultNodes = 
-			new NodeProperties[inputs.length];
+			new NodeProperties[inputCount()];
 		final LinkProperties[] inputDefaultLinks = 
-			new LinkProperties[inputs.length];
+			new LinkProperties[inputCount()];
 		
 		//printInputState("before <defaults>");
 		
 		// loop through inputs (<defaults> is optional)
-		for (int i = 0; i < inputs.length; i++) {
-			WiseMLTreeReader defaultsReader = inputs[i].getSubElementReader();
+		for (int i = 0; i < inputCount(); i++) {
+			WiseMLTreeReader defaultsReader = getSubInputReader(i);
 			if (defaultsReader.isMappedToTag() 
 					&& defaultsReader.getTag().equals(WiseMLTag.defaults)) {
 				readDefaults(inputDefaultNodes, inputDefaultLinks, 
 						i, defaultsReader);
 				
-				skip[i] = true;
+			} else {
+				holdInput(i);
 			}
 		}
 		
@@ -185,6 +155,10 @@ public class SetupMerger extends WiseMLElementMerger {
 				new LinkPropertiesTransformer(
 						inputDefaultLinks, 
 						outputDefaultLink));
+		resources.setNodeItemTransformer(
+				new NodeItemTransformer(
+						inputDefaultNodes, 
+						outputDefaultNode));
 		
 		// queue defaults
 		if (outputDefaultNode != null && outputDefaultLink != null) {
@@ -241,15 +215,15 @@ public class SetupMerger extends WiseMLElementMerger {
 	private boolean mergeProperties() {
 		
 		// create arrays
-		Coordinate[] origins = new Coordinate[inputs.length];
-		TimeInfo[] timeInfos = new TimeInfo[inputs.length];
-		Interpolation[] interpolations = new Interpolation[inputs.length];
-		String[] coordinateTypes = new String[inputs.length];
-		String[] descriptions = new String[inputs.length];
+		Coordinate[] origins = new Coordinate[inputCount()];
+		TimeInfo[] timeInfos = new TimeInfo[inputCount()];
+		Interpolation[] interpolations = new Interpolation[inputCount()];
+		String[] coordinateTypes = new String[inputCount()];
+		String[] descriptions = new String[inputCount()];
 		
 		// retrieve properties from inputs
-		for (int i = 0; i < inputs.length; i++) {
-			Map<WiseMLTag, Object> map = ParserHelper.getStructures(inputs[i]);
+		for (int i = 0; i < inputCount(); i++) {
+			Map<WiseMLTag, Object> map = getStructures(i);
 			origins[i] = (Coordinate)map.get(WiseMLTag.origin);
 			timeInfos[i] = (TimeInfo)map.get(WiseMLTag.timeinfo);
 			interpolations[i] = (Interpolation)map.get(WiseMLTag.interpolation);
@@ -270,6 +244,7 @@ public class SetupMerger extends WiseMLElementMerger {
 		return !queue.isEmpty();
 	}
 	
+
 	private void mergeDescription(String[] descriptions) {
 		boolean conflict = !allEqual(descriptions);
 		if (configuration.isForceResolveDescription() || conflict) {
@@ -383,6 +358,8 @@ public class SetupMerger extends WiseMLElementMerger {
 	private void mergeTimeInfo(TimeInfo[] timeInfos) {
 		TimeInfo timeInfo = null;
 		
+		resources.setInputTimeInfos(timeInfos);
+		
 		if (allEqual(timeInfos)) {
 			timeInfo = timeInfos[0];
 		} else {
@@ -476,10 +453,15 @@ public class SetupMerger extends WiseMLElementMerger {
 			
 			timeInfo.setEndDefined(useEnd);
 			timeInfo.setUnit(unit);
+			
+			// timestamp style
+			resources.setTimestampOffsetDefined(
+					configuration.getCustomTimestampStyle()
+					== TimestampStyle.Offsets);
 		}
 		
 		if (timeInfo != null) {
-			resources.setTimeInfo(timeInfo);
+			resources.setOutputTimeInfo(timeInfo);
 			queue.add(new TimeInfoReader(this, timeInfo));
 		}
 	}

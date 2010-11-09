@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
@@ -64,6 +65,11 @@ public abstract class WiseMLElementMerger extends WiseMLTreeMerger {
 	@Override
 	public String getText() {
 		return null; // TODO?
+	}
+
+	@Override
+	public WiseMLSequence getSequence() {
+		return null;
 	}
 	
 	

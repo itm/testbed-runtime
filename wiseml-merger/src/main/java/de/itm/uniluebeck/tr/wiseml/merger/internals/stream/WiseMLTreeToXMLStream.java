@@ -239,6 +239,8 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 	}
 	
 	private void endElement(final WiseMLTag tag) {
+		level--;
+		
 		// handle whitespace
 		if (!tag.isTextOnly()) {
 			String indent_str = indentation(level);
@@ -254,8 +256,6 @@ public class WiseMLTreeToXMLStream implements XMLStreamReader {
 				null,
 				null,
 				null));
-		
-		level--;
 	}
 	/*
 	private void processCurrentReader() {

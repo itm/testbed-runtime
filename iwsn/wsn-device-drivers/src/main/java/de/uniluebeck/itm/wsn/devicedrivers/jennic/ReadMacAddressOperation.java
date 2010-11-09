@@ -102,6 +102,11 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 		try {
 			log.debug("starting mac read operation");
 			if (readMac() && macAddress != null) {
+				try {
+					device.leaveProgrammingMode();
+				} catch (Exception e) {
+					log.warn("Failed to leave programming mode:" + e, e);
+				}
 				operationDone(macAddress);
 				return;
 			}
@@ -109,12 +114,6 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 			log.error("Unhandled error in thread: " + t, t);
 			operationDone(t);
 			return;
-		} finally {
-			try {
-				device.leaveProgrammingMode();
-			} catch (Exception e) {
-				log.warn("Failed to leave programming mode:" + e, e);
-			}
 		}
 
 		// Indicate failure

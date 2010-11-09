@@ -38,11 +38,21 @@ public class EndpointPropertiesTestMap {
         put("shib1.urnprefix", "urn:wisebed1:shib1");
         put("shib1.path", "/snaa/shib1");
         put("shib1.authorization_class", "eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization");
+        put("shib1.authorization.datasource", "eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource");        
+        put("shib1.authorization.datasource.username", "root");
+        put("shib1.authorization.datasource.password", "");
+        put("shib1.authorization.datasource.url", "jdbc:mysql://localhost:3306/snaportal");
+        put("shib1.authorization.1.key","homeOrganization");
+        put("shib1.authorization.1.value","wisebed1.itm.uni-luebeck.de");
 
         put("shib2.type", "shibboleth");
         put("shib2.urnprefix", "urn:wisebed1:shib2");
         put("shib2.path", "/snaa/shib2");
         put("shib2.authorization_class", "eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization");
+        put("shib2.authorization.datasource", "eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource");
+        put("shib2.authorization.datasource.username", "root");
+        put("shib2.authorization.datasource.password", "");
+        put("shib2.authorization.datasource.url", "jdbc:mysql://localhost:3306/snaportal");
         put("shib2.authorization.1.key","homeOrganization");
         put("shib2.authorization.1.value","wisebed1.itm.uni-luebeck.de");
 

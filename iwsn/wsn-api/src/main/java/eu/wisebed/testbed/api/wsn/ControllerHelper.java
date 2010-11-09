@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -164,9 +166,16 @@ public class ControllerHelper {
         this.maximumDeliveryQueueSize =
                 maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
         executorService = new ScheduledThreadPoolExecutor(1,
-                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build()
+                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build(),
+				new RejectedExecutionHandler() {
+					@Override
+					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
+						log.warn("!!!! ControllerHelper.rejectedExecution !!!! Re-scheduling in 100ms.");
+						executorService.schedule(r, 100, TimeUnit.MILLISECONDS);
+					}
+				}
         );
-        executorService.setMaximumPoolSize(1);
+		executorService.setMaximumPoolSize(Integer.MAX_VALUE);
     }
 
     /**
@@ -176,12 +185,10 @@ public class ControllerHelper {
      *                              instance
      */
     public void addController(String controllerEndpointUrl) {
-        Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl);
+        Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, executorService);
         synchronized (controllerEndpoints) {
             controllerEndpoints.put(controllerEndpointUrl, controller);
         }
-        if (getControllerCount() >= executorService.getCorePoolSize())
-            executorService.setMaximumPoolSize(getControllerCount());
     }
 
     /**
@@ -194,8 +201,6 @@ public class ControllerHelper {
         synchronized (controllerEndpoints) {
             controllerEndpoints.remove(controllerEndpointUrl);
         }
-        if (getControllerCount() >= executorService.getCorePoolSize())
-            executorService.setMaximumPoolSize(getControllerCount());
     }
 
     /**
@@ -215,7 +220,8 @@ public class ControllerHelper {
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
                 log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
-                executorService.submit(new DeliverMessageRunnable(controllerEntry, message));
+				DeliverMessageRunnable runnable = new DeliverMessageRunnable(controllerEntry, message);
+				executorService.submit(runnable);
             }
         }
     }
@@ -235,8 +241,12 @@ public class ControllerHelper {
 
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-                log.debug("Delivering request status with requestID {} to endpoint URL {}",
-                        requestStatus.getRequestId(), controllerEntry.getKey()
+                log.debug("Delivering request status with requestID {} to endpoint URL {}. Delivery queue size: {}",
+                        new Object[] {
+								requestStatus.getRequestId(),
+								controllerEntry.getKey(),
+								executorService.getQueue().size()
+						}
                 );
                 executorService.submit(new DeliverRequestStatusRunnable(controllerEntry, requestStatus));
             }

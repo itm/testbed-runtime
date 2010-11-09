@@ -1,6 +1,7 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.NamedItemListMerger;
@@ -14,7 +15,15 @@ public class TraceListMerger extends NamedItemListMerger {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources, WiseMLTag.trace);
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.trace,
+				WiseMLSequence.Trace);
+		this.mergingMode = this.configuration.getTraceListMergingMode();
+		this.customID = this.configuration.getCustomTraceID();
 	}
 
 	@Override

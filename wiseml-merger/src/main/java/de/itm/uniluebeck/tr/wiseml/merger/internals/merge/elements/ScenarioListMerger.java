@@ -1,6 +1,7 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.NamedItemListMerger;
@@ -14,7 +15,15 @@ public class ScenarioListMerger extends NamedItemListMerger {
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources, WiseMLTag.scenario);
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.scenario,
+				WiseMLSequence.Scenario);
+		this.mergingMode = this.configuration.getScenarioListMergingMode();
+		this.customID = this.configuration.getCustomScenarioID();
 	}
 
 	@Override

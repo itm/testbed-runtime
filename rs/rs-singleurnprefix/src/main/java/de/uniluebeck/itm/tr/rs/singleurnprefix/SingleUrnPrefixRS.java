@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
+import com.google.common.base.Preconditions;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.testbed.api.rs.v1.*;
@@ -152,6 +153,8 @@ public class SingleUrnPrefixRS implements RS {
 			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
+		Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
+
 		SecretReservationKey secretReservationKey = performReservationSanityCheck(secretReservationKeys);
 		ConfidentialReservationData reservation = persistence.getReservation(secretReservationKey);
 
@@ -175,6 +178,9 @@ public class SingleUrnPrefixRS implements RS {
 			List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
+		Preconditions.checkNotNull(authenticationData, "Parameter authenticationData is null!");
+		Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
+
 		// getReservationBeforeDeletion does sanity check
 		getReservation(secretReservationKeys);
 		ConfidentialReservationData reservation = persistence.deleteReservation(secretReservationKeys.get(0));
@@ -186,6 +192,9 @@ public class SingleUrnPrefixRS implements RS {
 	public List<PublicReservationData> getReservations(
 			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
 			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+
+		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
+		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
 
 		Interval request =
 				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
@@ -201,6 +210,9 @@ public class SingleUrnPrefixRS implements RS {
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+
+		Preconditions.checkNotNull(period, "Parameter period is null!");
+		Preconditions.checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKey is null!");
 
 		//checking on null for period
 		//checking on null for secretAuthenticationKey in performSanityCheck

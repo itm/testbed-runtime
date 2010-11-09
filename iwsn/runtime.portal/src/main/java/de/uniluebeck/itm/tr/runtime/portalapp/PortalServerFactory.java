@@ -58,7 +58,7 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			String urnPrefix = portalapp.getWebservice().getUrnprefix();
 			Integer maximumDeliveryQueueSize = portalapp.getWebservice().getMaximumdeliveryqueuesize();
 
-			String wiseMLFilename = portalapp.getWebservice().getWisemlfilename();
+			String wiseMLFilename = portalapp.getWebservice().getWisemlfilename().trim();
 			File wiseMLFile = new File(wiseMLFilename);
 
 			if (!wiseMLFile.exists()) {

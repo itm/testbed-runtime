@@ -33,6 +33,9 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -53,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("restriction")
 public class SNAAServer {
 
-	private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
+    private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
     private static final String shibbolethSecretUserKeyUrl = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
 
@@ -346,13 +349,9 @@ public class SNAAServer {
     private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/shib1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+		SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
 
-        AuthenticationTriple auth1 = new AuthenticationTriple();
+		AuthenticationTriple auth1 = new AuthenticationTriple();
         auth1.setUrnPrefix("urn:wisebed:shib1");
         auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
         auth1.setPassword("xxx");
@@ -370,11 +369,7 @@ public class SNAAServer {
     private static void callFederatorAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/fed1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+        SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/fed1");
 
         List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
 
@@ -436,15 +431,46 @@ public class SNAAServer {
 
     }
 
-    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) {
+    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
         ((AttributeBasedAuthorization) authorization).setAttributes(attributes);
+        ((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
     }
 
     private static String authorizationAtt = ".authorization";
     private static String authorizationKeyAtt = ".key";
     private static String authorizationValAtt = ".value";
-    private static String authorizationCompAtt = ".comp";
+    private static String authorizationDataSource = ".datasource";
+    private static String authorizationDataSourceUsername = ".username";
+    private static String authorizationDataSourcePassword = ".password";
+    private static String authorizationDataSourceUrl = ".url";
+
+    private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        for (Object o : props.keySet()) {
+            String dataSourceName = snaaName + authorizationAtt + authorizationDataSource;
+            if (o.equals(dataSourceName)) {
+                AuthorizationDataSource dataSource = (AuthorizationDataSource) Class.forName(props.getProperty((String) o)).newInstance();
+
+                String dataSourceUsername = props.getProperty(dataSourceName + authorizationDataSourceUsername);
+                String dataSourcePassword = props.getProperty(dataSourceName + authorizationDataSourcePassword);
+                String dataSourceUrl = props.getProperty(dataSourceName + authorizationDataSourceUrl);
+
+                if (dataSourceUsername != null) {
+                    dataSource.setUsername(dataSourceUsername);
+                }
+                if (dataSourcePassword != null) {
+                    dataSource.setPassword(dataSourcePassword);
+                }
+                if (dataSourceUrl != null) {
+                    dataSource.setUrl(dataSourceUrl);
+                }
+
+                return dataSource;
+            }
+        }
+        //set default
+        return new ShibbolethDataSource();
+    }
 
     private static Map<String, String> createAuthorizationAttributeMap(String snaaName, Properties props) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -457,14 +483,14 @@ public class SNAAServer {
             }
         }
 
-        for (String k : keys){
+        for (String k : keys) {
             String key = props.getProperty(k);
             //getting plain key-number from properties
             String plainKeyProperty = k.replaceAll(snaaName + authorizationAtt + ".", "");
             plainKeyProperty = plainKeyProperty.replaceAll(authorizationKeyAtt, "");
 
             String keyPrefix = snaaName + authorizationAtt + "." + plainKeyProperty;
-            
+
             //building value-property-string
             String value = props.getProperty(keyPrefix + authorizationValAtt);
 

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import de.itm.uniluebeck.tr.wiseml.merger.config.ListMergingMode;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
@@ -13,8 +14,8 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
 public abstract class NamedItemListMerger extends SortedListMerger<NamedListItem> {
 	
 	private WiseMLTag itemTag;
-	private ListMergingMode mergingMode;
-	private String customID;
+	protected ListMergingMode mergingMode;
+	protected String customID;
 	
 	private boolean[] inputRead;
 	private Set<String> knownIDs;
@@ -24,28 +25,27 @@ public abstract class NamedItemListMerger extends SortedListMerger<NamedListItem
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources,
-			final WiseMLTag itemTag) {
-		super(parent, inputs, configuration, resources);
+			final WiseMLTag itemTag,
+			final WiseMLSequence sequence) {
+		super(parent, inputs, configuration, resources, sequence);
 		this.itemTag = itemTag;
 		
 		this.inputRead = new boolean[inputs.length];
 		this.knownIDs = new HashSet<String>();
+		
 	}
 
 	@Override
 	protected NamedListItem readNextItem(int inputIndex) {
-		WiseMLTreeReader input = inputs[inputIndex];
-		if (input.isFinished()) {
+		if (!nextSubInputReader(inputIndex)) {
 			return null;
 		}
-		if (input.getSubElementReader() == null 
-				&& !input.nextSubElementReader()) {
-			return null;
-		}
-		WiseMLTreeReader nodeReader = input.getSubElementReader();
+		WiseMLTreeReader nodeReader = getSubInputReader(inputIndex);
 		
 		String id = WiseMLTreeReaderHelper.getAttributeValue(
 				nodeReader.getAttributeList(), "id");
+		
+		//System.out.println("next "+itemTag+" id for input "+inputIndex+": "+id);
 		
 		switch (mergingMode) {
 		case NoMerging: {

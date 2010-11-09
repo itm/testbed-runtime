@@ -356,8 +356,13 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 *
 	 */
 	public void operationDone(Operation op, Object result) {
-		if (log.isDebugEnabled())
-			log.debug("Operation " + op + " done, result: " + result);
+		if (log.isDebugEnabled()) {
+			if (!(result instanceof IDeviceBinFile)) {
+				log.debug("Operation " + op + " done, result: " + result);
+			} else {
+				log.debug("Operation " + op + " done.");
+			}
+		}
 
 		for (iSenseDeviceListener l : promiscousListeners)
 			l.operationDone(op, result);

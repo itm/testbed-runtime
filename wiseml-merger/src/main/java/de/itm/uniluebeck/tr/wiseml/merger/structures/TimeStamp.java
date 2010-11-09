@@ -73,4 +73,28 @@ public class TimeStamp {
 		}
 	}
 
+	public void setStart(DateTime start) {
+		this.start = start;
+		computeOffset();
+	}
+
+	public void setUnit(Unit unit) {
+		if (!this.unit.equals(unit)) {
+			this.unit = unit;
+			computeOffset();
+		}
+	}
+	
+	@Override
+	public String toString() {
+		if (offsetDefined) {
+			return Integer.toString(offset);
+		}
+		return instant.toString();
+	}
+
+	public void setOffsetDefined(boolean offsetDefined) {
+		this.offsetDefined = offsetDefined;
+	}
+
 }

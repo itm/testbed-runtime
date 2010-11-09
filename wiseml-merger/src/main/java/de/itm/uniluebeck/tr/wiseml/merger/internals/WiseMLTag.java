@@ -5,7 +5,7 @@ public enum WiseMLTag {
 	wiseml(false),
 	setup(false),
 	origin(false),
-	coordinate(false),
+//	coordinate(false),
 	x(true),
 	y(true),
 	z(true),
