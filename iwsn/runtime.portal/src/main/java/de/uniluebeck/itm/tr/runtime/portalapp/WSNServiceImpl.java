@@ -87,7 +87,7 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(
 			1,
-			1,
+			Integer.MAX_VALUE,
 			60L, TimeUnit.SECONDS,
 			new SynchronousQueue<Runnable>(),
 			new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build()
@@ -375,7 +375,7 @@ public class WSNServiceImpl implements WSNService {
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
 		controllerHelper.addController(controllerEndpointUrl);
-		wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
+		//wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override
@@ -383,7 +383,7 @@ public class WSNServiceImpl implements WSNService {
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
 		controllerHelper.removeController(controllerEndpointUrl);
-		wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
+		//wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override
