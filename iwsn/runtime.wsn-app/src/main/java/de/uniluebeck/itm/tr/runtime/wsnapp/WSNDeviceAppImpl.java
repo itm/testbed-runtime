@@ -36,25 +36,19 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
-import de.uniluebeck.itm.motelist.MoteList;
-import de.uniluebeck.itm.motelist.MoteListFactory;
-import de.uniluebeck.itm.motelist.MoteType;
-import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
-import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
+import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
+import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Singleton
@@ -62,19 +56,24 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceApp.class);
 
+	/**
+	 * The nodes URN for which this instance is created. Should only be needed for log statements. The 'rest' is done in
+	 * the WSNDeviceAppConnector instance.
+	 */
 	private String nodeUrn;
 
-	private String nodeType;
-
-	private String nodeSerialInterface;
-
+	/**
+	 * A reference to the overlay network used to receive and send messages.
+	 */
 	private TestbedRuntime testbedRuntime;
 
+	/**
+	 * A listener that is used to received messages from the overlay network.
+	 */
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
+
 		@Override
 		public void messageReceived(Messages.Msg msg) {
-
-			Preconditions.checkNotNull(device, "We should only receive message if we're connected to a device");
 
 			boolean isRecipient = nodeUrn.equals(msg.getTo());
 			boolean isOperationInvocation = WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST.equals(msg.getMsgType());
@@ -86,7 +85,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 				WSNAppMessages.OperationInvocation invocation = parseOperation(msg);
 
-				if (invocation != null && !isExclusiveOperationRunning()) {
+				if (invocation != null) {
 					log.trace("{} => Operation parsed: {}", nodeUrn, invocation.getOperation());
 					executeOperation(invocation, msg);
 				}
@@ -110,32 +109,17 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 	};
 
+	/**
+	 * Overlay network nodes register as a listener with this instance here to receive node outputs. The listeners node
+	 * names are kept here.
+	 */
 	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
-	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
-		@Override
-		public void sendToNode(final ByteBuffer packet) {
-			try {
-				if (log.isDebugEnabled()) {
-					log.debug(
-							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
-							nodeUrn,
-							StringUtils.toHexString(packet.array())
-					);
-				}
-				device.send(new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()));
-			} catch (Exception e) {
-				log.error("" + e, e);
-			}
-		}
-	};
-
-	private NodeApi nodeApi;
-
-	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
-
-	private String nodeUSBChipID;
-
+	/**
+	 * Executes registering and unregistering for sensor node outputs.
+	 *
+	 * @param management the message containing the (un)register command
+	 */
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
 			log.debug("{} => Node {} registered for node outputs", nodeUrn, management.getNodeName());
@@ -146,16 +130,10 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 	}
 
-	private Messages.Msg currentOperationInvocationMsg;
-
-	private WSNAppMessages.OperationInvocation currentOperationInvocation;
-
-	private TimeDiff currentOperationLastProgress;
-
-	private iSenseDevice device;
-
-	private SingleRequestMultiResponseListener.Responder currentOperationResponder;
-
+	/**
+	 * The connector to the actual sensor node. May be local (i.e. attached to a serial port) or remote (i.e. (multi-hop)
+	 * through remote-UART.
+	 */
 	private WSNDeviceAppConnector connector;
 
 	@Inject
@@ -169,40 +147,46 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		Preconditions.checkNotNull(nodeUrn);
 		Preconditions.checkNotNull(nodeType);
 
-		this.nodeUrn = nodeUrn;
-		this.nodeType = nodeType;
-		this.nodeUSBChipID = nodeUSBChipID;
-		this.nodeSerialInterface = nodeSerialInterface;
 		this.testbedRuntime = testbedRuntime;
-		this.nodeApi =
-				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
-						TimeUnit.MILLISECONDS
-				);
+		this.nodeUrn = nodeUrn;
 
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
 			log.error(nodeUrn + " => " + e, e);
 		}
+
+		this.connector = WSNDeviceAppConnectorFactory
+				.create(nodeUrn, nodeType, nodeUSBChipID, nodeSerialInterface, nodeAPITimeout);
+
 	}
 
+	/**
+	 * Parses incoming operation invocation and dispatches it to the corresponding method in the WSNDeviceAppConnector
+	 * instance.
+	 *
+	 * @param invocation the protobuf message that describes the operation to be invoked
+	 * @param msg		the protobuf message in which the operation invocation message was wrapped
+	 */
 	private void executeOperation(WSNAppMessages.OperationInvocation invocation, Messages.Msg msg) {
+
+		ReplyingNodeApiCallback callback = new ReplyingNodeApiCallback(msg);
 
 		switch (invocation.getOperation()) {
 
 			case ARE_NODES_ALIVE:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> checkAreNodesAlive()", nodeUrn);
-				executeAreNodesAlive(msg);
+				connector.isNodeAlive(callback);
 				break;
 
 			case DISABLE_NODE:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> disableNode()", nodeUrn);
-				connector.disableNode(new ReplyingNodeApiCallback(msg));
+				connector.disableNode(callback);
 				break;
 
 			case ENABLE_NODE:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> enableNode()", nodeUrn);
-				connector.enableNode(new ReplyingNodeApiCallback(msg));
+				connector.enableNode(callback);
 				break;
 
 			case DISABLE_PHYSICAL_LINK:
@@ -212,22 +196,21 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					WSNAppMessages.DisablePhysicalLink disablePhysicalLink =
 							WSNAppMessages.DisablePhysicalLink.parseFrom(invocation.getArguments());
 					long nodeB = StringUtils.parseHexOrDecLongFromUrn(disablePhysicalLink.getNodeB());
-					connector.disablePhysicalLink(nodeB, new ReplyingNodeApiCallback(msg));
+					connector.disablePhysicalLink(nodeB, callback);
 
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for disablePhysicalLink operation: {}. Ignoring...", nodeUrn,
 							e
+					);
+					callback.failure((byte) -1,
+							"Internal server error while parsing disablePhysicalLink operation".getBytes()
 					);
 					return;
 				} catch (NumberFormatException e) {
 					log.warn("{} => Couldn't parse long value for disablePhysicalLink operation: {}. Ignoring...",
 							nodeUrn, e
 					);
-					testbedRuntime.getUnreliableMessagingService()
-							.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-									buildRequestStatus(-1, "Destination node is not a valid long value!")
-							)
-							);
+					callback.failure((byte) -1, "Destination node is not a valid long value!".getBytes());
 				}
 				break;
 
@@ -238,37 +221,41 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					WSNAppMessages.EnablePhysicalLink enablePhysicalLink =
 							WSNAppMessages.EnablePhysicalLink.parseFrom(invocation.getArguments());
 					long nodeB = StringUtils.parseHexOrDecLongFromUrn(enablePhysicalLink.getNodeB());
-					connector.enablePhysicalLink(nodeB, new ReplyingNodeApiCallback(msg));
+					connector.enablePhysicalLink(nodeB, callback);
 
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for enablePhysicalLink operation: {}. Ignoring...", nodeUrn,
 							e
+					);
+					callback.failure((byte) -1,
+							"Internal server error while parsing enablePhysicalLink operation".getBytes()
 					);
 					return;
 				} catch (NumberFormatException e) {
 					log.warn("{} => Couldn't parse long value for enablePhysicalLink operation: {}. Ignoring...",
 							nodeUrn, e
 					);
-					testbedRuntime.getUnreliableMessagingService()
-							.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-									buildRequestStatus(-1, "Destination node is not a valid long value!")
-							)
-							);
+					callback.failure((byte) -1, "Destination node is not a valid long value!".getBytes());
 				}
 				break;
 
 			case RESET_NODES:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> resetNodes()", nodeUrn);
-				executeResetNodes(msg, invocation);
+				connector.resetNode(callback);
 				break;
 
 			case SEND:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", nodeUrn);
 				try {
+
 					WSNAppMessages.Message message = WSNAppMessages.Message.parseFrom(invocation.getArguments());
-					executeSendMessage(msg, message);
+					executeSendMessage(message, callback);
+
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for send operation: {}. Ignoring...", nodeUrn, e);
+					callback.failure((byte) -1,
+							"Internal server error while parsing send operation".getBytes()
+					);
 					return;
 				}
 				break;
@@ -276,11 +263,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			case SET_VIRTUAL_LINK:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> setVirtualLink()", nodeUrn);
 				try {
+
 					WSNAppMessages.SetVirtualLinkRequest setVirtualLinkRequest =
 							WSNAppMessages.SetVirtualLinkRequest.parseFrom(invocation.getArguments());
-					executeSetVirtualLink(setVirtualLinkRequest, msg);
+					executeSetVirtualLink(setVirtualLinkRequest, callback);
+
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for setVirtualLink operation: {}. Ignoring...", nodeUrn, e);
+					callback.failure((byte) -1,
+							"Internal server error while parsing setVirtualLink operation".getBytes()
+					);
 					return;
 				}
 				break;
@@ -288,11 +280,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			case DESTROY_VIRTUAL_LINK:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> destroyVirtualLink()", nodeUrn);
 				try {
+
 					WSNAppMessages.DestroyVirtualLinkRequest destroyVirtualLinkRequest =
 							WSNAppMessages.DestroyVirtualLinkRequest.parseFrom(invocation.getArguments());
-					executeDestroyVirtualLink(destroyVirtualLinkRequest, msg);
+					executeDestroyVirtualLink(destroyVirtualLinkRequest, callback);
+
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("{} => Couldn't parse message for setVirtualLink operation: {}. Ignoring...", nodeUrn, e);
+					callback.failure((byte) -1,
+							"Internal server error while parsing destroyVirtualLink operation".getBytes()
+					);
 					return;
 				}
 				break;
@@ -301,6 +298,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	}
 
+	/**
+	 * A callback that answers the result of an operation invocation to the invoking overlay node.
+	 */
 	private class ReplyingNodeApiCallback implements NodeApiCallback {
 
 		private Messages.Msg invocationMsg;
@@ -335,6 +335,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	}
 
+	/**
+	 * Helper method to build a RequestStatus object for asynchronous reply to an operation invocation.
+	 *
+	 * @param value   the operations return code
+	 * @param message a message to the invocator
+	 *
+	 * @return the serialized RequestStatus instance created
+	 */
 	private byte[] buildRequestStatus(int value, String message) {
 
 		WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status.newBuilder()
@@ -354,63 +362,46 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	}
 
 	public void executeDestroyVirtualLink(final WSNAppMessages.DestroyVirtualLinkRequest destroyVirtualLinkRequest,
-										  final Messages.Msg msg) {
+										  final ReplyingNodeApiCallback callback) {
 
-		Long destinationNode = null;
+		Long destinationNode;
 		try {
-
-			String[] strings = destroyVirtualLinkRequest.getTargetNode().split(":");
-			destinationNode = StringUtils.parseHexOrDecLong(strings[strings.length - 1]);
-
+			destinationNode = StringUtils.parseHexOrDecLongFromUrn(destroyVirtualLinkRequest.getTargetNode());
 		} catch (Exception e) {
-
 			log.warn(
 					"{} => Received destinationNode URN whose suffix could not be parsed to long: {}",
 					nodeUrn,
 					destroyVirtualLinkRequest.getTargetNode()
 			);
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-							buildRequestStatus(-1, "Destination node URN suffix is not a valid long value!")
-					)
-					);
-
+			callback.failure((byte) -1, "Destination node URN suffix is not a valid long value!".getBytes());
+			return;
 		}
 
 		if (destinationNode != null) {
-			connector.destroyVirtualLink(destinationNode, new ReplyingNodeApiCallback(msg));
+			connector.destroyVirtualLink(destinationNode, callback);
 		}
 	}
 
 	public void executeSetVirtualLink(final WSNAppMessages.SetVirtualLinkRequest setVirtualLinkRequest,
-									  final Messages.Msg msg) {
+									  final ReplyingNodeApiCallback callback) {
 
 		Long destinationNode = null;
 		try {
-
-			String[] strings = setVirtualLinkRequest.getTargetNode().split(":");
-			destinationNode = StringUtils.parseHexOrDecLong(strings[strings.length - 1]);
-
+			destinationNode = StringUtils.parseHexOrDecLongFromUrn(setVirtualLinkRequest.getTargetNode());
 		} catch (Exception e) {
-
 			log.warn("{} => Received destinationNode URN whose suffix could not be parsed to long: {}",
 					nodeUrn,
 					setVirtualLinkRequest.getTargetNode()
 			);
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(MessageTools.buildReply(msg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-							buildRequestStatus(-1, "Destination node URN suffix is not a valid long value!")
-					)
-					);
-
+			callback.failure((byte) -1, "Destination node URN suffix is not a valid long value!".getBytes());
 		}
 
 		if (destinationNode != null) {
-			connector.setVirtualLink(destinationNode, new ReplyingNodeApiCallback(msg));
+			connector.setVirtualLink(destinationNode, callback);
 		}
 	}
 
-	public void executeSendMessage(final Messages.Msg msg, final WSNAppMessages.Message message) {
+	public void executeSendMessage(final WSNAppMessages.Message message, final ReplyingNodeApiCallback callback) {
 
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", nodeUrn);
 
@@ -424,6 +415,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			if (!binaryMessage.hasBinaryType()) {
 
 				log.warn("{} => Message type missing in message {}", nodeUrn, message);
+				callback.failure((byte) -1, "Message type missing".getBytes());
 				return;
 
 			} else {
@@ -440,7 +432,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			}
 
-
 		} else if (message.hasTextMessage()) {
 
 			log.debug("{} => Delivering text message \"{}\"", message.getTextMessage());
@@ -452,75 +443,53 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		} else {
 
 			log.error("{} => This case MUST NOT OCCUR or something is wrong!!!!!!!!!!!!!!!", nodeUrn);
+			callback.failure((byte) -1, "Text missing in text message".getBytes());
 
 		}
 
-		connector.sendMessage(messageType, messageBytes, new ReplyingNodeApiCallback(msg));
+		connector.sendMessage(messageType, messageBytes, callback);
 	}
 
-	public void executeResetNodes(Messages.Msg msg, WSNAppMessages.OperationInvocation invocation) {
-		connector.resetNode(new ReplyingNodeApiCallback(msg));
-	}
-
-	@Override
-	public void executeFlashPrograms(WSNAppMessages.OperationInvocation invocation,
-									 SingleRequestMultiResponseListener.Responder responder) {
+	public void executeFlashPrograms(final WSNAppMessages.OperationInvocation invocation,
+									 final SingleRequestMultiResponseListener.Responder responder) {
 
 		try {
+
 			WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
 			connector.flashProgram(program, new WSNDeviceAppConnector.FlashProgramCallback() {
 				@Override
 				public void progress(final float percentage) {
-
-					log.debug("{} => WSNDeviceAppImpl.progressFlashPrograms({})", nodeUrn, percentage);
-
-					if (currentOperationLastProgress.isTimeout()) {
-
-						log.debug("{} => Sending asynchronous receivedRequestStatus message.", nodeUrn);
-						// send reply to indicate failure
-						currentOperationResponder.sendResponse(buildRequestStatus((int) (percentage * 100), null));
-						currentOperationLastProgress.touch();
-
-					}
-
+					log.debug("{} => WSNDeviceApp.flashProgram.progress({})", nodeUrn, percentage);
+					responder.sendResponse(buildRequestStatus((int) (percentage * 100), null));
 				}
 
 				@Override
 				public void success(@Nullable final byte[] replyPayload) {
-
-					log.debug("{} => WSNDeviceAppImpl.doneFlashPrograms()", nodeUrn);
-
-					// send reply to indicate failure
-					currentOperationResponder.sendResponse(buildRequestStatus(100, null));
-					resetCurrentOperation();
+					log.debug("{} => WSNDeviceAppImpl.flashProgram.success()", nodeUrn);
+					responder.sendResponse(
+							buildRequestStatus(100, replyPayload == null ? null : new String(replyPayload))
+					);
 				}
 
 				@Override
 				public void failure(final byte responseType, @Nullable final byte[] replyPayload) {
 					log.debug("{} => WSNDeviceAppImpl.failedFlashPrograms()", nodeUrn);
-
-					// send reply to indicate failure
-					currentOperationResponder.sendResponse(
-							buildRequestStatus(-1, "Failed flashing node. Reason: " + new String(replyPayload))
-					);
-					resetCurrentOperation();
+					responder.sendResponse(buildRequestStatus(responseType, new String(replyPayload)));
 				}
 
 				@Override
 				public void timeout() {
-					// TODO implement
+					log.debug("{} => WSNDeviceAppImpl.timeout()", nodeUrn);
+					responder.sendResponse(buildRequestStatus(-1, "Flashing node timed out"));
 				}
 			}
 			);
+
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
 		}
 
 
-	}
-
-	public void executeAreNodesAlive(Messages.Msg msg) {
-		connector.isNodeAlive(new ReplyingNodeApiCallback(msg));
 	}
 
 	private WSNAppMessages.OperationInvocation parseOperation(Messages.Msg msg) {
@@ -540,90 +509,90 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private DatatypeFactory datatypeFactory = null;
 
-	private void deliverToNodeMessageReceivers(MessagePacket p) {
+	WSNDeviceAppConnector.NodeOutputListener nodeOutputListener = new WSNDeviceAppConnector.NodeOutputListener() {
+		@Override
+		public void receivedPacket(final MessagePacket p) {
 
-		if (nodeMessageListeners.size() == 0) {
-			log.debug("{} => No message listeners registered!", nodeUrn);
-			return;
-		}
-
-
-		XMLGregorianCalendar now =
-				datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());
-
-		WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
-				.setSourceNodeId(nodeUrn)
-				.setTimestamp(now.toXMLFormat());
-
-		boolean isTextMessage = PacketTypes.LOG == p.getType();
-
-		if (isTextMessage) {
-
-			byte[] content = p.getContent();
-
-			if (content != null && content.length > 1) {
-
-				WSNAppMessages.Message.MessageLevel messageLevel;
-
-				switch (content[0]) {
-					case PacketTypes.LogType.FATAL:
-						messageLevel = WSNAppMessages.Message.MessageLevel.FATAL;
-						break;
-					default:
-						messageLevel = WSNAppMessages.Message.MessageLevel.DEBUG;
-						break;
-				}
-
-				String textMessage = new String(content, 1, content.length - 1);
-
-				WSNAppMessages.Message.TextMessage.Builder textMessageBuilder =
-						WSNAppMessages.Message.TextMessage.newBuilder()
-								.setMessageLevel(messageLevel)
-								.setMsg(textMessage);
-
-				messageBuilder.setTextMessage(textMessageBuilder);
-
-			} else {
-				log.debug("{} => Received text message without content. Ignoring packet: {}", nodeUrn, p);
+			if (nodeMessageListeners.size() == 0) {
+				log.debug("{} => No message listeners registered!", nodeUrn);
 				return;
 			}
 
-		} else {
+			XMLGregorianCalendar now =
+					datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());
 
-			WSNAppMessages.Message.BinaryMessage.Builder binaryMessageBuilder =
-					WSNAppMessages.Message.BinaryMessage.newBuilder()
-							.setBinaryType(p.getType())
-							.setBinaryData(ByteString.copyFrom(p.getContent()));
+			WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
+					.setSourceNodeId(nodeUrn)
+					.setTimestamp(now.toXMLFormat());
 
-			messageBuilder.setBinaryMessage(binaryMessageBuilder);
+			boolean isTextMessage = PacketTypes.LOG == p.getType();
 
-		}
+			if (isTextMessage) {
 
-		WSNAppMessages.Message message = messageBuilder.build();
+				byte[] content = p.getContent();
 
-		for (String nodeMessageListener : nodeMessageListeners) {
+				if (content != null && content.length > 1) {
 
-			if (log.isDebugEnabled()) {
-				log.debug("{} => Delivering node output to {}: {}", new String[]{
-						nodeUrn,
-						nodeMessageListener,
-						WSNAppMessageTools.toString(message, false)
+					WSNAppMessages.Message.MessageLevel messageLevel;
+
+					switch (content[0]) {
+						case PacketTypes.LogType.FATAL:
+							messageLevel = WSNAppMessages.Message.MessageLevel.FATAL;
+							break;
+						default:
+							messageLevel = WSNAppMessages.Message.MessageLevel.DEBUG;
+							break;
+					}
+
+					String textMessage = new String(content, 1, content.length - 1);
+
+					WSNAppMessages.Message.TextMessage.Builder textMessageBuilder =
+							WSNAppMessages.Message.TextMessage.newBuilder()
+									.setMessageLevel(messageLevel)
+									.setMsg(textMessage);
+
+					messageBuilder.setTextMessage(textMessageBuilder);
+
+				} else {
+					log.debug("{} => Received text message without content. Ignoring packet: {}", nodeUrn, p);
+					return;
 				}
-				);
+
+			} else {
+
+				WSNAppMessages.Message.BinaryMessage.Builder binaryMessageBuilder =
+						WSNAppMessages.Message.BinaryMessage.newBuilder()
+								.setBinaryType(p.getType())
+								.setBinaryData(ByteString.copyFrom(p.getContent()));
+
+				messageBuilder.setBinaryMessage(binaryMessageBuilder);
+
 			}
 
-			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					nodeUrn,
-					nodeMessageListener,
-					WSNApp.MSG_TYPE_LISTENER_MESSAGE,
-					message.toByteArray(),
-					1,
-					System.currentTimeMillis() + 5000
-			);
+			WSNAppMessages.Message message = messageBuilder.build();
+
+			for (String nodeMessageListener : nodeMessageListeners) {
+
+				if (log.isDebugEnabled()) {
+					log.debug("{} => Delivering node output to {}: {}", new String[]{
+							nodeUrn,
+							nodeMessageListener,
+							WSNAppMessageTools.toString(message, false)
+					}
+					);
+				}
+
+				testbedRuntime.getUnreliableMessagingService().sendAsync(
+						nodeUrn,
+						nodeMessageListener,
+						WSNApp.MSG_TYPE_LISTENER_MESSAGE,
+						message.toByteArray(),
+						1,
+						System.currentTimeMillis() + 5000
+				);
+			}
 		}
-
-
-	}
+	};
 
 	@Override
 	public String getName() {
@@ -655,7 +624,17 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.start()", nodeUrn);
 
-		testbedRuntime.getSchedulerService().execute(connectRunnable);
+		// connect to device
+		connector.start();
+		connector.addListener(nodeOutputListener);
+
+		// start listening to invocation messages
+		testbedRuntime.getSingleRequestMultiResponseService().addListener(
+				nodeUrn,
+				WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				srmrsListener
+		);
+		testbedRuntime.getMessageEventService().addListener(messageEventListener);
 	}
 
 	@Override
@@ -663,17 +642,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.stop()", nodeUrn);
 
-
-		// first stop listening to messages
+		// first stop listening to invocation messages
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
 		// then disconnect from device
-		if (device != null) {
-			device.deregisterListener(deviceListener);
-			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
-			device.shutdown();
-		}
+		connector.removeListener(nodeOutputListener);
+		connector.stop();
+
 	}
 
 }

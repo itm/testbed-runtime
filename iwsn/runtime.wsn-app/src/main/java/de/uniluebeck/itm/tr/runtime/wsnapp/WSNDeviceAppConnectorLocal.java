@@ -4,10 +4,13 @@ import com.google.inject.internal.Nullable;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.common.AbstractListenable;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
+import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
 import de.uniluebeck.itm.motelist.MoteType;
+import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
+import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
@@ -27,9 +30,60 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
-public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener> implements WSNDeviceAppConnector {
+public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
+		implements WSNDeviceAppConnector {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
+
+	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
+
+	private String nodeType;
+
+	private String nodeUSBChipID;
+
+	private String nodeSerialInterface;
+
+	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
+		@Override
+		public void sendToNode(final ByteBuffer packet) {
+			try {
+				if (log.isDebugEnabled()) {
+					log.debug(
+							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
+							nodeUrn,
+							StringUtils.toHexString(packet.array())
+					);
+				}
+				device.send(new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()));
+			} catch (Exception e) {
+				log.error("" + e, e);
+			}
+		}
+	};
+
+	private NodeApi nodeApi;
+
+	private String nodeUrn;
+
+	private Messages.Msg currentOperationInvocationMsg;
+
+	private TimeDiff currentOperationLastProgress;
+
+	private iSenseDevice device;
+
+	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
+									  final String nodeSerialInterface, final Integer nodeAPITimeout) {
+
+		this.nodeUrn = nodeUrn;
+		this.nodeType = nodeType;
+		this.nodeUSBChipID = nodeUSBChipID;
+		this.nodeSerialInterface = nodeSerialInterface;
+
+		this.nodeApi =
+				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
+						TimeUnit.MILLISECONDS
+				);
+	}
 
 	@Override
 	public void enablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
@@ -195,8 +249,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			try {
 
 				// remember invocation message to be able to send asynchronous replies
-				currentOperationInvocation = invocation;
-				currentOperationResponder = responder;
 				currentOperationLastProgress = new TimeDiff(1000);
 
 				if (!device.isConnected()) {
@@ -268,6 +320,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
 				failedFlashPrograms("operation canceled");
+				resetCurrentOperation();
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
 				failedReset("Failed resetting node. Reason: Operation canceled.");
 			}
@@ -283,6 +336,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 					failedFlashPrograms(((Exception) o).getMessage());
 				} else {
 					doneFlashPrograms();
+					resetCurrentOperation();
 				}
 			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
 				if (o == null) {
@@ -302,7 +356,15 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			log.debug("{} => Operation {} receivedRequestStatus: {}", new Object[]{nodeUrn, operation, v});
 
 			if (isFlashOperation(currentOperationInvocation)) {
-				progressFlashPrograms(v);
+
+				if (currentOperationLastProgress.isTimeout()) {
+
+					log.debug("{} => Sending asynchronous receivedRequestStatus message.", nodeUrn);
+					// send reply to indicate failure
+					currentOperationLastProgress.touch();
+					// TODO arggh!
+
+				}
 			}
 
 		}
@@ -310,7 +372,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	};
 
 	private void notifyListeners(final MessagePacket p) {
-		// TODO implement
+		for (NodeOutputListener listener : listeners) {
+			listener.receivedPacket(p);
+		}
 	}
 
 	private boolean isFlashOperation(WSNAppMessages.OperationInvocation operationInvocation) {
@@ -427,11 +491,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			// attach as listener to device output
 			device.registerListener(deviceListener);
 
-			// now start listening to messages
-			testbedRuntime.getSingleRequestMultiResponseService()
-					.addListener(nodeUrn, WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST, srmrsListener);
-			testbedRuntime.getMessageEventService().addListener(messageEventListener);
-
 		}
 	};
 
@@ -439,4 +498,19 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		return currentOperationInvocation != null;
 	}
 
+	@Override
+	public void start() throws Exception {
+		// TODO implement
+	}
+
+	@Override
+	public void stop() {
+
+		if (device != null) {
+			device.deregisterListener(deviceListener);
+			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
+			device.shutdown();
+		}
+
+	}
 }
