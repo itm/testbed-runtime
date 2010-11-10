@@ -8,11 +8,12 @@ public class WSNDeviceAppConnectorFactory {
 											   final String nodeSerialInterface, final Integer nodeAPITimeout) {
 
 		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType)) {
-			return new WSNDeviceAppConnectorLocal(nodeUrn, nodeType, nodeUSBChipID, nodeSerialInterface, nodeAPITimeout);
+			return new WSNDeviceAppConnectorLocal(nodeUrn, nodeType, nodeUSBChipID, nodeSerialInterface, nodeAPITimeout
+			);
 		} else if ("isense-motap".equals(nodeType)) {
 			return new WSNDeviceAppConnectorRemote(nodeUrn, nodeType, nodeAPITimeout);
 		}
 
-		return null;  // TODO implement
+		throw new RuntimeException("Unknown device type!");
 	}
 }

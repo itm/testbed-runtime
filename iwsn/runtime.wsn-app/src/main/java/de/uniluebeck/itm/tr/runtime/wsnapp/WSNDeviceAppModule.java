@@ -33,82 +33,84 @@ import de.uniluebeck.itm.gtr.TestbedRuntime;
 
 class WSNDeviceAppModule extends AbstractModule {
 
-    static final String NAME_NODE_URN = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_URN";
+	static final String NAME_NODE_URN = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_URN";
 
-    static final String NAME_NODE_TYPE = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_TYPE";
+	static final String NAME_NODE_TYPE = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_TYPE";
 
-    static final String NAME_USB_CHIP_ID = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_USB_CHIP_ID";
+	static final String NAME_USB_CHIP_ID = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_USB_CHIP_ID";
 
-    static final String NAME_SERIAL_INTERFACE =
-            "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_SERIAL_INTERFACE";
+	static final String NAME_SERIAL_INTERFACE =
+			"de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_SERIAL_INTERFACE";
 
-    static final String NAME_NODE_API_TIMEOUT =
-            "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_API_TIMEOUT";
+	static final String NAME_NODE_API_TIMEOUT =
+			"de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_API_TIMEOUT";
 
-    private String nodeUrn;
+	private String nodeUrn;
 
-    private String type;
+	private String type;
 
-    private String serialInterface;
+	private String serialInterface;
 
-    private TestbedRuntime testbedRuntime;
+	private TestbedRuntime testbedRuntime;
 
-    private Integer nodeAPITimeout;
-    private String nodeUSBChipID;
+	private Integer nodeAPITimeout;
 
-    public WSNDeviceAppModule(String nodeUrn,
-                              String type,
-                              @Nullable String serialInterface,
-                              @Nullable Integer nodeAPITimeout,
-                              @Nullable String nodeUSBChipID,
-                              TestbedRuntime testbedRuntime) {
+	private String nodeUSBChipID;
 
-        Preconditions.checkNotNull(nodeUrn);
-        Preconditions.checkNotNull(type);
-        Preconditions.checkNotNull(testbedRuntime);
+	public WSNDeviceAppModule(String nodeUrn,
+							  String type,
+							  @Nullable String serialInterface,
+							  @Nullable Integer nodeAPITimeout,
+							  @Nullable String nodeUSBChipID,
+							  TestbedRuntime testbedRuntime) {
 
-        this.nodeUrn = nodeUrn;
-        this.type = type;
-        this.serialInterface = serialInterface;
-        this.nodeAPITimeout = nodeAPITimeout;
-        this.nodeUSBChipID = nodeUSBChipID;
+		Preconditions.checkNotNull(nodeUrn);
+		Preconditions.checkNotNull(type);
+		Preconditions.checkNotNull(testbedRuntime);
 
-        this.testbedRuntime = testbedRuntime;
+		this.nodeUrn = nodeUrn;
+		this.type = type;
+		this.serialInterface = serialInterface;
+		this.nodeAPITimeout = nodeAPITimeout;
+		this.nodeUSBChipID = nodeUSBChipID;
 
-    }
+		this.testbedRuntime = testbedRuntime;
 
-    @Override
-    protected void configure() {
+	}
 
-        bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_URN)).toInstance(nodeUrn);
-        bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_TYPE)).toInstance(type);
-        if (serialInterface == null) {
-            bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE)).toProvider(
-                    Providers.of((String) null)
-            );
-        } else {
-            bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE))
-                    .toInstance(serialInterface);
-        }
-        if (nodeAPITimeout == null) {
-            bind(Integer.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT)).toProvider(
-                    Providers.of((Integer) null)
-            );
-        } else {
-            bind(Integer.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT))
-                    .toInstance(nodeAPITimeout);
-        }
-        if (nodeUSBChipID == null) {
-            bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID)).toProvider(
-                    Providers.of((String) null)
-            );
-        } else {
-            bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID)).toInstance(nodeUSBChipID);
-        }
-        bind(TestbedRuntime.class).toInstance(testbedRuntime);
+	@Override
+	protected void configure() {
 
-        bind(WSNDeviceApp.class).to(WSNDeviceAppImpl.class);
+		bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_URN)).toInstance(nodeUrn);
+		bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_TYPE)).toInstance(type);
+		if (serialInterface == null) {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE)).toProvider(
+					Providers.of((String) null)
+			);
+		} else {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE))
+					.toInstance(serialInterface);
+		}
+		if (nodeAPITimeout == null) {
+			bind(Integer.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT)).toProvider(
+					Providers.of((Integer) null)
+			);
+		} else {
+			bind(Integer.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT))
+					.toInstance(nodeAPITimeout);
+		}
+		if (nodeUSBChipID == null) {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID)).toProvider(
+					Providers.of((String) null)
+			);
+		} else {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID))
+					.toInstance(nodeUSBChipID);
+		}
+		bind(TestbedRuntime.class).toInstance(testbedRuntime);
 
-    }
+		bind(WSNDeviceApp.class).to(WSNDeviceAppImpl.class);
+
+	}
 
 }

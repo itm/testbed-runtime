@@ -5,15 +5,19 @@ import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
 
-public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener> implements WSNDeviceAppConnector {
+public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
+		implements WSNDeviceAppConnector {
 
 	private String nodeUrn;
 
 	private String nodeType;
 
-	public WSNDeviceAppConnectorRemote(final String nodeUrn, final String nodeType) {
+	private Integer nodeAPITimeout;
+
+	public WSNDeviceAppConnectorRemote(final String nodeUrn, final String nodeType, final Integer nodeAPITimeout) {
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
+		this.nodeAPITimeout = nodeAPITimeout;
 	}
 
 	@Override

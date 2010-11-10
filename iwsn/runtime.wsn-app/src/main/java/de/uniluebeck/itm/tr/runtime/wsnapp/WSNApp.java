@@ -37,11 +37,14 @@ public interface WSNApp extends Service, TestbedApplication {
 
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
-	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 
-	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
-	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
 
 	public static interface Callback {
 
@@ -76,8 +79,10 @@ public interface WSNApp extends Service, TestbedApplication {
 
 	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
 
-	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnException_Exception;
+	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
+			throws UnknownNodeUrnException_Exception;
 
-	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnException_Exception;
+	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
+			throws UnknownNodeUrnException_Exception;
 
 }
