@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.common.AbstractListenable;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
@@ -70,7 +69,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	}
 
-	private class FlashProgramListener implements iSenseDeviceListener {
+	private class FlashProgramListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
 		private final TimeDiff lastProgress = new TimeDiff(1500);
 
@@ -96,7 +95,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			if (op == Operation.PROGRAM) {
 
 				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-				device.deregisterListener(this);
+				device.deregisterListener(FlashProgramListener.this);
 				state.setState(State.READY);
 
 			} else {
@@ -152,9 +151,15 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 				);
 			}
 		}
+
+		@Override
+		public int compareTo(final iSenseDeviceListener o) {
+			return o == this ? 0 : -1;
+		}
+
 	}
 
-	private class ResetListener implements iSenseDeviceListener {
+	private class ResetListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
 		private NodeApiCallback listener;
 
@@ -178,8 +183,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			if (op == Operation.RESET) {
 
 				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-				WSNDeviceAppConnectorLocal.this.device.deregisterListener(this);
-				WSNDeviceAppConnectorLocal.this.state.setState(State.READY);
+				device.deregisterListener(this);
+				state.setState(State.READY);
 
 			} else {
 				log.error(
@@ -208,8 +213,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 				}
 
 				log.debug("{} => Setting state to READY and deregistering ResetListener instance.", nodeUrn);
-				WSNDeviceAppConnectorLocal.this.device.deregisterListener(this);
-				WSNDeviceAppConnectorLocal.this.state.setState(State.READY);
+				device.deregisterListener(this);
+				state.setState(State.READY);
 
 			} else {
 				log.error(
@@ -223,6 +228,11 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationProgress(final Operation op, final float fraction) {
 			// nothing to do
+		}
+
+		@Override
+		public int compareTo(final iSenseDeviceListener o) {
+			return o == this ? 0 : -1;
 		}
 
 	}
@@ -512,9 +522,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			listener.failure((byte) -1, msg.getBytes());
 		}
 
-		try {
+		IDeviceBinFile iSenseBinFile = null;
 
-			IDeviceBinFile iSenseBinFile = null;
+		try {
 
 			if (device instanceof JennicDevice) {
 				iSenseBinFile =
@@ -527,29 +537,30 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 						new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
 			}
 
-			FlashProgramListener flashListener = new FlashProgramListener(listener);
-			device.registerListener(flashListener);
+		} catch (Exception e) {
+			String msg = "Error reading bin file. Reason: " + e;
+			log.error("{} => {}", nodeUrn, msg);
+			listener.failure((byte) -1, msg.getBytes());
+			state.setState(State.READY);
+			return;
+		}
 
-			try {
+		FlashProgramListener flashListener = new FlashProgramListener(listener);
+		device.registerListener(flashListener);
 
+		try {
 
-				if (!device.triggerProgram(iSenseBinFile, true)) {
-					listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
-					device.deregisterListener(flashListener);
-					state.setState(State.READY);
-				}
-
-			} catch (Exception e) {
-				log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
-				listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
+			if (!device.triggerProgram(iSenseBinFile, true)) {
+				listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
 				device.deregisterListener(flashListener);
 				state.setState(State.READY);
 			}
 
-		} catch (InvalidProtocolBufferException e) {
-			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
 		} catch (Exception e) {
-			log.error("Error reading bin file " + e);
+			log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
+			listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
+			device.deregisterListener(flashListener);
+			state.setState(State.READY);
 		}
 
 	}
