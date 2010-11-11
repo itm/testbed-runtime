@@ -96,7 +96,7 @@ public class MotapMain {
 
     };
     private static OtapPlugin otapPlugin;
-    private static final long PRESENCE_DETECT_TIMEOUT = 60000;
+    private static final long PRESENCE_DETECT_TIMEOUT = 20000;
     private static boolean force = true;
     private static boolean all;
 
@@ -165,7 +165,7 @@ public class MotapMain {
         otapPlugin = new OtapPlugin();
         otapPlugin.setUSBDevice(device);
         otapPlugin.init();
-        otapPlugin.setChannel(18);
+        otapPlugin.setChannel(12);
 
         otapPlugin.setOtapKey(null, false);
         otapPlugin.setMultihopSupportState(true);
@@ -198,7 +198,7 @@ public class MotapMain {
                         }
                     }
                     log.info("found the following {} devices: {}", presentDeviceIds.size(), presentDeviceIds);
-                    if (presentDeviceIds.size() == macs.size()) {
+                    if (presentDeviceIds.size() == macs.size() && ! all) {
                         log.info("found all devices");
                         break;
                     }
@@ -209,13 +209,15 @@ public class MotapMain {
         }
         log.info("found the following {} devices: {}", presentDeviceIds.size(), presentDeviceIds);
         if (presentDeviceIds.size() != 0 && (presentDeviceIds.size() == macs.size() || force)) {
+            //for(int i = 0; )
             otapPlugin.setPresenceDetectState(false);
             otapPlugin.loadBinProgram(
-                    "/Users/maxpagel/Desktop/iSerAerialR1.binmörks");
+                    "/Users/maxpagel/Desktop/testbedTemplateApp.bin");
             log.info("start programming");
             otapPlugin.setParticipatingDeviceList(presentDevices);
             otapPlugin.otapStart();
-            //otapPlugin.otapDone();
+            device.shutdown();
+            
         } else {
             log.info("not all requested devices have been found. Aborting");
         }

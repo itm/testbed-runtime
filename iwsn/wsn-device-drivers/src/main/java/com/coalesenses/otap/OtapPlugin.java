@@ -305,7 +305,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 			if (motapSupportEnabled)
 			//otapInit.setDeviceSettingTimeoutMultiplierMs(60);//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
 			{
-				otapInit.setDeviceSettingTimeoutMultiplierMs(60);				
+				otapInit.setDeviceSettingTimeoutMultiplierMs(100);				
 			} else {
 				otapInit.setDeviceSettingTimeoutMultiplierMs(10
 				);
@@ -380,7 +380,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 				if (motapSupportEnabled)
 				//otapFlash.setMsPerPacket(60);//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
 				{
-					otapFlash.setMsPerPacket(60);
+					otapFlash.setMsPerPacket(100);
 				} else {
 					otapFlash.setMsPerPacket(10);
 				}//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
@@ -450,6 +450,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 		log.debug("Otap done signalled. Stopping.");
 		otapStop();
 		setOtapStatusText("Done");
+        seraerialShutdown();
 	}
 
 	/**
@@ -562,6 +563,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	public void seraerialShutdown() {
 		log.debug("Plug-in disabled. Stopping otap.");
 		otapStop();
+        stopSerial();
 	}
 
 	public String getDescription() {
