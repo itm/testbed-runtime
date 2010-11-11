@@ -70,6 +70,163 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	}
 
+	private class FlashProgramListener implements iSenseDeviceListener {
+
+		private final TimeDiff lastProgress = new TimeDiff(1500);
+
+		private FlashProgramCallback listener;
+
+		private FlashProgramListener(final FlashProgramCallback listener) {
+			this.listener = listener;
+		}
+
+		@Override
+		public void receivePacket(final MessagePacket p) {
+			// nothing to do
+		}
+
+		@Override
+		public void receivePlainText(final MessagePlainText p) {
+			// nothing to do
+		}
+
+		@Override
+		public void operationCanceled(final Operation op) {
+
+			if (op == Operation.PROGRAM) {
+
+				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+				device.deregisterListener(this);
+				state.setState(State.READY);
+
+			} else {
+				log.error(
+						"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+						op
+				);
+			}
+		}
+
+		@Override
+		public void operationDone(final Operation op, final Object result) {
+
+			if (op == Operation.PROGRAM) {
+
+				if (result instanceof Exception) {
+					log.debug("{} => Failed flashing node. Reason: {}", nodeUrn, result);
+					listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
+				} else {
+					log.debug("{} => Done flashing node.", nodeUrn, result);
+					listener.success(null);
+				}
+
+				log.debug("{} => Setting state to READY and deregistering FlashProgramListener instance.", nodeUrn);
+				device.deregisterListener(this);
+				state.setState(State.READY);
+
+			} else {
+				log.error(
+						"{} => Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+						nodeUrn,
+						op
+				);
+			}
+		}
+
+		@Override
+		public void operationProgress(final Operation op, final float fraction) {
+
+			if (op == Operation.PROGRAM) {
+
+				if (lastProgress.isTimeout()) {
+					log.debug("{} => Flashing progress: {}%.", (int) (fraction * 100));
+					listener.progress(fraction);
+					lastProgress.touch();
+				}
+
+			} else {
+				log.error(
+						"{} => Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+						nodeUrn,
+						op
+				);
+			}
+		}
+	}
+
+	private class ResetListener implements iSenseDeviceListener {
+
+		private NodeApiCallback listener;
+
+		private ResetListener(NodeApiCallback listener) {
+			this.listener = listener;
+		}
+
+		@Override
+		public void receivePacket(final MessagePacket p) {
+			// nothing to do
+		}
+
+		@Override
+		public void receivePlainText(final MessagePlainText p) {
+			// nothing to do
+		}
+
+		@Override
+		public void operationCanceled(final Operation op) {
+
+			if (op == Operation.RESET) {
+
+				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+				WSNDeviceAppConnectorLocal.this.device.deregisterListener(this);
+				WSNDeviceAppConnectorLocal.this.state.setState(State.READY);
+
+			} else {
+				log.error(
+						"{} => Received operation state from device drivers != RESET ({}) which should not be possible",
+						nodeUrn,
+						op
+				);
+			}
+
+		}
+
+		@Override
+		public void operationDone(final Operation op, final Object result) {
+
+			if (op == Operation.RESET) {
+
+				if (result instanceof Exception) {
+					log.debug("{} => Failed resetting node. Reason: {}", nodeUrn, result);
+					listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
+				} else if (result instanceof Boolean && ((Boolean) result)) {
+					log.debug("{} => Done resetting node.", nodeUrn);
+					listener.success(null);
+				} else {
+					log.debug("{} => Failed resetting node.");
+					listener.failure((byte) -1, "Could not reset node.".getBytes());
+				}
+
+				log.debug("{} => Setting state to READY and deregistering ResetListener instance.", nodeUrn);
+				WSNDeviceAppConnectorLocal.this.device.deregisterListener(this);
+				WSNDeviceAppConnectorLocal.this.state.setState(State.READY);
+
+			} else {
+				log.error(
+						"{} => Received operation state from device drivers != RESET ({}) which should not be possible",
+						nodeUrn,
+						op
+				);
+			}
+		}
+
+		@Override
+		public void operationProgress(final Operation op, final float fraction) {
+			// nothing to do
+		}
+
+	}
+
 	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
 	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
@@ -95,74 +252,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private SchedulerService schedulerService;
 
 	private ConnectorState state = new ConnectorState();
-
-	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
-		@Override
-		public void sendToNode(final ByteBuffer packet) {
-			try {
-				if (log.isDebugEnabled()) {
-					log.debug(
-							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
-							nodeUrn,
-							StringUtils.toHexString(packet.array())
-					);
-				}
-				device.send(new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()));
-			} catch (Exception e) {
-				log.error("" + e, e);
-			}
-		}
-	};
-
-	/**
-	 * Listener that grabs all sensor node outputs and forwards them to interest listeners. Other device listeners for
-	 * flashing and resetting operations are registered as needed and immediately removed after completion of the
-	 * operation.
-	 */
-	private iSenseDeviceListener deviceOutputListener = new iSenseDeviceListenerAdapter() {
-
-		@Override
-		public void receivePacket(MessagePacket p) {
-
-			log.trace("{} => WSNDeviceAppImpl.receivePacket: {}", nodeUrn, p);
-
-			boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
-			boolean isByteTextOrVLink =
-					(p.getContent()[0] & 0xFF) == NODE_OUTPUT_BYTE ||
-							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_TEXT ||
-							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
-
-			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
-
-			if (isWiselibReply) {
-				if (log.isDebugEnabled()) {
-					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
-				}
-				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
-			} else {
-				for (NodeOutputListener listener : listeners) {
-					listener.receivedPacket(p);
-				}
-			}
-
-		}
-
-		@Override
-		public void operationCanceled(Operation operation) {
-			// nothing to do
-		}
-
-		@Override
-		public void operationDone(Operation operation, Object o) {
-			// nothing to do
-		}
-
-		@Override
-		public void operationProgress(Operation operation, float v) {
-			// nothing to do
-		}
-
-	};
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -237,7 +326,75 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		}
 	};
 
+	/**
+	 * Listener that grabs all sensor node outputs and forwards them to interest listeners. Other device listeners for
+	 * flashing and resetting operations are registered as needed and immediately removed after completion of the
+	 * operation.
+	 */
+	private iSenseDeviceListener deviceOutputListener = new iSenseDeviceListenerAdapter() {
+
+		@Override
+		public void receivePacket(MessagePacket p) {
+
+			log.trace("{} => WSNDeviceAppImpl.receivePacket: {}", nodeUrn, p);
+
+			boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
+			boolean isByteTextOrVLink =
+					(p.getContent()[0] & 0xFF) == NODE_OUTPUT_BYTE ||
+							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_TEXT ||
+							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
+
+			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
+
+			if (isWiselibReply) {
+				if (log.isDebugEnabled()) {
+					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
+				}
+				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
+			} else {
+				for (NodeOutputListener listener : listeners) {
+					listener.receivedPacket(p);
+				}
+			}
+
+		}
+
+		@Override
+		public void operationCanceled(Operation operation) {
+			// nothing to do
+		}
+
+		@Override
+		public void operationDone(Operation operation, Object o) {
+			// nothing to do
+		}
+
+		@Override
+		public void operationProgress(Operation operation, float v) {
+			// nothing to do
+		}
+
+	};
+
 	private NodeApi nodeApi;
+
+	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
+		@Override
+		public void sendToNode(final ByteBuffer packet) {
+			try {
+				if (log.isDebugEnabled()) {
+					log.debug(
+							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
+							nodeUrn,
+							StringUtils.toHexString(packet.array())
+					);
+				}
+				device.send(new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()));
+			} catch (Exception e) {
+				log.error("" + e, e);
+			}
+		}
+	};
 
 	private String nodeUrn;
 
@@ -340,131 +497,59 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
 
+		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
+			String msg = "Failed flashing node. Reason: Node is not connected.";
+			log.warn("{} => {}", nodeUrn, msg);
+			listener.failure((byte) -1, msg.getBytes());
+			return;
+		}
+
 		try {
-
 			state.setState(State.OPERATION_RUNNING);
-
-			try {
-
-				IDeviceBinFile iSenseBinFile = null;
-
-				if (device instanceof JennicDevice) {
-					iSenseBinFile =
-							new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-				} else if (device instanceof TelosbDevice) {
-					iSenseBinFile =
-							new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-				} else if (device instanceof PacemateDevice) {
-					iSenseBinFile =
-							new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-				}
-
-				final iSenseDeviceListener flashListener = new iSenseDeviceListener() {
-
-					private final TimeDiff lastProgress = new TimeDiff(1500);
-
-					@Override
-					public void receivePacket(final MessagePacket p) {
-						// nothing to do
-					}
-
-					@Override
-					public void receivePlainText(final MessagePlainText p) {
-						// nothing to do
-					}
-
-					@Override
-					public void operationCanceled(final Operation op) {
-
-						if (op == Operation.PROGRAM) {
-
-							listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-							device.deregisterListener(this);
-							state.setState(State.READY);
-
-						} else {
-							log.error(
-									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
-									op
-							);
-						}
-					}
-
-					@Override
-					public void operationDone(final Operation op, final Object result) {
-
-						if (op == Operation.PROGRAM) {
-
-							if (result instanceof Exception) {
-								listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
-							} else {
-								listener.success(null);
-							}
-
-							device.deregisterListener(this);
-							state.setState(State.READY);
-
-						} else {
-							log.error(
-									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
-									op
-							);
-						}
-					}
-
-					@Override
-					public void operationProgress(final Operation op, final float fraction) {
-
-						if (op == Operation.PROGRAM) {
-
-							if (lastProgress.isTimeout()) {
-								listener.progress(fraction);
-								lastProgress.touch();
-							}
-
-						} else {
-							log.error(
-									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
-									op
-							);
-						}
-					}
-				};
-
-				device.registerListener(flashListener);
-
-				try {
-
-					if (!device.isConnected()) {
-						listener.failure((byte) 0, "Failed flashing node. Reason: Node is not connected.".getBytes());
-						device.deregisterListener(flashListener);
-						state.setState(State.READY);
-						return;
-					}
-
-					if (!device.triggerProgram(iSenseBinFile, true)) {
-						listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
-						device.deregisterListener(flashListener);
-						state.setState(State.READY);
-					}
-
-				} catch (Exception e) {
-					log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
-					listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
-					device.deregisterListener(flashListener);
-					state.setState(State.READY);
-				}
-
-			} catch (InvalidProtocolBufferException e) {
-				log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
-			} catch (Exception e) {
-				log.error("Error reading bin file " + e);
-			}
-
 		} catch (RuntimeException e) {
 			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
 			log.warn("{} => {}", nodeUrn, msg);
 			listener.failure((byte) -1, msg.getBytes());
+		}
+
+		try {
+
+			IDeviceBinFile iSenseBinFile = null;
+
+			if (device instanceof JennicDevice) {
+				iSenseBinFile =
+						new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			} else if (device instanceof TelosbDevice) {
+				iSenseBinFile =
+						new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			} else if (device instanceof PacemateDevice) {
+				iSenseBinFile =
+						new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			}
+
+			FlashProgramListener flashListener = new FlashProgramListener(listener);
+			device.registerListener(flashListener);
+
+			try {
+
+
+				if (!device.triggerProgram(iSenseBinFile, true)) {
+					listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
+					device.deregisterListener(flashListener);
+					state.setState(State.READY);
+				}
+
+			} catch (Exception e) {
+				log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
+				listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
+				device.deregisterListener(flashListener);
+				state.setState(State.READY);
+			}
+
+		} catch (InvalidProtocolBufferException e) {
+			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
+		} catch (Exception e) {
+			log.error("Error reading bin file " + e);
 		}
 
 	}
@@ -488,93 +573,42 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
 
+		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
+			String msg = "Failed resetting node. Reason: Device is not connected.";
+			log.warn("{} => {}", nodeUrn, msg);
+			listener.failure((byte) 0, msg.getBytes());
+			return;
+		}
+
+		try {
+			state.setState(State.OPERATION_RUNNING);
+		} catch (RuntimeException e) {
+			String msg = "There's an operation (flashProgram or resetNode) running currently. Please try again later.";
+			log.warn("{} => {}", nodeUrn, msg);
+			listener.failure((byte) 0, msg.getBytes());
+		}
+
+		ResetListener resetListener = new ResetListener(listener);
+		device.registerListener(resetListener);
+
 		try {
 
-			state.setState(State.OPERATION_RUNNING);
-
-			try {
-
-				final iSenseDeviceListener resetListener = new iSenseDeviceListener() {
-
-					@Override
-					public void receivePacket(final MessagePacket p) {
-						// nothing to do
-					}
-
-					@Override
-					public void receivePlainText(final MessagePlainText p) {
-						// nothing to do
-					}
-
-					@Override
-					public void operationCanceled(final Operation op) {
-
-						if (op == Operation.RESET) {
-
-							listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-							device.deregisterListener(this);
-							state.setState(State.READY);
-
-						} else {
-							log.error(
-									"Received operation state from device drivers != RESET ({}) which should not be possible",
-									op
-							);
-						}
-
-					}
-
-					@Override
-					public void operationDone(final Operation op, final Object result) {
-
-						if (op == Operation.RESET) {
-
-							if (result instanceof Exception) {
-								listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
-							} else if (result instanceof Boolean && ((Boolean) result)) {
-								listener.success(null);
-							} else {
-								listener.failure((byte) -1, "Could not reset node.".getBytes());
-							}
-
-							device.deregisterListener(this);
-							state.setState(State.READY);
-
-						} else {
-							log.error(
-									"Received operation state from device drivers != RESET ({}) which should not be possible",
-									op
-							);
-						}
-					}
-
-					@Override
-					public void operationProgress(final Operation op, final float fraction) {
-						// nothing to do
-					}
-				};
-
-				if (!device.isConnected()) {
-					listener.failure((byte) 0, "Failed resetting node. Reason: Device is not connected.".getBytes());
-				}
-
-				device.registerListener(resetListener);
-
-				boolean triggered = device.triggerReboot();
-				if (!triggered) {
-					listener.failure((byte) 0, "Failed resetting node. Reason: Could not trigger reboot.".getBytes());
-					device.deregisterListener(resetListener);
-				}
-
-			} catch (Exception e) {
-				log.error("Error while resetting device: " + e, e);
-				listener.failure((byte) 0, ("Failed resetting node. Reason: " + e.getMessage()).getBytes());
+			boolean triggered = device.triggerReboot();
+			if (!triggered) {
+				String msg = "Failed resetting node. Reason: Could not trigger reboot.";
+				log.warn("{} => {}", nodeUrn, msg);
+				listener.failure((byte) 0, msg.getBytes());
+				device.deregisterListener(resetListener);
+				state.setState(State.READY);
 			}
 
-		} catch (RuntimeException e) {
-			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
-			log.warn("{} => {}", nodeUrn, msg);
-			listener.failure((byte) -1, msg.getBytes());
+		} catch (Exception e) {
+			// caught from device.triggerReboot()
+			String msg = "Error while resetting device: " + e.getMessage();
+			log.error("{} => {}", nodeUrn, msg);
+			listener.failure((byte) 0, msg.getBytes());
+			device.deregisterListener(resetListener);
+			state.setState(State.READY);
 		}
 
 	}

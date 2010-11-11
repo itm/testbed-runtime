@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.common.AbstractListenable;
+import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
@@ -14,10 +15,14 @@ public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceApp
 
 	private Integer nodeAPITimeout;
 
-	public WSNDeviceAppConnectorRemote(final String nodeUrn, final String nodeType, final Integer nodeAPITimeout) {
+	private SchedulerService schedulerService;
+
+	public WSNDeviceAppConnectorRemote(final String nodeUrn, final String nodeType, final Integer nodeAPITimeout,
+									   final SchedulerService schedulerService) {
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
 		this.nodeAPITimeout = nodeAPITimeout;
+		this.schedulerService = schedulerService;
 	}
 
 	@Override

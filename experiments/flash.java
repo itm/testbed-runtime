@@ -133,7 +133,9 @@ try {
     ));
 
 	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 2, TimeUnit.MINUTES);
-	if (flashFuture.get().getSuccessPercent() < 100) {
+	JobResult flashJobResult = flashFuture.get();
+	log.info("{}", flashJobResult);
+	if (flashJobResult.getSuccessPercent() < 100) {
 		System.out.println("Not all nodes could be flashed. Exiting");
 		log.info("{}", flashFuture.get());
 		System.exit(1);
