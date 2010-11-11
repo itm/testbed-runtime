@@ -199,6 +199,8 @@ public abstract class SerAerialPlugin {
 	 */
 	boolean confirmPending = false;
 
+    protected iSenseDevice USBDevice;
+
 	/**
 	 *
 	 */
@@ -334,10 +336,19 @@ public abstract class SerAerialPlugin {
 
 		try {
 			MessagePacket p = new MessagePacket(type & 0xFF, b);
-			iSenseDevice.getISenseDevice().send(p);
+			USBDevice.send(p);
 		} catch (Exception e) {
 			log.warn("Unable to send packet:" + e, e);
 		}
 	}
+
+
+    public iSenseDevice getUSBDevice() {
+        return USBDevice;
+    }
+
+    public void setUSBDevice(iSenseDevice USBDevice) {
+        this.USBDevice = USBDevice;
+    }
 
 }

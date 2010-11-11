@@ -23,29 +23,6 @@
 
 package com.coalesenses.otap;
 
-import ishell.util.*;
-import ishell.util.Settings.SettingsKey;
-import org.apache.log4j.Category;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 
 /**
@@ -56,44 +33,44 @@ public class OtapPluginGui {
 	/**
 	 * @author Daniela Krüger
 	 */
-	static class OtapDeviceSorter extends ViewerSorter {
+	/*static class OtapDeviceSorter extends ViewerSorter {
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public static enum Column {
 
 			SELECT, ID, CHIP, STATUS, PROGRESS
 		}
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		protected Column column;
 
-		/**
+		*//**
 		 * @param column
-		 */
+		 *//*
 		public void setColumn(Column column) {
 			log.debug("Set Column:" + column);
 			this.column = column;
 		}
 
-		/**
+		*//**
 		 * @return
-		 */
+		 *//*
 		public Column getColumn() {
 			log.debug("Get Column:" + column);
 			return column;
 		}
 
-		/**
+		*//**
 		 * @param viewer
 		 * @param obj1
 		 * @param obj2
 		 *
 		 * @return
-		 */
+		 *//*
 		public int compare(Viewer viewer, Object obj1, Object obj2) {
 			int result = 0;
 			TableViewer tableView = (TableViewer) viewer;
@@ -128,17 +105,17 @@ public class OtapPluginGui {
 		}
 	}
 
-	/**
+	*//**
 	 * @author Daniela Krüger
-	 */
+	 *//*
 	interface OtapDeviceContentProviderListener {
 
 		public void inputChanged(OtapDeviceContentProvider provider, OtapDevice object);
 	}
 
-	/**
+	*//**
 	 * @author Daniela Krüger
-	 */
+	 *//*
 	class OtapDeviceContentProvider implements IStructuredContentProvider {
 
 		protected Set<OtapDeviceContentProviderListener> listeners = new HashSet<OtapDeviceContentProviderListener>();
@@ -147,29 +124,29 @@ public class OtapPluginGui {
 
 		protected SortedSet<OtapDevice> nodes = new TreeSet<OtapDevice>();
 
-		/**
+		*//**
 		 * @param listener
-		 */
+		 *//*
 		public void addListener(OtapDeviceContentProviderListener listener) {
 			listeners.add(listener);
 		}
 
-		/**
+		*//**
 		 * @param listener
-		 */
+		 *//*
 		public void removeListener(OtapDeviceContentProviderListener listener) {
 			listeners.remove(listener);
 		}
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public void dispose() {
 		}
 
-		/**
+		*//**
 		 * @param d
-		 */
+		 *//*
 		public void removeDevice(OtapDevice d) {
 			nodes.remove(d);
 			int index = -1;
@@ -191,11 +168,11 @@ public class OtapPluginGui {
 
 		}
 
-		/**
+		*//**
 		 * @param viewer
 		 * @param oldInput
 		 * @param input
-		 */
+		 *//*
 		public void inputChanged(Viewer viewer, Object oldInput, Object input) {
 
 			// Cast to binary object
@@ -216,65 +193,65 @@ public class OtapPluginGui {
 			}
 		}
 
-		/**
+		*//**
 		 * @param input
 		 *
 		 * @return
-		 */
+		 *//*
 		public Object[] getElements(Object input) {
 			return nodes.toArray();
 		}
 
-		/**
+		*//**
 		 * @return
-		 */
+		 *//*
 		public Set<OtapDevice> getNodes() {
 			return nodes;
 		}
 	}
 
-	/**
+	*//**
 	 * @author Dennis Pfisterer
-	 */
+	 *//*
 	class OtapDeviceLabelProvider implements ITableLabelProvider {
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		protected Set<ILabelProviderListener> listeners = new HashSet<ILabelProviderListener>();
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public void dispose() {
 		}
 
-		/**
+		*//**
 		 * @param obj
 		 * @param column
 		 *
 		 * @return
-		 */
+		 *//*
 		public Image getColumnImage(Object obj, int column) {
 			return null;
 		}
 
-		/**
+		*//**
 		 * @param obj
 		 * @param str
 		 *
 		 * @return
-		 */
+		 *//*
 		public boolean isLabelProperty(Object obj, String str) {
 			return false;
 		}
 
-		/**
+		*//**
 		 * @param obj
 		 * @param column
 		 *
 		 * @return
-		 */
+		 *//*
 		public String getColumnText(Object obj, int column) {
 			OtapDevice node = (OtapDevice) obj;
 
@@ -291,39 +268,39 @@ public class OtapPluginGui {
 			}
 		}
 
-		/**
+		*//**
 		 * @param listener
-		 */
+		 *//*
 		public void addListener(ILabelProviderListener listener) {
 			listeners.add(listener);
 		}
 
-		/**
+		*//**
 		 * @param listener
-		 */
+		 *//*
 		public void removeListener(ILabelProviderListener listener) {
 			listeners.remove(listener);
 		}
 	}
 
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	class OpenOtapFileAction extends Action {
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public OpenOtapFileAction() {
 			setText("Open file...");
 			setToolTipText("Open file");
 			setImageDescriptor(IconTheme.lookupDescriptor("document-open"));
 		}
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public void run() {
 			String oldFilename = Settings.instance().get(SettingsKey.otap_file);
 
@@ -346,42 +323,42 @@ public class OtapPluginGui {
 			firePropertyChange(SettingsKey.otap_file.name(), oldFilename, filename);
 		}
 
-		/**
+		*//**
 		 * @return
-		 */
+		 *//*
 		public String getFilename() {
 			return Settings.instance().get(SettingsKey.otap_file);
 		}
 
-		/**
+		*//**
 		 *
-		 */
+		 *//*
 		public void openLastUsed() {
 			firePropertyChange(SettingsKey.otap_file.name(), null, Settings.instance().get(SettingsKey.otap_file));
 		}
 	}
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	protected static Category log = Logging.get(OtapPluginGui.class);
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	private OtapPlugin otapPlugin = null;
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	protected CTabItem tabItem = null;
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	private Composite mainPanel = null;
 
-	/** */
+	*//** *//*
 	private TableViewer tableView;
 
 	protected TableColumn macColumn;
@@ -394,12 +371,12 @@ public class OtapPluginGui {
 
 	protected TableColumn selectColumn;
 
-	/** */
+	*//** *//*
 	private Button otapControlButton = null;
 
 	private Button motapEnableButton = null;
 
-	/** */
+	*//** *//*
 	private Button presenceDetectButton = null;
 
 	private Combo channelSelectionBox;
@@ -409,15 +386,15 @@ public class OtapPluginGui {
 	private Button unselectAllButton = null;
 
 
-	/** */
+	*//** *//*
 	private Button openFilebutton = null;
 
 	private OpenOtapFileAction openOtapFileAction = new OpenOtapFileAction();
 
-	/** */
+	*//** *//*
 	private CLabel filenameLabel;
 
-	/** */
+	*//** *//*
 	private Label statusLabel;
 
 	private Label maxRetriesLabel;
@@ -426,16 +403,16 @@ public class OtapPluginGui {
 
 	private Scale timeoutMultiplierScale;
 
-	/** */
+	*//** *//*
 	private Set<OtapDevice> selectedDevices = new HashSet<OtapDevice>();
 
-	/** */
+	*//** *//*
 	private OtapDeviceSorter otapDeviceSorter = new OtapDeviceSorter();
 
-	/** */
+	*//** *//*
 	private OtapDeviceLabelProvider labelProvider = new OtapDeviceLabelProvider();
 
-	/** */
+	*//** *//*
 	private OtapDeviceContentProvider contentProvider = new OtapDeviceContentProvider();
 
 	private Text radioKeyInput = null;
@@ -448,9 +425,9 @@ public class OtapPluginGui {
 	private Button otapKeyButton = null;
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	OtapPluginGui(OtapPlugin op) {
 		this.otapPlugin = op;
 
@@ -466,9 +443,9 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	void initGui() {
 		// Get tool bar manager
 		//otapPlugin.addToolBarAction(openOtapFileAction);
@@ -728,7 +705,7 @@ public class OtapPluginGui {
 
 			//Retries
 			{
-				/*
+				*//*
 				maxRetriesScale = new Scale(buttonBox, SWT.HORIZONTAL);
 				maxRetriesLabel = new Label(buttonBox, SWT.NONE);
 
@@ -745,11 +722,11 @@ public class OtapPluginGui {
 						maxRetriesLabel.pack();
 						maxRetriesLabel.update();
 					}
-				});*/
+				});*//*
 			}
 			//Timeout Multiplier
 			{
-				/*
+				*//*
 				timeoutMultiplierScale = new Scale(buttonBox, SWT.HORIZONTAL);
 				timeoutMultiplierScale.setMaximum(255);
 				timeoutMultiplierScale.setMinimum(1);
@@ -767,7 +744,7 @@ public class OtapPluginGui {
 						timeoutMultiplierLabel.update();
 					}
 				});
-				*/
+				*//*
 			}
 
 			//Start/Stop Button
@@ -896,10 +873,10 @@ public class OtapPluginGui {
 
 
 	//-------------------------------------------------------------------------
-	/**
+	*//**
 	 *
-	 */
-	/*
+	 *//*
+	*//*
 	private void packTableView() {
 		// Update table layout
 		TableColumn[] c = new TableColumn[] { tableView.getTable().getColumn(0), tableView.getTable().getColumn(1), tableView.getTable().getColumn(2), tableView.getTable().getColumn(3) };
@@ -912,12 +889,12 @@ public class OtapPluginGui {
 		c[3].setWidth(Math.max(0, 2 * w / 6 - 6));
 		tableView.getTable().layout();
 	}
-*/
+*//*
 	//-------------------------------------------------------------------------
-	/**
+	*//**
 	 *
-	 */
-	/*
+	 *//*
+	*//*
 	protected TableItem getItemForDevice(OtapDevice device) {
 		TableItem item = null;
 		for (TableItem current : tableView.getTable().getItems())
@@ -925,12 +902,12 @@ public class OtapPluginGui {
 				item = current;
 
 		return item;
-	}*/
+	}*//*
 
 	//-------------------------------------------------------------------------
-	/**
+	*//**
 	 *
-	 *//*
+	 *//**//*
 	public void addDevice(final OtapDevice device) {
 		mainPanel.getDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -955,12 +932,12 @@ public class OtapPluginGui {
 				}
 			}
 		});
-	}*/
+	}*//*
 
 	//-------------------------------------------------------------------------
-	/**
+	*//**
 	 *
-	 *//*
+	 *//**//*
 	public void removeDevice(final OtapDevice device) {
 
 		mainPanel.getDisplay().asyncExec(new Runnable() {
@@ -982,11 +959,11 @@ public class OtapPluginGui {
 		});
 
 	}
-*/
+*//*
 	//-------------------------------------------------------------------------
-	/**
+	*//**
 	 *
-	 *//*
+	 *//**//*
 	public void updateDevice(final OtapDevice device) {
 		mainPanel.getDisplay().asyncExec(new Runnable() {
 
@@ -1011,12 +988,12 @@ public class OtapPluginGui {
 				}
 			}
 		});
-	}*/
+	}*//*
 	// -------------------------------------------------------------------------
 
-	/**
+	*//**
 	 * @changed strebel
-	 */
+	 *//*
 	public void addDevice(final OtapDevice device) {
 		mainPanel.getDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -1030,9 +1007,9 @@ public class OtapPluginGui {
 
 	//--------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	public void removeDevice(final OtapDevice d) {
 		mainPanel.getDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -1045,9 +1022,9 @@ public class OtapPluginGui {
 	}
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	public void updateDevice(final OtapDevice device) {
 		mainPanel.getDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -1058,9 +1035,9 @@ public class OtapPluginGui {
 	}
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 * @changed strebel
-	 */
+	 *//*
 	public Set<OtapDevice> getSelectedDevices() {
 		final Set<OtapDevice> devices = new HashSet<OtapDevice>();
 
@@ -1082,9 +1059,9 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 * @author strebel
-	 */
+	 *//*
 	public void setSelectedDevices(final Set<OtapDevice> devices) {
 		mainPanel.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -1102,23 +1079,23 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	public Set<OtapDevice> getSelectedAndProgrammableDevices() {
 		final Set<OtapDevice> devices = new HashSet<OtapDevice>();
 
 		mainPanel.getDisplay().syncExec(new Runnable() {
 
 			public void run() {
-				/*
+				*//*
 				for (TableItem item : tableView.getTable().getItems())
 					if (item.getChecked() && item.getData("device") != null)
 					{
 						if ( ((OtapDevice) item.getData("device")).programmable())
 							devices.add((OtapDevice) item.getData("device"));
 					}
-					*/
+					*//*
 				for (TableItem item : tableView.getTable().getItems()) {
 					log.debug("get selected " + ((OtapDevice) item.getData()).getId());
 					if (item.getChecked()) {
@@ -1134,18 +1111,18 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	public Set<OtapDevice> getDevices() {
 		final Set<OtapDevice> devices = new HashSet<OtapDevice>();
 
 		mainPanel.getDisplay().syncExec(new Runnable() {
 
 			public void run() {
-				/*for (TableItem item : tableView.getTable().getItems())
+				*//*for (TableItem item : tableView.getTable().getItems())
 					if (item.getData("device") != null)
-						devices.add((OtapDevice) item.getData("device"));*/
+						devices.add((OtapDevice) item.getData("device"));*//*
 				for (TableItem item : tableView.getTable().getItems()) {
 					log.debug("get " + ((OtapDevice) item.getData()).getId());
 					if (item.getData() != null) {
@@ -1160,9 +1137,9 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 * Set the text according to the state
-	 */
+	 *//*
 	void updateState() {
 		if (!mainPanel.isDisposed()) {
 			mainPanel.getDisplay().syncExec(new Runnable() {
@@ -1278,9 +1255,9 @@ public class OtapPluginGui {
 
 	//	-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	protected void handleMotapEnableButton() {
 		if (otapPlugin.getMultihopSupportState()) {
 			otapPlugin.setMultihopSupportState(false);
@@ -1293,9 +1270,9 @@ public class OtapPluginGui {
 	}
 	//	-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	private synchronized void handlePresenceDetectControlButton() {
 		log.debug("Presence detection button clicked, state(" + otapPlugin.getState() + ")");
 
@@ -1316,9 +1293,9 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	private synchronized void handleOtapInitControlButton() {
 		log.debug("Otap button clicked, state(" + otapPlugin.getState() + ")");
 
@@ -1341,9 +1318,9 @@ public class OtapPluginGui {
 
 	//-------------------------------------------------------------------------
 
-	/**
+	*//**
 	 *
-	 */
+	 *//*
 	private synchronized void handleRadioKeyButton() {
 		//log.debug("Otap button clicked, state(" + otapPlugin.getState() + ")");
 
@@ -1357,10 +1334,10 @@ public class OtapPluginGui {
 	}
 
 //	//--------------------------------------------------------------------------
-//	/**
+//	*//**
 //	 * @author strebel
 //	 * TODO strebel remove after testing
-//	 */
+//	 *//*
 //	private synchronized void handleFillTableButton() {
 //		Random random = new Random();
 //		OtapDevice device = new OtapDevice();
@@ -1389,6 +1366,6 @@ public class OtapPluginGui {
 			}
 			);
 		}
-	}
+	}*/
 
 }

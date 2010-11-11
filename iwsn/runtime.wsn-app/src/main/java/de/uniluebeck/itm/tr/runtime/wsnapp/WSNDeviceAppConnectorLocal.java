@@ -252,7 +252,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 				currentOperationLastProgress = new TimeDiff(1000);
 
 				if (!device.isConnected()) {
-					listener.failure((byte) 0, "Failed flashing node. Reason: Node is not connected.".getBytes(););
+					listener.failure((byte) 0, "Failed flashing node. Reason: Node is not connected.".getBytes());
 					return;
 				}
 

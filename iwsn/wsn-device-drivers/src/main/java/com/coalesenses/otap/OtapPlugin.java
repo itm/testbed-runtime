@@ -32,7 +32,6 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 */
 	private ScheduledFuture<?> scheduledFuture;
 
-	/**
+    /**
 	 *
 	 */
 	public enum State {
@@ -96,7 +95,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	/**
 	 *
 	 */
-	private OtapPluginGui gui = null;
+	//private OtapPluginGui gui = null;
 
 	/**
 	 *
@@ -168,9 +167,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 		otapFlash.addListener(this);
 		otapInit.addListener(this);
 
-		loadBinProgram(Settings.instance().get(SettingsKey.otap_file));
-
-		gui = new OtapPluginGui(this);
+		//gui = new OtapPluginGui(this);
 
 	}
 
@@ -276,7 +273,6 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 					if (oldChipType == null || oldChipType != program.getChipType()) {
 						for (OtapDevice d : presenceDetect.getDetectedDevices()) {
 							d.setProgrammable(program.getChipType(), this);
-							gui.updateDevice(d);
 						}
 					}
 				}
@@ -300,18 +296,16 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 */
 	public void otapStart() {
 		otapStop();
-		loadBinProgram(Settings.instance().get(SettingsKey.otap_file));
+		loadBinProgram(programFilename);
 
 		if (program == null) {
-			log.fatal("No file to flash. Select a bin-file first.");
+			log.error("No file to flash. Select a bin-file first.");
 		} else {
 			log.info("Started OTAP Init phase."); // TODO: timings
 			if (motapSupportEnabled)
 			//otapInit.setDeviceSettingTimeoutMultiplierMs(60);//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
 			{
-				otapInit.setDeviceSettingTimeoutMultiplierMs(
-						Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier)
-				);
+				otapInit.setDeviceSettingTimeoutMultiplierMs(60);				
 			} else {
 				otapInit.setDeviceSettingTimeoutMultiplierMs(10
 				);
@@ -368,10 +362,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 */
 	private void setState(State state) {
 		log.debug("State transition: " + this.state + " -> " + state);
-		this.state = state;
-		if (gui != null) {
-			gui.updateState();
-		}
+		this.state = state;		
 	}
 
 	/**
@@ -389,7 +380,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 				if (motapSupportEnabled)
 				//otapFlash.setMsPerPacket(60);//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
 				{
-					otapFlash.setMsPerPacket(Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
+					otapFlash.setMsPerPacket(60);
 				} else {
 					otapFlash.setMsPerPacket(10);
 				}//Settings.instance().getInt(Settings.SettingsKey.timeout_multiplier));
@@ -414,17 +405,13 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 * @param cause
 	 */
 	public void presenceDetectChange(OtapDevice d, Change cause) {
-		if (gui == null) {
-			log.warn("No active gui.");
-			return;
-		}
 
 		if (cause == Change.Added) {
-			gui.addDevice(d);
+			log.debug("found device {}",d.getId());
 		} else if (cause == Change.Removed) {
-			gui.removeDevice(d);
+			log.debug("lost device {}",d.getId());
 		} else if (cause == Change.Updated) {
-			gui.updateDevice(d);
+			log.debug("updated device {}",d.getId());
 		}
 	}
 
@@ -441,9 +428,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 			otapInit.setParticipatingDevices(devices);
 			return true;
 		} else {
-			log.warn("Ignoring to set participating devices in state " + getState().name() + ", devices[" + Tools
-					.toString(devices) + "]"
-			);
+			log.warn("Ignoring to set participating devices in state " + getState().name());
 			return false;
 		}
 
@@ -455,11 +440,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 * @param device
 	 */
 	public void otapFlashUpdate(OtapDevice device) {
-		if (gui != null) {
-			gui.updateDevice(device);
-		} else {
-			log.warn("No active gui");
-		}
+		log.info("flsah progress for device {}: {}",device.getId(),((int)(device.getProgress()*100)));
 	}
 
 	/**
@@ -476,7 +457,6 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 */
 	void setOtapStatusText(String statusString) {
 		this.statusText = statusString;
-		gui.updateState();
 	}
 
 	/**
@@ -610,7 +590,7 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	 * @return
 	 */
 	public int[] getChannels() {
-		return iSenseDevice.getISenseDevice().getChannels();
+		return USBDevice.getChannels();
 	}
 
 	/**
@@ -667,12 +647,12 @@ public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListene
 	public void warnOtapFunctionality() {
 		if (getProgramOtapFunctionality() == BinProgram.OtapFunctionality.Otap &&
 				getMultihopSupportState()) {
-			gui.warnOtapFunctionality("The new Program does not support Multihop OTAP functionality!");
+			log.warn("The new Program does not support Multihop OTAP functionality!");
 			return;
 		}
 
 		if (getProgramOtapFunctionality() == BinProgram.OtapFunctionality.Nothing) {
-			gui.warnOtapFunctionality("The new Program does not support OTAP functionality!");
+			log.warn("The new Program does not support OTAP functionality!");
 			return;
 		}
 

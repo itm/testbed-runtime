@@ -449,7 +449,8 @@ public class OtapFlasher {
 	 */
 	public void cancelOtap() {
 //		public synchronized void cancelOtap() {
-		timerSchedule.cancel(true);
+        if(timerSchedule!=null)
+            timerSchedule.cancel(true);
 
 		if (isRunning()) {
 			log.info("OTAP::Stopped programming");
