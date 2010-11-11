@@ -156,8 +156,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			log.error(nodeUrn + " => " + e, e);
 		}
 
-		this.connector = WSNDeviceAppConnectorFactory
-				.create(nodeUrn, nodeType, nodeUSBChipID, nodeSerialInterface, nodeAPITimeout);
+		this.connector = WSNDeviceAppConnectorFactory.create(
+				nodeUrn,
+				nodeType,
+				nodeUSBChipID,
+				nodeSerialInterface,
+				nodeAPITimeout,
+				testbedRuntime.getSchedulerService()
+		);
 
 	}
 
