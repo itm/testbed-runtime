@@ -2,21 +2,19 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.common.Listenable;
 import de.uniluebeck.itm.gtr.common.Service;
-import de.uniluebeck.itm.gtr.messaging.Messages;
-import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
-
-import java.util.concurrent.Future;
 
 
 public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
 
 	public static interface NodeOutputListener {
+
 		void receivedPacket(MessagePacket p);
 	}
 
 	public static interface FlashProgramCallback extends NodeApiCallback {
+
 		void progress(float percentage);
 	}
 

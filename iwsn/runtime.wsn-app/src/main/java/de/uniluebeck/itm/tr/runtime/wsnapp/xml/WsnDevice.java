@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.*;
 
 /**
  * <p>Java class for WsnDevice complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="WsnDevice">
  *   &lt;complexContent>
@@ -32,162 +32,150 @@ import javax.xml.bind.annotation.*;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "WsnDevice", propOrder = {
-    "urn",
-    "type",
-    "serialinterface",
-    "nodeapitimeout",
-    "usbchipid"
+		"urn",
+		"type",
+		"serialinterface",
+		"nodeapitimeout",
+		"usbchipid"
 })
 @XmlRootElement(name = "device")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class WsnDevice {
 
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String urn;
-    @XmlElement(required = true)
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String type;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String serialinterface;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected Integer nodeapitimeout;
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    protected String usbchipid;
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String urn;
 
-    /**
-     * Gets the value of the urn property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getUrn() {
-        return urn;
-    }
+	@XmlElement(required = true)
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String type;
 
-    /**
-     * Sets the value of the urn property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setUrn(String value) {
-        this.urn = value;
-    }
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String serialinterface;
 
-    /**
-     * Gets the value of the type property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getType() {
-        return type;
-    }
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected Integer nodeapitimeout;
 
-    /**
-     * Sets the value of the type property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setType(String value) {
-        this.type = value;
-    }
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	protected String usbchipid;
 
-    /**
-     * Gets the value of the serialinterface property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getSerialinterface() {
-        return serialinterface;
-    }
+	/**
+	 * Gets the value of the urn property.
+	 *
+	 * @return possible object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getUrn() {
+		return urn;
+	}
 
-    /**
-     * Sets the value of the serialinterface property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setSerialinterface(String value) {
-        this.serialinterface = value;
-    }
+	/**
+	 * Sets the value of the urn property.
+	 *
+	 * @param value allowed object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setUrn(String value) {
+		this.urn = value;
+	}
 
-    /**
-     * Gets the value of the nodeapitimeout property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public Integer getNodeapitimeout() {
-        return nodeapitimeout;
-    }
+	/**
+	 * Gets the value of the type property.
+	 *
+	 * @return possible object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getType() {
+		return type;
+	}
 
-    /**
-     * Sets the value of the nodeapitimeout property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setNodeapitimeout(Integer value) {
-        this.nodeapitimeout = value;
-    }
+	/**
+	 * Sets the value of the type property.
+	 *
+	 * @param value allowed object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setType(String value) {
+		this.type = value;
+	}
 
-    /**
-     * Gets the value of the usbchipid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public String getUsbchipid() {
-        return usbchipid;
-    }
+	/**
+	 * Gets the value of the serialinterface property.
+	 *
+	 * @return possible object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getSerialinterface() {
+		return serialinterface;
+	}
 
-    /**
-     * Sets the value of the usbchipid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
-    public void setUsbchipid(String value) {
-        this.usbchipid = value;
-    }
+	/**
+	 * Sets the value of the serialinterface property.
+	 *
+	 * @param value allowed object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setSerialinterface(String value) {
+		this.serialinterface = value;
+	}
+
+	/**
+	 * Gets the value of the nodeapitimeout property.
+	 *
+	 * @return possible object is {@link Integer }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public Integer getNodeapitimeout() {
+		return nodeapitimeout;
+	}
+
+	/**
+	 * Sets the value of the nodeapitimeout property.
+	 *
+	 * @param value allowed object is {@link Integer }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setNodeapitimeout(Integer value) {
+		this.nodeapitimeout = value;
+	}
+
+	/**
+	 * Gets the value of the usbchipid property.
+	 *
+	 * @return possible object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public String getUsbchipid() {
+		return usbchipid;
+	}
+
+	/**
+	 * Sets the value of the usbchipid property.
+	 *
+	 * @param value allowed object is {@link String }
+	 */
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-10-01T02:36:57+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	public void setUsbchipid(String value) {
+		this.usbchipid = value;
+	}
 
 }

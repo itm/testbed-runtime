@@ -1,10 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.inject.internal.Nullable;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.common.AbstractListenable;
-import de.uniluebeck.itm.gtr.messaging.MessageTools;
-import de.uniluebeck.itm.gtr.messaging.Messages;
+import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
 import de.uniluebeck.itm.motelist.MoteType;
@@ -28,10 +26,61 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
+
+	enum State {
+
+		DISCONNECTED, READY, OPERATION_RUNNING
+	}
+
+	private static class ConnectorState {
+
+		private State state;
+
+		private final ReentrantLock stateLock = new ReentrantLock();
+
+		private ConnectorState() {
+			state = State.DISCONNECTED;
+		}
+
+		public void setState(State newState) {
+			try {
+				stateLock.lock();
+				if (state == State.OPERATION_RUNNING && newState == State.OPERATION_RUNNING) {
+					throw new RuntimeException("There's another operation currently running.");
+				}
+				state = newState;
+			} finally {
+				stateLock.unlock();
+			}
+		}
+
+		public State getState() {
+			try {
+				stateLock.lock();
+				return state;
+			} finally {
+				stateLock.unlock();
+			}
+		}
+
+	}
+
+	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+
+	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+
+	private static final byte NODE_OUTPUT_TEXT = 50;
+
+	private static final byte NODE_OUTPUT_BYTE = 51;
+
+	private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+
+	private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
@@ -42,6 +91,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private String nodeUSBChipID;
 
 	private String nodeSerialInterface;
+
+	private SchedulerService schedulerService;
+
+	private ConnectorState state = new ConnectorState();
 
 	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
@@ -61,233 +114,12 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		}
 	};
 
-	private NodeApi nodeApi;
-
-	private String nodeUrn;
-
-	private Messages.Msg currentOperationInvocationMsg;
-
-	private TimeDiff currentOperationLastProgress;
-
-	private iSenseDevice device;
-
-	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-									  final String nodeSerialInterface, final Integer nodeAPITimeout) {
-
-		this.nodeUrn = nodeUrn;
-		this.nodeType = nodeType;
-		this.nodeUSBChipID = nodeUSBChipID;
-		this.nodeSerialInterface = nodeSerialInterface;
-
-		this.nodeApi =
-				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
-						TimeUnit.MILLISECONDS
-				);
-	}
-
-	@Override
-	public void enablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
-		nodeApi.getLinkControl().disablePhysicalLink(nodeB, listener);
-	}
-
-	@Override
-	public void disablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
-		nodeApi.getLinkControl().enablePhysicalLink(nodeB, listener);
-	}
-
-	@Override
-	public void enableNode(final NodeApiCallback listener) {
-		nodeApi.getNodeControl().enableNode(listener);
-	}
-
-	@Override
-	public void disableNode(final NodeApiCallback listener) {
-		nodeApi.getNodeControl().disableNode(listener);
-	}
-
-	@Override
-	public void destroyVirtualLink(final long targetNode, final NodeApiCallback listener) {
-		nodeApi.getLinkControl().destroyVirtualLink(targetNode, listener);
-	}
-
-	@Override
-	public void setVirtualLink(final long targetNode, final NodeApiCallback listener) {
-		nodeApi.getLinkControl().setVirtualLink(targetNode, listener);
-	}
-
-	@Override
-	public void sendMessage(final byte binaryType, final byte[] binaryMessage, final NodeApiCallback listener) {
-
-		try {
-
-			if (messageType == MESSAGE_TYPE_WISELIB_DOWNSTREAM && messageBytes[0] == VIRTUAL_LINK_MESSAGE) {
-
-				log.debug("{} => Delivering virtual link message over node API", nodeUrn);
-
-				ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
-
-				final byte RSSI = messageBuffer.get(2);
-				final byte LQI = messageBuffer.get(3);
-				final byte payloadLength = messageBuffer.get(4);
-				final long destination = messageBuffer.getLong(5);
-				final long source = messageBuffer.getLong(13);
-				final byte[] payload = new byte[payloadLength];
-				System.arraycopy(messageBytes, 21, payload, 0, payloadLength);
-
-				final byte[] finalMessageBytes = messageBytes;
-
-				System.out.println("payloadLength = " + payloadLength);
-
-				nodeApi.getInteraction()
-						.sendVirtualLinkMessage(RSSI, LQI, destination, source, payload, new NodeApiCallback() {
-							@Override
-							public void success(@Nullable final byte[] replyPayload) {
-								log.debug(
-										"{} => Successfully delivered virtual link message to node. MessageBytes: {}. Reply: {}",
-										new Object[]{
-												nodeUrn,
-												StringUtils.toHexString(finalMessageBytes),
-												StringUtils.toHexString(replyPayload)
-										}
-								);
-							}
-
-							@Override
-							public void failure(final byte responseType, @Nullable final byte[] replyPayload) {
-								log.warn(
-										"{} => Failed to deliver virtual link message to node. ResponseType: {}. ReplyPayload: {}",
-										new Object[]{
-												nodeUrn,
-												StringUtils.toHexString(responseType),
-												StringUtils.toHexString(replyPayload)
-										}
-								);
-							}
-
-							@Override
-							public void timeout() {
-								log.warn("{} => Timed out when trying to deliver virtual link message to node.",
-										nodeUrn
-								);
-							}
-						}
-						);
-			} else {
-
-				log.debug(
-						"{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link message.",
-						nodeUrn
-				);
-				device.send(new MessagePacket(messageType, messageBytes));
-
-			}
-
-		} catch (Exception e) {
-			log.error("" + e, e);
-		}
-
-	}
-
-	@Override
-	public void resetNode(final NodeApiCallback listener) {
-
-		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
-
-		try {
-
-			currentOperationInvocation = invocation;
-			currentOperationInvocationMsg = msg;
-
-			if (!device.isConnected()) {
-				listener.failure((byte) 0, "Failed resetting node. Reason: Device is not connected.".getBytes());
-			}
-
-			boolean triggered = device.triggerReboot();
-			if (!triggered) {
-				listener.failure((byte) 0, "Failed resetting node. Reason: Could not trigger reboot.".getBytes());
-			}
-
-		} catch (Exception e) {
-			log.error("Error while resetting device: " + e, e);
-			listener.failure((byte) 0, ("Failed resetting node. Reason: " + e.getMessage()).getBytes());
-		}
-
-	}
-
-	@Override
-	public void isNodeAlive(final NodeApiCallback listener) {
-
-		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
-
-		// to the best of our knowledge, a node is alive if we're connected to it
-		boolean connected = device != null && device.isConnected();
-		if (connected) {
-			listener.success(null);
-		} else {
-			listener.failure((byte) 0, "Device is not connected".getBytes());
-		}
-	}
-
-	@Override
-	public void flashProgram(final WSNAppMessages.Program program, final FlashProgramCallback listener) {
-
-		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
-
-		try {
-
-			IDeviceBinFile iSenseBinFile = null;
-
-			if (device instanceof JennicDevice) {
-				iSenseBinFile = new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-			} else if (device instanceof TelosbDevice) {
-				iSenseBinFile = new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-			} else if (device instanceof PacemateDevice) {
-				iSenseBinFile =
-						new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-			}
-
-			try {
-
-				// remember invocation message to be able to send asynchronous replies
-				currentOperationLastProgress = new TimeDiff(1000);
-
-				if (!device.isConnected()) {
-					listener.failure((byte) 0, "Failed flashing node. Reason: Node is not connected.".getBytes());
-					return;
-				}
-
-				if (!device.triggerProgram(iSenseBinFile, true)) {
-					listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
-					return;
-				}
-
-			} catch (Exception e) {
-				log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
-				listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes();)
-				return;
-			}
-
-		} catch (InvalidProtocolBufferException e) {
-			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
-		} catch (Exception e) {
-			log.error("Error reading bin file " + e);
-		}
-
-	}
-
-	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
-
-	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
-
-	private static final byte NODE_OUTPUT_TEXT = 50;
-
-	private static final byte NODE_OUTPUT_BYTE = 51;
-
-	private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
-
-	private static final byte VIRTUAL_LINK_MESSAGE = 11;
-
-	private iSenseDeviceListener deviceListener = new iSenseDeviceListenerAdapter() {
+	/**
+	 * Listener that grabs all sensor node outputs and forwards them to interest listeners. Other device listeners for
+	 * flashing and resetting operations are registered as needed and immediately removed after completion of the
+	 * operation.
+	 */
+	private iSenseDeviceListener deviceOutputListener = new iSenseDeviceListenerAdapter() {
 
 		@Override
 		public void receivePacket(MessagePacket p) {
@@ -308,119 +140,29 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 				}
 				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
 			} else {
-				notifyListeners(p);
+				for (NodeOutputListener listener : listeners) {
+					listener.receivedPacket(p);
+				}
 			}
 
 		}
 
 		@Override
 		public void operationCanceled(Operation operation) {
-
-			log.debug("{} => Operation {} canceled.", nodeUrn, operation);
-
-			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
-				failedFlashPrograms("operation canceled");
-				resetCurrentOperation();
-			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
-				failedReset("Failed resetting node. Reason: Operation canceled.");
-			}
+			// nothing to do
 		}
 
 		@Override
 		public void operationDone(Operation operation, Object o) {
-
-			log.debug("{} => Operation {} done. Object: {}", new Object[]{nodeUrn, operation, o});
-
-			if (isFlashOperation(currentOperationInvocation) && operation == Operation.PROGRAM) {
-				if (o instanceof Exception) {
-					failedFlashPrograms(((Exception) o).getMessage());
-				} else {
-					doneFlashPrograms();
-					resetCurrentOperation();
-				}
-			} else if (isResetOperation(currentOperationInvocation) && operation == Operation.RESET) {
-				if (o == null) {
-					failedFlashPrograms("Could not reset node");
-				} else if (o instanceof Boolean && ((Boolean) o).booleanValue()) {
-					doneReset();
-				} else {
-					failedFlashPrograms("Could not reset node"
-					);//urn:wisebed:uzl-staging:0xe301,urn:wisebed:uzl-staging:0x2504,urn:wisebed:uzl-staging:0x0d99,urn:wisebed:uzl-staging:0x2bbb
-				}
-			}
+			// nothing to do
 		}
 
 		@Override
 		public void operationProgress(Operation operation, float v) {
-
-			log.debug("{} => Operation {} receivedRequestStatus: {}", new Object[]{nodeUrn, operation, v});
-
-			if (isFlashOperation(currentOperationInvocation)) {
-
-				if (currentOperationLastProgress.isTimeout()) {
-
-					log.debug("{} => Sending asynchronous receivedRequestStatus message.", nodeUrn);
-					// send reply to indicate failure
-					currentOperationLastProgress.touch();
-					// TODO arggh!
-
-				}
-			}
-
+			// nothing to do
 		}
 
 	};
-
-	private void notifyListeners(final MessagePacket p) {
-		for (NodeOutputListener listener : listeners) {
-			listener.receivedPacket(p);
-		}
-	}
-
-	private boolean isFlashOperation(WSNAppMessages.OperationInvocation operationInvocation) {
-		return operationInvocation != null && operationInvocation
-				.getOperation() == WSNAppMessages.OperationInvocation.Operation.FLASH_PROGRAMS;
-	}
-
-	private boolean isResetOperation(WSNAppMessages.OperationInvocation operationInvocation) {
-		return operationInvocation != null && operationInvocation
-				.getOperation() == WSNAppMessages.OperationInvocation.Operation.RESET_NODES;
-	}
-
-	private void resetCurrentOperation() {
-
-		currentOperationInvocation = null;
-		currentOperationInvocationMsg = null;
-		currentOperationResponder = null;
-		currentOperationLastProgress = null;
-
-	}
-
-	private void doneReset() {
-
-		log.debug("{} => WSNDeviceAppImpl.doneReset()", nodeUrn);
-
-		// send reply to indicate failure
-		testbedRuntime.getUnreliableMessagingService().sendAsync(
-				MessageTools.buildReply(currentOperationInvocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-						buildRequestStatus(1, null)
-				)
-		);
-		resetCurrentOperation();
-	}
-
-	private void failedReset(String reason) {
-
-		log.debug("{} => WSNDeviceAppImpl.failedReset()", nodeUrn);
-
-		// send reply to indicate failure
-		testbedRuntime.getUnreliableMessagingService().sendAsync(
-				MessageTools.buildReply(currentOperationInvocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
-						buildRequestStatus(0, reason)
-				)
-		);
-		resetCurrentOperation();
-	}
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -460,7 +202,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 					log.warn("{} => No serial interface could be detected for {} node. Retrying in 30 seconds.",
 							nodeUrn, nodeType
 					);
-					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
+					schedulerService.schedule(this, 30, TimeUnit.SECONDS);
 					return;
 				} else {
 					log.debug("{} => Found {} node on serial port {}.",
@@ -480,7 +222,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 								nodeUrn, nodeType, nodeSerialInterface, e.getMessage()
 						}
 				);
-				testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
+				schedulerService.schedule(this, 30, TimeUnit.SECONDS);
 				return;
 			}
 
@@ -489,25 +231,435 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			);
 
 			// attach as listener to device output
-			device.registerListener(deviceListener);
+			device.registerListener(deviceOutputListener);
+			state.setState(State.READY);
 
 		}
 	};
 
-	public boolean isExclusiveOperationRunning() {
-		return currentOperationInvocation != null;
+	private NodeApi nodeApi;
+
+	private String nodeUrn;
+
+	private iSenseDevice device;
+
+	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
+									  final String nodeSerialInterface, final Integer nodeAPITimeout,
+									  final SchedulerService schedulerService) {
+
+		this.nodeUrn = nodeUrn;
+		this.nodeType = nodeType;
+		this.nodeUSBChipID = nodeUSBChipID;
+		this.nodeSerialInterface = nodeSerialInterface;
+
+		this.schedulerService = schedulerService;
+
+		this.nodeApi =
+				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
+						TimeUnit.MILLISECONDS
+				);
+	}
+
+	@Override
+	public void destroyVirtualLink(final long targetNode, final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getLinkControl().destroyVirtualLink(targetNode, listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	@Override
+	public void disableNode(final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getNodeControl().disableNode(listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	@Override
+	public void disablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getLinkControl().disablePhysicalLink(nodeB, listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	@Override
+	public void enableNode(final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getNodeControl().enableNode(listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	@Override
+	public void enablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getLinkControl().enablePhysicalLink(nodeB, listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	@Override
+	public void flashProgram(final WSNAppMessages.Program program, final FlashProgramCallback listener) {
+
+		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
+
+		try {
+
+			state.setState(State.OPERATION_RUNNING);
+
+			try {
+
+				IDeviceBinFile iSenseBinFile = null;
+
+				if (device instanceof JennicDevice) {
+					iSenseBinFile =
+							new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+				} else if (device instanceof TelosbDevice) {
+					iSenseBinFile =
+							new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+				} else if (device instanceof PacemateDevice) {
+					iSenseBinFile =
+							new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+				}
+
+				final iSenseDeviceListener flashListener = new iSenseDeviceListener() {
+
+					private final TimeDiff lastProgress = new TimeDiff(1500);
+
+					@Override
+					public void receivePacket(final MessagePacket p) {
+						// nothing to do
+					}
+
+					@Override
+					public void receivePlainText(final MessagePlainText p) {
+						// nothing to do
+					}
+
+					@Override
+					public void operationCanceled(final Operation op) {
+
+						if (op == Operation.PROGRAM) {
+
+							listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+							device.deregisterListener(this);
+							state.setState(State.READY);
+
+						} else {
+							log.error(
+									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+									op
+							);
+						}
+					}
+
+					@Override
+					public void operationDone(final Operation op, final Object result) {
+
+						if (op == Operation.PROGRAM) {
+
+							if (result instanceof Exception) {
+								listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
+							} else {
+								listener.success(null);
+							}
+
+							device.deregisterListener(this);
+							state.setState(State.READY);
+
+						} else {
+							log.error(
+									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+									op
+							);
+						}
+					}
+
+					@Override
+					public void operationProgress(final Operation op, final float fraction) {
+
+						if (op == Operation.PROGRAM) {
+
+							if (lastProgress.isTimeout()) {
+								listener.progress(fraction);
+								lastProgress.touch();
+							}
+
+						} else {
+							log.error(
+									"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+									op
+							);
+						}
+					}
+				};
+
+				device.registerListener(flashListener);
+
+				try {
+
+					if (!device.isConnected()) {
+						listener.failure((byte) 0, "Failed flashing node. Reason: Node is not connected.".getBytes());
+						device.deregisterListener(flashListener);
+						state.setState(State.READY);
+						return;
+					}
+
+					if (!device.triggerProgram(iSenseBinFile, true)) {
+						listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
+						device.deregisterListener(flashListener);
+						state.setState(State.READY);
+					}
+
+				} catch (Exception e) {
+					log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
+					listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
+					device.deregisterListener(flashListener);
+					state.setState(State.READY);
+				}
+
+			} catch (InvalidProtocolBufferException e) {
+				log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
+			} catch (Exception e) {
+				log.error("Error reading bin file " + e);
+			}
+
+		} catch (RuntimeException e) {
+			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
+			log.warn("{} => {}", nodeUrn, msg);
+			listener.failure((byte) -1, msg.getBytes());
+		}
+
+	}
+
+	@Override
+	public void isNodeAlive(final NodeApiCallback listener) {
+
+		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
+
+		// to the best of our knowledge, a node is alive if we're connected to it
+		boolean connected = device != null && device.isConnected();
+		if (connected) {
+			listener.success(null);
+		} else {
+			listener.failure((byte) 0, "Device is not connected.".getBytes());
+		}
+	}
+
+	@Override
+	public void resetNode(final NodeApiCallback listener) {
+
+		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
+
+		try {
+
+			state.setState(State.OPERATION_RUNNING);
+
+			try {
+
+				final iSenseDeviceListener resetListener = new iSenseDeviceListener() {
+
+					@Override
+					public void receivePacket(final MessagePacket p) {
+						// nothing to do
+					}
+
+					@Override
+					public void receivePlainText(final MessagePlainText p) {
+						// nothing to do
+					}
+
+					@Override
+					public void operationCanceled(final Operation op) {
+
+						if (op == Operation.RESET) {
+
+							listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+							device.deregisterListener(this);
+							state.setState(State.READY);
+
+						} else {
+							log.error(
+									"Received operation state from device drivers != RESET ({}) which should not be possible",
+									op
+							);
+						}
+
+					}
+
+					@Override
+					public void operationDone(final Operation op, final Object result) {
+
+						if (op == Operation.RESET) {
+
+							if (result instanceof Exception) {
+								listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
+							} else if (result instanceof Boolean && ((Boolean) result)) {
+								listener.success(null);
+							} else {
+								listener.failure((byte) -1, "Could not reset node.".getBytes());
+							}
+
+							device.deregisterListener(this);
+							state.setState(State.READY);
+
+						} else {
+							log.error(
+									"Received operation state from device drivers != RESET ({}) which should not be possible",
+									op
+							);
+						}
+					}
+
+					@Override
+					public void operationProgress(final Operation op, final float fraction) {
+						// nothing to do
+					}
+				};
+
+				if (!device.isConnected()) {
+					listener.failure((byte) 0, "Failed resetting node. Reason: Device is not connected.".getBytes());
+				}
+
+				device.registerListener(resetListener);
+
+				boolean triggered = device.triggerReboot();
+				if (!triggered) {
+					listener.failure((byte) 0, "Failed resetting node. Reason: Could not trigger reboot.".getBytes());
+					device.deregisterListener(resetListener);
+				}
+
+			} catch (Exception e) {
+				log.error("Error while resetting device: " + e, e);
+				listener.failure((byte) 0, ("Failed resetting node. Reason: " + e.getMessage()).getBytes());
+			}
+
+		} catch (RuntimeException e) {
+			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
+			log.warn("{} => {}", nodeUrn, msg);
+			listener.failure((byte) -1, msg.getBytes());
+		}
+
+	}
+
+	@Override
+	public void sendMessage(final byte messageType, final byte[] messageBytes, final NodeApiCallback listener) {
+
+		switch (state.getState()) {
+
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+
+			case READY:
+				try {
+
+					if (messageType == MESSAGE_TYPE_WISELIB_DOWNSTREAM && messageBytes[0] == VIRTUAL_LINK_MESSAGE) {
+
+						log.debug("{} => Delivering virtual link message over node API", nodeUrn);
+
+						ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
+
+						final byte RSSI = messageBuffer.get(2);
+						final byte LQI = messageBuffer.get(3);
+						final byte payloadLength = messageBuffer.get(4);
+						final long destination = messageBuffer.getLong(5);
+						final long source = messageBuffer.getLong(13);
+						final byte[] payload = new byte[payloadLength];
+
+						System.arraycopy(messageBytes, 21, payload, 0, payloadLength);
+
+						nodeApi.getInteraction()
+								.sendVirtualLinkMessage(RSSI, LQI, destination, source, payload, listener);
+
+					} else {
+
+						log.debug(
+								"{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link message.",
+								nodeUrn
+						);
+
+						device.send(new MessagePacket(messageType, messageBytes));
+						listener.success(null);
+
+					}
+
+				} catch (Exception e) {
+					log.error("" + e, e);
+					listener.failure((byte) -1, e.getMessage().getBytes());
+				}
+				break;
+
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+
+		}
+
+	}
+
+	@Override
+	public void setVirtualLink(final long targetNode, final NodeApiCallback listener) {
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				nodeApi.getLinkControl().setVirtualLink(targetNode, listener);
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
 	}
 
 	@Override
 	public void start() throws Exception {
-		// TODO implement
+		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	public void stop() {
 
 		if (device != null) {
-			device.deregisterListener(deviceListener);
+			device.deregisterListener(deviceOutputListener);
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 			device.shutdown();
 		}

@@ -5,5 +5,5 @@
 // Generated on: 2010.10.01 at 02:36:57 PM MESZ 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://itm.uniluebeck.de/tr/runtime/wsnapp/xml")
-package de.uniluebeck.itm.tr.runtime.wsnapp.xml;
+@javax.xml.bind.annotation.XmlSchema(
+		namespace = "http://itm.uniluebeck.de/tr/runtime/wsnapp/xml") package de.uniluebeck.itm.tr.runtime.wsnapp.xml;
