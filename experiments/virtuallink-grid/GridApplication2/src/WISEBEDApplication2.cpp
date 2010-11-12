@@ -36,7 +36,7 @@
 #include <isense/modules/security_module/pir_sensor.h>
 
 #include <isense/util/spyglass/spyglass_packet.h>
-#include <isense/util/spyglass/spyglass_helper.h>
+#include <isense/util/spyglass/spyglass_builder.h>
 
 #include "external_interface/isense/isense_os.h"
 #include "external_interface/isense/isense_radio.h"
@@ -121,7 +121,7 @@ public:
 
   //IShellInterpreter* isi_;
 
-  SpyglassHelper* spyglass_;
+  SpyglassBuilder* spyglass_;
 
 #if defined (ISENSE_MSP430)
 	TelosbModule *telos_;
@@ -210,7 +210,7 @@ WISEBEDApplication::WISEBEDApplication(isense::Os &_os)
 	//isi_ = new IShellInterpreter(os());
 	//isi_->enable_seraerial();
 
-	spyglass_ = new SpyglassHelper(os());
+	spyglass_ = new SpyglassBuilder(os());
 
 	uint8 uartchannel = 0;
 #if defined (ISENSE_MSP430)
@@ -502,14 +502,13 @@ void WISEBEDApplication::handle_sensor()
 void WISEBEDApplication::handle_uart_packet(uint8 type , uint8* buf, uint8 length)
 {
 	// from iShell
-//#ifdef DEBUG
-	os().debug("uart %x + %i", type, length);
-	for (int i = 0; i < length; i++)
-		os().debug("uart %i %x",i, buf[i]);
-	//os().debug("uart %x", buf[1]);
-//#endif
 	if (type == 0x0b)
 	{
+#ifdef DEBUG
+		os().debug("uart %x + %i", type, length);
+		for (int i = 0; i < length; i++)
+			os().debug("uart %i %x",i, buf[i]);
+#endif
 		if (buf [0] == 0)
 		{
 			app_running_ = false;
