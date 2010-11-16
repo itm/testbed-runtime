@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -97,14 +98,7 @@ public class WSNServiceHelper {
 
 	}
 
-	/**
-	 * Returns the port to the Controller API.
-	 *
-	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
-	 *         Service endpoint
-	 */
-	public static Controller getControllerService(String endpointUrl) {
+	public static Controller getControllerService(String endpointUrl, ExecutorService executorService) {
 
 		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("ControllerService.wsdl");
 
@@ -128,6 +122,10 @@ public class WSNServiceHelper {
 			throw new RuntimeException(e);
 		}
 
+		if (executorService != null) {
+			service.setExecutor(executorService);
+		}
+
 		Controller controllerPort = service.getControllerPort();
 
 		Map<String, Object> ctxt = ((BindingProvider) controllerPort).getRequestContext();
@@ -135,6 +133,17 @@ public class WSNServiceHelper {
 
 		return controllerPort;
 
+	}
+
+	/**
+	 * Returns the port to the Controller API.
+	 *
+	 * @param endpointUrl the endpoint URL to connect to
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
+	 *         Service endpoint
+	 */
+	public static Controller getControllerService(String endpointUrl) {
+		return getControllerService(endpointUrl, null);
 	}
 
 	/**

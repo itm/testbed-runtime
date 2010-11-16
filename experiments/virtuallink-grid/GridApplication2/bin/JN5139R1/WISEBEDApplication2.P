@@ -29,8 +29,7 @@ bin/JN5139R1/WISEBEDApplication2.o: src/WISEBEDApplication2.cpp \
   ../../iSense/src/isense/modules/accelerometer.h \
   ../../iSense/src/isense/modules/security_module/pir_sensor.h \
   ../../iSense/src/isense/util/spyglass/spyglass_packet.h \
-  ../../iSense/src/isense/util/spyglass/spyglass_helper.h \
-  ../../iSense/src/isense/util/spyglass/id_lookup_table.h \
+  ../../iSense/src/isense/util/spyglass/spyglass_builder.h \
   ../../../wiselib/trunk/wiselib.testing/external_interface/isense/isense_os.h \
   ../../../wiselib/trunk/wiselib.stable/external_interface/default_return_values.h \
   ../../../wiselib/trunk/wiselib.testing/external_interface/isense/isense_extended_txradio_isensestyle.h \
