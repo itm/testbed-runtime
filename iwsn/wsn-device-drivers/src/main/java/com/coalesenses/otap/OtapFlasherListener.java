@@ -21,31 +21,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.wsn.devicedrivers.generic;
+package com.coalesenses.otap;
 
 /**
- * @author dp
+ * @author Dennis Pfisterer
  */
-public abstract class iSenseDeviceListenerAdapter implements iSenseDeviceListener {
+public interface OtapFlasherListener {
 
-	@Override
-	public void receivePacket(MessagePacket p) {
-	}
+	/**
+	 * @param device
+	 */
+	public void otapFlashUpdate(OtapDevice device);
 
-	@Override
-	public void receivePlainText(MessagePlainText p) {
-	}
-
-	@Override
-	public void operationCanceled(Operation op) {
-	}
-
-	@Override
-	public void operationProgress(Operation op, float fraction) {
-	}
-
-	@Override
-	public void operationDone(Operation op, Object result) {
-	}
+	/**
+	 *
+	 */
+	public void otapDone();
 
 }

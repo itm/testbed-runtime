@@ -21,31 +21,25 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.wsn.devicedrivers.generic;
+package com.coalesenses.otap;
 
 /**
- * @author dp
+ * @author Dennis Pfisterer
  */
-public abstract class iSenseDeviceListenerAdapter implements iSenseDeviceListener {
+public interface PresenceDetectListener {
 
-	@Override
-	public void receivePacket(MessagePacket p) {
+	/**
+	 *
+	 */
+	public enum Change {
+
+		Added, Updated, Removed
 	}
 
-	@Override
-	public void receivePlainText(MessagePlainText p) {
-	}
-
-	@Override
-	public void operationCanceled(Operation op) {
-	}
-
-	@Override
-	public void operationProgress(Operation op, float fraction) {
-	}
-
-	@Override
-	public void operationDone(Operation op, Object result) {
-	}
+	/**
+	 * @param d
+	 * @param cause
+	 */
+	void presenceDetectChange(OtapDevice d, Change cause);
 
 }

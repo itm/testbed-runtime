@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, coalesenses GmbH                                                                               *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
- *   promote products derived from this software without specific prior written permission.                           *
+ * - Neither the name of the coalesenses GmbH nor the names of its contributors may be used to endorse or promote     *
+ *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,35 +21,71 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.util;
+package com.coalesenses.otap.macromsg;
 
-import org.apache.log4j.*;
+/**
+ * This class is representing a local complex type embedding in a top-level element.
+ */
+public class OtapInitRequest {
+
+	/**
+	 * Wrapper class for representing the array element 'participating_devices'.
+	 */
+	public static class participating_devicesArray {
+
+		/**
+		 * This parameter stores the actual array.
+		 */
+		public int[] value = new int[50];
+
+		/**
+		 * This parameter the number of element actually used in the array.
+		 */
+		public int count;
 
 
-public class Logging {
-
-	public static void setLoggingDefaults() {
-
-		// configure logging defaults
-		Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%-20.20t] %-5p %-20.20C{1} %x - %m%n"));
-
-		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
-		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
-        Logger coaLogger = Logger.getLogger("com.coalesenses");
-
-		if (!itmLogger.getAllAppenders().hasMoreElements()) {
-			itmLogger.addAppender(appender);
-			itmLogger.setLevel(Level.DEBUG);
-		}
-
-		if (!wisebedLogger.getAllAppenders().hasMoreElements()) {
-			wisebedLogger.addAppender(appender);
-			wisebedLogger.setLevel(Level.DEBUG);
-		}
-
-        if (!coaLogger.getAllAppenders().hasMoreElements()) {
-			coaLogger.addAppender(appender);
-			coaLogger.setLevel(Level.INFO);
-		}
 	}
+
+	/**
+	 * Generated from local element 'chunk_count'.
+	 */
+	public short chunk_count;
+
+	/**
+	 * Generated from local element 'timeout_multiplier_ms'.
+	 */
+	public short timeout_multiplier_ms;
+
+	/**
+	 * Generated from local element 'max_re_requests'.
+	 */
+	public short max_re_requests;
+
+	/**
+	 * Parameter storing an instance of the array element 'participating_devices'.
+	 */
+	public participating_devicesArray participating_devices = new participating_devicesArray();
+
+	/**
+	 * Check for object equality.
+	 *
+	 * @param o The other object.
+	 */
+/*	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof OtapInitRequest)) {
+			return false;
+		}
+		OtapInitRequest other = (OtapInitRequest)o;
+		boolean equal = true;
+		equal = equal && (this.chunk_count == other.chunk_count);
+		equal = equal && (this.timeout_multiplier_ms == other.timeout_multiplier_ms);
+		equal = equal && (this.max_re_requests == other.max_re_requests);
+		for (int i1 = 0; i1 < this.participating_devices.count; ++i1) {
+		equal = equal && (this.participating_devices.value[i1] == other.participating_devices.value[i1]);
+		}
+		return equal;
+	}
+*/
+
 }

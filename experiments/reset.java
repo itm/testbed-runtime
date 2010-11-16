@@ -33,7 +33,6 @@ import com.google.common.collect.*;
 // Endpoint URL of local controller instance, the testbed will use this URL to send us node outputs
 String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
 String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
-String imageToFlashPath = System.getProperty("testbed.image");
 
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
@@ -109,37 +108,19 @@ try {
 	System.exit(1);
 }
 
-	// now flash a program to the nodes
-	System.out.println("Please press ENTER to flash the nodes.");
-	System.in.read();
+// now flash a program to the nodes
+System.out.println("Please press ENTER to reset the nodes.");
+System.in.read();
 	
-    log.info("Flashing nodes...");
+log.info("Resetting nodes...");
 
-	List programIndices;
-	List programs;
-
-	// flash isense nodes
-    programIndices = new ArrayList();
-    programs = new ArrayList();
-    for (int i=0; i<nodeURNs.size(); i++) {
-        programIndices.add(0);
-    }
-    programs.add(helper.readProgram(
-            imageToFlashPath,
-            "",
-            "",
-            "iSense",
-            "1.0"
-    ));
-
-	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 2, TimeUnit.MINUTES);
-	JobResult flashJobResult = flashFuture.get();
-	log.info("{}", flashJobResult);
-	if (flashJobResult.getSuccessPercent() < 100) {
-		System.out.println("Not all nodes could be flashed. Exiting");
-		log.info("{}", flashFuture.get());
-		System.exit(1);
-	}
+Future resetFuture = wsn.resetNodes(nodeURNs, 10, TimeUnit.SECONDS);
+JobResult resetJobResult = resetFuture.get();
+log.info("{}", resetJobResult);
+if (resetJobResult.getSuccessPercent() < 100) {
+	System.out.println("Not all nodes could be flashed. Exiting");
+	System.exit(1);
+}
 	
-	log.info("Done. Shutting down...");
-	System.exit(0);
+log.info("Done. Shutting down...");
+System.exit(0);

@@ -21,31 +21,108 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.wsn.devicedrivers.generic;
+package com.coalesenses.otap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.TreeSet;
 
 /**
- * @author dp
+ * @author Dennis Pfisterer
  */
-public abstract class iSenseDeviceListenerAdapter implements iSenseDeviceListener {
+public class OtapChunk implements Comparable<OtapChunk> {
 
-	@Override
-	public void receivePacket(MessagePacket p) {
+	/**
+	 *
+	 */
+	private static final Logger log = LoggerFactory.getLogger(OtapChunk.class);
+
+	/**
+	 *
+	 */
+	private short chunkNumber = 0;
+
+	/**
+	 *
+	 */
+	private short chunkIndex = 0;
+
+	/**
+	 *
+	 */
+	private TreeSet<OtapPacket> packets = new TreeSet<OtapPacket>();
+
+	/**
+	 *
+	 */
+	OtapChunk(short chunkNumber) {
+		this.chunkNumber = chunkNumber;
 	}
 
-	@Override
-	public void receivePlainText(MessagePlainText p) {
+	/**
+	 *
+	 */
+	public int compareTo(OtapChunk other) {
+		if (other == null) {
+			return 1;
+		}
+
+		if (other == this) {
+			return 0;
+		}
+
+		return this.getChunkNumber() - other.getChunkNumber();
 	}
 
-	@Override
-	public void operationCanceled(Operation op) {
+	/**
+	 *
+	 */
+	public boolean addPacket(OtapPacket p) {
+		if (packets.contains(p)) {
+			log.warn("Skipping packet " + p);
+			return false;
+		}
+
+		p.setChunkNumber(this.chunkNumber);
+		p.setIndex(chunkIndex++);
+		packets.add(p);
+
+		return true;
 	}
 
-	@Override
-	public void operationProgress(Operation op, float fraction) {
+	/**
+	 *
+	 */
+	public OtapPacket getPacketByIndex(int index) {
+		for (OtapPacket p : packets) {
+			if (p.getIndex() == index) {
+				return p;
+			}
+		}
+		return null;
 	}
 
-	@Override
-	public void operationDone(Operation op, Object result) {
+	/**
+	 *
+	 */
+	public short getChunkNumber() {
+		return chunkNumber;
+	}
+
+	/**
+	 *
+	 */
+	public Collection<OtapPacket> getPackets() {
+		return packets;
+	}
+
+	/**
+	 *
+	 */
+	public int getPacketCount() {
+		return packets.size();
 	}
 
 }

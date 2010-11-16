@@ -21,136 +21,155 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.wsn.devicedrivers.generic;
+package com.coalesenses.otap;
 
 
-import de.uniluebeck.itm.wsn.devicedrivers.nulldevice.NullDevice;
-import gnu.io.SerialPort;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author dp
+ * @author Dennis Pfisterer
  */
-public abstract class iSenseDevice {
-	
-	/** */
-	private static final Logger log = LoggerFactory.getLogger(iSenseDevice.class);
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param p
-	 * @throws Exception
-	 */
-	public abstract void send(MessagePacket p) throws Exception;
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Sets the MessageMode for all connections Plain or Packet
-	 *
-	 * @param messageMode the new MessageMode
-	 */
-	public abstract void setReceiveMode(MessageMode messageMode);
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param program
-	 * @return
-	 * @throws Exception
-	 */
-	public abstract boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) throws Exception;
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param mac
-	 * @throws Exception
-	 */
-	public abstract void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) throws Exception;
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @throws Exception
-	 */
-	public abstract void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception;
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @throws Exception
-	 */
-	public abstract boolean triggerReboot() throws Exception;
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param listener
-	 */
-	public abstract void registerListener(iSenseDeviceListener listener);
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param listener
-	 */
-	public abstract void deregisterListener(iSenseDeviceListener listener);
-
-	// -------------------------------------------------------------------------
+public class OtapPacket implements Comparable<OtapPacket> {
 
 	/**
 	 *
 	 */
-	public abstract void registerListener(iSenseDeviceListener listener, int type);
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 */
-	public abstract void deregisterListener(iSenseDeviceListener listener, int type);
-
-	// ------------------------------------------------------------------------
-	// --
+	private static final Logger log = LoggerFactory.getLogger(OtapPacket.class);
 
 	/**
 	 *
 	 */
-	public abstract void cancelOperation(Operation op);
+	private byte[] content = null;
 
 	/**
-	 * If the device has a serial port it will be returned. Else null will be
-	 * returned
 	 *
-	 * @return
 	 */
-	public SerialPort getSerialPort() {
-		return null;
+	private int chunkNumber = 0;
+
+	/**
+	 *
+	 */
+	private int overallPacketNumber = 0;
+
+	/**
+	 *
+	 */
+	private int index = 0;
+
+	/**
+	 *
+	 */
+	private TimeDiff transmissionTime = new TimeDiff();
+
+	/**
+	 * @param startAddress
+	 * @param content
+	 * @param offset
+	 * @param length
+	 */
+	OtapPacket(int startAddress, byte[] content, int offset, int length) {
+		this.overallPacketNumber = startAddress / 64;
+		setContent(content, offset, length);
 	}
 
 	/**
-	 * Returns the channels
+	 * @param o
 	 *
 	 * @return
 	 */
-	public abstract int[] getChannels();
+	public int compareTo(OtapPacket o) {
+
+		if (o == null) {
+			return 1;
+		}
+
+		if (o == this) {
+			return 0;
+		}
+
+		return this.overallPacketNumber - o.overallPacketNumber;
+	}
+
+	@Override
+	public String toString() {
+		int bytes = content != null ? content.length : 0;
+
+		return "Packet: chunkNumber " + chunkNumber + ", overallPacketNumber: " + overallPacketNumber + ", index " + index + ", " + bytes + " bytes";
+	}
 
 	/**
-	 * Create and return an appropriate binary file corresponding to the type of this device
 	 *
-	 * @param fileName path to the file to be loaded
-	 * @return the created binary file
-	 * @throws Exception
 	 */
-	public abstract IDeviceBinFile loadBinFile(String fileName) throws Exception;
+	public void setTransmissionTime() {
+		this.transmissionTime.touch();
+	}
 
 	/**
-	 *
+	 * @return
 	 */
-	public abstract void shutdown();
+	public TimeDiff getTransmissionTime() {
+		return transmissionTime;
+	}
 
-	public abstract boolean isConnected();
+	/**
+	 * @return
+	 */
+	public int getChunkNumber() {
+		return chunkNumber;
+	}
+
+	/**
+	 * @param chunkNumber
+	 */
+	public void setChunkNumber(int chunkNumber) {
+		this.chunkNumber = chunkNumber;
+	}
+
+	/**
+	 * @return
+	 */
+	public byte[] getContent() {
+		return content;
+	}
+
+	/**
+	 * @param content
+	 * @param offset
+	 * @param length
+	 */
+	public void setContent(byte[] content, int offset, int length) {
+		this.content = new byte[length];
+		System.arraycopy(content, offset, this.content, 0, length);
+	}
+
+	/**
+	 * @return
+	 */
+	public int getIndex() {
+		return index;
+	}
+
+	/**
+	 * @param index
+	 */
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getOverallPacketNumber() {
+		return overallPacketNumber;
+	}
+
+	/**
+	 * @param overallPacketNumber
+	 */
+	public void setOverallPacketNumber(int overallPacketNumber) {
+		this.overallPacketNumber = overallPacketNumber;
+	}
 
 }

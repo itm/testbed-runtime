@@ -53,7 +53,6 @@ import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateBinFile;
 import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateDevice;
 import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbBinFile;
 import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbDevice;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +141,7 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 
 	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
 
-    private String nodeUSBChipID;
+	private String nodeUSBChipID;
 
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
@@ -166,18 +165,18 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 
 	@Inject
 	public WSNDeviceAppGuavaImpl(@Named(WSNDeviceAppModule.NAME_NODE_URN) String nodeUrn,
-							@Named(WSNDeviceAppModule.NAME_NODE_TYPE) String nodeType,
-							@Named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE) @Nullable String nodeSerialInterface,
-							@Named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT) @Nullable Integer nodeAPITimeout,
-                            @Named(WSNDeviceAppModule.NAME_USB_CHIP_ID) @Nullable String nodeUSBChipID,
-							TestbedRuntime testbedRuntime) {
+								 @Named(WSNDeviceAppModule.NAME_NODE_TYPE) String nodeType,
+								 @Named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE) @Nullable String nodeSerialInterface,
+								 @Named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT) @Nullable Integer nodeAPITimeout,
+								 @Named(WSNDeviceAppModule.NAME_USB_CHIP_ID) @Nullable String nodeUSBChipID,
+								 TestbedRuntime testbedRuntime) {
 
 		Preconditions.checkNotNull(nodeUrn);
 		Preconditions.checkNotNull(nodeType);
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
-        this.nodeUSBChipID = nodeUSBChipID;
+		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeSerialInterface = nodeSerialInterface;
 		this.testbedRuntime = testbedRuntime;
 		this.nodeApi =
@@ -514,12 +513,13 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 
 			IDeviceBinFile iSenseBinFile = null;
 
-			if (iSenseDevice instanceof JennicDevice){
+			if (iSenseDevice instanceof JennicDevice) {
 				iSenseBinFile = new JennicBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-			}else if (iSenseDevice instanceof TelosbDevice){
+			} else if (iSenseDevice instanceof TelosbDevice) {
 				iSenseBinFile = new TelosbBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
-			}else if (iSenseDevice instanceof PacemateDevice){
-				iSenseBinFile = new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
+			} else if (iSenseDevice instanceof PacemateDevice) {
+				iSenseBinFile =
+						new PacemateBinFile(program.getProgram().toByteArray(), program.getMetaData().toString());
 			}
 
 			try {
@@ -541,7 +541,7 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...", nodeUrn, e);
 		} catch (Exception e) {
-			log.error("Error reading bin file "+e);
+			log.error("Error reading bin file " + e);
 		}
 
 	}
@@ -874,12 +874,12 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeType, nodeUrn);
 
 				try {
-                    Map<String, String> telosBReferenceToMACMap = null;
-                    if ("telosb".equals(nodeType) && nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
-                        telosBReferenceToMACMap = new HashMap<String, String>() {{
-                            put(nodeUSBChipID, StringUtils.getUrnSuffix(nodeUrn));
-                        }};
-                    }
+					Map<String, String> telosBReferenceToMACMap = null;
+					if ("telosb".equals(nodeType) && nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
+						telosBReferenceToMACMap = new HashMap<String, String>() {{
+							put(nodeUSBChipID, StringUtils.getUrnSuffix(nodeUrn));
+						}};
+					}
 					moteList = MoteListFactory.create(telosBReferenceToMACMap);
 				} catch (Exception e) {
 					log.error(
@@ -892,15 +892,17 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 
 				nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType), macAddress);
 
-                if (nodeSerialInterface == null) {
-                    log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
-                            nodeUrn, nodeType
-                    );
-                    testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
-                    return;
-                } else {
-                    log.debug("{} => Found {} node on serial port {}.", new Object[] {nodeUrn, nodeType, nodeSerialInterface});
-                }
+				if (nodeSerialInterface == null) {
+					log.warn("{} => No serial interface could be detected for {} mote. Retrying in 30 seconds.",
+							nodeUrn, nodeType
+					);
+					testbedRuntime.getSchedulerService().schedule(this, 30, TimeUnit.SECONDS);
+					return;
+				} else {
+					log.debug("{} => Found {} node on serial port {}.",
+							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+					);
+				}
 
 			}
 
@@ -918,7 +920,9 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 				return;
 			}
 
-            log.debug("{} => Successfully connected to {} node on serial port {}", new Object[] {nodeUrn, nodeType, nodeSerialInterface});
+			log.debug("{} => Successfully connected to {} node on serial port {}",
+					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+			);
 
 			// attach as listener to device output
 			iSenseDevice.registerListener(iSenseDeviceListener);
@@ -931,7 +935,7 @@ class WSNDeviceAppGuavaImpl extends AbstractService {
 		}
 	};
 
-    @Override
+	@Override
 	public void doStart() {
 
 		log.debug("{} => WSNDeviceAppImpl.start()", nodeUrn);
