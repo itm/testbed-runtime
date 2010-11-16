@@ -43,7 +43,17 @@ public class WSNAsyncWrapperTest {
 		};
 		WorkingWSN wsn = new WorkingWSN(controller);
 		wrapper = WSNAsyncWrapper.of(wsn);
-		nodeURNs = Lists.newArrayList("urn:wisebed:uzl1:0x1234", "urn:wisebed:uzl1:0x2345", "urn:wisebed:uzl1:0x3456");
+		nodeURNs = Lists.newArrayList(
+                "urn:wisebed:uzl1:0x1234",
+                "urn:wisebed:uzl1:0x2345",
+                "urn:wisebed:uzl1:0x3456",
+                "urn:wisebed:uzl1:0x4567",
+                "urn:wisebed:uzl1:0x5678",
+                "urn:wisebed:uzl1:0x6789",
+                "urn:wisebed:uzl1:0x7890",
+                "urn:wisebed:uzl1:0x8901",
+                "urn:wisebed:uzl1:0x9012"
+        );
 		sourceNodeURN = "urn:wisebed:uzl1:0x0123";
 	}
 
@@ -68,7 +78,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testSend() throws Exception {
-		assertSame(100, wrapper.send(nodeURNs, new Message(), 300, TimeUnit.MILLISECONDS).get().getSuccessPercent());
+		assertSame(100, wrapper.send(nodeURNs, new Message(), 10000, TimeUnit.MILLISECONDS).get().getSuccessPercent());
 		try {
 			wrapper.send(nodeURNs, new Message(), 50, TimeUnit.MILLISECONDS).get();
 		} catch (ExecutionException expected) {
@@ -83,7 +93,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testAreNodesAlive() throws Exception {
-		assertSame(100, wrapper.areNodesAlive(nodeURNs, 300, TimeUnit.MILLISECONDS).get().getSuccessPercent());
+		assertSame(100, wrapper.areNodesAlive(nodeURNs, 10000, TimeUnit.MILLISECONDS).get().getSuccessPercent());
 		try {
 			wrapper.areNodesAlive(nodeURNs, 50, TimeUnit.MILLISECONDS).get();
 		} catch (ExecutionException expected) {
@@ -109,7 +119,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testDestroyVirtualLink() throws Exception {
-		assertSame(100, wrapper.destroyVirtualLink(nodeURNs.get(0), nodeURNs.get(1), 300, TimeUnit.MILLISECONDS)
+		assertSame(100, wrapper.destroyVirtualLink(nodeURNs.get(0), nodeURNs.get(1), 10000, TimeUnit.MILLISECONDS)
 				.get().getSuccessPercent()
 		);
 
@@ -122,7 +132,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testDisableNode() throws Exception {
-		assertSame(100, wrapper.disableNode(sourceNodeURN, 300, TimeUnit.MILLISECONDS).get().getSuccessPercent());
+		assertSame(100, wrapper.disableNode(sourceNodeURN, 10000, TimeUnit.MILLISECONDS).get().getSuccessPercent());
 
 		try {
 			wrapper.disableNode(sourceNodeURN, 50, TimeUnit.MILLISECONDS).get();
@@ -133,7 +143,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testDisablePhysicalLink() throws Exception {
-		assertSame(100, wrapper.disablePhysicalLink(nodeURNs.get(0), nodeURNs.get(1), 300, TimeUnit.MILLISECONDS)
+		assertSame(100, wrapper.disablePhysicalLink(nodeURNs.get(0), nodeURNs.get(1), 10000, TimeUnit.MILLISECONDS)
 				.get().getSuccessPercent()
 		);
 
@@ -146,7 +156,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testEnableNode() throws Exception {
-		assertSame(100, wrapper.disableNode(sourceNodeURN, 300, TimeUnit.MILLISECONDS).get().getSuccessPercent());
+		assertSame(100, wrapper.disableNode(sourceNodeURN, 10000, TimeUnit.MILLISECONDS).get().getSuccessPercent());
 		try {
 			wrapper.disableNode(sourceNodeURN, 50, TimeUnit.MILLISECONDS).get();
 		} catch (ExecutionException expected) {
@@ -156,7 +166,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testEnablePhysicalLink() throws Exception {
-		assertSame(100, wrapper.enablePhysicalLink(nodeURNs.get(0), nodeURNs.get(1), 300, TimeUnit.MILLISECONDS)
+		assertSame(100, wrapper.enablePhysicalLink(nodeURNs.get(0), nodeURNs.get(1), 10000, TimeUnit.MILLISECONDS)
 				.get().getSuccessPercent()
 		);
 		try {
@@ -168,7 +178,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testFlashPrograms() throws Exception {
-		assertSame(100, wrapper.flashPrograms(nodeURNs, new ArrayList<Integer>(), new ArrayList<Program>(), 300,
+		assertSame(100, wrapper.flashPrograms(nodeURNs, new ArrayList<Integer>(), new ArrayList<Program>(), 10000,
 				TimeUnit.MILLISECONDS
 		).get().getSuccessPercent()
 		);
@@ -213,7 +223,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testResetNodes() throws Exception {
-		assertSame(100, wrapper.resetNodes(nodeURNs, 300, TimeUnit.MILLISECONDS).get().getSuccessPercent());
+		assertSame(100, wrapper.resetNodes(nodeURNs, 100000, TimeUnit.MILLISECONDS).get().getSuccessPercent());
 		try {
 			assertSame(100, wrapper.resetNodes(nodeURNs, 50, TimeUnit.MILLISECONDS).get());
 		} catch (ExecutionException expected) {
@@ -229,7 +239,7 @@ public class WSNAsyncWrapperTest {
 	@Test
 	public void testSetVirtualLink() throws Exception {
 		assertSame(100,
-				wrapper.setVirtualLink(nodeURNs.get(0), nodeURNs.get(1), "", null, null, 300, TimeUnit.MILLISECONDS)
+				wrapper.setVirtualLink(nodeURNs.get(0), nodeURNs.get(1), "", null, null, 100000, TimeUnit.MILLISECONDS)
 						.get().getSuccessPercent()
 		);
 

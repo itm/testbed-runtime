@@ -7,6 +7,7 @@ import eu.wisebed.testbed.api.wsn.v211.*;
 import javax.jws.WebParam;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,8 @@ public class WorkingWSN implements WSN {
 		this.controller = controller;
 	}
 
+    private Random random = new Random();
+
 	private void scheduleReply(final List<String> nodeIds, final String requestId, final int value) {
 		for (final String nodeId : nodeIds) {
 			scheduler.schedule(new Runnable() {
@@ -37,7 +40,7 @@ public class WorkingWSN implements WSN {
 					requestStatus.getStatus().add(status);
 					controller.receiveStatus(requestStatus);
 				}
-			}, 100, TimeUnit.MILLISECONDS
+			}, random.nextInt(100), TimeUnit.MILLISECONDS
 			);
 		}
 	}
