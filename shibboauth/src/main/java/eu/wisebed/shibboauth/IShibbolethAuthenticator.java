@@ -8,13 +8,11 @@ import java.util.Map;
 
 public interface IShibbolethAuthenticator {
     
-    String authenticate() throws Exception;
+    void authenticate() throws Exception;
 
     Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception;
 
     void setUrl(String secretAuthenticationKeyUrl);
-
-    void setSecretAuthenticationKey(String secretAuthenticationKey);
 
     void setUsernameAtIdpDomain(String username) throws Exception;
 

@@ -75,8 +75,6 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     private String sessionURL;
 
-    private String secretAuthenticationKey;
-
     private List<Cookie> cookies;
 
     private static final String openHtmlTag = "&lt;";
@@ -116,7 +114,7 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
      * @throws Exception
      */
     @Override
-    public String authenticate() throws Exception {
+    public void authenticate() throws Exception {
         resetState();
 
         // Sanity checks
@@ -220,8 +218,6 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
             log.fatal("Authentication failed");
             setAuthenticated(false);
         }
-
-        return responseHtml;
     }
 
     @Override
@@ -240,11 +236,6 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
             finalURL = doGet(url, true);
             //check if url is correct
             if (!finalURL.equals(new URL(this.url))) {
-                return authorizeMap;
-            }
-            //check if key is correct
-            setAuthenticationPageContent(this.responseHtml);
-            if (!this.getAuthenticationPageContent().trim().equals(secretAuthenticationKey)) {
                 return authorizeMap;
             }
         }
@@ -573,10 +564,6 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setSecretAuthenticationKey(String secretAuthenticationKey) {
-        this.secretAuthenticationKey = secretAuthenticationKey;
     }
 
     private void setCookies(List<Cookie> cookies) {

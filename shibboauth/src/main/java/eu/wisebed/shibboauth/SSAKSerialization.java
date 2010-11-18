@@ -45,7 +45,7 @@ public class SSAKSerialization {
                 return null;
             }
         }
-        return out;
+        return out.replaceAll("\\n","");
     }
 
     static public ShibbolethSecretAuthenticationKey deserialize(String s) {

@@ -48,6 +48,7 @@ public class SNAAFederatorTest {
         put("shib1.type", "shibboleth");
         put("shib1.urnprefix", "urn:wisebed1:shib1");
         put("shib1.path", "/snaa/shib1");
+        put("shib1.authorization.url","https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php");
 
         put("fed1.type", "federator");
         put("fed1.path", "/snaa/fed1");
@@ -57,7 +58,7 @@ public class SNAAFederatorTest {
 
         put("wisebedfed1.type", "wisebed-federator");
         put("wisebedfed1.path", "/snaa/wisebedfed1");
-        put("wisebedfed1.secret_user_key_url","http://localhost:8080/snaa/shib1");
+        put("wisebedfed1.authentication.url","https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php");
         put("wisebedfed1.federates","shib1");
         put("wisebedfed1.shib1.urnprefixes", "urn:wisebed1:shib1");
         put("wisebedfed1.shib1.endpointurl", "http://localhost:8080/snaa/shib1");
@@ -81,7 +82,7 @@ public class SNAAFederatorTest {
 
         Map<String, Set<String>> snaaPrefixSet = new HashMap<String, Set<String>>();
         snaaPrefixSet.put("http://localhost:8080/snaa/shib1", testbed1);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://gridlab23.unibe.ch/portal/SNA/secretUserKey", injector);
+        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector);
     }
 
     @Test
@@ -93,6 +94,5 @@ public class SNAAFederatorTest {
         List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
         authenticationData.add(triple);
         authenticatioKeys = snaaFederator.authenticate(authenticationData);
-        System.out.println();
     }
 }

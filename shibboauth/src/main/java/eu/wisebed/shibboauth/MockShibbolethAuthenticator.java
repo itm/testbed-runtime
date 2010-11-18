@@ -22,8 +22,8 @@ public class MockShibbolethAuthenticator implements IShibbolethAuthenticator {
     private String pageContent = "123456";
 
     @Override
-    public String authenticate() throws Exception {
-        return pageContent;
+    public void authenticate() throws Exception {
+        //do nothing
     }
 
     @Override
@@ -33,11 +33,6 @@ public class MockShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     @Override
     public void setUrl(String secretAuthenticationKeyUrl) {
-        //do nothing
-    }
-
-    @Override
-    public void setSecretAuthenticationKey(String secretAuthenticationKey) {
         //do nothing
     }
 

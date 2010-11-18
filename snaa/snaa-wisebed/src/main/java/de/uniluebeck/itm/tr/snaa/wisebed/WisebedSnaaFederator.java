@@ -64,7 +64,7 @@ public class WisebedSnaaFederator implements SNAA {
 			throws AuthenticationExceptionException, SNAAExceptionException {
 
 		log.debug("WisebedSnaaFederator::authenticate delegating to internal ShibbolethSNAA instance");
-		return authenticationSnaa.authenticate(authenticationData);
+        return authenticationSnaa.authenticate(authenticationData);
 	}
 
 	@Override

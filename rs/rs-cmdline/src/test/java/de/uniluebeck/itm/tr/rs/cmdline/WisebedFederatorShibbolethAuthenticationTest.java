@@ -28,6 +28,7 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.junit.Before;
@@ -101,7 +102,7 @@ public class WisebedFederatorShibbolethAuthenticationTest {
         snaaPrefixSet = new HashMap<String, Set<String>>();
         snaaPrefixSet.put(SNAAPrefixe.Shib1.host, testbed1);
         snaaPrefixSet.put(SNAAPrefixe.Shib2.host, testbed2);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://gridlab23.unibe.ch/portal/SNA/secretUserKey", injector);
+        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector);
 
         //creating SNAA-Authentication-Data
         List<AuthenticationTriple> snaaAuthenticationDataShib1 = createAuthenticationData(SNAAPrefixe.Shib1.urn);

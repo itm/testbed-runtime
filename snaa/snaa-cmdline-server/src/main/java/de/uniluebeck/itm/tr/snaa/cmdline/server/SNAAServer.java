@@ -61,8 +61,6 @@ public class SNAAServer {
 
     private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
-    private static final String shibbolethSecretUserKeyUrl = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
-
     private static SNAA federator;
 
     private static HttpServer server;
@@ -158,9 +156,7 @@ public class SNAAServer {
                     createAndSetAuthenticationAttributes(snaaName, props, authorization);
                 }
 
-                String secretAuthkeyUrl = props.getProperty(snaaName + ".secret_user_key_url",
-                        shibbolethSecretUserKeyUrl
-                );
+                String secretAuthkeyUrl = props.getProperty(snaaName + ".authorization.url");
 
                 startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector);
 
@@ -197,7 +193,7 @@ public class SNAAServer {
 
                 if ("wisebed-federator".equals(type)) {
                     fedType = FederatorType.WISEBED;
-                    secretAuthkeyUrl = props.getProperty(props.getProperty(snaaName + ".secret_user_key_url", ""));
+                    secretAuthkeyUrl = props.getProperty(snaaName + ".authentication.url");                    
                 }
 
                 // endpoint url -> set<urnprefix>
@@ -210,9 +206,7 @@ public class SNAAServer {
                             + ".urnprefixes"
                     )
                     );
-                    String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl",
-                            shibbolethSecretUserKeyUrl
-                    );
+                    String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl");
 
                     federatedUrnPrefixes.put(endpointUrl, urnPrefixes);
 

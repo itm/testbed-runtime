@@ -86,12 +86,8 @@ public class ShibbolethSNAAImpl implements SNAA {
                 sa.authenticate();
 
                 if (sa.isAuthenticated()) {
-                    String sak = sa.getAuthenticationPageContent().trim();
-                    log.info("Authentication suceeded for urn[" + urn + "] and user[" + triple.getUsername()
-                            + "]. Secret authentication key is " + sak);
-
                     SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-                    ShibbolethSecretAuthenticationKey ssak = new ShibbolethSecretAuthenticationKey(sak, sa.getCookieStore().getCookies());
+                    ShibbolethSecretAuthenticationKey ssak = new ShibbolethSecretAuthenticationKey(sa.getCookieStore().getCookies());
                     secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(ssak));
                     secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
                     secretAuthKey.setUsername(triple.getUsername());
@@ -107,7 +103,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
         }
 
-        log.debug("Done, returning " + keys.size() + " secret authentication keys");
+        log.debug("Done, returning " + keys.size() + " secret authentication key(s).");
         return new ArrayList<SecretAuthenticationKey>(keys);
 
     }
@@ -131,7 +127,6 @@ public class ShibbolethSNAAImpl implements SNAA {
                 ShibbolethSecretAuthenticationKey ssak = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
                 IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
                 sa.setUrl(secretAuthenticationKeyUrl);
-                sa.setSecretAuthenticationKey(ssak.getSecretAuthenticationKey());
                 //check authorization
                 authorizeMap = sa.isAuthorized(ssak.getCookies());
 
