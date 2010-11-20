@@ -2,6 +2,7 @@ package de.itm.uniluebeck.tr.wiseml;
 
 import com.google.common.collect.Lists;
 import eu.wisebed.ns.wiseml._1.Setup;
+import eu.wisebed.ns.wiseml._1.Setup.Node;
 import eu.wisebed.ns.wiseml._1.Wiseml;
 
 import javax.xml.bind.JAXB;
@@ -53,6 +54,18 @@ public class WiseMLHelper {
 
 		return nodeUrns;
 
+	}
+	
+	public static Node getNode(String serializedWiseML, String nodeID){
+		Wiseml wiseml = deserialize(serializedWiseML);
+		
+		for (Setup.Node node : wiseml.getSetup().getNode()) {
+			if (node.getId().equals(nodeID)) {
+				return node;
+			}
+		}
+		
+		return null;
 	}
 
 	public static Wiseml deserialize(String serializedWiseML) {
