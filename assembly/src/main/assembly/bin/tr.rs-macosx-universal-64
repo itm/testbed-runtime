@@ -20,7 +20,7 @@
 
 # Application
 APP_NAME="tr.rs"
-APP_LONG_NAME="Testbed Runtime Reservation System"
+APP_LONG_NAME="Testbed Runtime RS"
 
 # Wrapper
 WRAPPER_CMD="../lib/wrapper-macosx-universal-64"
@@ -324,7 +324,7 @@ fi
 
 
 gettext() {
-    echo `$1` 
+    echo $1 
 }
 
 outputFile() {
@@ -712,7 +712,7 @@ console() {
 
 waitforjavastartup() {
     getstatus
-    #eval echo $ECHOOPT `gettext 'Waiting for $APP_LONG_NAME...'`
+    eval echo $ECHOOPT `gettext 'Waiting for $APP_LONG_NAME...'`
     
     # Wait until the timeout or we have something besides Unknown.
     counter=15
