@@ -18,6 +18,7 @@ import eu.wisebed.testbed.api.wsn.v211.*;
 
 import de.uniluebeck.itm.tr.util.*;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import eu.wisebed.ns.wiseml._1.Setup.Node;
 
 import de.uniluebeck.itm.wisebed.cmdlineclient.*;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.*;
@@ -75,6 +76,7 @@ Controller controller = new Controller() {
 		// nothing to do
 	}
 	public void receiveStatus(RequestStatus status) {
+		//log.info("Received request status: {}", helper.toString(status));
 		wsn.receive(status);
 	}
 };
@@ -84,7 +86,8 @@ delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
 
 // retrieve reserved node URNs from testbed
-List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
+String serializedWiseML = wsn.getNetwork().get();
+List nodeURNs = WiseMLHelper.getNodeUrns(serializedWiseML, new String[]{"isense"});
 log.info("Retrieved the following node URNs: {}", nodeURNs);
 
 //--------------------------------------------------------------------------
@@ -112,7 +115,7 @@ try {
 //--------------------------------------------------------------------------
 // Build data structures to resemble grid topology
 //--------------------------------------------------------------------------
-
+/*
 System.out.println("Please press ENTER to continue building the topology data structures...");
 System.in.read();
 
@@ -183,12 +186,13 @@ for (int nodeIdx=0; nodeIdx<nodeURNs.size(); nodeIdx++) {
 	}
 	System.out.println("]");
 }
-System.out.println();
+*/System.out.println();
 
 //--------------------------------------------------------------------------
 // Setup grid topology on testbed
 //--------------------------------------------------------------------------
 
+/*
 System.out.println("Please press ENTER to disable all physical links...");
 System.in.read();
 
@@ -198,15 +202,66 @@ if (!WSNHelper.disableAllPhysicalLinks(wsn, nodeURNs, 20, TimeUnit.SECONDS)) {
 	System.out.println("Not all physical links could be activated. Exiting...");
 	System.exit(1);
 }
+*/
 
 System.out.println();
-System.out.println("Please press ENTER to set the virtual links...");
+System.out.println("Please press ENTER to reset all nodes...");
+System.in.read();
+
+if (wsn.resetNodes(nodeURNs, 20, TimeUnit.SECONDS).get().getSuccessPercent() < 100) {
+	System.out.println("Not all nodes could be reset. Exiting...");
+	System.exit(1);
+}
+
+/*
+System.out.println();
+System.out.println("Please press ENTER to set virtual links...");
 System.in.read();
 
 log.info("Setting grid virtual links...");
 if(!WSNHelper.setVirtualLinks(wsn, neighborMap, wsnEndpointURL, 20, TimeUnit.SECONDS)) {
 	System.out.println("Not all virtual links could be set. Exiting...");
 	System.exit(1);
+}
+*/
+
+System.out.println("Please press ENTER to tell the nodes their positions...");
+System.in.read();
+
+Node nodeWiseML = null;
+List nodeUrnsToUse = null;
+Message positionMsg = null;
+
+for (int i=0; i<nodeURNs.size(); i++) {
+	
+	nodeUrnsToUse = Lists.newArrayList();
+	nodeUrnsToUse.add(nodeURNs.get(i));
+	nodeWiseML = WiseMLHelper.getNode(serializedWiseML, nodeURNs.get(i));
+	
+	if (nodeWiseML == null) {
+		log.error("Could not find node {} in WiseML description! ", nodeURNs.get(i));
+		System.exit(1);
+	} else if (nodeWiseML.getPosition() == null) {
+		log.warning("Unknown node position for node {} ", nodeURNs.get(i));
+	} else {
+		positionMsg = helper.buildBinaryMessage(
+			(byte) 0xb,
+			new byte[] {
+				0x2,
+				0,
+				nodeWiseML.getPosition().getX() * 10,
+				0,
+				nodeWiseML.getPosition().getY() * 10,
+				0,
+				nodeWiseML.getPosition().getZ()
+			}
+		);
+		log.debug("Sending position message {} to {}", helper.toString(positionMsg), nodeUrnsToUse);
+		Future sendFuture = wsn.send(nodeUrnsToUse, positionMsg, 10, TimeUnit.SECONDS);
+		if (sendFuture.get().getSuccessPercent() < 100) {
+			log.warn("Could not send position to node {}", nodeURNs.get(i));
+		}
+	}
 }
 
 System.out.println("Please press ENTER to let nodes emit virtual link messages!");

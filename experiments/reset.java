@@ -80,11 +80,7 @@ delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
 
 // retrieve reserved node URNs from testbed
-<<<<<<< HEAD
-List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
-=======
-List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense","telosb","pacemate"});
->>>>>>> master
+List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
 log.info("Retrieved the following node URNs: {}", nodeURNs);
 
 

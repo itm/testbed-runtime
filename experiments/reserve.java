@@ -76,7 +76,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.*;
 
 	// retrieve the node URNs of all iSense nodes
 	String serializedWiseML = sessionManagement.getNetwork();
-	List iSenseNodeURNs = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {});
+	List iSenseNodeURNs = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {"isense"});
 	log.info("Retrieved the node URNs of all iSense nodes: {}", Arrays.toString(iSenseNodeURNs.toArray()));
 
 	// create reservation request data to reserve all iSense nodes for 10 minutes
