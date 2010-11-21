@@ -23,23 +23,44 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
-import com.google.inject.Singleton;
+import com.google.common.util.concurrent.ValueFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.TimedCacheListener;
-import de.uniluebeck.itm.tr.util.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Singleton
+
 public class NodeApi {
 
 	private static final Logger log = LoggerFactory.getLogger(NodeApi.class);
+
+	private TimeUnit defaultTimeUnit;
+
+	private int defaultTimeout;
+
+	private static class Job {
+
+		public final int requestId;
+
+		public final ValueFuture<NodeApiCallResult> future;
+
+		public final ByteBuffer buffer;
+
+		public Job(final int requestId, final ValueFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
+			this.requestId = requestId;
+			this.future = future;
+			this.buffer = buffer;
+		}
+	}
 
 	private int lastRequestID = 0;
 
@@ -51,17 +72,68 @@ public class NodeApi {
 
 	private NodeControl nodeControl = new NodeControlImpl(this);
 
-	private TimedCache<Integer, NodeApiCallback> callbackCache;
-
 	private NodeApiDeviceAdapter deviceAdapter;
 
-	private TimedCacheListener callbackCacheListener = new TimedCacheListener<Integer, NodeApiCallback>() {
+	private final BlockingDeque<Job> jobQueue = new LinkedBlockingDeque<Job>();
+
+	private final ReentrantLock currentJobLock = new ReentrantLock(true);
+
+	private Job currentJob;
+
+	private NodeApiCallResult currentJobResult;
+
+	private final Thread jobExecutorThread = new Thread(new Runnable() {
 		@Override
-		public Tuple<Long, TimeUnit> timeout(Integer requestId, NodeApiCallback callback) {
-			callback.timeout();
-			return null;
+		public void run() {
+			while (!Thread.interrupted()) {
+
+				// waiting blocking for next job to execute
+				try {
+
+					currentJobLock.lock();
+					currentJob = jobQueue.take();
+
+					// execute job
+					if (log.isDebugEnabled()) {
+						log.debug(
+								"Sending to node with request ID {}: {}",
+								currentJob.requestId,
+								StringUtils.toHexString(currentJob.buffer.array())
+						);
+					}
+
+					deviceAdapter.sendToNode(currentJob.buffer);
+
+					log.debug("Waiting for node to answer to job with request ID {}", currentJob.requestId);
+					Thread.sleep(100);
+					boolean noTimeout = currentJobDone.await(defaultTimeout, defaultTimeUnit);
+					log.debug("Job with request ID {} done (timeout={}, success={}).",
+							new Object[]{
+									currentJob.requestId,
+									!noTimeout,
+									currentJobResult != null && currentJobResult.isSuccessful()
+							}
+					);
+
+					if (noTimeout) {
+						currentJob.future.set(currentJobResult);
+					} else {
+						currentJob.future.setException(new TimeoutException());
+					}
+
+				} catch (InterruptedException e) {
+					log.debug("Interrupted while waiting for job to be done."
+							+ " This is propably OK as it should only happen during shutdown."
+					);
+				} finally {
+					currentJobLock.unlock();
+				}
+			}
 		}
-	};
+	}, "Node API JobExecutorThread"
+	);
+
+	private final Condition currentJobDone = currentJobLock.newCondition();
 
 	public NodeApi(NodeApiDeviceAdapter deviceAdapter, int defaultTimeout, TimeUnit defaultTimeUnit) {
 
@@ -69,8 +141,8 @@ public class NodeApi {
 		checkNotNull(defaultTimeout);
 		checkNotNull(defaultTimeUnit);
 
-		this.callbackCache = new TimedCache<Integer, NodeApiCallback>(defaultTimeout, defaultTimeUnit);
-		this.callbackCache.setListener(callbackCacheListener);
+		this.defaultTimeout = defaultTimeout;
+		this.defaultTimeUnit = defaultTimeUnit;
 
 		this.deviceAdapter = deviceAdapter;
 		this.deviceAdapter.setNodeApi(this);
@@ -106,16 +178,15 @@ public class NodeApi {
 		return lastRequestID >= 255 ? (lastRequestID = 0) : ++lastRequestID;
 	}
 
-	void sendToNode(final int requestId, final NodeApiCallback callback, final ByteBuffer buffer) {
-
-		checkNotNull(callback);
+	void sendToNode(final int requestId, final ValueFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending to node with request ID {}: {}", requestId, StringUtils.toHexString(buffer.array()));
+			log.debug("Enqueueing job to node with request ID {}: {}", requestId,
+					StringUtils.toHexString(buffer.array())
+			);
 		}
 
-		callbackCache.put(requestId, callback);
-		deviceAdapter.sendToNode(buffer);
+		jobQueue.add(new Job(requestId, future, buffer));
 
 	}
 
@@ -134,33 +205,48 @@ public class NodeApi {
 
 		int requestId = (packetBytes[1] & 0xFF);
 		byte responseCode = packetBytes[2];
+		byte[] responsePayload = null;
 
-		NodeApiCallback callback = callbackCache.remove(requestId);
-
-		// if callback exists it means that the invocation did not yet time out
-		if (callback != null) {
-
-			byte[] responsePayload = null;
-
-			if (packetBytes.length > 3) {
-				responsePayload = new byte[packetBytes.length - 3];
-				System.arraycopy(packetBytes, 3, responsePayload, 0, packetBytes.length - 3);
-			}
-
-			if (log.isDebugEnabled()) {
-				log.debug("Received from node with request ID {} and response code {}: {}", new Object[]{requestId, responseCode, responsePayload});
-			}
-
-			if (responseCode == ResponseType.COMMAND_SUCCESS) {
-				log.debug("Invoking callback.success() for request ID {}", requestId);
-				callback.success(responsePayload);
-			} else {
-				log.debug("Invoking callback.failure() for request ID {}", requestId);
-				callback.failure(responseCode, responsePayload);
-			}
-
-		} else if (log.isDebugEnabled()) {
-			log.debug("Received message for unknown requestId: {}", StringUtils.toHexString(packetBytes));
+		if (packetBytes.length > 3) {
+			responsePayload = new byte[packetBytes.length - 3];
+			System.arraycopy(packetBytes, 3, responsePayload, 0, packetBytes.length - 3);
 		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("Received from node with request ID {} and response code {}: {}",
+					new Object[]{requestId, responseCode, responsePayload}
+			);
+		}
+
+		try {
+
+			currentJobLock.lock();
+
+			if (currentJob != null && currentJob.requestId == requestId) {
+
+				currentJobResult = new NodeApiCallResultImpl(requestId, responseCode, responsePayload);
+
+				log.debug("Signalling that current job is done (response received).");
+				currentJobDone.signal();
+
+			} else if (log.isDebugEnabled()) {
+				log.debug("Received message for unknown requestId: {}", StringUtils.toHexString(packetBytes));
+			}
+
+		} finally {
+			currentJobLock.unlock();
+		}
+
 	}
+
+	public void start() {
+		log.debug("Starting Node API JobExecutorThread");
+		jobExecutorThread.start();
+	}
+
+	public void stop() {
+		log.debug("Stopping Node API JobExecutorThread");
+		jobExecutorThread.interrupt();
+	}
+
 }

@@ -56,10 +56,12 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	protected static final byte[] DLE_ETX = new byte[]{DLE, 0x03};
 
 	/** */
-	protected List<iSenseDeviceListener> promiscousListeners = new LinkedList<iSenseDeviceListener>();
+	protected List<iSenseDeviceListener> promiscousListeners =
+			Collections.synchronizedList(new LinkedList<iSenseDeviceListener>());
 
 	/** */
-	protected Map<Integer, List<iSenseDeviceListener>> listeners = new HashMap<Integer, List<iSenseDeviceListener>>();
+	protected Map<Integer, List<iSenseDeviceListener>> listeners =
+			Collections.synchronizedMap(new HashMap<Integer, List<iSenseDeviceListener>>());
 
 	/** */
 	protected ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new ThreadFactory() {

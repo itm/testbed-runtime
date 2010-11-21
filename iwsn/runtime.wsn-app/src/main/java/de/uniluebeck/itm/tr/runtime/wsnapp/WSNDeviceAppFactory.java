@@ -61,6 +61,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 				nodeUrn = wsnDevice.getUrn();
 				nodeType = wsnDevice.getType();
+				nodeType = wsnDevice.getType();
 				nodeSerialInterface = wsnDevice.getSerialinterface();
 				nodeAPITimeout = wsnDevice.getNodeapitimeout();
 				nodeUSBChipID = wsnDevice.getUsbchipid();

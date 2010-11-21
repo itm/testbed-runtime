@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.inject.internal.Nullable;
 import de.uniluebeck.itm.gtr.common.Listenable;
 import de.uniluebeck.itm.gtr.common.Service;
-import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
 
@@ -13,28 +13,33 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 		void receivedPacket(MessagePacket p);
 	}
 
-	public static interface FlashProgramCallback extends NodeApiCallback {
+	public static interface Callback {
+		void success(@Nullable byte[] replyPayload);
+		void failure(byte responseType, @Nullable byte[] replyPayload);
+		void timeout();
+	}
 
+	public static interface FlashProgramCallback extends Callback {
 		void progress(float percentage);
 	}
 
-	void enablePhysicalLink(long nodeB, NodeApiCallback listener);
+	void enablePhysicalLink(long nodeB, Callback listener);
 
-	void disablePhysicalLink(long nodeB, NodeApiCallback listener);
+	void disablePhysicalLink(long nodeB, Callback listener);
 
-	void enableNode(NodeApiCallback listener);
+	void enableNode(Callback listener);
 
-	void disableNode(NodeApiCallback listener);
+	void disableNode(Callback listener);
 
-	void destroyVirtualLink(long targetNode, NodeApiCallback listener);
+	void destroyVirtualLink(long targetNode, Callback listener);
 
-	void setVirtualLink(long targetNode, NodeApiCallback listener);
+	void setVirtualLink(long targetNode, Callback listener);
 
-	void sendMessage(byte binaryType, byte[] binaryMessage, NodeApiCallback listener);
+	void sendMessage(byte binaryType, byte[] binaryMessage, Callback listener);
 
-	void resetNode(NodeApiCallback listener);
+	void resetNode(Callback listener);
 
-	void isNodeAlive(NodeApiCallback listener);
+	void isNodeAlive(Callback listener);
 
 	void flashProgram(WSNAppMessages.Program program, FlashProgramCallback listener);
 }

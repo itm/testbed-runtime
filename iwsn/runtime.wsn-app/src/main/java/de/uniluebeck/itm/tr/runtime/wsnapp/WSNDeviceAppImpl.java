@@ -36,7 +36,6 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
-import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
@@ -307,7 +306,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	/**
 	 * A callback that answers the result of an operation invocation to the invoking overlay node.
 	 */
-	private class ReplyingNodeApiCallback implements NodeApiCallback {
+	private class ReplyingNodeApiCallback implements WSNDeviceAppConnector.Callback {
 
 		private Messages.Msg invocationMsg;
 

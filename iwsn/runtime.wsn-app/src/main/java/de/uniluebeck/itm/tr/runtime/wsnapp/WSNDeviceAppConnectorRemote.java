@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.common.AbstractListenable;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
 
@@ -26,47 +25,47 @@ public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceApp
 	}
 
 	@Override
-	public void enablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
+	public void enablePhysicalLink(final long nodeB, final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void disablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
+	public void disablePhysicalLink(final long nodeB, final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void enableNode(final NodeApiCallback listener) {
+	public void enableNode(final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void disableNode(final NodeApiCallback listener) {
+	public void disableNode(final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void destroyVirtualLink(final long targetNode, final NodeApiCallback listener) {
+	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void setVirtualLink(final long targetNode, final NodeApiCallback listener) {
+	public void setVirtualLink(final long targetNode, final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void sendMessage(final byte binaryType, final byte[] binaryMessage, final NodeApiCallback listener) {
+	public void sendMessage(final byte binaryType, final byte[] binaryMessage, final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void resetNode(final NodeApiCallback listener) {
+	public void resetNode(final Callback listener) {
 		// TODO implement
 	}
 
 	@Override
-	public void isNodeAlive(final NodeApiCallback listener) {
+	public void isNodeAlive(final Callback listener) {
 		// TODO implement
 	}
 
