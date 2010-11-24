@@ -23,9 +23,9 @@
 
 package de.uniluebeck.itm.gtr.messaging.srmr;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.internal.ImmutableList;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
