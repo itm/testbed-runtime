@@ -115,6 +115,7 @@ public class ShibbolethSNAAImpl implements SNAA {
             @WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
 
         boolean authorized = true;
+        String logInfo = "Done checking authorization, result: ";
         Map<String, List<Object>> authorizeMap = null;
 
         // Check if we serve all URNs
@@ -133,7 +134,9 @@ public class ShibbolethSNAAImpl implements SNAA {
                 authorizeMap = sa.isAuthorized(cookies);
 
                 if (authorizeMap == null){
-                    return false;
+                    authorized = false;
+                    log.debug(logInfo + "false");
+                    return authorized;
                 }
 
                 //create Authorization from map
@@ -148,7 +151,7 @@ public class ShibbolethSNAAImpl implements SNAA {
             }
         }
 
-        log.debug("Done checking authorization, result: " + authorized);
+        log.debug(logInfo + authorized);
         return authorized;
 
     }

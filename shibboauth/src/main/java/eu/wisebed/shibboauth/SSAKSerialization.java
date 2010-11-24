@@ -76,6 +76,9 @@ public class SSAKSerialization {
     }
 
     public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
+
+        //remove whitespaces
+        serializedString = serializedString.replaceAll(" ","");
         //make Cookies out of serialized cookie-string
         // format:
         // (name=value;)*name=value,domain
@@ -102,6 +105,8 @@ public class SSAKSerialization {
             }
             BasicClientCookie cookie = new BasicClientCookie(pair[0], pair[1]);
             cookie.setDomain(domain);
+            cookie.setVersion(0);
+            cookie.setPath("/");
             cookies.add(cookie);            
         }
         return cookies;
