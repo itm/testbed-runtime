@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.connection;
 
-import de.uniluebeck.itm.gtr.common.AbstractListenable;
+import de.uniluebeck.itm.tr.util.AbstractListenable;
 
 import java.io.IOException;
 

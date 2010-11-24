@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import de.uniluebeck.itm.gtr.common.AbstractListenable;
+import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 

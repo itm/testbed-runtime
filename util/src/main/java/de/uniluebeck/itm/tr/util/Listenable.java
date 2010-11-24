@@ -21,44 +21,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.common;
-
-import com.google.inject.internal.ImmutableList;
+package de.uniluebeck.itm.tr.util;
 
 
 /**
- * Abstract base class for classes that have to inform listeners about events. This class is thread-safe.
+ * For classes implementing this interface listeners of type {@link T} can (de-)register as listener.
  *
- * @param <T> the listener interface under which listeners register themselves.
+ * @param <T> the type of the listener interface
  */
-public abstract class AbstractListenable<T> implements Listenable<T> {
+public interface Listenable<T> {
 
-	protected ImmutableList<T> listeners = (ImmutableList<T>) ImmutableList.builder().build();
+	/**
+	 * Adds a listener.
+	 *
+	 * @param listener the listener to add
+	 */
+	void addListener(T listener);
 
-	@Override
-	public void addListener(T listener) {
-
-		// assure listener is only contained once
-		ImmutableList.Builder<Object> builder = ImmutableList.builder();
-		for (T t : listeners) {
-			if (t != listener) {
-				builder.add(t);
-			}
-		}
-		builder.add(listener);
-		
-		listeners = (ImmutableList<T>) builder.build();
-	}
-
-	@Override
-	public void removeListener(T listener) {
-		ImmutableList.Builder<Object> listBuilder = ImmutableList.builder();
-		for (T t : listeners) {
-			if (t != listener) {
-				listBuilder.add(t);
-			}
-		}
-		listeners = (ImmutableList<T>) listBuilder.build();
-	}
+	/**
+	 * Removes a listener.
+	 *
+	 * @param listener the listener to remove
+	 */
+	void removeListener(T listener);
 
 }

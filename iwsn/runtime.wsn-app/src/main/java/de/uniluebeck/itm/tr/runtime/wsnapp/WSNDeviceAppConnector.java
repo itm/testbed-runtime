@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.inject.internal.Nullable;
-import de.uniluebeck.itm.gtr.common.Listenable;
+import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
