@@ -23,5 +23,5 @@ public interface IShibbolethAuthenticator {
     String getAuthenticationPageContent();
 
     CookieStore getCookieStore();
-    
+
 }

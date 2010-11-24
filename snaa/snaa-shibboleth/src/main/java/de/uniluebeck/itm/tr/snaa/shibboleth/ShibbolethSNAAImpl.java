@@ -29,6 +29,7 @@ import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
+import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +88,8 @@ public class ShibbolethSNAAImpl implements SNAA {
 
                 if (sa.isAuthenticated()) {
                     SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-                    ShibbolethSecretAuthenticationKey ssak = new ShibbolethSecretAuthenticationKey(sa.getCookieStore().getCookies());
-                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(ssak));
+                    Map<String, String> cookieMap = SSAKSerialization.cookieListToMap(sa.getCookieStore().getCookies());
+                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(cookieMap));
                     secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
                     secretAuthKey.setUsername(triple.getUsername());
                     keys.add(secretAuthKey);
@@ -124,11 +125,12 @@ public class ShibbolethSNAAImpl implements SNAA {
 
             //check if authorized
             try {
-                ShibbolethSecretAuthenticationKey ssak = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
                 IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
                 sa.setUrl(secretAuthenticationKeyUrl);
                 //check authorization
-                authorizeMap = sa.isAuthorized(ssak.getCookies());
+                List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
+                log.info("Deserialization successfully done.");
+                authorizeMap = sa.isAuthorized(cookies);
 
                 if (authorizeMap == null){
                     return false;
@@ -141,6 +143,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
                 authorized = authorization.isAuthorized(action, details);
             } catch (Exception e) {
+                log.error(e.getMessage());
                 throw createSNAAException("Authorization failed :" + e);
             }
         }
