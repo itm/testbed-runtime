@@ -575,6 +575,13 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	private WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
+		if (metaData == null){
+			metaData = new ProgramMetaData();
+			metaData.setName("");
+			metaData.setOther("");
+			metaData.setPlatform("");
+			metaData.setVersion("");
+		}
 		return WSNAppMessages.Program.ProgramMetaData.newBuilder().setName(metaData.getName()).setOther(
 				metaData.getOther()
 		).setPlatform(metaData.getPlatform()).setVersion(metaData.getVersion()).build();
