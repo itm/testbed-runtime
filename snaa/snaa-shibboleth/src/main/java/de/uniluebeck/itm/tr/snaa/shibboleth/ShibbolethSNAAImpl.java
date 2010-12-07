@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import com.google.inject.Injector;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
-import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
+import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.http.cookie.Cookie;
@@ -52,16 +52,19 @@ public class ShibbolethSNAAImpl implements SNAA {
 
     private Injector injector;
 
+    private ShibbolethProxy proxy;
+
     /**
      * @param urnPrefixes
      * @param secretAuthenticationKeyUrl
      * @param injector
      */
-    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization, Injector injector) {
+    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
         this.urnPrefixes = new HashSet<String>(urnPrefixes);
         this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
         this.authorization = authorization;
         this.injector = injector;
+        this.proxy = proxy;
     }
 
     @Override
@@ -84,12 +87,14 @@ public class ShibbolethSNAAImpl implements SNAA {
                 sa.setUsernameAtIdpDomain(triple.getUsername());
                 sa.setPassword(triple.getPassword());
                 sa.setUrl(secretAuthenticationKeyUrl);
+                if (proxy != null){
+                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+                }
                 sa.authenticate();
 
                 if (sa.isAuthenticated()) {
                     SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-                    Map<String, String> cookieMap = SSAKSerialization.cookieListToMap(sa.getCookieStore().getCookies());
-                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(cookieMap));
+                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
                     secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
                     secretAuthKey.setUsername(triple.getUsername());
                     keys.add(secretAuthKey);
@@ -127,10 +132,15 @@ public class ShibbolethSNAAImpl implements SNAA {
             //check if authorized
             try {
                 IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
+                sa.setUsernameAtIdpDomain(key.getUsername());
                 sa.setUrl(secretAuthenticationKeyUrl);
+                if (proxy != null){
+                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+                }
+                
                 //check authorization
                 List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-                log.info("Deserialization successfully done.");
+                log.info("De-serialization successfully done.");
                 authorizeMap = sa.isAuthorized(cookies);
 
                 if (authorizeMap == null){

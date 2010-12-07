@@ -24,4 +24,6 @@ public interface IShibbolethAuthenticator {
 
     CookieStore getCookieStore();
 
+    public void setProxy(String host, int port);
+
 }

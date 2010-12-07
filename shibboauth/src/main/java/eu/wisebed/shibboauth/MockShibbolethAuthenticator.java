@@ -60,4 +60,9 @@ public class MockShibbolethAuthenticator implements IShibbolethAuthenticator {
     public CookieStore getCookieStore() {
         return new BasicCookieStore();
     }
+
+    @Override
+    public void setProxy(String host, int port) {
+        //do nothing
+    }
 }

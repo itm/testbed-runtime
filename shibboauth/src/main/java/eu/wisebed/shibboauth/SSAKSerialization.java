@@ -25,7 +25,11 @@ package eu.wisebed.shibboauth;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class SSAKSerialization {
     private static class CookieProperties {
@@ -34,10 +38,12 @@ public class SSAKSerialization {
         private static String domain = "domain";
     }
 
-    public static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
+    private static String _shibSession_ = "_shibsession_";
+
+    private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
         Cookie shibSessionCookie = null;
         for (Cookie cookie : cookies) {
-            if (cookie.getName().startsWith("_shibsession_")) {
+            if (cookie.getName().startsWith(_shibSession_)) {
                 shibSessionCookie = cookie;
                 break;
             }
@@ -56,10 +62,11 @@ public class SSAKSerialization {
         return cookieMap;
     }
 
-    public static String serialize(Map<String, String> cookieMap) throws CookiePropertyNotFoundException {
-        if (! (cookieMap.containsKey(CookieProperties.name) &&
+    public static String serialize(List<Cookie> cookies) throws CookiePropertyNotFoundException, CookieNotFoundException {
+        Map<String, String> cookieMap = cookieListToMap(cookies);
+        if (!(cookieMap.containsKey(CookieProperties.name) &&
                 cookieMap.containsKey(CookieProperties.value) &&
-                        cookieMap.containsKey(CookieProperties.domain)) ) {
+                cookieMap.containsKey(CookieProperties.domain))) {
             throw new CookiePropertyNotFoundException("Cookie-Property '" + "' not found in cookie-map");
         }
 
@@ -78,36 +85,40 @@ public class SSAKSerialization {
     public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
 
         //remove whitespaces
-        serializedString = serializedString.replaceAll(" ","");
+        serializedString = serializedString.replaceAll(" ", "");
         //make Cookies out of serialized cookie-string
         // format:
-        // (name=value;)*name=value,domain
+        // (name=value;)*name=value@domain
 
         //getting domain-value
         String[] lastEntryValues = serializedString.split("@");
-        if (lastEntryValues.length != 2){
-            throw new NotDeserializableException("Could not extract domain-value while deserializing '" + serializedString + "'");
+        if (lastEntryValues.length != 2) {
+            throw new NotDeserializableException("Could not extract domain-value while de-serializing '" + serializedString + "'");
         }
         String domain = lastEntryValues[1];
 
         //getting other key,value pairs
         String[] cookieValues = lastEntryValues[0].split(";");
-        if (cookieValues.length == 0){
-            throw new NotDeserializableException("Could not deserialize empty String");
+        if (cookieValues.length == 0) {
+            throw new NotDeserializableException("Could not de-serialize empty String");
         }
 
         List<Cookie> cookies = new LinkedList<Cookie>();
 
         for (String value : cookieValues) {
+            /*if (!value.startsWith(_shibSession_)) {
+                continue;
+            }*/
+            
             String[] pair = value.split("=");
-            if (pair.length != 2){
-                throw new NotDeserializableException("Could deserialize key-value-pair '" + value + "'");
+            if (pair.length != 2) {
+                throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
             }
             BasicClientCookie cookie = new BasicClientCookie(pair[0], pair[1]);
             cookie.setDomain(domain);
             cookie.setVersion(0);
             cookie.setPath("/");
-            cookies.add(cookie);            
+            cookies.add(cookie);
         }
         return cookies;
     }

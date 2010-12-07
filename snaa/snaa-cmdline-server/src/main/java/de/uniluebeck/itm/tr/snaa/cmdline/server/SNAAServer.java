@@ -32,9 +32,11 @@ import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
+import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
@@ -131,6 +133,10 @@ public class SNAAServer {
 
         Set<String> snaaNames = parseCSV(props.getProperty("config.snaas", ""));
 
+        //set optional proxy for shibboleth
+        ShibbolethProxy shibbolethProxy;
+        shibbolethProxy = setOptionalShibbolethProxy(props);
+
         String type, urnprefix, path;
         for (String snaaName : snaaNames) {
 
@@ -158,7 +164,7 @@ public class SNAAServer {
 
                 String secretAuthkeyUrl = props.getProperty(snaaName + ".authorization.url");
 
-                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector);
+                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector, shibbolethProxy);
 
             } else if ("jaas".equals(type)) {
 
@@ -212,7 +218,7 @@ public class SNAAServer {
 
                 }
 
-                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, federatedUrnPrefixes);
+                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, shibbolethProxy, federatedUrnPrefixes);
 
             } else {
                 log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
@@ -222,6 +228,15 @@ public class SNAAServer {
 
         return server;
 
+    }
+
+    private static ShibbolethProxy setOptionalShibbolethProxy(Properties props) {
+        String shibbolethProxyHost = props.getProperty("config.shibboleth.proxyHost");
+        String shibbolethProxyPort = props.getProperty("config.shibboleth.proxyPort");
+        if (shibbolethProxyHost != null && shibbolethProxyPort != null){
+            return new ShibbolethProxy(shibbolethProxyHost, Integer.parseInt(shibbolethProxyPort));
+        }
+        return null;
     }
 
     private static IUserAuthorization getAuthorizationModule(String className) throws ClassNotFoundException,
@@ -259,7 +274,7 @@ public class SNAAServer {
 
     }
 
-    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization, Injector injector) {
+    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization, Injector injector, ShibbolethProxy shibbolethProxy) {
 
         log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
                 + "]"
@@ -268,7 +283,7 @@ public class SNAAServer {
         Set<String> prefixes = new HashSet<String>();
         prefixes.add(prefix);
 
-        ShibbolethSNAAImpl shibSnaa = new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector);
+        ShibbolethSNAAImpl shibSnaa = new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector, shibbolethProxy);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shibSnaa);
@@ -279,7 +294,7 @@ public class SNAAServer {
     }
 
     private static void startFederator(FederatorType type, String path, String secretAuthKeyURL, Injector injector,
-                                       Map<String, Set<String>>... prefixSets) {
+                                       ShibbolethProxy shibbolethProxy, Map<String, Set<String>>... prefixSets) {
 
         // union the prefix sets to one set
         Map<String, Set<String>> prefixSet = new HashMap<String, Set<String>>();
@@ -302,7 +317,7 @@ public class SNAAServer {
                 federator = new FederatorSNAA(prefixSet);
                 break;
             case WISEBED:
-                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector);
+                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector, shibbolethProxy);
                 break;
         }
 

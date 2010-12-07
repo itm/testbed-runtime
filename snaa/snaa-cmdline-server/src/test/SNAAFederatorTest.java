@@ -82,7 +82,7 @@ public class SNAAFederatorTest {
 
         Map<String, Set<String>> snaaPrefixSet = new HashMap<String, Set<String>>();
         snaaPrefixSet.put("http://localhost:8080/snaa/shib1", testbed1);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector);
+        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector, null);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 
