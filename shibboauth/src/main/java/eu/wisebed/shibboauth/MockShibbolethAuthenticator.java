@@ -58,7 +58,11 @@ public class MockShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     @Override
     public CookieStore getCookieStore() {
-        return new BasicCookieStore();
+        BasicClientCookie cookie = new BasicClientCookie("_shibsession_test","test");
+        cookie.setDomain("wisebed2.itm.uni-luebeck.de");
+        BasicCookieStore cookieStore = new BasicCookieStore();
+        cookieStore.addCookie(cookie);
+        return cookieStore;
     }
 
     @Override

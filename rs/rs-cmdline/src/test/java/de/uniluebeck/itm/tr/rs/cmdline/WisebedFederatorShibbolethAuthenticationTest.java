@@ -102,7 +102,7 @@ public class WisebedFederatorShibbolethAuthenticationTest {
         snaaPrefixSet = new HashMap<String, Set<String>>();
         snaaPrefixSet.put(SNAAPrefixe.Shib1.host, testbed1);
         snaaPrefixSet.put(SNAAPrefixe.Shib2.host, testbed2);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector);
+        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector, null);
 
         //creating SNAA-Authentication-Data
         List<AuthenticationTriple> snaaAuthenticationDataShib1 = createAuthenticationData(SNAAPrefixe.Shib1.urn);

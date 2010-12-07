@@ -109,7 +109,7 @@ public class SSAKSerialization {
             /*if (!value.startsWith(_shibSession_)) {
                 continue;
             }*/
-            
+
             String[] pair = value.split("=");
             if (pair.length != 2) {
                 throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
