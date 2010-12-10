@@ -447,7 +447,11 @@ public class WSNServiceImpl implements WSNService {
 		WSNAppMessages.Message.Builder builder = WSNAppMessages.Message.newBuilder();
 
 		if (message.getBinaryMessage() != null) {
-
+			
+				// Binary Type is optinal so set type = 0 as internal default
+				if (message.getBinaryMessage().getBinaryType() == null)
+					message.getBinaryMessage().setBinaryType((byte) 0);
+				
 			WSNAppMessages.Message.BinaryMessage.Builder binaryMessage = WSNAppMessages.Message.BinaryMessage
 					.newBuilder().setBinaryType(message.getBinaryMessage().getBinaryType()).setBinaryData(
 							ByteString.copyFrom(message.getBinaryMessage().getBinaryData())
@@ -456,7 +460,11 @@ public class WSNServiceImpl implements WSNService {
 		}
 
 		if (message.getTextMessage() != null) {
-
+			
+			// Message Level is optinal so set the level to DEBUG as internal default
+			if (message.getTextMessage().getMessageLevel() == null)
+				message.getTextMessage().setMessageLevel(MessageLevel.DEBUG);
+			
 			WSNAppMessages.Message.TextMessage.Builder textMessage = WSNAppMessages.Message.TextMessage.newBuilder()
 					.setMessageLevel(
 							WSNAppMessages.Message.MessageLevel.valueOf(message.getTextMessage().getMessageLevel()
@@ -529,7 +537,11 @@ public class WSNServiceImpl implements WSNService {
 								requestStatus.getStatus().getValue()
 						);
 					}
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					//if (requestStatus.hasStatus() && requestStatus.getStatus().hasValue() 
+					//		&&(requestStatus.getStatus().getValue() == 100) || (requestStatus.getStatus().getValue() == -1))
+						controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					//else
+					//	convert(requestStatus, requestId);
 				}
 
 				@Override
