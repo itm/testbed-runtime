@@ -455,6 +455,13 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 		byte type = (byte) (0xFF & p.getType());
 		byte b[] = p.getContent();
+		
+		boolean iSenseStyle = true;
+		
+		// if the type was set to 0 send the message without iSense framing to the node
+		// e.g. to Contiki or TinyOs Os
+		//if (type == 0x64)
+		//	iSenseStyle = false;
 
 		if (b == null || type > 0xFF) {
 			log.warn("Skipping empty packet or type > 0xFF.");
@@ -465,26 +472,33 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			return;
 		}
 
-		// Send start signal DLE STX
-		this.outputStream.write(DLE_STX);
-
-		// Send the type escaped
-		outputStream.write(type);
-		if (type == DLE) {
-			outputStream.write(DLE);
-		}
-
-		// Transmit each byte escaped
-		for (int i = 0; i < b.length; ++i) {
-			outputStream.write(b[i]);
-			if (b[i] == DLE) {
+		if (iSenseStyle == true){
+			// Send start signal DLE STX
+			this.outputStream.write(DLE_STX);
+	
+			// Send the type escaped
+			outputStream.write(type);
+			if (type == DLE) {
 				outputStream.write(DLE);
 			}
+	
+			// Transmit each byte escaped
+			for (int i = 0; i < b.length; ++i) {
+				outputStream.write(b[i]);
+				if (b[i] == DLE) {
+					outputStream.write(DLE);
+				}
+			}
+	
+			// Send final DLT ETX
+			outputStream.write(DLE_ETX);
+			outputStream.flush();
+		} else {
+			// Transmit the byte array without dle framing 
+			for (int i = 0; i < b.length; ++i) {
+				outputStream.write(b[i]);
+			}
 		}
-
-		// Send final DLT ETX
-		outputStream.write(DLE_ETX);
-		outputStream.flush();
 	}
 
 	/*
@@ -565,20 +579,16 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			if (this.isFlashDebugOutput()) {
 				bsl.executeBSLPatch();
 			}
-			log.debug("1");
 			// program block
 			bsl.sendBSLCommand(BSLTelosb.CMD_TXDATABLOCK, address, len, bytes,
 					false
 			);
-			log.debug("2");
 			reply = bsl.receiveBSLReply();
-			log.debug("3");
 			if ((reply[0] & 0xFF) != BSLTelosb.DATA_ACK) {
 				throw new FlashProgramFailedException(
 						"Failed to program flash: received no ACK"
 				);
 			}
-			log.debug("4");
 			// verify programmed block
 			if (this.isFlashDebugOutput()) {
 				if (!bsl.verifyBlock(address, len, bytes)) {
@@ -587,7 +597,6 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 					);
 				}
 			}
-			log.debug("5");
 		} catch (Exception e) {
 			throw new FlashProgramFailedException("Failed to program flash: "
 					+ e

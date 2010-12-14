@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import static com.google.common.base.Preconditions.checkArgument;
 
 
-public class PacketCreator {
+public class Packets {
 
 	public static class Interaction {
 
@@ -45,6 +45,7 @@ public class PacketCreator {
 		 * @param destination destination of the message (id or broadcast)
 		 * @param source	  source of the message
 		 * @param payload	 payload of the virtual message
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, byte RSSI, byte LQI, long destination,
@@ -73,6 +74,7 @@ public class PacketCreator {
 		 * @param destination
 		 * @param source
 		 * @param payload
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, long destination, long source,
@@ -86,6 +88,7 @@ public class PacketCreator {
 		 * @param requestId  the request ID
 		 * @param binaryType
 		 * @param payload
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newByteMessagePacket(int requestId, byte binaryType, byte[] payload) {
@@ -105,6 +108,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param payload
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newFlashProgramPacket(int requestId, byte[] payload) {
@@ -116,6 +120,13 @@ public class PacketCreator {
 			bb.put(payload);
 			return bb;
 
+		}
+
+		public static boolean isInteractionPacket(ByteBuffer bb) {
+			return bb.get(0) == MessageType.DEBUG_MESSAGE ||
+					bb.get(0) == MessageType.VL_MESSAGE ||
+					bb.get(0) == MessageType.BYTE_MESSAGE ||
+					bb.get(0) == MessageType.FLASH_MESSAGE;
 		}
 
 	}
@@ -130,6 +141,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetVirtualLinkPacket(int requestId, long destinationNode) {
@@ -151,6 +163,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newDestroyVirtualLinkPacket(int requestId, long destinationNode) {
@@ -171,6 +184,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newEnablePhysicalLinkPacket(int requestId, long nodeB) {
@@ -191,6 +205,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newDisablePhysicalLinkPacket(int requestId, long nodeB) {
@@ -201,6 +216,14 @@ public class PacketCreator {
 			bb.putLong(nodeB);
 			return bb;
 
+		}
+
+		public static boolean isLinkControlPacket(ByteBuffer bb) {
+			return bb.get(0) == MessageType.SET_VIRTUAL_LINK ||
+					bb.get(0) == MessageType.DESTROY_VIRTUAL_LINK ||
+					bb.get(0) == MessageType.ENABLE_PHYSICAL_LINK ||
+					bb.get(0) == MessageType.DISABLE_PHYSICAL_LINK ||
+					bb.get(0) == MessageType.SEND_VIRTUAL_LINK_MESSAGE;
 		}
 
 	}
@@ -214,6 +237,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param property  request the property specified by this value
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetPropertyValuePacket(int requestId, byte property) {
@@ -232,6 +256,7 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetNeighborhoodPacket(int requestId) {
@@ -241,6 +266,11 @@ public class PacketCreator {
 			bb.put((byte) requestId);
 			return bb;
 
+		}
+
+		public static boolean isNetworkDescriptionPacket(ByteBuffer bb) {
+			return bb.get(0) == MessageType.GET_PROPERTY_VALUE ||
+					bb.get(0) == MessageType.GET_NEIGHBORHOOD;
 		}
 
 	}
@@ -253,6 +283,7 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newEnableNodePacket(int requestId) {
@@ -271,6 +302,7 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newDisableNodePacket(int requestId) {
@@ -289,6 +321,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param time
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newResetNodePacket(int requestId, int time) {
@@ -308,6 +341,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId the request ID
 		 * @param time
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetStartTimePacket(int requestId, int time) {
@@ -327,6 +361,7 @@ public class PacketCreator {
 		 *
 		 * @param requestId	 the request ID
 		 * @param virtualNodeID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newSetVirtualIDPacket(int requestId, long virtualNodeID) {
@@ -345,6 +380,7 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newGetIDPacket(int requestId) {
@@ -362,6 +398,7 @@ public class PacketCreator {
 		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
+		 *
 		 * @return
 		 */
 		public static ByteBuffer newAreNodesAlivePacket(int requestId) {
@@ -373,6 +410,24 @@ public class PacketCreator {
 
 		}
 
+		public static boolean isNodeControlPacket(ByteBuffer bb) {
+			return bb.get(0) == MessageType.ENABLE_NODE ||
+					bb.get(0) == MessageType.DISABLE_NODE ||
+					bb.get(0) == MessageType.RESET_NODE ||
+					bb.get(0) == MessageType.SET_START_TIME ||
+					bb.get(0) == MessageType.SET_VIRTUAL_ID ||
+					bb.get(0) == MessageType.IS_NODE_ALIVE;
+		}
+
+	}
+
+	public static ByteBuffer buildResponse(ByteBuffer request, byte result, byte[] payload) {
+		ByteBuffer response = ByteBuffer.allocate(2 + 1 + payload.length);
+		response.put(request.get(0));
+		response.put(request.get(1));
+		response.put(result);
+		response.put(payload, 0, payload.length);
+		return response;
 	}
 
 }

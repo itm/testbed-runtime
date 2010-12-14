@@ -29,39 +29,14 @@ package de.uniluebeck.itm.wsn.devicedrivers.generic;
  */
 public interface iSenseDeviceListener {
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param p
-	 */
 	public void receivePacket(MessagePacket p);
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param p
-	 */
 	public void receivePlainText(MessagePlainText p);
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
 	public void operationCanceled(Operation op);
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
 	public void operationDone(Operation op, Object result);
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
 	public void operationProgress(Operation op, float fraction);
 
 }

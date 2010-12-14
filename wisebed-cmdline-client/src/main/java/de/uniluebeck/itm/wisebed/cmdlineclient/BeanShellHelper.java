@@ -29,10 +29,7 @@ import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.wsn.v211.BinaryMessage;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.Program;
-import eu.wisebed.testbed.api.wsn.v211.ProgramMetaData;
+import eu.wisebed.testbed.api.wsn.v211.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,6 +225,25 @@ public class BeanShellHelper {
 		b.append(msg.getTimestamp().toString());
 		b.append("]");
 
+		return b.toString();
+	}
+
+	public String toString(RequestStatus requestStatus) {
+		StringBuilder b = new StringBuilder();
+		b.append("RequestStatus [requestId=");
+		b.append(requestStatus.getRequestId());
+		b.append("] {");
+		for (Status status : requestStatus.getStatus()) {
+			b.append("(");
+			b.append("nodeId=");
+			b.append(status.getNodeId());
+			b.append(";value=");
+			b.append(status.getValue());
+			b.append(";msg=\"");
+			b.append(status.getMsg());
+			b.append("),");
+		}
+		b.append("}");
 		return b.toString();
 	}
 

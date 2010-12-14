@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, coalesenses GmbH                                                                               *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,7 +9,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ * - Neither the name of the coalesenses GmbH nor the names of its contributors may be used to endorse or promote     *
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -21,36 +21,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package com.coalesenses.otap.macromsg;
 
-import com.google.inject.internal.Nullable;
+public class PresenceDetectRequest {
 
-
-/**
- * Interface to be implemented as callback methods for the invocation of Node API functions.
- */
-public interface NodeApiCallback {
-
-	/**
-	 * Invoked upon receiving a reply from the sensor node with a result value of {@link
-	 * de.uniluebeck.itm.tr.nodeapi.ResponseType#COMMAND_SUCCESS}.
-	 *
-	 * @param replyPayload the payload that is attached to the reply message, may be {@code null}
-	 */
-	void success(@Nullable byte[] replyPayload);
-
-	/**
-	 * Invoked upon receiving a reply from the sensor node with a result value other than {@link
-	 * de.uniluebeck.itm.tr.nodeapi.ResponseType#COMMAND_SUCCESS}.
-	 *
-	 * @param responseType the response code the node sent with the reply, indicating the type of failure
-	 * @param replyPayload the payload that is attached to the reply message, may be {@code null}
-	 */
-	void failure(byte responseType, @Nullable byte[] replyPayload);
-
-	/**
-	 * Invoked when there was no reply from the node in the time interval defined upon method invocation.
-	 */
-	void timeout();
 
 }

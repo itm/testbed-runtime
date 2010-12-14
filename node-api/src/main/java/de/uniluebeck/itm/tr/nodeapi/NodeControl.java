@@ -23,50 +23,65 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import java.util.concurrent.Future;
+
 
 public interface NodeControl {
 
 	/**
-	 * Enables this node. The node is reactivating the radio and start
-	 * interacting with the environment.
+	 * Enables this node. The node is reactivating the radio and start interacting with the environment.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void enableNode(NodeApiCallback callback);
+	Future<NodeApiCallResult> enableNode();
 
 	/**
-	 * Disable this node. The node does not longer send out messages
-	 * or interact with the environment (e.g. a mobile node or via an actuator).
+	 * Disable this node. The node does not longer send out messages or interact with the environment (e.g. a mobile node
+	 * or via an actuator).
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void disableNode(NodeApiCallback callback);
+	Future<NodeApiCallResult> disableNode();
 
 	/**
 	 * Reset this node in time milliseconds
 	 *
-	 * @param time
+	 * @param time the time in milliseconds after which to reset the node
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void resetNode(int time, NodeApiCallback callback);
+	Future<NodeApiCallResult> resetNode(int time);
 
 	/**
-	 * Sets the starttime of the nodes de.uniluebeck.itm.tr.wisebed.app to in time milliseconds
+	 * Sets the starttime of the nodes app to in time milliseconds
 	 *
-	 * @param time
+	 * @param time the time in milliseconds after which to start
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void setStartTime(int time, NodeApiCallback callback);
+	Future<NodeApiCallResult> setStartTime(int time);
 
 	/**
 	 * Sets a new virtualNodeID. In default virtualID == natural nodeID
 	 *
-	 * @param virtualNodeID
+	 * @param virtualNodeID the nodes' new virtualNodeId
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void setVirtualID(long virtualNodeID, NodeApiCallback callback);
+	Future<NodeApiCallResult> setVirtualID(long virtualNodeID);
 
 	/**
 	 * Asks the connected node for its ID. In default virtualID == natural nodeID
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void getID(NodeApiCallback callback);
+	Future<NodeApiCallResult> getVirtualID();
 
 	/**
 	 * Check if this node is alive.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void areNodesAlive(NodeApiCallback callback);
+	Future<NodeApiCallResult> areNodesAlive();
 
 }

@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, coalesenses GmbH                                                                               *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,7 +9,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ * - Neither the name of the coalesenses GmbH nor the names of its contributors may be used to endorse or promote     *
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -21,44 +21,71 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.common;
-
-import com.google.inject.internal.ImmutableList;
-
+package com.coalesenses.otap.macromsg;
 
 /**
- * Abstract base class for classes that have to inform listeners about events. This class is thread-safe.
- *
- * @param <T> the listener interface under which listeners register themselves.
+ * This class is representing a local complex type embedding in a top-level element.
  */
-public abstract class AbstractListenable<T> implements Listenable<T> {
+public class OtapInitRequest {
 
-	protected ImmutableList<T> listeners = (ImmutableList<T>) ImmutableList.builder().build();
+	/**
+	 * Wrapper class for representing the array element 'participating_devices'.
+	 */
+	public static class participating_devicesArray {
 
-	@Override
-	public void addListener(T listener) {
+		/**
+		 * This parameter stores the actual array.
+		 */
+		public int[] value = new int[50];
 
-		// assure listener is only contained once
-		ImmutableList.Builder<Object> builder = ImmutableList.builder();
-		for (T t : listeners) {
-			if (t != listener) {
-				builder.add(t);
-			}
-		}
-		builder.add(listener);
-		
-		listeners = (ImmutableList<T>) builder.build();
+		/**
+		 * This parameter the number of element actually used in the array.
+		 */
+		public int count;
+
+
 	}
 
-	@Override
-	public void removeListener(T listener) {
-		ImmutableList.Builder<Object> listBuilder = ImmutableList.builder();
-		for (T t : listeners) {
-			if (t != listener) {
-				listBuilder.add(t);
-			}
+	/**
+	 * Generated from local element 'chunk_count'.
+	 */
+	public short chunk_count;
+
+	/**
+	 * Generated from local element 'timeout_multiplier_ms'.
+	 */
+	public short timeout_multiplier_ms;
+
+	/**
+	 * Generated from local element 'max_re_requests'.
+	 */
+	public short max_re_requests;
+
+	/**
+	 * Parameter storing an instance of the array element 'participating_devices'.
+	 */
+	public participating_devicesArray participating_devices = new participating_devicesArray();
+
+	/**
+	 * Check for object equality.
+	 *
+	 * @param o The other object.
+	 */
+/*	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof OtapInitRequest)) {
+			return false;
 		}
-		listeners = (ImmutableList<T>) listBuilder.build();
+		OtapInitRequest other = (OtapInitRequest)o;
+		boolean equal = true;
+		equal = equal && (this.chunk_count == other.chunk_count);
+		equal = equal && (this.timeout_multiplier_ms == other.timeout_multiplier_ms);
+		equal = equal && (this.max_re_requests == other.max_re_requests);
+		for (int i1 = 0; i1 < this.participating_devices.count; ++i1) {
+		equal = equal && (this.participating_devices.value[i1] == other.participating_devices.value[i1]);
+		}
+		return equal;
 	}
+*/
 
 }

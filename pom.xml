@@ -22,15 +22,14 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.uniluebeck.itm</groupId>
     <artifactId>tr</artifactId>
     <packaging>pom</packaging>
-    <version>0.5.4-SNAPSHOT</version>
+    <version>0.5.5-SNAPSHOT</version>
     <name>TR</name>
 
     <modules>
@@ -68,6 +67,7 @@
         <module>snaa/snaa-wisebed</module>
 
         <module>assembly</module>
+        <module>assembly-federator</module>
         <module>shibboauth</module>
         <module>util</module>
         <module>motelist</module>
@@ -267,6 +267,12 @@
             <dependency>
                 <groupId>de.uniluebeck.itm</groupId>
                 <artifactId>tr.wisebed-cmdline-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.uniluebeck.itm</groupId>
+                <artifactId>tr.wsn-federator</artifactId>
+                <classifier>onejar</classifier>                
                 <version>${project.version}</version>
             </dependency>
             <dependency>

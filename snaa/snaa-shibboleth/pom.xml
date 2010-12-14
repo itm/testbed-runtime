@@ -27,12 +27,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>de.uniluebeck.itm</groupId>
-        <artifactId>tr</artifactId>
-        <version>0.5.4-SNAPSHOT</version>
-        <relativePath>../../</relativePath>
-    </parent>
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.5.5-SNAPSHOT</version>
+		<relativePath>../../</relativePath>
+	</parent>
 
     <artifactId>tr.snaa-shibboleth</artifactId>
     <packaging>jar</packaging>

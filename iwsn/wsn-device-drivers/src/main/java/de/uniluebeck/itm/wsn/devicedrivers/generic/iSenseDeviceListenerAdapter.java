@@ -23,52 +23,28 @@
 
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
-
-// -------------------------------------------------------------------------
-
 /**
  * @author dp
  */
 public abstract class iSenseDeviceListenerAdapter implements iSenseDeviceListener {
 
-	// -------------------------------------------------------------------------
+	@Override
+	public void receivePacket(MessagePacket p) {
+	}
 
-	/**
-	 * @param p
-	 */
-	public abstract void receivePacket(MessagePacket p);
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param p
-	 */
+	@Override
 	public void receivePlainText(MessagePlainText p) {
 	}
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param op
-	 */
+	@Override
 	public void operationCanceled(Operation op) {
 	}
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param op
-	 * @param fraction
-	 */
+	@Override
 	public void operationProgress(Operation op, float fraction) {
 	}
 
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param op
-	 * @param result
-	 */
+	@Override
 	public void operationDone(Operation op, Object result) {
 	}
 

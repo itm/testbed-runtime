@@ -84,11 +84,13 @@ public class ControllerHelper {
 
                 } catch (Exception e) {
                     log.warn("Could not deliver message / request status to Controller at endpoint URL {}. "
-                            + "Trying again in {} {}",
+                            + "Trying again in {} {}"
+                            + "Error = {}",
                             new Object[]{
                                     controllerEntry.getKey(),
                                     RETRY_TIMEOUT,
-                                    RETRY_TIMEUNIT.toString().toLowerCase()
+                                    RETRY_TIMEUNIT.toString().toLowerCase(),
+                                    e
                             }
                     );
                     executorService.schedule(this, RETRY_TIMEOUT, RETRY_TIMEUNIT);

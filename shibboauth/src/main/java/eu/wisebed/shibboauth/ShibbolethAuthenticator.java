@@ -466,7 +466,7 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
 
         URL chosenIDP = null;
         for (URL url : idps) {
-            if (url.getHost().equalsIgnoreCase(idpDomain)) {
+            if (url.getHost().equalsIgnoreCase(idpDomain.trim())) {
                 log.info("Using idp: " + url);
                 chosenIDP = url;
             }

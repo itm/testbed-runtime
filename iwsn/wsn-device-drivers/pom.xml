@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.5.4-SNAPSHOT</version>
+		<version>0.5.5-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
@@ -69,6 +69,10 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-ext-jdk16</artifactId>
 		</dependency>
 
 	</dependencies>

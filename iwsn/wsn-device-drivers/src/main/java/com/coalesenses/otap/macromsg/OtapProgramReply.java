@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, coalesenses GmbH                                                                               *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,7 +9,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ * - Neither the name of the coalesenses GmbH nor the names of its contributors may be used to endorse or promote     *
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -21,25 +21,69 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package com.coalesenses.otap.macromsg;
 
-import com.google.inject.internal.Nullable;
 
 /**
- * Adapter for use as callback for the invocation of Node API functions.
+ * This class is representing a local complex type embedding in a top-level element.
  */
-public class NodeApiCallbackAdapter implements NodeApiCallback {
+public class OtapProgramReply {
 
-	@Override
-	public void success(@Nullable byte[] replyPayload) {
+	static int header_length = 4;
+
+	/**
+	 * Wrapper class for representing the array element 'missing_indices'.
+	 */
+	public static class missing_indicesArray {
+
+		/**
+		 * This parameter stores the actual array.
+		 */
+		public short[] value = new short[64];
+
+		/**
+		 * This parameter the number of element actually used in the array.
+		 */
+		public short count;
+
+
 	}
 
-	@Override
-	public void failure(byte responseType, @Nullable byte[] replyPayload) {
-	}
+	/**
+	 * Generated from local element 'device_id'.
+	 */
+	public int device_id;
 
-	@Override
-	public void timeout() {
+
+	/**
+	 * Generated from local element 'chunk_no'.
+	 */
+	public short chunk_no;
+
+	/**
+	 * Parameter storing an instance of the array element 'missing_indices'.
+	 */
+	public missing_indicesArray missing_indices = new missing_indicesArray();
+
+	/**
+	 * Check for object equality.
+	 *
+	 * @param o The other object.
+	 */
+	/*@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof OtapProgramReply)) {
+			return false;
+		}
+		OtapProgramReply other = (OtapProgramReply)o;
+		boolean equal = true;
+		equal = equal && (this.device_id == other.device_id);
+		equal = equal && (this.chunk_no == other.chunk_no);
+		for (int i1 = 0; i1 < this.missing_indices.count; ++i1) {
+		equal = equal && (this.missing_indices.value[i1] == other.missing_indices.value[i1]);
+		}
+		return equal;
 	}
+	*/
 
 }

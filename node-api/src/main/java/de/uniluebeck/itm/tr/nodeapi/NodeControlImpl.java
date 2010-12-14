@@ -23,7 +23,10 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import com.google.common.util.concurrent.ValueFuture;
+
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 
 public class NodeControlImpl implements NodeControl {
@@ -35,73 +38,87 @@ public class NodeControlImpl implements NodeControl {
 	}
 
 	@Override
-	public void enableNode(NodeApiCallback callback) {
+	public Future<NodeApiCallResult> enableNode() {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newEnableNodePacket(
+		ByteBuffer buffer = Packets.NodeControl.newEnableNodePacket(
 				requestId
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void disableNode(NodeApiCallback callback) {
+	public Future<NodeApiCallResult> disableNode() {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newDisableNodePacket(
+		ByteBuffer buffer = Packets.NodeControl.newDisableNodePacket(
 				requestId
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void resetNode(int time, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> resetNode(int time) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newResetNodePacket(
+		ByteBuffer buffer = Packets.NodeControl.newResetNodePacket(
 				requestId, time
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void setStartTime(int time, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> setStartTime(int time) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newSetStartTimePacket(
+		ByteBuffer buffer = Packets.NodeControl.newSetStartTimePacket(
 				requestId, time
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void setVirtualID(long virtualNodeID, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> setVirtualID(long virtualNodeID) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newSetVirtualIDPacket(
+		ByteBuffer buffer = Packets.NodeControl.newSetVirtualIDPacket(
 				requestId, virtualNodeID
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void getID(NodeApiCallback callback) {
+	public Future<NodeApiCallResult> getVirtualID() {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newGetIDPacket(
+		ByteBuffer buffer = Packets.NodeControl.newGetIDPacket(
 				requestId
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void areNodesAlive(NodeApiCallback callback) {
+	public Future<NodeApiCallResult> areNodesAlive() {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NodeControl.newAreNodesAlivePacket(
+		ByteBuffer buffer = Packets.NodeControl.newAreNodesAlivePacket(
 				requestId
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 }

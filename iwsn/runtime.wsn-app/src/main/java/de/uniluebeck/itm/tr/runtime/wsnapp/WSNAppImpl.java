@@ -67,8 +67,8 @@ public class WSNAppImpl implements WSNApp {
 
 	@Inject
 	public WSNAppImpl(TestbedRuntime testbedRuntime,
-				   @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
-		
+					  @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
+
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();

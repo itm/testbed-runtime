@@ -35,16 +35,21 @@ public class Logging {
 
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
 		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
+        Logger coaLogger = Logger.getLogger("com.coalesenses");
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
-			itmLogger.setLevel(Level.INFO);
+			itmLogger.setLevel(Level.DEBUG);
 		}
 
 		if (!wisebedLogger.getAllAppenders().hasMoreElements()) {
 			wisebedLogger.addAppender(appender);
-			wisebedLogger.setLevel(Level.INFO);
+			wisebedLogger.setLevel(Level.DEBUG);
 		}
 
+        if (!coaLogger.getAllAppenders().hasMoreElements()) {
+			coaLogger.addAppender(appender);
+			coaLogger.setLevel(Level.INFO);
+		}
 	}
 }
