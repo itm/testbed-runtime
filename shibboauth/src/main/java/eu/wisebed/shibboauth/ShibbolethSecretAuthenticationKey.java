@@ -30,11 +30,16 @@ import java.util.*;
 
 public class ShibbolethSecretAuthenticationKey implements Serializable {
     private List<LinkedHashMap<String, Object>> cookieMaps;
-    private String secretAuthenticationKey;
 
-    public ShibbolethSecretAuthenticationKey(String secretAuthenticationKey, List<Cookie> cookies){
-        this.secretAuthenticationKey = secretAuthenticationKey;
-        setCookieMaps(cookies);
+    public ShibbolethSecretAuthenticationKey(List<Cookie> cookies){
+        //get only shibsession cookie
+        List<Cookie> shibSessionCookies = new LinkedList<Cookie>();
+        for (Cookie cookie : cookies){
+            if (cookie.getName().startsWith("_shibsession_")){
+                shibSessionCookies.add(cookie);
+            }
+        }
+        setCookieMaps(shibSessionCookies);
     }
 
     private void setCookieMaps(List<Cookie> cookies) {
@@ -68,7 +73,4 @@ public class ShibbolethSecretAuthenticationKey implements Serializable {
         return cookieList;
     }
 
-    public String getSecretAuthenticationKey() {
-        return secretAuthenticationKey;
-    }
 }
