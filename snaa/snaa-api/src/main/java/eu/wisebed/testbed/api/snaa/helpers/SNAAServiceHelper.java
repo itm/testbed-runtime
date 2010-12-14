@@ -53,7 +53,6 @@ public class SNAAServiceHelper {
 	 */
 	public static SNAA getSNAAService(String endpointUrl) {
 
-		QName qName = new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService");
 		InputStream resourceStream = SNAAServiceHelper.class.getClassLoader().getResourceAsStream("SNAA.wsdl");
 
 		tmpFileSNAALock.lock();
@@ -71,7 +70,7 @@ public class SNAAServiceHelper {
 
 		SNAAService service;
 		try {
-			service = new SNAAService(tmpFileSNAA.toURI().toURL(), qName);
+			service = new SNAAService(tmpFileSNAA.toURI().toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

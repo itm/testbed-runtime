@@ -18,32 +18,11 @@ import javax.xml.ws.WebServiceFeature;
  * 
  */
 @WebServiceClient(name = "WSNService", targetNamespace = "urn:WSNService", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
-public class WSNService
-    extends Service
+public class WSNService extends Service
 {
 
-    private final static URL WSNSERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(eu.wisebed.testbed.api.wsn.v211.WSNService.class.getName());
-
-    static {
-        URL url = null;
-        try {
-            URL baseUrl;
-            baseUrl = eu.wisebed.testbed.api.wsn.v211.WSNService.class.getResource(".");
-            url = new URL(baseUrl, "REPLACE_WITH_ACTUAL_URL");
-        } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'REPLACE_WITH_ACTUAL_URL', retrying as a local file");
-            logger.warning(e.getMessage());
-        }
-        WSNSERVICE_WSDL_LOCATION = url;
-    }
-
-    public WSNService(URL wsdlLocation, QName serviceName) {
-        super(wsdlLocation, serviceName);
-    }
-
-    public WSNService() {
-        super(WSNSERVICE_WSDL_LOCATION, new QName("urn:WSNService", "WSNService"));
+    public WSNService(URL wsdlLocation) {
+        super(wsdlLocation, new QName("urn:WSNService", "WSNService"));
     }
 
     /**

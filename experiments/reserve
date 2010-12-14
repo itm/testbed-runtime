@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]
+then
+	echo "Usage $0 PROPERTIES_FILE DURATION_IN_MINUTES"
+	echo "Example: $0 ../live.properties 30"
+	exit 1
+fi
+
+java -Dtestbed.duration=$2 -jar ../wisebed-cmdline-client/target/tr.wisebed-cmdline-client-0.5.4-SNAPSHOT.one-jar.jar -p $1 -f reserve.java

@@ -1,14 +1,12 @@
 
 package eu.wisebed.testbed.api.snaa.v1;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
+import java.net.URL;
 
 
 /**
@@ -18,34 +16,13 @@ import javax.xml.ws.WebServiceFeature;
  * 
  */
 @WebServiceClient(name = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
-public class SNAAService
-    extends Service
+public class SNAAService extends Service
 {
 
-    private final static URL SNAASERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(eu.wisebed.testbed.api.snaa.v1.SNAAService.class.getName());
-
-    static {
-        URL url = null;
-        try {
-            URL baseUrl;
-            baseUrl = eu.wisebed.testbed.api.snaa.v1.SNAAService.class.getResource(".");
-            url = new URL(baseUrl, "REPLACE_WITH_ACTUAL_URL");
-        } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'REPLACE_WITH_ACTUAL_URL', retrying as a local file");
-            logger.warning(e.getMessage());
-        }
-        SNAASERVICE_WSDL_LOCATION = url;
+    public SNAAService(URL wsdlLocation) {
+        super(wsdlLocation, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
     }
-
-    public SNAAService(URL wsdlLocation, QName serviceName) {
-        super(wsdlLocation, serviceName);
-    }
-
-    public SNAAService() {
-        super(SNAASERVICE_WSDL_LOCATION, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
-    }
-
+	
     /**
      * 
      * @return

@@ -46,8 +46,6 @@ public class FederatorRS implements RS {
 
     private static final Logger log = LoggerFactory.getLogger(FederatorRS.class);
 
-    private static final QName RS_SERVICE_QNAME = new QName("urn:RSService", "RSService");
-
     /**
      *
      */
@@ -109,9 +107,7 @@ public class FederatorRS implements RS {
 
         @Override
         public Void call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            port.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), reservationsToBeDeleted);
+            RSServiceHelper.getRSService(endpointUrl).deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), reservationsToBeDeleted);
             return null;
         }
     }
@@ -432,9 +428,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<PublicReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getReservations(from, to);
+            return RSServiceHelper.getRSService(endpointUrl).getReservations(from, to);
         }
     }
 
@@ -453,9 +447,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<ConfidentialReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getConfidentialReservations(secretAuthenticationData, period);
+            return RSServiceHelper.getRSService(endpointUrl).getConfidentialReservations(secretAuthenticationData, period);
         }
     }
 
@@ -545,9 +537,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<ConfidentialReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getReservation(secretReservationKeys);
+            return RSServiceHelper.getRSService(endpointUrl).getReservation(secretReservationKeys);
         }
     }
 

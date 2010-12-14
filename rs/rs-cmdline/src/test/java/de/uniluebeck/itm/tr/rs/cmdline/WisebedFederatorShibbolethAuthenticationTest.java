@@ -148,7 +148,7 @@ public class WisebedFederatorShibbolethAuthenticationTest {
 
     private SNAA getPort(String key) throws MalformedURLException {
         URL url = new URL(key);
-        SNAAService service = new SNAAService(url, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
+        SNAAService service = new SNAAService(url);
         return service.getPort(SNAA.class);
     }
 

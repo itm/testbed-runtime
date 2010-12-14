@@ -41,6 +41,7 @@ public class JobResult {
 	private String description;
 
 	public static class Result {
+
 		public String message;
 
 		public boolean success;
@@ -49,7 +50,18 @@ public class JobResult {
 			this.success = success;
 			this.message = message;
 		}
-	}
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Result");
+            sb.append("{message='").append(message).append('\'');
+            sb.append(", success=").append(success);
+            sb.append('}');
+            return sb.toString();
+        }
+        
+    }
 
 	public JobResult(JobType jobType) {
 		this.jobType = jobType;
@@ -108,4 +120,12 @@ public class JobResult {
 		return description;
 	}
 
+	@Override
+	public String toString() {
+		return "JobResult{" +
+				"jobType=" + jobType +
+				", description='" + description + '\'' +
+				", results=" + results +
+				'}';
+	}
 }

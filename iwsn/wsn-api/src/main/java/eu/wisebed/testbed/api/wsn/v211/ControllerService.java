@@ -1,14 +1,12 @@
 
 package eu.wisebed.testbed.api.wsn.v211;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
+import java.net.URL;
 
 
 /**
@@ -18,34 +16,14 @@ import javax.xml.ws.WebServiceFeature;
  * 
  */
 @WebServiceClient(name = "ControllerService", targetNamespace = "urn:ControllerService", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
-public class ControllerService
-    extends Service
+public class ControllerService extends Service
 {
 
-    private final static URL CONTROLLERSERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(eu.wisebed.testbed.api.wsn.v211.ControllerService.class.getName());
 
-    static {
-        URL url = null;
-        try {
-            URL baseUrl;
-            baseUrl = eu.wisebed.testbed.api.wsn.v211.ControllerService.class.getResource(".");
-            url = new URL(baseUrl, "REPLACE_WITH_ACTUAL_URL");
-        } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'REPLACE_WITH_ACTUAL_URL', retrying as a local file");
-            logger.warning(e.getMessage());
-        }
-        CONTROLLERSERVICE_WSDL_LOCATION = url;
+    public ControllerService(URL wsdlLocation) {
+        super(wsdlLocation, new QName("urn:ControllerService", "ControllerService"));
     }
-
-    public ControllerService(URL wsdlLocation, QName serviceName) {
-        super(wsdlLocation, serviceName);
-    }
-
-    public ControllerService() {
-        super(CONTROLLERSERVICE_WSDL_LOCATION, new QName("urn:ControllerService", "ControllerService"));
-    }
-
+	
     /**
      * 
      * @return

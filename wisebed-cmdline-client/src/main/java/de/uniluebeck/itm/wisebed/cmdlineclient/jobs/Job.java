@@ -60,7 +60,17 @@ public class Job {
 
 	public enum JobType {
 
-		areNodesAlive, resetNodes, send, flashPrograms, setVirtualLink, destroyVirtualLink
+		areNodesAlive,
+		resetNodes,
+		send,
+		flashPrograms,
+		setVirtualLink,
+		destroyVirtualLink,
+		disableNode,
+		enableNode,
+		disablePhysicalLink,
+		enablePhysicalLink
+
 	}
 
 	public Job(String description, String requestId, List<String> nodeIds, JobType jobType) {
@@ -84,6 +94,12 @@ public class Job {
 		return requestId;
 	}
 
+	public void timeout() {
+		for (JobResultListener l : listeners) {
+			l.timeout();
+		}
+	}
+
 	private boolean isDone(int value) {
 
 		if (jobType == JobType.areNodesAlive) {
@@ -97,6 +113,14 @@ public class Job {
 		} else if (jobType == JobType.setVirtualLink) {
 			return value == 1;
 		} else if (jobType == JobType.destroyVirtualLink) {
+			return value == 1;
+		} else if (jobType == JobType.disableNode) {
+			return value == 1;
+		} else if (jobType == JobType.enableNode) {
+			return value == 1;
+		} else if (jobType == JobType.disablePhysicalLink) {
+			return value == 1;
+		} else if (jobType == JobType.enablePhysicalLink) {
 			return value == 1;
 		}
 
@@ -117,6 +141,14 @@ public class Job {
 			return value < 1;
 		} else if (jobType == JobType.destroyVirtualLink) {
 			return value < 1;
+		} else if (jobType == JobType.disableNode) {
+			return value < 1;
+		} else if (jobType == JobType.enableNode) {
+			return value < 1;
+		} else if (jobType == JobType.disablePhysicalLink) {
+			return value < 1;
+		} else if (jobType == JobType.enablePhysicalLink) {
+			return value < 1;
 		}
 
 		return false;
@@ -131,17 +163,18 @@ public class Job {
 
 			log.debug(
 					"Status update from node {} for {} job with request ID {}: {}.",
-					new Object[] {
-						s.getNodeId(),
-						jobType,
-						status.getRequestId(),
-						done ? s.getValue() + " (done)" : error ? s.getValue() + " (error)" : s.getValue()
+					new Object[]{
+							s.getNodeId(),
+							jobType,
+							status.getRequestId(),
+							done ? s.getValue() + " (done)" : error ? s.getValue() + " (error)" : s.getValue()
 					}
 			);
 
 			if (done || error) {
 
-				boolean removed = false;
+				boolean removed;
+
 				synchronized (nodeIds) {
 					removed = nodeIds.remove(s.getNodeId());
 				}

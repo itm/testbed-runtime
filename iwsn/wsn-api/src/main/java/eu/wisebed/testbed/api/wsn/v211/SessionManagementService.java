@@ -18,32 +18,11 @@ import javax.xml.ws.WebServiceFeature;
  * 
  */
 @WebServiceClient(name = "SessionManagementService", targetNamespace = "urn:SessionManagementService", wsdlLocation = "REPLACE_WITH_ACTUAL_URL")
-public class SessionManagementService
-    extends Service
+public class SessionManagementService extends Service
 {
 
-    private final static URL SESSIONMANAGEMENTSERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(eu.wisebed.testbed.api.wsn.v211.SessionManagementService.class.getName());
-
-    static {
-        URL url = null;
-        try {
-            URL baseUrl;
-            baseUrl = eu.wisebed.testbed.api.wsn.v211.SessionManagementService.class.getResource(".");
-            url = new URL(baseUrl, "REPLACE_WITH_ACTUAL_URL");
-        } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'REPLACE_WITH_ACTUAL_URL', retrying as a local file");
-            logger.warning(e.getMessage());
-        }
-        SESSIONMANAGEMENTSERVICE_WSDL_LOCATION = url;
-    }
-
-    public SessionManagementService(URL wsdlLocation, QName serviceName) {
-        super(wsdlLocation, serviceName);
-    }
-
-    public SessionManagementService() {
-        super(SESSIONMANAGEMENTSERVICE_WSDL_LOCATION, new QName("urn:SessionManagementService", "SessionManagementService"));
+    public SessionManagementService(URL wsdlLocation) {
+        super(wsdlLocation, new QName("urn:SessionManagementService", "SessionManagementService"));
     }
 
     /**
