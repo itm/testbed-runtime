@@ -27,6 +27,7 @@ package de.uniluebeck.itm.tr.util;
  * TimeDiff class
  */
 public class TimeDiff {
+
 	private long lastTouch = System.currentTimeMillis();
 
 	private long timeOutMillis = 0;

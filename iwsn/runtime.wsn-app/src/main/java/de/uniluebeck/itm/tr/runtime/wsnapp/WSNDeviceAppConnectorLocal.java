@@ -141,7 +141,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			if (op == Operation.PROGRAM) {
 
 				if (lastProgress.isTimeout()) {
-					log.debug("{} => Flashing progress: {}%.", (int) (fraction * 100));
+					log.debug("{} => Flashing progress: {}%.", nodeUrn, (int) (fraction * 100));
 					listener.progress(fraction);
 					lastProgress.touch();
 				}
