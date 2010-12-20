@@ -23,6 +23,7 @@
 
 package com.coalesenses.seraerial;
 
+import com.coalesenses.otap.connectors.DeviceConnector;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
@@ -37,7 +38,8 @@ import java.util.LinkedList;
 /**
  * @author Dennis Pfisterer
  */
-public abstract class SerAerialPlugin {
+public class SerAerialPlugin {
+    private DeviceConnector connector = null;
 
     static class DispatcherThread extends Thread {
 
@@ -46,10 +48,7 @@ public abstract class SerAerialPlugin {
          */
         private static final Logger log = LoggerFactory.getLogger(DispatcherThread.class);
 
-        /**
-         *
-         */
-        final static int MAX_LOCK_WAIT_MS = 1200;
+        
 
         /**
          *
@@ -64,7 +63,7 @@ public abstract class SerAerialPlugin {
         /**
          *
          */
-        private TimeDiff confirmPendingSince = new TimeDiff(MAX_LOCK_WAIT_MS);
+        private TimeDiff confirmPendingSince = new TimeDiff(DeviceConnector.MAX_LOCK_WAIT_MS);
 
         /**
          *
@@ -75,6 +74,8 @@ public abstract class SerAerialPlugin {
          *
          */
         private SerAerialPacket lastPacket = null;
+
+
 
         /**
          *
@@ -89,7 +90,7 @@ public abstract class SerAerialPlugin {
                 log.warn("Too many pending packets. Dropped enqueue request.");
                 return false;
             }
-            packet.setSender(plugin);
+            packet.setSender(SerAerialPlugin.this.connector);
             plugin.confirmPending = true;
             pendingPackets.addLast(packet);
             //log.debug("Enqueued packet(now pending: " + pendingPackets.size() + ") from " + plugin + ": " + packet);
@@ -111,7 +112,7 @@ public abstract class SerAerialPlugin {
             }
 
             if (lastPacket != null && confirmPacket != null && lastPacket.getSender() != null) {
-                lastPacket.getSender().confirmPending = false;
+                lastPacket.getSender().setConfirmPending(false);
                 synchronized (lastPacket.getSender()) {
                     lastPacket.getSender().notifyAll();
                 }
@@ -156,7 +157,7 @@ public abstract class SerAerialPlugin {
                         }
 
                         if (confirmPending && lastPacket != null && lastPacket.getSender() != null) {
-                            lastPacket.getSender().confirmPending = false;
+                            lastPacket.getSender().setConfirmPending(false);
                             lastPacket.getSender().seraerialHandleConfirm(null);
                         }
 
@@ -222,7 +223,7 @@ public abstract class SerAerialPlugin {
      *
      */
     public final int[] init() {
-        seraerialInit();
+        connector.seraerialInit();
         return new int[]{PacketTypes.SERAERIAL};
     }
 
@@ -236,7 +237,7 @@ public abstract class SerAerialPlugin {
         if (seraerialPacket.getPacketType() == SerAerialPacket.PacketType.Packet) {
             //log.debug("Received seraerial packet of type " + Tools.toHexString(seraerialPacket.getContent()[0]));
             try {
-                seraerialHandlePacket(seraerialPacket);
+                connector.seraerialHandlePacket(seraerialPacket);
             } catch (Throwable t) {
                 log.error("Error in plugin SerAerialPlugin: " + t, t);
             }
@@ -255,7 +256,7 @@ public abstract class SerAerialPlugin {
      *
      */
     public final void shutdown() {
-        seraerialShutdown();
+        connector.seraerialShutdown();
     }
 
     /**
@@ -263,7 +264,7 @@ public abstract class SerAerialPlugin {
      */
     public final boolean seraerialTransmit(SerAerialPacket p) {
         boolean ok = dispatcher.enqueue(this, p);
-        TimeDiff timeout = new TimeDiff(DispatcherThread.MAX_LOCK_WAIT_MS);
+        TimeDiff timeout = new TimeDiff(DeviceConnector.MAX_LOCK_WAIT_MS);
 
         //If packet was enqueued, wait for confirm
         if (ok) {
@@ -311,25 +312,7 @@ public abstract class SerAerialPlugin {
         return confirmPending;
     }
 
-    /**
-     *
-     */
-    public abstract void seraerialInit();
 
-    /**
-     *
-     */
-    public abstract void seraerialHandleConfirm(SerAerialPacket p);
-
-    /**
-     *
-     */
-    public abstract void seraerialHandlePacket(SerAerialPacket p);
-
-    /**
-     *
-     */
-    public abstract void seraerialShutdown();
 
     /**
      * Sends a packet over the serial port of the plugin's device monitor.
