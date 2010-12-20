@@ -123,6 +123,9 @@ public class Packets {
 		}
 
 		public static boolean isInteractionPacket(ByteBuffer bb) {
+			if (bb.array().length == 0) {
+				return false;
+			}
 			return bb.get(0) == MessageType.DEBUG_MESSAGE ||
 					bb.get(0) == MessageType.VL_MESSAGE ||
 					bb.get(0) == MessageType.BYTE_MESSAGE ||
@@ -219,6 +222,9 @@ public class Packets {
 		}
 
 		public static boolean isLinkControlPacket(ByteBuffer bb) {
+			if (bb.array().length == 0) {
+				return false;
+			}
 			return bb.get(0) == MessageType.SET_VIRTUAL_LINK ||
 					bb.get(0) == MessageType.DESTROY_VIRTUAL_LINK ||
 					bb.get(0) == MessageType.ENABLE_PHYSICAL_LINK ||
@@ -269,6 +275,9 @@ public class Packets {
 		}
 
 		public static boolean isNetworkDescriptionPacket(ByteBuffer bb) {
+			if (bb.array().length == 0) {
+				return false;
+			}
 			return bb.get(0) == MessageType.GET_PROPERTY_VALUE ||
 					bb.get(0) == MessageType.GET_NEIGHBORHOOD;
 		}
@@ -411,6 +420,9 @@ public class Packets {
 		}
 
 		public static boolean isNodeControlPacket(ByteBuffer bb) {
+			if (bb.array().length == 0) {
+				return false;
+			}
 			return bb.get(0) == MessageType.ENABLE_NODE ||
 					bb.get(0) == MessageType.DISABLE_NODE ||
 					bb.get(0) == MessageType.RESET_NODE ||

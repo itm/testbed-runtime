@@ -190,17 +190,20 @@ public class NodeApi {
 
 	}
 
-	void receiveFromNode(ByteBuffer packet) {
+	boolean receiveFromNode(ByteBuffer packet) {
 
 		checkNotNull(packet);
 
 		byte[] packetBytes = packet.array();
 
-		if (packetBytes.length < 3) {
-			if (log.isWarnEnabled()) {
-				log.warn("Received incomplete response packet: {}", StringUtils.toHexString(packetBytes));
-			}
-			return;
+		boolean isNodeAPIPacket =
+				Packets.Interaction.isInteractionPacket(packet) ||
+				Packets.LinkControl.isLinkControlPacket(packet) ||
+				Packets.NetworkDescription.isNetworkDescriptionPacket(packet) ||
+				Packets.NodeControl.isNodeControlPacket(packet);
+
+		if (!isNodeAPIPacket) {
+			return false;
 		}
 
 		int requestId = (packetBytes[1] & 0xFF);
@@ -236,6 +239,8 @@ public class NodeApi {
 		} finally {
 			currentJobLock.unlock();
 		}
+
+		return true;
 
 	}
 

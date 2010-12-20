@@ -74,12 +74,15 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private class FlashProgramListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
+		private int flashCount;
+
 		private final TimeDiff lastProgress = new TimeDiff(1500);
 
 		private FlashProgramCallback listener;
 
-		private FlashProgramListener(final FlashProgramCallback listener) {
+		private FlashProgramListener(final FlashProgramCallback listener, int flashCount) {
 			this.listener = listener;
+			this.flashCount = flashCount;
 		}
 
 		@Override
@@ -160,14 +163,23 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return o == this ? 0 : -1;
 		}
 
+		@Override
+		public String toString() {
+			return "FlashProgramListener{" +
+					"flashCount=" + flashCount +
+					'}';
+		}
 	}
 
 	private class ResetListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
+		private int resetCount;
+
 		private Callback listener;
 
-		private ResetListener(Callback listener) {
+		private ResetListener(Callback listener, int resetCount) {
 			this.listener = listener;
+			this.resetCount = resetCount;
 		}
 
 		@Override
@@ -238,6 +250,13 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return o == this ? 0 : -1;
 		}
 
+		@Override
+		public String toString() {
+			return "ResetListener{" +
+					"resetCount=" + resetCount +
+					'}';
+		}
+
 	}
 
 	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
@@ -265,6 +284,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private SchedulerService schedulerService;
 
 	private ConnectorState state = new ConnectorState();
+
+	private int resetCount = 0;
+
+	private int flashCount = 0;
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -359,11 +382,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
-			if (isWiselibReply) {
+			if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()))) {
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
 				}
-				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
 			} else {
 				for (NodeOutputListener listener : listeners) {
 					listener.receivedPacket(p);
@@ -580,6 +602,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
 			log.warn("{} => {}", nodeUrn, msg);
 			listener.failure((byte) -1, msg.getBytes());
+			return;
 		}
 
 		IDeviceBinFile iSenseBinFile = null;
@@ -605,7 +628,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return;
 		}
 
-		FlashProgramListener flashListener = new FlashProgramListener(listener);
+		flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
+		FlashProgramListener flashListener = new FlashProgramListener(listener, flashCount);
 		device.registerListener(flashListener);
 
 		try {
@@ -659,7 +683,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			listener.failure((byte) 0, msg.getBytes());
 		}
 
-		ResetListener resetListener = new ResetListener(listener);
+		resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+		ResetListener resetListener = new ResetListener(listener, resetCount);
 		device.registerListener(resetListener);
 
 		try {
