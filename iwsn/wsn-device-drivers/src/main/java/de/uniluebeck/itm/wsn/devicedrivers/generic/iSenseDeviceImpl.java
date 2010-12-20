@@ -627,7 +627,22 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 					} else if (foundPacket) {
 						ensureBufferSize();
 						packet[packetLength++] = c;
+					} else {
+						// Plain Message e.g. from Contiki or iSense
+						// Read all available characters
+						packetLength = 0;
+						while (inStream != null && inStream.available() != 0 && (packetLength + 1) < packet.length) {
+							packet[packetLength++] = (byte) (0xFF & inStream.read());
+						}
+
+						// Copy them into a buffer with correct length
+						byte[] buffer = new byte[packetLength];
+						System.arraycopy(packet, 0, buffer, 0, packetLength);
+						
+						MessagePacket p = new MessagePacket(PacketTypes.LOG, buffer);
+						notifyReceivePacket(p);
 					}
+						
 				}
 			}
 
