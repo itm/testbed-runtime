@@ -27,7 +27,6 @@ import com.coalesenses.otap.macromsg.MacroFabricSerializer;
 import com.coalesenses.otap.macromsg.PresenceDetectReply;
 import com.coalesenses.otap.macromsg.PresenceDetectRequest;
 import com.coalesenses.seraerial.SerAerialPacket;
-import com.coalesenses.seraerial.SerAerialPlugin;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
@@ -265,7 +264,7 @@ public class PresenceDetect {
 	/**
 	 * @param plugin
 	 */
-	public void setParentPlugin(SerAerialPlugin plugin) {
+	public void setParentPlugin(OtapPlugin plugin) {
 		if (!(plugin instanceof OtapPlugin)) {
 			throw new Error("Parent plugin not of expetect type");
 		}
