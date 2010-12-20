@@ -82,7 +82,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.*;
 	// create reservation request data to reserve all iSense nodes for 10 minutes
 	ConfidentialReservationData reservationData = helper.generateConfidentialReservationData(
 			iSenseNodeURNs,
-			new Date(), 30, TimeUnit.MINUTES,
+			new Date(), duration, TimeUnit.MINUTES,
 			urnPrefix, username
 	);
 
