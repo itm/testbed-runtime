@@ -125,7 +125,9 @@ public class WSNAppImpl implements WSNApp {
 							.build();
 
 					if (log.isDebugEnabled()) {
-						log.debug("Received node output: {}", WSNAppMessageTools.toString(message, true));
+                                                String output = WSNAppMessageTools.toString(message, true);
+                                                output = output.endsWith("\n") ? output.substring(0, output.length()-2) : output;
+						log.debug("{}", output);
 					}
 
 					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
@@ -341,7 +343,6 @@ public class WSNAppImpl implements WSNApp {
 					System.currentTimeMillis() + MSG_VALIDITY
 			);
 
-
 			SingleRequestMultiResponseCallback multiResponseCallback = new SingleRequestMultiResponseCallback() {
 				@Override
 				public boolean receive(byte[] response) {
@@ -389,7 +390,7 @@ public class WSNAppImpl implements WSNApp {
 			};
 
 			testbedRuntime.getSingleRequestMultiResponseService()
-					.sendReliableRequestUnreliableResponse(msg, 5, TimeUnit.MINUTES, multiResponseCallback);
+					.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, multiResponseCallback);
 
 		}
 	}

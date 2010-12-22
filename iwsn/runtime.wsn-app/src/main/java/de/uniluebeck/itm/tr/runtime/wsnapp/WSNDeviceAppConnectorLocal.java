@@ -1,3 +1,26 @@
+/**********************************************************************************************************************
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * All rights reserved.                                                                                               *
+ *                                                                                                                    *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
+ * following conditions are met:                                                                                      *
+ *                                                                                                                    *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
+ *   disclaimer.                                                                                                      *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ *   products derived from this software without specific prior written permission.                                   *
+ *                                                                                                                    *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
+ **********************************************************************************************************************/
+
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.tr.util.AbstractListenable;
@@ -372,7 +395,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void receivePacket(MessagePacket p) {
 
-			log.trace("{} => WSNDeviceAppImpl.receivePacket: {}", nodeUrn, p);
+			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
 
 			boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
 			boolean isByteTextOrVLink =
@@ -454,6 +477,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void destroyVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.destroyVirtualLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -501,6 +527,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void disableNode(final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.disableNode()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -522,6 +551,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void disablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.disablePhysicalLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -543,6 +575,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void enableNode(final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.enableNode()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -564,6 +599,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void enablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.enablePhysicalLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -587,7 +625,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void flashProgram(final WSNAppMessages.Program program,
 							 final WSNDeviceAppConnector.FlashProgramCallback listener) {
 
-		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.executeFlashPrograms()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
@@ -652,7 +690,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.isNodeAlive()", nodeUrn);
 
 		// to the best of our knowledge, a node is alive if we're connected to it
 		boolean connected = device != null && device.isConnected();
@@ -666,7 +704,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void resetNode(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.resetNode()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed resetting node. Reason: Device is not connected.";
@@ -712,6 +750,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void sendMessage(final byte messageType, final byte[] messageBytes,
 							final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.sendMessage()", nodeUrn);
 
 		switch (state.getState()) {
 
@@ -778,6 +818,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void setVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.setVirtualLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());

@@ -138,7 +138,7 @@ try {
             "1.0"
     ));
 
-	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 2, TimeUnit.MINUTES);
+	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 3, TimeUnit.MINUTES);
 	JobResult flashJobResult = flashFuture.get();
 	log.info("{}", flashJobResult);
 	if (flashJobResult.getSuccessPercent() < 100) {
