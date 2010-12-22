@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -54,7 +55,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
 import java.io.StringWriter;
-import java.lang.UnsupportedOperationException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -387,7 +387,7 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
+	public String send(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
 					   @WebParam(name = "msg", targetNamespace = "") Message message) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
@@ -417,8 +417,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(nodeIds, requestId, e);
 				}
 			}
 			);
@@ -481,18 +480,18 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkAreNodesAliveArguments(nodes);
-		preconditions.checkNodesReserved(nodes, reservedNodes);
+		preconditions.checkAreNodesAliveArguments(nodeIds);
+		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
-		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodes);
+		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
 
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
-			wsnApp.areNodesAlive(new HashSet<String>(nodes), new WSNApp.Callback() {
+			wsnApp.areNodesAlive(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					controllerHelper.receiveStatus(convert(requestStatus, requestId));
@@ -500,8 +499,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(nodeIds, requestId, e);
 				}
 			}
 			);
@@ -513,9 +511,9 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
-								@WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices,
-								@WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
+	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
+								@WebParam(name = "programIndices", targetNamespace = "") final List<Integer> programIndices,
+								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
@@ -529,25 +527,35 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.flashPrograms(convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					if (requestStatus.hasStatus() && requestStatus.getStatus().hasValue() && requestStatus.getStatus()
-							.hasNodeId()) {
-						log.debug(
-								"Flashing node {} completed {} percent.",
-								requestStatus.getStatus().getNodeId(),
-								requestStatus.getStatus().getValue()
-						);
+
+					if (log.isDebugEnabled()) {
+
+						boolean hasInformation = requestStatus.hasStatus() &&
+								requestStatus.getStatus().hasValue() &&
+								requestStatus.getStatus().hasNodeId();
+
+						if (hasInformation && requestStatus.getStatus().getValue() >= 0) {
+							log.debug(
+									"Flashing node {} completed {} percent.",
+									requestStatus.getStatus().getNodeId(),
+									requestStatus.getStatus().getValue()
+							);
+						} else if (hasInformation && requestStatus.getStatus().getValue() < 0) {
+							log.warn(
+									"Failed flashing node {} ({})!",
+									requestStatus.getStatus().getNodeId(),
+									requestStatus.getStatus().getValue()
+							);
+						}
 					}
-					//if (requestStatus.hasStatus() && requestStatus.getStatus().hasValue() 
-					//		&&(requestStatus.getStatus().getValue() == 100) || (requestStatus.getStatus().getValue() == -1))
-						controllerHelper.receiveStatus(convert(requestStatus, requestId));
-					//else
-					//	convert(requestStatus, requestId);
+
+					// deliver output to client
+					controllerHelper.receiveStatus(convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(nodeIds, requestId, e);
 				}
 			}
 			);
@@ -556,6 +564,22 @@ public class WSNServiceImpl implements WSNService {
 		}
 
 		return requestId;
+	}
+
+	private void sendFailureInfoToClient(List<String> nodeIds, String requestId, Exception e) {
+
+		RequestStatus requestStatus = new RequestStatus();
+		requestStatus.setRequestId(requestId);
+
+		for (String nodeId : nodeIds) {
+			Status status = new Status();
+			status.setNodeId(nodeId);
+			status.setValue(-1);
+			status.setMsg(e.getMessage());
+			requestStatus.getStatus().add(status);
+		}
+
+		controllerHelper.receiveStatus(requestStatus);
 	}
 
 	private Map<String, WSNAppMessages.Program> convert(List<String> nodeIds, List<Integer> programIndices,
@@ -611,18 +635,18 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
+	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkResetNodesArguments(nodes);
-		preconditions.checkNodesReserved(nodes, reservedNodes);
+		preconditions.checkResetNodesArguments(nodeIds);
+		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
 		log.debug("WSNServiceImpl.resetNodes");
 
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
-			wsnApp.resetNodes(new HashSet<String>(nodes), new WSNApp.Callback() {
+			wsnApp.resetNodes(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					controllerHelper.receiveStatus(convert(requestStatus, requestId));
@@ -630,8 +654,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(nodeIds, requestId, e);
 				}
 			}
 			);
@@ -678,8 +701,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(sourceNode), requestId, e);
 				}
 			}
 			);
@@ -792,8 +814,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(sourceNode), requestId, e);
 				}
 			}
 			);
@@ -812,7 +833,7 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkDefineNetworkArguments(newNetwork);
 
 		log.debug("WSNServiceImpl.defineNetwork");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	@Override
@@ -823,11 +844,11 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkDescribeCapabilitiesArguments(capability);
 
 		log.debug("WSNServiceImpl.describeCapabilities");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	@Override
-	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+	public String disableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisableNodeArguments(node);
@@ -847,8 +868,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(final Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
 				}
 			});
 
@@ -860,8 +880,8 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
+									  @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
@@ -882,8 +902,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(final Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
 				}
 			});
 
@@ -896,7 +915,7 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+	public String enableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnableNodeArguments(node);
@@ -916,8 +935,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(final Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
 				}
 			});
 
@@ -930,8 +948,8 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-									 @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
+									 @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
@@ -952,8 +970,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(final Exception e) {
-					// TODO throw declared type
-					throw new RuntimeException(e);
+					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
 				}
 			});
 
@@ -968,7 +985,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public List<String> getFilters() {
 		log.debug("WSNServiceImpl.getFilters");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	@Override
@@ -980,7 +997,7 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkNodeReserved(node, reservedNodes);
 
 		log.debug("WSNServiceImpl.getNeighbourhood");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	@Override
@@ -993,7 +1010,7 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkNodeReserved(node, reservedNodes);
 
 		log.debug("WSNServiceImpl.getPropertyValueOf");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	@Override
@@ -1003,7 +1020,7 @@ public class WSNServiceImpl implements WSNService {
 		preconditions.checkSetStartTimeArguments(time);
 
 		log.debug("WSNServiceImpl.setStartTime");
-		throw new UnsupportedOperationException("Method is not yet implemented.");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	private class DeliverVirtualLinkMessageRunnable implements Runnable {
