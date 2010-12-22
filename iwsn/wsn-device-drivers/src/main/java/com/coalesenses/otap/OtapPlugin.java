@@ -23,16 +23,14 @@
 
 package com.coalesenses.otap;
 
-import com.coalesenses.otap.connectors.DeviceConnector;
-import com.coalesenses.otap.connectors.DeviceConnectorListener;
 import com.coalesenses.otap.macromsg.MacroFabricSerializer;
 import com.coalesenses.seraerial.SerAerialPacket;
+import com.coalesenses.seraerial.SerAerialPlugin;
 import com.coalesenses.seraerial.SerialRoutingPacket;
 import com.coalesenses.util.iSenseAes;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Dennis Pfisterer
  */
-public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectListener, OtapFlasherListener, DeviceConnectorListener {
+public class OtapPlugin extends SerAerialPlugin implements PresenceDetectListener, OtapFlasherListener {
 
 	/**
 	 *
@@ -159,18 +157,19 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 	 */
 	private iSenseAes outaes = new iSenseAes();
 
-    private DeviceConnector connector = null;
-
-    public OtapPlugin(DeviceConnector connector) {
-        this.connector = connector;
-        presenceDetect = new PresenceDetect(this);
+	@Override
+	public void seraerialInit() {
+		presenceDetect = new PresenceDetect(this);
 		otapInit = new OtapInit(this);
 		otapFlash = new OtapFlasher(this);
 
 		presenceDetect.addListener(this);
 		otapFlash.addListener(this);
 		otapInit.addListener(this);
-    }
+
+		//gui = new OtapPluginGui(this);
+
+	}
 
 	/**
 	 * @param packet
@@ -214,14 +213,11 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 
 
 		if (motapSupportEnabled) {
-            SerialRoutingPacket serialRoutingPacket =
-                    new SerialRoutingPacket(p, PacketTypes.ISenseRoutings.ISENSE_ISI_ROUTING_TREE_ROUTING, 0);
-            serialRoutingPacket.setDest(0xFFFF);
-            return connector.sendPacket(serialRoutingPacket);
+			return seraerialBroadcast(
+					new SerialRoutingPacket(p, PacketTypes.ISenseRoutings.ISENSE_ISI_ROUTING_TREE_ROUTING, 0)
+			);
 		} else {
-            SerAerialPacket serAerialPacket = new SerAerialPacket(p);
-            serAerialPacket.setDest(0xFFFF);
-			return connector.sendPacket(serAerialPacket);
+			return seraerialBroadcast(new SerAerialPacket(p));
 		}
 
 	}
@@ -495,8 +491,9 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 	 * Invoked by the SerAerialPlugin on the reception of a packet
 	 *
 	 * @param p
-	 */	
-	public void handleDevicePacket(SerAerialPacket p) {
+	 */
+	@Override
+	public void seraerialHandlePacket(SerAerialPacket p) {
 		byte[] buffer = p.getContent();
 		if (buffer.length > 0) {
 			if (buffer[0] == PacketTypes.OTAP) {
@@ -548,17 +545,25 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 						content[i] = buffer[i + 6];
 					}
 					payload.setContent(content);
-					handleDevicePacket(payload);
+					seraerialHandlePacket(payload);
 				}
 			}
 
 		}
 	}
 
+	@Override
+	public void seraerialHandleConfirm(SerAerialPacket p) {
+	}
+
+	/**
+	 * Invoked by the SerAerialPlugin when the plug-in is unloaded
+	 */
+	@Override
 	public void seraerialShutdown() {
 		log.debug("Plug-in disabled. Stopping otap.");
 		otapStop();
-        connector.seraerialShutdown();
+        stopSerial();
 	}
 
 	public String getDescription() {
@@ -584,6 +589,13 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 	}
 
 	/**
+	 * @return
+	 */
+	public int[] getChannels() {
+		return USBDevice.getChannels();
+	}
+
+	/**
 	 * @param integer
 	 */
 	public void setChannel(Integer integer) {
@@ -597,9 +609,8 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 		byte[] tmp = new byte[2];
 		tmp[0] = 2;
 		tmp[1] = (byte) (channel & 0xFF);
-        MessagePacket p = new MessagePacket(PacketTypes.ISENSE_ISHELL_INTERPRETER & 0xFF, tmp);
 
-		connector.send(PacketTypes.ISENSE_ISHELL_INTERPRETER, tmp);
+		this.sendPacket(PacketTypes.ISENSE_ISHELL_INTERPRETER, tmp);
 
 	}
 
@@ -683,7 +694,7 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 				tmp[17] = 1;
 				log.debug("Setting radio key: " + StringUtils.toHexString(tmp, 1, 16));
 			}
-			connector.send(PacketTypes.ISENSE_ISHELL_INTERPRETER, tmp);
+			this.sendPacket(PacketTypes.ISENSE_ISHELL_INTERPRETER, tmp);
 		} else {
 			log.warn("wrong key length: must be 0 or 32, but is " + key.length());
 		}

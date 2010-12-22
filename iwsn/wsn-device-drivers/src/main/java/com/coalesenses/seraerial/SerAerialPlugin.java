@@ -23,7 +23,6 @@
 
 package com.coalesenses.seraerial;
 
-import com.coalesenses.otap.connectors.DeviceConnector;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
@@ -38,8 +37,7 @@ import java.util.LinkedList;
 /**
  * @author Dennis Pfisterer
  */
-public class SerAerialPlugin {
-    private DeviceConnector connector = null;
+public abstract class SerAerialPlugin {
 
     static class DispatcherThread extends Thread {
 
@@ -48,7 +46,10 @@ public class SerAerialPlugin {
          */
         private static final Logger log = LoggerFactory.getLogger(DispatcherThread.class);
 
-        
+        /**
+         *
+         */
+        final static int MAX_LOCK_WAIT_MS = 1200;
 
         /**
          *
@@ -63,7 +64,7 @@ public class SerAerialPlugin {
         /**
          *
          */
-        private TimeDiff confirmPendingSince = new TimeDiff(DeviceConnector.MAX_LOCK_WAIT_MS);
+        private TimeDiff confirmPendingSince = new TimeDiff(MAX_LOCK_WAIT_MS);
 
         /**
          *
@@ -74,8 +75,6 @@ public class SerAerialPlugin {
          *
          */
         private SerAerialPacket lastPacket = null;
-
-
 
         /**
          *
@@ -90,7 +89,7 @@ public class SerAerialPlugin {
                 log.warn("Too many pending packets. Dropped enqueue request.");
                 return false;
             }
-            packet.setSender(SerAerialPlugin.this.connector);
+            packet.setSender(plugin);
             plugin.confirmPending = true;
             pendingPackets.addLast(packet);
             //log.debug("Enqueued packet(now pending: " + pendingPackets.size() + ") from " + plugin + ": " + packet);
@@ -112,7 +111,7 @@ public class SerAerialPlugin {
             }
 
             if (lastPacket != null && confirmPacket != null && lastPacket.getSender() != null) {
-                lastPacket.getSender().setConfirmPending(false);
+                lastPacket.getSender().confirmPending = false;
                 synchronized (lastPacket.getSender()) {
                     lastPacket.getSender().notifyAll();
                 }
@@ -157,7 +156,7 @@ public class SerAerialPlugin {
                         }
 
                         if (confirmPending && lastPacket != null && lastPacket.getSender() != null) {
-                            lastPacket.getSender().setConfirmPending(false);
+                            lastPacket.getSender().confirmPending = false;
                             lastPacket.getSender().seraerialHandleConfirm(null);
                         }
 
@@ -223,7 +222,7 @@ public class SerAerialPlugin {
      *
      */
     public final int[] init() {
-        connector.seraerialInit();
+        seraerialInit();
         return new int[]{PacketTypes.SERAERIAL};
     }
 
@@ -237,7 +236,7 @@ public class SerAerialPlugin {
         if (seraerialPacket.getPacketType() == SerAerialPacket.PacketType.Packet) {
             //log.debug("Received seraerial packet of type " + Tools.toHexString(seraerialPacket.getContent()[0]));
             try {
-                connector.seraerialHandlePacket(seraerialPacket);
+                seraerialHandlePacket(seraerialPacket);
             } catch (Throwable t) {
                 log.error("Error in plugin SerAerialPlugin: " + t, t);
             }
@@ -256,7 +255,7 @@ public class SerAerialPlugin {
      *
      */
     public final void shutdown() {
-        connector.seraerialShutdown();
+        seraerialShutdown();
     }
 
     /**
@@ -264,7 +263,7 @@ public class SerAerialPlugin {
      */
     public final boolean seraerialTransmit(SerAerialPacket p) {
         boolean ok = dispatcher.enqueue(this, p);
-        TimeDiff timeout = new TimeDiff(DeviceConnector.MAX_LOCK_WAIT_MS);
+        TimeDiff timeout = new TimeDiff(DispatcherThread.MAX_LOCK_WAIT_MS);
 
         //If packet was enqueued, wait for confirm
         if (ok) {
@@ -312,7 +311,25 @@ public class SerAerialPlugin {
         return confirmPending;
     }
 
+    /**
+     *
+     */
+    public abstract void seraerialInit();
 
+    /**
+     *
+     */
+    public abstract void seraerialHandleConfirm(SerAerialPacket p);
+
+    /**
+     *
+     */
+    public abstract void seraerialHandlePacket(SerAerialPacket p);
+
+    /**
+     *
+     */
+    public abstract void seraerialShutdown();
 
     /**
      * Sends a packet over the serial port of the plugin's device monitor.
