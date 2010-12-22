@@ -31,7 +31,7 @@ public class Logging {
 	public static void setLoggingDefaults() {
 
 		// configure logging defaults
-		Appender appender = new ConsoleAppender(new PatternLayout("%-11d{HH:mm:ss,SSS} [%-30.30t] %-5p %-20.20C{1} %x - %m%n"));
+		Appender appender = new ConsoleAppender(new PatternLayout("%-11d{HH:mm:ss,SSS} [%-30.30t] %-5p %-30.30C{1} %x - %m%n"));
 
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
 		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
