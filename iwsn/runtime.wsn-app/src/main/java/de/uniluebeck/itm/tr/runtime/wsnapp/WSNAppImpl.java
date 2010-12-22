@@ -343,7 +343,6 @@ public class WSNAppImpl implements WSNApp {
 					System.currentTimeMillis() + MSG_VALIDITY
 			);
 
-
 			SingleRequestMultiResponseCallback multiResponseCallback = new SingleRequestMultiResponseCallback() {
 				@Override
 				public boolean receive(byte[] response) {
@@ -391,7 +390,7 @@ public class WSNAppImpl implements WSNApp {
 			};
 
 			testbedRuntime.getSingleRequestMultiResponseService()
-					.sendReliableRequestUnreliableResponse(msg, 5, TimeUnit.MINUTES, multiResponseCallback);
+					.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, multiResponseCallback);
 
 		}
 	}
