@@ -125,7 +125,9 @@ public class WSNAppImpl implements WSNApp {
 							.build();
 
 					if (log.isDebugEnabled()) {
-						log.debug("Received node output: {}", WSNAppMessageTools.toString(message, true));
+                                                String output = WSNAppMessageTools.toString(message, true);
+                                                output = output.endsWith("\n") ? output.substring(0, output.length()-2) : output;
+						log.debug("{}", output);
 					}
 
 					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
