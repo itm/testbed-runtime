@@ -24,6 +24,7 @@
 package com.coalesenses.seraerial;
 
 
+import com.coalesenses.otap.connectors.DeviceConnector;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
@@ -106,7 +107,7 @@ public class SerAerialPacket {
 	/**
 	 *
 	 */
-	protected SerAerialPlugin sender;
+	protected DeviceConnector sender;
 
 	/**
 	 *
@@ -274,11 +275,11 @@ public class SerAerialPacket {
 		this.len = content.length;
 	}
 
-	public SerAerialPlugin getSender() {
+	public DeviceConnector getSender() {
 		return sender;
 	}
 
-	public void setSender(final SerAerialPlugin sender) {
+	public void setSender(final DeviceConnector sender) {
 		this.sender = sender;
 	}
 }

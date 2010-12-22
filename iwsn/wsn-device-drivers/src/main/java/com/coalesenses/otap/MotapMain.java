@@ -65,7 +65,7 @@ public class MotapMain {
                 }
                 //nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
             } else {
-                otapPlugin.receivePacket(p);
+                otapPlugin.handleDevicePacket(p);
             }
 
         }
@@ -99,10 +99,6 @@ public class MotapMain {
     private static final long PRESENCE_DETECT_TIMEOUT = 20000;
     private static boolean force = true;
     private static boolean all;
-
-    private void deliverToMotap(MessagePacket p) {
-        otapPlugin.receivePacket(p);
-    }
 
 
     private void conect() {
@@ -162,8 +158,7 @@ public class MotapMain {
         }
         MotapMain motap = new MotapMain();
         motap.conect();
-        otapPlugin = new OtapPlugin();
-        otapPlugin.setUSBDevice(device);
+        otapPlugin = new OtapPlugin(device);
         otapPlugin.init();
         otapPlugin.setChannel(12);
 
