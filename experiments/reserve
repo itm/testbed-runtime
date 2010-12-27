@@ -7,4 +7,4 @@ then
 	exit 1
 fi
 
-java -Dtestbed.duration=$2 -jar ../wisebed-cmdline-client/target/tr.wisebed-cmdline-client-0.5.4-SNAPSHOT.one-jar.jar -p $1 -f mk-reservation.java
+java -Dtestbed.duration=$2 -jar ../wisebed-cmdline-client/target/tr.wisebed-cmdline-client-0.5.5-SNAPSHOT.one-jar.jar -p $1 -f reserve.java

@@ -36,6 +36,7 @@ String secretReservationKeys = System.getProperty("testbed.secretreservationkeys
 
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
+String nodeUrnsToReset = System.getProperty("testbed.nodeurns");
 
 // Retrieve Java proxies of the endpoint URLs above
 SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);  
@@ -80,7 +81,12 @@ delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
 
 // retrieve reserved node URNs from testbed
-List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
+List nodeURNs;
+if (nodeUrnsToReset != null && !"".equals(nodeUrnsToReset)) {
+	nodeURNs = Lists.newArrayList(nodeUrnsToReset.split(","));
+} else {
+	nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
+}
 log.info("Retrieved the following node URNs: {}", nodeURNs);
 
 

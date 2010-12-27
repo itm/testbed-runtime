@@ -23,82 +23,121 @@
 
 package eu.wisebed.shibboauth;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-import java.io.*;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class SSAKSerialization {
-    static private BASE64Encoder encode = new BASE64Encoder();
-    static private BASE64Decoder decode = new BASE64Decoder();
-
-    static public String serialize(ShibbolethSecretAuthenticationKey shibbolethSecretAuthenticationKey) {
-        String out = null;
-        if (shibbolethSecretAuthenticationKey != null){
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-                oos.writeObject(shibbolethSecretAuthenticationKey);
-                out = encode.encode(baos.toByteArray());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        return out.replaceAll("\\n","");
+    private static class CookieProperties {
+        private static String name = "name";
+        private static String value = "value";
+        private static String domain = "domain";
     }
 
-    static public ShibbolethSecretAuthenticationKey deserialize(String s) {
-        ShibbolethSecretAuthenticationKey ssak = null;
-        if (s != null) {
-            try {
-                ByteArrayInputStream bios = new ByteArrayInputStream(decode.decodeBuffer(s));
-                ObjectInputStream ois = new ObjectInputStream(bios);
-                ssak = (ShibbolethSecretAuthenticationKey) ois.readObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
+    private static String _shibSession_ = "_shibsession_";
+
+    private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
+        Cookie shibSessionCookie = null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().startsWith(_shibSession_)) {
+                shibSessionCookie = cookie;
+                break;
             }
         }
-        return ssak;
+
+        if (shibSessionCookie == null) {
+            throw new CookieNotFoundException("Could not find '_shibsession_'-cookie");
+        }
+
+        //fill cookie-map
+        Map<String, String> cookieMap = new HashMap<String, String>();
+        cookieMap.put(CookieProperties.name, shibSessionCookie.getName());
+        cookieMap.put(CookieProperties.value, shibSessionCookie.getValue());
+        cookieMap.put(CookieProperties.domain, shibSessionCookie.getDomain());
+
+        return cookieMap;
     }
 
-    public static void main(String[] args){
-        ShibbolethSecretAuthenticationKey key = SSAKSerialization.deserialize("rO0ABXNyADdldS53aXNlYmVkLnNoaWJib2F1dGguU2hpYmJvbGV0aFNlY3JldEF1dGhlbnRpY2F0\n" +
-                "aW9uS2V5JqA7D7lBAz0CAAJMAApjb29raWVNYXBzdAAQTGphdmEvdXRpbC9MaXN0O0wAF3NlY3Jl\n" +
-                "dEF1dGhlbnRpY2F0aW9uS2V5dAASTGphdmEvbGFuZy9TdHJpbmc7eHBzcgAUamF2YS51dGlsLkxp\n" +
-                "bmtlZExpc3QMKVNdSmCIIgMAAHhwdwQAAAAHc3IAF2phdmEudXRpbC5MaW5rZWRIYXNoTWFwNMBO\n" +
-                "XBBswPsCAAFaAAthY2Nlc3NPcmRlcnhyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAK\n" +
-                "bG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAAHdAAEbmFtZXQAE19zaGli\n" +
-                "c3RhdGVfMjM2YmI5NzN0AAV2YWx1ZXQAP2h0dHBzJTNBJTJGJTJGZ3JpZGxhYjIzLnVuaWJlLmNo\n" +
-                "JTJGcG9ydGFsJTJGU05BJTJGc2VjcmV0VXNlcktleXQAB3ZlcnNpb25zcgARamF2YS5sYW5nLklu\n" +
-                "dGVnZXIS4qCk94GHOAIAAUkABXZhbHVleHIAEGphdmEubGFuZy5OdW1iZXKGrJUdC5TgiwIAAHhw\n" +
-                "AAAAAHQABmRvbWFpbnQAEmdyaWRsYWIyMy51bmliZS5jaHQABHBhdGh0AAEvdAAKZXhwaXJ5RGF0\n" +
-                "ZXB0AAhpc1NlY3VyZXNyABFqYXZhLmxhbmcuQm9vbGVhbs0gcoDVnPruAgABWgAFdmFsdWV4cAB4\n" +
-                "AHNxAH4ABj9AAAAAAAAMdwgAAAAQAAAAB3EAfgAJdAAQd2lzZWJlZF9zYW1sX2lkcHEAfgALdABG\n" +
-                "YUhSMGNITTZMeTkzYVhObFltVmtNUzVwZEcwdWRXNXBMV3gxWldKbFkyc3VaR1V2YVdSd0wzTm9h\n" +
-                "V0ppYjJ4bGRHZyUzRHEAfgANcQB+ABBxAH4AEXQACHVuaWJlLmNocQB+ABN0AAEvcQB+ABVzcgAO\n" +
-                "amF2YS51dGlsLkRhdGVoaoEBS1l0GQMAAHhwdwgAAAFATzQQ+HhxAH4AFnEAfgAYeABzcQB+AAY/\n" +
-                "QAAAAAAADHcIAAAAEAAAAAdxAH4ACXQACkpTRVNTSU9OSURxAH4AC3QAIENDNEIzNDkwNTNGMzZD\n" +
-                "OEU3RkVGQzAyNUExQ0IzNjZFcQB+AA1xAH4AEHEAfgARdAAbd2lzZWJlZDEuaXRtLnVuaS1sdWVi\n" +
-                "ZWNrLmRlcQB+ABN0AAQvaWRwcQB+ABVwcQB+ABZzcQB+ABcBeABzcQB+AAY/QAAAAAAADHcIAAAA\n" +
-                "EAAAAAdxAH4ACXQACkpTRVNTSU9OSURxAH4AC3QAIEEzNzVFOEZBNDU1OUM3RDlDOENBMkJERUMw\n" +
-                "RUZGN0NGcQB+AA1xAH4AEHEAfgARdAAbd2lzZWJlZDEuaXRtLnVuaS1sdWViZWNrLmRlcQB+ABN0\n" +
-                "AAQvY2FzcQB+ABVwcQB+ABZxAH4AJXgAc3EAfgAGP0AAAAAAAAx3CAAAABAAAAAHcQB+AAl0AAZD\n" +
-                "QVNUR0NxAH4AC3QAPlRHVC00OTYtb2Q0RHg2U2dRWEFCVHZkcmRQSTlYSTFhWWZDZmFJdE5QakFI\n" +
-                "TUhnc0RkVUNXcXQxM0stY2FzcQB+AA1xAH4AEHEAfgARdAAbd2lzZWJlZDEuaXRtLnVuaS1sdWVi\n" +
-                "ZWNrLmRlcQB+ABN0AAQvY2FzcQB+ABVwcQB+ABZxAH4AJXgAc3EAfgAGP0AAAAAAAAx3CAAAABAA\n" +
-                "AAAHcQB+AAl0AAxfaWRwX3Nlc3Npb25xAH4AC3QAQGY1Njc1Y2RlM2QxNmJlMTg0ZDA3NmI0ZmU3\n" +
-                "YjQxYTk3Y2IzZjNhYmFkYzU5NDE4M2FiZjViOTc3OTMzMzkyYmFxAH4ADXEAfgAQcQB+ABF0ABt3\n" +
-                "aXNlYmVkMS5pdG0udW5pLWx1ZWJlY2suZGVxAH4AE3QABC9pZHBxAH4AFXBxAH4AFnEAfgAYeABz\n" +
-                "cQB+AAY/QAAAAAAADHcIAAAAEAAAAAdxAH4ACXQAZV9zaGlic2Vzc2lvbl82NDY1NjY2MTc1NmM3\n" +
-                "NDY4NzQ3NDcwNzMzYTJmMmY2NzcyNjk2NDZjNjE2MjMyMzMyZTc1NmU2OTYyNjUyZTYzNjgyZjcz\n" +
-                "Njg2OTYyNjI2ZjZjNjU3NDY4cQB+AAt0ACFfYzk3MzkxZTVmYTE1M2EyNDlkOWRlNGM5OTg4MjUz\n" +
-                "YmVxAH4ADXEAfgAQcQB+ABF0ABJncmlkbGFiMjMudW5pYmUuY2hxAH4AE3QAAS9xAH4AFXBxAH4A\n" +
-                "FnEAfgAYeAB4dAAXQVRGLTAwNzYxMjAzNjEyMDM2MTAyMzY=");
-        System.out.println(key.getSecretAuthenticationKey());
+    public static String serialize(List<Cookie> cookies) throws CookiePropertyNotFoundException, CookieNotFoundException {
+        Map<String, String> cookieMap = cookieListToMap(cookies);
+        if (!(cookieMap.containsKey(CookieProperties.name) &&
+                cookieMap.containsKey(CookieProperties.value) &&
+                cookieMap.containsKey(CookieProperties.domain))) {
+            throw new CookiePropertyNotFoundException("Cookie-Property '" + "' not found in cookie-map");
+        }
+
+        StringBuffer out = new StringBuffer();
+
+        //make String out of Cookie values
+        // format:
+        // (name=value;)*name=value@domain
+        {
+            out.append(cookieMap.get(CookieProperties.name)).append("=").append(cookieMap.get(CookieProperties.value)).append("@");
+            out.append(cookieMap.get(CookieProperties.domain));
+        }
+        return out.toString();
+    }
+
+    public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
+
+        //remove whitespaces
+        serializedString = serializedString.replaceAll(" ", "");
+        //make Cookies out of serialized cookie-string
+        // format:
+        // (name=value;)*name=value@domain
+
+        //getting domain-value
+        String[] lastEntryValues = serializedString.split("@");
+        if (lastEntryValues.length != 2) {
+            throw new NotDeserializableException("Could not extract domain-value while de-serializing '" + serializedString + "'");
+        }
+        String domain = lastEntryValues[1];
+
+        //getting other key,value pairs
+        String[] cookieValues = lastEntryValues[0].split(";");
+        if (cookieValues.length == 0) {
+            throw new NotDeserializableException("Could not de-serialize empty String");
+        }
+
+        List<Cookie> cookies = new LinkedList<Cookie>();
+
+        for (String value : cookieValues) {
+            /*if (!value.startsWith(_shibSession_)) {
+                continue;
+            }*/
+
+            String[] pair = value.split("=");
+            if (pair.length != 2) {
+                throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
+            }
+            BasicClientCookie cookie = new BasicClientCookie(pair[0], pair[1]);
+            cookie.setDomain(domain);
+            cookie.setVersion(0);
+            cookie.setPath("/");
+            cookies.add(cookie);
+        }
+        return cookies;
+    }
+
+    private static class CookieNotFoundException extends Exception {
+        public CookieNotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class CookiePropertyNotFoundException extends Exception {
+        public CookiePropertyNotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class NotDeserializableException extends Exception {
+        public NotDeserializableException(String s) {
+            super(s);
+        }
     }
 }

@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import java.util.concurrent.Future;
+
 
 public interface Interaction {
 
@@ -34,10 +36,10 @@ public interface Interaction {
 	 * @param destination
 	 * @param source
 	 * @param payload
-	 * @param callback
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte payload[],
-								NodeApiCallback callback);
+	Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source,
+													 byte payload[]);
 
 	/**
 	 * // TODO documentation
@@ -45,29 +47,25 @@ public interface Interaction {
 	 * @param destination
 	 * @param source
 	 * @param payload
-	 * @param callback
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void sendVirtualLinkMessage(long destination, long source, byte payload[], NodeApiCallback callback);
+	Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte payload[]);
 
 	/**
-	 * Sends a byte array to this node with a user or application specific binary type
-	 * <p/>
 	 * // TODO documentation
 	 *
-	 * @param binaryType binary type to identify the receiver
-	 * @param payload	the payload to be send to the node
-	 * @param callback
+	 * @param binaryType
+	 * @param payload
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void sendByteMessage(byte binaryType, byte payload[], NodeApiCallback callback);
+	Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte payload[]);
 
 	/**
-	 * Send a part of a new sensor node image to this node
-	 * <p/>
 	 * // TODO documentation
 	 *
-	 * @param payload  part of the image as byte array
-	 * @param callback
+	 * @param payload
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void flashProgram(byte payload[], NodeApiCallback callback);
+	Future<NodeApiCallResult> flashProgram(byte payload[]);
 
 }

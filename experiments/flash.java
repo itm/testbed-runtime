@@ -34,6 +34,7 @@ import com.google.common.collect.*;
 String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
 String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
 String imageToFlashPath = System.getProperty("testbed.image");
+String nodeUrnToFlash = System.getProperty("testbed.nodeurns");
 
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
@@ -81,7 +82,12 @@ delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
 
 // retrieve reserved node URNs from testbed
-List nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
+List nodeURNs;
+if (nodeUrnToFlash != null && !"".equals(nodeUrnToFlash)) {
+	nodeURNs = Lists.newArrayList(nodeUrnToFlash.split(","));
+} else {
+	nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{"isense"});
+}
 log.info("Retrieved the following node URNs: {}", nodeURNs);
 
 
@@ -132,7 +138,7 @@ try {
             "1.0"
     ));
 
-	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 2, TimeUnit.MINUTES);
+	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 3, TimeUnit.MINUTES);
 	JobResult flashJobResult = flashFuture.get();
 	log.info("{}", flashJobResult);
 	if (flashJobResult.getSuccessPercent() < 100) {

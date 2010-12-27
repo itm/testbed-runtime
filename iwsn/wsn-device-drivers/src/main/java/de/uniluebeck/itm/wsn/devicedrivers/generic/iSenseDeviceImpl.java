@@ -25,6 +25,7 @@ package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
 import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.FlashType;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.Sectors;
 import org.slf4j.Logger;
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -56,13 +57,15 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	protected static final byte[] DLE_ETX = new byte[]{DLE, 0x03};
 
 	/** */
-	protected List<iSenseDeviceListener> promiscousListeners = new LinkedList<iSenseDeviceListener>();
+	protected List<iSenseDeviceListener> promiscousListeners =
+			Collections.synchronizedList(new LinkedList<iSenseDeviceListener>());
 
 	/** */
-	protected Map<Integer, List<iSenseDeviceListener>> listeners = new HashMap<Integer, List<iSenseDeviceListener>>();
+	protected Map<Integer, List<iSenseDeviceListener>> listeners =
+			Collections.synchronizedMap(new HashMap<Integer, List<iSenseDeviceListener>>());
 
 	/** */
-	protected ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+	protected ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
 		@Override
 		public Thread newThread(final Runnable r) {
 			return new Thread(r, "Device-Scheduler-Thread");
@@ -106,6 +109,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	protected boolean flashDebugOutput = false;
 
+	protected TimeDiff operationProgressTimeDiff = new TimeDiff(100);
+
 	public boolean isFlashDebugOutput() {
 		return flashDebugOutput;
 	}
@@ -121,26 +126,36 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	@Override
 	public void registerListener(iSenseDeviceListener listener) {
-		promiscousListeners.add(listener);
-		log.debug("Added promiscous listener {}, now got {} listeners", listener, promiscousListeners.size());
+		synchronized (promiscousListeners) {
+			promiscousListeners.add(listener);
+			if (log.isDebugEnabled()) {
+				log.debug("[{},{}] Added promiscous listener {}, now got {} listeners", new Object[]{
+						this.getClass().getSimpleName(),
+						getSerialPort(),
+						listener,
+						promiscousListeners.size()
+				}
+				);
+			}
+		}
+
 	}
 
 	@Override
 	public void deregisterListener(iSenseDeviceListener listener) {
 
-		removeListenerInternal(promiscousListeners, listener);
-		for (List<iSenseDeviceListener> ls : listeners.values()) {
-			removeListenerInternal(ls, listener);
+		synchronized (promiscousListeners) {
+			removeListenerInternal(promiscousListeners, listener);
 		}
+		synchronized (listeners) {
+			for (List<iSenseDeviceListener> ls : listeners.values()) {
+				removeListenerInternal(ls, listener);
+			}
+		}
+
+
 	}
 
-	/**
-	 * Removes a listener from a set by checking for object identity. The remove operation of Java Treeset requires the
-	 * listener to implement Comparable which leads to errors if they don't.
-	 *
-	 * @param set
-	 * @param listener
-	 */
 	private void removeListenerInternal(List<iSenseDeviceListener> set, iSenseDeviceListener listener) {
 		Iterator<iSenseDeviceListener> iterator = set.iterator();
 		while (iterator.hasNext()) {
@@ -148,28 +163,55 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 				iterator.remove();
 			}
 		}
+		log.debug("[{},{}] Removed listener {}, now got {} listeners", new Object[]{
+				this.getClass().getSimpleName(),
+				getSerialPort(),
+				listener,
+				set.size()
+		}
+		);
 	}
 
 	@Override
 	public void registerListener(iSenseDeviceListener listener, int type) {
-		List<iSenseDeviceListener> s = listeners.get(type);
-		if (s == null) {
-			s = new LinkedList<iSenseDeviceListener>();
-			listeners.put(type, s);
+		synchronized (listeners) {
+			List<iSenseDeviceListener> s = listeners.get(type);
+			if (s == null) {
+				s = new LinkedList<iSenseDeviceListener>();
+				listeners.put(type, s);
+			}
+			s.add(listener);
+			log.debug("[{},{}] Added listener {} for type {}, now got listeners", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					listener,
+					type,
+					listeners.size()
+			}
+			);
 		}
-		s.add(listener);
-		log.debug("Added listener {} for type {}, now got listeners", new Object[]{listener, type, listeners.size()});
 	}
 
 	public void deregisterListener(iSenseDeviceListener listener, int type) {
-		List<iSenseDeviceListener> s = listeners.get(type);
-		if (s == null) {
-			log.debug("Listener {} not registered for type {}", listener, type);
-		} else {
-			s.remove(listener);
-			log.debug("Removed listener {} for type {}, now got {} listeners",
-					new Object[]{listener, type, listeners.size()}
-			);
+		synchronized (listeners) {
+			List<iSenseDeviceListener> s = listeners.get(type);
+			if (s == null) {
+				log.debug("[{},{}] Listener {} not registered for type {}", new Object[]{
+						this.getClass().getSimpleName(),
+						getSerialPort(),
+						listener,
+						type
+				}
+				);
+			} else {
+				s.remove(listener);
+				log.debug("[{},{}] Removed listener {} for type {}, now got {} listeners", new Object[]{
+						this.getClass().getSimpleName(),
+						getSerialPort(),
+						listener, type, listeners.size()
+				}
+				);
+			}
 		}
 	}
 
@@ -184,20 +226,31 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		List<iSenseDeviceListener> count = new LinkedList<iSenseDeviceListener>();
 
 		// Register promiscous listeners
-		for (iSenseDeviceListener l : promiscousListeners) {
-			d.registerListener(l);
-			count.add(l);
-		}
-
-		// Register other listeners
-		for (Integer i : listeners.keySet()) {
-			for (iSenseDeviceListener l : listeners.get(i)) {
-				d.registerListener(l, i);
+		synchronized (promiscousListeners) {
+			for (iSenseDeviceListener l : promiscousListeners) {
+				d.registerListener(l);
 				count.add(l);
 			}
 		}
 
-		log.debug("Copied " + count.size() + " unique listeners from " + this + " to " + d);
+		// Register other listeners
+		synchronized (listeners) {
+			for (Integer i : listeners.keySet()) {
+				for (iSenseDeviceListener l : listeners.get(i)) {
+					d.registerListener(l, i);
+					count.add(l);
+				}
+			}
+		}
+
+		log.debug("[{},{}] Copied {} unique listeners from {} to {}", new Object[]{
+				this.getClass().getSimpleName(),
+				getSerialPort(),
+				count.size(),
+				this,
+				d
+		}
+		);
 	}
 
 	// ------------------------------------------------------------------------
@@ -211,7 +264,13 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public void cancelOperation(Operation op) {
 
 		if (operationInProgress() && getOperation() == op) {
-			log.info("Operation " + operation + " of type " + operation.getOperation() + " will be cancelled.");
+			log.info("[{},{}] Operation {} of type {} will be cancelled.", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					operation,
+					operation.getOperation()
+			}
+			);
 			operationCancelRequestActive = true;
 			if (operation != null) {
 				operation.cancelOperation();
@@ -221,7 +280,12 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			{
 				operation.cancelOperation();
 			}*/
-			log.warn("No operation of type " + op + " to cancel");
+			log.warn("[{},{}] No operation of type {} to cancel", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					op
+			}
+			);
 		}
 
 	}
@@ -342,31 +406,39 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 		if (log.isDebugEnabled()) {
 			if (!(result instanceof IDeviceBinFile)) {
-				log.debug("Operation {} done, result: {}", op, result);
+				log.debug("[{},{}] Operation {} done, result: {}",
+						new Object[]{this.getClass().getSimpleName(), getSerialPort(), op, result}
+				);
 			} else {
-				log.debug("Operation {} done.", op);
+				log.debug("[{},{}] Operation {} done.",
+						new Object[]{this.getClass().getSimpleName(), getSerialPort(), op}
+				);
 			}
 		}
 
-		for (final iSenseDeviceListener l : promiscousListeners) {
-			scheduler.schedule(new Runnable() {
-				@Override
-				public void run() {
-					l.operationDone(op, result);
-				}
-			}, 0, TimeUnit.MILLISECONDS
-			);
-		}
-
-		for (List<iSenseDeviceListener> ls : listeners.values()) {
-			for (final iSenseDeviceListener l : ls) {
-				scheduler.schedule(new Runnable() {
+		synchronized (promiscousListeners) {
+			for (final iSenseDeviceListener l : promiscousListeners) {
+				executor.execute(new Runnable() {
 					@Override
 					public void run() {
 						l.operationDone(op, result);
 					}
-				}, 0, TimeUnit.MILLISECONDS
+				}
 				);
+			}
+		}
+
+		synchronized (listeners) {
+			for (List<iSenseDeviceListener> ls : listeners.values()) {
+				for (final iSenseDeviceListener l : ls) {
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							l.operationDone(op, result);
+						}
+					}
+					);
+				}
 			}
 		}
 
@@ -383,28 +455,34 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public void operationCancelled(final iSenseDeviceOperation op) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Operation {} cancelled", op);
-		}
-
-		for (final iSenseDeviceListener l : promiscousListeners) {
-			scheduler.schedule(new Runnable() {
-				@Override
-				public void run() {
-					l.operationCanceled(op.getOperation());
-				}
-			}, 0, TimeUnit.MILLISECONDS
+			log.debug("[{},{}] Operation {} cancelled",
+					new Object[]{this.getClass().getSimpleName(), getSerialPort(), op}
 			);
 		}
 
-		for (List<iSenseDeviceListener> ls : listeners.values()) {
-			for (final iSenseDeviceListener l : ls) {
-				scheduler.schedule(new Runnable() {
+		synchronized (promiscousListeners) {
+			for (final iSenseDeviceListener l : promiscousListeners) {
+				executor.execute(new Runnable() {
 					@Override
 					public void run() {
 						l.operationCanceled(op.getOperation());
 					}
-				}, 0, TimeUnit.MILLISECONDS
+				}
 				);
+			}
+		}
+
+		synchronized (listeners) {
+			for (List<iSenseDeviceListener> ls : listeners.values()) {
+				for (final iSenseDeviceListener l : ls) {
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							l.operationCanceled(op.getOperation());
+						}
+					}
+					);
+				}
 			}
 		}
 
@@ -418,31 +496,40 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 *
 	 */
 	public void operationProgress(final Operation op, final float fraction) {
-		if (log.isDebugEnabled()) {
-			log.debug("Operation " + op + " progress: " + fraction);
-		}
 
-		for (final iSenseDeviceListener l : promiscousListeners) {
-			scheduler.schedule(new Runnable() {
-				@Override
-				public void run() {
-					l.operationProgress(op, fraction);
-				}
-			}, 0, TimeUnit.MILLISECONDS
+		if (log.isDebugEnabled() && operationProgressTimeDiff.isTimeout()) {
+			operationProgressTimeDiff.touch();
+			log.debug("[{},{}] Operation {} progress: {}",
+					new Object[]{this.getClass().getSimpleName(), getSerialPort(), op, fraction}
 			);
 		}
 
-		for (List<iSenseDeviceListener> ls : listeners.values()) {
-			for (final iSenseDeviceListener l : ls) {
-				scheduler.schedule(new Runnable() {
+		synchronized (promiscousListeners) {
+			for (final iSenseDeviceListener l : promiscousListeners) {
+				executor.execute(new Runnable() {
 					@Override
 					public void run() {
 						l.operationProgress(op, fraction);
 					}
-				}, 0, TimeUnit.MILLISECONDS
+				}
 				);
 			}
 		}
+
+		synchronized (listeners) {
+			for (List<iSenseDeviceListener> ls : listeners.values()) {
+				for (final iSenseDeviceListener l : ls) {
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							l.operationProgress(op, fraction);
+						}
+					}
+					);
+				}
+			}
+		}
+
 	}
 
 	// -------------------------------------------------------------------------
@@ -479,7 +566,10 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		} else if (messageMode == MessageMode.PLAIN) {
 			receivePlainText(inStream);
 		} else {
-			log.error("Unknown message type [" + messageMode + "]");
+			log.error("[{},{}] Unknown message type [{}]", new Object[]{
+					this.getClass().getSimpleName(), getSerialPort(), messageMode
+			}
+			);
 		}
 	}
 
@@ -517,10 +607,16 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 						ensureBufferSize();
 						packet[packetLength++] = MessagePacket.DLE;
 					} else {
-						log.error("iSenseDeviceImpl: Incomplete packet received: " + StringUtils
-								.toHexString(this.packet, 0, packetLength)
-						);
-						log.error("String representation: " + new String(this.packet, 0, packetLength));
+						if (log.isErrorEnabled()) {
+							log.error("[{},{}] iSenseDeviceImpl: Incomplete packet received: \nHEX: {}\nSTR: {}",
+									new Object[]{
+											this.getClass().getSimpleName(),
+											getSerialPort(),
+											StringUtils.toHexString(this.packet, 0, packetLength),
+											new String(this.packet, 0, packetLength)
+									}
+							);
+						}
 						clearPacket();
 					}
 
@@ -531,12 +627,29 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 					} else if (foundPacket) {
 						ensureBufferSize();
 						packet[packetLength++] = c;
+					} else {
+						// Plain Message e.g. from Contiki or iSense
+						// Read all available characters
+						packetLength = 0;
+						while (inStream != null && inStream.available() != 0 && (packetLength + 1) < packet.length) {
+							packet[packetLength++] = (byte) (0xFF & inStream.read());
+						}
+
+						// Copy them into a buffer with correct length
+						byte[] buffer = new byte[packetLength];
+						System.arraycopy(packet, 0, buffer, 0, packetLength);
+						
+						MessagePacket p = new MessagePacket(PacketTypes.LOG, buffer);
+						notifyReceivePacket(p);
 					}
+						
 				}
 			}
 
 		} catch (IOException error) {
-			log.error("Error on rx (Retry in 1s): " + error, error);
+			log.error("[{},{}] Error on rx (Retry in 1s): {}",
+					new Object[]{this.getClass().getSimpleName(), getSerialPort(), error}
+			);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -568,7 +681,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			// Reset packet information
 			packetLength = 0;
 		} catch (IOException error) {
-			log.debug("Error: " + error, error);
+			log.debug("[{},{}] Error: {}", new Object[]{this.getClass().getSimpleName(), getSerialPort(), error});
 		}
 	}
 
@@ -579,26 +692,29 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	public void notifyReceivePacket(final MessagePacket p) {
 
-		for (final iSenseDeviceListener l : promiscousListeners) {
-			scheduler.schedule(new Runnable() {
-				@Override
-				public void run() {
-					l.receivePacket(p);
-				}
-			}, 0, TimeUnit.MILLISECONDS
-			);
-		}
-
-		List<iSenseDeviceListener> ls = this.listeners.get(p.getType());
-		if (ls != null) {
-			for (final iSenseDeviceListener l : ls) {
-				scheduler.schedule(new Runnable() {
+		synchronized (promiscousListeners) {
+			for (final iSenseDeviceListener l : promiscousListeners) {
+				executor.execute(new Runnable() {
 					@Override
 					public void run() {
 						l.receivePacket(p);
 					}
-				}, 0, TimeUnit.MILLISECONDS
-				);
+				});
+			}
+		}
+
+		synchronized (listeners) {
+			List<iSenseDeviceListener> ls = this.listeners.get(p.getType());
+			if (ls != null) {
+				for (final iSenseDeviceListener l : ls) {
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							l.receivePacket(p);
+						}
+					}
+					);
+				}
 			}
 		}
 	}
@@ -611,18 +727,23 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public void notifyReceivePlainText(final MessagePlainText p) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("New plain text packet received: " + p);
-		}
-
-		for (final iSenseDeviceListener l : promiscousListeners) {
-			scheduler.schedule(new Runnable() {
-				@Override
-				public void run() {
-					l.receivePlainText(p);
-				}
-			}, 0, TimeUnit.MILLISECONDS
+			log.debug("[{},{}] New plain text packet received: {}",
+					new Object[]{this.getClass().getSimpleName(), getSerialPort(), p}
 			);
 		}
+
+		synchronized (promiscousListeners) {
+			for (final iSenseDeviceListener l : promiscousListeners) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						l.receivePlainText(p);
+					}
+				}
+				);
+			}
+		}
+
 	}
 
 	// -------------------------------------------------------------------------

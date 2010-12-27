@@ -1,16 +1,40 @@
+/**********************************************************************************************************************
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * All rights reserved.                                                                                               *
+ *                                                                                                                    *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
+ * following conditions are met:                                                                                      *
+ *                                                                                                                    *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
+ *   disclaimer.                                                                                                      *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ *   products derived from this software without specific prior written permission.                                   *
+ *                                                                                                                    *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
+ **********************************************************************************************************************/
+
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import de.uniluebeck.itm.gtr.common.AbstractListenable;
+import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
 import de.uniluebeck.itm.motelist.MoteType;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
-import de.uniluebeck.itm.tr.nodeapi.NodeApiCallback;
+import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
+import de.uniluebeck.itm.wsn.devicedrivers.exceptions.TimeoutException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicBinFile;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicDevice;
@@ -24,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -71,12 +97,15 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private class FlashProgramListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
+		private int flashCount;
+
 		private final TimeDiff lastProgress = new TimeDiff(1500);
 
 		private FlashProgramCallback listener;
 
-		private FlashProgramListener(final FlashProgramCallback listener) {
+		private FlashProgramListener(final FlashProgramCallback listener, int flashCount) {
 			this.listener = listener;
+			this.flashCount = flashCount;
 		}
 
 		@Override
@@ -138,7 +167,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			if (op == Operation.PROGRAM) {
 
 				if (lastProgress.isTimeout()) {
-					log.debug("{} => Flashing progress: {}%.", (int) (fraction * 100));
+					log.debug("{} => Flashing progress: {}%.", nodeUrn, (int) (fraction * 100));
 					listener.progress(fraction);
 					lastProgress.touch();
 				}
@@ -157,14 +186,23 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return o == this ? 0 : -1;
 		}
 
+		@Override
+		public String toString() {
+			return "FlashProgramListener{" +
+					"flashCount=" + flashCount +
+					'}';
+		}
 	}
 
 	private class ResetListener implements iSenseDeviceListener, Comparable<iSenseDeviceListener> {
 
-		private NodeApiCallback listener;
+		private int resetCount;
 
-		private ResetListener(NodeApiCallback listener) {
+		private Callback listener;
+
+		private ResetListener(Callback listener, int resetCount) {
 			this.listener = listener;
+			this.resetCount = resetCount;
 		}
 
 		@Override
@@ -235,6 +273,13 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return o == this ? 0 : -1;
 		}
 
+		@Override
+		public String toString() {
+			return "ResetListener{" +
+					"resetCount=" + resetCount +
+					'}';
+		}
+
 	}
 
 	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
@@ -251,7 +296,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
-	private static final int DEFAULT_NODE_API_TIMEOUT = 5000;
+	private static final int DEFAULT_NODE_API_TIMEOUT = 1000;
 
 	private String nodeType;
 
@@ -262,6 +307,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private SchedulerService schedulerService;
 
 	private ConnectorState state = new ConnectorState();
+
+	private int resetCount = 0;
+
+	private int flashCount = 0;
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -346,7 +395,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void receivePacket(MessagePacket p) {
 
-			log.trace("{} => WSNDeviceAppImpl.receivePacket: {}", nodeUrn, p);
+			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
 
 			boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
 			boolean isByteTextOrVLink =
@@ -356,11 +405,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
-			if (isWiselibReply) {
+			if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()))) {
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
 				}
-				nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
 			} else {
 				for (NodeOutputListener listener : listeners) {
 					listener.receivedPacket(p);
@@ -428,13 +476,72 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void destroyVirtualLink(final long targetNode, final NodeApiCallback listener) {
+	public void destroyVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.destroyVirtualLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
 				break;
 			case READY:
-				nodeApi.getLinkControl().destroyVirtualLink(targetNode, listener);
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
+					}
+				}
+				);
+
+				break;
+			case OPERATION_RUNNING:
+				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
+				break;
+		}
+	}
+
+	private void callCallback(final Future<NodeApiCallResult> future, final WSNDeviceAppConnector.Callback listener) {
+		try {
+
+			NodeApiCallResult result = future.get();
+
+			if (result.isSuccessful()) {
+				listener.success(result.getResponse());
+			} else {
+				listener.failure(result.getResponseType(), result.getResponse());
+			}
+
+		} catch (InterruptedException e) {
+			log.error("InterruptedException while reading Node API call result.");
+			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
+		} catch (ExecutionException e) {
+			if (e.getCause() instanceof TimeoutException) {
+				log.debug("{} => Call to Node API timed out.", nodeUrn);
+				listener.timeout();
+			} else {
+				log.error("" + e, e);
+				listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
+			}
+		}
+	}
+
+	@Override
+	public void disableNode(final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.disableNode()", nodeUrn);
+
+		switch (state.getState()) {
+			case DISCONNECTED:
+				listener.failure((byte) -1, "Node is not connected.".getBytes());
+				break;
+			case READY:
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getNodeControl().disableNode(), listener);
+					}
+				}
+				);
 				break;
 			case OPERATION_RUNNING:
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
@@ -443,13 +550,22 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void disableNode(final NodeApiCallback listener) {
+	public void disablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.disablePhysicalLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
 				break;
 			case READY:
-				nodeApi.getNodeControl().disableNode(listener);
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
+					}
+				}
+				);
 				break;
 			case OPERATION_RUNNING:
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
@@ -458,13 +574,22 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void disablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
+	public void enableNode(final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.enableNode()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
 				break;
 			case READY:
-				nodeApi.getLinkControl().disablePhysicalLink(nodeB, listener);
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getNodeControl().enableNode(), listener);
+					}
+				}
+				);
 				break;
 			case OPERATION_RUNNING:
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
@@ -473,13 +598,22 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void enableNode(final NodeApiCallback listener) {
+	public void enablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.enablePhysicalLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
 				break;
 			case READY:
-				nodeApi.getNodeControl().enableNode(listener);
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
+					}
+				}
+				);
 				break;
 			case OPERATION_RUNNING:
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
@@ -488,24 +622,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void enablePhysicalLink(final long nodeB, final NodeApiCallback listener) {
-		switch (state.getState()) {
-			case DISCONNECTED:
-				listener.failure((byte) -1, "Node is not connected.".getBytes());
-				break;
-			case READY:
-				nodeApi.getLinkControl().enablePhysicalLink(nodeB, listener);
-				break;
-			case OPERATION_RUNNING:
-				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
-				break;
-		}
-	}
+	public void flashProgram(final WSNAppMessages.Program program,
+							 final WSNDeviceAppConnector.FlashProgramCallback listener) {
 
-	@Override
-	public void flashProgram(final WSNAppMessages.Program program, final FlashProgramCallback listener) {
-
-		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.executeFlashPrograms()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
@@ -520,6 +640,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
 			log.warn("{} => {}", nodeUrn, msg);
 			listener.failure((byte) -1, msg.getBytes());
+			return;
 		}
 
 		IDeviceBinFile iSenseBinFile = null;
@@ -545,7 +666,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			return;
 		}
 
-		FlashProgramListener flashListener = new FlashProgramListener(listener);
+		flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
+		FlashProgramListener flashListener = new FlashProgramListener(listener, flashCount);
 		device.registerListener(flashListener);
 
 		try {
@@ -566,9 +688,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void isNodeAlive(final NodeApiCallback listener) {
+	public void isNodeAlive(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppImpl.executeAreNodesAlive()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.isNodeAlive()", nodeUrn);
 
 		// to the best of our knowledge, a node is alive if we're connected to it
 		boolean connected = device != null && device.isConnected();
@@ -580,9 +702,9 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void resetNode(final NodeApiCallback listener) {
+	public void resetNode(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppImpl.executeResetNodes()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorLocal.resetNode()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed resetting node. Reason: Device is not connected.";
@@ -599,7 +721,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			listener.failure((byte) 0, msg.getBytes());
 		}
 
-		ResetListener resetListener = new ResetListener(listener);
+		resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+		ResetListener resetListener = new ResetListener(listener, resetCount);
 		device.registerListener(resetListener);
 
 		try {
@@ -625,7 +748,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void sendMessage(final byte messageType, final byte[] messageBytes, final NodeApiCallback listener) {
+	public void sendMessage(final byte messageType, final byte[] messageBytes,
+							final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.sendMessage()", nodeUrn);
 
 		switch (state.getState()) {
 
@@ -651,8 +777,18 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 						System.arraycopy(messageBytes, 21, payload, 0, payloadLength);
 
-						nodeApi.getInteraction()
-								.sendVirtualLinkMessage(RSSI, LQI, destination, source, payload, listener);
+						schedulerService.execute(new Runnable() {
+							@Override
+							public void run() {
+								callCallback(
+										nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
+												payload
+										),
+										listener
+								);
+							}
+						}
+						);
 
 					} else {
 
@@ -681,13 +817,21 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	}
 
 	@Override
-	public void setVirtualLink(final long targetNode, final NodeApiCallback listener) {
+	public void setVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorLocal.setVirtualLink()", nodeUrn);
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
 				break;
 			case READY:
-				nodeApi.getLinkControl().setVirtualLink(targetNode, listener);
+				schedulerService.execute(new Runnable() {
+					@Override
+					public void run() {
+						callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
+					}
+				});
 				break;
 			case OPERATION_RUNNING:
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
@@ -698,10 +842,13 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void start() throws Exception {
 		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
+		nodeApi.start();
 	}
 
 	@Override
 	public void stop() {
+
+		nodeApi.stop();
 
 		if (device != null) {
 			device.deregisterListener(deviceOutputListener);

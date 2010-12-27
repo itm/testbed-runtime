@@ -21,36 +21,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
-
-import com.google.inject.internal.Nullable;
+package de.uniluebeck.itm.tr.util;
 
 
 /**
- * Interface to be implemented as callback methods for the invocation of Node API functions.
+ * For classes implementing this interface listeners of type {@link T} can (de-)register as listener.
+ *
+ * @param <T> the type of the listener interface
  */
-public interface NodeApiCallback {
+public interface Listenable<T> {
 
 	/**
-	 * Invoked upon receiving a reply from the sensor node with a result value of {@link
-	 * de.uniluebeck.itm.tr.nodeapi.ResponseType#COMMAND_SUCCESS}.
+	 * Adds a listener.
 	 *
-	 * @param replyPayload the payload that is attached to the reply message, may be {@code null}
+	 * @param listener the listener to add
 	 */
-	void success(@Nullable byte[] replyPayload);
+	void addListener(T listener);
 
 	/**
-	 * Invoked upon receiving a reply from the sensor node with a result value other than {@link
-	 * de.uniluebeck.itm.tr.nodeapi.ResponseType#COMMAND_SUCCESS}.
+	 * Removes a listener.
 	 *
-	 * @param responseType the response code the node sent with the reply, indicating the type of failure
-	 * @param replyPayload the payload that is attached to the reply message, may be {@code null}
+	 * @param listener the listener to remove
 	 */
-	void failure(byte responseType, @Nullable byte[] replyPayload);
-
-	/**
-	 * Invoked when there was no reply from the node in the time interval defined upon method invocation.
-	 */
-	void timeout();
+	void removeListener(T listener);
 
 }

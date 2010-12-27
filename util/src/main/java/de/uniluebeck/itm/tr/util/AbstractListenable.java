@@ -21,9 +21,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.common;
+package de.uniluebeck.itm.tr.util;
 
-import com.google.inject.internal.ImmutableList;
+import com.google.common.collect.ImmutableList;
 
 
 /**

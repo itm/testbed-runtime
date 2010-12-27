@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
+import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
 import eu.wisebed.testbed.api.wsn.v211.Status;
@@ -50,7 +51,7 @@ public class Job {
 
 	protected String requestId;
 
-	protected HashSet<String> nodeIds;
+	protected final HashSet<String> nodeIds;
 
 	protected String description;
 
@@ -76,16 +77,15 @@ public class Job {
 	public Job(String description, String requestId, List<String> nodeIds, JobType jobType) {
 		this.description = description;
 		this.requestId = requestId;
-		this.nodeIds = new HashSet<String>(nodeIds);
+		this.nodeIds = Sets.newHashSet(nodeIds);
 		this.jobType = jobType;
 		this.results = new JobResult(jobType);
 	}
 
-	public Job(String description, String requestId, String nodeIds, JobType jobType) {
+	public Job(String description, String requestId, String nodeId, JobType jobType) {
 		this.description = description;
 		this.requestId = requestId;
-		this.nodeIds = new HashSet<String>();
-		this.nodeIds.add(nodeIds);
+		this.nodeIds = Sets.newHashSet(nodeId);
 		this.jobType = jobType;
 		this.results = new JobResult(jobType);
 	}
@@ -103,7 +103,7 @@ public class Job {
 	private boolean isDone(int value) {
 
 		if (jobType == JobType.areNodesAlive) {
-			return value == 0 || value == 1;
+			return value == 1;
 		} else if (jobType == JobType.resetNodes) {
 			return value == 1;
 		} else if (jobType == JobType.send) {
@@ -130,7 +130,7 @@ public class Job {
 	private boolean isError(int value) {
 
 		if (jobType == JobType.areNodesAlive) {
-			return value < 0;
+			return value <= 0;
 		} else if (jobType == JobType.resetNodes) {
 			return value == 0 || value == -1;
 		} else if (jobType == JobType.send) {
@@ -182,21 +182,24 @@ public class Job {
 				if (removed) {
 
 					if (done) {
+
 						successfulCount++;
-						results.addResult(s.getNodeId(), done, "Done");
+						results.addResult(s.getNodeId(), done, s.getMsg());
 
 					} else if (error) {
-						StringBuilder b = new StringBuilder();
-						b.append("Job[");
-						b.append(description);
-						b.append("] failed for node ");
-						b.append(s.getNodeId());
-						b.append(" with message [");
-						b.append(s.getMsg());
-						b.append("]");
-						log.info(b.toString());
-						results.addResult(s.getNodeId(), error, b.toString());
+
+						if (log.isInfoEnabled()) {
+							log.info("Job[{}] failed for node {} with message [{}]", new Object[] {
+								description,
+								s.getNodeId(),
+								s.getMsg()
+							});
+						}
+
+						results.addResult(s.getNodeId(), !error, s.getMsg());
+
 					}
+
 				} else {
 					log.warn("Received status for unknown node " + s.getNodeId() + ": " + StringUtils.jaxbMarshal(s));
 				}

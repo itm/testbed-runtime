@@ -23,12 +23,13 @@
 
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
+import com.google.inject.Injector;
+import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.shibboauth.ShibbolethAuthenticator;
-import eu.wisebed.shibboauth.ShibbolethSecretAuthenticationKey;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
+import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,9 @@ import java.util.*;
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
-public class ShibbolethSNAA implements SNAA {
+public class ShibbolethSNAAImpl implements SNAA {
 
-    private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAA.class);
+    private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
     protected Set<String> urnPrefixes;
 
@@ -49,14 +50,21 @@ public class ShibbolethSNAA implements SNAA {
 
     protected IUserAuthorization authorization;
 
+    private Injector injector;
+
+    private ShibbolethProxy proxy;
+
     /**
      * @param urnPrefixes
      * @param secretAuthenticationKeyUrl
+     * @param injector
      */
-    public ShibbolethSNAA(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization) {
+    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
         this.urnPrefixes = new HashSet<String>(urnPrefixes);
         this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
         this.authorization = authorization;
+        this.injector = injector;
+        this.proxy = proxy;
     }
 
     @Override
@@ -71,7 +79,7 @@ public class ShibbolethSNAA implements SNAA {
         assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
 
         for (AuthenticationTriple triple : authenticationData) {
-            ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
+            IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
             String urn = triple.getUrnPrefix();
 
             try {
@@ -79,16 +87,14 @@ public class ShibbolethSNAA implements SNAA {
                 sa.setUsernameAtIdpDomain(triple.getUsername());
                 sa.setPassword(triple.getPassword());
                 sa.setUrl(secretAuthenticationKeyUrl);
+                if (proxy != null){
+                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+                }
                 sa.authenticate();
 
                 if (sa.isAuthenticated()) {
-                    String sak = sa.getAuthenticationPageContent().trim();
-                    log.info("Authentication suceeded for urn[" + urn + "] and user[" + triple.getUsername()
-                            + "]. Secret authentication key is " + sak);
-
                     SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-                    ShibbolethSecretAuthenticationKey ssak = new ShibbolethSecretAuthenticationKey(sak, sa.getCookieStore().getCookies());
-                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(ssak));
+                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
                     secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
                     secretAuthKey.setUsername(triple.getUsername());
                     keys.add(secretAuthKey);
@@ -103,7 +109,7 @@ public class ShibbolethSNAA implements SNAA {
 
         }
 
-        log.debug("Done, returning " + keys.size() + " secret authentication keys");
+        log.debug("Done, returning " + keys.size() + " secret authentication key(s).");
         return new ArrayList<SecretAuthenticationKey>(keys);
 
     }
@@ -114,6 +120,7 @@ public class ShibbolethSNAA implements SNAA {
             @WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
 
         boolean authorized = true;
+        String logInfo = "Done checking authorization, result: ";
         Map<String, List<Object>> authorizeMap = null;
 
         // Check if we serve all URNs
@@ -124,15 +131,22 @@ public class ShibbolethSNAA implements SNAA {
 
             //check if authorized
             try {
-                ShibbolethSecretAuthenticationKey ssak = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-                ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
+                IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
+                sa.setUsernameAtIdpDomain(key.getUsername());
                 sa.setUrl(secretAuthenticationKeyUrl);
-                sa.setSecretAuthenticationKey(ssak.getSecretAuthenticationKey());
+                if (proxy != null){
+                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+                }
+                
                 //check authorization
-                authorizeMap = sa.isAuthorized(ssak.getCookies());
+                List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
+                log.info("De-serialization successfully done.");
+                authorizeMap = sa.isAuthorized(cookies);
 
                 if (authorizeMap == null){
-                    return false;
+                    authorized = false;
+                    log.debug(logInfo + "false");
+                    return authorized;
                 }
 
                 //create Authorization from map
@@ -142,11 +156,12 @@ public class ShibbolethSNAA implements SNAA {
 
                 authorized = authorization.isAuthorized(action, details);
             } catch (Exception e) {
+                log.error(e.getMessage());
                 throw createSNAAException("Authorization failed :" + e);
             }
         }
 
-        log.debug("Done checking authorization, result: " + authorized);
+        log.debug(logInfo + authorized);
         return authorized;
 
     }

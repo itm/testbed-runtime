@@ -22,46 +22,50 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.5.4-SNAPSHOT</version>
+		<version>0.5.5-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
-	<artifactId>tr.snaa-shibboleth</artifactId>
-	<packaging>jar</packaging>
-	<name>TR :: SNAA Shibboleth Implementation</name>
+    <artifactId>tr.snaa-shibboleth</artifactId>
+    <packaging>jar</packaging>
+    <name>TR :: SNAA Shibboleth Implementation</name>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.shibboauth</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.util</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.snaa-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.shibboauth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.util</artifactId>
+        </dependency>
 
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-	</dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

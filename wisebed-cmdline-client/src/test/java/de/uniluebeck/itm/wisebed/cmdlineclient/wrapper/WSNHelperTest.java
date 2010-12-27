@@ -45,7 +45,17 @@ public class WSNHelperTest {
 		};
 		WorkingWSN wsn = new WorkingWSN(controller);
 		wrapper = WSNAsyncWrapper.of(wsn);
-		nodeURNs = Lists.newArrayList("urn:wisebed:uzl1:0x1234", "urn:wisebed:uzl1:0x2345", "urn:wisebed:uzl1:0x3456");
+		nodeURNs = Lists.newArrayList(
+                "urn:wisebed:uzl1:0x1234",
+                "urn:wisebed:uzl1:0x2345",
+                "urn:wisebed:uzl1:0x3456",
+                "urn:wisebed:uzl1:0x4567",
+                "urn:wisebed:uzl1:0x5678",
+                "urn:wisebed:uzl1:0x6789",
+                "urn:wisebed:uzl1:0x7890",
+                "urn:wisebed:uzl1:0x8901",
+                "urn:wisebed:uzl1:0x9012"
+        );
 		sourceNodeURN = "urn:wisebed:uzl1:0x0123";
 		neighborhoodMap = HashMultimap.create();
 		for (String nodeURN : nodeURNs) {
@@ -65,7 +75,7 @@ public class WSNHelperTest {
 
 	@Test
 	public void testDisableAllPhysicalLinks() throws TimeoutException {
-		assertTrue(WSNHelper.disableAllPhysicalLinks(wrapper, nodeURNs, 1000, TimeUnit.MILLISECONDS));
+		assertTrue(WSNHelper.disableAllPhysicalLinks(wrapper, nodeURNs, 10000, TimeUnit.MILLISECONDS));
 		try {
 			WSNHelper.disableAllPhysicalLinks(wrapper, nodeURNs, 10, TimeUnit.MILLISECONDS);
 			assertFalse(true);
@@ -75,7 +85,7 @@ public class WSNHelperTest {
 
 	@Test
 	public void testEnableAllPhysicalLinks() throws TimeoutException {
-		assertTrue(WSNHelper.enableAllPhysicalLinks(wrapper, nodeURNs, 1000, TimeUnit.MILLISECONDS));
+		assertTrue(WSNHelper.enableAllPhysicalLinks(wrapper, nodeURNs, 10000, TimeUnit.MILLISECONDS));
 		try {
 			WSNHelper.enableAllPhysicalLinks(wrapper, nodeURNs, 10, TimeUnit.MILLISECONDS);
 			assertFalse(true);
@@ -85,7 +95,7 @@ public class WSNHelperTest {
 
 	@Test
 	public void testSetVirtualLinks() throws TimeoutException {
-		assertTrue(WSNHelper.setVirtualLinks(wrapper, neighborhoodMap, "", 1000, TimeUnit.MILLISECONDS));
+		assertTrue(WSNHelper.setVirtualLinks(wrapper, neighborhoodMap, "", 10000, TimeUnit.MILLISECONDS));
 		try {
 			WSNHelper.setVirtualLinks(wrapper, neighborhoodMap, "", 10, TimeUnit.MILLISECONDS);
 			assertFalse(true);
@@ -95,7 +105,7 @@ public class WSNHelperTest {
 
 	@Test
 	public void testDestroyVirtualLinks() throws TimeoutException {
-		assertTrue(WSNHelper.destroyVirtualLinks(wrapper, neighborhoodMap, 1000, TimeUnit.MILLISECONDS));
+		assertTrue(WSNHelper.destroyVirtualLinks(wrapper, neighborhoodMap, 10000, TimeUnit.MILLISECONDS));
 		try {
 			WSNHelper.destroyVirtualLinks(wrapper, neighborhoodMap, 10, TimeUnit.MILLISECONDS);
 			assertFalse(true);

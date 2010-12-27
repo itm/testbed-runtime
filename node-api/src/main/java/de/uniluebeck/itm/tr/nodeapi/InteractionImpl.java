@@ -23,11 +23,13 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import com.google.common.util.concurrent.ValueFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 
 class InteractionImpl implements Interaction {
@@ -41,8 +43,7 @@ class InteractionImpl implements Interaction {
 	}
 
 	@Override
-	public void sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload,
-									   NodeApiCallback callback) {
+	public Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload) {
 
 		log.trace(
 				"InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
@@ -56,40 +57,48 @@ class InteractionImpl implements Interaction {
 		);
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.Interaction.newVirtualLinkMessagePacket(
+		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
 				requestId, RSSI, LQI, destination, source, payload
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void sendVirtualLinkMessage(long destination, long source, byte[] payload, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.Interaction.newVirtualLinkMessagePacket(
+		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
 				requestId, destination, source, payload
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void sendByteMessage(byte binaryType, byte[] payload, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.Interaction.newByteMessagePacket(
+		ByteBuffer buffer = Packets.Interaction.newByteMessagePacket(
 				requestId, binaryType, payload
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void flashProgram(byte[] payload, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> flashProgram(byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.Interaction.newFlashProgramPacket(
+		ByteBuffer buffer = Packets.Interaction.newFlashProgramPacket(
 				requestId, payload
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 }

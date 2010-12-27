@@ -23,39 +23,47 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import java.util.concurrent.Future;
+
 
 public interface LinkControl {
 
 	/**
-	 * Set up a virtual link between the two nodes identified by the unique this node
-	 * and destNode. The reserved broadcast ID is not allowed as parameter.
+	 * Set up a virtual link between the two nodes identified by the unique this node and destNode. The reserved broadcast
+	 * ID is not allowed as parameter.
 	 *
 	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void setVirtualLink(long destNode, NodeApiCallback callback);
+	Future<NodeApiCallResult> setVirtualLink(long destNode);
 
 	/**
-	 * Destroy a virtual link between this node and destNode.
-	 * The reserved broadcast ID is not allowed as parameter.
+	 * Destroy a virtual link between this node and destNode. The reserved broadcast ID is not allowed as parameter.
 	 *
 	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void destroyVirtualLink(long destNode, NodeApiCallback callback);
+	Future<NodeApiCallResult> destroyVirtualLink(long destNode);
 
 	/**
-	 * Enable the physical radio link between this node and nodeB (if possible).
-	 * The reserved broadcast ID is not allowed as parameter.
+	 * Enable the physical radio link between this node and nodeB (if possible). The reserved broadcast ID is not allowed
+	 * as parameter.
 	 *
 	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void enablePhysicalLink(long nodeB, NodeApiCallback callback);
+	Future<NodeApiCallResult> enablePhysicalLink(long nodeB);
 
 	/**
-	 * Disable the physical radio link between this node and nodeB.
-	 * The reserved broadcast ID is not allowed as parameter.
+	 * Disable the physical radio link between this node and nodeB. The reserved broadcast ID is not allowed as parameter.
 	 *
 	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void disablePhysicalLink(long nodeB, NodeApiCallback callback);
+	Future<NodeApiCallResult> disablePhysicalLink(long nodeB);
 
 }

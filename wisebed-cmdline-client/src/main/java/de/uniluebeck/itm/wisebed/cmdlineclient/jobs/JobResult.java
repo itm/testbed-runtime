@@ -27,6 +27,8 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
 import org.joda.time.DateTime;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class JobResult {
 	// NodeId -> Result
@@ -53,13 +55,20 @@ public class JobResult {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder();
+            return toString(0);
+        }
+
+		public String toString(int tabIndent) {
+			final StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < tabIndent; i++) {
+				sb.append("\t");
+			}
             sb.append("Result");
             sb.append("{message='").append(message).append('\'');
             sb.append(", success=").append(success);
             sb.append('}');
             return sb.toString();
-        }
+		}
         
     }
 
@@ -122,10 +131,17 @@ public class JobResult {
 
 	@Override
 	public String toString() {
-		return "JobResult{" +
-				"jobType=" + jobType +
-				", description='" + description + '\'' +
-				", results=" + results +
-				'}';
+		StringBuilder sb = new StringBuilder();
+		sb.append("JobResult{jobType=");
+		sb.append(jobType);
+		sb.append(", description='");
+		sb.append(description);
+		sb.append('\'');
+		sb.append(", results=\n");
+		for (Entry<String, Result> entry : results.entrySet()) {
+			sb.append(entry.getValue().toString(1));
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 }

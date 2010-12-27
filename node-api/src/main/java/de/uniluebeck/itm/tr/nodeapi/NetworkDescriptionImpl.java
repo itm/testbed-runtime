@@ -23,7 +23,10 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import com.google.common.util.concurrent.ValueFuture;
+
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 
 public class NetworkDescriptionImpl implements NetworkDescription {
@@ -35,23 +38,27 @@ public class NetworkDescriptionImpl implements NetworkDescription {
 	}
 
 	@Override
-	public void getPropertyValue(byte property, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> getPropertyValue(byte property) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NetworkDescription.newGetPropertyValuePacket(
+		ByteBuffer buffer = Packets.NetworkDescription.newGetPropertyValuePacket(
 				requestId, property
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void getNeighborhood(NodeApiCallback callback) {
+	public Future<NodeApiCallResult> getNeighborhood() {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.NetworkDescription.newGetNeighborhoodPacket(
+		ByteBuffer buffer = Packets.NetworkDescription.newGetNeighborhoodPacket(
 				requestId
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 }
