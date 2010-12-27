@@ -55,7 +55,7 @@ public class AbstractOtapCLI {
 				new Option("c", "channel", false,
 						"The channel that should be used during the flash process (Default 12)"
 				);
-		programOption.setRequired(false);
+		channelOption.setRequired(false);
 		options.addOption(channelOption);
 
 		// otap

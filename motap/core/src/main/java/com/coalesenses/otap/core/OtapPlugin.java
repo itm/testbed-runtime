@@ -247,6 +247,8 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 			}, 1000, 1000, TimeUnit.MILLISECONDS
 			);
 			log.info("OTAP::Started PresenceDetect.");
+
+
 			return true;
 		}
 
