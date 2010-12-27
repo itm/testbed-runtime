@@ -42,7 +42,6 @@ public class MotapCLI extends AbstractOtapCLI{
         Logging.setLoggingDefaults();
 
         MotapCLI cli = new MotapCLI();
-        final Object waitLock = new Object();
 
         final OtapPlugin otapPlugin;
         Config config = cli.parseCmdLine(args);
@@ -88,7 +87,7 @@ public class MotapCLI extends AbstractOtapCLI{
                 });
 
         MotapController motapController = new MotapController();
-        motapController.executeProgramming(waitLock, otapPlugin, config);
+        motapController.executeProgramming(otapPlugin, config);
 
 
 
