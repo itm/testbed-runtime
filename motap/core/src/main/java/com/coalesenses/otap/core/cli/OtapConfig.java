@@ -7,16 +7,16 @@ import java.util.List;
 
 public class OtapConfig {
 
-	String program;
+	public String program;
 
-	int channel = 12;
+	public int channel = 12;
 
-	boolean multihop = true;
+	public boolean multihop = true;
 
-	boolean force = false;
+	public boolean force = false;
 
-	List<Long> macs = Lists.newLinkedList();
+	public List<Long> macs = Lists.newLinkedList();
 
-	boolean all = false;
+	public boolean all = false;
 
 }
