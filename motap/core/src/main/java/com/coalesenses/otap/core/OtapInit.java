@@ -131,7 +131,7 @@ public class OtapInit {
 	 */
 	public void startOtapInit(BinProgram program) {
 		stopOtapInit();
-		log.debug("Starting participating devices run, " + selectedDevices.size() + " should participate");
+		log.info("Starting participating devices run, " + selectedDevices.size() + " should participate");
 
 		this.participatingDevicesStart.touch();
 		this.participatingDevices.clear();

@@ -38,7 +38,7 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
         /**
          *
          */
-        private LinkedList<com.coalesenses.otap.core.seraerial.SerAerialPacket> pendingPackets = new LinkedList<SerAerialPacket>();
+        private LinkedList<SerAerialPacket> pendingPackets = new LinkedList<SerAerialPacket>();
 
         /**
          *
@@ -64,9 +64,10 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
         /**
          *
          */
-        synchronized boolean enqueue(DeviceConnector connector, com.coalesenses.otap.core.seraerial.SerAerialPacket packet) {
+        synchronized boolean enqueue(DeviceConnector connector, SerAerialPacket packet) {
+//            log.error("enqueing packet ");
             if (pendingPackets.size() > MAX_PENDING_PACKETS) {
-                log.warn("Too many pending packets. Dropped enqueue request.");
+                log.error("Too many pending packets. Dropped enqueue request.");
                 return false;
             }
             packet.setSender(connector);
@@ -112,16 +113,20 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
          */
         public void run() {
             while (!stop) {
+//                log.error("and again");
                 synchronized (this) {
                     //Wait until packets are in the queue
                     while (pendingPackets.size() == 0 && !stop) {
                         try {
+//                            log.error("waiting packet size = 0");
                             wait(200);
                         } catch (InterruptedException e) {
+                            //Thread.currentThread().interrupt();
                             log.debug("Interrupted: " + e, e);
                         }
                     }
 
+//                    log.error("packets available size = " + pendingPackets.size());
                     //Check if we may send (timeout or no pending confirm)
                     if (!stop && confirmPending == false || confirmPendingSince.isTimeout()) {
 
@@ -144,26 +149,31 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
                         confirmPending = true;
                         confirmPendingSince.touch();
                         if (lastPacket instanceof SerialRoutingPacket) {
+//                            log.error("sending routing packet " + lastPacket);
                             lastPacket.getSender()
                                     .send(PacketTypes.ISENSE_ISHELL_INTERPRETER, lastPacket.toByteArray());
                         } else {
+//                            log.error("sending seraerial packet " + lastPacket);
                             lastPacket.getSender().send(PacketTypes.SERAERIAL, lastPacket.toByteArray());
                         }
                     } else {
                         try {
+//                            log.error("sleeping(50)");
                             Thread.sleep(50);
+//                            log.error("woken up");
                         } catch (Throwable e) {
                         }
                     }
 
                 }
             }
+            log.error("done stop = " + stop);
 
         }
 
     }
 
-    protected static boolean stop;
+    protected static boolean stop = false;
 
     /**
      *
@@ -216,7 +226,7 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
     /**
      *
      */
-    public final boolean transmit(com.coalesenses.otap.core.seraerial.SerAerialPacket p) {
+    public final boolean transmit(SerAerialPacket p) {
         boolean ok = dispatcher.enqueue(this, p);
         TimeDiff timeout = new TimeDiff(MAX_LOCK_WAIT_MS);
 
@@ -228,6 +238,7 @@ public abstract class DeviceConnector extends AbstractListenable<DeviceConnector
                     try {
                         wait(100);
                     } catch (Throwable t) {
+                        //log.warn("interruption while waiting for confirm",t);
                         Thread.currentThread().interrupt();
                     }
                 }

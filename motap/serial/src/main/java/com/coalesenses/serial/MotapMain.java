@@ -49,7 +49,7 @@ public class MotapMain {
     private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
 
-    private static com.coalesenses.otap.core.OtapPlugin otapPlugin;
+    private static OtapPlugin otapPlugin;
     private static final long PRESENCE_DETECT_TIMEOUT = 20000;
     private static boolean force = true;
     private static boolean all;
@@ -77,13 +77,6 @@ public class MotapMain {
         try {
 
             device = MotapDeviceFactory.create(nodeType, nodeSerialInterface);
-            device.addListener(new DeviceConnectorListener(){
-
-                @Override
-                public void handleDevicePacket(com.coalesenses.otap.core.seraerial.SerAerialPacket p) {
-                    otapPlugin.handleDevicePacket(p);
-                }
-            });
 
         } catch (Exception e) {
             log.warn(
@@ -118,6 +111,13 @@ public class MotapMain {
         MotapMain motap = new MotapMain();
         motap.conect();
         otapPlugin = new OtapPlugin(device);
+        device.addListener(new DeviceConnectorListener(){
+
+                @Override
+                public void handleDevicePacket(com.coalesenses.otap.core.seraerial.SerAerialPacket p) {
+                    otapPlugin.handleDevicePacket(p);
+                }
+            });
         otapPlugin.setChannel(12);
 
         otapPlugin.setOtapKey(null, false);
@@ -164,17 +164,28 @@ public class MotapMain {
         if (presentDeviceIds.size() != 0 && (presentDeviceIds.size() == macs.size() || force)) {
             //for(int i = 0; )
             otapPlugin.setPresenceDetectState(false);
-            otapPlugin.loadBinProgram(
+            otapPlugin.setProgramFilename(
                     "/Users/maxpagel/Desktop/testbedTemplateApp.bin");
 //            otapPlugin.loadBinProgram(
 //                    "/Users/maxpagel/Desktop/test");
             log.info("start programming");
             otapPlugin.setParticipatingDeviceList(presentDevices);
             otapPlugin.otapStart();
-            device.shutdown();
+            try {
+                while(otapPlugin.getState() != OtapPlugin.State.None)
+                    Thread.sleep(1000);
+                device.shutdown();
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupted();
+            }
+
+
+            System.exit(0);
             
         } else {
             log.info("not all requested devices have been found. Aborting");
+            System.exit(0);
         }
 
     }

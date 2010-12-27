@@ -104,6 +104,7 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 	 */
 	private String programFilename = null;
 
+
 	/**
 	 *
 	 */
@@ -721,4 +722,8 @@ public class OtapPlugin /*extends SerAerialPlugin*/ implements PresenceDetectLis
 
 	}
 
+
+    public void setProgramFilename(String programFilename) {
+        this.programFilename = programFilename;
+    }
 }
