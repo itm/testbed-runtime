@@ -1,3 +1,26 @@
+/**********************************************************************************************************************
+ * Copyright (c) 2010, coalesenses GmbH                                                                               *
+ * All rights reserved.                                                                                               *
+ *                                                                                                                    *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
+ * following conditions are met:                                                                                      *
+ *                                                                                                                    *
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
+ *   disclaimer.                                                                                                      *
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * - Neither the name of the coalesenses GmbH nor the names of its contributors may be used to endorse or promote     *
+ *   products derived from this software without specific prior written permission.                                   *
+ *                                                                                                                    *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
+ **********************************************************************************************************************/
+
 package com.coalesenses.serial.connector;
 
 import com.coalesenses.otap.core.connector.DeviceConnector;
@@ -36,36 +59,8 @@ public class SerialConnector extends DeviceConnector {
 
             log.trace("Received message packet: {}", p);
 
-//            boolean isSerAerialPacket = p.getType() == PacketTypes.SERAERIAL && p.getContent().length > 0;
-//            SerAerialPacket seraerialPacket = SerialConnector.super.receivePacket(p);
-//            if (seraerialPacket.getPacketType()
-//                    == com.coalesenses.otap.core.seraerial.SerAerialPacket.PacketType.Packet) {
-//                notifyListeners(seraerialPacket);
-//            }
-
-
-            boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
-            boolean isByteTextOrVLink =
-                    (p.getContent()[0] & 0xFF) == NODE_OUTPUT_BYTE || (p.getContent()[0] & 0xFF) == NODE_OUTPUT_TEXT
-                            || (p.getContent()[0] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
-
-            boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
-
-            if (isWiselibReply)
-
-            {
-                if (log.isDebugEnabled()) {
-                    //log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
-                }
-                //nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()));
-            } else
-
-            {
-                SerialConnector.this.receivePacket(p);
-            }
+			SerialConnector.this.receivePacket(p);
         }
-
-
     };
 
     public SerialConnector(iSenseDevice USBDevice) {
