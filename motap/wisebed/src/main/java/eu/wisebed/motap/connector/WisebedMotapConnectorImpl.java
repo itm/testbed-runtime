@@ -22,6 +22,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Endpoint;
 import java.net.InetAddress;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 
@@ -38,7 +39,7 @@ class WisebedMotapConnectorImpl extends DeviceConnector {
 				log.trace("{}", getMsgString(msg));
 			}
 
-			if (nodeURN.equals(msg.getSourceNodeId())) {
+			if (nodeURN.equals(msg.getSourceNodeId()) && msg.getBinaryMessage() != null) {
 				BinaryMessage binaryMessage = msg.getBinaryMessage();
 				receivePacket(new MessagePacket(binaryMessage.getBinaryType(), binaryMessage.getBinaryData()));
 			}
@@ -140,7 +141,6 @@ class WisebedMotapConnectorImpl extends DeviceConnector {
 
 		log.debug("Shutting down local controller endpoint.");
 		server.removeContext(controllerEndpointContext);
-		controllerEndpoint.stop();
 
 		log.debug("Shutdown complete.");
 
@@ -167,11 +167,11 @@ class WisebedMotapConnectorImpl extends DeviceConnector {
 			binaryMessage.setBinaryData(b);
 			message.setBinaryMessage(binaryMessage);
 			message.setSourceNodeId(nodeURN);
-			message.setTimestamp(datatypeFactory.newXMLGregorianCalendar());
+			message.setTimestamp(datatypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
 
 			wsnEndpoint.send(Lists.newArrayList(nodeURN), message);
 
-			log.debug("Sent packet {} to {} in testbed.", binaryMessage, nodeURN);
+			log.trace("Sent packet {} to {} in testbed.", binaryMessage, nodeURN);
 
 		} catch (Exception e) {
 			log.error("" + e, e);

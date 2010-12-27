@@ -1,8 +1,12 @@
 package eu.wisebed.motap.connector;
 
+import com.coalesenses.otap.core.MotapController;
+import com.coalesenses.otap.core.OtapPlugin;
 import com.coalesenses.otap.core.cli.AbstractOtapCLI;
 import com.coalesenses.otap.core.cli.OtapConfig;
 import com.coalesenses.otap.core.connector.DeviceConnector;
+import com.coalesenses.otap.core.connector.DeviceConnectorListener;
+import com.coalesenses.otap.core.seraerial.SerAerialPacket;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpServer;
@@ -31,6 +35,8 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 
 	private DeviceConnector device;
 
+	private static OtapPlugin otapPlugin;
+
 	private static class Config extends OtapConfig {
 
 		String sessionManagementEndpointURL;
@@ -54,7 +60,30 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 
 		wisebedMotapCLI.startHttpServer();
 		wisebedMotapCLI.setUpDeviceConnector();
+		wisebedMotapCLI.startProgramming();
 
+		System.exit(0);
+
+	}
+
+	private void startProgramming() {
+
+		otapPlugin = new OtapPlugin(device);
+		otapPlugin.setChannel(config.channel);
+		otapPlugin.setMultihopSupportState(config.multihop);
+		otapPlugin.setOtapKey(null, false);
+		otapPlugin.setProgramFilename(config.program);
+
+		device.addListener(new DeviceConnectorListener() {
+			@Override
+			public void handleDevicePacket(SerAerialPacket p) {
+				otapPlugin.handleDevicePacket(p);
+			}
+		}
+		);
+
+		MotapController motapController = new MotapController();
+		motapController.executeProgramming(otapPlugin, config);
 
 	}
 
@@ -152,7 +181,7 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 
 	private Config parseCmdLine(String[] args) {
 
-		Config config = new Config();
+		config = new Config();
 		Options options = createOptions();
 
 		try {
