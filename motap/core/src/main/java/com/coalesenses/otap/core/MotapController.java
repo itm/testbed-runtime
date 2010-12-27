@@ -19,8 +19,9 @@ public class MotapController {
     private static final long PRESENCE_DETECT_TIMEOUT = 20000;
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(MotapController.class);
+    final Object waitLock = new Object();
 
-    public boolean executeProgramming(Object waitLock, OtapPlugin otapPlugin, OtapConfig config) {
+    public boolean executeProgramming(OtapPlugin otapPlugin, OtapConfig config) {
         otapPlugin.setPresenceDetectState(true);
         long startTime = System.currentTimeMillis();
         List<Long> presentDeviceIds = new Vector<Long>();
