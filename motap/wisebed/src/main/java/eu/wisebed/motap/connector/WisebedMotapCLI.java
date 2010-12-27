@@ -6,6 +6,7 @@ import com.coalesenses.otap.core.connector.DeviceConnector;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpServer;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
@@ -43,6 +44,8 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 	}
 
 	public static void main(String[] args) throws UnknownHostException {
+
+		Logging.setLoggingDefaults();
 
 		WisebedMotapCLI wisebedMotapCLI = new WisebedMotapCLI();
 		wisebedMotapCLI.parseCmdLine(args);

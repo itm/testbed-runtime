@@ -44,31 +44,6 @@ public class AbstractOtapCLI {
 
 		Options options = new Options();
 
-		// session management endpoint url
-		Option sessionManaqementOption = new Option("s", "sessionmanagement", true,
-				"The endpoint URL of the session management service of the testbed."
-		);
-		sessionManaqementOption.setRequired(true);
-		options.addOption(sessionManaqementOption);
-
-		// secret reservation keys
-		Option reservationKeysOptions =
-				new Option("r", "reservationkeys", true,
-						"The (secret) reservation keys that were returned by the reservation system."
-				);
-		reservationKeysOptions.setRequired(true);
-		options.addOption(reservationKeysOptions);
-
-		// controllerendpointurl
-		options.addOption("p", "port", true,
-				"The port of the local controller that is started as a feedback channel for testbed outputs."
-		);
-
-		// nodeURN
-		Option nodeURNOption = new Option("n", "nodeurn", true, "The URN of the node to attach to.");
-		nodeURNOption.setRequired(true);
-		options.addOption(nodeURNOption);
-
 		// binary file
 		Option programOption =
 				new Option("b", "binary", true, "The binary file you want to flash on the nodes");
