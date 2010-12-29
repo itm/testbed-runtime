@@ -33,8 +33,6 @@ import com.google.common.collect.*;
 // Endpoint URL of local controller instance, the testbed will use this URL to send us node outputs
 String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
 String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
-String imageToFlashPath = System.getProperty("testbed.image");
-String nodeUrnToFlash = System.getProperty("testbed.nodeurns");
 
 // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
@@ -70,10 +68,15 @@ final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 Controller controller = new Controller() {
 	public void receive(Message msg) {
-		// nothing to do
+		System.out.print(msg.getSourceNodeId() + "[" + msg.getTimestamp() + "] : ");
+		if (msg.getTextMessage() != null) {
+			System.out.println(msg.getTextMessage().getMessageLevel() + " | " + msg.getTextMessage().getMsg());
+		} else if (msg.getBinaryMessage != null) {
+			System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + " | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+		}
 	}
 	public void receiveStatus(RequestStatus status) {
-		wsn.receive(status);
+		// nothing to do
 	}
 };
 
@@ -81,71 +84,10 @@ DelegatingController delegator = new DelegatingController(controller);
 delegator.publish(localControllerEndpointURL);
 log.info("Local controller published on url: {}", localControllerEndpointURL);
 
-// retrieve reserved node URNs from testbed
-List nodeURNs;
-if (nodeUrnToFlash != null && !"".equals(nodeUrnToFlash)) {
-	nodeURNs = Lists.newArrayList(nodeUrnToFlash.split(","));
-} else {
-	nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
-}
-log.info("Retrieved the following node URNs: {}", nodeURNs);
-
-
-
-	//--------------------------------------------------------------------------
-	// Steps 5..n: Experiment control using the WSN API
-	//--------------------------------------------------------------------------
-
-log.info("Starting experiments...");
-
-Thread.sleep(2000);
-
-log.info("Checking if nodes are alive.");
-
-Future areNodesAliveFuture = wsn.areNodesAlive(nodeURNs, 10, TimeUnit.SECONDS);
-try {
-	JobResult areNodesAliveResult = areNodesAliveFuture.get();
-	log.info("RESULT: {}", areNodesAliveResult);
-	if (areNodesAliveResult.getSuccessPercent() < 100) {
-		System.out.println("Not all nodes are alive. Exiting...");
-		System.exit(1);
+while(true) {
+	try {
+		System.in.read();
+	} catch (Exception e) {
+		System.err.println(e);
 	}
-} catch (Exception e) {
-	log.error("" + e, e);
-	System.exit(1);
 }
-
-	// now flash a program to the nodes
-	System.out.println("Please press ENTER to flash the nodes.");
-	System.in.read();
-	
-    log.info("Flashing nodes...");
-
-	List programIndices;
-	List programs;
-
-	// flash isense nodes
-    programIndices = new ArrayList();
-    programs = new ArrayList();
-    for (int i=0; i<nodeURNs.size(); i++) {
-        programIndices.add(0);
-    }
-    programs.add(helper.readProgram(
-            imageToFlashPath,
-            "",
-            "",
-            "iSense",
-            "1.0"
-    ));
-
-	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 3, TimeUnit.MINUTES);
-	JobResult flashJobResult = flashFuture.get();
-	log.info("{}", flashJobResult);
-	if (flashJobResult.getSuccessPercent() < 100) {
-		System.out.println("Not all nodes could be flashed. Exiting");
-		log.info("{}", flashFuture.get());
-		System.exit(1);
-	}
-	
-	log.info("Done. Shutting down...");
-	System.exit(0);
