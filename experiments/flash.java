@@ -96,7 +96,7 @@ log.info("Retrieved the following node URNs: {}", nodeURNs);
 	// Steps 5..n: Experiment control using the WSN API
 	//--------------------------------------------------------------------------
 
-log.info("Starting experiments...");
+/*log.info("Starting experiments...");
 
 Thread.sleep(2000);
 
@@ -118,7 +118,7 @@ try {
 	// now flash a program to the nodes
 	System.out.println("Please press ENTER to flash the nodes.");
 	System.in.read();
-	
+*/	
     log.info("Flashing nodes...");
 
 	List programIndices;

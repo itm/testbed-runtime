@@ -95,7 +95,7 @@ log.info("Retrieved the following node URNs: {}", nodeURNs);
 	// Steps 5..n: Experiment control using the WSN API
 	//--------------------------------------------------------------------------
 
-log.info("Starting experiments...");
+/*log.info("Starting experiments...");
 
 Thread.sleep(2000);
 
@@ -117,6 +117,7 @@ try {
 // now flash a program to the nodes
 System.out.println("Please press ENTER to reset the nodes.");
 System.in.read();
+*/
 	
 log.info("Resetting nodes...");
 
@@ -124,7 +125,7 @@ Future resetFuture = wsn.resetNodes(nodeURNs, 10, TimeUnit.SECONDS);
 JobResult resetJobResult = resetFuture.get();
 log.info("{}", resetJobResult);
 if (resetJobResult.getSuccessPercent() < 100) {
-	System.out.println("Not all nodes could be flashed. Exiting");
+	System.out.println("Not all nodes could be reset. Exiting");
 	System.exit(1);
 }
 	
