@@ -68,11 +68,15 @@ final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 Controller controller = new Controller() {
 	public void receive(Message msg) {
-		System.out.print(msg.getSourceNodeId() + "[" + msg.getTimestamp() + "] : ");
-		if (msg.getTextMessage() != null) {
-			System.out.println(msg.getTextMessage().getMessageLevel() + " | " + msg.getTextMessage().getMsg());
-		} else if (msg.getBinaryMessage != null) {
-			System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + " | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+		synchronized(System.out) {
+			System.out.print(msg.getTimestamp() + " | " + msg.getSourceNodeId() + " | ");
+			if (msg.getTextMessage() != null) {
+				String msgString = msg.getTextMessage().getMsg();
+				System.out.print(msg.getTextMessage().getMessageLevel() + " | ");
+				System.out.println(msgString.endsWith("\n") ? msgString.substring(0, msgString.length()-2) : msgString);
+			} else if (msg.getBinaryMessage() != null) {
+				System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + " | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+			}
 		}
 	}
 	public void receiveStatus(RequestStatus status) {
