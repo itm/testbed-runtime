@@ -58,7 +58,7 @@ public class ControllerHelper {
 
     private final int maximumDeliveryQueueSize;
 
-    public int getControllerCount() {
+	public int getControllerCount() {
         return controllerEndpoints.size();
     }
 
@@ -153,7 +153,7 @@ public class ControllerHelper {
     private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
 
     /**
-     * Used to deliver messages and request status updates in parallel.
+     * Used to deliver messages and request status messages in parallel.
      */
     private final ScheduledThreadPoolExecutor executorService;
 
@@ -165,10 +165,12 @@ public class ControllerHelper {
      * Constructs a new {@link ControllerHelper} instance.
      */
     public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
-        this.maximumDeliveryQueueSize =
+
+		this.maximumDeliveryQueueSize =
                 maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
+
         executorService = new ScheduledThreadPoolExecutor(1,
-                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build(),
+                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
 				new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
@@ -178,6 +180,7 @@ public class ControllerHelper {
 				}
         );
 		executorService.setMaximumPoolSize(Integer.MAX_VALUE);
+
     }
 
     /**
@@ -235,11 +238,18 @@ public class ControllerHelper {
      */
     public void receiveStatus(RequestStatus requestStatus) {
 
-        if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+		/*
+
+		Experimentally only drop node output messages, not request status updates
+		https://www.itm.uni-luebeck.de/projects/testbed-runtime/ticket/140
+
+        if (statusExecutorService.getQueue().size() > maximumDeliveryQueueSize) {
             log.error("More than {} messages in the delivery queue. Dropping requestStatus!", maximumDeliveryQueueSize);
             // TODO find more elegant solution on how to cope with too much load
             return;
         }
+
+        */
 
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
