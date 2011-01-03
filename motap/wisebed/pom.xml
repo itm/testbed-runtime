@@ -63,7 +63,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.rwglab.remoteuart.wisebed.RemoteUARTWisebedDeviceCLI</mainClass>
+							<mainClass>eu.wisebed.motap.connector.WisebedMotapCLI</mainClass>
 							<onejarVersion>0.97</onejarVersion>
 						</configuration>
 						<goals>

@@ -62,7 +62,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.rwglab.remoteuart.serial.RemoteUARTSerialDeviceCLI</mainClass>
+							<mainClass>com.coalesenses.serial.MotapCLI</mainClass>
 							<onejarVersion>0.97</onejarVersion>
 							<binlibs>
 								<fileSet>
