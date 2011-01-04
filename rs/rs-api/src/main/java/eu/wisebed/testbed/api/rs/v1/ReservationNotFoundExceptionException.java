@@ -1,0 +1,20 @@
+Unstaged changes after reset:
+M	iwsn/runtime.portal/src/main/java/de/uniluebeck/itm/tr/runtime/portalapp/SessionManagementServiceImpl.java
+M	iwsn/runtime.wsn-app/src/main/java/de/uniluebeck/itm/tr/runtime/wsnapp/WSNAppImpl.java
+M	iwsn/runtime/src/main/java/de/uniluebeck/itm/gtr/messaging/srmr/SingleRequestMultiResponseServiceImpl.java
+M	rs/rs-api/src/main/java/eu/wisebed/testbed/api/rs/v1/RS.java
+M	rs/rs-api/src/main/java/eu/wisebed/testbed/api/rs/v1/ReservationNotFoundExceptionException.java
+M	rs/rs-api/src/main/java/eu/wisebed/testbed/api/rs/v1/ReservervationNotFoundExceptionException.java
+M	rs/rs-cmdline/src/test/java/de/uniluebeck/itm/tr/rs/cmdline/FederatorInmemoryTest.java
+M	rs/rs-dummy/src/main/java/de/uniluebeck/itm/tr/rs/dummy/DummyRS.java
+M	rs/rs-federator/src/main/java/de/uniluebeck/itm/tr/rs/federator/FederatorRS.java
+M	rs/rs-persistence-gcal/pom.xml
+M	rs/rs-persistence-gcal/src/main/java/de/uniluebeck/itm/tr/rs/persistence/gcal/GCalRSPersistence.java
+M	rs/rs-persistence-inmemory/src/main/java/de/uniluebeck/itm/tr/rs/persistence/inmemory/InMemoryRSPersistence.java
+M	rs/rs-persistence-inmemory/src/test/java/de/uniluebeck/itm/tr/rs/persistence/inmemory/test/SingleUrnPrefixInmemoryTest.java
+M	rs/rs-persistence-jpa/src/main/java/de/uniluebeck/itm/tr/rs/persistence/jpa/impl/RSPersistenceJPAImpl.java
+M	rs/rs-persistence/src/main/java/de/uniluebeck/itm/tr/rs/persistence/RSPersistence.java
+M	rs/rs-persistence/src/main/java/de/uniluebeck/itm/tr/rs/persistence/RSPersistenceTest.java
+M	rs/rs-persistence/src/test/java/de/uniluebeck/itm/tr/rs/persistence/test/RSPersistenceTest.java
+M	rs/rs-singleurnprefix/src/main/java/de/uniluebeck/itm/tr/rs/singleurnprefix/SingleUrnPrefixRS.java
+M	wisebed-cmdline-client/src/main/java/de/uniluebeck/itm/wisebed/cmdlineclient/DelegatingRS.java

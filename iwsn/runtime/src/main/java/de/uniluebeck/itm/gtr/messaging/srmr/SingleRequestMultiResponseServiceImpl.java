@@ -29,7 +29,6 @@ import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
@@ -103,14 +102,15 @@ public class SingleRequestMultiResponseServiceImpl
 		if (reliableRequest) {
 
 			messageBuilder.setReplyWith(msg.getFrom() + ":" + random.nextLong());
-			testbedRuntime.getReliableMessagingService()
-					.sendAsync(messageBuilder.build(), new ReliableMessagingService.AsyncCallbackAdapter() {
+			testbedRuntime.getReliableMessagingService().sendAsync(
+					messageBuilder.build(),
+					new ReliableMessagingService.AsyncCallbackAdapter() {
 						@Override
 						public void failure(Exception exception) {
 							callback.failure(exception);
 						}
 					}
-					);
+			);
 
 		} else {
 
@@ -152,7 +152,8 @@ public class SingleRequestMultiResponseServiceImpl
 	@Override
 	public void removeListener(SingleRequestMultiResponseListener listener) {
 
-		ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder = ImmutableList.builder();
+		ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder =
+				ImmutableList.builder();
 		for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
 			if (t.getThird() != listener) {
 				listBuilder.add(t);
@@ -267,9 +268,9 @@ public class SingleRequestMultiResponseServiceImpl
 
 						if (matchesMsgType && matchesNodeUrn) {
 							listener.getThird().receiveRequest(
-                                    originalMsg,
-                                    new ResponderImpl(testbedRuntime, msg, request)
-                            );
+									originalMsg,
+									new ResponderImpl(testbedRuntime, msg, request)
+							);
 						}
 
 					}
@@ -304,11 +305,11 @@ public class SingleRequestMultiResponseServiceImpl
 						}
 
 						// notify callback of original requester
-                        boolean done = requestTuple.getSecond().receive(response.getPayload().toByteArray());
-                        // remove from timed cache so that timeout won't occur later on
-                        if (done) {
-                            timedCache.remove(response.getRequestId());
-                        }
+						boolean done = requestTuple.getSecond().receive(response.getPayload().toByteArray());
+						// remove from timed cache so that timeout won't occur later on
+						if (done) {
+							timedCache.remove(response.getRequestId());
+						}
 
 					} else {
 						log.debug("Ignoring response to unknown requestTuple ID");

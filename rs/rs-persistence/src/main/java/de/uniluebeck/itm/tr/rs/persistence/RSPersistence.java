@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.rs.persistence;
 
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import org.joda.time.Interval;
 
@@ -53,16 +53,18 @@ public interface RSPersistence {
 	 * @param secretReservationKey
 	 * @return
 	 * @throws RSExceptionException
-	 * @throws ReservervationNotFoundExceptionException
+	 * @throws eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException
 	 *
 	 */
-	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException, RSExceptionException;
+	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
+			ReservationNotFoundExceptionException, RSExceptionException;
 
 	/**
 	 * @param secretReservationKey
-	 * @throws ReservervationNotFoundExceptionException
+	 * @throws eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException
 	 *
 	 * @throws RSExceptionException
 	 */
-	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws ReservervationNotFoundExceptionException, RSExceptionException;
+	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
+			ReservationNotFoundExceptionException, RSExceptionException;
 }

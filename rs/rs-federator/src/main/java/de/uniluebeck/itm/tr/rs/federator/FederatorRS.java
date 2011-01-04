@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -545,7 +543,7 @@ public class FederatorRS implements RS {
     public List<ConfidentialReservationData> getReservation(
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservervationNotFoundExceptionException {
+            throws RSExceptionException, ReservationNotFoundExceptionException {
 
         assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -570,8 +568,8 @@ public class FederatorRS implements RS {
                 if (e.getCause() instanceof RSExceptionException) {
                     throw (RSExceptionException) e.getCause();
                 }
-                if (e.getCause() instanceof ReservervationNotFoundExceptionException) {
-                    throw (ReservervationNotFoundExceptionException) e.getCause();
+                if (e.getCause() instanceof ReservationNotFoundExceptionException) {
+                    throw (ReservationNotFoundExceptionException) e.getCause();
                 }
                 throwRSException("Unknown exception occured!", e.getCause());
             }
@@ -586,7 +584,7 @@ public class FederatorRS implements RS {
             List<SecretAuthenticationKey> authenticationData,
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservervationNotFoundExceptionException {
+            throws RSExceptionException, ReservationNotFoundExceptionException {
 
         assertNotNull(authenticationData, "authenticationData");
         assertNotNull(secretReservationKey, "secretReservationKey");

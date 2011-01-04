@@ -355,8 +355,7 @@ public class WSNAppImpl implements WSNApp {
 						callback.receivedRequestStatus(requestStatus);
 
 						// cancel the job if error or complete
-						return requestStatus.getStatus().getValue() < 0 || requestStatus.getStatus()
-								.getValue() >= 100;
+						return requestStatus.getStatus().getValue() < 0 || requestStatus.getStatus().getValue() >= 100;
 
 					} catch (InvalidProtocolBufferException e) {
 						log.error("Exception while parsing incoming request status: " + e, e);

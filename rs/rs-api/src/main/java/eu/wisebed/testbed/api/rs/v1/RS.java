@@ -62,7 +62,7 @@ public interface RS {
 	/**
 	 * @param secretReservationKey
 	 * @return returns java.util.List<eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData>
-	 * @throws ReservervationNotFoundExceptionException
+	 * @throws ReservationNotFoundExceptionException
 	 *
 	 * @throws RSExceptionException
 	 */
@@ -73,13 +73,13 @@ public interface RS {
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException
+			throws RSExceptionException, ReservationNotFoundExceptionException
 			;
 
 	/**
 	 * @param secretReservationKey
 	 * @param authenticationData
-	 * @throws ReservervationNotFoundExceptionException
+	 * @throws ReservationNotFoundExceptionException
 	 *
 	 * @throws RSExceptionException
 	 */
@@ -91,7 +91,7 @@ public interface RS {
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException
+			throws RSExceptionException, ReservationNotFoundExceptionException
 			;
 
 	/**
