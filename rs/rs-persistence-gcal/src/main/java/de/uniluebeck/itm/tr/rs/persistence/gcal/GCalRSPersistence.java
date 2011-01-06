@@ -258,8 +258,17 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 
 			for (Entry entry : resultFeed.getEntries()) {
-				reservation = convert(entry).getReservation();
-				reservations.add(reservation);
+				try {
+
+					reservation = convert(entry).getReservation();
+					reservations.add(reservation);
+
+				} catch (RSExceptionException e) {
+					if (e.getCause() instanceof JAXBException) {
+						// ignore and just don't add to reservations, logging is done in create()
+					}
+					throw e;
+				}
 			}
 
 			Collections.sort(reservations, new Comparator<ConfidentialReservationData>() {
