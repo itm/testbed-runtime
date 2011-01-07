@@ -233,7 +233,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		List<ConfidentialReservationData> confidentialReservationDataList;
 		Set<String> reservedNodes = null;
 		if (reservationEndpointUrl != null) {
-			//integrate reservation system
+			// integrate reservation system
 			List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 			confidentialReservationDataList = getReservationDataFromRS(keys);
 			reservedNodes = new HashSet<String>();
@@ -241,10 +241,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// assure that wsnInstance creation doesn't happen before reservation time slot
 			assertReservationIntervalMet(confidentialReservationDataList);
 
-			//get reserved nodes
+			// get reserved nodes
 			for (ConfidentialReservationData data : confidentialReservationDataList) {
-				reservedNodes.addAll(data.getNodeURNs());
+
+				// convert all node URNs to lower case so that we can do easy string-based comparisons
+				for (String nodeURN : data.getNodeURNs()) {
+					reservedNodes.add(nodeURN.toLowerCase());
+				}
 			}
+
 			// assure that nodes are in TestbedRuntime
 			assertNodesInTestbed(reservedNodes, testbedRuntime);
 
