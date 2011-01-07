@@ -44,18 +44,7 @@
         <module>rs/rs-persistence-inmemory</module>
         <module>rs/rs-persistence-jpa</module>
 
-        <module>iwsn/csv2config</module>
-        <module>iwsn/logcontroller</module>
-        <module>iwsn/runtime</module>
-        <module>iwsn/runtime.cmdline</module>
-        <module>iwsn/runtime.portal</module>
-        <module>iwsn/runtime.socket-connector</module>
-        <module>iwsn/runtime.wsn-app</module>
-        <module>iwsn/runtime.xml-testbed-factory</module>
-        <module>iwsn/wsn-api</module>
-        <module>iwsn/wsn-api-client</module>
-        <module>iwsn/wsn-device-drivers</module>
-        <module>iwsn/wsn-federator</module>
+        <module>iwsn/</module>
 
         <module>snaa/snaa-api</module>
         <module>snaa/snaa-cmdline-client</module>

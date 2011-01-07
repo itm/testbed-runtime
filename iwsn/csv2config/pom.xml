@@ -5,9 +5,9 @@
 
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
-        <artifactId>tr</artifactId>
+        <artifactId>tr.iwsn</artifactId>
         <version>0.5.5-SNAPSHOT</version>
-        <relativePath>../../</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
 	<artifactId>tr.csv2config</artifactId>
