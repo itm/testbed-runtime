@@ -75,7 +75,7 @@ Controller controller = new Controller() {
 				System.out.print(msg.getTextMessage().getMessageLevel() + " | ");
 				System.out.println(msgString.endsWith("\n") ? msgString.substring(0, msgString.length()-2) : msgString);
 			} else if (msg.getBinaryMessage() != null) {
-				System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + " | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+				System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + "  | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
 			}
 		}
 	}
