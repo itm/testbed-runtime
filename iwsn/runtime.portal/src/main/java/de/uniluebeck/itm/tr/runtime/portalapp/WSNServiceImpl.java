@@ -374,8 +374,14 @@ public class WSNServiceImpl implements WSNService {
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
+		boolean canConnect = ControllerHelper.testConnectivity(controllerEndpointUrl);
+		if (!canConnect) {
+			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
+					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
+					+ "when calling this method.");
+		}
+
 		controllerHelper.addController(controllerEndpointUrl);
-		//wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override
@@ -383,7 +389,6 @@ public class WSNServiceImpl implements WSNService {
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
 		controllerHelper.removeController(controllerEndpointUrl);
-		//wsnInstanceWebServiceThreadPool.setMaximumPoolSize(controllerHelper.getControllerCount());
 	}
 
 	@Override

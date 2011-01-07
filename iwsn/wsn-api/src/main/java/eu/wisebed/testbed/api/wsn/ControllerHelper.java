@@ -29,6 +29,10 @@ import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -287,4 +291,26 @@ public class ControllerHelper {
     public int getMaximumDeliveryQueueSize() {
         return maximumDeliveryQueueSize;
     }
+
+	public static boolean testConnectivity(String controllerEndpointURL) {
+		try {
+
+			URL url = new URL(controllerEndpointURL);
+			try {
+
+				Socket socket = new Socket(url.getHost(), url.getPort());
+				boolean connected = socket.isConnected();
+				socket.close();
+				return connected;
+
+			} catch (IOException e) {
+				log.warn("Could not connect to controller endpoint host/port. Reason: {}", e.getMessage());
+			}
+
+		} catch (MalformedURLException e) {
+			log.error("" + e, e);
+		}
+		return false;
+	}
+
 }

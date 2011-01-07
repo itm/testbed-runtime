@@ -35,10 +35,7 @@ import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.*;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
@@ -207,6 +204,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
+		boolean canConnect = ControllerHelper.testConnectivity(controller);
+		if (!canConnect) {
+			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
+					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
+					+ "when calling this method.");
+		}
 
 		// extract the one and only relevant secretReservationKey
 		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
