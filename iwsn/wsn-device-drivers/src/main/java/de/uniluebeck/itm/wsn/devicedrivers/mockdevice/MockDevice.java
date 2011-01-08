@@ -345,6 +345,11 @@ public class MockDevice extends iSenseDeviceImpl {
     }
 
 	@Override
+	public boolean isConnected() {
+		return true;
+	}
+
+	@Override
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception {
 		// nothing to do
 	}

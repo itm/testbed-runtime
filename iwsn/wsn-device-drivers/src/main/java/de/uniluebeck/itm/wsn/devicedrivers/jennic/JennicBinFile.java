@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.wsn.devicedrivers.jennic;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.exceptions.FileLoadException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.BinFileDataBlock;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
@@ -162,13 +163,25 @@ public class JennicBinFile implements IDeviceBinFile {
 		int headerStart = ChipType.getHeaderStart(chipType);
 		int headerLength = ChipType.getHeaderLength(chipType);
 
+		if (checkForID(b) == false){
+			log.error("Empty chip ID:"+StringUtils.toHexString(b)+" set correct ID");
+			return false;
+		}
+		
 		if (headerStart >= 0 && headerLength > 0) {
-			log.debug("Writing header for chip type " + chipType + ": " + headerLength + "bytes @ " + headerStart);
+			log.debug("Writing header for chip type " + chipType + ": " + headerLength + "bytes @ " + headerStart +" header="+StringUtils.toHexString(b));
 			insertAt(headerStart, headerLength, b);
 			return true;
 		}
 
 		log.error("Unknown chip type of file " + description);
+		return false;
+	}
+	
+	private boolean checkForID(byte[] b) {
+		for (int i = 0; i < b.length; i++)
+			if (b[i] != -1)
+				return true;
 		return false;
 	}
 

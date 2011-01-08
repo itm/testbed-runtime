@@ -55,7 +55,6 @@ class NamingServiceImpl implements NamingService {
 			}
 
 			log.debug("Added naming entry: {}", entry);
-			log.debug("New naming table contents: {}", namingTable);
 
 		}
 

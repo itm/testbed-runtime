@@ -23,7 +23,10 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import com.google.common.util.concurrent.ValueFuture;
+
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 class LinkControlImpl implements LinkControl {
 
@@ -34,43 +37,51 @@ class LinkControlImpl implements LinkControl {
 	}
 
 	@Override
-	public void setVirtualLink(long destinationNode, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> setVirtualLink(long destinationNode) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.LinkControl.newSetVirtualLinkPacket(
+		ByteBuffer buffer = Packets.LinkControl.newSetVirtualLinkPacket(
 				requestId, destinationNode
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void destroyVirtualLink(long destinationNode, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> destroyVirtualLink(long destinationNode) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.LinkControl.newDestroyVirtualLinkPacket(
+		ByteBuffer buffer = Packets.LinkControl.newDestroyVirtualLinkPacket(
 				requestId, destinationNode
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void enablePhysicalLink(long nodeB, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> enablePhysicalLink(long nodeB) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.LinkControl.newEnablePhysicalLinkPacket(
+		ByteBuffer buffer = Packets.LinkControl.newEnablePhysicalLinkPacket(
 				requestId, nodeB
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 	@Override
-	public void disablePhysicalLink(long nodeB, NodeApiCallback callback) {
+	public Future<NodeApiCallResult> disablePhysicalLink(long nodeB) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = PacketCreator.LinkControl.newDisablePhysicalLinkPacket(
+		ByteBuffer buffer = Packets.LinkControl.newDisablePhysicalLinkPacket(
 				requestId, nodeB
 		);
-		nodeApi.sendToNode(requestId, callback, buffer);
+		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
 	}
 
 }

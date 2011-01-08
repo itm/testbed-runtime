@@ -29,9 +29,15 @@ import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -56,7 +62,7 @@ public class ControllerHelper {
 
     private final int maximumDeliveryQueueSize;
 
-    public int getControllerCount() {
+	public int getControllerCount() {
         return controllerEndpoints.size();
     }
 
@@ -82,11 +88,13 @@ public class ControllerHelper {
 
                 } catch (Exception e) {
                     log.warn("Could not deliver message / request status to Controller at endpoint URL {}. "
-                            + "Trying again in {} {}",
+                            + "Trying again in {} {}"
+                            + "Error = {}",
                             new Object[]{
                                     controllerEntry.getKey(),
                                     RETRY_TIMEOUT,
-                                    RETRY_TIMEUNIT.toString().toLowerCase()
+                                    RETRY_TIMEUNIT.toString().toLowerCase(),
+                                    e
                             }
                     );
                     executorService.schedule(this, RETRY_TIMEOUT, RETRY_TIMEUNIT);
@@ -149,7 +157,7 @@ public class ControllerHelper {
     private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
 
     /**
-     * Used to deliver messages and request status updates in parallel.
+     * Used to deliver messages and request status messages in parallel.
      */
     private final ScheduledThreadPoolExecutor executorService;
 
@@ -161,12 +169,22 @@ public class ControllerHelper {
      * Constructs a new {@link ControllerHelper} instance.
      */
     public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
-        this.maximumDeliveryQueueSize =
+
+		this.maximumDeliveryQueueSize =
                 maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
+
         executorService = new ScheduledThreadPoolExecutor(1,
-                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-Thread %d").build()
+                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
+				new RejectedExecutionHandler() {
+					@Override
+					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
+						log.warn("!!!! ControllerHelper.rejectedExecution !!!! Re-scheduling in 100ms.");
+						executorService.schedule(r, 100, TimeUnit.MILLISECONDS);
+					}
+				}
         );
-        executorService.setMaximumPoolSize(1);
+		executorService.setMaximumPoolSize(Integer.MAX_VALUE);
+
     }
 
     /**
@@ -176,12 +194,10 @@ public class ControllerHelper {
      *                              instance
      */
     public void addController(String controllerEndpointUrl) {
-        Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl);
+        Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, executorService);
         synchronized (controllerEndpoints) {
             controllerEndpoints.put(controllerEndpointUrl, controller);
         }
-        if (getControllerCount() >= executorService.getCorePoolSize())
-            executorService.setMaximumPoolSize(getControllerCount());
     }
 
     /**
@@ -194,8 +210,6 @@ public class ControllerHelper {
         synchronized (controllerEndpoints) {
             controllerEndpoints.remove(controllerEndpointUrl);
         }
-        if (getControllerCount() >= executorService.getCorePoolSize())
-            executorService.setMaximumPoolSize(getControllerCount());
     }
 
     /**
@@ -215,7 +229,8 @@ public class ControllerHelper {
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
                 log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
-                executorService.submit(new DeliverMessageRunnable(controllerEntry, message));
+				DeliverMessageRunnable runnable = new DeliverMessageRunnable(controllerEntry, message);
+				executorService.submit(runnable);
             }
         }
     }
@@ -227,16 +242,27 @@ public class ControllerHelper {
      */
     public void receiveStatus(RequestStatus requestStatus) {
 
-        if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+		/*
+
+		Experimentally only drop node output messages, not request status updates
+		https://www.itm.uni-luebeck.de/projects/testbed-runtime/ticket/140
+
+        if (statusExecutorService.getQueue().size() > maximumDeliveryQueueSize) {
             log.error("More than {} messages in the delivery queue. Dropping requestStatus!", maximumDeliveryQueueSize);
             // TODO find more elegant solution on how to cope with too much load
             return;
         }
 
+        */
+
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-                log.debug("Delivering request status with requestID {} to endpoint URL {}",
-                        requestStatus.getRequestId(), controllerEntry.getKey()
+                log.debug("Delivering request status with requestID {} to endpoint URL {}. Delivery queue size: {}",
+                        new Object[] {
+								requestStatus.getRequestId(),
+								controllerEntry.getKey(),
+								executorService.getQueue().size()
+						}
                 );
                 executorService.submit(new DeliverRequestStatusRunnable(controllerEntry, requestStatus));
             }
@@ -265,4 +291,26 @@ public class ControllerHelper {
     public int getMaximumDeliveryQueueSize() {
         return maximumDeliveryQueueSize;
     }
+
+	public static boolean testConnectivity(String controllerEndpointURL) {
+		try {
+
+			URL url = new URL(controllerEndpointURL);
+			try {
+
+				Socket socket = new Socket(url.getHost(), url.getPort());
+				boolean connected = socket.isConnected();
+				socket.close();
+				return connected;
+
+			} catch (IOException e) {
+				log.warn("Could not connect to controller endpoint host/port. Reason: {}", e.getMessage());
+			}
+
+		} catch (MalformedURLException e) {
+			log.error("" + e, e);
+		}
+		return false;
+	}
+
 }

@@ -48,7 +48,9 @@ public class RSClientView extends JPanel {
     
     private JButton getConfidentialReservationsButton;
 
-    public RSClientView() {
+	private JButton selectNodeUrnsButton;
+
+	public RSClientView() {
         super(new FlowLayout());
         ((FlowLayout) super.getLayout()).setAlignment(FlowLayout.LEFT);
 
@@ -87,9 +89,14 @@ public class RSClientView extends JPanel {
             panel.add(scrollPane);
         }
         {
-            makeReservationButton = new JButton("makeReservation()");
-            panel.add(new JLabel());
-            panel.add(makeReservationButton);
+			panel.add(new JLabel());
+
+			JPanel horizontalPanel = new JPanel(new BorderLayout());
+			makeReservationButton = new JButton("makeReservation()");
+			selectNodeUrnsButton = new JButton("Select Node URNs");
+			horizontalPanel.add(makeReservationButton, BorderLayout.WEST);
+			horizontalPanel.add(selectNodeUrnsButton, BorderLayout.EAST);
+			panel.add(horizontalPanel);
         }
         {
             getReservationsButton = new JButton("getReservations()");
@@ -156,4 +163,8 @@ public class RSClientView extends JPanel {
     public JButton getGetReservationsButton() {
         return getReservationsButton;
     }
+
+	public JButton getSelectNodeUrnsButton() {
+		return selectNodeUrnsButton;
+	}
 }

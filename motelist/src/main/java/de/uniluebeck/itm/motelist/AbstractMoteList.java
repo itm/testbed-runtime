@@ -85,8 +85,7 @@ abstract class AbstractMoteList implements MoteList {
         searchLower16[0] = (byte) (macAddress >> 8 & 0xFF);
         searchLower16[1] = (byte) (macAddress & 0xFF);
 
-        log.debug("Searching for device with MAC address: {}", StringUtils.toHexString(searchLower16));
-
+        log.debug("Searching for {} device with MAC address: {}", type, StringUtils.toHexString(searchLower16));
         for (Map.Entry<String, MacAddress> entry : map.entrySet()) {
 
             byte[] found = entry.getValue().getMacBytes();
@@ -137,6 +136,7 @@ abstract class AbstractMoteList implements MoteList {
             try {
 
                 InputStream from = getClass().getClassLoader().getResourceAsStream(getScriptName());
+
                 FileOutputStream to = null;
 
                 try {
@@ -194,7 +194,7 @@ abstract class AbstractMoteList implements MoteList {
 
             log.debug("Probing {}", data);
 
-            TimeDiff diff = new TimeDiff(1000);
+            TimeDiff diff = new TimeDiff(5000);
             JennicDevice device = new JennicDevice(data.port);
 
             if (device.isConnected()) {
@@ -219,16 +219,19 @@ abstract class AbstractMoteList implements MoteList {
                 );
                 device.triggerGetMacAddress(true);
             }
+            else{
+            	log.error("device not  ");
+            }
 
-            while (!diff.isTimeout()) {
+            while (!diff.isTimeout() && !devices.containsKey(data.port)) {
                 try {
-                    Thread.sleep(50);
+                	Thread.sleep(50);
                 } catch (InterruptedException e) {
                     log.error("" + e, e);
                 }
             }
 
-            if (device.getOperation() == Operation.READ_MAC) {
+            if (!devices.containsKey(data.port) && device.getOperation() == Operation.READ_MAC) {
                 device.cancelOperation(Operation.READ_MAC);
             }
 
@@ -247,7 +250,7 @@ abstract class AbstractMoteList implements MoteList {
 
             log.debug("Probing {}", data.port);
 
-            TimeDiff diff = new TimeDiff(1000);
+            TimeDiff diff = new TimeDiff(5000);
             PacemateDevice device = new PacemateDevice(data.port);
 
             if (device.isConnected()) {
@@ -273,15 +276,15 @@ abstract class AbstractMoteList implements MoteList {
                 device.triggerGetMacAddress(true);
             }
 
-            while (!diff.isTimeout()) {
+            while (!diff.isTimeout() && !devices.containsKey(data.port)) {
                 try {
-                    Thread.sleep(50);
+                	Thread.sleep(50);
                 } catch (InterruptedException e) {
                     log.error("" + e, e);
                 }
             }
 
-            if (device.getOperation() == Operation.READ_MAC) {
+            if (!devices.containsKey(data.port) && device.getOperation() == Operation.READ_MAC) {
                 device.cancelOperation(Operation.READ_MAC);
             }
 

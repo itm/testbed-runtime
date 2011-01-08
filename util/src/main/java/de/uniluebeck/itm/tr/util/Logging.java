@@ -31,20 +31,25 @@ public class Logging {
 	public static void setLoggingDefaults() {
 
 		// configure logging defaults
-		Appender appender = new ConsoleAppender(new PatternLayout("%-4r [%-20.20t] %-5p %-20.20C{1} %x - %m%n"));
+		Appender appender = new ConsoleAppender(new PatternLayout("%-11d{HH:mm:ss,SSS} [%-30.30t] %-5p %-30.30C{1} %x - %m%n"));
 
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
 		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
+        Logger coaLogger = Logger.getLogger("com.coalesenses");
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
-			itmLogger.setLevel(Level.INFO);
+			itmLogger.setLevel(Level.DEBUG);
 		}
 
 		if (!wisebedLogger.getAllAppenders().hasMoreElements()) {
 			wisebedLogger.addAppender(appender);
-			wisebedLogger.setLevel(Level.INFO);
+			wisebedLogger.setLevel(Level.DEBUG);
 		}
 
+        if (!coaLogger.getAllAppenders().hasMoreElements()) {
+			coaLogger.addAppender(appender);
+			coaLogger.setLevel(Level.INFO);
+		}
 	}
 }

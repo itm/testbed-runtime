@@ -1,7 +1,9 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.LinkPropertiesTransformer;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodeItemTransformer;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements.NodePropertiesTransformer;
+import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
 
 public class MergerResources {
 	/*
@@ -16,6 +18,21 @@ public class MergerResources {
 	*/
 	private NodePropertiesTransformer nodePropertiesTransformer;
 	private LinkPropertiesTransformer linkPropertiesTransformer;
+	
+	private NodeItemTransformer nodeItemTransformer;
+	
+	private TimeInfo[] inputTimeInfos;
+	private TimeInfo outputTimeInfo;
+	private boolean timestampOffsetDefined;
+	
+	public boolean isTimestampOffsetDefined() {
+		return timestampOffsetDefined;
+	}
+
+	public void setTimestampOffsetDefined(boolean timestampOffsetDefined) {
+		this.timestampOffsetDefined = timestampOffsetDefined;
+	}
+
 	/*
 	public void setOrigins(Coordinate[] inputOrigins, Coordinate outputOrigin) {
 		this.inputOrigins = inputOrigins;
@@ -50,5 +67,28 @@ public class MergerResources {
 		this.linkPropertiesTransformer = linkPropertiesTransformer;
 	}
 
+	public TimeInfo getOutputTimeInfo() {
+		return outputTimeInfo;
+	}
+
+	public void setOutputTimeInfo(TimeInfo timeInfo) {
+		this.outputTimeInfo = timeInfo;
+	}
+
+	public NodeItemTransformer getNodeItemTransformer() {
+		return nodeItemTransformer;
+	}
+
+	public void setNodeItemTransformer(NodeItemTransformer nodeItemTransformer) {
+		this.nodeItemTransformer = nodeItemTransformer;
+	}
+
+	public TimeInfo getInputTimeInfo(int inputIndex) {
+		return inputTimeInfos[inputIndex];
+	}
+
+	public void setInputTimeInfos(TimeInfo[] infos) {
+		this.inputTimeInfos = infos;
+	}
 	
 }

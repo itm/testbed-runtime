@@ -54,7 +54,6 @@ public class RSServiceHelper {
 	 */
 	public static RS getRSService(String endpointUrl) {
 
-		QName qName = new QName("urn:RSService", "RSService");
 		InputStream resourceStream = RSServiceHelper.class.getClassLoader().getResourceAsStream("RS.wsdl");
 
 		tmpFileRSLock.lock();
@@ -72,7 +71,7 @@ public class RSServiceHelper {
 
 		RSService service;
 		try {
-			service = new RSService(tmpFileRS.toURI().toURL(), qName);
+			service = new RSService(tmpFileRS.toURI().toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

@@ -37,6 +37,8 @@ class WSNDeviceAppModule extends AbstractModule {
 
 	static final String NAME_NODE_TYPE = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_NODE_TYPE";
 
+	static final String NAME_USB_CHIP_ID = "de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_USB_CHIP_ID";
+
 	static final String NAME_SERIAL_INTERFACE =
 			"de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppModule/NAME_SERIAL_INTERFACE";
 
@@ -53,10 +55,13 @@ class WSNDeviceAppModule extends AbstractModule {
 
 	private Integer nodeAPITimeout;
 
+	private String nodeUSBChipID;
+
 	public WSNDeviceAppModule(String nodeUrn,
 							  String type,
 							  @Nullable String serialInterface,
 							  @Nullable Integer nodeAPITimeout,
+							  @Nullable String nodeUSBChipID,
 							  TestbedRuntime testbedRuntime) {
 
 		Preconditions.checkNotNull(nodeUrn);
@@ -67,6 +72,7 @@ class WSNDeviceAppModule extends AbstractModule {
 		this.type = type;
 		this.serialInterface = serialInterface;
 		this.nodeAPITimeout = nodeAPITimeout;
+		this.nodeUSBChipID = nodeUSBChipID;
 
 		this.testbedRuntime = testbedRuntime;
 
@@ -92,6 +98,14 @@ class WSNDeviceAppModule extends AbstractModule {
 		} else {
 			bind(Integer.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT))
 					.toInstance(nodeAPITimeout);
+		}
+		if (nodeUSBChipID == null) {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID)).toProvider(
+					Providers.of((String) null)
+			);
+		} else {
+			bind(String.class).annotatedWith(Names.named(WSNDeviceAppModule.NAME_USB_CHIP_ID))
+					.toInstance(nodeUSBChipID);
 		}
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
 

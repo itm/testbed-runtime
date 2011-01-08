@@ -30,39 +30,22 @@ import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- */
+
 public interface WSNApp extends Service, TestbedApplication {
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
-	/**
-	 *
-	 */
-	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 
-	/**
-	 *
-	 */
-	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
-	/**
-	 *
-	 */
-	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK = WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
+	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK =
+			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
 
-	/**
-	 *
-	 */
 	public static interface Callback {
 
 		void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
@@ -71,58 +54,35 @@ public interface WSNApp extends Service, TestbedApplication {
 
 	}
 
-	/**
-	 * @param nodeUrns
-	 * @param message
-	 * @param callback
-	 */
 	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
-	/**
-	 * @param nodeUrns
-	 * @param callback
-	 */
 	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
-	/**
-	 * @param programs
-	 * @param callback
-	 */
 	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
 
-	/**
-	 * @param nodeUrns
-	 * @param callback
-	 */
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
-	/**
-	 * @param receiver
-	 */
 	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
-	/**
-	 * @param receiver
-	 */
 	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
-	/**
-	 * @param sourceNodeUrn
-	 * @param targetNodeUrn
-	 * @param callback
-	 */
 	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
-	/**
-	 * @param sourceNodeUrn
-	 * @param targetNodeUrn
-	 * @param callback
-	 */
 	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
+			throws UnknownNodeUrnException_Exception;
+
+	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
+
+	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
+
+	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
+			throws UnknownNodeUrnException_Exception;
+
+	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
 }

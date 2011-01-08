@@ -84,6 +84,11 @@ public class HtmlWriter implements JobResultListener {
 	}
 
 	@Override
+	public void timeout() {
+		// nothing to do
+	}
+
+	@Override
 	public synchronized void receiveJobResult(JobResult result) {
 		Duration duration = new Duration(result.getStartTime(), result.getEndTime());
 		JobType type = result.getJobType();

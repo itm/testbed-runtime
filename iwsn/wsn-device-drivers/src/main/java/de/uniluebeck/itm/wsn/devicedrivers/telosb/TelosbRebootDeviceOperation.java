@@ -60,16 +60,13 @@ public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 	@Override
 	public void run() {
 		try {
-			if (getDevice().reset()) {
-				operationDone(new Boolean(true));
-			} else {
-				operationDone(null);
-			}
-		} catch (Exception e) {
-			log.error("Error on rebooting device: " + e, e);
+			boolean ok = getDevice().reset();
+			log.info("Resetted device");
+			operationDone(ok ? new Boolean(true) : null);
+		} catch (Throwable t) {
+			log.warn("Error while resetting device: " + t, t);
 			operationDone(null);
 		}
-
 	}
 
 }

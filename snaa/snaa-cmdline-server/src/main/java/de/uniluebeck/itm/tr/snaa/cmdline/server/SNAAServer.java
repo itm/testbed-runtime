@@ -24,15 +24,24 @@
 package de.uniluebeck.itm.tr.snaa.cmdline.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
+import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
+import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
+import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -53,13 +62,13 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("restriction")
 public class SNAAServer {
 
-	private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
-
-    private static final String shibbolethSecretUserKeyUrl = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
+    private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 
     private static SNAA federator;
 
     private static HttpServer server;
+
+    private static Injector shibbolethInjector = Guice.createInjector(new ShibbolethSNAAModule());
 
     private enum FederatorType {
         GENERIC, WISEBED
@@ -116,6 +125,7 @@ public class SNAAServer {
 
     }
 
+
     public static HttpServer startFromProperties(Properties props) throws Exception {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
         int port = Integer.parseInt(props.getProperty("config.port", "8080"));
@@ -123,6 +133,10 @@ public class SNAAServer {
         startHttpServer(port);
 
         Set<String> snaaNames = parseCSV(props.getProperty("config.snaas", ""));
+
+        //set optional proxy for shibboleth
+        ShibbolethProxy shibbolethProxy;
+        shibbolethProxy = setOptionalShibbolethProxy(props);
 
         String type, urnprefix, path;
         for (String snaaName : snaaNames) {
@@ -149,11 +163,9 @@ public class SNAAServer {
                     createAndSetAuthenticationAttributes(snaaName, props, authorization);
                 }
 
-                String secretAuthkeyUrl = props.getProperty(snaaName + ".secret_user_key_url",
-                        shibbolethSecretUserKeyUrl
-                );
+                String secretAuthkeyUrl = props.getProperty(snaaName + ".authorization.url");
 
-                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization);
+                startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector, shibbolethProxy);
 
             } else if ("jaas".equals(type)) {
 
@@ -188,7 +200,7 @@ public class SNAAServer {
 
                 if ("wisebed-federator".equals(type)) {
                     fedType = FederatorType.WISEBED;
-                    secretAuthkeyUrl = props.getProperty(props.getProperty(snaaName + ".secret_user_key_url", ""));
+                    secretAuthkeyUrl = props.getProperty(snaaName + ".authentication.url");                    
                 }
 
                 // endpoint url -> set<urnprefix>
@@ -201,15 +213,13 @@ public class SNAAServer {
                             + ".urnprefixes"
                     )
                     );
-                    String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl",
-                            shibbolethSecretUserKeyUrl
-                    );
+                    String endpointUrl = props.getProperty(snaaName + "." + federatedName + ".endpointurl");
 
                     federatedUrnPrefixes.put(endpointUrl, urnPrefixes);
 
                 }
 
-                startFederator(fedType, path, secretAuthkeyUrl, federatedUrnPrefixes);
+                startFederator(fedType, path, secretAuthkeyUrl, shibbolethInjector, shibbolethProxy, federatedUrnPrefixes);
 
             } else {
                 log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
@@ -219,6 +229,15 @@ public class SNAAServer {
 
         return server;
 
+    }
+
+    private static ShibbolethProxy setOptionalShibbolethProxy(Properties props) {
+        String shibbolethProxyHost = props.getProperty("config.shibboleth.proxyHost");
+        String shibbolethProxyPort = props.getProperty("config.shibboleth.proxyPort");
+        if (shibbolethProxyHost != null && shibbolethProxyPort != null){
+            return new ShibbolethProxy(shibbolethProxyHost, Integer.parseInt(shibbolethProxyPort));
+        }
+        return null;
     }
 
     private static IUserAuthorization getAuthorizationModule(String className) throws ClassNotFoundException,
@@ -256,7 +275,7 @@ public class SNAAServer {
 
     }
 
-    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization) {
+    private static void startShibbolethSNAA(String path, String prefix, String secretKeyURL, IUserAuthorization authorization, Injector injector, ShibbolethProxy shibbolethProxy) {
 
         log.debug("Starting Shibboleth SNAA, path [" + path + "], prefix[" + prefix + "], secretKeyURL[" + secretKeyURL
                 + "]"
@@ -265,7 +284,7 @@ public class SNAAServer {
         Set<String> prefixes = new HashSet<String>();
         prefixes.add(prefix);
 
-        ShibbolethSNAA shibSnaa = new ShibbolethSNAA(prefixes, secretKeyURL, authorization);
+        ShibbolethSNAAImpl shibSnaa = new ShibbolethSNAAImpl(prefixes, secretKeyURL, authorization, injector, shibbolethProxy);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shibSnaa);
@@ -275,8 +294,8 @@ public class SNAAServer {
 
     }
 
-    private static void startFederator(FederatorType type, String path, String secretAuthKeyURL,
-                                       Map<String, Set<String>>... prefixSets) {
+    private static void startFederator(FederatorType type, String path, String secretAuthKeyURL, Injector injector,
+                                       ShibbolethProxy shibbolethProxy, Map<String, Set<String>>... prefixSets) {
 
         // union the prefix sets to one set
         Map<String, Set<String>> prefixSet = new HashMap<String, Set<String>>();
@@ -299,7 +318,7 @@ public class SNAAServer {
                 federator = new FederatorSNAA(prefixSet);
                 break;
             case WISEBED:
-                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL);
+                federator = new WisebedSnaaFederator(prefixSet, secretAuthKeyURL, injector, shibbolethProxy);
                 break;
         }
 
@@ -346,13 +365,9 @@ public class SNAAServer {
     private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/shib1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+		SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
 
-        AuthenticationTriple auth1 = new AuthenticationTriple();
+		AuthenticationTriple auth1 = new AuthenticationTriple();
         auth1.setUrnPrefix("urn:wisebed:shib1");
         auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
         auth1.setPassword("xxx");
@@ -370,11 +385,7 @@ public class SNAAServer {
     private static void callFederatorAsWS() throws MalformedURLException, SNAAExceptionException,
             AuthenticationExceptionException {
 
-        SNAAService service = new SNAAService(new URL("http://localhost:8080/snaa/fed1"), new QName(
-                "http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"
-        )
-        );
-        SNAA port = service.getPort(SNAA.class);
+        SNAA port = SNAAServiceHelper.getSNAAService("http://localhost:8080/snaa/fed1");
 
         List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
 
@@ -436,15 +447,46 @@ public class SNAAServer {
 
     }
 
-    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) {
+    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
         ((AttributeBasedAuthorization) authorization).setAttributes(attributes);
+        ((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
     }
 
     private static String authorizationAtt = ".authorization";
     private static String authorizationKeyAtt = ".key";
     private static String authorizationValAtt = ".value";
-    private static String authorizationCompAtt = ".comp";
+    private static String authorizationDataSource = ".datasource";
+    private static String authorizationDataSourceUsername = ".username";
+    private static String authorizationDataSourcePassword = ".password";
+    private static String authorizationDataSourceUrl = ".url";
+
+    private static AuthorizationDataSource getAuthorizationDataSource(String snaaName, Properties props) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        for (Object o : props.keySet()) {
+            String dataSourceName = snaaName + authorizationAtt + authorizationDataSource;
+            if (o.equals(dataSourceName)) {
+                AuthorizationDataSource dataSource = (AuthorizationDataSource) Class.forName(props.getProperty((String) o)).newInstance();
+
+                String dataSourceUsername = props.getProperty(dataSourceName + authorizationDataSourceUsername);
+                String dataSourcePassword = props.getProperty(dataSourceName + authorizationDataSourcePassword);
+                String dataSourceUrl = props.getProperty(dataSourceName + authorizationDataSourceUrl);
+
+                if (dataSourceUsername != null) {
+                    dataSource.setUsername(dataSourceUsername);
+                }
+                if (dataSourcePassword != null) {
+                    dataSource.setPassword(dataSourcePassword);
+                }
+                if (dataSourceUrl != null) {
+                    dataSource.setUrl(dataSourceUrl);
+                }
+
+                return dataSource;
+            }
+        }
+        //set default
+        return new ShibbolethDataSource();
+    }
 
     private static Map<String, String> createAuthorizationAttributeMap(String snaaName, Properties props) {
         Map<String, String> attributes = new HashMap<String, String>();
@@ -457,14 +499,14 @@ public class SNAAServer {
             }
         }
 
-        for (String k : keys){
+        for (String k : keys) {
             String key = props.getProperty(k);
             //getting plain key-number from properties
             String plainKeyProperty = k.replaceAll(snaaName + authorizationAtt + ".", "");
             plainKeyProperty = plainKeyProperty.replaceAll(authorizationKeyAtt, "");
 
             String keyPrefix = snaaName + authorizationAtt + "." + plainKeyProperty;
-            
+
             //building value-property-string
             String value = props.getProperty(keyPrefix + authorizationValAtt);
 
@@ -473,5 +515,9 @@ public class SNAAServer {
         }
 
         return attributes;
+    }
+
+    public static void setMockShibbolethInjector(){
+        shibbolethInjector = Guice.createInjector(new MockShibbolethSNAAModule());
     }
 }

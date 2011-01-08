@@ -24,4 +24,13 @@ public enum MoteType {
 		}
 	}
 
+	public static String getTypesString() {
+		return ISENSE.typeStr + ", " + TELOSB.typeStr + ", " + PACEMATE.typeStr;
+	}
+
+	@Override
+	public String toString() {
+		return typeStr;
+	}
+
 }

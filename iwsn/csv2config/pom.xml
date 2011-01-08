@@ -5,9 +5,9 @@
 
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
-        <artifactId>tr</artifactId>
-        <version>0.5.4-SNAPSHOT</version>
-        <relativePath>../../</relativePath>
+        <artifactId>tr.iwsn</artifactId>
+        <version>0.5.5-SNAPSHOT</version>
+        <relativePath>../</relativePath>
     </parent>
 
 	<artifactId>tr.csv2config</artifactId>
@@ -75,7 +75,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.testbedconfiggenerator.TestbedConfigGenerator</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.csv2config.CSV2Config</mainClass>
 							<onejarVersion>0.97-RC8</onejarVersion>
 						</configuration>
 						<goals>

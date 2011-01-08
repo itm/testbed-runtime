@@ -3,6 +3,7 @@ package de.itm.uniluebeck.tr.wiseml.merger.internals.tree;
 import java.util.List;
 
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLAttribute;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 
 public interface WiseMLTreeReader {
@@ -21,5 +22,8 @@ public interface WiseMLTreeReader {
 	public List<WiseMLAttribute> getAttributeList();
 	public WiseMLTag getTag();
 	public String getText();
+	
+	// only if mapped to a sequence
+	public WiseMLSequence getSequence();
 
 }

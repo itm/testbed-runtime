@@ -24,12 +24,16 @@
 package de.uniluebeck.itm.gtr.wsngui;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 import javax.xml.bind.JAXBContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.awt.*;
@@ -37,12 +41,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-/**
- * Created by: User: bimschas Date: 05.03.2010 Time: 13:39:44
- */
+
 public class Dialogs {
+
+    public static Set<String> showNodeUrnSelectionDialog() {
+        Dialogs.SelectNodeURNsPanel selectNodeURNsPanel = new Dialogs.SelectNodeURNsPanel();
+        Dialogs.InputDialog<Set<String>> dialog = new Dialogs.InputDialog<Set<String>>(
+                "Select Node URNs",
+                selectNodeURNsPanel
+        );
+        dialog.setVisible(true);
+        return dialog.getResult();
+    }
 
     public static void showTextDialog(final String text, boolean tidyXml) {
         String displayText = text;
@@ -152,6 +166,164 @@ public class Dialogs {
         }
 
         public abstract T getResult();
+
+    }
+
+    public static class SelectNodeURNsPanel extends AbstractResultPanel<Set<String>> {
+
+        private JTable table;
+
+        private JTextField sessionManagementEndpointURLTextField;
+
+        private MyTableModel tableModel;
+
+        private static class MyTableModel extends AbstractTableModel {
+
+            private String[] tableColumns = new String[]{"urn", "type"};
+
+            private Object[][] tableData;
+
+            private MyTableModel(final Object[][] tableData) {
+                this.tableData = tableData;
+            }
+
+            @Override
+            public String getColumnName(final int column) {
+                return tableColumns[column];
+            }
+
+            @Override
+            public int findColumn(final String columnName) {
+                return "urn".equals(columnName) ? 0 : 1;
+            }
+
+            @Override
+            public Class<?> getColumnClass(final int columnIndex) {
+                return String.class;
+            }
+
+            @Override
+            public int getRowCount() {
+                return tableData.length;
+            }
+
+            @Override
+            public int getColumnCount() {
+                return 2;
+            }
+
+            @Override
+            public Object getValueAt(final int rowIndex, final int columnIndex) {
+                return tableData[rowIndex][columnIndex];
+            }
+
+            public void setTableData(final Object[][] tableData) {
+                this.tableData = tableData;
+                fireTableDataChanged();
+            }
+
+        }
+
+        public SelectNodeURNsPanel() {
+
+            super(new FlowLayout());
+
+            JPanel panel = new JPanel(new GridBagLayout());
+            add(panel);
+
+            GridBagConstraints c;
+
+            tableModel = new MyTableModel(new Object[0][]);
+
+            c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 0;
+            panel.add(new JLabel("Session Management Endpoint URL"), c);
+
+            c = new GridBagConstraints();
+            c.gridx = 1;
+            c.gridy = 0;
+            sessionManagementEndpointURLTextField = new JTextField();
+            sessionManagementEndpointURLTextField.setColumns(40);
+            panel.add(sessionManagementEndpointURLTextField, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 1;
+            panel.add(new JLabel(), c);
+
+            c = new GridBagConstraints();
+            c.gridx = 1;
+            c.gridy = 1;
+            JButton refreshTableButton = new JButton("Refresh table");
+            refreshTableButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+
+                    try {
+
+                        String endpointUrl = sessionManagementEndpointURLTextField.getText();
+                        SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                        setTableData(smService.getNetwork());
+
+                    } catch (Exception e1) {
+                        JOptionPane.showMessageDialog(null, e1.getMessage());
+                    }
+
+                }
+            }
+            );
+            panel.add(refreshTableButton, c);
+
+            table = new JTable(tableModel);
+            c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 2;
+            JScrollPane scrollPane = new JScrollPane(table);
+            table.setFillsViewportHeight(true);
+            panel.add(scrollPane, c);
+
+            TableColumn column;
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                column = table.getColumnModel().getColumn(i);
+                if (i == 0) {
+                    column.setPreferredWidth(100);
+                } else {
+                    column.setPreferredWidth(50);
+                }
+            }
+
+        }
+
+        private void setTableData(String wisemlString) throws Exception {
+
+            JAXBContext jc = JAXBContext.newInstance(Wiseml.class);
+            Wiseml wiseml = (Wiseml) jc.createUnmarshaller().unmarshal(new StringReader(wisemlString));
+
+            List<Setup.Node> nodes = wiseml.getSetup().getNode();
+            Object[][] tableData = new Object[nodes.size()][];
+
+            int i = 0;
+            for (Setup.Node node : nodes) {
+                tableData[i] = new Object[2];
+                tableData[i][0] = node.getId();
+                tableData[i][1] = node.getNodeType();
+                i++;
+            }
+
+            tableModel.setTableData(tableData);
+
+        }
+
+        @Override
+        public Set<String> getResult() {
+            int[] selectedRows = table.getSelectedRows();
+            Set<String> selectedNodeUrns = new HashSet<String>(selectedRows.length);
+            for (int selectedRow : selectedRows) {
+                selectedNodeUrns.add((String) tableModel.getValueAt(selectedRow, 0));
+            }
+            return selectedNodeUrns;
+        }
 
     }
 

@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
+import java.util.concurrent.Future;
+
 
 public interface NetworkDescription {
 
@@ -30,12 +32,16 @@ public interface NetworkDescription {
 	 * Request this Node for a special property value
 	 *
 	 * @param property request the property specified by this value
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void getPropertyValue(byte property, NodeApiCallback callback);
+	Future<NodeApiCallResult> getPropertyValue(byte property);
 
 	/**
 	 * Request a Neighborhoodlist from this node
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	void getNeighborhood(NodeApiCallback callback);
+	Future<NodeApiCallResult> getNeighborhood();
 
 }

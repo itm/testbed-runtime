@@ -62,7 +62,7 @@ public class WSNBinding {
      * delegate for the controller-service, intercepts all receive()-calls
      */
     @WebService(name = "ProxyController", targetNamespace = "urn:ControllerService")
-    public class proxyController implements Controller {
+    public class ProxyController implements Controller {
         @Override
         public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
             _log.debug("before intercept");
@@ -131,7 +131,7 @@ public class WSNBinding {
         setController(controllerEndpoint);
         String controllerAddress = _controllerUrnPrefix + _secureIdGenerator.getNextId();
         _controllerEndpoint = Endpoint.publish(controllerAddress,
-                new proxyController());
+                new ProxyController());
         _log.debug("Controller-Service on {} published", controllerAddress);
         return controllerAddress;
     }

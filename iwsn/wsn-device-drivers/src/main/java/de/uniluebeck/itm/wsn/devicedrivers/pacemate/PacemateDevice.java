@@ -40,6 +40,7 @@ import java.io.*;
 import java.util.Enumeration;
 
 public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventListener {
+
 	private static final Logger log = LoggerFactory.getLogger(PacemateDevice.class);
 
 	private InputStream inStream = null;
@@ -65,8 +66,6 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	private enum ComPortMode {
 		Normal, Program
 	}
-
-	;
 
 	private String serialPortName;
 
@@ -103,17 +102,20 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		if (serialPortName != null && serialPort == null) {
 			try {
 				setSerialPort(serialPortName);
-				if (serialPort == null)
+				if (serialPort == null) {
 					log.debug("connect(): serialPort==null");
+				}
 			} catch (PortInUseException piue) {
 				log.debug("Port already in use. Connection will be removed. ");
-				if (serialPort != null)
+				if (serialPort != null) {
 					serialPort.close();
+				}
 				// this.owner.removeConnection(this);
 				return false;
 			} catch (Exception e) {
-				if (serialPort != null)
+				if (serialPort != null) {
 					serialPort.close();
+				}
 				log.debug("Port does not exist. Connection will be removed. " + e, e);
 				return false;
 			}
@@ -124,30 +126,29 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	@SuppressWarnings("unchecked")
 	public void setSerialPort(String port) throws Exception {
-		Enumeration e = CommPortIdentifier.getPortIdentifiers();
+		log.debug("PacemateDevice.setSerialPort({})", port);
+		CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
 		SerialPort sp = null;
-		for (; e.hasMoreElements();) {
-			CommPortIdentifier cpi = (CommPortIdentifier) e.nextElement();
-			if (cpi.getName().equals(port)) {
-				CommPort commPort = null;
-				for (int i = 0; i < MAX_RETRIES; i++) {
-					try {
-						commPort = cpi.open(this.getClass().getName(), 1000);
-						break;
-					} catch (PortInUseException piue) {
-						log.debug("Port in Use Retrying to connect");
-						if (i >= MAX_RETRIES - 1)
-							throw (piue);
-						Thread.sleep(200);
-					}
-				}
-				if (commPort instanceof SerialPort)
-					sp = (SerialPort) commPort;// cpi.open("iShell", 1000);
-				else
-					log.debug("Port is no SerialPort");
+		CommPort commPort = null;
+		for (int i = 0; i < MAX_RETRIES; i++) {
+			try {
+				commPort = cpi.open(this.getClass().getName(), 1000);
 				break;
+			} catch (PortInUseException piue) {
+				log.debug("Port in Use Retrying to connect");
+				if (i >= MAX_RETRIES - 1) {
+					throw (piue);
+				}
+				Thread.sleep(200);
 			}
 		}
+
+		if (commPort instanceof SerialPort) {
+			sp = (SerialPort) commPort;
+		} else {
+			log.debug("Port is no SerialPort");
+		}
+		
 		serialPort = sp;
 		serialPort.addEventListener(this);
 		serialPort.notifyOnDataAvailable(true);
@@ -182,7 +183,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		serialPort.setDTR(false);
 		Thread.sleep(200);
 		serialPort.setRTS(false);
-		log.error("Entered programming mode the Pacemate style");
+		log.info("Entered programming mode the Pacemate style");
 
 		// log.debug("Com port in programming mode");
 		return true;
@@ -199,7 +200,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		serialPort.setDTR(false);
 		serialPort.setRTS(false);
-		// log.debug("Setting COM-Port parameters (new style): baudrate: " + baudrate);
+		log.debug("Setting COM-Port parameters (new style): baudrate: " + serialPort.getBaudRate());
 	}
 
 	public void leaveProgrammingMode() throws Exception {
@@ -223,28 +224,18 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		sendBootLoaderMessage(Messages.ReadPartIDRequestMessage());
 
 		// Read chip type read response
-		byte[] response = receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		String response = receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 		ChipType chipType = ChipType.Unknown;
-		int chipid = 0;
 
-		if (response.length > 6) {
-			int i = 6;
-			while ((i < response.length) && (response[i] != 0xd)) {
-				chipid = chipid * 10;
-				chipid = chipid + (response[i] - 0x30);
-				i++;
-			}
-		}
-
-		if (chipid == 196387)
+		if (response.compareTo("196387") == 0) {
 			chipType = ChipType.LPC2136;
-		else {
-			log.error("Defaulted to chip type LPC2136 (Pacemate). Identification may be wrong." + chipid);
+		} else {
+			log.error("Defaulted to chip type LPC2136 (Pacemate). Identification may be wrong." + response);
 			chipType = ChipType.LPC2136;
 		}
 
-		log.debug("Chip identified as " + chipType + " (received " + chipid + ")");
+		log.debug("Chip identified as " + chipType + " (received " + response + ")");
 		return chipType;
 	}
 
@@ -311,10 +302,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	@Override
 	public Operation getOperation() {
-		if (operation == null)
+		if (operation == null) {
 			return Operation.NONE;
-		else
+		} else {
 			return operation.getOperation();
+		}
 	}
 
 	@Override
@@ -322,14 +314,16 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// if (connected) {
 
 		try {
-			if (inStream != null)
+			if (inStream != null) {
 				inStream.close();
+			}
 		} catch (IOException e) {
 			log.debug("Failed to close in-stream :" + e, e);
 		}
 		try {
-			if (outStream != null)
+			if (outStream != null) {
 				outStream.close();
+			}
 		} catch (IOException e) {
 			log.debug("Failed to close out-stream :" + e, e);
 		}
@@ -346,7 +340,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 *
 	 * @param address
 	 * @param len
+	 *
 	 * @return
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -357,7 +353,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	/**
 	 * @param address
 	 * @param len
+	 *
 	 * @return
+	 *
 	 * @throws Exception
 	 */
 	public byte[] readFlash(long address, int len) throws Exception {
@@ -366,7 +364,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		sendBootLoaderMessage(Messages.flashReadRequestMessage(address, len));
 
 		// Read flash program response
-		byte[] response = receiveBootLoaderReply(Messages.DATA);
+		byte[] response = receiveBootLoaderReplyReadData();
 
 		// Return data
 		return response;
@@ -382,33 +380,29 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	/**
 	 * Pacemate style
 	 */
-	public byte[] writeToRAM(long address, int len) throws Exception {
+	public void writeToRAM(long address, int len) throws Exception {
 		// Send flash program request
 		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.writeToRAMRequestMessage(address, len));
-
+		//System.out.println("send ready");
 		// Read flash program response
-		byte[] response = receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 		// log.debug("write to RAM ok");
-
-		return response;
 	}
 
 	/**
 	 * Pacemate style
 	 */
-	public byte[] copyRAMToFlash(long flashAddress, long ramAddress, int len) throws Exception {
+	public void copyRAMToFlash(long flashAddress, long ramAddress, int len) throws Exception {
 		// Send flash program request
 		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.copyRAMToFlashRequestMessage(flashAddress, ramAddress, len));
 
 		// Read flash program response
-		byte[] response = receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 		// log.debug("Copy Ram to Flash ok");
-
-		return response;
 	}
 
 	protected void configureFlash() throws Exception {
@@ -420,7 +414,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		sendBootLoaderMessage(Messages.flashConfigureRequestMessage(3, 14));
 
 		// Read flash configure response
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 		// log.debug("Done. Flash is configured");
 	}
@@ -434,7 +428,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		sendBootLoaderMessage(Messages.flashConfigureRequestMessage(start, end));
 
 		// Read flash configure response
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 		// log.debug("Done. Flash is configured");
 	}
@@ -443,7 +437,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// log.debug("Erase Flash");
 		sendBootLoaderMessage(Messages.Unlock_RequestMessage());
 
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
 	}
 
@@ -453,9 +447,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		log.debug("Erasing flash");
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(3, 14));
 
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		try {
-			receiveBootLoaderReply(Messages.CMD_SUCCESS);
+			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		} catch (TimeoutException e) {
 			log.debug("one line erase response");
 		}
@@ -471,7 +465,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		log.debug("Erasing sector "/* + sector*/);
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(3, 14));
 
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 	}
 
 	public void eraseFlash(int start, int end) throws Exception {
@@ -479,9 +473,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		log.debug("Erasing sector "/* + sector*/);
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(start, end));
 
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		try {
-			receiveBootLoaderReply(Messages.CMD_SUCCESS);
+			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		} catch (TimeoutException e) {
 			log.debug("one line erase response");
 		}
@@ -492,7 +486,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		log.debug("Start write to RAM "/* + sector*/);
 		sendBootLoaderMessage(Messages.writeToRAMRequestMessage(startAddress, numberOfBytes));
 
-		receiveBootLoaderReply(Messages.CMD_SUCCESS);
+		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 	}
 
 	public void serialEvent(SerialPortEvent event) {
@@ -524,7 +518,8 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// log.debug("JD: Sending " + p);
 
 		if (operationInProgress()) {
-			log.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName() + ")");
+			log.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName() + ")"
+			);
 			return;
 		}
 
@@ -545,14 +540,16 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		// Send the type escaped
 		outStream.write(type);
-		if (type == DLE)
+		if (type == DLE) {
 			outStream.write(DLE);
+		}
 
 		// Transmit each byte escaped
 		for (int i = 0; i < b.length; ++i) {
 			outStream.write(b[i]);
-			if (b[i] == DLE)
+			if (b[i] == DLE) {
 				outStream.write(DLE);
+			}
 		}
 		// Compute CRC over packet (including the type)
 		/*
@@ -631,20 +628,23 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		outStream.write(data);
 		outStream.flush();
 
-		receiveBootLoaderReply(Messages.DATA_ECHO);
+		receiveBootLoaderReplySendDataEcho();
 	}
 
 	/**
 	 * Writes the CRC to the last two bytes of the Flash pacemate style
 	 *
 	 * @param crc
+	 *
 	 * @return everything OK
+	 *
 	 * @throws Exception
 	 */
 	public boolean writeCRCtoFlash(int crc) throws Exception {
 		byte crc_bytes[] = new byte[256];
-		for (int i = 0; i < 256; i++)
+		for (int i = 0; i < 256; i++) {
 			crc_bytes[i] = (byte) 0xff;
+		}
 		crc_bytes[254] = (byte) ((crc & 0xff00) >> 8);
 		crc_bytes[255] = (byte) (crc & 0xff);
 
@@ -685,10 +685,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				System.arraycopy(crc_bytes, counter, line, 0, PacemateBinFile.linesize);
 				counter = counter + PacemateBinFile.linesize;
 			} else {
-				if (((crc_bytes.length - counter) % 3) == 1)
+				if (((crc_bytes.length - counter) % 3) == 1) {
 					offset = 2;
-				else if (((crc_bytes.length - counter) % 3) == 2)
+				} else if (((crc_bytes.length - counter) % 3) == 2) {
 					offset = 1;
+				}
 				line = new byte[crc_bytes.length - counter + offset];
 				line[line.length - 1] = 0;
 				line[line.length - 2] = 0;
@@ -696,8 +697,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				counter = counter + (crc_bytes.length - counter);
 			}
 
-			for (int i = 0; i < line.length; i++)
+			for (int i = 0; i < line.length; i++) {
 				crc_checksum = PacemateBinFile.calcCRCChecksum(crc_checksum, line[i]);
+			}
 
 			if (log.isDebugEnabled()) {
 				log.debug("Sending data msg: " + StringUtils.toHexString(line));
@@ -746,10 +748,10 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// log.debug("Send CRC after 20 Lines or end of Block");
 		sendBootLoaderMessage(Messages.writeCRCRequestMessage(CRC));
 
-		receiveBootLoaderReply(Messages.OK);
+		receiveBootLoaderReplyReadCRCOK();
 	}
 
-	protected void clearStreamData() {
+	protected void clearStreamData() throws IOException {
 
 		// Allocate message buffer max 255 bytes to read
 		byte[] message = new byte[255];
@@ -758,17 +760,19 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		// Read the data
 		boolean a = true;
-		while ((a == true) && (index < 255)) {
+		while ((inStream.available() > 0) && (a == true) && (index < 255)) {
 			try {
+				//System.out.println("************ Reading from stream");
 				message[index] = (byte) inStream.read();
+				//System.out.println("************ Done reading from stream");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("" + e, e);
 			}
-			if (message[index] == -1)
+			if (message[index] == -1) {
 				a = false;
-			else
+			} else {
 				index++;
+			}
 		}
 	}
 
@@ -776,113 +780,301 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	// --
 
 	/**
+	 * Receive the bsl reply message to all request messages with a success answer
 	 *
+	 * @param type
+	 *
+	 * @return
+	 *
+	 * @throws TimeoutException
+	 * @throws UnexpectedResponseException
+	 * @throws InvalidChecksumException
+	 * @throws IOException
+	 * @throws NullPointerException
 	 */
-	protected byte[] receiveBootLoaderReply(String type) throws TimeoutException, UnexpectedResponseException,
-			InvalidChecksumException, IOException, NullPointerException {
+	protected String receiveBootLoaderReplySuccess(String type)
+			throws TimeoutException, UnexpectedResponseException, InvalidChecksumException, IOException,
+			NullPointerException {
 
-		// Allocate message buffer max 255 bytes to read
+		byte[] reply;
+
+		if (this.echo_on == true) {
+			reply = readInputStream(3);
+		} else {
+			reply = readInputStream(2);
+		}
+
+		String replyStr = StringUtils.toASCIIString(reply);
+
+		// split the lines from the response message
+		String[] parts = replyStr.split("<CR><LF>");
+
+		if (this.isFlashDebugOutput()) {
+			for (int j = 0; j < parts.length; j++) {
+				log.info("BL parts " + parts[j]);
+			}
+		}
+
+		// does the node echo all messages or not
+		if (this.echo_on == true) {
+			if (parts.length >= 2) {
+				if (parts[1].compareTo("0") == 0) // 0 = everything is OK
+				{
+					if (parts.length >= 3) {
+						return parts[2];
+					} else {
+						return "";
+					}
+				}
+			}
+		} else {
+			if (parts.length >= 1) {
+				if (parts[0].compareTo("0") == 0) // 0 = everything is OK
+				{
+					if (parts.length >= 1) {
+						return parts[1];
+					} else {
+						return "";
+					}
+				}
+			}
+		}
+
+		throw new UnexpectedResponseException("Error in response *" + replyStr + "*", -1, -1);
+	}
+
+
+	/**
+	 * Receive the BSL reply message for the autobaud / synchronize request
+	 *
+	 * @param type
+	 *
+	 * @return
+	 *
+	 * @throws TimeoutException
+	 * @throws UnexpectedResponseException
+	 * @throws InvalidChecksumException
+	 * @throws IOException
+	 * @throws NullPointerException
+	 */
+	protected byte[] receiveBootLoaderReplySynchronized(String type)
+			throws TimeoutException, UnexpectedResponseException, InvalidChecksumException, IOException,
+			NullPointerException {
+
+		byte[] reply = null;
+		if (type.compareTo(Messages.SYNCHRONIZED) == 0) {
+			reply = readInputStream(1);
+		} else {
+			reply = readInputStream(3);
+		}
+		String replyStr = StringUtils.toASCIIString(reply);
+
+		if ((replyStr.compareTo("Synchronized<CR><LF>") == 0)
+				|| (replyStr.compareTo("Synchronized<CR><LF>OK<CR><LF>") == 0)) {
+			return reply;
+		} else if ((type.compareTo(Messages.SYNCHRONIZED_OK) == 0)) {
+			return reply;
+		}
+
+		throw new UnexpectedResponseException("Wrong response " + StringUtils.toASCIIString(reply) + " and not " + type,
+				-1, -1
+		);
+	}
+
+	/**
+	 * Read the echo for a line of data
+	 *
+	 * @return
+	 * @throws TimeoutException
+	 * @throws UnexpectedResponseException
+	 * @throws InvalidChecksumException
+	 * @throws IOException
+	 * @throws NullPointerException
+	 */
+	protected String receiveBootLoaderReplySendDataEcho()
+			throws TimeoutException, UnexpectedResponseException, InvalidChecksumException, IOException,
+			NullPointerException {
+
+		byte[] reply;
+
+		reply = readInputStream(1);
+
+		String replyStr = StringUtils.toASCIIString(reply);
+
+		return replyStr;
+	}
+
+	/**
+	 * Read the requested line from the Flash
+	 *
+	 * @return
+	 * @throws TimeoutException
+	 * @throws UnexpectedResponseException
+	 * @throws InvalidChecksumException
+	 * @throws IOException
+	 * @throws NullPointerException
+	 */
+	protected byte[] receiveBootLoaderReplyReadData()
+			throws TimeoutException, UnexpectedResponseException, InvalidChecksumException, IOException,
+			NullPointerException {
+
+		byte[] reply = null;
+		if (this.echo_on) {
+			reply = readInputStream(4);
+		} else {
+			reply = readInputStream(3);
+		}
+
+		int i = 0;
+		if (this.echo_on) {
+			for (i = 0; i < reply.length; i++) {
+				if (reply[i] == 13) { // skip the echo and cr
+					i = i + 2; // and lf as well
+					break;
+				}
+			}
+		}
+		int len = (reply.length - (i + 5));
+
+		byte[] lineFromFlash = new byte[len];
+
+		if ((i + 3 < reply.length) && (reply[i] == 48)) { // copy the line and skip the answer and cr lf
+			System.arraycopy(reply, i + 3, lineFromFlash, 0, len);
+			//System.out.println(StringUtils.toASCIIString(lineFromFlash));
+			return lineFromFlash;
+		}
+
+		throw new UnexpectedResponseException("Error in response *" + StringUtils.toASCIIString(reply) + "*", -1, -1);
+	}
+
+	/**
+	 * Read the response to the CRC message
+	 *
+	 * @return
+	 *
+	 * @throws TimeoutException
+	 * @throws UnexpectedResponseException
+	 * @throws InvalidChecksumException
+	 * @throws IOException
+	 * @throws NullPointerException
+	 */
+	protected byte[] receiveBootLoaderReplyReadCRCOK()
+			throws TimeoutException, UnexpectedResponseException, InvalidChecksumException, IOException,
+			NullPointerException {
+
+		byte[] reply = null;
+		if (this.echo_on) {
+			reply = readInputStream(2);
+		} else {
+			reply = readInputStream(1);
+		}
+
+		String replyStr = StringUtils.toASCIIString(reply);
+
+		// split the lines from the response message
+		String[] parts = replyStr.split("<CR><LF>");
+
+		if (this.echo_on) {
+			if (parts[1].compareTo(Messages.OK) == 0) {
+				return reply;
+			} else {
+				log.debug("Received boot loader msg: " + replyStr);
+				throw new InvalidChecksumException("Invalid checksum - resend " + replyStr);
+			}
+		} else {
+			if (parts[0].compareTo(Messages.OK) == 0) {
+				return reply;
+			} else {
+				log.debug("Received boot loader msg: " + replyStr);
+				throw new InvalidChecksumException("Invalid checksum - resend " + replyStr);
+			}
+		}
+	}
+
+	/**
+	 * Read from the Input stream from the Pacemate. The length of the expected pacemate reply message is given with the
+	 * expected number of  cr lf chars
+	 *
+	 * @param CRLFcount
+	 *
+	 * @return
+	 *
+	 * @throws TimeoutException
+	 * @throws IOException
+	 */
+	private byte[] readInputStream(int CRLFcount) throws TimeoutException, IOException {
 		byte[] message = new byte[255];
 
 		int index = 0;
-
-		String returnCode = "";
-
-		int response_data_start = 0;
-
+		int counter = 0;
+		int wait = 5;
 		waitDataAvailable(inStream, timeoutMillis);
 
-		int read_returnCode = 1;
-
-		if (echo_on == false)
-			read_returnCode = 2;
-
-		// Read the message
-		while (index < 255) {
-			message[index] = (byte) inStream.read();
-			if (message[index] == -1)
-				break;
-			if (read_returnCode == 2) {
-				if (message[index] == 0x0d) {
-					read_returnCode = 3;
-					response_data_start = index + 2;
-				} else
-					returnCode = returnCode + (char) message[index];
+		// Read the message - read CRLFcount lines of response
+		while ((index < 255) && (counter < CRLFcount)) {
+			if (inStream.available() > 0) {
+				message[index] = (byte) inStream.read();
+				if (message[index] == 0x0a) {
+					counter++;
+				}
+				if (message[index] != -1) {
+					index++;
+				}
+			} else {
+				// message is smaller then expected
+				// check if the last line was cr lf 0 cr lf == Success message without more infos
+				if (index >= 5) {
+					if (checkResponseMessage(message, index)) {
+						break;
+					}
+				}
+				waitDataAvailableNoTimeoutException(inStream, 1000);
+				wait--;
+				if (wait == 0) {
+					byte[] fullMessage = new byte[index];
+					System.arraycopy(message, 0, fullMessage, 0, index);
+					throw new TimeoutException("Not a complete response message from the node *" + StringUtils
+							.toASCIIString(fullMessage) + "*"
+					);
+				}
 			}
-			if ((message[index] == 0x0a) && (read_returnCode == 1))
-				read_returnCode = 2;
-			index++;
 		}
 
 		// copy to real length
 		byte[] fullMessage = new byte[index];
 		System.arraycopy(message, 0, fullMessage, 0, index);
-
-		//if (this.isFlashDebugOutput()){ 
-			if (log.isDebugEnabled()) {
-					log.debug("Received boot loader msg: " + StringUtils.toHexString(fullMessage));
-			}
-		//}
-
-		if (returnCode.length() == 0)
-			return message;
-
-		if (type == Messages.DATA_ECHO)
-			return message;
-
-		int returnCodeInt = -1;
-
-		try {
-			returnCodeInt = new Integer(returnCode).intValue();
-		} catch (Exception e) {
-			returnCodeInt = -1;
+		if (this.isFlashDebugOutput()) {
+			log.info("read lines " + StringUtils.toASCIIString(fullMessage));
 		}
-
-		// log.debug("Received boot loader msg: " + returnCode +" "+ Messages.getErrorMessage(returnCodeInt));
-
-		if ((type.compareTo(Messages.DATA) == 0) && (returnCode.compareTo(Messages.CMD_SUCCESS) == 0)) {
-			byte[] dataMessage = new byte[index - response_data_start];
-			System.arraycopy(message, response_data_start, dataMessage, 0, index - response_data_start);
-			return dataMessage;
-		}
-
-		// Check if the response type is unexpected
-		if (type.compareTo(Messages.CMD_SUCCESS) == 0) {
-			if (returnCode.compareTo(Messages.CMD_SUCCESS) == 0)
-				return message;
-			else {
-				log.debug("Received boot loader msg: " + returnCode);
-				throw new UnexpectedResponseException(new Integer(type).intValue(), new Integer(returnCode).intValue());
-			}
-		} else if ((type.compareTo(Messages.SYNCHRONIZED) == 0) && (message[0] == 0x53))
-			return message;
-
-		else if ((type.compareTo(Messages.SYNCHRONIZED_OK) == 0))
-			return message;
-
-		else if (type.compareTo(Messages.OK) == 0) {
-			if (returnCode.compareTo(Messages.OK) == 0)
-				return message;
-			else {
-				log.debug("Received boot loader msg: " + returnCode);
-				throw new InvalidChecksumException("Invalid checksum - resend");
-			}
-		} else if (type.compareTo(Messages.ECHO_RESPONSE) == 0)
-			return message;
-
-		return message;
+		return fullMessage;
 	}
 
-	// ------------------------------------------------------------------------
-	// --
+	/**
+	 * Check if the last received bytes were cr lf 0 cr lf == Success message without more infos
+	 *
+	 * @param message
+	 * @param index
+	 */
+	private boolean checkResponseMessage(byte[] message, int index) {
+		//log.info("Check Response "+message[index-5]+" "+message[index-4]+" "+message[index-3]+" "+message[index-2]+" "+message[index-1]);
+		if ((message[index - 5] == 13)		 // cr
+				&& (message[index - 4] == 10)  // lf
+				&& (message[index - 3] == 48)  // 0
+				&& (message[index - 2] == 13)  // cr
+				&& (message[index - 1] == 10)) // lf
+		{
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Wait at most timeoutMillis for the input stream to become available
 	 *
-	 * @param istream	   The stream to monitor
+	 * @param istream The stream to monitor
 	 * @param timeoutMillis Milliseconds to wait until timeout, 0 for no timeout
-	 * @param minCharacters The minimal amount of available characters
 	 * @return The number of characters available
+	 * @throws TimeoutException
 	 * @throws IOException
 	 */
 	private int waitDataAvailable(InputStream istream, int timeoutMillis) throws TimeoutException, IOException {
@@ -906,13 +1098,33 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		return avail;
 	}
 
+	private int waitDataAvailableNoTimeoutException(InputStream istream, int timeoutMillis) throws IOException {
+		TimeDiff timeDiff = new TimeDiff();
+		int avail = 0;
+
+		while (inStream != null && (avail = inStream.available()) == 0) {
+			if (timeoutMillis > 0 && timeDiff.ms() >= timeoutMillis) {
+				return 0;
+			}
+
+			synchronized (dataAvailableMonitor) {
+				try {
+					dataAvailableMonitor.wait(50);
+				} catch (InterruptedException e) {
+					log.error(e.toString());
+				}
+			}
+		}
+		return avail;
+	}
+
 	protected boolean waitForConnection() {
 		try {
 			// Send flash read request (in fact, this could be any valid message
 			// to which the
 			// device is supposed to respond)
 			sendBootLoaderMessage(Messages.ReadPartIDRequestMessage());
-			receiveBootLoaderReply(Messages.CMD_SUCCESS);
+			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 			log.info("Device connection established");
 			return true;
 		} catch (TimeoutException to) {
@@ -928,11 +1140,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	protected boolean autobaud() {
 		try {
 			sendBootLoaderMessage(Messages.AutoBaudRequestMessage());
-			receiveBootLoaderReply(Messages.SYNCHRONIZED);
+			receiveBootLoaderReplySynchronized(Messages.SYNCHRONIZED);
 			sendBootLoaderMessage(Messages.AutoBaudRequest2Message());
-			receiveBootLoaderReply(Messages.SYNCHRONIZED);
+			receiveBootLoaderReplySynchronized(Messages.SYNCHRONIZED);
 			sendBootLoaderMessage(Messages.AutoBaudRequest3Message());
-			receiveBootLoaderReply(Messages.OK);
+			receiveBootLoaderReplySynchronized(Messages.SYNCHRONIZED_OK);
 			log.info("Autobaud");
 		} catch (TimeoutException to) {
 			log.debug("Still waiting for a connection.");
@@ -945,7 +1157,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	protected boolean echoOff() {
 		try {
 			sendBootLoaderMessage(Messages.SetEchoOffMessage());
-			receiveBootLoaderReply(Messages.ECHO_RESPONSE);
+			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 			log.info("Echo off");
 			echo_on = false;
 		} catch (TimeoutException to) {
@@ -999,6 +1211,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		return new PacemateBinFile(fileName);
 	}
 
+	@Override
 	public boolean isConnected() {
 		return connected;
 	}

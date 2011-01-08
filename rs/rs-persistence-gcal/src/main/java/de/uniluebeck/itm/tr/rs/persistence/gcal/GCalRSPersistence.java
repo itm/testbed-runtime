@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
+import com.google.common.collect.Lists;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.calendar.CalendarQuery;
 import com.google.gdata.client.calendar.CalendarService;
@@ -51,7 +52,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -93,7 +95,8 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData, String urnPrefix)
+	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
+											   String urnPrefix)
 			throws RSExceptionException {
 		try {
 
@@ -108,7 +111,7 @@ public class GCalRSPersistence implements RSPersistence {
 					urnPrefix,
 					secretReservationKeyString
 			);
-			
+
 			String reservationDataXml = marshall(reservationData);
 			String eventTitle = confidentialReservationData.getNodeURNs().size() + " Node(s)";
 
@@ -123,11 +126,13 @@ public class GCalRSPersistence implements RSPersistence {
 
 				GregorianCalendar gregorianCalendarFrom = confidentialReservationData.getFrom().toGregorianCalendar();
 				DateTime gDataDateTimeFrom = new DateTime(gregorianCalendarFrom.getTime(), gregorianCalendarFrom
-						.getTimeZone());
+						.getTimeZone()
+				);
 
 				GregorianCalendar gregorianCalendarTo = confidentialReservationData.getTo().toGregorianCalendar();
 				DateTime gDataDateTimeTo = new DateTime(gregorianCalendarTo.getTime(), gregorianCalendarTo
-						.getTimeZone());
+						.getTimeZone()
+				);
 
 				When eventTimes = new When();
 				eventTimes.setStartTime(gDataDateTimeFrom);
@@ -173,7 +178,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 
 		Tuple<Entry, ReservationData> reservation = getReservation(secretReservationKey.getSecretReservationKey());
 		ConfidentialReservationData confidentialReservationData = reservation.getSecond().getReservation();
@@ -181,8 +186,9 @@ public class GCalRSPersistence implements RSPersistence {
 
 		try {
 			gcalEntry.delete();
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Deleted entry[" + marshall(reservation.getSecond()) + "] for key: " + secretReservationKey);
+			}
 		} catch (Exception e) {
 			log.error("Exception: " + e, e);
 			throw createRSException("Internal Server Error");
@@ -193,32 +199,93 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		return getReservation(secretReservationKey.getSecretReservationKey()).getSecond().getReservation();
 	}
 
+
 	@Override
 	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSExceptionException {
+
+		boolean fetchedAll = false;
+
+		List<ConfidentialReservationData> reservations = Lists.newLinkedList();
+		int lastCount = 0;
+
+		while (!fetchedAll) {
+
+			fetchReservations(reservations, interval, 20);
+
+			if (reservations.size() - lastCount < 20) {
+				log.debug("Fetched all reservations.");
+				fetchedAll = true;
+			} else {
+				lastCount = reservations.size();
+				log.debug("Fetched {} in total.", lastCount);
+				interval = new Interval(
+						interval.getStart(),
+						new org.joda.time.DateTime(reservations.get(0).getFrom().toGregorianCalendar())
+				);
+			}
+
+		}
+
+		return reservations;
+
+	}
+
+	private void fetchReservations(final List<ConfidentialReservationData> reservations, final Interval interval,
+								   final int maxResults) throws RSExceptionException {
+
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 
 		DateTime gcalStart = new DateTime(interval.getStart().toDate(), interval.getStart().getZone().toTimeZone());
 		DateTime gcalEnd = new DateTime(interval.getEnd().toDate(), interval.getEnd().getZone().toTimeZone());
+
 		myQuery.setMinimumStartTime(gcalStart);
 		myQuery.setMaximumStartTime(gcalEnd);
+		myQuery.setMaxResults(maxResults);
 
 		// Send the request and receive the response:
 		Feed resultFeed;
+		ConfidentialReservationData reservation;
 		try {
 
 			resultFeed = myService.query(myQuery, Feed.class);
-			log.debug("Got " + resultFeed.getEntries().size() + " entries for interval: " + interval);
 
-			List<ConfidentialReservationData> reservations = new ArrayList<ConfidentialReservationData>();
-			for (Entry entry : resultFeed.getEntries()) {
-				reservations.add(convert(entry).getReservation());
+			if (log.isDebugEnabled()) {
+				log.debug("Got {} entries for interval: {}", resultFeed.getEntries().size(), interval);
 			}
 
-			return reservations;
+			for (Entry entry : resultFeed.getEntries()) {
+				try {
+
+					reservation = convert(entry).getReservation();
+					reservations.add(reservation);
+
+				} catch (RSExceptionException e) {
+					if (e.getCause() instanceof JAXBException) {
+						// ignore and just don't add to reservations, logging is done in create()
+					}
+					throw e;
+				}
+			}
+
+			Collections.sort(reservations, new Comparator<ConfidentialReservationData>() {
+				@Override
+				public int compare(final ConfidentialReservationData first,
+								   final ConfidentialReservationData second) {
+
+					Interval firstInterval = getReservationInterval(first);
+					Interval secondInterval = getReservationInterval(second);
+
+					assert !firstInterval.overlaps(secondInterval);
+					assert firstInterval.isBefore(secondInterval) || secondInterval.isBefore(firstInterval);
+
+					return firstInterval.isBefore(secondInterval) ? -1 : 1;
+				}
+			}
+			);
 
 		} catch (IOException e) {
 			log.error("Error: " + e, e);
@@ -226,12 +293,23 @@ public class GCalRSPersistence implements RSPersistence {
 		} catch (ServiceException e) {
 			log.error("Error: " + e, e);
 			throw createRSException("Internal Server Error");
+		} catch (RSExceptionException e) {
+			log.error("Error: " + e, e);
+			throw createRSException("Internal Server Error");
 		}
 
 	}
 
+	private Interval getReservationInterval(ConfidentialReservationData confidentialReservationData) {
+		org.joda.time.DateTime from =
+				new org.joda.time.DateTime(confidentialReservationData.getFrom().toGregorianCalendar());
+		org.joda.time.DateTime to =
+				new org.joda.time.DateTime(confidentialReservationData.getTo().toGregorianCalendar());
+		return new Interval(from, to);
+	}
+
 	private Tuple<Entry, ReservationData> getReservation(String secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		// Do a full text search for the secretReservationKey and then iterate over the results
 		Query myQuery = new Query(eventFeedUrl);
 		myQuery.setFullTextQuery(secretReservationKey);
@@ -259,8 +337,9 @@ public class GCalRSPersistence implements RSPersistence {
 		}
 
 		// If no reservation was found, throw an exception
-		if (reservationData == null)
+		if (reservationData == null) {
 			throw createReservationNotFoundException("Reservation " + secretReservationKey + " not found");
+		}
 
 		// Reservation found, return it
 		return new Tuple<Entry, ReservationData>(reservationGcalEntry, reservationData);
@@ -276,11 +355,11 @@ public class GCalRSPersistence implements RSPersistence {
 		}
 	}
 
-	private ReservervationNotFoundExceptionException createReservationNotFoundException(String msg) {
+	private ReservationNotFoundExceptionException createReservationNotFoundException(String msg) {
 		log.warn(msg);
 		ReservervationNotFoundException exception = new ReservervationNotFoundException();
 		exception.setMessage(msg);
-		return new ReservervationNotFoundExceptionException(msg, exception);
+		return new ReservationNotFoundExceptionException(msg, exception);
 	}
 
 	private RSExceptionException createRSException(String msg) {

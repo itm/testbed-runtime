@@ -34,11 +34,8 @@ import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException;
+import eu.wisebed.testbed.api.wsn.*;
 import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
 import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
@@ -207,6 +204,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
+		boolean canConnect = ControllerHelper.testConnectivity(controller);
+		if (!canConnect) {
+			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
+					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
+					+ "when calling this method.");
+		}
 
 		// extract the one and only relevant secretReservationKey
 		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
@@ -233,7 +236,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		List<ConfidentialReservationData> confidentialReservationDataList;
 		Set<String> reservedNodes = null;
 		if (reservationEndpointUrl != null) {
-			//integrate reservation system
+			// integrate reservation system
 			List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 			confidentialReservationDataList = getReservationDataFromRS(keys);
 			reservedNodes = new HashSet<String>();
@@ -241,10 +244,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// assure that wsnInstance creation doesn't happen before reservation time slot
 			assertReservationIntervalMet(confidentialReservationDataList);
 
-			//get reserved nodes
+			// get reserved nodes
 			for (ConfidentialReservationData data : confidentialReservationDataList) {
-				reservedNodes.addAll(data.getNodeURNs());
+
+				// convert all node URNs to lower case so that we can do easy string-based comparisons
+				for (String nodeURN : data.getNodeURNs()) {
+					reservedNodes.add(nodeURN.toLowerCase());
+				}
 			}
+
 			// assure that nodes are in TestbedRuntime
 			assertNodesInTestbed(reservedNodes, testbedRuntime);
 
@@ -397,7 +405,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			log.warn(msg + ": " + e, e);
 			// TODO replace with more generic exception type
 			throw WSNServiceHelper.createUnknownReservationIdException(msg, null, e);
-		} catch (ReservervationNotFoundExceptionException e) {
+		} catch (ReservationNotFoundExceptionException e) {
 			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
 			throw WSNServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
 		}

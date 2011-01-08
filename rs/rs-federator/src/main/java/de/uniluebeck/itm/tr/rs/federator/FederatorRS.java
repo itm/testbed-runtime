@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -45,8 +43,6 @@ import java.util.concurrent.*;
 public class FederatorRS implements RS {
 
     private static final Logger log = LoggerFactory.getLogger(FederatorRS.class);
-
-    private static final QName RS_SERVICE_QNAME = new QName("urn:RSService", "RSService");
 
     /**
      *
@@ -109,9 +105,7 @@ public class FederatorRS implements RS {
 
         @Override
         public Void call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            port.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), reservationsToBeDeleted);
+            RSServiceHelper.getRSService(endpointUrl).deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), reservationsToBeDeleted);
             return null;
         }
     }
@@ -432,9 +426,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<PublicReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getReservations(from, to);
+            return RSServiceHelper.getRSService(endpointUrl).getReservations(from, to);
         }
     }
 
@@ -453,9 +445,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<ConfidentialReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getConfidentialReservations(secretAuthenticationData, period);
+            return RSServiceHelper.getRSService(endpointUrl).getConfidentialReservations(secretAuthenticationData, period);
         }
     }
 
@@ -545,9 +535,7 @@ public class FederatorRS implements RS {
 
         @Override
         public List<ConfidentialReservationData> call() throws Exception {
-            RSService service = new RSService(new URL(endpointUrl), FederatorRS.RS_SERVICE_QNAME);
-            RS port = service.getRSPort();
-            return port.getReservation(secretReservationKeys);
+            return RSServiceHelper.getRSService(endpointUrl).getReservation(secretReservationKeys);
         }
     }
 
@@ -555,7 +543,7 @@ public class FederatorRS implements RS {
     public List<ConfidentialReservationData> getReservation(
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservervationNotFoundExceptionException {
+            throws RSExceptionException, ReservationNotFoundExceptionException {
 
         assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -580,8 +568,8 @@ public class FederatorRS implements RS {
                 if (e.getCause() instanceof RSExceptionException) {
                     throw (RSExceptionException) e.getCause();
                 }
-                if (e.getCause() instanceof ReservervationNotFoundExceptionException) {
-                    throw (ReservervationNotFoundExceptionException) e.getCause();
+                if (e.getCause() instanceof ReservationNotFoundExceptionException) {
+                    throw (ReservationNotFoundExceptionException) e.getCause();
                 }
                 throwRSException("Unknown exception occured!", e.getCause());
             }
@@ -596,7 +584,7 @@ public class FederatorRS implements RS {
             List<SecretAuthenticationKey> authenticationData,
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservervationNotFoundExceptionException {
+            throws RSExceptionException, ReservationNotFoundExceptionException {
 
         assertNotNull(authenticationData, "authenticationData");
         assertNotNull(secretReservationKey, "secretReservationKey");

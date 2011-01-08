@@ -125,7 +125,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey());
@@ -133,7 +133,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
 					new ReservervationNotFoundException());
 		}
 		try {
@@ -145,7 +145,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey());
@@ -153,7 +153,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
 					new ReservervationNotFoundException());
 		}
 		reservationData.delete();

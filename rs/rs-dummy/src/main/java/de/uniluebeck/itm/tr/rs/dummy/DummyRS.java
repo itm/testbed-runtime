@@ -60,7 +60,7 @@ public class DummyRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "") List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		String msg = "Reservation not found (not implemented, this is the dummy implementation";
 		RSException exception = new RSException();
@@ -75,7 +75,7 @@ public class DummyRS implements RS {
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		// nothing to do as this is a dummy
 	}

@@ -28,9 +28,9 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr</artifactId>
-		<version>0.5.4-SNAPSHOT</version>
-		<relativePath>../../</relativePath>
+		<artifactId>tr.iwsn</artifactId>
+		<version>0.5.5-SNAPSHOT</version>
+		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>tr.runtime.portal</artifactId>

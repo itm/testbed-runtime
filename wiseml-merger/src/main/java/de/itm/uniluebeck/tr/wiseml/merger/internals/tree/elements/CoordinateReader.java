@@ -15,14 +15,7 @@ public class CoordinateReader extends WiseMLStructureReader {
 				parent, 
 				enclosingTag,
 				null,
-				new Element[]{
-						new Element( // <coordinate>
-								null,
-								WiseMLTag.coordinate,
-								null,
-								getDoubleElementArray(coordinate),
-								null)
-				},
+				getDoubleElementArray(coordinate),
 				null));
 	}
 	

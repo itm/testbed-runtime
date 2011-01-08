@@ -35,7 +35,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-public class ShibbolethAuthenticator {
+public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
 
     private static final Logger log = Logger.getLogger(ShibbolethAuthenticator.class);
 
@@ -75,8 +75,6 @@ public class ShibbolethAuthenticator {
 
     private String sessionURL;
 
-    private String secretAuthenticationKey;
-
     private List<Cookie> cookies;
 
     private static final String openHtmlTag = "&lt;";
@@ -115,7 +113,8 @@ public class ShibbolethAuthenticator {
     /**
      * @throws Exception
      */
-    public String authenticate() throws Exception {
+    @Override
+    public void authenticate() throws Exception {
         resetState();
 
         // Sanity checks
@@ -160,23 +159,7 @@ public class ShibbolethAuthenticator {
 
         // Post form to be redirected to IDP
         {
-            URL currentPage = new URL(target + new URI(req.getRequestLine().getUri()).getPath());
-            URL formURL = Helper.getActionURL(currentPage, responseHtml);
-            log.debug("Posting to be redirected to IDP. URL is " + formURL);
-
-            List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-            formparams.add(new BasicNameValuePair("user_idp", idp.toString()));
-
-            doPost(formURL.toURI(), formparams, true);
-
-            target = (HttpHost) localContext.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-            req = (HttpUriRequest) localContext.getAttribute(ExecutionContext.HTTP_REQUEST);
-
-            URL finalURL = new URL("" + target + req.getRequestLine().getUri());
-            log.debug("Final URL: " + finalURL);
-            log.debug("Status line: " + response.getStatusLine());
-            log.debug("Response: " + responseHtml);
-
+            performIdpRequest(idp);
         }
 
         // Fill in the login form
@@ -219,10 +202,28 @@ public class ShibbolethAuthenticator {
             log.fatal("Authentication failed");
             setAuthenticated(false);
         }
-
-        return responseHtml;
     }
 
+    private void performIdpRequest(URL idp) throws URISyntaxException, IOException, NoSuchAlgorithmException, KeyManagementException {
+        URL currentPage = new URL(target + new URI(req.getRequestLine().getUri()).getPath());
+        URL formURL = Helper.getActionURL(currentPage, responseHtml);
+        log.debug("Posting to be redirected to IDP. URL is " + formURL);
+
+        List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+        formparams.add(new BasicNameValuePair("user_idp", idp.toString()));
+
+        doPost(formURL.toURI(), formparams, true);
+
+        target = (HttpHost) localContext.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+        req = (HttpUriRequest) localContext.getAttribute(ExecutionContext.HTTP_REQUEST);
+
+        URL finalURL = new URL("" + target + req.getRequestLine().getUri());
+        log.debug("Final URL: " + finalURL);
+        log.debug("Status line: " + response.getStatusLine());
+        log.debug("Response: " + responseHtml);
+    }
+
+    @Override
     public Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception {
         resetState();
 
@@ -236,13 +237,21 @@ public class ShibbolethAuthenticator {
         // Check if this session is already authenticated
         {
             finalURL = doGet(url, true);
-            //check if url is correct
+            //check if final url is the url to be redirected
+/*            if (!finalURL.equals(new URL(this.url))) {
+                //if not get IdpRequest
+                Collection<URL> wayfURLs = getWayfUrls();
+                URL idp = getBestIdp(wayfURLs);
+
+                // Post form to be redirected to IDP
+                {
+                    performIdpRequest(idp);
+                }
+            }*/
+
+            //check again if final url is the url to be redirected
+            //if not there is no valid authorization
             if (!finalURL.equals(new URL(this.url))) {
-                return authorizeMap;
-            }
-            //check if key is correct
-            setAuthenticationPageContent(this.responseHtml);
-            if (!this.getAuthenticationPageContent().trim().equals(secretAuthenticationKey)) {
                 return authorizeMap;
             }
         }
@@ -457,7 +466,7 @@ public class ShibbolethAuthenticator {
 
         URL chosenIDP = null;
         for (URL url : idps) {
-            if (url.getHost().equalsIgnoreCase(idpDomain)) {
+            if (url.getHost().equalsIgnoreCase(idpDomain.trim())) {
                 log.info("Using idp: " + url);
                 chosenIDP = url;
             }
@@ -499,7 +508,7 @@ public class ShibbolethAuthenticator {
 
         int atIndex = user.indexOf('@');
         if (atIndex == -1) {
-            log.fatal("Username must be like username@idphost");
+            log.fatal("Username must be like username@idphost, but is: '" + user + "'");
             throw new Exception("Username must be like username@idphost");
         }
 
@@ -571,10 +580,6 @@ public class ShibbolethAuthenticator {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setSecretAuthenticationKey(String secretAuthenticationKey) {
-        this.secretAuthenticationKey = secretAuthenticationKey;
     }
 
     private void setCookies(List<Cookie> cookies) {

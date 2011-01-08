@@ -26,6 +26,9 @@ public class ParserHelper {
 	public static void parseStructures(
 			final WiseMLTreeReader reader, 
 			final ParserCallback callback) {
+		if (reader == null) {
+			return;
+		}
 		while (!reader.isFinished()) {
 			if (reader.nextSubElementReader()) {
 				if (reader.getSubElementReader().isMappedToTag()) {

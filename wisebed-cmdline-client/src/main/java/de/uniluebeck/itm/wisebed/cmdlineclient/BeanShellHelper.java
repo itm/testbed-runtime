@@ -23,16 +23,16 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.wsn.v211.GetInstance;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.Program;
-import eu.wisebed.testbed.api.wsn.v211.ProgramMetaData;
+import eu.wisebed.testbed.api.wsn.v211.*;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -40,16 +40,17 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class
-		BeanShellHelper {
+public class BeanShellHelper {
 
-	private static Program readProgram(String pathname, String name, final String other, final String platform,
+	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
+
+	public static Program readProgram(String pathname, String name, final String other, final String platform,
 									   final String version) throws Exception {
 
 		final ProgramMetaData programMetaData = new ProgramMetaData();
@@ -183,6 +184,21 @@ public class
 		return newKeys;
 	}
 
+	public List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> parseSecretReservationKeys(String str) {
+		String[] pairs = str.split(";");
+		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> keys = Lists.newArrayList();
+		for (String pair : pairs) {
+			String urnPrefix = pair.split(",")[0];
+			String secretReservationKeys = pair.split(",")[1];
+			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey key =
+					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			key.setUrnPrefix(urnPrefix);
+			key.setSecretReservationKey(secretReservationKeys);
+			keys.add(key);
+		}
+		return keys;
+	}
+
 	public String toString(Message msg) {
 		StringBuilder b = new StringBuilder();
 		b.append("Source [");
@@ -210,6 +226,166 @@ public class
 		b.append("]");
 
 		return b.toString();
+	}
+
+	public String toString(RequestStatus requestStatus) {
+		StringBuilder b = new StringBuilder();
+		b.append("RequestStatus [requestId=");
+		b.append(requestStatus.getRequestId());
+		b.append("] {");
+		for (Status status : requestStatus.getStatus()) {
+			b.append("(");
+			b.append("nodeId=");
+			b.append(status.getNodeId());
+			b.append(";value=");
+			b.append(status.getValue());
+			b.append(";msg=\"");
+			b.append(status.getMsg());
+			b.append("),");
+		}
+		b.append("}");
+		return b.toString();
+	}
+
+	public String toString(List<SecretReservationKey> secretReservationKeys) {
+		StringBuilder b = new StringBuilder();
+		for (Iterator<SecretReservationKey> secretReservationKeyIterator = secretReservationKeys.iterator();
+			 secretReservationKeyIterator.hasNext();) {
+
+			SecretReservationKey secretReservationKey = secretReservationKeyIterator.next();
+
+			b.append(secretReservationKey.getUrnPrefix());
+			b.append(",");
+			b.append(secretReservationKey.getSecretReservationKey());
+
+			if (secretReservationKeyIterator.hasNext()) {
+				b.append(";");
+			}
+		}
+		return b.toString();
+	}
+
+	public String toString(Object object) {
+		return object.toString();
+	}
+
+	public static Vector<String> getExternalHostIps() {
+		HashSet<String> ips = new HashSet<String>();
+		Vector<String> external = new Vector<String>();
+
+		try {
+			InetAddress i;
+			NetworkInterface iface = null;
+
+			for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+				iface = (NetworkInterface) ifaces.nextElement();
+				for (Enumeration ifaceips = iface.getInetAddresses(); ifaceips.hasMoreElements();) {
+					i = (InetAddress) ifaceips.nextElement();
+					if (i instanceof Inet4Address) {
+						ips.add(i.getHostAddress());
+					}
+				}
+			}
+
+		} catch (Throwable t) {
+			log.error("Unable to retrieve external ips: " + t, t);
+
+			try {
+				log.debug("Trying different lookup scheme");
+
+				InetAddress li = InetAddress.getLocalHost();
+				String strli = li.getHostName();
+				InetAddress ia[] = InetAddress.getAllByName(strli);
+				for (int i = 0; i < ia.length; i++) {
+					ips.add(ia[i].getHostAddress());
+				}
+			} catch (Throwable t2) {
+				log.error("Also unable to retrieve external ips: " + t2, t2);
+			}
+
+		}
+
+		for (String ip : ips) {
+			if (isExternalIp(ip)) {
+				log.debug("Found external ip: " + ip);
+				external.add(ip);
+			}
+		}
+
+		return external;
+	}
+
+	/**
+	 * 127.0.0.0   - 127.255.255.255 (localhost) 10.0.0.0    - 10.255.255.255  (10/8 prefix) 172.16.0.0  - 172.31.255.255
+	 * (172.16/12 prefix) 192.168.0.0 - 192.168.255.255 (192.168/16 prefix)
+	 *
+	 * @param ip
+	 *
+	 * @return
+	 */
+	public static boolean isExternalIp(String ip) {
+		boolean external = true;
+
+		if (ip == null) {
+			external = false;
+		} else if (ip.startsWith("127.")) {
+			external = false;
+		} else if (ip.startsWith("10.")) {
+			external = false;
+		} else if (ip.startsWith("192.168.")) {
+			external = false;
+		}
+
+		for (int i = 16; i <= 31; ++i) {
+			if (ip.startsWith("172." + i + ".")) {
+				external = false;
+			}
+		}
+
+		log.debug("IP " + ip + " is an " + (external ? "external" : "internal") + " address");
+		return external;
+	}
+
+	/**
+	 * Get a List with all give node ids for use in a bean shell scrip
+	 *
+	 * @param nodes
+	 *
+	 * @return List with nodes
+	 */
+	public static List<String> getNodeList(String... nodes) {
+
+		List<String> nodeUrns = Lists.newArrayList(nodes);
+
+		return nodeUrns;
+	}
+
+	/**
+	 * Generate a binary message to be send to a node with timestamop = now and src node id = 0xffff
+	 *
+	 * @param type Type of the binary message
+	 * @param data Payload of the binary message
+	 *
+	 * @return the binary message
+	 */
+	public static Message buildBinaryMessage(byte type, byte[] data) {
+		Message msg = new Message();
+		BinaryMessage bmsg = new BinaryMessage();
+		bmsg.setBinaryData(data);
+		bmsg.setBinaryType(type);
+		msg.setBinaryMessage(bmsg);
+		msg.setSourceNodeId("urn:wisebed:uzl1:0xffff");
+		try {
+			msg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(
+					(GregorianCalendar) GregorianCalendar.getInstance()
+			)
+			);
+		} catch (DatatypeConfigurationException e) {
+			log.error("Error creating timestamp " + e);
+			e.printStackTrace();
+		}
+
+		return msg;
 	}
 
 }

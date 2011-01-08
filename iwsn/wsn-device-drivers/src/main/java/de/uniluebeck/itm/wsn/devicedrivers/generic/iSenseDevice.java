@@ -33,41 +33,9 @@ import org.slf4j.LoggerFactory;
  * @author dp
  */
 public abstract class iSenseDevice {
+	
 	/** */
 	private static final Logger log = LoggerFactory.getLogger(iSenseDevice.class);
-
-	/** */
-	protected static iSenseDeviceImpl device = new NullDevice();
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 *
-	 */
-	public static iSenseDevice getISenseDevice() {
-		return device;
-	}
-
-	// -------------------------------------------------------------------------
-
-	/**
-	 * @param dev
-	 */
-	public static void setISenseDevice(iSenseDeviceImpl dev) {
-		iSenseDeviceImpl newDevice = dev;
-		if (dev == null) {
-			newDevice = new NullDevice();
-			log.warn("Supplied device is null. Using Null device");
-		} else
-			log.debug("Setting device to " + dev);
-
-		if (device != null) {
-			device.copyListeners(newDevice);
-			device.shutdown();
-		}
-
-		device = newDevice;
-	}
 
 	// -------------------------------------------------------------------------
 
@@ -182,4 +150,7 @@ public abstract class iSenseDevice {
 	 *
 	 */
 	public abstract void shutdown();
+
+	public abstract boolean isConnected();
+
 }

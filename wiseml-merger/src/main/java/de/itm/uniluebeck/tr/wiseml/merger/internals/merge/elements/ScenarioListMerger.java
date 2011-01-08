@@ -1,52 +1,35 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Collection;
-
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.NamedItemListMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.elements.NodePropertiesParser;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
 
-public class ScenarioListMerger extends SortedListMerger<ScenarioDefinition> {
+public class ScenarioListMerger extends NamedItemListMerger {
 
-	public ScenarioListMerger(
+	protected ScenarioListMerger(
 			final WiseMLTreeMerger parent,
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.scenario,
+				WiseMLSequence.Scenario);
+		this.mergingMode = this.configuration.getScenarioListMergingMode();
+		this.customID = this.configuration.getCustomScenarioID();
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Collection<ScenarioDefinition> items) {
-		// TODO Auto-generated method stub
-		return null;
+	protected WiseMLTreeReader createMerger(
+			WiseMLTreeReader[] inputs, String id) {
+		return new ScenarioMerger(this, inputs, configuration, resources, id);
 	}
 
-	@Override
-	protected ScenarioDefinition readNextItem(int inputIndex) {
-		WiseMLTreeReader input = inputs[inputIndex];
-		if (input.isFinished()) {
-			return null;
-		}
-		if (input.getSubElementReader() == null 
-				&& !input.nextSubElementReader()) {
-			return null;
-		}
-		WiseMLTreeReader nodeReader = input.getSubElementReader();
-		
-		ScenarioDefinition result = new ScenarioDefinition(
-				WiseMLTreeReaderHelper.getAttributeValue(
-						nodeReader.getAttributeList(),
-						"id"));
-		
-		input.nextSubElementReader();
-		return result;
-	}
-
-	
 }

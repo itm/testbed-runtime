@@ -28,9 +28,9 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr</artifactId>
-		<version>0.5.4-SNAPSHOT</version>
-		<relativePath>../../</relativePath>
+		<artifactId>tr.iwsn</artifactId>
+		<version>0.5.5-SNAPSHOT</version>
+		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>tr.wsn-device-drivers</artifactId>
@@ -38,8 +38,12 @@
 	<name>TR :: WSN Device Drivers</name>
 
 	<dependencies>
-
-		<dependency>
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.1.5.GA</version>
+        </dependency>
+        <dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-api</artifactId>
 		</dependency>
@@ -69,6 +73,10 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-ext-jdk16</artifactId>
 		</dependency>
 
 	</dependencies>

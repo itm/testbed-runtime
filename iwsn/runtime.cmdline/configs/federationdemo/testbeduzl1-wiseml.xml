@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<wiseml xmlns="http://wisebed.eu/ns/wiseml/1.0">
-	<setup>
-		<node id="urn:wisebed:uzl1:1"/>
-	</setup>
-</wiseml>

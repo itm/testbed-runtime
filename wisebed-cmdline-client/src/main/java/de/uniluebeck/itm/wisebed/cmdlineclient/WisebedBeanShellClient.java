@@ -31,9 +31,12 @@ import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class WisebedBeanShellClient {
 
@@ -63,17 +66,26 @@ public class WisebedBeanShellClient {
 		CommandLineParser parser = new PosixParser();
 		Options options = new Options();
 		options.addOption("f", "file", true, "The bean shell script to execute");
+		options.addOption("p", "properties", true, "A properties file to pass to the script as environment properties");
 		options.addOption("v", "verbose", false, "Verbose logging output");
 		options.addOption("h", "help", false, "Help output");
 
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption('v'))
+			if (line.hasOption('v')) {
 				Logger.getRootLogger().setLevel(Level.DEBUG);
+			} else {
+				Logger.getRootLogger().setLevel(Level.INFO);
+			}
 
-			if (line.hasOption('h'))
+			if (line.hasOption('h')) {
 				usage(options);
+			}
+
+			if (line.hasOption('p')) {
+				parseAndSetProperties(line.getOptionValue('p'));
+			}
 
 			log.debug("Option for -f: " + line.getOptionValue('f'));
 
@@ -113,6 +125,19 @@ public class WisebedBeanShellClient {
 		} catch (Exception e) {
 			log.error("Error while running bean shell script: " + e, e);
 			System.exit(1);
+		}
+	}
+
+	private static void parseAndSetProperties(final String propertiesFileName) throws IOException {
+		File propertiesFile = new File(propertiesFileName);
+		if (!propertiesFile.exists() || !propertiesFile.canRead() || !propertiesFile.isFile()) {
+			log.error("Properties file is either not existing, not a file or not readable!");
+			System.exit(1);
+		}
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(propertiesFile));
+		for (Object key : properties.keySet()) {
+			System.setProperty((String) key, (String) properties.get(key));
 		}
 	}
 

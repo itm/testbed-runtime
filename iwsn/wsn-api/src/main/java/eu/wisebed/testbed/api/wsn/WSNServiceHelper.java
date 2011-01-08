@@ -27,7 +27,6 @@ import de.uniluebeck.itm.tr.util.FileUtils;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.apache.log4j.Logger;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -67,7 +67,6 @@ public class WSNServiceHelper {
 	 */
 	public static SessionManagement getSessionManagementService(String endpointUrl) {
 
-		QName qName = new QName("urn:SessionManagementService", "SessionManagementService");
 		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("SessionManagementService.wsdl");
 
 		tmpFileSessionManagementLock.lock();
@@ -85,10 +84,11 @@ public class WSNServiceHelper {
 
 		SessionManagementService service;
 		try {
-			service = new SessionManagementService(tmpFileSessionManagement.toURI().toURL(), qName);
+			service = new SessionManagementService(tmpFileSessionManagement.toURI().toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
+
 		SessionManagement sessionManagementPort = service.getSessionManagementPort();
 
 		Map<String, Object> ctxt = ((BindingProvider) sessionManagementPort).getRequestContext();
@@ -98,16 +98,8 @@ public class WSNServiceHelper {
 
 	}
 
-	/**
-	 * Returns the port to the Controller API.
-	 *
-	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
-	 *         Service endpoint
-	 */
-	public static Controller getControllerService(String endpointUrl) {
+	public static Controller getControllerService(String endpointUrl, ExecutorService executorService) {
 
-		QName qName = new QName("urn:ControllerService", "ControllerService");
 		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("ControllerService.wsdl");
 
 		tmpFileControllerLock.lock();
@@ -125,9 +117,13 @@ public class WSNServiceHelper {
 
 		ControllerService service;
 		try {
-			service = new ControllerService(tmpFileController.toURI().toURL(), qName);
+			service = new ControllerService(tmpFileController.toURI().toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
+		}
+
+		if (executorService != null) {
+			service.setExecutor(executorService);
 		}
 
 		Controller controllerPort = service.getControllerPort();
@@ -140,6 +136,17 @@ public class WSNServiceHelper {
 	}
 
 	/**
+	 * Returns the port to the Controller API.
+	 *
+	 * @param endpointUrl the endpoint URL to connect to
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
+	 *         Service endpoint
+	 */
+	public static Controller getControllerService(String endpointUrl) {
+		return getControllerService(endpointUrl, null);
+	}
+
+	/**
 	 * Returns the port to the WSN API instance.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
@@ -148,7 +155,6 @@ public class WSNServiceHelper {
 	 */
 	public static WSN getWSNService(String endpointUrl) {
 
-		QName qName = new QName("urn:WSNService", "WSNService");
 		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("WSNService.wsdl");
 
 		tmpFileWSNLock.lock();
@@ -166,7 +172,7 @@ public class WSNServiceHelper {
 
 		WSNService service;
 		try {
-			service = new WSNService(tmpFileWSN.toURI().toURL(), qName);
+			service = new WSNService(tmpFileWSN.toURI().toURL());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

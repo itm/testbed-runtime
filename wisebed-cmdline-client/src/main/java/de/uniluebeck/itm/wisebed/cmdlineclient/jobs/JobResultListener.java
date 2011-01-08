@@ -33,4 +33,6 @@ public interface JobResultListener {
 
 	void receiveMessage(Message msg) throws IOException;
 
+	void timeout();
+
 }

@@ -152,6 +152,11 @@ public class NullDevice extends iSenseDeviceImpl {
 	public void shutdown() {
 	}
 
+	@Override
+	public boolean isConnected() {
+		return false;
+	}
+
 	// -------------------------------------------------------------------------
 
 	/**

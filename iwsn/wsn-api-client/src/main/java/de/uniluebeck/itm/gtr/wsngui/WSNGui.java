@@ -66,45 +66,62 @@ public class WSNGui {
 
         Preconditions.checkNotNull(properties);
 
-        JPanel panel = new JPanel(new BorderLayout());
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
         JTabbedPane tabs = new JTabbedPane();
+        Dimension preferredSize = new Dimension(800, 400);
 
-        panel.add(tabs, BorderLayout.NORTH);
+        splitPane.add(tabs);
 
         {
             ControllerClientView controllerClientView = new ControllerClientView();
+            JScrollPane controllerClientScrollPane = new JScrollPane(controllerClientView);
+            controllerClientScrollPane.setPreferredSize(preferredSize);
             new ControllerClientController(controllerClientView, properties);
 
             ControllerServiceView controllerServiceView = new ControllerServiceView();
+            JScrollPane controllerServiceScrollPane = new JScrollPane(controllerServiceView);
+            controllerClientScrollPane.setPreferredSize(preferredSize);
             new ControllerServiceController(controllerServiceView, properties);
 
             WSNClientView wsnClientView = new WSNClientView();
+            JScrollPane wsnClientScrollPane = new JScrollPane(wsnClientView);
+            wsnClientScrollPane.setPreferredSize(preferredSize);
             new WSNClientController(wsnClientView, properties);
 
             SessionManagementClientView sessionManagementClientView = new SessionManagementClientView();
+            JScrollPane sessionManagementScrollPane = new JScrollPane(sessionManagementClientView);
+            sessionManagementScrollPane.setPreferredSize(preferredSize);
             new SessionManagementClientController(sessionManagementClientView, wsnClientView, properties);
 
             RSClientView rsClientView = new RSClientView();
+            JScrollPane rsClientScrollPane = new JScrollPane(rsClientView);
+            rsClientScrollPane.setPreferredSize(preferredSize);
             new RSClientController(rsClientView, sessionManagementClientView, properties);
 
             SNAAClientView snaaClientView = new SNAAClientView();
+            JScrollPane snaaClientScrollPane = new JScrollPane(snaaClientView);
+            snaaClientScrollPane.setPreferredSize(preferredSize);
             new SNAAClientController(snaaClientView, rsClientView, properties);
 
             WSNServiceView wsnServiceView = new WSNServiceView();
+            JScrollPane wsnServiceScrollPane = new JScrollPane(wsnServiceView);
+            wsnServiceScrollPane.setPreferredSize(preferredSize);
             new WSNServiceController(wsnServiceView, properties);
 
             MessagestoreClientView messageStoreView = new MessagestoreClientView();
+            JScrollPane messageStoreScrollPane = new JScrollPane(messageStoreView);
+            messageStoreScrollPane.setPreferredSize(preferredSize);
             new MessagestoreClientController(messageStoreView, properties);
 
-            tabs.addTab("SNAA Client", snaaClientView);
-            tabs.addTab("RS Client", rsClientView);
-            tabs.addTab("Controller Client", controllerClientView);
-            tabs.addTab("Controller Service Dummy", controllerServiceView);
-            tabs.addTab("Session Management Client", sessionManagementClientView);
-            tabs.addTab("WSN Client", wsnClientView);
-            tabs.addTab("WSN Server Dummy", wsnServiceView);
-            tabs.addTab("Logcontroller Messagestore", messageStoreView);
+            tabs.addTab("SNAA Client", snaaClientScrollPane);
+            tabs.addTab("RS Client", rsClientScrollPane);
+            tabs.addTab("Controller Client", controllerClientScrollPane);
+            tabs.addTab("Controller Service Dummy", controllerServiceScrollPane);
+            tabs.addTab("Session Management Client", sessionManagementScrollPane);
+            tabs.addTab("WSN Client", wsnClientScrollPane);
+            tabs.addTab("WSN Service Dummy", wsnServiceScrollPane);
+            tabs.addTab("Logcontroller Messagestore", messageStoreScrollPane);
 
         }
 
@@ -120,15 +137,15 @@ public class WSNGui {
         });
 
         JScrollPane outputScrollPane = new JScrollPane(outputTextPane);
-        outputScrollPane.setPreferredSize(new Dimension(800, 400));
+        outputScrollPane.setPreferredSize(preferredSize);
         outputScrollPane.setAutoscrolls(true);
 
-        panel.add(outputScrollPane, BorderLayout.CENTER);
+        splitPane.add(outputScrollPane);
 
         TextAreaAppender.setTextArea(outputTextPane);
 
         frame = new JFrame("WISEBED Web Service API Testing Tool");
-        frame.setContentPane(panel);
+        frame.setContentPane(splitPane);
         frame.pack();
 
     }

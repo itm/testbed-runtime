@@ -26,9 +26,12 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
 import org.joda.time.DateTime;
 
+import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class JobResult {
+
 	// NodeId -> Result
 	private HashMap<String, Result> results = new HashMap<String, Result>();
 
@@ -41,6 +44,7 @@ public class JobResult {
 	private String description;
 
 	public static class Result {
+
 		public String message;
 
 		public boolean success;
@@ -49,6 +53,24 @@ public class JobResult {
 			this.success = success;
 			this.message = message;
 		}
+
+		@Override
+		public String toString() {
+			return toString(0);
+		}
+
+		public String toString(int tabIndent) {
+			final StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < tabIndent; i++) {
+				sb.append("\t");
+			}
+			sb.append("Result");
+			sb.append("{success='").append(success).append('\'');
+			sb.append(", message=").append(message);
+			sb.append('}');
+			return sb.toString();
+		}
+
 	}
 
 	public JobResult(JobType jobType) {
@@ -64,16 +86,19 @@ public class JobResult {
 		int success = 0;
 		int failed = 0;
 
-		for (Result r : results.values())
-			if (r.success)
+		for (Result r : results.values()) {
+			if (r.success) {
 				success++;
-			else
+			} else {
 				failed++;
+			}
+		}
 
-		if (success + failed > 0)
+		if (success + failed > 0) {
 			return (int) (100.0 * ((double) success / (double) (success + failed)));
-		else
+		} else {
 			return 100;
+		}
 	}
 
 	public JobType getJobType() {
@@ -106,6 +131,27 @@ public class JobResult {
 
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("JobResult{jobType=");
+		sb.append(jobType);
+		sb.append(", description='");
+		sb.append(description);
+		sb.append('\'');
+		sb.append(", results=\n");
+		for (Entry<String, Result> entry : results.entrySet()) {
+			sb.append("\t");
+			sb.append(entry.getKey());
+			sb.append(" | ");
+			sb.append(entry.getValue().success);
+			sb.append(" | ");
+			sb.append(entry.getValue().message);
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 }

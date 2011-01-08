@@ -76,12 +76,6 @@ public class CommonPreconditions {
 		);
 	}
 
-	public static void main(String[] args) {
-		CommonPreconditions preconditions = new CommonPreconditions();
-		preconditions.addServedUrnPrefixes("urn:wisebed:tubs:");
-		preconditions.checkNodesServed(Arrays.asList("urn:wisebed:tubs:419"));
-	}
-
 	//check current reserved nodes from rs on nodeNames
 	public void checkNodesReserved(List<String> nodeNames, Set<String> reservedNodes) {
 		if (reservedNodes == null) return;

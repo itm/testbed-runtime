@@ -67,8 +67,8 @@ public class WSNAppImpl implements WSNApp {
 
 	@Inject
 	public WSNAppImpl(TestbedRuntime testbedRuntime,
-				   @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
-		
+					  @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
+
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
@@ -125,7 +125,9 @@ public class WSNAppImpl implements WSNApp {
 							.build();
 
 					if (log.isDebugEnabled()) {
-						log.debug("Received node output: {}", WSNAppMessageTools.toString(message, true));
+                                                String output = WSNAppMessageTools.toString(message, true);
+                                                output = output.endsWith("\n") ? output.substring(0, output.length()-2) : output;
+						log.debug("{}", output);
 					}
 
 					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
@@ -341,7 +343,6 @@ public class WSNAppImpl implements WSNApp {
 					System.currentTimeMillis() + MSG_VALIDITY
 			);
 
-
 			SingleRequestMultiResponseCallback multiResponseCallback = new SingleRequestMultiResponseCallback() {
 				@Override
 				public boolean receive(byte[] response) {
@@ -354,8 +355,7 @@ public class WSNAppImpl implements WSNApp {
 						callback.receivedRequestStatus(requestStatus);
 
 						// cancel the job if error or complete
-						return requestStatus.getStatus().getValue() < 0 || requestStatus.getStatus()
-								.getValue() >= 100;
+						return requestStatus.getStatus().getValue() < 0 || requestStatus.getStatus().getValue() >= 100;
 
 					} catch (InvalidProtocolBufferException e) {
 						log.error("Exception while parsing incoming request status: " + e, e);
@@ -389,7 +389,7 @@ public class WSNAppImpl implements WSNApp {
 			};
 
 			testbedRuntime.getSingleRequestMultiResponseService()
-					.sendReliableRequestUnreliableResponse(msg, 5, TimeUnit.MINUTES, multiResponseCallback);
+					.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, multiResponseCallback);
 
 		}
 	}
@@ -429,7 +429,7 @@ public class WSNAppImpl implements WSNApp {
 	@Override
 	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
 		while (wsnNodeMessageReceivers.remove(receiver)) {
-
+			/* nothing to do ... */
 		}
 	}
 
@@ -483,6 +483,100 @@ public class WSNAppImpl implements WSNApp {
 				sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, sourceNodeUrn)
+		);
+
+	}
+
+	@Override
+	public void disableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception {
+
+		checkNodeUrnsKnown(Arrays.asList(nodeUrn));
+
+		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.DISABLE_NODE)
+				.build();
+
+		byte[] bytes = invocation.toByteArray();
+
+		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+				System.currentTimeMillis() + MSG_VALIDITY,
+				new RequestStatusCallback(callback, nodeUrn)
+		);
+
+	}
+
+	@Override
+	public void enableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception {
+
+		checkNodeUrnsKnown(Arrays.asList(nodeUrn));
+
+		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.ENABLE_NODE)
+				.build();
+
+		byte[] bytes = invocation.toByteArray();
+
+		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+				System.currentTimeMillis() + MSG_VALIDITY,
+				new RequestStatusCallback(callback, nodeUrn)
+		);
+
+	}
+
+	@Override
+	public void enablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
+			throws UnknownNodeUrnException_Exception {
+
+		checkNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+
+		WSNAppMessages.EnablePhysicalLink enablePhysicalLink = WSNAppMessages.EnablePhysicalLink
+				.newBuilder()
+				.setNodeB(nodeUrnB)
+				.build();
+
+		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.ENABLE_PHYSICAL_LINK)
+				.setArguments(enablePhysicalLink.toByteString())
+				.build();
+
+		byte[] bytes = invocation.toByteArray();
+
+		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+				System.currentTimeMillis() + MSG_VALIDITY,
+				new RequestStatusCallback(callback, nodeUrnA)
+		);
+
+	}
+
+	@Override
+	public void disablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
+			throws UnknownNodeUrnException_Exception {
+
+		checkNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+
+		WSNAppMessages.DisablePhysicalLink disablePhysicalLink = WSNAppMessages.DisablePhysicalLink
+				.newBuilder()
+				.setNodeB(nodeUrnB)
+				.build();
+
+		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.DISABLE_PHYSICAL_LINK)
+				.setArguments(disablePhysicalLink.toByteString())
+				.build();
+
+		byte[] bytes = invocation.toByteArray();
+
+		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+				System.currentTimeMillis() + MSG_VALIDITY,
+				new RequestStatusCallback(callback, nodeUrnA)
 		);
 
 	}

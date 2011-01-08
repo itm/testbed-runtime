@@ -23,46 +23,121 @@
 
 package eu.wisebed.shibboauth;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-import java.io.*;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class SSAKSerialization {
-    static private BASE64Encoder encode = new BASE64Encoder();
-    static private BASE64Decoder decode = new BASE64Decoder();
-
-    static public String serialize(ShibbolethSecretAuthenticationKey shibbolethSecretAuthenticationKey) {
-        String out = null;
-        if (shibbolethSecretAuthenticationKey != null){
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-                oos.writeObject(shibbolethSecretAuthenticationKey);
-                out = encode.encode(baos.toByteArray());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        return out;
+    private static class CookieProperties {
+        private static String name = "name";
+        private static String value = "value";
+        private static String domain = "domain";
     }
 
-    static public ShibbolethSecretAuthenticationKey deserialize(String s) {
-        ShibbolethSecretAuthenticationKey ssak = null;
-        if (s != null) {
-            try {
-                ByteArrayInputStream bios = new ByteArrayInputStream(decode.decodeBuffer(s));
-                ObjectInputStream ois = new ObjectInputStream(bios);
-                ssak = (ShibbolethSecretAuthenticationKey) ois.readObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
+    private static String _shibSession_ = "_shibsession_";
+
+    private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
+        Cookie shibSessionCookie = null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().startsWith(_shibSession_)) {
+                shibSessionCookie = cookie;
+                break;
             }
         }
-        return ssak;
+
+        if (shibSessionCookie == null) {
+            throw new CookieNotFoundException("Could not find '_shibsession_'-cookie");
+        }
+
+        //fill cookie-map
+        Map<String, String> cookieMap = new HashMap<String, String>();
+        cookieMap.put(CookieProperties.name, shibSessionCookie.getName());
+        cookieMap.put(CookieProperties.value, shibSessionCookie.getValue());
+        cookieMap.put(CookieProperties.domain, shibSessionCookie.getDomain());
+
+        return cookieMap;
+    }
+
+    public static String serialize(List<Cookie> cookies) throws CookiePropertyNotFoundException, CookieNotFoundException {
+        Map<String, String> cookieMap = cookieListToMap(cookies);
+        if (!(cookieMap.containsKey(CookieProperties.name) &&
+                cookieMap.containsKey(CookieProperties.value) &&
+                cookieMap.containsKey(CookieProperties.domain))) {
+            throw new CookiePropertyNotFoundException("Cookie-Property '" + "' not found in cookie-map");
+        }
+
+        StringBuffer out = new StringBuffer();
+
+        //make String out of Cookie values
+        // format:
+        // (name=value;)*name=value@domain
+        {
+            out.append(cookieMap.get(CookieProperties.name)).append("=").append(cookieMap.get(CookieProperties.value)).append("@");
+            out.append(cookieMap.get(CookieProperties.domain));
+        }
+        return out.toString();
+    }
+
+    public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
+
+        //remove whitespaces
+        serializedString = serializedString.replaceAll(" ", "");
+        //make Cookies out of serialized cookie-string
+        // format:
+        // (name=value;)*name=value@domain
+
+        //getting domain-value
+        String[] lastEntryValues = serializedString.split("@");
+        if (lastEntryValues.length != 2) {
+            throw new NotDeserializableException("Could not extract domain-value while de-serializing '" + serializedString + "'");
+        }
+        String domain = lastEntryValues[1];
+
+        //getting other key,value pairs
+        String[] cookieValues = lastEntryValues[0].split(";");
+        if (cookieValues.length == 0) {
+            throw new NotDeserializableException("Could not de-serialize empty String");
+        }
+
+        List<Cookie> cookies = new LinkedList<Cookie>();
+
+        for (String value : cookieValues) {
+            /*if (!value.startsWith(_shibSession_)) {
+                continue;
+            }*/
+
+            String[] pair = value.split("=");
+            if (pair.length != 2) {
+                throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
+            }
+            BasicClientCookie cookie = new BasicClientCookie(pair[0], pair[1]);
+            cookie.setDomain(domain);
+            cookie.setVersion(0);
+            cookie.setPath("/");
+            cookies.add(cookie);
+        }
+        return cookies;
+    }
+
+    private static class CookieNotFoundException extends Exception {
+        public CookieNotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class CookiePropertyNotFoundException extends Exception {
+        public CookiePropertyNotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class NotDeserializableException extends Exception {
+        public NotDeserializableException(String s) {
+            super(s);
+        }
     }
 }

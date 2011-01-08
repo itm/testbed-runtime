@@ -1,35 +1,35 @@
 package de.itm.uniluebeck.tr.wiseml.merger.internals.merge.elements;
 
-import java.util.Collection;
-
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLSequence;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
-import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.SortedListMerger;
+import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.NamedItemListMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLTreeMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 
-public class TraceListMerger extends SortedListMerger<TraceDefinition> {
+public class TraceListMerger extends NamedItemListMerger {
 
 	public TraceListMerger(
 			final WiseMLTreeMerger parent,
 			final WiseMLTreeReader[] inputs, 
 			final MergerConfiguration configuration,
 			final MergerResources resources) {
-		super(parent, inputs, configuration, resources);
-		// TODO Auto-generated constructor stub
+		super(
+				parent, 
+				inputs, 
+				configuration, 
+				resources, 
+				WiseMLTag.trace,
+				WiseMLSequence.Trace);
+		this.mergingMode = this.configuration.getTraceListMergingMode();
+		this.customID = this.configuration.getCustomTraceID();
 	}
 
 	@Override
-	protected WiseMLTreeReader mergeItems(Collection<TraceDefinition> items) {
-		// TODO Auto-generated method stub
-		return null;
+	protected WiseMLTreeReader createMerger(
+			WiseMLTreeReader[] inputs, String id) {
+		return new TraceMerger(this, inputs, configuration, resources, id);
 	}
-
-	@Override
-	protected TraceDefinition readNextItem(int inputIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }

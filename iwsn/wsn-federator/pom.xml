@@ -28,9 +28,9 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr</artifactId>
-		<version>0.5.4-SNAPSHOT</version>
-		<relativePath>../../</relativePath>
+		<artifactId>tr.iwsn</artifactId>
+		<version>0.5.5-SNAPSHOT</version>
+		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>tr.wsn-federator</artifactId>
@@ -50,6 +50,10 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wiseml-merger</artifactId>
 		</dependency>
 
 		<dependency>
@@ -76,30 +80,25 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>de.uniluebeck.itm.tr.wsn.federator.Federator</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>one-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin-rc8fix</artifactId>
+                <version>1.4.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <mainClass>de.uniluebeck.itm.tr.wsn.federator.Federator</mainClass>
+                            <onejarVersion>0.97-RC10</onejarVersion>
+                            <attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

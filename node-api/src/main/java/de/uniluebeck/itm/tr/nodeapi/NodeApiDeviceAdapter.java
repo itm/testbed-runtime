@@ -30,12 +30,30 @@ public abstract class NodeApiDeviceAdapter {
 
 	private NodeApi nodeApi;
 
+	/**
+	 * Sends the message contained in {@code packet} to the node.
+	 *
+	 * @param packet the packet to send
+	 */
 	public abstract void sendToNode(ByteBuffer packet);
 
-	public void receiveFromNode(ByteBuffer packet) {
-		nodeApi.receiveFromNode(packet);
+	/**
+	 * Passes a packet to the Node API implementation for consumption, e.g. to complete a request if the packet contains a
+	 * reply to it.
+	 *
+	 * @param packet the received packet
+	 *
+	 * @return {@code true} if the packet was consumed by the Node API implementation, {@code false} otherwise
+	 */
+	public boolean receiveFromNode(ByteBuffer packet) {
+		return nodeApi.receiveFromNode(packet);
 	}
 
+	/**
+	 * Sets the Node API implementation instance.
+	 *
+	 * @param nodeApi the Node API instance for this adapter
+	 */
 	public void setNodeApi(final NodeApi nodeApi) {
 		this.nodeApi = nodeApi;
 	}

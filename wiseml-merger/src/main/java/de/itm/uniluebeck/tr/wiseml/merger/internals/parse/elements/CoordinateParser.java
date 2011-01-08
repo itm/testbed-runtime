@@ -17,14 +17,8 @@ public class CoordinateParser extends WiseMLElementParser<Coordinate> {
 	@Override
 	protected void parseStructure() {
 		WiseMLTreeReader reader = null;
-		if (enclosingTag == null) {
-			reader = this.reader;
-		} else {
-			assertTag(this.reader, enclosingTag);
-			this.reader.nextSubElementReader();
-			reader = this.reader.getSubElementReader();
-		}
-		assertTag(reader, WiseMLTag.coordinate);
+		reader = this.reader;
+		assertTag(reader, enclosingTag);
 		
 		structure = new Coordinate();
 		

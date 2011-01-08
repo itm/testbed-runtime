@@ -24,14 +24,12 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
-import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Wsnapp;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,42 +49,40 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 		try {
 
-			JAXBContext context = JAXBContext.newInstance(Wsnapp.class);
+			JAXBContext context = JAXBContext.newInstance(WsnDevice.class);
 			Unmarshaller unmarshaller = context.createUnmarshaller();
-			Wsnapp config = (Wsnapp) unmarshaller.unmarshal((Node) configuration);
 
-			ImmutableList.Builder<WSNDeviceApp> builder = new ImmutableList.Builder<WSNDeviceApp>();
+			WsnDevice wsnDevice = (WsnDevice) unmarshaller.unmarshal((Node) configuration);
 
-			for (WsnDevice wsnDevice : config.getDevice()) {
+			String nodeUrn, nodeType, nodeSerialInterface, nodeUSBChipID;
+			Integer nodeAPITimeout;
 
-				String nodeUrn, nodeType, nodeSerialInterface;
-				Integer nodeAPITimeout;
+			try {
 
-				try {
+				nodeUrn = wsnDevice.getUrn();
+				nodeType = wsnDevice.getType();
+				nodeType = wsnDevice.getType();
+				nodeSerialInterface = wsnDevice.getSerialinterface();
+				nodeAPITimeout = wsnDevice.getNodeapitimeout();
+				nodeUSBChipID = wsnDevice.getUsbchipid();
 
-					nodeUrn = wsnDevice.getUrn();
-					nodeType = wsnDevice.getType();
-					nodeSerialInterface = wsnDevice.getSerialinterface();
-					nodeAPITimeout = wsnDevice.getNodeapitimeout();
+				Preconditions.checkNotNull(nodeUrn);
+				Preconditions.checkNotNull(nodeType);
+				StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
 
-					Preconditions.checkNotNull(nodeUrn);
-					Preconditions.checkNotNull(nodeType);
-					StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
-
-				} catch (Exception e) {
-					log.error("Ignoring device. Reason: " + e.getMessage(), e);
-					// ignore this device as it is badly configured
-					continue;
-				}
-
-				WSNDeviceAppModule module =
-						new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, testbedRuntime);
-				Injector injector = Guice.createInjector(module);
-				builder.add(injector.getInstance(WSNDeviceApp.class));
-
+			} catch (Exception e) {
+				// ignore this device as it is badly configured
+				log.error("Ignoring device. Reason: " + e.getMessage(), e);
+				throw new RuntimeException(e);
 			}
 
-			return new WSNDeviceAppWrapper(builder.build());
+			WSNDeviceAppModule module =
+					new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, nodeUSBChipID,
+							testbedRuntime
+					);
+			Injector injector = Guice.createInjector(module);
+
+			return injector.getInstance(WSNDeviceApp.class);
 
 		} catch (JAXBException e) {
 			log.error("Error unmarshalling WsnApplication config: " + e, e);

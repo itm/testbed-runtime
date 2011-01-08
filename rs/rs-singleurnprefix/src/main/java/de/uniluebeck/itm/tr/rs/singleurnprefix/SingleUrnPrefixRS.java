@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.testbed.api.rs.v1.*;
@@ -45,389 +47,425 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "urn:RSService")
+        targetNamespace = "urn:RSService")
 public class SingleUrnPrefixRS implements RS {
 
-	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
-
-	private String urnPrefix;
-
-	private String snaaEndpointUrl;
-
-	private String sessionManagementEndpointUrl;
-
-	private RSPersistence persistence;
-
-	private SessionManagement sessionManagementEndpoint;
-
-	public SingleUrnPrefixRS(String urnPrefix, String snaaEndpointUrl, String sessionManagementEndpointUrl,
-							 RSPersistence persistence) {
-		this.urnPrefix = urnPrefix;
-		this.snaaEndpointUrl = snaaEndpointUrl;
-		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
-		this.persistence = persistence;
-		log.debug("New instance serving prefix: " + urnPrefix);
-		log.debug("SNAA endpoint: " + snaaEndpointUrl);
-	}
-
-	@WebResult(name = "secretReservationKey")
-	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
-
-		SecretAuthenticationKey secretAuthenticationKey;
-
-		// Sanity check
-		{
-			performSanityCheck(reservation);
-			secretAuthenticationKey = performAuthenticationSanityCheck(authenticationData);
-			performServingNodeUrnsCheck(reservation.getNodeURNs());
-		}
-
-		// Authentication check
-		{
-			if (snaaEndpointUrl != null && !"".equals(snaaEndpointUrl)) {
-				Action action = new Action();
-				action.setAction("reserve"); // TODO Change to something sensible when defined
-				try {
-					checkAuthentication(secretAuthenticationKey, action);
-				} catch (AuthenticationExceptionException e) {
-					throw createAuthorizationExceptionException(e);
-				}
-			}
-		}
-
-		// Check if the reservation is possible (i.e., all nodes are available during the given time interval)
-		{
-			checkNodesAvailable(reservation);
-		}
-
-		// Create new reservation
-		{
-			ConfidentialReservationData crd = new ConfidentialReservationData();
-			crd.setFrom(reservation.getFrom());
-			crd.setTo(reservation.getTo());
-			crd.getNodeURNs().addAll(reservation.getNodeURNs());
-			Data data = new Data();
-			data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-			data.setUsername(secretAuthenticationKey.getUsername());
-			//data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
-			crd.getData().add(data);
-			crd.setUserData(reservation.getUserData());
-
-			try {
-
-				SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
-
-				data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
-
-				List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
-				keys.add(secretReservationKey);
-				return keys;
-
-			} catch (Exception e) {
-				throw createRSExceptionException(e.getMessage());
-			}
-		}
-
-	}
-
-	private RSExceptionException createRSExceptionException(String message) {
-		RSException exception = new RSException();
-		exception.setMessage(message);
-		return new RSExceptionException(message, exception);
-	}
-
-	private AuthorizationExceptionException createAuthorizationExceptionException(AuthenticationExceptionException e) {
-		AuthorizationException exception = new AuthorizationException();
-		exception.setMessage(e.getMessage());
-		return new AuthorizationExceptionException(e.getMessage(), exception, e);
-	}
-
-	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
-
-		SecretReservationKey secretReservationKey = performReservationSanityCheck(secretReservationKeys);
-		ConfidentialReservationData reservation = persistence.getReservation(secretReservationKey);
-
-		if (reservation == null) {
-			String msg = "Reservation not found for key " + secretReservationKey;
-			ReservervationNotFoundException exception = new ReservervationNotFoundException();
-			exception.setMessage(msg);
-			throw new ReservervationNotFoundExceptionException(msg, exception);
-		}
-
-		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
-		res.add(reservation);
-		return res;
-	}
-
-	@Override
-	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
-
-		// getReservationBeforeDeletion does sanity check
-		getReservation(secretReservationKeys);
-		ConfidentialReservationData reservation = persistence.deleteReservation(secretReservationKeys.get(0));
-		log.debug("Deleted reservation {}", reservation);
-
-	}
-
-	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
-
-		Interval request =
-				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
-		List<PublicReservationData> res = new LinkedList<PublicReservationData>(persistence.getReservations(request));
-
-		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
-		return res;
-	}
-
-
-	@Override
-	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKey,
-			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
-
-		//checking on null for period
-		//checking on null for secretAuthenticationKey in performSanityCheck
-		{
-			if (period == null || period.getFrom() == null || period.getTo() == null) {
-				String message = "Error on checking null for period. Either period, period.from or period.to is null.";
-				log.warn(message);
-				RSException rse = new RSException();
-				rse.setMessage(message);
-				throw new RSExceptionException(message, rse);
-			}
-		}
-		//SanityCheck
-		SecretAuthenticationKey key;
-		{
-			key = performAuthenticationSanityCheck(secretAuthenticationKey);
-		}
-
-		Action get = new Action();
-		get.setAction("get");
-		//AuthenticationCheck
-		{
-			try {
-				checkAuthentication(key, get);
-			} catch (Exception e) {
-				RSException rse = new RSException();
-				log.warn(e.getMessage());
-				rse.setMessage(e.getMessage());
-				throw new RSExceptionException(e.getMessage(), rse);
-			}
-		}
-
-		Interval i = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
-				new DateTime(period.getTo().toGregorianCalendar())
-		);
-
-		return persistence.getReservations(i);
-	}
-
-	private void checkNodesAvailable(PublicReservationData reservation)
-			throws ReservervationConflictExceptionException, RSExceptionException {
-		List<String> requested = reservation.getNodeURNs();
-		Set<String> reserved = new HashSet<String>();
-
-		for (PublicReservationData res : getReservations(reservation.getFrom(), reservation.getTo())) {
-			reserved.addAll(res.getNodeURNs());
-		}
-
-		Set<String> intersection = new HashSet<String>(reserved);
-		intersection.retainAll(requested);
-
-		if (intersection.size() > 0) {
-			String msg = "Some of the nodes are reserved during the requested time ("
-					+ Arrays.toString(intersection.toArray()) + ")";
-			log.warn(msg);
-			ReservervationConflictException exception = new ReservervationConflictException();
-			exception.setMessage(msg);
-			throw new ReservervationConflictExceptionException(msg, exception);
-		}
-	}
-
-	private void performServingNodeUrnsCheck(List<String> nodeUrns) throws RSExceptionException {
-
-		// Check if we serve all node urns by urnPrefix
-		for (String nodeUrn : nodeUrns) {
-			if (!nodeUrn.startsWith(urnPrefix)) {
-				throw createRSExceptionException(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
-				);
-			}
-		}
-
-		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description
-		// and check if the individual node urns of the reservation are existing
-		if (sessionManagementEndpointUrl != null) {
-
-			List<String> unservedNodes = new LinkedList<String>();
-			try {
-
-				// lazy load endpoint proxy
-				if (sessionManagementEndpoint == null) {
-					sessionManagementEndpoint = WSNServiceHelper.getSessionManagementService(
-							sessionManagementEndpointUrl
-					);
-				}
-
-				List<String> networkNodes = WiseMLHelper.getNodeUrns(sessionManagementEndpoint.getNetwork());
-				
-				for (String nodeUrn : nodeUrns) {
-					if (!networkNodes.contains(nodeUrn)) {
-						unservedNodes.add(nodeUrn);
-					}
-				}
-				
-			} catch (Exception e) {
-				log.warn(
-						"Could not contact session management endpoint {}! Skipping validity check of nodes to be reserved.",
-						sessionManagementEndpointUrl
-				);
-			}
-
-			if (unservedNodes.size() > 0) {
-				throw createRSExceptionException("The node URNs " + Arrays
-						.toString(unservedNodes.toArray()) + " are unknown to the reservation system!"
-				);
-			}
-
-		} else {
-			log.debug("Not checking session management endpoint for node URN validity as no endpoint is configured.");
-		}
-
-	}
-
-	private SecretReservationKey performReservationSanityCheck(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException {
-		String msg = null;
-		SecretReservationKey srk = null;
-
-		// Check if reservation data has been supplied
-		if (secretReservationKeys == null || secretReservationKeys.size() != 1) {
-			msg = "No or too much secretReservationKeys supplied -> error.";
-
-		} else {
-			srk = secretReservationKeys.get(0);
-			if (!urnPrefix.equals(srk.getUrnPrefix())) {
-				msg = "Not serving urn prefix " + srk.getUrnPrefix();
-			}
-		}
-
-		if (msg != null) {
-			log.warn(msg);
-			RSException exception = new RSException();
-			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
-		}
-
-		return srk;
-	}
-
-	private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
-		String msg = null;
-
-		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
-			//if reservation-data is null
-			msg = "No reservation data supplied.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-			//if "to" of reservation-timestamp lies in the past
-			msg = "To time is in the past.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom()
-				.toGregorianCalendar().getTimeInMillis()) {
-			//if "from" is later then "to"
-			msg = "To is less than From time.";
-		}
-
-		if (reservation.getNodeURNs() == null || reservation.getNodeURNs().size() == 0) {
-			msg = "Empty reservation request! At least one node URN must be reserved.";
-		}
-
-		if (msg != null) {
-			log.warn(msg);
-			RSException exception = new RSException();
-			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
-		}
-
-	}
-
-	public SecretAuthenticationKey performAuthenticationSanityCheck(List<SecretAuthenticationKey> authenticationData)
-			throws RSExceptionException {
-		// Check if authentication data has been supplied
-		if (authenticationData == null || authenticationData.size() != 1) {
-			String msg = "No or too much authentication data supplied -> error.";
-			log.warn(msg);
-			RSException exception = new RSException();
-			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
-		}
-
-		SecretAuthenticationKey sak = authenticationData.get(0);
-		if (!urnPrefix.equals(sak.getUrnPrefix())) {
-			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
-			log.warn(msg);
-			RSException exception = new RSException();
-			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
-		}
-
-		return sak;
-	}
-
-	public boolean checkAuthentication(SecretAuthenticationKey key, Action action) throws RSExceptionException,
-			AuthorizationExceptionException, AuthenticationExceptionException {
-
-		log.debug("Checking authorization for key: " + key + " and action: " + action);
-		boolean authorized;
-
-		eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey k =
-				new eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey();
-		k.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
-		k.setUrnPrefix(key.getUrnPrefix());
-		k.setUsername(key.getUsername());
-
-		List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> l =
-				new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
-		l.add(k);
-
-		// Invoke isAuthorized
-		try {
-			SNAA service = SNAAServiceHelper.getSNAAService(snaaEndpointUrl);
-			authorized = service.isAuthorized(l, action);
-			log.debug("Authorization result: " + authorized);
-		} catch (SNAAExceptionException e) {
-			RSException rse = new RSException();
-			log.warn(e.getMessage());
-			rse.setMessage(e.getMessage());
-			throw new RSExceptionException(e.getMessage(), rse);
-		}
-
-		if (!authorized) {
-			AuthorizationException e = new AuthorizationException();
-			String msg = "Authorization failed";
-			e.setMessage(msg);
-			log.warn(msg, e);
-			throw new AuthorizationExceptionException(msg, e);
-		}
-
-		return true;
-	}
+    private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
+
+    private String urnPrefix;
+
+    private String snaaEndpointUrl;
+
+    private String sessionManagementEndpointUrl;
+
+    private RSPersistence persistence;
+
+    private SessionManagement sessionManagementEndpoint;
+
+    public SingleUrnPrefixRS(String urnPrefix, String snaaEndpointUrl, String sessionManagementEndpointUrl,
+                             RSPersistence persistence) {
+        this.urnPrefix = urnPrefix;
+        this.snaaEndpointUrl = snaaEndpointUrl;
+        this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
+        this.persistence = persistence;
+        log.debug("New instance serving prefix: " + urnPrefix);
+        log.debug("SNAA endpoint: " + snaaEndpointUrl);
+    }
+
+    @WebResult(name = "secretReservationKey")
+    @Override
+    public List<SecretReservationKey> makeReservation(
+            @WebParam(name = "authenticationData", targetNamespace = "")
+            List<SecretAuthenticationKey> authenticationData,
+            @WebParam(name = "reservation") ConfidentialReservationData reservation)
+            throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
+
+        SecretAuthenticationKey secretAuthenticationKey;
+
+        // Sanity check
+        {
+            performSanityCheck(reservation);
+            secretAuthenticationKey = performAuthenticationSanityCheck(authenticationData);
+            performServingNodeUrnsCheck(reservation.getNodeURNs());
+        }
+
+        // Authentication check
+        {
+            if (snaaEndpointUrl != null && !"".equals(snaaEndpointUrl)) {
+                Action action = new Action();
+                action.setAction("reserve"); // TODO Change to something sensible when defined
+                try {
+                    checkAuthentication(secretAuthenticationKey, action);
+                } catch (AuthenticationExceptionException e) {
+                    throw createAuthorizationExceptionException(e);
+                }
+            }
+        }
+
+        // Check if the reservation is possible (i.e., all nodes are available during the given time interval)
+        {
+            checkNodesAvailable(reservation);
+        }
+
+        // Create new reservation
+        {
+            ConfidentialReservationData crd = new ConfidentialReservationData();
+            crd.setFrom(reservation.getFrom());
+            crd.setTo(reservation.getTo());
+            crd.getNodeURNs().addAll(reservation.getNodeURNs());
+            Data data = new Data();
+            data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+            data.setUsername(secretAuthenticationKey.getUsername());
+            //data.setSecretReservationKey(reservation.getData().get(0).getSecretReservationKey());
+            crd.getData().add(data);
+            crd.setUserData(reservation.getUserData());
+
+            try {
+
+                SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
+
+                data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
+
+                List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
+                keys.add(secretReservationKey);
+                return keys;
+
+            } catch (Exception e) {
+                throw createRSExceptionException(e.getMessage());
+            }
+        }
+
+    }
+
+    private RSExceptionException createRSExceptionException(String message) {
+        RSException exception = new RSException();
+        exception.setMessage(message);
+        return new RSExceptionException(message, exception);
+    }
+
+    private AuthorizationExceptionException createAuthorizationExceptionException(AuthenticationExceptionException e) {
+        AuthorizationException exception = new AuthorizationException();
+        exception.setMessage(e.getMessage());
+        return new AuthorizationExceptionException(e.getMessage(), exception, e);
+    }
+
+    @Override
+    public List<ConfidentialReservationData> getReservation(
+            @WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
+            throws RSExceptionException, ReservationNotFoundExceptionException {
+
+        Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
+
+        SecretReservationKey secretReservationKey = performReservationSanityCheck(secretReservationKeys);
+        ConfidentialReservationData reservation = persistence.getReservation(secretReservationKey);
+
+        if (reservation == null) {
+            String msg = "Reservation not found for key " + secretReservationKey;
+            ReservervationNotFoundException exception = new ReservervationNotFoundException();
+            exception.setMessage(msg);
+            throw new ReservationNotFoundExceptionException(msg, exception);
+        }
+
+        List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
+        res.add(reservation);
+        return res;
+    }
+
+    @Override
+    public void deleteReservation(
+            @WebParam(name = "authenticationData", targetNamespace = "")
+            List<SecretAuthenticationKey> authenticationData,
+            @WebParam(name = "secretReservationKey", targetNamespace = "")
+            List<SecretReservationKey> secretReservationKeys)
+            throws RSExceptionException, ReservationNotFoundExceptionException {
+
+        Preconditions.checkNotNull(authenticationData, "Parameter authenticationData is null!");
+        Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
+
+        // getReservationBeforeDeletion does sanity check
+        getReservation(secretReservationKeys);
+        ConfidentialReservationData reservation = persistence.deleteReservation(secretReservationKeys.get(0));
+        log.debug("Deleted reservation {}", reservation);
+
+    }
+
+    @Override
+    public List<PublicReservationData> getReservations(
+            @WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
+            @WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+
+        Preconditions.checkNotNull(from, "Parameter from date is null or empty");
+        Preconditions.checkNotNull(to, "Parameter to date is null or empty");
+
+        Interval request = new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
+        List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
+
+        log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
+        return res;
+    }
+
+    private List<PublicReservationData> convertToPublic(List<ConfidentialReservationData> confidentialReservationDataList) {
+        List<PublicReservationData> publicReservationDataList = Lists.newArrayList();
+        for (ConfidentialReservationData confidentialReservationData : confidentialReservationDataList) {
+            publicReservationDataList.add(convertToPublic(confidentialReservationData));
+        }
+        return publicReservationDataList;
+    }
+
+    private PublicReservationData convertToPublic(ConfidentialReservationData confidentialReservationData) {
+        PublicReservationData publicReservationData = new PublicReservationData();
+        publicReservationData.setFrom(confidentialReservationData.getFrom());
+        publicReservationData.setTo(confidentialReservationData.getTo());
+        publicReservationData.setUserData(confidentialReservationData.getUserData());
+        publicReservationData.getNodeURNs().addAll(confidentialReservationData.getNodeURNs());
+        return publicReservationData;
+    }
+
+    @Override
+    public List<ConfidentialReservationData> getConfidentialReservations(
+            @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+            List<SecretAuthenticationKey> secretAuthenticationKey,
+            @WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+
+        Preconditions.checkNotNull(period, "Parameter period is null!");
+        Preconditions.checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKey is null!");
+
+        //checking on null for period
+        //checking on null for secretAuthenticationKey in performSanityCheck
+        {
+            if (period == null || period.getFrom() == null || period.getTo() == null) {
+                String message = "Error on checking null for period. Either period, period.from or period.to is null.";
+                log.warn(message);
+                RSException rse = new RSException();
+                rse.setMessage(message);
+                throw new RSExceptionException(message, rse);
+            }
+        }
+        //SanityCheck
+        SecretAuthenticationKey key;
+        {
+            key = performAuthenticationSanityCheck(secretAuthenticationKey);
+        }
+
+        Action get = new Action();
+        get.setAction("get");
+        //AuthenticationCheck
+        {
+            try {
+                checkAuthentication(key, get);
+            } catch (Exception e) {
+                RSException rse = new RSException();
+                log.warn(e.getMessage());
+                rse.setMessage(e.getMessage());
+                throw new RSExceptionException(e.getMessage(), rse);
+            }
+        }
+
+        Interval i = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
+                new DateTime(period.getTo().toGregorianCalendar())
+        );
+
+        return persistence.getReservations(i);
+    }
+
+    private void checkNodesAvailable(PublicReservationData reservation)
+            throws ReservervationConflictExceptionException, RSExceptionException {
+        List<String> requested = reservation.getNodeURNs();
+        Set<String> reserved = new HashSet<String>();
+
+        for (PublicReservationData res : getReservations(reservation.getFrom(), reservation.getTo())) {
+            reserved.addAll(res.getNodeURNs());
+        }
+
+        Set<String> intersection = new HashSet<String>(reserved);
+        intersection.retainAll(requested);
+
+        if (intersection.size() > 0) {
+            String msg = "Some of the nodes are reserved during the requested time ("
+                    + Arrays.toString(intersection.toArray()) + ")";
+            log.warn(msg);
+            ReservervationConflictException exception = new ReservervationConflictException();
+            exception.setMessage(msg);
+            throw new ReservervationConflictExceptionException(msg, exception);
+        }
+    }
+
+    private void performServingNodeUrnsCheck(List<String> nodeUrns) throws RSExceptionException {
+
+        // Check if we serve all node urns by urnPrefix
+        for (String nodeUrn : nodeUrns) {
+            if (!nodeUrn.startsWith(urnPrefix)) {
+                throw createRSExceptionException(
+                        "Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
+                );
+            }
+        }
+
+        // Ask Session Management Endpoint of the testbed we're responsible for for it's network description
+        // and check if the individual node urns of the reservation are existing
+        if (sessionManagementEndpointUrl != null) {
+
+            List<String> unservedNodes = new LinkedList<String>();
+            try {
+
+                // lazy load endpoint proxy
+                if (sessionManagementEndpoint == null) {
+                    sessionManagementEndpoint = WSNServiceHelper.getSessionManagementService(
+                            sessionManagementEndpointUrl
+                    );
+                }
+
+                List<String> networkNodes = WiseMLHelper.getNodeUrns(sessionManagementEndpoint.getNetwork());
+
+                boolean contained;
+                for (String nodeUrn : nodeUrns) {
+
+                    contained = false;
+
+                    for (String networkNode : networkNodes) {
+                        if (networkNode.equalsIgnoreCase(nodeUrn)) {
+                            contained = true;
+                        }
+                    }
+
+                    if (!contained) {
+                        unservedNodes.add(nodeUrn);
+                    }
+                }
+
+            } catch (Exception e) {
+                log.warn(
+                        "Could not contact session management endpoint {}! Skipping validity check of nodes to be reserved.",
+                        sessionManagementEndpointUrl
+                );
+            }
+
+            if (unservedNodes.size() > 0) {
+                throw createRSExceptionException("The node URNs " + Arrays
+                        .toString(unservedNodes.toArray()) + " are unknown to the reservation system!"
+                );
+            }
+
+        } else {
+            log.debug("Not checking session management endpoint for node URN validity as no endpoint is configured.");
+        }
+
+    }
+
+    private SecretReservationKey performReservationSanityCheck(List<SecretReservationKey> secretReservationKeys)
+            throws RSExceptionException {
+        String msg = null;
+        SecretReservationKey srk = null;
+
+        // Check if reservation data has been supplied
+        if (secretReservationKeys == null || secretReservationKeys.size() != 1) {
+            msg = "No or too much secretReservationKeys supplied -> error.";
+
+        } else {
+            srk = secretReservationKeys.get(0);
+            if (!urnPrefix.equals(srk.getUrnPrefix())) {
+                msg = "Not serving urn prefix " + srk.getUrnPrefix();
+            }
+        }
+
+        if (msg != null) {
+            log.warn(msg);
+            RSException exception = new RSException();
+            exception.setMessage(msg);
+            throw new RSExceptionException(msg, exception);
+        }
+
+        return srk;
+    }
+
+    private void performSanityCheck(PublicReservationData reservation) throws RSExceptionException {
+        String msg = null;
+
+        if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
+            //if reservation-data is null
+            msg = "No reservation data supplied.";
+        } else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
+            //if "to" of reservation-timestamp lies in the past
+            msg = "To time is in the past.";
+        } else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom()
+                .toGregorianCalendar().getTimeInMillis()) {
+            //if "from" is later then "to"
+            msg = "To is less than From time.";
+        }
+
+        if (reservation.getNodeURNs() == null || reservation.getNodeURNs().size() == 0) {
+            msg = "Empty reservation request! At least one node URN must be reserved.";
+        }
+
+        if (msg != null) {
+            log.warn(msg);
+            RSException exception = new RSException();
+            exception.setMessage(msg);
+            throw new RSExceptionException(msg, exception);
+        }
+
+    }
+
+    public SecretAuthenticationKey performAuthenticationSanityCheck(List<SecretAuthenticationKey> authenticationData)
+            throws RSExceptionException {
+        // Check if authentication data has been supplied
+        if (authenticationData == null || authenticationData.size() != 1) {
+            String msg = "No or too much authentication data supplied -> error.";
+            log.warn(msg);
+            RSException exception = new RSException();
+            exception.setMessage(msg);
+            throw new RSExceptionException(msg, exception);
+        }
+
+        SecretAuthenticationKey sak = authenticationData.get(0);
+        if (!urnPrefix.equals(sak.getUrnPrefix())) {
+            String msg = "Not serving urn prefix " + sak.getUrnPrefix();
+            log.warn(msg);
+            RSException exception = new RSException();
+            exception.setMessage(msg);
+            throw new RSExceptionException(msg, exception);
+        }
+
+        return sak;
+    }
+
+    public boolean checkAuthentication(SecretAuthenticationKey key, Action action) throws RSExceptionException,
+            AuthorizationExceptionException, AuthenticationExceptionException {
+
+        log.debug("Checking authorization for key: " + key + " and action: " + action);
+        boolean authorized;
+
+        eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey k =
+                new eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey();
+        k.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
+        k.setUrnPrefix(key.getUrnPrefix());
+        k.setUsername(key.getUsername());
+
+        List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> l =
+                new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+        l.add(k);
+
+        // Invoke isAuthorized
+        try {
+            SNAA service = SNAAServiceHelper.getSNAAService(snaaEndpointUrl);
+            authorized = service.isAuthorized(l, action);
+            log.debug("Authorization result: " + authorized);
+        } catch (SNAAExceptionException e) {
+            RSException rse = new RSException();
+            log.warn(e.getMessage());
+            rse.setMessage(e.getMessage());
+            throw new RSExceptionException(e.getMessage(), rse);
+        }
+
+        if (!authorized) {
+            AuthorizationException e = new AuthorizationException();
+            String msg = "Authorization failed";
+            e.setMessage(msg);
+            log.warn(msg, e);
+            throw new AuthorizationExceptionException(msg, e);
+        }
+
+        return true;
+    }
 
 }
