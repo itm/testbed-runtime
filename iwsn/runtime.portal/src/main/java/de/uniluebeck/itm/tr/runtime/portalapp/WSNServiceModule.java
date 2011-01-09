@@ -31,11 +31,13 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppImpl;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.testbed.api.wsn.ControllerHelper;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -55,8 +57,6 @@ public class WSNServiceModule extends AbstractModule {
 
 	static final String RESERVED_NODES = "wsnservicemodule.reservednodes";
 
-	static final String MAXIMUM_DELIVERY_QUEUE_SIZE = "wsnservicemodule.maxmimumdeliveryqueuesize";
-
 	public static class Factory {
 
 		public static WSNServiceHandle create(TestbedRuntime testbedRuntime,
@@ -65,7 +65,7 @@ public class WSNServiceModule extends AbstractModule {
 											  URL controllerServiceEndpointURL,
 											  String wiseMLFilename,
 											  @Nullable String[] reservedNodes,
-											  @Nullable Integer maximumDeliveryQueueSize,
+											  ProtobufControllerHelper protobufControllerHelper,
 											  @Nullable ProtobufControllerServer protobufControllerServer) {
 
 			Injector injector = Guice.createInjector(new WSNServiceModule(
@@ -75,7 +75,7 @@ public class WSNServiceModule extends AbstractModule {
 					controllerServiceEndpointURL,
 					wiseMLFilename,
 					reservedNodes,
-					maximumDeliveryQueueSize,
+					protobufControllerHelper,
 					protobufControllerServer
 			)
 			);
@@ -97,7 +97,7 @@ public class WSNServiceModule extends AbstractModule {
 
 	private String[] reservedNodes;
 
-	private Integer maximumDeliveryQueueSize;
+	private ProtobufControllerHelper protobufControllerHelper;
 
 	private ProtobufControllerServer protobufControllerServer;
 
@@ -107,7 +107,7 @@ public class WSNServiceModule extends AbstractModule {
 							 URL controllerServiceEndpointURL,
 							 String wiseMLFilename,
 							 @Nullable String[] reservedNodes,
-							 @Nullable Integer maximumDeliveryQueueSize,
+							 ProtobufControllerHelper protobufControllerHelper,
 							 @Nullable ProtobufControllerServer protobufControllerServer) {
 
 		this.testbedRuntime = testbedRuntime;
@@ -115,7 +115,7 @@ public class WSNServiceModule extends AbstractModule {
 		this.wsnServiceEndpointURL = wsnServiceEndpointURL;
 		this.controllerServiceEndpointURL = controllerServiceEndpointURL;
 		this.reservedNodes = reservedNodes;
-		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
+		this.protobufControllerHelper = protobufControllerHelper;
 		this.protobufControllerServer = protobufControllerServer;
 
 		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
@@ -148,15 +148,7 @@ public class WSNServiceModule extends AbstractModule {
 		bind(Wiseml.class).annotatedWith(Names.named(WISEML)).toInstance(wiseML);
 		bind(String[].class).annotatedWith(Names.named(RESERVED_NODES)).toInstance(reservedNodes);
 		bind(ProtobufControllerServer.class).toInstance(protobufControllerServer);
-
-		if (maximumDeliveryQueueSize == null) {
-			bind(Integer.class).annotatedWith(Names.named(MAXIMUM_DELIVERY_QUEUE_SIZE))
-					.toProvider(Providers.of((Integer) null));
-		} else {
-			bind(Integer.class).annotatedWith(Names.named(MAXIMUM_DELIVERY_QUEUE_SIZE))
-					.toInstance(maximumDeliveryQueueSize);
-		}
-
+		bind(ControllerHelper.class).toInstance(protobufControllerHelper);
 
 	}
 

@@ -68,8 +68,14 @@ message Message {
 }
 
 message RequestStatus {
+
+  message Status {
+    required string node_urn = 1;
+    required int32 value = 2;
+    optional string message = 3;
+  }
+
   required string request_id = 1;
-  required string node_urn = 2;
-  required int32 value = 3;
-  optional string message = 4;
+  repeated Status status = 2;
+
 }

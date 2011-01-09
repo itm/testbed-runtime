@@ -27,6 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import eu.wisebed.testbed.api.wsn.v211.WSN;
 import org.slf4j.Logger;
@@ -40,20 +41,24 @@ public class WSNServiceHandle implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandle.class);
 
-	private WSNService wsnService;
+	private final WSNService wsnService;
 
-	private WSNApp wsnApp;
+	private final WSNApp wsnApp;
 
-	private URL wsnInstanceEndpointUrl;
+	private final URL wsnInstanceEndpointUrl;
+
+	private final ProtobufControllerHelper protobufControllerHelper;
 
 	@Inject
 	WSNServiceHandle(@Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
 					 WSNService wsnService,
-					 WSNApp wsnApp) {
+					 WSNApp wsnApp,
+					 ProtobufControllerHelper protobufControllerHelper) {
 
 		this.wsnService = wsnService;
 		this.wsnApp = wsnApp;
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
+		this.protobufControllerHelper = protobufControllerHelper;
 	}
 
 	@Override
@@ -76,7 +81,7 @@ public class WSNServiceHandle implements Service {
 		}
 	}
 
-	public WSN getWSNService() {
+	public WSN getWsnService() {
 		return wsnService;
 	}
 
@@ -87,5 +92,8 @@ public class WSNServiceHandle implements Service {
 	public URL getWsnInstanceEndpointUrl() {
 		return wsnInstanceEndpointUrl;
 	}
-	
+
+	public ProtobufControllerHelper getProtobufControllerHelper() {
+		return protobufControllerHelper;
+	}
 }

@@ -282,7 +282,7 @@ public class ControllerHelper {
             requestStatus.setRequestId(requestId);
             requestStatus.getStatus().add(status);
 
-            receiveStatus(requestStatus);
+            this.receiveStatus(requestStatus);
 
         }
 

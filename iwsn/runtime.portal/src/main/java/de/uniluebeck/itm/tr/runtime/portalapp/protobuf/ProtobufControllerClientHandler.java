@@ -22,11 +22,11 @@ public class ProtobufControllerClientHandler extends SimpleChannelUpstreamHandle
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		WisebedProtocol.Envelope envelope = (WisebedProtocol.Envelope) e.getMessage();
 		switch (envelope.getBodyType()) {
-			case WisebedProtocol.Envelope.BodyType.MESSAGE:
+			case MESSAGE:
 				checkArgument(envelope.hasMessage(), "Envelope is missing message.");
 				receivedMessage(envelope.getMessage());
 				break;
-			case WisebedProtocol.Envelope.BodyType.REQUEST_STATUS:
+			case REQUEST_STATUS:
 				checkArgument(envelope.hasRequestStatus(), "Envelope is missing request status.");
 				receivedRequestStatus(envelope.getRequestStatus());
 				break;

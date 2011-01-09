@@ -27,6 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
@@ -278,7 +279,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 			if (wsnServiceHandleInstance != null) {
 				log.debug("Adding new controller to the list: {}", controller);
-				wsnServiceHandleInstance.getWSNService().addController(controller);
+				wsnServiceHandleInstance.getWsnService().addController(controller);
 
 				return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 			}
@@ -341,7 +342,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					controllerEndpointUrl,
 					config.wiseMLFilename,
 					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					config.maximumDeliveryQueueSize,
+					new ProtobufControllerHelper(config.maximumDeliveryQueueSize),
 					protobufControllerServer
 			);
 

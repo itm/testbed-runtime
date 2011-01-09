@@ -15,8 +15,8 @@ public class ProtobufControllerClient {
 
 	public static void main(String[] args) {
 
-		String host = "localhost";
-		int port = 8080;
+		String host = args[0];
+		int port = Integer.parseInt(args[1]);
 
 		ClientBootstrap bootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(

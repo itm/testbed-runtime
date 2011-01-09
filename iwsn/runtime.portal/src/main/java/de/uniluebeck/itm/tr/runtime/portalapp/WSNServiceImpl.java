@@ -145,7 +145,7 @@ public class WSNServiceImpl implements WSNService {
 						  @Named(WSNServiceModule.CONTROLLER_SERVICE_ENDPOINT_URL) URL controllerEndpointUrl,
 						  @Named(WSNServiceModule.WISEML) Wiseml wiseML,
 						  @Named(WSNServiceModule.RESERVED_NODES) @Nullable String[] reservedNodes,
-						  @Named(WSNServiceModule.MAXIMUM_DELIVERY_QUEUE_SIZE) @Nullable Integer maxmimumDeliveryQueueSize,
+						  ControllerHelper controllerHelper,
 						  @Nullable ProtobufControllerServer protobufControllerServer,
 						  WSNApp wsnApp) {
 
@@ -158,11 +158,11 @@ public class WSNServiceImpl implements WSNService {
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
+		this.controllerHelper = controllerHelper;
 
 		executorService = Executors.newSingleThreadScheduledExecutor(
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
-		controllerHelper = new ControllerHelper(maxmimumDeliveryQueueSize);
 
 		addController(controllerEndpointUrl.toString());
 

@@ -46,7 +46,6 @@ public class PortalModule extends AbstractModule {
 	protected void configure() {
 
 		bind(SessionManagementService.class).to(SessionManagementServiceImpl.class);
-		bind(ControllerService.class).to(ControllerServiceImpl.class);
 
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
 		bind(Portalapp.class).toInstance(portalapp);

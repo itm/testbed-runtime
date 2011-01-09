@@ -18,9 +18,9 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	private final SessionManagementServiceImpl sessionManagement;
 
-	private WSNServiceHandle wsnServiceHandle;
-
 	private Channel channel;
+
+	private WSNServiceHandle wsnServiceHandle;
 
 	public ProtobufControllerServerHandler(final SessionManagementServiceImpl sessionManagement) {
 		this.sessionManagement = sessionManagement;
@@ -36,9 +36,8 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 		log.info("Client disconnected: {}", e);
-		if (wsnServiceHandle != null) {
-			wsnServiceHandle.getWsnApp().removeNodeMessageReceiver(wsnNodeMessageReceiver);
-		}
+		wsnServiceHandle.getProtobufControllerHelper().removeChannel(e.getChannel());
+		channel = null;
 		super.channelDisconnected(ctx, e);
 	}
 
@@ -66,7 +65,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 					channel.close();
 				} else {
 					log.debug("Received valid secret reservation key. Adding listener to WSN App instance.");
-					wsnServiceHandle.getWsnApp().addNodeMessageReceiver(wsnNodeMessageReceiver);
+					wsnServiceHandle.getProtobufControllerHelper().addChannel(e.getChannel());
 				}
 
 				break;
@@ -76,44 +75,6 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 				break;
 		}
 
-	}
-
-	private final WSNNodeMessageReceiver wsnNodeMessageReceiver = new WSNNodeMessageReceiver() {
-		@Override
-		public void receive(WSNAppMessages.Message message) {
-			channel.write(convert(message));
-		}
-	};
-
-	private WisebedProtocol.Envelope convert(WSNAppMessages.Message message) {
-
-		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder();
-		messageBuilder.setTimestamp(message.getTimestamp());
-
-		if (message.hasBinaryMessage()) {
-
-			WisebedProtocol.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedProtocol.Message.NodeBinary.newBuilder()
-					.setSourceNodeUrn(message.getSourceNodeId())
-					.setType(message.getBinaryMessage().getBinaryType())
-					.setData(message.getBinaryMessage().getBinaryData());
-			messageBuilder.setNodeBinary(nodeBinaryBuilder);
-			messageBuilder.setType(WisebedProtocol.Message.Type.NODE_BINARY);
-
-		} else if (message.hasTextMessage()) {
-
-			WisebedProtocol.Message.NodeText.Builder nodeTextBuilder = WisebedProtocol.Message.NodeText.newBuilder()
-					.setSourceNodeUrn(message.getSourceNodeId())
-					.setLevel(WisebedProtocol.Message.Level.valueOf(message.getTextMessage().getMessageLevel().getNumber()))
-					.setText(message.getTextMessage().getMsg());
-			messageBuilder.setNodeText(nodeTextBuilder);
-			messageBuilder.setType(WisebedProtocol.Message.Type.NODE_TEXT);
-
-		}
-
-		return WisebedProtocol.Envelope.newBuilder()
-				.setBodyType(WisebedProtocol.Envelope.BodyType.MESSAGE)
-				.setMessage(messageBuilder)
-				.build();
 	}
 
 	@Override

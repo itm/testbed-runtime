@@ -54,23 +54,6 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			JAXBContext context = JAXBContext.newInstance(Portalapp.class);
 			Portalapp portalapp = (Portalapp) context.createUnmarshaller().unmarshal((Node) configuration);
 
-			/*String wiseMLFilename = portalapp.getWebservice().getWisemlfilename().trim();
-			File wiseMLFile = new File(wiseMLFilename);
-
-			if (!wiseMLFile.exists()) {
-				throw new Exception("WiseML file " + wiseMLFile.getAbsolutePath() + " does not exist!");
-			} else if (wiseMLFile.isDirectory()) {
-				throw new Exception("WiseML file name " + wiseMLFile.getAbsolutePath() + " points to a directory!");
-			} else if (!wiseMLFile.canRead()) {
-				throw new Exception("WiseML file " + wiseMLFile.getAbsolutePath() + " can't be read!");
-			}
-
-			BufferedReader wiseMLFileReader = new BufferedReader(new FileReader(wiseMLFile));
-			StringBuilder wiseMLBuilder = new StringBuilder();
-			while (wiseMLFileReader.ready()) {
-				wiseMLBuilder.append(wiseMLFileReader.readLine());
-			}*/
-
 			SessionManagementService sessionManagementService = Guice.createInjector(
 					new PortalModule(testbedRuntime, portalapp)
 			).getInstance(SessionManagementService.class);
