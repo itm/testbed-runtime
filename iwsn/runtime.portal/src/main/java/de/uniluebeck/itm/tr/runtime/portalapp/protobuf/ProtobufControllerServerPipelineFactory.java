@@ -1,5 +1,6 @@
-package de.uniluebeck.itm.tr.protobufcontroller;
+package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -7,9 +8,18 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import static org.jboss.netty.channel.Channels.pipeline;
 
-public class ProtobufControllerClientPipelineFactory implements ChannelPipelineFactory {
+
+public class ProtobufControllerServerPipelineFactory implements ChannelPipelineFactory {
+
+	private SessionManagementServiceImpl sessionManagement;
+
+	public ProtobufControllerServerPipelineFactory(final SessionManagementServiceImpl sessionManagement) {
+		this.sessionManagement = sessionManagement;
+	}
 
 	@Override
 	public ChannelPipeline getPipeline() throws Exception {
@@ -22,9 +32,8 @@ public class ProtobufControllerClientPipelineFactory implements ChannelPipelineF
 		p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());
 		p.addLast("protobufEncoder", new ProtobufEncoder());
 
-		p.addLast("handler", new ProtobufControllerClientHandler());
+		p.addLast("handler", new ProtobufControllerServerHandler(sessionManagement));
 
 		return p;
-
 	}
 }

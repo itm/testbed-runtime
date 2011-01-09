@@ -30,6 +30,7 @@ import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -52,13 +53,8 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 
 			JAXBContext context = JAXBContext.newInstance(Portalapp.class);
 			Portalapp portalapp = (Portalapp) context.createUnmarshaller().unmarshal((Node) configuration);
-			String sessionManagementEndpointUrl = portalapp.getWebservice().getSessionmanagementendpointurl();
-			String wsnInstanceBaseUrl = portalapp.getWebservice().getWsninstancebaseurl();
-			String reservationEndpointUrl = portalapp.getWebservice().getReservationendpointurl();
-			String urnPrefix = portalapp.getWebservice().getUrnprefix();
-			Integer maximumDeliveryQueueSize = portalapp.getWebservice().getMaximumdeliveryqueuesize();
 
-			String wiseMLFilename = portalapp.getWebservice().getWisemlfilename().trim();
+			/*String wiseMLFilename = portalapp.getWebservice().getWisemlfilename().trim();
 			File wiseMLFile = new File(wiseMLFilename);
 
 			if (!wiseMLFile.exists()) {
@@ -73,14 +69,10 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			StringBuilder wiseMLBuilder = new StringBuilder();
 			while (wiseMLFileReader.ready()) {
 				wiseMLBuilder.append(wiseMLFileReader.readLine());
-			}
+			}*/
 
 			SessionManagementService sessionManagementService = Guice.createInjector(
-					new PortalModule(
-							urnPrefix, sessionManagementEndpointUrl, wsnInstanceBaseUrl,
-							reservationEndpointUrl, wiseMLBuilder.toString(),
-							testbedRuntime,
-							maximumDeliveryQueueSize)
+					new PortalModule(testbedRuntime, portalapp)
 			).getInstance(SessionManagementService.class);
 
 			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);

@@ -4,15 +4,18 @@ import com.google.common.collect.Lists;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Setup.Node;
 import eu.wisebed.ns.wiseml._1.Wiseml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXB;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
 
 public class WiseMLHelper {
+
+	private static final Logger log = LoggerFactory.getLogger(WiseMLHelper.class);
 
 	private WiseMLHelper() {
 	}
@@ -80,6 +83,40 @@ public class WiseMLHelper {
 
 	public static String prettyPrintWiseML(String serializedWiseML) {
 		return serialize(deserialize(serializedWiseML));
+	}
+
+	public static String readWiseMLFromFile(String filename) {
+
+		String wiseMLFilename = filename;
+		File wiseMLFile = new File(wiseMLFilename);
+
+		if (!wiseMLFile.exists()) {
+			log.error("WiseML file {} does not exist!", wiseMLFile.getAbsolutePath());
+			return null;
+		} else if (wiseMLFile.isDirectory()) {
+			log.error("WiseML file name {} points to a directory!", wiseMLFile.getAbsolutePath());
+			return null;
+		} else if (!wiseMLFile.canRead()) {
+			log.error("WiseML file {} can't be read!", wiseMLFile.getAbsolutePath());
+			return null;
+		}
+
+		try {
+
+			BufferedReader wiseMLFileReader = new BufferedReader(new FileReader(wiseMLFile));
+			StringBuilder wiseMLBuilder = new StringBuilder();
+
+			while (wiseMLFileReader.ready()) {
+				wiseMLBuilder.append(wiseMLFileReader.readLine());
+			}
+
+			return wiseMLBuilder.toString();
+
+		} catch (IOException e) {
+			log.error("" + e, e);
+			return null;
+		}
+
 	}
 
 }

@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.protobufcontroller;
+package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 message Envelope {
 
@@ -51,7 +51,7 @@ message Message {
 
   message NodeBinary {
     required string source_node_urn = 1;
-    required bytes type = 2; // only first byte used
+    required uint32 type = 2;
     required bytes data = 3;
   }
 
@@ -61,9 +61,10 @@ message Message {
   }
 
   required Type type = 1;
-  optional NodeBinary node_binary = 2;
-  optional NodeText node_text = 3;
-  optional Backend backend = 4;
+  required string timestamp = 2;
+  optional NodeBinary node_binary = 3;
+  optional NodeText node_text = 4;
+  optional Backend backend = 5;
 }
 
 message RequestStatus {

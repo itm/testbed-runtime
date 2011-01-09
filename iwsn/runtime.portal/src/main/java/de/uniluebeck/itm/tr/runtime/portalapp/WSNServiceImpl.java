@@ -32,6 +32,8 @@ import com.google.inject.Singleton;
 import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
@@ -135,6 +137,8 @@ public class WSNServiceImpl implements WSNService {
 
 	private Set<String> reservedNodes;
 
+	private ProtobufControllerServer protobufControllerServer;
+
 	@Inject
 	public WSNServiceImpl(@Named(WSNServiceModule.URN_PREFIX) String urnPrefix,
 						  @Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
@@ -142,6 +146,7 @@ public class WSNServiceImpl implements WSNService {
 						  @Named(WSNServiceModule.WISEML) Wiseml wiseML,
 						  @Named(WSNServiceModule.RESERVED_NODES) @Nullable String[] reservedNodes,
 						  @Named(WSNServiceModule.MAXIMUM_DELIVERY_QUEUE_SIZE) @Nullable Integer maxmimumDeliveryQueueSize,
+						  @Nullable ProtobufControllerServer protobufControllerServer,
 						  WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
@@ -165,6 +170,8 @@ public class WSNServiceImpl implements WSNService {
 		this.urnPrefix = urnPrefix;
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
+		this.protobufControllerServer = protobufControllerServer;
+
 	}
 
 	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
@@ -630,13 +637,8 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public String getNetwork() {
-
         log.debug("WSNServiceImpl.getNetwork");
-
-        StringWriter writer = new StringWriter();
-        JAXB.marshal(wiseML, writer);
-
-		return writer.toString();
+        return WiseMLHelper.serialize(wiseML);
 	}
 
 	@Override

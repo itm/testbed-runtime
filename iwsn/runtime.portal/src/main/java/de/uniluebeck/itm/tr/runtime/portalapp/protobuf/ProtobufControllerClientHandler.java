@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.protobufcontroller;
+package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -22,11 +22,11 @@ public class ProtobufControllerClientHandler extends SimpleChannelUpstreamHandle
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		WisebedProtocol.Envelope envelope = (WisebedProtocol.Envelope) e.getMessage();
 		switch (envelope.getBodyType()) {
-			case MESSAGE:
+			case WisebedProtocol.Envelope.BodyType.MESSAGE:
 				checkArgument(envelope.hasMessage(), "Envelope is missing message.");
 				receivedMessage(envelope.getMessage());
 				break;
-			case REQUEST_STATUS:
+			case WisebedProtocol.Envelope.BodyType.REQUEST_STATUS:
 				checkArgument(envelope.hasRequestStatus(), "Envelope is missing request status.");
 				receivedRequestStatus(envelope.getRequestStatus());
 				break;

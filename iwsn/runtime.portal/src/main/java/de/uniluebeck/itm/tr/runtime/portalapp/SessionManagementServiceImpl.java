@@ -25,9 +25,11 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.internal.Nullable;
-import com.google.inject.name.Named;
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
@@ -63,10 +65,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 )
 public class SessionManagementServiceImpl implements SessionManagementService {
 
-	private TestbedRuntime testbedRuntime;
-
-	private Integer maximumDeliveryQueueSize;
-
+	/**
+	 * Job that is scheduled to clean up resources after a reservations end in time has been reached.
+	 */
 	private class CleanUpWSNInstanceJob implements Runnable {
 
 		private List<SecretReservationKey> secretReservationKeys;
@@ -79,12 +80,67 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		public void run() {
 			try {
 				free(secretReservationKeys);
-			} catch (ExperimentNotRunningException_Exception enre) {
-				log.error(enre.getMessage(), enre);
-			} catch (UnknownReservationIdException_Exception urie) {
-				log.error(urie.getMessage(), urie);
+			} catch (ExperimentNotRunningException_Exception e) {
+				log.error(e.getMessage(), e);
+			} catch (UnknownReservationIdException_Exception e) {
+				log.error(e.getMessage(), e);
 			}
-			//To change body of implemented methods use File | Settings | File Templates.
+		}
+	}
+
+	/**
+	 * A helper class that holds configuration options.
+	 */
+	private static class Config {
+
+		/**
+		 * The configuration object for the optional protocol buffers interface a client can connect to.
+		 */
+		private ProtobufInterface protobufinterface;
+
+		/**
+		 * The maximum size of the message delivery queue after which messages to the client are discarded.
+		 */
+		private final int maximumDeliveryQueueSize;
+
+		/**
+		 * The sessionManagementEndpoint URL of this Session Management service instance.
+		 */
+		private final URL sessionManagementEndpointUrl;
+
+		/**
+		 * The sessionManagementEndpoint URL of the reservation system that is used for fetching node URNs from the reservation
+		 * data. If it is {@code null} then the reservation system is not used.
+		 */
+		private final URL reservationEndpointUrl;
+
+		/**
+		 * The URN prefix that is served by this instance.
+		 */
+		private final String urnPrefix;
+
+		/**
+		 * The base URL (i.e. prefix) that is used as the prefix of a newly created WSN API instance.
+		 */
+		private final URL wsnInstanceBaseUrl;
+
+		/**
+		 * The filename of the file containing the WiseML document that is to delivered when
+		 * {@link eu.wisebed.testbed.api.wsn.v211.SessionManagement#getNetwork()} is called.
+		 */
+		private final String wiseMLFilename;
+
+		private Config(ProtobufInterface protobufinterface, int maximumDeliveryQueueSize,
+					   URL sessionManagementEndpointUrl, URL reservationEndpointUrl, String urnPrefix,
+					   URL wsnInstanceBaseUrl, String wiseMLFilename) {
+
+			this.protobufinterface = protobufinterface;
+			this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
+			this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
+			this.reservationEndpointUrl = reservationEndpointUrl;
+			this.urnPrefix = urnPrefix;
+			this.wsnInstanceBaseUrl = wsnInstanceBaseUrl;
+			this.wiseMLFilename = wiseMLFilename;
 		}
 	}
 
@@ -94,30 +150,36 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private static final Logger log = LoggerFactory.getLogger(SessionManagementService.class);
 
 	/**
+	 * The configuration object of this session management instance.
+	 */
+	private final Config config;
+
+	/**
+	 * An instance of a preconditions checker initiated with the URN prefix of this instance. Used for checking
+	 * preconditions of the public Session Management API.
+	 */
+	private final SessionManagementPreconditions preconditions;
+
+	/**
+	 * The server that allows controllers to connect themselves via a Google Protocol Buffers message format to
+	 * experiments.
+	 */
+	private ProtobufControllerServer protobufControllerServer;
+
+	/**
+	 * Used to generate secure random IDs to append them to newly created WSN API instances.
+	 */
+	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+
+	/**
 	 * The sessionManagementEndpoint of this Session Management service instance.
 	 */
 	private Endpoint sessionManagementEndpoint;
 
 	/**
-	 * The sessionManagementEndpoint URL of this Session Management service instance.
+	 * The {@link TestbedRuntime} instance used to communicate with over the overlay
 	 */
-	private URL sessionManagementEndpointUrl;
-
-	/**
-	 * The sessionManagementEndpoint URL of the reservation system that is used for fetching node URNs from the reservation
-	 * data. If it is {@code null} then the reservation system is not used.
-	 */
-	private URL reservationEndpointUrl;
-
-	/**
-	 * The URN prefix that is served by this instance.
-	 */
-	private String urnPrefix;
-
-	/**
-	 * Used to generate secure random IDs to append them to newly created WSN API instances.
-	 */
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+	private final TestbedRuntime testbedRuntime;
 
 	/**
 	 * Holds all currently instantiated WSN API instances that are not yet removed by {@link
@@ -125,73 +187,66 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 */
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
-	/**
-	 * The base URL (i.e. prefix) that is prepended to a newly created WSN API instance.
-	 */
-	private URL wsnInstanceBaseUrl;
-
-	/**
-	 * An instance of a preconditions checker initiated with the URN prefix of this instance. Used for checking
-	 * preconditions of the public Session Management API.
-	 */
-	private SessionManagementPreconditions preconditions;
-
-	private String wiseML;
-
 	@Inject
-	public SessionManagementServiceImpl(@Named(PortalModule.NAME_URN_PREFIX) String urnPrefix,
-										@Named(PortalModule.NAME_SESSION_MANAGEMENT_ENDPOINT_URL)
-										String sessionManagementEndpointUrl,
-										@Named(PortalModule.NAME_WSN_INSTANCE_BASE_URL) String wsnInstanceBaseUrl,
-										@Nullable @Named(PortalModule.NAME_RESERVATION_ENDPOINT_URL)
-										String reservationEndpointUrl,
-										@Nullable @Named(PortalModule.NAME_MAXIMUM_DELIVERY_QUEUE_SIZE)
-										Integer maximumDeliveryQueueSize,
-										@Named(PortalModule.NAME_WISEML) String wiseML,
-										TestbedRuntime testbedRuntime) throws MalformedURLException {
+	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
-		checkNotNull(urnPrefix);
-		checkNotNull(sessionManagementEndpointUrl);
-		checkNotNull(wsnInstanceBaseUrl);
-		checkNotNull(wiseML);
+		checkNotNull(config.getWebservice().getUrnprefix());
+		checkNotNull(config.getWebservice().getSessionmanagementendpointurl());
+		checkNotNull(config.getWebservice().getWsninstancebaseurl());
+		checkNotNull(config.getWebservice().getWisemlfilename());
 		checkNotNull(testbedRuntime);
 
-		this.urnPrefix = urnPrefix;
-		this.sessionManagementEndpointUrl = new URL(sessionManagementEndpointUrl);
-		this.reservationEndpointUrl = reservationEndpointUrl == null ? null : new URL(reservationEndpointUrl);
-		this.wsnInstanceBaseUrl = new URL(
-				wsnInstanceBaseUrl.endsWith("/") ? wsnInstanceBaseUrl : wsnInstanceBaseUrl + "/"
-		);
-		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
-		this.wiseML = wiseML;
 		this.testbedRuntime = testbedRuntime;
+		this.config = new Config(
+				config.getWebservice().getProtobufinterface(),
+				config.getWebservice().getMaximumdeliveryqueuesize(),
+				new URL(config.getWebservice().getSessionmanagementendpointurl()),
+				config.getWebservice().getReservationendpointurl() == null ? null : new URL(config.getWebservice().getReservationendpointurl()),
+				config.getWebservice().getUrnprefix(),
+				new URL(config.getWebservice().getWsninstancebaseurl().endsWith("/") ? config.getWebservice().getWsninstancebaseurl() : config.getWebservice().getWsninstancebaseurl() + "/"),
+				config.getWebservice().getWisemlfilename()
+		);
 
 		this.preconditions = new SessionManagementPreconditions();
-		this.preconditions.addServedUrnPrefixes(urnPrefix);
+		this.preconditions.addServedUrnPrefixes(this.config.urnPrefix);
 	}
 
 	@Override
 	public void start() throws Exception {
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(sessionManagementEndpointUrl.toString());
+		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
 
 		log.debug("Starting Session Management service ...");
-		log.debug("Endpoint URL: {}", sessionManagementEndpointUrl.toString());
+		log.debug("Endpoint URL: {}", config.sessionManagementEndpointUrl.toString());
 		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
 
 		sessionManagementEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
 		log.info("Started Session Management service  on {}", bindAllInterfacesUrl);
+
+		if (config.protobufinterface != null) {
+			protobufControllerServer = new ProtobufControllerServer(this, config.protobufinterface);
+			protobufControllerServer.start();
+		}
+
 	}
 
 	@Override
 	public void stop() {
 
-		if (sessionManagementEndpoint != null) {
-			sessionManagementEndpoint.stop();
-			log.info("Stopped Session Management service on {}", sessionManagementEndpointUrl);
+		if (protobufControllerServer != null) {
+			protobufControllerServer.stop();
 		}
 
+		if (sessionManagementEndpoint != null) {
+			sessionManagementEndpoint.stop();
+			log.info("Stopped Session Management service on {}", config.sessionManagementEndpointUrl);
+		}
+
+	}
+
+	public WSNServiceHandle getWsnServiceHandle(String secretReservationKey) {
+		return wsnInstances.get(secretReservationKey);
 	}
 
 	@Override
@@ -204,6 +259,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
+
 		boolean canConnect = ControllerHelper.testConnectivity(controller);
 		if (!canConnect) {
 			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
@@ -235,7 +291,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		// reservationEndpointUrl is not null)
 		List<ConfidentialReservationData> confidentialReservationDataList;
 		Set<String> reservedNodes = null;
-		if (reservationEndpointUrl != null) {
+		if (config.reservationEndpointUrl != null) {
 			// integrate reservation system
 			List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 			confidentialReservationDataList = getReservationDataFromRS(keys);
@@ -258,28 +314,35 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 			// assure that all wsn-instances will be removed after expiration time
 			for (ConfidentialReservationData data : confidentialReservationDataList) {
+
 				//Creating delay for CleanUpJob
 				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
+
 				//stop and remove invalid instances after their expiration time
-				testbedRuntime.getSchedulerService()
-						.schedule(new CleanUpWSNInstanceJob(keys), delay, TimeUnit.MILLISECONDS);
+				testbedRuntime.getSchedulerService().schedule(
+						new CleanUpWSNInstanceJob(keys),
+						delay,
+						TimeUnit.MILLISECONDS
+				);
 			}
 		} else {
 			log.info("Information: No Reservation-System found! All existing nodes will be used.");
 		}
 
 		try {
-			URL wsnInstanceEndpointUrl = new URL(wsnInstanceBaseUrl + secureIdGenerator.getNextId());
+
+			URL wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
 			URL controllerEndpointUrl = new URL(controller);
 
 			wsnServiceHandleInstance = WSNServiceModule.Factory.create(
 					testbedRuntime,
-					urnPrefix,
+					config.urnPrefix,
 					wsnInstanceEndpointUrl,
 					controllerEndpointUrl,
-					wiseML,
+					config.wiseMLFilename,
 					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					maximumDeliveryQueueSize
+					config.maximumDeliveryQueueSize,
+					protobufControllerServer
 			);
 
 		} catch (MalformedURLException e) {
@@ -359,8 +422,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	@Override
 	public String getNetwork() {
-		// TODO implement run-time generation of WiseML file
-		return wiseML;
+		return WiseMLHelper.prettyPrintWiseML(WiseMLHelper.readWiseMLFromFile(config.wiseMLFilename));
 	}
 
 	private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(
@@ -383,13 +445,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	/**
-	 * Tries to fetch the reservation data from {@link de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl#reservationEndpointUrl}
+	 * Tries to fetch the reservation data from {@link SessionManagementServiceImpl.Config#reservationEndpointUrl}
 	 * and returns the list of reservations.
 	 *
 	 * @param secretReservationKeys the list of secret reservation keys
-	 *
 	 * @return the list of reservations
-	 *
 	 * @throws UnknownReservationIdException_Exception
 	 *          if the reservation could not be found
 	 */
@@ -397,11 +457,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			List<SecretReservationKey> secretReservationKeys) throws UnknownReservationIdException_Exception {
 
 		try {
-			RS rsService = RSServiceHelper.getRSService(reservationEndpointUrl.toString());
+			RS rsService = RSServiceHelper.getRSService(config.reservationEndpointUrl.toString());
 			return rsService.getReservation(convert(secretReservationKeys));
 
 		} catch (RSExceptionException e) {
-			String msg = "Generic exception occured in the federated reservation system";
+			String msg = "Generic exception occurred in the federated reservation system";
 			log.warn(msg + ": " + e, e);
 			// TODO replace with more generic exception type
 			throw WSNServiceHelper.createUnknownReservationIdException(msg, null, e);
@@ -417,7 +477,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * if that's the case.
 	 *
 	 * @param reservations the reservations to check
-	 *
 	 * @throws ExperimentNotRunningException_Exception
 	 *          if now is not inside the reservations' time interval
 	 */
@@ -451,7 +510,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		List<SecretReservationKey> secretReservationKeyList = new LinkedList<SecretReservationKey>();
 
 		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(urnPrefix);
+		key.setUrnPrefix(config.urnPrefix);
 		key.setSecretReservationKey(secretReservationKey);
 
 		secretReservationKeyList.add(key);

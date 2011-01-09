@@ -28,78 +28,28 @@ import com.google.inject.internal.Nullable;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
 
 public class PortalModule extends AbstractModule {
 
-	public static final String NAME_WSN_INSTANCE_BASE_URL =
-			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_WSN_INSTANCE_BASE_URL";
-
-	public static final String NAME_RESERVATION_ENDPOINT_URL =
-			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_RESERVATION_ENDPOINT_URL";
-
-	public static final String NAME_URN_PREFIX = "de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_URN_PREFIX";
-
-	public static final String NAME_WISEML = "de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_WISEML";
-
-	public static final String NAME_SESSION_MANAGEMENT_ENDPOINT_URL =
-			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_SESSION_MANAGEMENT_ENDPOINT_URL";
-
-	public static final String NAME_MAXIMUM_DELIVERY_QUEUE_SIZE =
-			"de.uniluebeck.itm.tr.runtime.portalapp.PortalModule/NAME_MAXIMUM_DELIVERY_QUEUE_SIZE";
-
-	private String urnPrefix;
-
-	private String wsnInstanceBaseUrl;
-
-	private String wiseML;
-
 	private TestbedRuntime testbedRuntime;
 
-	private Integer maximumDeliveryQueueSize;
+	private Portalapp portalapp;
 
-	private String reservationEndpointUrl;
-
-	private String sessionManagementEndpointUrl;
-
-	public PortalModule(String urnPrefix, String sessionManagementEndpointUrl, String wsnInstanceBaseUrl,
-						String reservationEndpointUrl, final String wiseML, TestbedRuntime testbedRuntime,
-						@Nullable Integer maximumDeliveryQueueSize) {
-
-		this.urnPrefix = urnPrefix;
-		this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
-		this.wsnInstanceBaseUrl = wsnInstanceBaseUrl;
-		this.reservationEndpointUrl = reservationEndpointUrl;
-		this.wiseML = wiseML;
+	public PortalModule(TestbedRuntime testbedRuntime, Portalapp portalapp) {
 		this.testbedRuntime = testbedRuntime;
-		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
+		this.portalapp = portalapp;
 	}
 
 	@Override
 	protected void configure() {
 
-		bind(String.class).annotatedWith(Names.named(NAME_URN_PREFIX)).toInstance(urnPrefix);
-		bind(String.class).annotatedWith(Names.named(NAME_SESSION_MANAGEMENT_ENDPOINT_URL)).toInstance(
-				sessionManagementEndpointUrl
-		);
-		bind(String.class).annotatedWith(Names.named(NAME_WSN_INSTANCE_BASE_URL)).toInstance(wsnInstanceBaseUrl);
-		bind(String.class).annotatedWith(Names.named(NAME_RESERVATION_ENDPOINT_URL))
-				.toProvider(Providers.of(reservationEndpointUrl));
-		bind(String.class).annotatedWith(Names.named(NAME_WISEML)).toInstance(wiseML);
-
-		if (maximumDeliveryQueueSize == null) {
-			bind(Integer.class).annotatedWith(Names.named(NAME_MAXIMUM_DELIVERY_QUEUE_SIZE))
-					.toProvider(Providers.of((Integer) null));
-		} else {
-			bind(Integer.class).annotatedWith(Names.named(NAME_MAXIMUM_DELIVERY_QUEUE_SIZE))
-					.toInstance(maximumDeliveryQueueSize);
-		}
-
-
 		bind(SessionManagementService.class).to(SessionManagementServiceImpl.class);
 		bind(ControllerService.class).to(ControllerServiceImpl.class);
 
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
+		bind(Portalapp.class).toInstance(portalapp);
 
 	}
 

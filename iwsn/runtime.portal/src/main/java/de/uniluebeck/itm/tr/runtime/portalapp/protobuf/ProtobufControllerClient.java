@@ -1,11 +1,10 @@
-package de.uniluebeck.itm.tr.protobufcontroller;
+package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
