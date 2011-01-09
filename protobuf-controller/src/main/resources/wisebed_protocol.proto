@@ -1,0 +1,74 @@
+package de.uniluebeck.itm.tr.protobufcontroller;
+
+message Envelope {
+
+  enum BodyType {
+    MESSAGE = 1;
+    REQUEST_STATUS = 2;
+    SECRET_RESERVATION_KEYS = 3;
+  }
+
+  required BodyType body_type = 1;
+
+  optional Message message = 2;
+  optional RequestStatus requestStatus = 3;
+  optional SecretReservationKeys secretReservationKeys = 4;
+
+}
+
+message SecretReservationKeys {
+
+  message SecretReservationKey {
+    required string urn_prefix = 1;
+    required string key = 2;
+  }
+
+  repeated SecretReservationKey keys = 1;
+}
+
+message Message {
+
+  enum Type {
+    NODE_TEXT = 1;
+    NODE_BINARY = 2;
+    BACKEND = 3;
+  }
+
+  enum Level {
+    TRACE = 1;
+    DEBUG = 2;
+    INFO = 3;
+    WARN = 4;
+    ERROR = 5;
+    FATAL = 6;
+  }
+
+  message NodeText {
+    required string source_node_urn = 1;
+    required Level level = 2;
+    required string text = 3;
+  }
+
+  message NodeBinary {
+    required string source_node_urn = 1;
+    required bytes type = 2; // only first byte used
+    required bytes data = 3;
+  }
+
+  message Backend {
+    required Level level = 1;
+    required string text = 2;
+  }
+
+  required Type type = 1;
+  optional NodeBinary node_binary = 2;
+  optional NodeText node_text = 3;
+  optional Backend backend = 4;
+}
+
+message RequestStatus {
+  required string request_id = 1;
+  required string node_urn = 2;
+  required int32 value = 3;
+  optional string message = 4;
+}
