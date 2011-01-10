@@ -97,12 +97,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		/**
 		 * The configuration object for the optional protocol buffers interface a client can connect to.
 		 */
-		private ProtobufInterface protobufinterface;
+		private final ProtobufInterface protobufinterface;
 
 		/**
 		 * The maximum size of the message delivery queue after which messages to the client are discarded.
 		 */
-		private final int maximumDeliveryQueueSize;
+		private final Integer maximumDeliveryQueueSize;
 
 		/**
 		 * The sessionManagementEndpoint URL of this Session Management service instance.
@@ -131,17 +131,14 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		 */
 		private final String wiseMLFilename;
 
-		private Config(ProtobufInterface protobufinterface, int maximumDeliveryQueueSize,
-					   URL sessionManagementEndpointUrl, URL reservationEndpointUrl, String urnPrefix,
-					   URL wsnInstanceBaseUrl, String wiseMLFilename) {
-
-			this.protobufinterface = protobufinterface;
-			this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
-			this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
-			this.reservationEndpointUrl = reservationEndpointUrl;
-			this.urnPrefix = urnPrefix;
-			this.wsnInstanceBaseUrl = wsnInstanceBaseUrl;
-			this.wiseMLFilename = wiseMLFilename;
+		public Config(Portalapp config) throws MalformedURLException {
+			this.protobufinterface = config.getWebservice().getProtobufinterface();
+			this.maximumDeliveryQueueSize = config.getWebservice().getMaximumdeliveryqueuesize();
+			this.sessionManagementEndpointUrl = new URL(config.getWebservice().getSessionmanagementendpointurl());
+			this.reservationEndpointUrl = config.getWebservice().getReservationendpointurl() == null ? null : new URL(config.getWebservice().getReservationendpointurl());
+			this.urnPrefix = config.getWebservice().getUrnprefix();
+			this.wsnInstanceBaseUrl = new URL(config.getWebservice().getWsninstancebaseurl().endsWith("/") ? config.getWebservice().getWsninstancebaseurl() : config.getWebservice().getWsninstancebaseurl() + "/");
+			this.wiseMLFilename = config.getWebservice().getWisemlfilename();
 		}
 	}
 
@@ -189,24 +186,18 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
 	@Inject
-	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
+	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp portalappConfig) throws MalformedURLException {
 
-		checkNotNull(config.getWebservice().getUrnprefix());
-		checkNotNull(config.getWebservice().getSessionmanagementendpointurl());
-		checkNotNull(config.getWebservice().getWsninstancebaseurl());
-		checkNotNull(config.getWebservice().getWisemlfilename());
+		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = portalappConfig.getWebservice();
+
+		checkNotNull(webservice.getUrnprefix());
+		checkNotNull(webservice.getSessionmanagementendpointurl());
+		checkNotNull(webservice.getWsninstancebaseurl());
+		checkNotNull(webservice.getWisemlfilename());
 		checkNotNull(testbedRuntime);
 
 		this.testbedRuntime = testbedRuntime;
-		this.config = new Config(
-				config.getWebservice().getProtobufinterface(),
-				config.getWebservice().getMaximumdeliveryqueuesize(),
-				new URL(config.getWebservice().getSessionmanagementendpointurl()),
-				config.getWebservice().getReservationendpointurl() == null ? null : new URL(config.getWebservice().getReservationendpointurl()),
-				config.getWebservice().getUrnprefix(),
-				new URL(config.getWebservice().getWsninstancebaseurl().endsWith("/") ? config.getWebservice().getWsninstancebaseurl() : config.getWebservice().getWsninstancebaseurl() + "/"),
-				config.getWebservice().getWisemlfilename()
-		);
+		this.config = new Config(portalappConfig);
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(this.config.urnPrefix);

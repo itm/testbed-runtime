@@ -33,7 +33,7 @@ public class WSNDeviceAppConnectorFactory {
 											   final String nodeSerialInterface, final Integer nodeAPITimeout,
 											   final SchedulerService schedulerService) {
 
-		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType)) {
+		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType) || "mock".equals(nodeType)) {
 
 			return new WSNDeviceAppConnectorLocal(
 					nodeUrn,
