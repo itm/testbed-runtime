@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import com.google.inject.internal.Nullable;
 import com.google.protobuf.ByteString;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.v211.Message;
@@ -15,7 +16,7 @@ public class ProtobufControllerHelper extends ControllerHelper {
 
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
-	public ProtobufControllerHelper(int maximumDeliveryQueueSize) {
+	public ProtobufControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
 		super(maximumDeliveryQueueSize);
 	}
 

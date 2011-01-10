@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import de.uniluebeck.itm.tr.util.Logging;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -15,8 +16,12 @@ public class ProtobufControllerClient {
 
 	public static void main(String[] args) {
 
+		Logging.setLoggingDefaults();
+
 		String host = args[0];
 		int port = Integer.parseInt(args[1]);
+		String urnPrefix = args[2];
+		String secretReservationKey = args[3];
 
 		ClientBootstrap bootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(
@@ -32,8 +37,8 @@ public class ProtobufControllerClient {
 
 		WisebedProtocol.SecretReservationKeys.Builder secretReservationKeysBuilder = WisebedProtocol.SecretReservationKeys.newBuilder()
 				.addKeys(WisebedProtocol.SecretReservationKeys.SecretReservationKey.newBuilder()
-						.setUrnPrefix("urn:wisebed:uzl1:")
-						.setKey("abcd1234")
+						.setUrnPrefix(urnPrefix)
+						.setKey(secretReservationKey)
 				);
 
 		WisebedProtocol.Envelope envelope = WisebedProtocol.Envelope.newBuilder()
