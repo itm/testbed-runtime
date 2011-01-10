@@ -28,6 +28,8 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServerHandler;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import eu.wisebed.testbed.api.wsn.v211.WSN;
 import org.slf4j.Logger;
@@ -41,23 +43,31 @@ public class WSNServiceHandle implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandle.class);
 
+	private String secretReservationKey;
+
 	private final WSNService wsnService;
 
 	private final WSNApp wsnApp;
 
 	private final URL wsnInstanceEndpointUrl;
 
+	private ProtobufControllerServer protobufControllerServer;
+
 	private final ProtobufControllerHelper protobufControllerHelper;
 
 	@Inject
-	WSNServiceHandle(@Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
+	WSNServiceHandle(@Named(WSNServiceModule.SECRET_RESERVATION_KEY) String secretReservationKey,
+					 @Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
 					 WSNService wsnService,
 					 WSNApp wsnApp,
+					 ProtobufControllerServer protobufControllerServer,
 					 ProtobufControllerHelper protobufControllerHelper) {
 
+		this.secretReservationKey = secretReservationKey;
 		this.wsnService = wsnService;
 		this.wsnApp = wsnApp;
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
+		this.protobufControllerServer = protobufControllerServer;
 		this.protobufControllerHelper = protobufControllerHelper;
 	}
 
@@ -76,6 +86,11 @@ public class WSNServiceHandle implements Service {
 		}
 		try {
 			wsnApp.stop();
+		} catch (Exception e) {
+			log.warn("" + e, e);
+		}
+		try {
+			protobufControllerServer.stopHandlers(null);
 		} catch (Exception e) {
 			log.warn("" + e, e);
 		}

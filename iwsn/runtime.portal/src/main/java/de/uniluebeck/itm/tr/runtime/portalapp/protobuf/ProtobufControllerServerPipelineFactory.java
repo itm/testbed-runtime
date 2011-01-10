@@ -15,9 +15,13 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 public class ProtobufControllerServerPipelineFactory implements ChannelPipelineFactory {
 
+	private ProtobufControllerServer protobufControllerServer;
+
 	private SessionManagementServiceImpl sessionManagement;
 
-	public ProtobufControllerServerPipelineFactory(final SessionManagementServiceImpl sessionManagement) {
+	public ProtobufControllerServerPipelineFactory(final ProtobufControllerServer protobufControllerServer,
+												   final SessionManagementServiceImpl sessionManagement) {
+		this.protobufControllerServer = protobufControllerServer;
 		this.sessionManagement = sessionManagement;
 	}
 
@@ -32,7 +36,10 @@ public class ProtobufControllerServerPipelineFactory implements ChannelPipelineF
 		p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());
 		p.addLast("protobufEncoder", new ProtobufEncoder());
 
-		p.addLast("handler", new ProtobufControllerServerHandler(sessionManagement));
+		ProtobufControllerServerHandler handler = new ProtobufControllerServerHandler(sessionManagement);
+		p.addLast("handler", handler);
+
+		protobufControllerServer.addHandler(handler);
 
 		return p;
 	}

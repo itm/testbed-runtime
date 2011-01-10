@@ -47,6 +47,8 @@ import java.util.List;
 
 public class WSNServiceModule extends AbstractModule {
 
+	static final String SECRET_RESERVATION_KEY = "wsnservicemodule.secretreservationkey";
+
 	static final String URN_PREFIX = "wsnservicemodule.urnprefix";
 
 	static final String WSN_SERVICE_ENDPOINT_URL = "wsnservicemodule.wsnserviceendpointurl";
@@ -59,7 +61,8 @@ public class WSNServiceModule extends AbstractModule {
 
 	public static class Factory {
 
-		public static WSNServiceHandle create(TestbedRuntime testbedRuntime,
+		public static WSNServiceHandle create(String secretReservationKey,
+											  TestbedRuntime testbedRuntime,
 											  String urnPrefix,
 											  URL wsnServiceEndpointURL,
 											  URL controllerServiceEndpointURL,
@@ -69,6 +72,7 @@ public class WSNServiceModule extends AbstractModule {
 											  @Nullable ProtobufControllerServer protobufControllerServer) {
 
 			Injector injector = Guice.createInjector(new WSNServiceModule(
+					secretReservationKey,
 					testbedRuntime,
 					urnPrefix,
 					wsnServiceEndpointURL,
@@ -84,6 +88,8 @@ public class WSNServiceModule extends AbstractModule {
 		}
 
 	}
+
+	private String secretReservationKey;
 
 	private TestbedRuntime testbedRuntime;
 
@@ -101,7 +107,8 @@ public class WSNServiceModule extends AbstractModule {
 
 	private ProtobufControllerServer protobufControllerServer;
 
-	private WSNServiceModule(TestbedRuntime testbedRuntime,
+	private WSNServiceModule(String secretReservationKey,
+							 TestbedRuntime testbedRuntime,
 							 String urnPrefix,
 							 URL wsnServiceEndpointURL,
 							 URL controllerServiceEndpointURL,
@@ -110,6 +117,7 @@ public class WSNServiceModule extends AbstractModule {
 							 ProtobufControllerHelper protobufControllerHelper,
 							 @Nullable ProtobufControllerServer protobufControllerServer) {
 
+		this.secretReservationKey = secretReservationKey;
 		this.testbedRuntime = testbedRuntime;
 		this.urnPrefix = urnPrefix;
 		this.wsnServiceEndpointURL = wsnServiceEndpointURL;
@@ -141,6 +149,7 @@ public class WSNServiceModule extends AbstractModule {
 
 		bind(TestbedRuntime.class).toInstance(testbedRuntime);
 
+		bind(String.class).annotatedWith(Names.named(SECRET_RESERVATION_KEY)).toInstance(secretReservationKey);
 		bind(String.class).annotatedWith(Names.named(URN_PREFIX)).toInstance(urnPrefix);
 		bind(URL.class).annotatedWith(Names.named(WSN_SERVICE_ENDPOINT_URL)).toInstance(wsnServiceEndpointURL);
 		bind(URL.class).annotatedWith(Names.named(CONTROLLER_SERVICE_ENDPOINT_URL))

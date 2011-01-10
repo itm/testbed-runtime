@@ -336,6 +336,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			URL controllerEndpointUrl = new URL(controller);
 
 			wsnServiceHandleInstance = WSNServiceModule.Factory.create(
+					secretReservationKey,
 					testbedRuntime,
 					config.urnPrefix,
 					wsnInstanceEndpointUrl,

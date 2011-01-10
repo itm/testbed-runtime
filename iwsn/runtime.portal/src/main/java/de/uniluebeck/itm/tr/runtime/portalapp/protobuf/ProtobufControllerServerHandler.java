@@ -16,13 +16,19 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	private boolean firstMessage = true;
 
+	private ProtobufControllerServer protobufControllerServer;
+
 	private final SessionManagementServiceImpl sessionManagement;
 
 	private Channel channel;
 
 	private WSNServiceHandle wsnServiceHandle;
 
-	public ProtobufControllerServerHandler(final SessionManagementServiceImpl sessionManagement) {
+	private String secretReservationKey;
+
+	public ProtobufControllerServerHandler(final ProtobufControllerServer protobufControllerServer,
+										   final SessionManagementServiceImpl sessionManagement) {
+		this.protobufControllerServer = protobufControllerServer;
 		this.sessionManagement = sessionManagement;
 	}
 
@@ -37,6 +43,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 		log.info("Client disconnected: {}", e);
 		wsnServiceHandle.getProtobufControllerHelper().removeChannel(e.getChannel());
+		protobufControllerServer.removeHandler(this);
 		channel = null;
 		super.channelDisconnected(ctx, e);
 	}
@@ -56,9 +63,8 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 				log.debug("ProtobufControllerServerHandler.receivedSecretReservationKeys()");
 
-				wsnServiceHandle = sessionManagement.getWsnServiceHandle(
-						envelope.getSecretReservationKeys().getKeys(0).getKey()
-				);
+				secretReservationKey = envelope.getSecretReservationKeys().getKeys(0).getKey();
+				wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
 
 				if (wsnServiceHandle == null) {
 					log.debug("Received unknown secret reservation key. Closing channel to client.");
@@ -66,6 +72,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 				} else {
 					log.debug("Received valid secret reservation key. Adding listener to WSN App instance.");
 					wsnServiceHandle.getProtobufControllerHelper().addChannel(e.getChannel());
+					protobufControllerServer.addHandler(this);
 				}
 
 				break;
@@ -81,5 +88,13 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		log.warn("Unexpected exception from downstream: {}", e);
 		e.getChannel().close();
+	}
+
+	public void stop() {
+		channel.close();
+	}
+
+	public String getSecretReservationKey() {
+		return secretReservationKey;
 	}
 }
