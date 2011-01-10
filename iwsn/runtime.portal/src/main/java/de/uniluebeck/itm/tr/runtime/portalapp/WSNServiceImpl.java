@@ -130,16 +130,12 @@ public class WSNServiceImpl implements WSNService {
 
 	private final Set<String> reservedNodes;
 
-	private final ProtobufControllerServer protobufControllerServer;
-
 	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
 						  final Wiseml wiseMLFilename, final String[] reservedNodes,
-						  final ControllerHelper controllerHelper,
-						  final ProtobufControllerServer protobufControllerServer, final WSNApp wsnApp) {
+						  final ControllerHelper controllerHelper, final WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
-		checkNotNull(controllerEndpointUrl);
 		checkNotNull(wiseMLFilename);
 		checkNotNull(wsnApp);
 
@@ -152,13 +148,14 @@ public class WSNServiceImpl implements WSNService {
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
 
-		addController(controllerEndpointUrl.toString());
+		if (controllerEndpointUrl != null) {
+			addController(controllerEndpointUrl.toString());
+		}
 
 		this.preconditions = new WSNPreconditions();
 		this.urnPrefix = urnPrefix;
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
-		this.protobufControllerServer = protobufControllerServer;
 
 	}
 

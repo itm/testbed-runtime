@@ -246,11 +246,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
-		boolean canConnect = ControllerHelper.testConnectivity(controller);
-		if (!canConnect) {
-			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
-					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
-					+ "when calling this method.");
+		if (!"NONE".equals(controller)) {
+			boolean canConnect = ControllerHelper.testConnectivity(controller);
+			if (!canConnect) {
+				throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
+						+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
+						+ "when calling this method.");
+			}
 		}
 
 		// extract the one and only relevant secretReservationKey
@@ -263,8 +265,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			wsnServiceHandleInstance = wsnInstances.get(secretReservationKey);
 
 			if (wsnServiceHandleInstance != null) {
-				log.debug("Adding new controller to the list: {}", controller);
-				wsnServiceHandleInstance.getWsnService().addController(controller);
+
+				if (!"NONE".equals(controller)) {
+					log.debug("Adding new controller to the list: {}", controller);
+					wsnServiceHandleInstance.getWsnService().addController(controller);
+				}
 
 				return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 			}
@@ -318,7 +323,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		try {
 
 			URL wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-			URL controllerEndpointUrl = new URL(controller);
+			URL controllerEndpointUrl = null;
+			if (!"NONE".equals(controller)) {
+				controllerEndpointUrl = new URL(controller);
+			}
 
 			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
 					secretReservationKey,
@@ -356,7 +364,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	/**
 	 * Checks if all reserved nodes are known to {@code testbedRuntime}.
 	 *
-	 * @param reservedNodes the set of reserved node URNs
+	 * @param reservedNodes  the set of reserved node URNs
 	 * @param testbedRuntime the testbed runtime instance
 	 */
 	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) {

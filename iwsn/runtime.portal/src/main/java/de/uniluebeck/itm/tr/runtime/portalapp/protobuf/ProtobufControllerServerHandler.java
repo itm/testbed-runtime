@@ -1,12 +1,14 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
+import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -67,21 +69,53 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 				wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
 
 				if (wsnServiceHandle == null) {
-					log.debug("Received unknown secret reservation key. Closing channel to client.");
-					channel.close();
-				} else {
-					log.debug("Received valid secret reservation key. Adding listener to WSN App instance.");
-					wsnServiceHandle.getProtobufControllerHelper().addChannel(e.getChannel());
-					protobufControllerServer.addHandler(this);
+
+					log.debug("Received reservation key for either unknown or not yet started WSN instance. Trying to start instance...");
+					List<SecretReservationKey> secretReservationKeys = convert(envelope.getSecretReservationKeys());
+
+					try {
+						sessionManagement.getInstance(secretReservationKeys, "NONE");
+						wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
+					} catch (Exception e1) {
+						log.warn("" + e1, e1);
+						channel.close();
+						return;
+					}
+
+					if (wsnServiceHandle == null) {
+						log.debug("Invalid secret reservation key. Closing channel.");
+						channel.close();
+						return;
+					}
+
 				}
 
+				log.debug("Valid secret reservation key. Adding listener to WSN App instance.");
+				wsnServiceHandle.getProtobufControllerHelper().addChannel(e.getChannel());
+				protobufControllerServer.addHandler(this);
 				break;
+
 			default:
 				log.warn("Received message other than secret reservation keys which is not allowed.");
 				e.getChannel().close();
 				break;
 		}
 
+	}
+
+	private List<SecretReservationKey> convert(WisebedProtocol.SecretReservationKeys secretReservationKeys) {
+		List<SecretReservationKey> retKeys = Lists.newArrayList();
+		for (WisebedProtocol.SecretReservationKeys.SecretReservationKey key : secretReservationKeys.getKeysList()) {
+			retKeys.add(convert(key));
+		}
+		return retKeys;
+	}
+
+	private SecretReservationKey convert(WisebedProtocol.SecretReservationKeys.SecretReservationKey key) {
+		SecretReservationKey retKey = new SecretReservationKey();
+		retKey.setUrnPrefix(key.getUrnPrefix());
+		retKey.setSecretReservationKey(key.getKey());
+		return retKey;
 	}
 
 	@Override

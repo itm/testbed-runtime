@@ -74,7 +74,7 @@ public class WSNServiceHandle implements Service {
 
 			final WSNServiceImpl wsnService = new WSNServiceImpl(
 					urnPrefix, wsnServiceEndpointURL, controllerServiceEndpointURL, wiseML,
-					reservedNodes, protobufControllerHelper, protobufControllerServer, wsnApp
+					reservedNodes, protobufControllerHelper, wsnApp
 			);
 
 			return new WSNServiceHandle(secretReservationKey, wsnServiceEndpointURL, wsnService, wsnApp,
