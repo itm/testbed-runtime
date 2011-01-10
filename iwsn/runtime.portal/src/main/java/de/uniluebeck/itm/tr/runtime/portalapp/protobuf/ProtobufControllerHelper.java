@@ -16,7 +16,8 @@ public class ProtobufControllerHelper extends ControllerHelper {
 
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
-	public ProtobufControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
+
+	public ProtobufControllerHelper(Integer maximumDeliveryQueueSize) {
 		super(maximumDeliveryQueueSize);
 	}
 

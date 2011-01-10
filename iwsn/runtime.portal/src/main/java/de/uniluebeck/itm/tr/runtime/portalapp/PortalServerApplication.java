@@ -23,15 +23,22 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
 
 public class PortalServerApplication implements TestbedApplication {
 
 	private SessionManagementService sessionManagementService;
 
-	public PortalServerApplication(SessionManagementService sessionManagementService) {
-		this.sessionManagementService = sessionManagementService;
+	private final TestbedRuntime testbedRuntime;
+
+	private final Portalapp config;
+
+	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp config) {
+		this.testbedRuntime = testbedRuntime;
+		this.config = config;
 	}
 
 	@Override
@@ -41,11 +48,16 @@ public class PortalServerApplication implements TestbedApplication {
 
 	@Override
 	public void start() throws Exception {
+		if (sessionManagementService == null) {
+			sessionManagementService = new SessionManagementServiceImpl(testbedRuntime, config);
+		}
 		sessionManagementService.start();
 	}
 
 	@Override
 	public void stop() throws Exception {
-		sessionManagementService.stop();
+		if (sessionManagementService != null) {
+			sessionManagementService.stop();
+		}
 	}
 }

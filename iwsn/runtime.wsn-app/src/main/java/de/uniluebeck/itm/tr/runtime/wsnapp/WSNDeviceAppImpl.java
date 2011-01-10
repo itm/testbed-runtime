@@ -24,10 +24,6 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.internal.Nullable;
-import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -50,7 +46,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Singleton
 class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceApp.class);
@@ -115,7 +110,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
 	/**
-	 * Executes registering and unregistering for sensor node outputs.
+	 * Executes registering and un-registering for sensor node outputs.
 	 *
 	 * @param management the message containing the (un)register command
 	 */
@@ -135,14 +130,11 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	 */
 	private WSNDeviceAppConnector connector;
 
-	@Inject
-	public WSNDeviceAppImpl(@Named(WSNDeviceAppModule.NAME_NODE_URN) String nodeUrn,
-							@Named(WSNDeviceAppModule.NAME_NODE_TYPE) String nodeType,
-							@Named(WSNDeviceAppModule.NAME_SERIAL_INTERFACE) @Nullable String nodeSerialInterface,
-							@Named(WSNDeviceAppModule.NAME_NODE_API_TIMEOUT) @Nullable Integer nodeAPITimeout,
-							@Named(WSNDeviceAppModule.NAME_USB_CHIP_ID) @Nullable String nodeUSBChipID,
-							TestbedRuntime testbedRuntime) {
+	public WSNDeviceAppImpl(final String nodeUrn, final String nodeType, final String nodeSerialInterface,
+							final Integer nodeAPITimeout, final String nodeUSBChipID,
+							final TestbedRuntime testbedRuntime) {
 
+		Preconditions.checkNotNull(testbedRuntime);
 		Preconditions.checkNotNull(nodeUrn);
 		Preconditions.checkNotNull(nodeType);
 
@@ -315,13 +307,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		}
 
 		@Override
-		public void success(@Nullable byte[] replyPayload) {
+		public void success(byte[] replyPayload) {
 			String message = replyPayload == null ? null : new String(replyPayload);
 			sendExecutionReply(invocationMsg, 1, message);
 		}
 
 		@Override
-		public void failure(byte responseType, @Nullable byte[] replyPayload) {
+		public void failure(byte responseType, byte[] replyPayload) {
 			sendExecutionReply(invocationMsg, responseType, new String(replyPayload));
 		}
 
@@ -344,7 +336,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	 * Helper method to build a RequestStatus object for asynchronous reply to an operation invocation.
 	 *
 	 * @param value   the operations return code
-	 * @param message a message to the invocator
+	 * @param message a message to the invoker
 	 *
 	 * @return the serialized RequestStatus instance created
 	 */
@@ -469,7 +461,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				}
 
 				@Override
-				public void success(@Nullable final byte[] replyPayload) {
+				public void success(final byte[] replyPayload) {
 					log.debug("{} => WSNDeviceAppImpl.flashProgram.success()", nodeUrn);
 					responder.sendResponse(
 							buildRequestStatus(100, replyPayload == null ? null : new String(replyPayload))
@@ -477,7 +469,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				}
 
 				@Override
-				public void failure(final byte responseType, @Nullable final byte[] replyPayload) {
+				public void failure(final byte responseType, final byte[] replyPayload) {
 					log.debug("{} => WSNDeviceAppImpl.failedFlashPrograms()", nodeUrn);
 					responder.sendResponse(buildRequestStatus(responseType, new String(replyPayload)));
 				}

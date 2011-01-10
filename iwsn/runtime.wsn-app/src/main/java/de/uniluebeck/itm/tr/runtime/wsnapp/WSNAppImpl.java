@@ -25,10 +25,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.internal.Nullable;
-import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -50,8 +46,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
-@Singleton
-public class WSNAppImpl implements WSNApp {
+class WSNAppImpl implements WSNApp {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
 
@@ -65,10 +60,7 @@ public class WSNAppImpl implements WSNApp {
 
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
-	@Inject
-	public WSNAppImpl(TestbedRuntime testbedRuntime,
-					  @Named("wsnservicemodule.reservednodes") @Nullable String[] reservedNodes) {
-
+	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
@@ -125,8 +117,8 @@ public class WSNAppImpl implements WSNApp {
 							.build();
 
 					if (log.isDebugEnabled()) {
-                                                String output = WSNAppMessageTools.toString(message, true);
-                                                output = output.endsWith("\n") ? output.substring(0, output.length()-2) : output;
+						String output = WSNAppMessageTools.toString(message, true);
+						output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
 						log.debug("{}", output);
 					}
 

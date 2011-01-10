@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.inject.internal.Nullable;
 import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
@@ -37,8 +36,8 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 	}
 
 	public static interface Callback {
-		void success(@Nullable byte[] replyPayload);
-		void failure(byte responseType, @Nullable byte[] replyPayload);
+		void success(byte[] replyPayload);
+		void failure(byte responseType, byte[] replyPayload);
 		void timeout();
 	}
 

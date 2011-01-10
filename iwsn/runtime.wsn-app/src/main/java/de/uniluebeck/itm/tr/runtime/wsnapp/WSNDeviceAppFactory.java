@@ -24,8 +24,6 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Preconditions;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
@@ -45,7 +43,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppFactory.class);
 
 	@Override
-	public TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
+	public WSNDeviceApp create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
 
 		try {
 
@@ -76,13 +74,14 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				throw new RuntimeException(e);
 			}
 
-			WSNDeviceAppModule module =
-					new WSNDeviceAppModule(nodeUrn, nodeType, nodeSerialInterface, nodeAPITimeout, nodeUSBChipID,
-							testbedRuntime
-					);
-			Injector injector = Guice.createInjector(module);
-
-			return injector.getInstance(WSNDeviceApp.class);
+			return new WSNDeviceAppImpl(
+					nodeUrn,
+					nodeType,
+					nodeSerialInterface,
+					nodeAPITimeout,
+					nodeUSBChipID,
+					testbedRuntime
+			);
 
 		} catch (JAXBException e) {
 			log.error("Error unmarshalling WsnApplication config: " + e, e);

@@ -23,14 +23,10 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.internal.Nullable;
-import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
@@ -51,12 +47,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
-import java.io.StringWriter;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -64,7 +58,6 @@ import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Singleton
 @WebService(
 		serviceName = "WSNService",
 		targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
@@ -131,33 +124,28 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private ControllerHelper controllerHelper;
 
-	private Wiseml wiseML;
+	private final Wiseml wiseMLFilename;
 
-	private String urnPrefix;
+	private final String urnPrefix;
 
-	private Set<String> reservedNodes;
+	private final Set<String> reservedNodes;
 
-	private ProtobufControllerServer protobufControllerServer;
+	private final ProtobufControllerServer protobufControllerServer;
 
-	@Inject
-	public WSNServiceImpl(@Named(WSNServiceModule.URN_PREFIX) String urnPrefix,
-						  @Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
-						  @Named(WSNServiceModule.CONTROLLER_SERVICE_ENDPOINT_URL) URL controllerEndpointUrl,
-						  @Named(WSNServiceModule.WISEML) Wiseml wiseML,
-						  @Named(WSNServiceModule.RESERVED_NODES) @Nullable String[] reservedNodes,
-						  ControllerHelper controllerHelper,
-						  @Nullable ProtobufControllerServer protobufControllerServer,
-						  WSNApp wsnApp) {
+	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
+						  final Wiseml wiseMLFilename, final String[] reservedNodes,
+						  final ControllerHelper controllerHelper,
+						  final ProtobufControllerServer protobufControllerServer, final WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
 		checkNotNull(controllerEndpointUrl);
-		checkNotNull(wiseML);
+		checkNotNull(wiseMLFilename);
 		checkNotNull(wsnApp);
 
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
-		this.wiseML = wiseML;
+		this.wiseMLFilename = wiseMLFilename;
 		this.controllerHelper = controllerHelper;
 
 		executorService = Executors.newSingleThreadScheduledExecutor(
@@ -179,12 +167,6 @@ public class WSNServiceImpl implements WSNService {
 	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
 
 		private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
-
-		//private static final byte MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
-
-		//private static final byte NODE_OUTPUT_TEXT = 50;
-
-		//private static final byte NODE_OUTPUT_BYTE = 51;
 
 		private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
@@ -208,10 +190,10 @@ public class WSNServiceImpl implements WSNService {
 			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
 			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
 
-            if (!reservedNodes.contains(wsnMessage.getSourceNodeId())) {
-                log.warn("Received message from unreserved node \"{}\".", wsnMessage.getSourceNodeId());
-                return;
-            }
+			if (!reservedNodes.contains(wsnMessage.getSourceNodeId())) {
+				log.warn("Received message from unreserved node \"{}\".", wsnMessage.getSourceNodeId());
+				return;
+			}
 
 			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
 
@@ -342,7 +324,7 @@ public class WSNServiceImpl implements WSNService {
 		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
 
 		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
-		
+
 		log.info("Started WSN service!");
 
 	}
@@ -355,7 +337,7 @@ public class WSNServiceImpl implements WSNService {
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
 		// TODO define clean lifecycle for WSN app, following lifecycle of WSNServiceImpl
-        /*try {
+		/*try {
 			wsnApp.stop();
 		} catch (Exception e) {
 			log.error("" + e, e);
@@ -385,7 +367,8 @@ public class WSNServiceImpl implements WSNService {
 		if (!canConnect) {
 			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
 					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
-					+ "when calling this method.");
+					+ "when calling this method."
+			);
 		}
 
 		controllerHelper.addController(controllerEndpointUrl);
@@ -458,11 +441,12 @@ public class WSNServiceImpl implements WSNService {
 		WSNAppMessages.Message.Builder builder = WSNAppMessages.Message.newBuilder();
 
 		if (message.getBinaryMessage() != null) {
-			
-				// Binary Type is optinal so set type = 0 as internal default
-				if (message.getBinaryMessage().getBinaryType() == null)
-					message.getBinaryMessage().setBinaryType((byte) 0);
-				
+
+			// Binary Type is optinal so set type = 0 as internal default
+			if (message.getBinaryMessage().getBinaryType() == null) {
+				message.getBinaryMessage().setBinaryType((byte) 0);
+			}
+
 			WSNAppMessages.Message.BinaryMessage.Builder binaryMessage = WSNAppMessages.Message.BinaryMessage
 					.newBuilder().setBinaryType(message.getBinaryMessage().getBinaryType()).setBinaryData(
 							ByteString.copyFrom(message.getBinaryMessage().getBinaryData())
@@ -471,11 +455,12 @@ public class WSNServiceImpl implements WSNService {
 		}
 
 		if (message.getTextMessage() != null) {
-			
+
 			// Message Level is optinal so set the level to DEBUG as internal default
-			if (message.getTextMessage().getMessageLevel() == null)
+			if (message.getTextMessage().getMessageLevel() == null) {
 				message.getTextMessage().setMessageLevel(MessageLevel.DEBUG);
-			
+			}
+
 			WSNAppMessages.Message.TextMessage.Builder textMessage = WSNAppMessages.Message.TextMessage.newBuilder()
 					.setMessageLevel(
 							WSNAppMessages.Message.MessageLevel.valueOf(message.getTextMessage().getMessageLevel()
@@ -524,7 +509,8 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
-								@WebParam(name = "programIndices", targetNamespace = "") final List<Integer> programIndices,
+								@WebParam(name = "programIndices", targetNamespace = "")
+								final List<Integer> programIndices,
 								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
 
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
@@ -623,7 +609,7 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	private WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
-		if (metaData == null){
+		if (metaData == null) {
 			metaData = new ProgramMetaData();
 			metaData.setName("");
 			metaData.setOther("");
@@ -637,8 +623,8 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public String getNetwork() {
-        log.debug("WSNServiceImpl.getNetwork");
-        return WiseMLHelper.serialize(wiseML);
+		log.debug("WSNServiceImpl.getNetwork");
+		return WiseMLHelper.serialize(wiseMLFilename);
 	}
 
 	@Override
@@ -877,7 +863,8 @@ public class WSNServiceImpl implements WSNService {
 				public void failure(final Exception e) {
 					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
 				}
-			});
+			}
+			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
 			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
@@ -911,7 +898,8 @@ public class WSNServiceImpl implements WSNService {
 				public void failure(final Exception e) {
 					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
 				}
-			});
+			}
+			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
 			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
@@ -944,7 +932,8 @@ public class WSNServiceImpl implements WSNService {
 				public void failure(final Exception e) {
 					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
 				}
-			});
+			}
+			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
 			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
@@ -979,14 +968,15 @@ public class WSNServiceImpl implements WSNService {
 				public void failure(final Exception e) {
 					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
 				}
-			});
+			}
+			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
 			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
-		
+
 	}
 
 	@Override

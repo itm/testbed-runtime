@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.inject.Guice;
-
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
@@ -52,16 +51,8 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 		try {
 
 			JAXBContext context = JAXBContext.newInstance(Portalapp.class);
-			Portalapp portalapp = (Portalapp) context.createUnmarshaller().unmarshal((Node) configuration);
-
-			SessionManagementService sessionManagementService = Guice.createInjector(
-					new PortalModule(testbedRuntime, portalapp)
-			).getInstance(SessionManagementService.class);
-
-			PortalServerApplication portalServerApplication = new PortalServerApplication(sessionManagementService);
-
-			log.debug("Successfully created PortalServerApplication!");
-
+			Portalapp config = (Portalapp) context.createUnmarshaller().unmarshal((Node) configuration);
+			PortalServerApplication portalServerApplication = new PortalServerApplication(testbedRuntime, config);
 			return portalServerApplication;
 
 		} catch (JAXBException e) {

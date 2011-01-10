@@ -23,8 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
@@ -56,8 +54,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-
-@Singleton
 @WebService(
 		serviceName = "SessionManagementService",
 		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
@@ -185,10 +181,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 */
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
-	@Inject
-	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp portalappConfig) throws MalformedURLException {
+	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
-		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = portalappConfig.getWebservice();
+		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = config.getWebservice();
 
 		checkNotNull(webservice.getUrnprefix());
 		checkNotNull(webservice.getSessionmanagementendpointurl());
@@ -197,7 +192,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		checkNotNull(testbedRuntime);
 
 		this.testbedRuntime = testbedRuntime;
-		this.config = new Config(portalappConfig);
+		this.config = new Config(config);
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(this.config.urnPrefix);
@@ -220,7 +215,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			protobufControllerServer = new ProtobufControllerServer(this, config.protobufinterface);
 			protobufControllerServer.start();
 		}
-
 	}
 
 	@Override
@@ -326,7 +320,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			URL wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
 			URL controllerEndpointUrl = new URL(controller);
 
-			wsnServiceHandleInstance = WSNServiceModule.Factory.create(
+			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
 					secretReservationKey,
 					testbedRuntime,
 					config.urnPrefix,
@@ -359,16 +353,21 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	}
 
-	//check if all reserved nodes are in testbedruntime
+	/**
+	 * Checks if all reserved nodes are known to {@code testbedRuntime}.
+	 *
+	 * @param reservedNodes the set of reserved node URNs
+	 * @param testbedRuntime the testbed runtime instance
+	 */
+	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) {
 
-	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime)
-			throws ExperimentNotRunningException_Exception {
 		for (String node : reservedNodes) {
-			if (!testbedRuntime.getLocalNodeNames().contains(node) && !testbedRuntime.getRoutingTableService()
-					.getEntries().keySet().contains(node)) {
-				throw new RuntimeException(
-						"Node URN " + node + " in RS-ConfidentialReservationData not in testbed-runtime environment."
-				);
+
+			boolean isLocal = testbedRuntime.getLocalNodeNames().contains(node);
+			boolean isRemote = testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node);
+
+			if (!isLocal && !isRemote) {
+				throw new RuntimeException("Node URN " + node + " unknown to testbed runtime environment.");
 			}
 		}
 	}

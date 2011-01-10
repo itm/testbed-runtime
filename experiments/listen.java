@@ -64,7 +64,7 @@ import com.google.common.collect.*;
 		}
 	};
 
-	log.debug("Using the following parameters for calling getInstance(): {}, {}",
+	log.info("Using the following parameters for calling getInstance(): {}, {}",
 			StringUtils.jaxbMarshal(helper.parseSecretReservationKeys(secretReservationKeys)),
 			localControllerEndpointURL
 	);

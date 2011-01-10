@@ -31,57 +31,159 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ *
+ */
 public interface WSNApp extends Service, TestbedApplication {
 
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
 
+	/**
+	 *
+	 */
 	public static interface Callback {
 
+		/**
+		 *
+		 * @param requestStatus
+		 */
 		void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
 
+		/**
+		 *
+		 * @param e
+		 */
 		void failure(Exception e);
 
 	}
 
+	/**
+	 *
+	 * @param nodeUrns
+	 * @param message
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param nodeUrns
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param programs
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
 
+	/**
+	 *
+	 * @param nodeUrns
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param receiver
+	 */
 	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
+	/**
+	 *
+	 * @param receiver
+	 */
 	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
+	/**
+	 *
+	 * @param sourceNodeUrn
+	 * @param targetNodeUrn
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param sourceNodeUrn
+	 * @param targetNodeUrn
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param nodeUrn
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param nodeUrn
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param nodeUrnA
+	 * @param nodeUrnB
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 
+	/**
+	 *
+	 * @param nodeUrnA
+	 * @param nodeUrnB
+	 * @param callback
+	 * @throws UnknownNodeUrnException_Exception
+	 */
 	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
 			throws UnknownNodeUrnException_Exception;
 

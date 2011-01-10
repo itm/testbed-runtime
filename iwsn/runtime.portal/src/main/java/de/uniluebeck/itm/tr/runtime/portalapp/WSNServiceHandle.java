@@ -23,27 +23,68 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServerHandler;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import eu.wisebed.ns.wiseml._1.Setup;
+import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.v211.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-
-@Singleton
 public class WSNServiceHandle implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandle.class);
 
-	private String secretReservationKey;
+	public static class Factory {
+
+		public static WSNServiceHandle create(String secretReservationKey,
+											  TestbedRuntime testbedRuntime,
+											  String urnPrefix,
+											  URL wsnServiceEndpointURL,
+											  URL controllerServiceEndpointURL,
+											  String wiseMLFilename,
+											  String[] reservedNodes,
+											  ProtobufControllerHelper protobufControllerHelper,
+											  ProtobufControllerServer protobufControllerServer) {
+
+			// De-serialize original WiseML and strip out all nodes that are not part of this reservation
+			Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(wiseMLFilename));
+			List<Setup.Node> node = wiseML.getSetup().getNode();
+			Iterator<Setup.Node> nodeIterator = node.iterator();
+
+			List<String> reservedNodesList = Arrays.asList(reservedNodes);
+			while (nodeIterator.hasNext()) {
+				Setup.Node currentNode = nodeIterator.next();
+				if (!reservedNodesList.contains(currentNode.getId())) {
+					nodeIterator.remove();
+				}
+			}
+
+			final WSNApp wsnApp = WSNAppFactory.create(testbedRuntime, reservedNodes);
+
+			final WSNServiceImpl wsnService = new WSNServiceImpl(
+					urnPrefix, wsnServiceEndpointURL, controllerServiceEndpointURL, wiseML,
+					reservedNodes, protobufControllerHelper, protobufControllerServer, wsnApp
+			);
+
+			return new WSNServiceHandle(secretReservationKey, wsnServiceEndpointURL, wsnService, wsnApp,
+					protobufControllerServer, protobufControllerHelper
+			);
+		}
+
+	}
+
+	private final String secretReservationKey;
 
 	private final WSNService wsnService;
 
@@ -55,11 +96,7 @@ public class WSNServiceHandle implements Service {
 
 	private final ProtobufControllerHelper protobufControllerHelper;
 
-	@Inject
-	WSNServiceHandle(@Named(WSNServiceModule.SECRET_RESERVATION_KEY) String secretReservationKey,
-					 @Named(WSNServiceModule.WSN_SERVICE_ENDPOINT_URL) URL wsnInstanceEndpointUrl,
-					 WSNService wsnService,
-					 WSNApp wsnApp,
+	WSNServiceHandle(String secretReservationKey, URL wsnInstanceEndpointUrl, WSNService wsnService, WSNApp wsnApp,
 					 ProtobufControllerServer protobufControllerServer,
 					 ProtobufControllerHelper protobufControllerHelper) {
 
@@ -111,4 +148,9 @@ public class WSNServiceHandle implements Service {
 	public ProtobufControllerHelper getProtobufControllerHelper() {
 		return protobufControllerHelper;
 	}
+
+	public String getSecretReservationKey() {
+		return secretReservationKey;
+	}
+
 }

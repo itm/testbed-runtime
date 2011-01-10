@@ -1,4 +1,4 @@
 #!/bin/bash
 DIR=`dirname $0`
 cd "$DIR/../"
-mvn -am -pl assembly install -DskipTests
+mvn -am -pl assembly clean install -DskipTests
