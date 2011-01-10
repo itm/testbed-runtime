@@ -76,7 +76,7 @@ public class ProtobufControllerClient extends AbstractListenable<Controller> {
 		channel.getCloseFuture().addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
-				log.info("Channel was closed.");
+				log.debug("Channel was closed.");
 			}
 		});
 
