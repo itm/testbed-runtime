@@ -36,7 +36,10 @@ public class ProtobufControllerServerPipelineFactory implements ChannelPipelineF
 		p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());
 		p.addLast("protobufEncoder", new ProtobufEncoder());
 
-		ProtobufControllerServerHandler handler = new ProtobufControllerServerHandler(sessionManagement);
+		ProtobufControllerServerHandler handler = new ProtobufControllerServerHandler(
+				protobufControllerServer,
+				sessionManagement
+		);
 		p.addLast("handler", handler);
 
 		protobufControllerServer.addHandler(handler);
