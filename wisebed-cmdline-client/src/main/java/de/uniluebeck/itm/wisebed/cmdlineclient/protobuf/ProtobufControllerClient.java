@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.AbstractListenable;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -14,9 +15,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ProtobufControllerClient extends AbstractListenable<Controller> {
+public class ProtobufControllerClient extends AbstractListenable<ProtobufControllerClientListener> {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerClient.class);
 
@@ -40,24 +42,27 @@ public class ProtobufControllerClient extends AbstractListenable<Controller> {
 
 	private ClientBootstrap bootstrap;
 
+	private ExecutorService bossExecutor;
+
+	private ExecutorService workerExecutor;
+
 	public static ProtobufControllerClient create(String hostname, int port, List<SecretReservationKey> secretReservationKeys) {
 		return new ProtobufControllerClient(hostname, port, secretReservationKeys);
 	}
 
 	private ProtobufControllerClient(String hostname, int port, List<SecretReservationKey> secretReservationKeys) {
+
 		this.hostname = hostname;
 		this.port = port;
 		this.secretReservationKeys = secretReservationKeys;
+
+		bossExecutor = Executors.newCachedThreadPool();
+		workerExecutor = Executors.newCachedThreadPool();
 	}
 
 	public void connect() {
 
-		bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()
-				)
-		);
+		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workerExecutor));
 
 		// Configure the event pipeline factory.
 		bootstrap.setPipelineFactory(new ProtobufControllerClientPipelineFactory(this));
@@ -71,12 +76,26 @@ public class ProtobufControllerClient extends AbstractListenable<Controller> {
 		if (!channelFuture.isSuccess()) {
 			throw new RuntimeException("Could not connect to " + hostname + ":" + port);
 		}
+
+		for (ProtobufControllerClientListener listener : listeners) {
+			listener.onConnectionEstablished();
+		}
+
 		channel = channelFuture.getChannel();
 
 		channel.getCloseFuture().addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				log.debug("Channel was closed.");
+				for (ProtobufControllerClientListener listener : listeners) {
+					listener.onConnectionClosed();
+				}
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						shutdown();
+					}
+				}).start();
 			}
 		});
 
@@ -115,6 +134,12 @@ public class ProtobufControllerClient extends AbstractListenable<Controller> {
 			channel.close().awaitUninterruptibly();
 			channel = null;
 		}
+
+		shutdown();
+
+	}
+
+	private void shutdown() {
 
 		if (bootstrap != null) {
 			bootstrap.releaseExternalResources();

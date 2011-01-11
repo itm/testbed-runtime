@@ -63,12 +63,18 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 	ProtobufControllerClient pcc = ProtobufControllerClient.create(pccHost, pccPort, helper.parseSecretReservationKeys(secretReservationKeys));
-	pcc.addListener(new Controller() {
+	pcc.addListener(new ProtobufControllerClientListener() {
 		public void receive(Message msg) {
 			// nothing to do
 		}
 		public void receiveStatus(RequestStatus requestStatus) {
 			wsn.receive(requestStatus);
+		}
+		public void onConnectionEstablished() {
+			log.debug("Connection established.");
+		}
+		public void onConnectionClosed() {
+			log.debug("Connection closed.");
 		}
 	});
 	pcc.connect();
@@ -110,5 +116,8 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 		System.exit(1);
 	}
 	
-	log.info("Done. Shutting down...");
+	log.info("Closing connection...");
+	pcc.disconnect();
+	
+	log.info("Shutting down...");
 	System.exit(0);
