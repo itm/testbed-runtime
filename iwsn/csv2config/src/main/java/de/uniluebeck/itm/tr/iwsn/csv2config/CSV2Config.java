@@ -6,6 +6,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
@@ -233,6 +234,12 @@ public class CSV2Config {
 
 		public String reservationSystemEndpointURL;
 
+		public String protobufIp = null;
+
+		public String protobufHostname = null;
+
+		public Integer protobufPort = null;
+
 	}
 
 	private CmdLineParameters cmdLineParameters = new CmdLineParameters();
@@ -311,6 +318,17 @@ public class CSV2Config {
 		webservice.setUrnprefix(cmdLineParameters.testbedPrefix);
 		webservice.setWisemlfilename(cmdLineParameters.wisemlfilename);
 		webservice.setWsninstancebaseurl(cmdLineParameters.wsninstancebaseurl);
+		if (cmdLineParameters.protobufPort != null) {
+			ProtobufInterface protobufInterface = new ProtobufInterface();
+			protobufInterface.setPort(cmdLineParameters.protobufPort);
+			if (cmdLineParameters.protobufHostname != null) {
+				protobufInterface.setHostname(cmdLineParameters.protobufHostname);
+			}
+			if (cmdLineParameters.protobufIp != null) {
+				protobufInterface.setIp(cmdLineParameters.protobufIp);
+			}
+			webservice.setProtobufinterface(protobufInterface);
+		}
 		portalapp.setWebservice(webservice);
 		portalApplication.setAny(portalapp);
 		portalApplications.getApplication().add(portalApplication);
@@ -470,6 +488,28 @@ public class CSV2Config {
 					cmdLineParameters.wisemlfilename = properties.getProperty("portal.wisemlpath");
 				} else {
 					throw new Exception("Property file is missing the portal.wisemlpath property");
+				}
+
+				boolean hasProtobufIp = false;
+				boolean hasProtobufHostname = false;
+				boolean hasProtobufPort = false;
+				if (properties.getProperty("portal.protobuf.ip") != null) {
+					cmdLineParameters.protobufIp = properties.getProperty("portal.protobuf.ip");
+					hasProtobufIp = true;
+				}
+
+				if (properties.getProperty("portal.protobuf.hostname") != null) {
+					cmdLineParameters.protobufHostname = properties.getProperty("portal.protobuf.hostname");
+					hasProtobufHostname = true;
+				}
+
+				if (properties.getProperty("portal.protobuf.port") != null) {
+					cmdLineParameters.protobufPort = Integer.parseInt(properties.getProperty("portal.protobuf.port"));
+					hasProtobufPort = true;
+				}
+
+				if ((hasProtobufPort && !(hasProtobufHostname || hasProtobufIp)) || (hasProtobufIp && !hasProtobufPort) || (hasProtobufHostname && !hasProtobufPort)) {
+					throw new IllegalArgumentException("If portal.protobuf.port is specified exactly one of portal.protobuf.ip and portal.protobuf.hostname must be specified too.");
 				}
 
 				cmdLineParameters.useAutodetection =
