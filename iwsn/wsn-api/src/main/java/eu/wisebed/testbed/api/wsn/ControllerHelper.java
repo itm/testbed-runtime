@@ -60,7 +60,7 @@ public class ControllerHelper {
 
     private static final int DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE = 1000;
 
-    private final int maximumDeliveryQueueSize;
+    protected final int maximumDeliveryQueueSize;
 
 	public int getControllerCount() {
         return controllerEndpoints.size();

@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import com.google.inject.internal.Nullable;
 import com.google.protobuf.ByteString;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.v211.Message;
@@ -9,13 +8,31 @@ import eu.wisebed.testbed.api.wsn.v211.Status;
 import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.ChannelGroupFuture;
+import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ProtobufControllerHelper extends ControllerHelper {
 
+	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerHelper.class);
+
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
+	private volatile int currentMessageDeliveryQueueSize = 0;
+
+	private volatile long lastBackendMessage = System.currentTimeMillis();
+
+	private ChannelGroupFutureListener messageDeliveryListener = new ChannelGroupFutureListener() {
+		@Override
+		public void operationComplete(final ChannelGroupFuture future) throws Exception {
+			currentMessageDeliveryQueueSize--;
+		}
+	};
+
+	private long BACKEND_MESSAGE_INTERVAL = 1000;
 
 	public ProtobufControllerHelper(Integer maximumDeliveryQueueSize) {
 		super(maximumDeliveryQueueSize);
@@ -29,7 +46,40 @@ public class ProtobufControllerHelper extends ControllerHelper {
 	@Override
 	public void receive(Message message) {
 		if (channels.size() > 0) {
-			channels.write(convert(message));
+
+			// only send message to client if delivery queue is smaller than maximum
+			if (currentMessageDeliveryQueueSize < maximumDeliveryQueueSize) {
+
+				// count the messages that still have to be delivered
+				currentMessageDeliveryQueueSize++;
+
+				// write message to clients
+				// messageDeliveryListener will decrease delivery queue size counter
+				channels.write(convert(message)).addListener(messageDeliveryListener);
+
+			}
+
+			// inform the user of dropped messages every BACKEND_MESSAGE_INTERVAL milliseconds
+			else if (System.currentTimeMillis() - lastBackendMessage > BACKEND_MESSAGE_INTERVAL) {
+
+				log.warn("Dropped one or more messages. Informing protobuf controllers.");
+
+				WisebedProtocol.Message.Backend.Builder backendBuilder = WisebedProtocol.Message.Backend.newBuilder()
+						.setLevel(WisebedProtocol.Message.Level.ERROR)
+						.setText("Your experiment is generating too many messages to be delivered. "
+								+ "Therefore the backend drops messages. "
+								+ "Please make sure the message rate is lowered."
+						);
+
+				WisebedProtocol.Message backendMessage = WisebedProtocol.Message.newBuilder()
+						.setType(WisebedProtocol.Message.Type.BACKEND)
+						.setBackend(backendBuilder)
+						.build();
+
+				channels.write(backendMessage).awaitUninterruptibly();
+				lastBackendMessage = System.currentTimeMillis();
+
+			}
 		}
 		super.receive(message);
 	}
