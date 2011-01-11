@@ -6,7 +6,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
-import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
@@ -74,13 +73,40 @@ public class CSV2Config {
 		Setup setup = new Setup();
 		wiseml.setSetup(setup);
 
-		// TODO fill out default values
-		//setup.setCoordinateType(coordinateType);
-		//setup.setDefaults(defaults);
-		//setup.setDescription(description);
-		//setup.setInterpolation(interpolation);
-		//setup.setOrigin(origin);
-		//setup.setTimeinfo(timeInfo);
+		if (cmdLineParameters.setupCoordinateType != null && !"".equals(cmdLineParameters.setupCoordinateType)) {
+			setup.setCoordinateType(cmdLineParameters.setupCoordinateType);
+		}
+		if (cmdLineParameters.setupDescription != null && !"".equals(cmdLineParameters.setupDescription)) {
+			setup.setDescription(cmdLineParameters.setupDescription);
+		}
+
+		boolean hasOriginX = cmdLineParameters.setupOriginX != null && !"".equals(cmdLineParameters.setupOriginX);
+		boolean hasOriginY = cmdLineParameters.setupOriginY != null && !"".equals(cmdLineParameters.setupOriginY);
+		boolean hasOriginZ = cmdLineParameters.setupOriginZ != null && !"".equals(cmdLineParameters.setupOriginZ);
+		boolean hasOriginPhi = cmdLineParameters.setupOriginPhi != null && !"".equals(cmdLineParameters.setupOriginPhi);
+		boolean hasOriginTheta = cmdLineParameters.setupOriginTheta != null && !"".equals(cmdLineParameters.setupOriginTheta);
+
+		boolean hasOrigin = hasOriginX || hasOriginY || hasOriginZ || hasOriginPhi || hasOriginTheta;
+
+		if (hasOrigin) {
+			Coordinate coordinate = new Coordinate();
+			if (hasOriginX) {
+				coordinate.setX(Double.parseDouble(cmdLineParameters.setupOriginX));
+			}
+			if (hasOriginY) {
+				coordinate.setY(Double.parseDouble(cmdLineParameters.setupOriginY));
+			}
+			if (hasOriginZ) {
+				coordinate.setZ(Double.parseDouble(cmdLineParameters.setupOriginZ));
+			}
+			if (hasOriginPhi) {
+				coordinate.setPhi(Double.parseDouble(cmdLineParameters.setupOriginPhi));
+			}
+			if (hasOriginTheta) {
+				coordinate.setTheta(Double.parseDouble(cmdLineParameters.setupOriginTheta));
+			}
+			setup.setOrigin(coordinate);
+		}
 
 		List<Setup.Node> nodes = setup.getNode();
 
@@ -126,9 +152,6 @@ public class CSV2Config {
 			node.setGateway(Boolean.parseBoolean(nextLine[columns.get(NODE_GATEWAY)].toLowerCase()));
 			node.setNodeType(nextLine[columns.get(NODE_TYPE)]);
 			Coordinate position = new Coordinate();
-			// TODO set something sensible here
-			//position.setPhi(phi);
-			//position.setTheta(theta);
 			position.setX(Double.parseDouble(nextLine[columns.get(NODE_POSITION_X)].replace(',', '.')));
 			position.setY(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Y)].replace(',', '.')));
 			position.setZ(Double.parseDouble(nextLine[columns.get(NODE_POSITION_Z)].replace(',', '.')));
@@ -234,11 +257,19 @@ public class CSV2Config {
 
 		public String reservationSystemEndpointURL;
 
-		public String protobufIp = null;
+		public String setupOriginX = null;
 
-		public String protobufHostname = null;
+		public String setupOriginY = null;
 
-		public Integer protobufPort = null;
+		public String setupOriginZ = null;
+
+		public String setupOriginPhi = null;
+
+		public String setupOriginTheta = null;
+
+		public String setupCoordinateType = null;
+
+		public String setupDescription = null;
 
 	}
 
@@ -318,17 +349,6 @@ public class CSV2Config {
 		webservice.setUrnprefix(cmdLineParameters.testbedPrefix);
 		webservice.setWisemlfilename(cmdLineParameters.wisemlfilename);
 		webservice.setWsninstancebaseurl(cmdLineParameters.wsninstancebaseurl);
-		if (cmdLineParameters.protobufPort != null) {
-			ProtobufInterface protobufInterface = new ProtobufInterface();
-			protobufInterface.setPort(cmdLineParameters.protobufPort);
-			if (cmdLineParameters.protobufHostname != null) {
-				protobufInterface.setHostname(cmdLineParameters.protobufHostname);
-			}
-			if (cmdLineParameters.protobufIp != null) {
-				protobufInterface.setIp(cmdLineParameters.protobufIp);
-			}
-			webservice.setProtobufinterface(protobufInterface);
-		}
 		portalapp.setWebservice(webservice);
 		portalApplication.setAny(portalapp);
 		portalApplications.getApplication().add(portalApplication);
@@ -490,26 +510,32 @@ public class CSV2Config {
 					throw new Exception("Property file is missing the portal.wisemlpath property");
 				}
 
-				boolean hasProtobufIp = false;
-				boolean hasProtobufHostname = false;
-				boolean hasProtobufPort = false;
-				if (properties.getProperty("portal.protobuf.ip") != null) {
-					cmdLineParameters.protobufIp = properties.getProperty("portal.protobuf.ip");
-					hasProtobufIp = true;
+				if (properties.getProperty("setup.coordinatetype") != null) {
+					cmdLineParameters.setupCoordinateType = properties.getProperty("setup.coordinatetype");
 				}
 
-				if (properties.getProperty("portal.protobuf.hostname") != null) {
-					cmdLineParameters.protobufHostname = properties.getProperty("portal.protobuf.hostname");
-					hasProtobufHostname = true;
+				if (properties.getProperty("setup.description") != null) {
+					cmdLineParameters.setupDescription = properties.getProperty("setup.description");
 				}
 
-				if (properties.getProperty("portal.protobuf.port") != null) {
-					cmdLineParameters.protobufPort = Integer.parseInt(properties.getProperty("portal.protobuf.port"));
-					hasProtobufPort = true;
+				if (properties.getProperty("setup.origin.x") != null) {
+					cmdLineParameters.setupOriginX = properties.getProperty("setup.origin.x");
 				}
 
-				if ((hasProtobufPort && !(hasProtobufHostname || hasProtobufIp)) || (hasProtobufIp && !hasProtobufPort) || (hasProtobufHostname && !hasProtobufPort)) {
-					throw new IllegalArgumentException("If portal.protobuf.port is specified exactly one of portal.protobuf.ip and portal.protobuf.hostname must be specified too.");
+				if (properties.getProperty("setup.origin.y") != null) {
+					cmdLineParameters.setupOriginY = properties.getProperty("setup.origin.y");
+				}
+
+				if (properties.getProperty("setup.origin.z") != null) {
+					cmdLineParameters.setupOriginZ = properties.getProperty("setup.origin.z");
+				}
+
+				if (properties.getProperty("setup.origin.phi") != null) {
+					cmdLineParameters.setupOriginPhi = properties.getProperty("setup.origin.phi");
+				}
+
+				if (properties.getProperty("setup.origin.theta") != null) {
+					cmdLineParameters.setupOriginTheta = properties.getProperty("setup.origin.theta");
 				}
 
 				cmdLineParameters.useAutodetection =
