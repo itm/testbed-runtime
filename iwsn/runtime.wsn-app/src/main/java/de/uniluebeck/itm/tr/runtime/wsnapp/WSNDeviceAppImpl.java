@@ -510,8 +510,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		@Override
 		public void receivedPacket(final MessagePacket p) {
 
-			if (nodeMessageListeners.size() == 0) {
-				log.debug("{} => No message listeners registered!", nodeUrn);
+			if (log.isDebugEnabled() && nodeMessageListeners.size() == 0) {
+				log.debug("{} => Received packet but no message listeners registered! Packet: {}", nodeUrn, p);
 				return;
 			}
 
