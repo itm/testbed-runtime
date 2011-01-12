@@ -86,7 +86,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 	} else {
 		nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
 	}
-	log.info("Retrieved the following node URNs: {}", nodeURNs);
+	log.info("Selected the following node URNs: {}", nodeURNs);
 
     log.info("Flashing nodes...");
 

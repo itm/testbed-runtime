@@ -84,6 +84,12 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			return false;
 		}
 
+		// if device was sleeping before reset we need to wait until flash memory has been started again
+		// so that reading the MAC address from flash does not fail
+		try {
+			Thread.sleep(100);
+		} catch (Exception e) {}
+
 		// Connection established, determine chip type
 		ChipType chipType = device.getChipType();
 		//log.debug("Chip type is " + chipType);
