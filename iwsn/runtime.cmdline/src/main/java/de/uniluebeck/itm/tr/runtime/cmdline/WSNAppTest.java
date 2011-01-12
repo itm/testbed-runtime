@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.runtime.cmdline;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.wsn.Constants;
@@ -164,7 +164,7 @@ public class WSNAppTest {
 			controller.addPendingRequest(requestId, 1, -1, 0);
 
 			ExecutorService executorService =
-					Executors.newFixedThreadPool(5, new NamingThreadFactory("WSNAppTest-Thread %d"));
+					Executors.newFixedThreadPool(5, new ThreadFactoryBuilder().setNameFormat("WSNAppTest-Thread %d").build());
 			List<Callable<Void>> callables = new ArrayList<Callable<Void>>(i * 100);
 
 			for (int j = 0; j < i * 100; j++) {

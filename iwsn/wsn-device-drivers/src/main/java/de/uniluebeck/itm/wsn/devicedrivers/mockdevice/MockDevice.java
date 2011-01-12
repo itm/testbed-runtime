@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.wsn.devicedrivers.mockdevice;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.FlashType;
@@ -141,7 +141,7 @@ public class MockDevice extends iSenseDeviceImpl {
 	 *
 	 */
 	private ScheduledExecutorService executorService =
-			Executors.newScheduledThreadPool(2, new NamingThreadFactory("MockDevice-Thread %d"));
+			Executors.newScheduledThreadPool(2, new ThreadFactoryBuilder().setNameFormat("MockDevice-Thread %d").build());
 
 	/**
 	 * Instantiates a new mock device with the given configuration.
@@ -278,8 +278,6 @@ public class MockDevice extends iSenseDeviceImpl {
 
 	public final static byte NODE_API_DESTROY_VIRTUAL_LINK = 31;
 
-	public final static byte COMMAND_SUCCESS = 0;
-
 	@Override
 	public void send(MessagePacket p) throws Exception {
 
@@ -299,7 +297,7 @@ public class MockDevice extends iSenseDeviceImpl {
 
 				byte[] replyArr = new byte[3];
 
-				if (messageType == NODE_API_DESTROY_VIRTUAL_LINK || messageType == NODE_API_SET_VIRTUAL_LINK) {
+				if (messageType == NODE_API_DESTROY_VIRTUAL_LINK || messageType == NODE_API_SET_VIRTUAL_LINK || messageType == NODE_API_VL_MESSAGE) {
 
 					if (messageType == NODE_API_SET_VIRTUAL_LINK) {
 
@@ -313,7 +311,7 @@ public class MockDevice extends iSenseDeviceImpl {
 						log.debug("Removing virtual link to node ID {}", destinationNode);
 						virtualLinks.remove(destinationNode);
 
-					} else if (messageType == NODE_API_VL_MESSAGE) {
+					} else {
 
 						log.debug("!!! Received virtual link message: {}", p);
 

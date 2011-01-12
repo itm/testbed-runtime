@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.common;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ class SchedulerServiceImpl implements SchedulerService {
 	@Override
 	public void start() throws Exception {
 
-		scheduler = Executors.newScheduledThreadPool(1, new NamingThreadFactory("SchedulerService-Thread %d"));
+		scheduler = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("SchedulerService-Thread %d").build());
 
 	}
 

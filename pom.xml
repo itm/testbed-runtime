@@ -285,11 +285,6 @@
                 <version>2.0</version>
             </dependency>
             <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>grapher</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>2.3.0</version>
@@ -317,7 +312,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>r05</version>
+                <version>r07</version>
             </dependency>
             <dependency>
                 <groupId>com.google.classpath-explorer</groupId>

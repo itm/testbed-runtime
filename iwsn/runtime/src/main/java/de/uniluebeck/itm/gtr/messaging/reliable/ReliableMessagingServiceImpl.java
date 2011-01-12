@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.reliable;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
@@ -72,7 +72,7 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 
 				if (!syncMapEntry.done) {
 
-					// depending on wether this is the reply of an asynchronous invocation or to a synchronous
+					// depending on whether this is the reply of an asynchronous invocation or to a synchronous
 					// invocation there's a different sync object in the map and we'll have to act accordingly
 
 					boolean asyncJob = syncMapEntry.syncObj instanceof AsyncCallback;
@@ -295,7 +295,7 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	public void start() throws Exception {
 
 		log.debug("ReliableMessagingServiceImpl.start");
-		scheduler = Executors.newScheduledThreadPool(1, new NamingThreadFactory("ReliableMessagingService-Thread %d"));
+		scheduler = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("ReliableMessagingService-Thread %d").build());
 		messageEventService.addListener(messageEventListener);
 
 	}

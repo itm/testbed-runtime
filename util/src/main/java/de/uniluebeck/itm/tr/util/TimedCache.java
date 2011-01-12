@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.util;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,13 +52,13 @@ public class TimedCache<K, V> implements Map<K, V> {
 	 * Constructs a {@link de.uniluebeck.itm.tr.util.TimedCache} instance with a default timeout of 30 minutes.
 	 */
 	public TimedCache() {
-		this(Executors.newSingleThreadScheduledExecutor(new NamingThreadFactory("TimedCache-Thread %d")),
+		this(Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("TimedCache-Thread %d").build()),
 				DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT
 		);
 	}
 
 	public TimedCache(int defaultTimeout, TimeUnit defaultTimeUnit) {
-		this(Executors.newSingleThreadScheduledExecutor(new NamingThreadFactory("TimedCache-Thread %d")),
+		this(Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("TimedCache-Thread %d").build()),
 				defaultTimeout, defaultTimeUnit
 		);
 	}
@@ -82,14 +82,15 @@ public class TimedCache<K, V> implements Map<K, V> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void run() {
 
-			V value = (V) TimedCache.this.remove(key);
+			V value = TimedCache.this.remove(key);
 
 			if (listener != null && value != null) {
 				Tuple<Long, TimeUnit> timeout = listener.timeout((K) key, value);
 				if (timeout != null) {
-					put((K) key, value, timeout.getFirst(), timeout.getSecond());
+					put( (K) key, value, timeout.getFirst(), timeout.getSecond());
 				}
 			}
 
@@ -169,6 +170,7 @@ public class TimedCache<K, V> implements Map<K, V> {
 		map.clear();
 	}
 
+	@SuppressWarnings("unused")
 	public Tuple<Long, TimeUnit> getDefaultTimeout() {
 		return new Tuple<Long, TimeUnit>(defaultTimeout, defaultTimeUnit);
 	}

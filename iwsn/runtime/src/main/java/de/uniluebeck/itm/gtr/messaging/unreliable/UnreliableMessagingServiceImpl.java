@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
@@ -106,7 +106,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 	private Thread dequeuingThread = new Thread(dequeuingRunnable, "UnreliableMessagingService-DequeuingThread");
 
-	private ExecutorService dispatcherThreads = Executors.newFixedThreadPool(1, new NamingThreadFactory("UnreliableMessagingService-DispatcherThread %d"));
+	private ExecutorService dispatcherThreads = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("UnreliableMessagingService-DispatcherThread %d").build());
 
 	/**
 	 * Runnable that is used by the dispatcher threads. A dispatcher thread
@@ -315,7 +315,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 		this.messageEventService = messageEventService;
 		this.messageCache = messageCache;
 		this.routingTableService = routingTableService;
-		this.localNodeNames = ImmutableSet.of(localNodeNames);
+		this.localNodeNames = ImmutableSet.copyOf(localNodeNames);
 
 	}
 

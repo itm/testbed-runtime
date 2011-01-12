@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
@@ -52,7 +52,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new NamingThreadFactory("InMemoryRSPersistence-Thread %d"));
+	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("InMemoryRSPersistence-Thread %d").build());
 
 	private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations = new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
 

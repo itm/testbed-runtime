@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.util.concurrent.NamingThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.*;
@@ -72,7 +72,7 @@ public class FederatorWSN implements WSN {
 			new TimedCache<String, WSN>(10, TimeUnit.MINUTES);
 
 	private final ScheduledExecutorService executorService =
-			Executors.newScheduledThreadPool(1, new NamingThreadFactory("FederatorWSN-Thread %d"));
+			Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("FederatorWSN-Thread %d").build());
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
@@ -397,11 +397,8 @@ public class FederatorWSN implements WSN {
 
 			ProgramWrapper that = (ProgramWrapper) o;
 
-			if (!hashCode.equals(that.hashCode)) {
-				return false;
-			}
+			return hashCode.equals(that.hashCode);
 
-			return true;
 		}
 
 		@Override
