@@ -24,6 +24,9 @@
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.jennic.FlashType;
@@ -34,10 +37,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author dp
@@ -56,22 +57,29 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	/** */
 	protected static final byte[] DLE_ETX = new byte[]{DLE, 0x03};
 
-	/** */
-	protected List<iSenseDeviceListener> promiscousListeners =
-			Collections.synchronizedList(new LinkedList<iSenseDeviceListener>());
+	/**
+	 * A list of listeners that get reported ALL traffic there is, not just individual packet types they registered for.
+	 * The list is immutable so that listeners can de-register themselves while being called, thereby not producing
+	 * {@link ConcurrentModificationException}s.
+	 */
+	protected ImmutableList<iSenseDeviceListener> promiscuousListeners = ImmutableList.of();
 
-	/** */
-	protected Map<Integer, List<iSenseDeviceListener>> listeners =
-			Collections.synchronizedMap(new HashMap<Integer, List<iSenseDeviceListener>>());
+	/**
+	 * Lock that has to be acquired if the promiscuousListeners variable is to be changed
+	 */
+	protected final Lock promiscuousListenersLock = new ReentrantLock();
 
-	/** */
-	protected ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
-		@Override
-		public Thread newThread(final Runnable r) {
-			return new Thread(r, "Device-Scheduler-Thread");
-		}
-	}
-	);
+	/**
+	 * A map that contains for each entry a list of listeners that registered themselves for a specific packet type.
+	 * The packet type is the key of the map. The lists inside are immutable so that listeners can de-register
+	 * themselves while being called, thereby not producing {@link ConcurrentModificationException}s.
+	 */
+	protected ImmutableMap<Integer, ImmutableList<iSenseDeviceListener>> listeners = ImmutableMap.of();
+
+	/**
+	 * Lock that has to be acquired if the listeners variable is to be changed
+	 */
+	protected final Lock listenersLock = new ReentrantLock();
 
 	/** */
 	protected int timeoutMillis = 2000;
@@ -126,131 +134,180 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	@Override
 	public void registerListener(iSenseDeviceListener listener) {
-		synchronized (promiscousListeners) {
-			promiscousListeners.add(listener);
-			if (log.isDebugEnabled()) {
-				log.debug("[{},{}] Added promiscous listener {}, now got {} listeners", new Object[]{
-						this.getClass().getSimpleName(),
-						getSerialPort(),
-						listener,
-						promiscousListeners.size()
-				}
-				);
-			}
+
+		try {
+			// acquire lock first so that we don't get any lost updates
+			promiscuousListenersLock.lock();
+
+			// copy all current listeners to new immutable list
+			ImmutableList<iSenseDeviceListener> newPromiscuousListeners =
+					ImmutableList.<iSenseDeviceListener>builder().addAll(promiscuousListeners).add(listener).build();
+
+			// exchange old and new list
+			promiscuousListeners = newPromiscuousListeners;
+
+		} finally {
+			promiscuousListenersLock.unlock();
 		}
 
+		// log the update
+		if (log.isDebugEnabled()) {
+			log.debug("[{},{}] Added promiscuous listener {}, now got {} listeners", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					listener,
+					promiscuousListeners.size()
+			}
+			);
+		}
 	}
 
 	@Override
 	public void deregisterListener(iSenseDeviceListener listener) {
 
-		synchronized (promiscousListeners) {
-			removeListenerInternal(promiscousListeners, listener);
-		}
-		synchronized (listeners) {
-			for (List<iSenseDeviceListener> ls : listeners.values()) {
-				removeListenerInternal(ls, listener);
+		try {
+
+			// acquire lock first so that we don't get any lost updates
+			promiscuousListenersLock.lock();
+
+			// copy all current listeners except the one to remove to new immutable list
+			ImmutableList.Builder<iSenseDeviceListener> newPromiscuousListenersBuilder = ImmutableList.builder();
+
+			for (iSenseDeviceListener promiscuousListener : promiscuousListeners) {
+				if (promiscuousListener != listener) {
+					newPromiscuousListenersBuilder.add(promiscuousListener);
+				}
 			}
+
+			// exchange old and new list
+			promiscuousListeners = newPromiscuousListenersBuilder.build();
+
+		} finally {
+			promiscuousListenersLock.unlock();
 		}
 
-
-	}
-
-	private void removeListenerInternal(List<iSenseDeviceListener> set, iSenseDeviceListener listener) {
-		Iterator<iSenseDeviceListener> iterator = set.iterator();
-		while (iterator.hasNext()) {
-			if (iterator.next() == listener) {
-				iterator.remove();
+		// log the update
+		if (log.isDebugEnabled()) {
+			log.debug("[{},{}] Removed promiscuous listener {}, now got {} listeners", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					listener,
+					promiscuousListeners.size()
 			}
+			);
 		}
-		log.debug("[{},{}] Removed listener {}, now got {} listeners", new Object[]{
-				this.getClass().getSimpleName(),
-				getSerialPort(),
-				listener,
-				set.size()
+
+		// de-register listener of all types he subscribed
+		for (Integer type : listeners.keySet()) {
+			deregisterListener(listener, type);
 		}
-		);
+
 	}
 
 	@Override
 	public void registerListener(iSenseDeviceListener listener, int type) {
-		synchronized (listeners) {
-			List<iSenseDeviceListener> s = listeners.get(type);
-			if (s == null) {
-				s = new LinkedList<iSenseDeviceListener>();
-				listeners.put(type, s);
+
+		try {
+
+			// acquire lock first so that we don't get any lost updates
+			listenersLock.lock();
+
+			ImmutableMap.Builder<Integer, ImmutableList<iSenseDeviceListener>> newMap = ImmutableMap.builder();
+
+			// copy all references of lists contained in the map to the new map but construct new list with listener
+			// to add if it's the same type (map key)
+			for (Map.Entry<Integer, ImmutableList<iSenseDeviceListener>> entry : listeners.entrySet()) {
+
+				if (entry.getKey() == type) {
+
+					// copy all current listeners into a new immutable list and add new listener
+					ImmutableList.Builder<iSenseDeviceListener> newListeners =
+							ImmutableList.<iSenseDeviceListener>builder().add(listener);
+
+					ImmutableList<iSenseDeviceListener> currentListeners = listeners.get(type);
+					if (currentListeners != null) {
+						newListeners.addAll(currentListeners);
+					}
+
+					// exchange old and new list
+					newMap.put(entry.getKey(), newListeners.build());
+
+				} else {
+					newMap.put(entry.getKey(), entry.getValue());
+				}
 			}
-			s.add(listener);
-			log.debug("[{},{}] Added listener {} for type {}, now got listeners", new Object[]{
+
+			// exchange old and new map
+			listeners = newMap.build();
+
+
+		} finally {
+			listenersLock.unlock();
+		}
+
+		// log the update
+		if (log.isDebugEnabled()) {
+			log.debug("[{},{}] Added listener {} for type {}, now got {} listeners", new Object[]{
 					this.getClass().getSimpleName(),
 					getSerialPort(),
 					listener,
 					type,
-					listeners.size()
+					this.listeners.get(type).size()
 			}
 			);
 		}
 	}
 
 	public void deregisterListener(iSenseDeviceListener listener, int type) {
-		synchronized (listeners) {
-			List<iSenseDeviceListener> s = listeners.get(type);
-			if (s == null) {
-				log.debug("[{},{}] Listener {} not registered for type {}", new Object[]{
-						this.getClass().getSimpleName(),
-						getSerialPort(),
-						listener,
-						type
-				}
-				);
-			} else {
-				s.remove(listener);
-				log.debug("[{},{}] Removed listener {} for type {}, now got {} listeners", new Object[]{
-						this.getClass().getSimpleName(),
-						getSerialPort(),
-						listener, type, listeners.size()
-				}
-				);
-			}
-		}
-	}
 
-	// ------------------------------------------------------------------------
-	// --
+		try {
 
-	/**
-	 * @param d
-	 */
-	public void copyListeners(iSenseDevice d) {
+			// acquire lock first so that we don't get any lost updates
+			listenersLock.lock();
 
-		List<iSenseDeviceListener> count = new LinkedList<iSenseDeviceListener>();
+			ImmutableMap.Builder<Integer, ImmutableList<iSenseDeviceListener>> newMap = ImmutableMap.builder();
 
-		// Register promiscous listeners
-		synchronized (promiscousListeners) {
-			for (iSenseDeviceListener l : promiscousListeners) {
-				d.registerListener(l);
-				count.add(l);
-			}
-		}
+			// copy all references of lists contained in the map to the new map but construct new list without
+			// listener to remove if it's the same type (map key)
+			for (Map.Entry<Integer, ImmutableList<iSenseDeviceListener>> entry : listeners.entrySet()) {
 
-		// Register other listeners
-		synchronized (listeners) {
-			for (Integer i : listeners.keySet()) {
-				for (iSenseDeviceListener l : listeners.get(i)) {
-					d.registerListener(l, i);
-					count.add(l);
+				if (entry.getKey() == type) {
+
+					// copy all current listeners except the one to remove into a new immutable list
+					ImmutableList.Builder<iSenseDeviceListener> newListeners = ImmutableList.builder();
+
+					for (iSenseDeviceListener currentListener : entry.getValue()) {
+						if (currentListener != listener) {
+							newListeners.add(currentListener);
+						}
+					}
+
+					// exchange old and new list
+					newMap.put(entry.getKey(), newListeners.build());
+
+				} else {
+					newMap.put(entry.getKey(), entry.getValue());
 				}
 			}
+
+			// exchange old and new map
+			listeners = newMap.build();
+
+		} finally {
+			listenersLock.unlock();
 		}
 
-		log.debug("[{},{}] Copied {} unique listeners from {} to {}", new Object[]{
-				this.getClass().getSimpleName(),
-				getSerialPort(),
-				count.size(),
-				this,
-				d
+		// log the update
+		if (log.isDebugEnabled()) {
+			log.debug("[{},{}] Removed listener {} for type {}, now got {} listeners", new Object[]{
+					this.getClass().getSimpleName(),
+					getSerialPort(),
+					listener,
+					type,
+					listeners.get(type).size()
+			}
+			);
 		}
-		);
 	}
 
 	// ------------------------------------------------------------------------
@@ -313,7 +370,6 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/**
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract boolean reset() throws Exception;
@@ -324,7 +380,6 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/**
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract boolean enterProgrammingMode() throws Exception;
@@ -340,7 +395,6 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/**
 	 * @param sector
-	 *
 	 * @throws Exception
 	 */
 	public abstract void eraseFlash(Sectors.SectorIndex sector) throws Exception;
@@ -352,9 +406,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 * @param bytes
 	 * @param offset
 	 * @param len
-	 *
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract byte[] writeFlash(int address, byte bytes[], int offset, int len) throws Exception;
@@ -364,9 +416,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	/**
 	 * @param address
 	 * @param len
-	 *
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract byte[] readFlash(int address, int len) throws Exception;
@@ -375,7 +425,6 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/**
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract ChipType getChipType() throws Exception;
@@ -384,7 +433,6 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/**
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public abstract FlashType getFlashType() throws Exception;
@@ -416,29 +464,13 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			}
 		}
 
-		synchronized (promiscousListeners) {
-			for (final iSenseDeviceListener l : promiscousListeners) {
-				executor.execute(new Runnable() {
-					@Override
-					public void run() {
-						l.operationDone(op, result);
-					}
-				}
-				);
-			}
+		for (final iSenseDeviceListener l : promiscuousListeners) {
+			l.operationDone(op, result);
 		}
 
-		synchronized (listeners) {
-			for (List<iSenseDeviceListener> ls : listeners.values()) {
-				for (final iSenseDeviceListener l : ls) {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() {
-							l.operationDone(op, result);
-						}
-					}
-					);
-				}
+		for (List<iSenseDeviceListener> ls : listeners.values()) {
+			for (final iSenseDeviceListener l : ls) {
+				l.operationDone(op, result);
 			}
 		}
 
@@ -460,29 +492,13 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			);
 		}
 
-		synchronized (promiscousListeners) {
-			for (final iSenseDeviceListener l : promiscousListeners) {
-				executor.execute(new Runnable() {
-					@Override
-					public void run() {
-						l.operationCanceled(op.getOperation());
-					}
-				}
-				);
-			}
+		for (final iSenseDeviceListener l : promiscuousListeners) {
+			l.operationCanceled(op.getOperation());
 		}
 
-		synchronized (listeners) {
-			for (List<iSenseDeviceListener> ls : listeners.values()) {
-				for (final iSenseDeviceListener l : ls) {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() {
-							l.operationCanceled(op.getOperation());
-						}
-					}
-					);
-				}
+		for (List<iSenseDeviceListener> ls : listeners.values()) {
+			for (final iSenseDeviceListener l : ls) {
+				l.operationCanceled(op.getOperation());
 			}
 		}
 
@@ -504,29 +520,13 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			);
 		}
 
-		synchronized (promiscousListeners) {
-			for (final iSenseDeviceListener l : promiscousListeners) {
-				executor.execute(new Runnable() {
-					@Override
-					public void run() {
-						l.operationProgress(op, fraction);
-					}
-				}
-				);
-			}
+		for (final iSenseDeviceListener l : promiscuousListeners) {
+			l.operationProgress(op, fraction);
 		}
 
-		synchronized (listeners) {
-			for (List<iSenseDeviceListener> ls : listeners.values()) {
-				for (final iSenseDeviceListener l : ls) {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() {
-							l.operationProgress(op, fraction);
-						}
-					}
-					);
-				}
+		for (List<iSenseDeviceListener> ls : listeners.values()) {
+			for (final iSenseDeviceListener l : ls) {
+				l.operationProgress(op, fraction);
 			}
 		}
 
@@ -638,11 +638,11 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 						// Copy them into a buffer with correct length
 						byte[] buffer = new byte[packetLength];
 						System.arraycopy(packet, 0, buffer, 0, packetLength);
-						
+
 						MessagePacket p = new MessagePacket(PacketTypes.LOG, buffer);
 						notifyReceivePacket(p);
 					}
-						
+
 				}
 			}
 
@@ -692,29 +692,14 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	public void notifyReceivePacket(final MessagePacket p) {
 
-		synchronized (promiscousListeners) {
-			for (final iSenseDeviceListener l : promiscousListeners) {
-				executor.execute(new Runnable() {
-					@Override
-					public void run() {
-						l.receivePacket(p);
-					}
-				});
-			}
+		for (final iSenseDeviceListener l : promiscuousListeners) {
+			l.receivePacket(p);
 		}
 
-		synchronized (listeners) {
-			List<iSenseDeviceListener> ls = this.listeners.get(p.getType());
-			if (ls != null) {
-				for (final iSenseDeviceListener l : ls) {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() {
-							l.receivePacket(p);
-						}
-					}
-					);
-				}
+		List<iSenseDeviceListener> ls = this.listeners.get(p.getType());
+		if (ls != null) {
+			for (final iSenseDeviceListener l : ls) {
+				l.receivePacket(p);
 			}
 		}
 	}
@@ -732,16 +717,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			);
 		}
 
-		synchronized (promiscousListeners) {
-			for (final iSenseDeviceListener l : promiscousListeners) {
-				executor.execute(new Runnable() {
-					@Override
-					public void run() {
-						l.receivePlainText(p);
-					}
-				}
-				);
-			}
+		for (final iSenseDeviceListener l : promiscuousListeners) {
+			l.receivePlainText(p);
 		}
 
 	}
