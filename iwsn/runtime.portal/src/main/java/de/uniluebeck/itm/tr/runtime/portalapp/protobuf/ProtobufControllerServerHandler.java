@@ -126,7 +126,10 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	public void stop() {
 		log.debug("Stopping ProtobufControllerHandler for channel {}...", channel);
-		channel.close();
+		// if the channel object is null it has already been closed
+		if (channel != null) {
+			channel.close();
+		}
 	}
 
 	public String getSecretReservationKey() {
