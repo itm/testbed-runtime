@@ -125,6 +125,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	}
 
 	public void stop() {
+		log.debug("Stopping ProtobufControllerHandler for channel {}...", channel);
 		channel.close();
 	}
 

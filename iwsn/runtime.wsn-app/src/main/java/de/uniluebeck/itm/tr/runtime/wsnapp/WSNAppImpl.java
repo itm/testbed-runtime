@@ -150,6 +150,8 @@ class WSNAppImpl implements WSNApp {
 	@Override
 	public void stop() {
 
+		log.debug("Stopping WSNApp...");
+
 		// stop sending 'register'-messages to node counterpart
 		registerNodeMessageReceiverFuture.cancel(false);
 

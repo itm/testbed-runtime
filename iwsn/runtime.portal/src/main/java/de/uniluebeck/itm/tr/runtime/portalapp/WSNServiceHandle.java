@@ -118,17 +118,21 @@ public class WSNServiceHandle implements Service {
 	public void stop() {
 		try {
 			wsnService.stop();
-		} catch (Exception e) {
-			log.warn("" + e, e);
+		} catch (Throwable e) {
+			if (e instanceof NullPointerException) {
+				// ignore as it is well-known and an error in the jre library
+			} else {
+				log.warn("" + e, e);
+			}
 		}
 		try {
 			wsnApp.stop();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
 		try {
 			protobufControllerServer.stopHandlers(null);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
 	}
