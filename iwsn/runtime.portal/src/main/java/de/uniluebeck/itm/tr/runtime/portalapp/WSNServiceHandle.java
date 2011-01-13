@@ -131,7 +131,7 @@ public class WSNServiceHandle implements Service {
 			log.warn("" + e, e);
 		}
 		try {
-			protobufControllerServer.stopHandlers(null);
+			protobufControllerServer.stopHandlers(secretReservationKey);
 		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
