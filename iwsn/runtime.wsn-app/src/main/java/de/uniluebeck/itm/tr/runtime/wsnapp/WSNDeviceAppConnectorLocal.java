@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -58,7 +59,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		implements WSNDeviceAppConnector {
 
 	enum State {
-
 		DISCONNECTED, READY, OPERATION_RUNNING
 	}
 
@@ -99,13 +99,17 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		private int flashCount;
 
+		private final ScheduledFuture<?> flashTimeoutRunnable;
+
 		private final TimeDiff lastProgress = new TimeDiff(1500);
 
 		private FlashProgramCallback listener;
 
-		private FlashProgramListener(final FlashProgramCallback listener, int flashCount) {
+		private FlashProgramListener(final FlashProgramCallback listener, int flashCount,
+									 final ScheduledFuture<?> flashTimeoutRunnable) {
 			this.listener = listener;
 			this.flashCount = flashCount;
+			this.flashTimeoutRunnable = flashTimeoutRunnable;
 		}
 
 		@Override
@@ -123,6 +127,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			if (op == Operation.PROGRAM) {
 
+				flashTimeoutRunnable.cancel(true);
+
 				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
 				device.deregisterListener(FlashProgramListener.this);
 				state.setState(State.READY);
@@ -139,6 +145,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		public void operationDone(final Operation op, final Object result) {
 
 			if (op == Operation.PROGRAM) {
+
+				flashTimeoutRunnable.cancel(true);
 
 				if (result instanceof Exception) {
 					log.debug("{} => Failed flashing node. Reason: {}", nodeUrn, result);
@@ -198,11 +206,14 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		private int resetCount;
 
+		private final ScheduledFuture<?> resetTimeoutRunnableFuture;
+
 		private Callback listener;
 
-		private ResetListener(Callback listener, int resetCount) {
+		private ResetListener(Callback listener, int resetCount, final ScheduledFuture<?> resetTimeoutRunnableFuture) {
 			this.listener = listener;
 			this.resetCount = resetCount;
+			this.resetTimeoutRunnableFuture = resetTimeoutRunnableFuture;
 		}
 
 		@Override
@@ -219,6 +230,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		public void operationCanceled(final Operation op) {
 
 			if (op == Operation.RESET) {
+
+				resetTimeoutRunnableFuture.cancel(true);
 
 				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
 				device.deregisterListener(this);
@@ -238,6 +251,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		public void operationDone(final Operation op, final Object result) {
 
 			if (op == Operation.RESET) {
+
+				resetTimeoutRunnableFuture.cancel(true);
 
 				if (result instanceof Exception) {
 					log.debug("{} => Failed resetting node. Reason: {}", nodeUrn, result);
@@ -667,7 +682,31 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		}
 
 		flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
-		FlashProgramListener flashListener = new FlashProgramListener(listener, flashCount);
+
+		// bugfix for:
+		// https://www.itm.uni-luebeck.de/projects/testbed-runtime/ticket/14
+		// https://www.itm.uni-luebeck.de/projects/testbed-runtime/ticket/134
+
+		// it seems the driver "hangs up" sometimes so the listener doesn't get called. to make sure we can go on
+		// with our work whatsoever schedule a task that the state is set back from OPERATION_RUNNING to READY
+		// and to cancel running operations if there are any
+
+		// this task should only execute if the flashListener was not called through the device driver
+		ScheduledFuture<?> flashTimeoutRunnable = schedulerService.schedule(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					device.cancelOperation(Operation.WRITE_FLASH);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+				state.setState(State.READY);
+			}
+		}, 90, TimeUnit.SECONDS
+		);
+		// end bugfix
+
+		FlashProgramListener flashListener = new FlashProgramListener(listener, flashCount, flashTimeoutRunnable);
 		device.registerListener(flashListener);
 
 		try {
@@ -719,10 +758,25 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			String msg = "There's an operation (flashProgram or resetNode) running currently. Please try again later.";
 			log.warn("{} => {}", nodeUrn, msg);
 			listener.failure((byte) 0, msg.getBytes());
+			return;
 		}
 
 		resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
-		ResetListener resetListener = new ResetListener(listener, resetCount);
+
+		ScheduledFuture<?> resetTimeoutRunnableFuture = schedulerService.schedule(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					device.cancelOperation(Operation.RESET);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+				state.setState(State.READY);
+			}
+		}, 3, TimeUnit.SECONDS
+		);
+
+		ResetListener resetListener = new ResetListener(listener, resetCount, resetTimeoutRunnableFuture);
 		device.registerListener(resetListener);
 
 		try {

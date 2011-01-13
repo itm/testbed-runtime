@@ -162,7 +162,6 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		try {
 			if (programFlash() && program != null) {
 				operationDone(program);
-				System.out.println("ready");
 				return;
 			}
 		} catch (Throwable t) {
