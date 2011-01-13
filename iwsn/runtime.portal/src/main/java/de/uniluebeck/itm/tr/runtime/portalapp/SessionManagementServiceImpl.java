@@ -77,8 +77,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		public void run() {
 			try {
 				free(secretReservationKeys);
-			} catch (ExperimentNotRunningException_Exception e) {
-				log.error(e.getMessage(), e);
+			} catch (ExperimentNotRunningException_Exception expected) {
+				// if user called free before this is expected
 			} catch (UnknownReservationIdException_Exception e) {
 				log.error(e.getMessage(), e);
 			}
@@ -258,6 +258,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		// extract the one and only relevant secretReservationKey
 		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
 
+		log.debug("SessionManagementServiceImpl.getInstance({})", secretReservationKey);
+
 		// check if wsnInstance already exists and return it if that's the case
 		WSNServiceHandle wsnServiceHandleInstance;
 		synchronized (wsnInstances) {
@@ -391,6 +393,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		// extract the one and only relevant secret reservation key
 		String secretReservationKey = secretReservationKeyList.get(0).getSecretReservationKey();
+
+		log.debug("SessionManagementServiceImpl.free({})", secretReservationKey);
 
 		synchronized (wsnInstances) {
 
