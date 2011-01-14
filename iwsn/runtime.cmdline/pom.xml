@@ -59,6 +59,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.runtime.socket-connector</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.runtime.stats</artifactId>
+		</dependency>
 
 		<!--
 		<dependency>
