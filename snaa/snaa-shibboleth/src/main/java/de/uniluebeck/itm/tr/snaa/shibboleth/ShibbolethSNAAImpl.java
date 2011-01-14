@@ -26,9 +26,9 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import com.google.inject.Injector;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
-import eu.wisebed.shibboauth.ShibbolethAuthenticator;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.v1.*;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,131 +39,149 @@ import java.util.*;
 
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort",
+		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class ShibbolethSNAAImpl implements SNAA {
 
-    private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
-    protected Set<String> urnPrefixes;
+	protected Set<String> urnPrefixes;
 
-    protected String secretAuthenticationKeyUrl;
+	protected String secretAuthenticationKeyUrl;
 
-    protected IUserAuthorization authorization;
+	protected IUserAuthorization authorization;
 
-    private Injector injector;
+	private Injector injector;
 
-    private ShibbolethProxy proxy;
+	private ShibbolethProxy proxy;
 
-    /**
-     * @param urnPrefixes
-     * @param secretAuthenticationKeyUrl
-     * @param injector
-     */
-    public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl, IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
-        this.urnPrefixes = new HashSet<String>(urnPrefixes);
-        this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
-        this.authorization = authorization;
-        this.injector = injector;
-        this.proxy = proxy;
-    }
+	/**
+	 * @param urnPrefixes
+	 * @param secretAuthenticationKeyUrl
+	 * @param injector
+	 */
+	public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl,
+							  IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
+		this.urnPrefixes = new HashSet<String>(urnPrefixes);
+		this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
+		this.authorization = authorization;
+		this.injector = injector;
+		this.proxy = proxy;
+	}
 
-    @Override
-    public List<SecretAuthenticationKey> authenticate(
-            @WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-            throws AuthenticationExceptionException, SNAAExceptionException {
+	@Override
+	public List<SecretAuthenticationKey> authenticate(
+			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+			throws AuthenticationExceptionException, SNAAExceptionException {
 
-        HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
-        log.debug("Starting for " + authenticationData.size() + " urns.");
+		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
+		log.debug("Starting for " + authenticationData.size() + " urns.");
 
-        assertMinAuthenticationCount(authenticationData, 1);
-        assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
+		assertMinAuthenticationCount(authenticationData, 1);
+		assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
 
-        for (AuthenticationTriple triple : authenticationData) {
-            IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-            String urn = triple.getUrnPrefix();
+		for (AuthenticationTriple triple : authenticationData) {
+			IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
+			String urn = triple.getUrnPrefix();
 
-            try {
+			try {
 
-                sa.setUsernameAtIdpDomain(triple.getUsername());
-                sa.setPassword(triple.getPassword());
-                sa.setUrl(secretAuthenticationKeyUrl);
-                if (proxy != null){
-                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
-                }
-                sa.authenticate();
+				sa.setUsernameAtIdpDomain(triple.getUsername());
+				sa.setPassword(triple.getPassword());
+				sa.setUrl(secretAuthenticationKeyUrl);
+				if (proxy != null) {
+					sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+				}
 
-                if (sa.isAuthenticated()) {
-                    SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-                    secretAuthKey.setSecretAuthenticationKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
-                    secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
-                    secretAuthKey.setUsername(triple.getUsername());
-                    keys.add(secretAuthKey);
-                } else {
-                    throw createAuthenticationException("Authentication for urn[" + urn + "] and user["
-                            + triple.getUsername() + " failed.");
-                }
+				try {
+					sa.authenticate();
+				} catch (ClientProtocolException e) {
+					// catch this exception as it usually means that the shibboleth server had a problem
+					// wait a short amount of time and try again
+					Thread.sleep(1000);
+					try {
+						sa.authenticate();
+					} catch (Exception e1) {
+						createSNAAException("Authentication failed: the authentication system has problems "
+										+ "contacting the Shibboleth server. Please try again later!");
+					}
+				}
 
-            } catch (Exception e) {
-                throw createSNAAException("Authentication failed :" + e);
-            }
+				if (sa.isAuthenticated()) {
+					SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
+					secretAuthKey
+							.setSecretAuthenticationKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
+					secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
+					secretAuthKey.setUsername(triple.getUsername());
+					keys.add(secretAuthKey);
+				} else {
+					throw createAuthenticationException("Authentication for urn[" + urn + "] and user["
+							+ triple.getUsername() + " failed."
+					);
+				}
 
-        }
+			} catch (Exception e) {
+				throw createSNAAException("Authentication failed :" + e);
+			}
 
-        log.debug("Done, returning " + keys.size() + " secret authentication key(s).");
-        return new ArrayList<SecretAuthenticationKey>(keys);
+		}
 
-    }
+		log.debug("Done, returning " + keys.size() + " secret authentication key(s).");
+		return new ArrayList<SecretAuthenticationKey>(keys);
 
-    @Override
-    public boolean isAuthorized(
-            @WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-            @WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	}
 
-        boolean authorized = true;
-        String logInfo = "Done checking authorization, result: ";
-        Map<String, List<Object>> authorizeMap = null;
+	@Override
+	public boolean isAuthorized(
+			@WebParam(name = "authenticationData", targetNamespace = "")
+			List<SecretAuthenticationKey> authenticationData,
+			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
 
-        // Check if we serve all URNs
-        assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
+		boolean authorized = true;
+		String logInfo = "Done checking authorization, result: ";
+		Map<String, List<Object>> authorizeMap = null;
 
-        // Check if we have all SecretAuthenticationKeys as sessions
-        for (SecretAuthenticationKey key : authenticationData) {
+		// Check if we serve all URNs
+		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
 
-            //check if authorized
-            try {
-                IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-                sa.setUsernameAtIdpDomain(key.getUsername());
-                sa.setUrl(secretAuthenticationKeyUrl);
-                if (proxy != null){
-                    sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
-                }
-                
-                //check authorization
-                List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-                log.info("De-serialization successfully done.");
-                authorizeMap = sa.isAuthorized(cookies);
+		// Check if we have all SecretAuthenticationKeys as sessions
+		for (SecretAuthenticationKey key : authenticationData) {
 
-                if (authorizeMap == null){
-                    authorized = false;
-                    log.debug(logInfo + "false");
-                    return authorized;
-                }
+			//check if authorized
+			try {
+				IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
+				sa.setUsernameAtIdpDomain(key.getUsername());
+				sa.setUrl(secretAuthenticationKeyUrl);
+				if (proxy != null) {
+					sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
+				}
 
-                //create Authorization from map
-                IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
-                details.setUsername(key.getUsername());                
-                details.setUserDetails(authorizeMap);
+				//check authorization
+				List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
+				log.info("De-serialization successfully done.");
+				authorizeMap = sa.isAuthorized(cookies);
 
-                authorized = authorization.isAuthorized(action, details);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                throw createSNAAException("Authorization failed :" + e);
-            }
-        }
+				if (authorizeMap == null) {
+					authorized = false;
+					log.debug(logInfo + "false");
+					return authorized;
+				}
 
-        log.debug(logInfo + authorized);
-        return authorized;
+				//create Authorization from map
+				IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
+				details.setUsername(key.getUsername());
+				details.setUserDetails(authorizeMap);
 
-    }
+				authorized = authorization.isAuthorized(action, details);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				throw createSNAAException("Authorization failed :" + e);
+			}
+		}
+
+		log.debug(logInfo + authorized);
+		return authorized;
+
+	}
 
 }
