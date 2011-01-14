@@ -38,8 +38,8 @@ import com.google.common.collect.*;
     String rsEndpointURL				= System.getProperty("testbed.rs.endpointurl");
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 
+	Integer offset						= System.getProperty("testbed.offset") == null || "".equals(System.getProperty("testbed.offset")) ? 0 : Integer.parseInt(System.getProperty("testbed.offset"));
 	Integer duration					= Integer.parseInt(System.getProperty("testbed.duration"));
-
 	String nodeURNs						= System.getProperty("testbed.nodeurns");
 
 	// Retrieve Java proxies of the endpoint URLs above
@@ -90,7 +90,7 @@ import com.google.common.collect.*;
 	// create reservation request data to reserve all iSense nodes for 10 minutes
 	ConfidentialReservationData reservationData = helper.generateConfidentialReservationData(
 			nodeURNsToReserve,
-			new Date(), duration, TimeUnit.MINUTES,
+			new Date(System.currentTimeMillis() + (offset*60*1000)), duration, TimeUnit.MINUTES,
 			urnPrefix, username
 	);
 
