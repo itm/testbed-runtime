@@ -28,6 +28,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.exceptions.FileLoadException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.BinFileDataBlock;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.IDeviceBinFile;
+import org.jboss.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,7 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param binFile
+	 *
 	 * @throws FileLoadException
 	 */
 	public JennicBinFile(File binFile) throws Exception {
@@ -94,6 +96,7 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Constructor
 	 *
 	 * @param filename
+	 *
 	 * @throws FileLoadException
 	 */
 	public JennicBinFile(String filename) throws Exception {
@@ -156,6 +159,7 @@ public class JennicBinFile implements IDeviceBinFile {
 	 * Insert flash header of a jennic device into bin file.
 	 *
 	 * @param b
+	 *
 	 * @return
 	 */
 	public boolean insertHeader(byte[] b) {
@@ -163,13 +167,18 @@ public class JennicBinFile implements IDeviceBinFile {
 		int headerStart = ChipType.getHeaderStart(chipType);
 		int headerLength = ChipType.getHeaderLength(chipType);
 
-		if (checkForID(b) == false){
-			log.error("Empty chip ID:"+StringUtils.toHexString(b)+" set correct ID");
-			return false;
+		if (checkForID(b) == false) {
+			if (log.isErrorEnabled()) {
+				log.error("Empty chip ID: {}", StringUtils.toHexString(b));
+			}
+			throw new RuntimeException("Could not read MAC address of sensor node. Read value: " + StringUtils.toHexString(b));
 		}
-		
+
 		if (headerStart >= 0 && headerLength > 0) {
-			log.debug("Writing header for chip type " + chipType + ": " + headerLength + "bytes @ " + headerStart +" header="+StringUtils.toHexString(b));
+			log.debug("Writing header for chip type {}: {} bytes @ header={}", new Object[]{
+					chipType, headerLength, headerStart, StringUtils.toHexString(b)
+			}
+			);
 			insertAt(headerStart, headerLength, b);
 			return true;
 		}
@@ -177,11 +186,13 @@ public class JennicBinFile implements IDeviceBinFile {
 		log.error("Unknown chip type of file " + description);
 		return false;
 	}
-	
+
 	private boolean checkForID(byte[] b) {
-		for (int i = 0; i < b.length; i++)
-			if (b[i] != -1)
+		for (int i = 0; i < b.length; i++) {
+			if (b[i] != -1) {
 				return true;
+			}
+		}
 		return false;
 	}
 

@@ -64,6 +64,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 	 *
 	 */
 	private boolean programFlash() throws Exception {
+
 		JennicBinFile jennicProgram = null;
 
 		// Enter programming mode
@@ -84,12 +85,6 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			return false;
 		}
 
-		// if device was sleeping before reset we need to wait until flash memory has been started again
-		// so that reading the MAC address from flash does not fail
-		try {
-			Thread.sleep(100);
-		} catch (Exception e) {}
-
 		// Connection established, determine chip type
 		ChipType chipType = device.getChipType();
 		//log.debug("Chip type is " + chipType);
@@ -102,11 +97,17 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 		// insert flash header of device
 		try {
+
 			jennicProgram = (JennicBinFile) program;
-			if (!jennicProgram.insertHeader(device.getFlashHeader())) {
+
+			boolean insertedHeader = false;
+			try {
+				insertedHeader = jennicProgram.insertHeader(device.getFlashHeader());
+			} catch (Exception e) {
 				log.error("Unable to write flash header to binary file.");
-				return false;
+				throw e;
 			}
+
 		} catch (ClassCastException e) {
 			log.error("Supplied binary file for programming the jennic device was not a jennic file. Unable to insert flash header.");
 			return false;
