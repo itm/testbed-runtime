@@ -100,9 +100,11 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 			jennicProgram = (JennicBinFile) program;
 
-			boolean insertedHeader = false;
 			try {
-				insertedHeader = jennicProgram.insertHeader(device.getFlashHeader());
+				if (!jennicProgram.insertHeader(device.getFlashHeader())) {
+					log.error("Unable to write flash header to binary file.");
+					throw new RuntimeException("Unable to write flash header to binary file.");
+				}
 			} catch (Exception e) {
 				log.error("Unable to write flash header to binary file.");
 				throw e;
