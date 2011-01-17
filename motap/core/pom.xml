@@ -8,13 +8,12 @@
 	<parent>
 		<groupId>de.rwglab</groupId>
 		<artifactId>motap</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.5.5-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
 	<groupId>de.rwglab</groupId>
 	<artifactId>motap-core</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<name>MOTAP :: Core Library</name>
 
 	<dependencies>
@@ -35,16 +34,15 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-ext-jdk16</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-device-drivers</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-device-drivers</artifactId>
-			<version>0.5.4-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
