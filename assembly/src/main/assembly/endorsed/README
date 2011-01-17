@@ -1,0 +1,10 @@
+This directory contains libraries and dependencies of the JAX-WS RI ("Metro")
+Web Service stack in version 2.2.1. As only 2.1.x is part of the JRE / JDK 6
+in the current version we need to use the endorsed libraries mechanism to use
+a newer version. Using this newer version got necessary because of a bug in
+the JDK version that could not use the http.keepAlive property correctly when
+delivering messages to the client (see [1]). The java endorsed library
+mechanism must be used and pointed to this directy in order for Testbed
+Runtime to work properly.
+
+[1] https://www.itm.uni-luebeck.de/projects/testbed-runtime/ticket/142
