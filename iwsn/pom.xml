@@ -29,14 +29,14 @@
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
         <artifactId>tr</artifactId>
-        <version>0.5.5</version>
+        <version>0.5.5-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
     <groupId>de.uniluebeck.itm</groupId>
     <artifactId>tr.iwsn</artifactId>
     <packaging>pom</packaging>
-    <version>0.5.5</version>
+    <version>0.5.5-SNAPSHOT</version>
     <name>TR :: iWSN</name>
 
     <modules>
