@@ -21,6 +21,10 @@ MAILING LIST
   You can also visit the mailing list archives at [4]. Community and developer support  will
   be preferably given through this list.
 
+BINARY DOWNLOADS
+
+  Please see the projects wiki and ticket system [3] for binary downloads.
+
 BUILDING
 
   Testbed Runtime is based on the Apache Maven 2 [2] build system. Clone the project and
