@@ -143,7 +143,7 @@ public class WisebedBeanShellClient {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(WisebedBeanShellClient.class.getCanonicalName(), options);
+		formatter.printHelp(120, WisebedBeanShellClient.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

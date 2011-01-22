@@ -47,11 +47,10 @@ public class DeviceListenerCLI {
 
 	/**
 	 * @param args
-	 * @param Writer
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static void main(String[] args, Object Writer) throws InterruptedException, IOException {
+	public static void main(String[] args) throws InterruptedException, IOException {
 
 		CommandLineParser parser = new PosixParser();
 		Options options = new Options();
@@ -65,7 +64,7 @@ public class DeviceListenerCLI {
 		options.addOption("h", "help", false, "Help output");
 
 		Logging.setLoggingDefaults();
-		
+
 		iSenseDevice device = null;
 		OutputStream outStream = System.out;
 		Writer outWriter;
@@ -126,12 +125,12 @@ public class DeviceListenerCLI {
 			while (System.in.available() <= 0) {
 				Thread.sleep(100);
 			}
-			
+
 			outStream.close();
 			outStream.flush();
 
 		} catch (Exception e) {
-			log.error("Invalid command line: " + e, e);
+			log.error("Invalid command line: " + e);
 			printUsageAndExit(options);
 		}
 
@@ -141,7 +140,7 @@ public class DeviceListenerCLI {
 
 	private static void printUsageAndExit(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(DeviceListenerCLI.class.getCanonicalName(), options);
+		formatter.printHelp(120, DeviceListenerCLI.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 }

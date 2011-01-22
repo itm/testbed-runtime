@@ -695,7 +695,7 @@ public class CSV2Config {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(CSV2Config.class.getCanonicalName(), options);
+		formatter.printHelp(120, CSV2Config.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

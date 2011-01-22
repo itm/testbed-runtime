@@ -126,7 +126,7 @@ public class AbstractOtapCLI {
 	}
 
 	protected void usage(Options options) {
-		new HelpFormatter().printHelp(this.getClass().getCanonicalName(), options);
+		new HelpFormatter().printHelp(120, this.getClass().getCanonicalName(), null, options, null);
 	}
 
 }

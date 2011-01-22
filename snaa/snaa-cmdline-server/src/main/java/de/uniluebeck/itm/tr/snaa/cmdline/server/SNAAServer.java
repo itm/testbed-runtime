@@ -357,7 +357,7 @@ public class SNAAServer {
 
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("de.uniluebeck.itm.tr.snaa.cmdline.Main", options);
+        formatter.printHelp(120, SNAAServer.class.getCanonicalName(), null, options, null);
         System.exit(1);
     }
 

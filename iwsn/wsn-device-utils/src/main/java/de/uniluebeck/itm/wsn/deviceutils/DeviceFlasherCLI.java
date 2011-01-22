@@ -16,9 +16,9 @@ import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeviceUtilsCLI {
+public class DeviceFlasherCLI {
 
-	private static final Logger log = LoggerFactory.getLogger(DeviceUtilsCLI.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceFlasherCLI.class);
 
 	public static void main(String[] args) throws Exception {
 
@@ -26,10 +26,10 @@ public class DeviceUtilsCLI {
 
 		if (args.length < 3) {
 			System.out.println(
-					"Usage: " + DeviceUtilsCLI.class.getSimpleName() + " SENSOR_TYPE SERIAL_PORT IMAGE_FILE"
+					"Usage: " + DeviceFlasherCLI.class.getSimpleName() + " SENSOR_TYPE SERIAL_PORT IMAGE_FILE"
 			);
 			System.out.println(
-					"Example: " + DeviceUtilsCLI.class.getSimpleName() + " isense /dev/ttyUSB0 demoapplication.bin"
+					"Example: " + DeviceFlasherCLI.class.getSimpleName() + " isense /dev/ttyUSB0 demoapplication.bin"
 			);
 			System.exit(1);
 		}

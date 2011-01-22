@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +40,7 @@
 
 	<dependencies>
 
-        <dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-device-drivers</artifactId>
 		</dependency>
@@ -71,23 +72,90 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.1</version>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
+				<version>1.4.5</version>
 				<executions>
 					<execution>
+						<id>flash</id>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceFlasherCLI</mainClass>
+							<onejarVersion>0.97-RC10</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>onejar</classifier>
+							<filename>${project.artifactId}-${project.version}-flash.jar</filename>
+							<binlibs>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
+									<includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>listen</id>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceListenerCLI</mainClass>
+							<onejarVersion>0.97-RC10</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>onejar</classifier>
+							<filename>${project.artifactId}-${project.version}-listen.jar</filename>
+							<binlibs>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
+									<includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
 						<goals>
 							<goal>one-jar</goal>
 						</goals>

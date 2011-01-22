@@ -111,6 +111,6 @@ public class Server {
      */
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("de.uniluebeck.itm.tr.logcontroller.Server", options);
+        formatter.printHelp(120, Server.class.getCanonicalName(), null, options, null);
     }
 }
