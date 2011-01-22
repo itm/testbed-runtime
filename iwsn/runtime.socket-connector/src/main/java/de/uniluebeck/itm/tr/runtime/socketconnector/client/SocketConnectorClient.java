@@ -256,7 +256,7 @@ public class SocketConnectorClient {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(SocketConnectorClient.class.getCanonicalName(), options);
+		formatter.printHelp(120, SocketConnectorClient.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

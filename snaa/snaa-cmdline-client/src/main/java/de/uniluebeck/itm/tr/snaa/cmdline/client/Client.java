@@ -158,7 +158,7 @@ public class Client {
 
 	private static void printUsageAndExit(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("de.uniluebeck.itm.tr.snaa.cmdline.Main", options);
+		formatter.printHelp(120, Client.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

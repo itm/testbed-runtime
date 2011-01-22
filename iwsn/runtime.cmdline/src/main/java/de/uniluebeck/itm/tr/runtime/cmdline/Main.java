@@ -157,7 +157,7 @@ public class Main {
 
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(Main.class.getCanonicalName(), options);
+        formatter.printHelp(120, Main.class.getCanonicalName(), null, options, null);
         System.exit(1);
     }
 }
