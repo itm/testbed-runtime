@@ -73,20 +73,36 @@
 		<plugins>
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.4</version>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
+				<version>1.4.5</version>
 				<executions>
 					<execution>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.motelist.MoteListCLI</mainClass>
-							<onejarVersion>0.97-RC4</onejarVersion>
+							<onejarVersion>0.97-RC10</onejarVersion>
 							<binlibs>
 								<fileSet>
-									<directory>${project.basedir}/src/main/resources</directory>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux32</directory>
 									<includes>
 										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.jnilib</include>
 										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
 										<include>rxtxParallel.dll</include>
 										<include>rxtxSerial.dll</include>
 									</includes>
