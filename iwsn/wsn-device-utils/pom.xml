@@ -83,7 +83,7 @@
 							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceFlasherCLI</mainClass>
 							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
-							<classifier>onejar</classifier>
+							<classifier>flash</classifier>
 							<filename>${project.artifactId}-${project.version}-flash.jar</filename>
 							<binlibs>
 								<fileSet>
@@ -125,7 +125,7 @@
 							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceListenerCLI</mainClass>
 							<onejarVersion>0.97-RC10</onejarVersion>
 							<attachToBuild>true</attachToBuild>
-							<classifier>onejar</classifier>
+							<classifier>listen</classifier>
 							<filename>${project.artifactId}-${project.version}-listen.jar</filename>
 							<binlibs>
 								<fileSet>
