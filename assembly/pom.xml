@@ -34,7 +34,7 @@
 	</parent>
 
 	<artifactId>tr.assembly</artifactId>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 	<name>TR :: Assembly</name>
 	
 	<dependencies>
