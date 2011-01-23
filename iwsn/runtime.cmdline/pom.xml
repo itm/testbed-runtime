@@ -108,16 +108,17 @@
 			-->
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
-				<version>1.4.5</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.6</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
-							<onejarVersion>0.97-RC10</onejarVersion>
+							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
                             <!-- each architecture needs his own fileSet.
                             To seperate between architectures the last folder's name must be called like the architecture you want to use (linux32, macosx, windows64, ...).
                             To use the arm-architecture just simply add an arm- subfolder. (carefull: the libs of linux64 will be overwritten)
