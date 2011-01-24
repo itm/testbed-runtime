@@ -13,7 +13,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePlainText;
 
 public class HumanReadableWriter implements Writer {
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(HumanReadableWriter.class);
-
+	
 	private final BufferedWriter output;
 
 	public HumanReadableWriter(OutputStream out) {
@@ -25,8 +25,12 @@ public class HumanReadableWriter implements Writer {
 			output.write("Type[");
 			output.write(type);
 			output.write("]: ");
+			output.write(new String(content));
+			output.write(" [Hex: ");
 			output.write(StringUtils.toHexString(content));
+			output.write("]");
 			output.newLine();
+			output.flush();
 		} catch (IOException e) {
 			log.warn("Unable to write messge:" + e, e);
 		}
@@ -40,6 +44,11 @@ public class HumanReadableWriter implements Writer {
 	@Override
 	public void write(MessagePlainText packet) {
 		write("plaintext", packet.getContent());
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do
 	}
 
 }

@@ -5,8 +5,10 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePlainText;
 
 public interface Writer {
 
-	public abstract void write(MessagePacket packet);
+	public void write(MessagePacket packet);
 
-	public abstract void write(MessagePlainText packet);
+	public void write(MessagePlainText packet);
 
+	public void shutdown(); 
+	
 }

@@ -21,6 +21,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDevice;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDeviceListenerAdapter;
 import de.uniluebeck.itm.wsn.deviceutils.writers.CsvWriter;
 import de.uniluebeck.itm.wsn.deviceutils.writers.HumanReadableWriter;
+import de.uniluebeck.itm.wsn.deviceutils.writers.WiseMLWriter;
 import de.uniluebeck.itm.wsn.deviceutils.writers.Writer;
 
 public class DeviceListenerCLI {
@@ -56,7 +57,7 @@ public class DeviceListenerCLI {
 		Options options = new Options();
 		options.addOption("p", "port", true, "Serial port to use");
 		options.addOption("t", "type", true, "Device type");
-		options.addOption("f", "format", true, "Optional: Output format, options: csv");
+		options.addOption("f", "format", true, "Optional: Output format, options: csv, wiseml");
 		options.addOption("o", "outfile", true, "Optional: Redirect output to file");
 		options.addOption("v", "verbose", false, "Optional: Verbose logging output (equal to -l DEBUG)");
 		options.addOption("l", "logging", true, "Optional: Set logging level (one of [" + Level.TRACE + ","
@@ -110,6 +111,8 @@ public class DeviceListenerCLI {
 
 				if ("csv".equals(format)) {
 					outWriter = new CsvWriter(outStream);
+				} else if ("wiseml".equals(format)) {
+					outWriter = new WiseMLWriter(outStream, "node at " + line.getOptionValue('p'), true);
 				} else {
 					throw new Exception("Unknown format " + format);
 				}
@@ -126,6 +129,7 @@ public class DeviceListenerCLI {
 				Thread.sleep(100);
 			}
 
+			outWriter.shutdown();
 			outStream.close();
 			outStream.flush();
 
@@ -133,7 +137,6 @@ public class DeviceListenerCLI {
 			log.error("Invalid command line: " + e);
 			printUsageAndExit(options);
 		}
-
 
 		System.exit(0);
 	}
