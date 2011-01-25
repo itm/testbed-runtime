@@ -60,23 +60,18 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.4</version>
+				<version>1.4.6</version>
 				<executions>
 					<execution>
+						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.tr.iwsn.csv2config.CSV2Config</mainClass>
-							<onejarVersion>0.97-RC8</onejarVersion>
+							<onejarVersion>0.98-RC2</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>

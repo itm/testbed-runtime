@@ -185,7 +185,7 @@ public class Federator {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(Federator.class.getCanonicalName(), options);
+		formatter.printHelp(120, Federator.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 
