@@ -119,7 +119,7 @@ public abstract class iSenseDeviceOperation extends Thread {
 	}
 
 	public void setLogIdentifier(String logIdentifier) {
-		this.logIdentifier = logIdentifier.endsWith(" ") ? logIdentifier : logIdentifier + " ";
+		this.logIdentifier = logIdentifier == null ? null : logIdentifier.endsWith(" ") ? logIdentifier : logIdentifier + " ";
 	}
 
 	protected void logDebug(String format, Object... args) {
