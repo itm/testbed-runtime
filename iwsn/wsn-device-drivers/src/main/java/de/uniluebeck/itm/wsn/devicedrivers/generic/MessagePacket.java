@@ -139,8 +139,8 @@ public class MessagePacket implements Message {
 		builder.append("],content(string)=\"");
 		if (type == PacketTypes.LOG && content.length > 1) {
 			builder.append(content[0] == PacketTypes.LogType.DEBUG ?
-					"DEBUG: " + new String(content, 1, content.length) :
-					"FATAL: " + new String(content, 1, content.length)
+					"DEBUG: " + new String(content, 1, content.length-1) :
+					"FATAL: " + new String(content, 1, content.length-1)
 			);
 		} else {
 			builder.append(new String(content));
