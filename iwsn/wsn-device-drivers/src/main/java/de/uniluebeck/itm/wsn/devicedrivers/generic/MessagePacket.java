@@ -137,7 +137,7 @@ public class MessagePacket implements Message {
 		builder.append(",content(hex)=[");
 		builder.append(StringUtils.toHexString(content));
 		builder.append("],content(string)=\"");
-		if (type == PacketTypes.LOG) {
+		if (type == PacketTypes.LOG && content.length > 1) {
 			builder.append(content[0] == PacketTypes.LogType.DEBUG ?
 					"DEBUG: " + new String(content, 1, content.length) :
 					"FATAL: " + new String(content, 1, content.length)
