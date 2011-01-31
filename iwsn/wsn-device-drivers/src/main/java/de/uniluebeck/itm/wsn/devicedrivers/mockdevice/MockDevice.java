@@ -61,11 +61,6 @@ public class MockDevice extends iSenseDeviceImpl {
 	/**
 	 *
 	 */
-	private static final Logger log = LoggerFactory.getLogger(MockDevice.class);
-
-	/**
-	 *
-	 */
 	private String nodeName;
 
 	private List<Long> virtualLinks = new ArrayList<Long>();
@@ -262,7 +257,7 @@ public class MockDevice extends iSenseDeviceImpl {
 				scheduleAliveRunnable();
 				scheduleVirtualLinkRunnable();
 			} catch (InterruptedException e) {
-				log.error("" + e, e);
+				logError("" + e, e);
 			}
 
 		}
@@ -284,7 +279,7 @@ public class MockDevice extends iSenseDeviceImpl {
 		// simulate WISELIB behaviour
 		if (p.getType() == MESSAGE_TYPE_WISELIB_DOWNSTREAM) {
 
-			log.debug("Received WISELIB downstream message: {}", p);
+			logDebug("Received WISELIB downstream message: {}", p);
 
 			byte[] payload = p.getContent();
 			ByteBuffer payloadBuff = ByteBuffer.wrap(p.getContent());
@@ -302,25 +297,25 @@ public class MockDevice extends iSenseDeviceImpl {
 					if (messageType == NODE_API_SET_VIRTUAL_LINK) {
 
 						replyArr[0] = NODE_API_SET_VIRTUAL_LINK;
-						log.debug("Adding virtual link to node ID {}", destinationNode);
+						logDebug("Adding virtual link to node ID {}", destinationNode);
 						virtualLinks.add(destinationNode);
 
 					} else if (messageType == NODE_API_DESTROY_VIRTUAL_LINK) {
 
 						replyArr[0] = NODE_API_DESTROY_VIRTUAL_LINK;
-						log.debug("Removing virtual link to node ID {}", destinationNode);
+						logDebug("Removing virtual link to node ID {}", destinationNode);
 						virtualLinks.remove(destinationNode);
 
 					} else {
 
-						log.debug("!!! Received virtual link message: {}", p);
+						logDebug("!!! Received virtual link message: {}", p);
 
 					}
 
 					replyArr[1] = requestId;
 					replyArr[2] = 0;
 					MessagePacket reply = new MessagePacket(MESSAGE_TYPE_WISELIB_UPSTREAM, replyArr);
-					log.debug("Replying with WISELIB upstream packet: {}", reply);
+					logDebug("Replying with WISELIB upstream packet: {}", reply);
 					notifyReceivePacket(reply);
 
 				}
@@ -364,7 +359,7 @@ public class MockDevice extends iSenseDeviceImpl {
 				try {
 					sleep(1000);
 				} catch (InterruptedException e) {
-					log.error("" + e, e);
+					logError("" + e, e);
 				}
 				MockDevice.this.operationProgress(Operation.PROGRAM, (float) i / (float) 100);
 
@@ -373,11 +368,11 @@ public class MockDevice extends iSenseDeviceImpl {
 			MockDevice.this.operationDone(Operation.PROGRAM, null);
 
 			if (MockDevice.this.rebootAfterFlashing) {
-				log.debug("Rebooting device");
+				logDebug("Rebooting device");
 				try {
 					MockDevice.this.reset();
 				} catch (Exception e) {
-					log.error("" + e, e);
+					logError("" + e, e);
 				}
 			}
 
@@ -389,7 +384,7 @@ public class MockDevice extends iSenseDeviceImpl {
 	public boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) throws Exception {
 		this.rebootAfterFlashing = rebootAfterFlashing;
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return false;
 		}
 		executorService.execute(new ProgramRunnable());
@@ -442,7 +437,7 @@ public class MockDevice extends iSenseDeviceImpl {
 
 		for (Long virtualLinkDestinationNode : virtualLinks) {
 
-			log.debug("Sending virtual link message to node ID {}", virtualLinkDestinationNode);
+			logDebug("Sending virtual link message to node ID {}", virtualLinkDestinationNode);
 
 			ByteBuffer bb = ByteBuffer.allocate(payload.length + 21);
 			bb.put((byte) 52);
@@ -469,7 +464,7 @@ public class MockDevice extends iSenseDeviceImpl {
 		System.arraycopy(msgBytes, 0, bytes, 2, msgBytes.length);
 
 		MessagePacket messagePacket = MessagePacket.parse(bytes, 0, bytes.length);
-		log.debug("Emitting textual log message packet: {}", messagePacket);
+		logDebug("Emitting textual log message packet: {}", messagePacket);
 		notifyReceivePacket(messagePacket);
 
 	}
@@ -478,7 +473,7 @@ public class MockDevice extends iSenseDeviceImpl {
 
 		MessagePacket messagePacket = new MessagePacket(binaryType, binaryData);
 
-		log.debug("Emitting binary data message packet: {}", messagePacket);
+		logDebug("Emitting binary data message packet: {}", messagePacket);
 		notifyReceivePacket(messagePacket);
 	}
 

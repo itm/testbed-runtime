@@ -30,9 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WriteMacAddressOperation extends iSenseDeviceOperation {
-	private static final Logger log = LoggerFactory.getLogger(WriteMacAddressOperation.class);
-
-	// -------------------------------------------------------------------------
 
 	/**
 	 *
@@ -48,7 +45,7 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	 */
 	public void run() {
 		//TODO Implement
-		log.warn("Not implemented");
+		logWarn("Not implemented");
 		operationDone(null);
 	}
 

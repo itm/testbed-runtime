@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class FlashReadOperation extends iSenseDeviceOperation {
-	// /Logging
-	private static final Logger log = LoggerFactory.getLogger(FlashReadOperation.class);
 
 	// /
 	private JennicDevice device;
@@ -65,18 +63,18 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 	private boolean readFlash() throws Exception {
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
-			log.error("Unable to enter programming mode");
+			logError("Unable to enter programming mode");
 			return false;
 		}
 
 		// Wait for a connection
 		while (!isCancelled() && !device.waitForConnection())
-			log.info("Still waiting for a connection");
+			logInfo("Still waiting for a connection");
 
 		// Return with success if the user has requested to cancel this
 		// operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -98,7 +96,7 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 					byte[] data = device.readFlash(sectorStart, length);
 					System.arraycopy(data, 0, flashData, sectorStart - startAddress, data.length);
 				} catch (Exception e) {
-					log.debug("Error while reading flash! Operation will be cancelled!");
+					logDebug("Error while reading flash! Operation will be cancelled!");
 					device.operationCancelled(this);
 					return false;
 				}
@@ -110,13 +108,11 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 				sectorStart += length;
 
 			}
-			if (log.isDebugEnabled()) {
-				log.debug("Done, result is: " + StringUtils.toHexString(flashData));
-			}
+			logDebug("Done, result is: " + StringUtils.toHexString(flashData));
 			result = flashData;
 			return true;
 		} catch (Exception e) {
-			log.error("Error while reading flash contents: " + e, e);
+			logError("Error while reading flash contents: " + e, e);
 			return false;
 		} finally {
 			device.leaveProgrammingMode();
@@ -136,7 +132,7 @@ public class FlashReadOperation extends iSenseDeviceOperation {
 				return;
 			}
 		} catch (Throwable t) {
-			log.error("Unhandled error in thread: " + t, t);
+			logError("Unhandled error in thread: " + t, t);
 		}
 
 		// Indicate failure

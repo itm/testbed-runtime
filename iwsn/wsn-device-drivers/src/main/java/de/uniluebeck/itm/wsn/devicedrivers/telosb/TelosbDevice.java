@@ -136,7 +136,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		}
 
 		if (!portFound) {
-			log.debug("Failed to connect to port '" + serialPortName
+			logDebug("Failed to connect to port '" + serialPortName
 					+ "': port does not exist."
 			);
 			connected = false;
@@ -153,12 +153,12 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 				portOpened = true;
 			} catch (PortInUseException e) {
 				if (tries < MAX_OPEN_PORT_RETRIES) {
-					log.debug("Port '" + serialPortName
+					logDebug("Port '" + serialPortName
 							+ "' is already in use, retrying to connect..."
 					);
 					portOpened = false;
 				} else {
-					log.debug("Port '" + serialPortName
+					logDebug("Port '" + serialPortName
 							+ "' is already in use, failed to connect."
 					);
 					connected = false;
@@ -169,7 +169,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 		// cancel if opened port is no serial port
 		if (!(commPort instanceof SerialPort)) {
-			log.debug("Com Port '" + serialPortName
+			logDebug("Com Port '" + serialPortName
 					+ "' is no serial port, will not connect."
 			);
 			connected = false;
@@ -183,7 +183,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			);
 			serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 		} catch (UnsupportedCommOperationException e) {
-			log.error("Failed to connect to port '" + serialPortName + "'. "
+			logError("Failed to connect to port '" + serialPortName + "'. "
 					+ e.getMessage(), e
 			);
 			connected = false;
@@ -199,7 +199,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 			bsl = new BSLTelosb(serialPort);
 		} catch (IOException e) {
-			log.error("Unable to get I/O streams of port " + serialPortName
+			logError("Unable to get I/O streams of port " + serialPortName
 					+ ", failed to connect.", e
 			);
 			connected = false;
@@ -209,7 +209,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		try {
 			serialPort.addEventListener(this);
 		} catch (TooManyListenersException e) {
-			log.error("Unable to register as event listener for serial port "
+			logError("Unable to register as event listener for serial port "
 					+ serialPortName, e
 			);
 			connected = false;
@@ -217,7 +217,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		}
 		serialPort.notifyOnDataAvailable(true);
 
-		log.debug("Device connected to serial port " + serialPort.getName());
+		logDebug("Device connected to serial port " + serialPort.getName());
 
 		connected = true;
 		return true;
@@ -229,7 +229,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 			IOException, FlashEraseFailedException,
 			UnexpectedResponseException, Exception {
 		if (log.isDebugEnabled()) {
-			log.debug("enterProgrammingMode()");
+			logDebug("enterProgrammingMode()");
 		}
 		this.setComPort(ComPortMode.Program);
 
@@ -253,7 +253,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("eraseFlash() (mass erase)");
+			logDebug("eraseFlash() (mass erase)");
 		}
 
 		// invoke boot loader
@@ -364,7 +364,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	@Override
 	public void leaveProgrammingMode() throws Exception {
 		if (log.isDebugEnabled()) {
-			log.debug("leaveProgrammingMode()");
+			logDebug("leaveProgrammingMode()");
 		}
 		flushReceiveBuffer();
 		this.setComPort(ComPortMode.Normal);
@@ -510,21 +510,21 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	@Override
 	public void shutdown() {
 		if (log.isDebugEnabled()) {
-			log.debug("Shutting down device");
+			logDebug("Shutting down device");
 		}
 
 		if (inputStream != null) {
 			try {
 				inputStream.close();
 			} catch (IOException e) {
-				log.debug("Unable to close input stream: " + e);
+				logDebug("Unable to close input stream: " + e);
 			}
 		}
 		if (outputStream != null) {
 			try {
 				outputStream.close();
 			} catch (IOException e) {
-				log.debug("Unable to close output stream: " + e);
+				logDebug("Unable to close output stream: " + e);
 			}
 		}
 
@@ -568,7 +568,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 			//if (this.isFlashDebugOutput()) {
 			if (log.isDebugEnabled()) {
-				log.debug(String.format("***Programming data block at address: 0x%02x, writing %d bytes.",
+				logDebug(String.format("***Programming data block at address: 0x%02x, writing %d bytes.",
 						address, bytes.length
 				)
 				);
@@ -645,13 +645,14 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	public boolean triggerProgram(IDeviceBinFile program,
 								  boolean rebootAfterFlashing) throws Exception {
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation
+			logError("Already another operation in progress (" + operation
 					+ ")"
 			);
 			return false;
 		}
 
 		operation = new TelosbFlashProgramOperation(this, program);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
@@ -665,7 +666,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 	@Override
 	public boolean triggerReboot() throws Exception {
 		if (log.isDebugEnabled()) {
-			log.debug("Device reboot triggered.");
+			logDebug("Device reboot triggered.");
 		}
 
 		if (operationInProgress()) {
@@ -676,6 +677,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		}
 
 		operation = new TelosbRebootDeviceOperation(this);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
@@ -716,12 +718,12 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 									 * // Notify listeners //MessagePlainText p = new
 									 * MessagePlainText(buffer); if (packetLength == 1) // strange
 									 * short content
-									 * log.debug("received from telosB with strange content!"); else
+									 * logDebug("received from telosB with strange content!"); else
 									 * { if (iSenseTelos == true) { // Copy them into a buffer with
 									 * correct length byte[] buffer = new byte[packetLength];
 									 * System.arraycopy(packet, 0, buffer, 0, packetLength);
 									 * MessagePacket p = new MessagePacket(buffer[0],buffer);
-									 * notifyReceivePacket(p); log.debug("received from telosB: "+
+									 * notifyReceivePacket(p); logDebug("received from telosB: "+
 									 * (new String(buffer,0,buffer.length-1))); } else { // Copy
 									 * them into a buffer with correct length byte[] buffer = new
 									 * byte[packetLength +1]; // all messages as debug because we
@@ -729,18 +731,18 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 									 * SerialMonitor.logTypeDebug; System.arraycopy(packet, 0,
 									 * buffer, 1, packetLength); MessagePacket p2 = new
 									 * MessagePacket(PacketTypes.LOG,buffer);
-									 * notifyReceivePacket(p2); log.debug("received from telosB: "+
+									 * notifyReceivePacket(p2); logDebug("received from telosB: "+
 									 * (new String(buffer,0,buffer.length-1))); }
 									 *
 									 * } // Reset packet information packetLength = 0;
 									 *
-									 * } catch (IOException error) { log.debug("Error: "+error,
+									 * } catch (IOException error) { logDebug("Error: "+error,
 									 * error); }
 									 */
 				}
 				break;
 			default:
-				log.debug("Serial event (other than data available): " + event);
+				logDebug("Serial event (other than data available): " + event);
 				break;
 		}
 	}
@@ -772,7 +774,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		log.info("Starting boot loader...");
 		if (!bsl.invokeBSL()) {
 			if (log.isDebugEnabled()) {
-				log.debug("Failed to start boot loader.");
+				logDebug("Failed to start boot loader.");
 			}
 			return false;
 		}
@@ -785,7 +787,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		log.info("Erasing flash memory...3");
 		if ((reply[0] & 0xff) == BSLTelosb.DATA_NACK) {
 			if (log.isDebugEnabled()) {
-				log.error("Failed to perform mass erase, NACK received.");
+				logError("Failed to perform mass erase, NACK received.");
 			}
 			return false;
 		} else if (reply.length > 1) {
@@ -799,13 +801,13 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		// send default password
 		log.info("Transmitting password...");
 		if (!bsl.transmitPassword(null, false)) {
-			log.error("Failed to transmit password, received NACK.");
+			logError("Failed to transmit password, received NACK.");
 			return false;
 		}
 
 		// read boot loader version
 		if (log.isDebugEnabled()) {
-			log.debug("Reading BSL version...");
+			logDebug("Reading BSL version...");
 		}
 		bsl.sendBSLCommand(BSLTelosb.CMD_RXBSLVERSION, 0, 0, null, false);
 		reply = bsl.receiveBSLReply();
@@ -827,7 +829,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		bslVersion = (((reply[10] & 0xFF) << 8) | (reply[11] & 0xFF));
 
 		if (log.isDebugEnabled()) {
-			log.debug(String.format(
+			logDebug(String.format(
 					"Current bsl version: %02x.%02x, device id: 0x%04x",
 					((bslVersion >> 8) & 0xFF), (bslVersion & 0xFF), deviceId
 			)
@@ -836,7 +838,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 
 		// check if patch is required
 		if (bslVersion <= 0x0110) {
-			log.error("Current BSL version is 1.1 or below, patch is required");
+			logError("Current BSL version is 1.1 or below, patch is required");
 			// TODO: load patch
 			return false;
 		}
@@ -860,7 +862,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 		try {
 			while ((i = inputStream.available()) > 0) {
 				if (log.isDebugEnabled()) {
-					log.debug("Flushing serial rx buffer: " + i
+					logDebug("Flushing serial rx buffer: " + i
 							+ "bytes skipped."
 					);
 				}
@@ -888,7 +890,7 @@ public class TelosbDevice extends iSenseDeviceImpl implements
 				bsl.changeComPort(READ_BAUDRATE, BSL_PARITY_NONE);
 			}
 		} catch (IOException e) {
-			log.error("" + e, e);
+			logError("" + e, e);
 		}
 	}
 

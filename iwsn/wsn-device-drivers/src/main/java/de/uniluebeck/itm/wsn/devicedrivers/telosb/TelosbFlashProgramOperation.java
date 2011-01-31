@@ -35,7 +35,6 @@ import java.io.IOException;
  * @author Friedemann Wesner
  */
 public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
-	private static final Logger log = LoggerFactory.getLogger(TelosbFlashProgramOperation.class);
 
 	private IDeviceBinFile binFile = null;
 
@@ -75,16 +74,16 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 				operationDone(binFile);
 				return;
 			} else {
-				log.error("Failed to program flash.");
+				logError("Failed to program flash.");
 			}
 		} catch (Exception e) {
-			log.error("Unhandled error while programming flash: " + e, e);
+			logError("Unhandled error while programming flash: " + e, e);
 			operationDone(e);
 		} finally {
 			try {
 				getDevice().leaveProgrammingMode();
 			} catch (Throwable e) {
-				log.warn("Unable to leave programming mode:" + e, e);
+				logWarn("Unable to leave programming mode:" + e, e);
 			}
 		}
 
@@ -101,9 +100,7 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 
 		// Return if the user has requested to cancel this operation
 		if (isCancelled()) {
-			if (log.isDebugEnabled()) {
-				log.debug("Operation has been cancelled");
-			}
+			logDebug("Operation has been cancelled");
 			getDevice().operationCancelled(this);
 			return false;
 		}
@@ -111,36 +108,36 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 		// enter programming mode
 		try {
 			if (!getDevice().enterProgrammingMode()) {
-				log.error("Unable to enter programming mode");
+				logError("Unable to enter programming mode");
 				return false;
 			}
 		} catch (Exception e) {
-			log.error("Error on entering programming mode: " + e, e);
+			logError("Error on entering programming mode: " + e, e);
 			return false;
 		}
 
 		// Check if file and current chip match
 		chipType = getDevice().getChipType();
 		if (!binFile.isCompatible(chipType)) {
-			log.error("Chip type(" + chipType + ") and bin-program type(" + binFile.getFileType() + ") do not match");
+			logError("Chip type(" + chipType + ") and bin-program type(" + binFile.getFileType() + ") do not match");
 			throw new ProgramChipMismatchException(chipType, binFile.getFileType());
 		}
 
 		// Write program to flash
-		log.info("Starting to write program into flash memory...");
+		logInfo("Starting to write program into flash memory...");
 		while ((block = binFile.getNextBlock()) != null) {
 
 			// write single block
 			try {
 				getDevice().writeFlash(block.address, block.data, 0, block.data.length);
 			} catch (FlashProgramFailedException e) {
-				log.error(String.format("Error writing %d bytes into flash " +
+				logError(String.format("Error writing %d bytes into flash " +
 						"at address 0x%02x: " + e + ". Programmed " + bytesProgrammed + " bytes so far. " +
 						". Operation will be canceled.", block.data.length, block.address), e);
 				getDevice().operationCancelled(this);
 				return false;
 			} catch (IOException e) {
-				log.error("I/O error while writing flash: " + e + ". Programmed " + bytesProgrammed + " bytes so far. " +
+				logError("I/O error while writing flash: " + e + ". Programmed " + bytesProgrammed + " bytes so far. " +
 						"Operation will be canceled!", e);
 				getDevice().operationCancelled(this);
 				return false;
@@ -162,18 +159,18 @@ public class TelosbFlashProgramOperation extends iSenseDeviceOperation {
 		}
 
 		// reset device (exit boot loader)
-		log.info("Resetting device.");
+		logInfo("Resetting device.");
 		try {
 			if (!getDevice().reset()) {
-				log.warn("Failed to reset device after programming flash!");
+				logWarn("Failed to reset device after programming flash!");
 				return false;
 			}
 		} catch (Exception e) {
-			log.error("Error while resetting device: " + e, e);
+			logError("Error while resetting device: " + e, e);
 			return false;
 		}
 
-		log.debug("Programmed " + bytesProgrammed + " bytes.");
+		logDebug("Programmed " + bytesProgrammed + " bytes.");
 
 		return true;
 	}

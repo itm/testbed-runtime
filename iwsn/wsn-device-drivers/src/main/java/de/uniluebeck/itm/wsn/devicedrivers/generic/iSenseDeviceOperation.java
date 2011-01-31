@@ -34,7 +34,7 @@ public abstract class iSenseDeviceOperation extends Thread {
 	/**
 	 * Logging
 	 */
-	private static final Logger log = LoggerFactory.getLogger(iSenseDeviceOperation.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** */
 	private boolean cancelled = false;
@@ -44,6 +44,9 @@ public abstract class iSenseDeviceOperation extends Thread {
 
 	/** */
 	private iSenseDeviceImpl device;
+
+	/** */
+	protected String logIdentifier;
 
 	// -------------------------------------------------------------------------
 
@@ -113,6 +116,80 @@ public abstract class iSenseDeviceOperation extends Thread {
 	 */
 	protected iSenseDeviceImpl getDevice() {
 		return device;
+	}
+
+	public void setLogIdentifier(String logIdentifier) {
+		this.logIdentifier = logIdentifier.endsWith(" ") ? logIdentifier : logIdentifier + " ";
+	}
+
+	protected void logDebug(String format, Object... args) {
+		if (log.isDebugEnabled()) {
+			if (logIdentifier != null) {
+				log.debug(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = device.getClass().getSimpleName();
+				newArgs[1] = device.getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.debug("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logTrace(String format, Object... args) {
+		if (log.isTraceEnabled()) {
+			if (logIdentifier != null) {
+				log.trace(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = device.getClass().getSimpleName();
+				newArgs[1] = device.getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.trace("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logInfo(String format, Object... args) {
+		if (log.isInfoEnabled()) {
+			if (logIdentifier != null) {
+				log.info(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = device.getClass().getSimpleName();
+				newArgs[1] = device.getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.info("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logWarn(String format, Object... args) {
+		if (log.isWarnEnabled()) {
+			if (logIdentifier != null) {
+				log.warn(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = device.getClass().getSimpleName();
+				newArgs[1] = device.getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.warn("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logError(String format, Object... args) {
+		if (log.isErrorEnabled()) {
+			if (logIdentifier != null) {
+				log.error(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = device.getClass().getSimpleName();
+				newArgs[1] = device.getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.error("[{},{}] " + format, newArgs);
+			}
+		}
 	}
 
 }

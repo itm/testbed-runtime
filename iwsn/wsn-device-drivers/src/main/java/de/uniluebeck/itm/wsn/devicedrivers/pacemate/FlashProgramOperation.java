@@ -32,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FlashProgramOperation extends iSenseDeviceOperation {
-	// /Logging
-	private static final Logger log = LoggerFactory.getLogger(FlashProgramOperation.class);
 
 	private PacemateDevice device;
 
@@ -57,39 +55,39 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		PacemateBinFile pacemateProgram = null;
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
-			log.error("Unable to enter programming mode");
+			logError("Unable to enter programming mode");
 			return false;
 		}
 		try {
 			device.clearStreamData();
 		} catch (IOException e) {
-			log.error("Error while clear stream"+e);
+			logError("Error while clear stream"+e);
 			e.printStackTrace();
 		}
-		log.debug("autobaud");
+		logDebug("autobaud");
 		device.autobaud();
-		log.debug("autobaud ready");
+		logDebug("autobaud ready");
 		// device.echoOff();
 
 		// Wait for a connection
 		while (!isCancelled() && !device.waitForConnection())
-			log.info("Still waiting for a connection");
+			logInfo("Still waiting for a connection");
 
 		// Return with success if the user has requested to cancel this
 		// operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
 
 		// Connection established, determine chip type
 		ChipType chipType = device.getChipType();
-		// log.debug("Chip type is " + chipType);
+		// logDebug("Chip type is " + chipType);
 
 		// Check if file and current chip match
 		if (!program.isCompatible(chipType)) {
-			log.error("Chip type(" + chipType + ") and bin-program type(" + program.getFileType() + ") do not match");
+			logError("Chip type(" + chipType + ") and bin-program type(" + program.getFileType() + ") do not match");
 			throw new ProgramChipMismatchException(chipType, program.getFileType());
 		}
 
@@ -100,7 +98,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		try {
 			device.configureFlash();
 		} catch (Exception e) {
-			log.debug("Error while configure flash! Operation will be cancelled!");
+			logDebug("Error while configure flash! Operation will be cancelled!");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -108,7 +106,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		try {
 			device.eraseFlash();
 		} catch (Exception e) {
-			log.debug("Error while erasing! Operation will be cancelled!");
+			logDebug("Error while erasing! Operation will be cancelled!");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -120,7 +118,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 		try {
 			device.writeCRCtoFlash(flash_crc);
 		} catch (Exception e) {
-			log.debug("Error while write CRC to Flash! Operation will be cancelled!");
+			logDebug("Error while write CRC to Flash! Operation will be cancelled!");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -133,7 +131,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			try {
 				device.writeToRAM(device.startAdressInRam, block.data.length);
 			} catch (Exception e) {
-				log.debug("Error while write to RAM! Operation will be cancelled!"+e);
+				logDebug("Error while write to RAM! Operation will be cancelled!"+e);
 				device.operationCancelled(this);
 				return false;
 			}
@@ -172,7 +170,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				try {
 					device.sendDataMessage(pacemateProgram.encode(line, (line.length - offset)));
 				} catch (Exception e) {
-					log.debug("Error while writing flash! Operation will be cancelled!");
+					logDebug("Error while writing flash! Operation will be cancelled!");
 					device.operationCancelled(this);
 					return false;
 				}
@@ -182,11 +180,11 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 					try {
 						device.sendChecksum(pacemateProgram.crc);
 					} catch (InvalidChecksumException e) {
-						log.debug("Invalid Checksum - resend last part");
+						logDebug("Invalid Checksum - resend last part");
 						// so resending the last 20 lines
 						counter = counter - bytesNotYetProoved;
 					} catch (Exception e) {
-						log.debug("Error while writing flash! Operation will be cancelled!");
+						logDebug("Error while writing flash! Operation will be cancelled!");
 						device.operationCancelled(this);
 						return false;
 					}
@@ -211,7 +209,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				else
 					device.copyRAMToFlash(block.address, device.startAdressInRam, 256);
 			} catch (Exception e) {
-				log.debug("Error while copy RAM to Flash! Operation will be cancelled!");
+				logDebug("Error while copy RAM to Flash! Operation will be cancelled!");
 				device.operationCancelled(this);
 				return false;
 			}
@@ -223,7 +221,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			// Return with success if the user has requested to cancel this
 			// operation
 			if (isCancelled()) {
-				log.debug("Operation has been cancelled");
+				logDebug("Operation has been cancelled");
 				device.operationCancelled(this);
 				return false;
 			}
@@ -258,7 +256,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 		// Reboot (if requested by the user)
 		if (rebootAfterFlashing) {
-			log.debug("Rebooting device");
+			logDebug("Rebooting device");
 			device.reset();
 		}
 		return true;
@@ -285,14 +283,14 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				return;
 			}
 		} catch (Throwable t) {
-			log.error("Unhandled error in thread: " + t, t);
+			logError("Unhandled error in thread: " + t, t);
 			operationDone(t);
 			return;
 		} finally {
 			try {
 				device.leaveProgrammingMode();
 			} catch (Throwable e) {
-				log.warn("Unable to leave programming mode:" + e, e);
+				logWarn("Unable to leave programming mode:" + e, e);
 			}
 		}
 

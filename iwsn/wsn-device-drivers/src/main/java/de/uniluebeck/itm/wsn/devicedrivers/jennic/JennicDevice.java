@@ -38,8 +38,6 @@ import java.io.*;
  */
 public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventListener {
 
-	private static final Logger log = LoggerFactory.getLogger(JennicDevice.class);
-
 	private static final int MAX_RETRIES = 5;
 
 	private InputStream inStream = null;
@@ -49,8 +47,6 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		Normal, Program
 	}
-
-	;
 
 	private OutputStream outStream = null;
 
@@ -94,11 +90,11 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 				setSerialPort(port);
 
 				if (serialPort == null) {
-					log.debug("connect(): serialPort==null");
+					logDebug("connect(): serialPort==null");
 				}
 
 			} catch (PortInUseException piue) {
-				log.warn("Port {} already in use. Connection will be removed. ", port);
+				logWarn("Port {} already in use. Connection will be removed. ", port);
 
 				if (serialPort != null) {
 					serialPort.close();
@@ -112,7 +108,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 					serialPort.close();
 				}
 
-				log.warn("Port {} does not exist. Connection will be removed. ", port);
+				logWarn("Port {} does not exist. Connection will be removed. ", port);
 				return false;
 
 			}
@@ -128,7 +124,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 * @throws Exception
 	 */
 	public void setSerialPort(String port) throws Exception {
-		log.debug("JennicDevice.setSerialPort({})", port);
+		logDebug("JennicDevice.setSerialPort({})", port);
 		CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
 		SerialPort sp = null;
 		CommPort commPort = null;
@@ -137,7 +133,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 				commPort = cpi.open(this.getClass().getName(), 1000);
 				break;
 			} catch (PortInUseException piue) {
-				log.debug("Port in Use Retrying to connect");
+				logDebug("Port in Use Retrying to connect");
 				if (i >= MAX_RETRIES - 1) {
 					throw (piue);
 				}
@@ -147,7 +143,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 		if (commPort instanceof SerialPort) {
 			sp = (SerialPort) commPort;// cpi.open("iShell", 1000);
 		} else {
-			log.debug("Port is no SerialPort");
+			logDebug("Port is no SerialPort");
 		}
 		serialPort = sp;
 		serialPort.addEventListener(this);
@@ -168,7 +164,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	public boolean reset() {
 
 		if (old_gateway) {
-			log.debug("Resetting device old style");
+			logDebug("Resetting device old style");
 			serialPort.setDTR(false);
 			try {
 				Thread.sleep(200);
@@ -176,7 +172,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			}
 			serialPort.setDTR(true);
 		} else {
-			log.debug("Resetting device new style");
+			logDebug("Resetting device new style");
 			serialPort.setDTR(true);
 			try {
 				Thread.sleep(200);
@@ -244,11 +240,11 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			if (old_gateway) {
 				serialPort.setDTR(true);
 				serialPort.setRTS(false);
-				log.debug("Setting COM-Port parameters (old style): baudrate: " + baudrate);
+				logDebug("Setting COM-Port parameters (old style): baudrate: " + baudrate);
 			} else {
 				serialPort.setDTR(false);
 				serialPort.setRTS(false);
-				log.debug("Setting COM-Port parameters (new style): baudrate: " + baudrate);
+				logDebug("Setting COM-Port parameters (new style): baudrate: " + baudrate);
 			}
 
 		} else {
@@ -279,7 +275,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		// Reboot (if requested by the user)
 		if (rebootAfterFlashing) {
-			log.debug("Rebooting device");
+			logDebug("Rebooting device");
 			reset();
 		}
 
@@ -301,7 +297,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		// Throw error if reading failed
 		if (response[1] != 0x00) {
-			log.error(String.format("Failed to read chip type from RAM: Response should be 0x00, yet it is: 0x%02x",
+			logError(String.format("Failed to read chip type from RAM: Response should be 0x00, yet it is: 0x%02x",
 					response[1]
 			)
 			);
@@ -317,11 +313,11 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 		} else if (response[2] == 0x20 && response[3] == 0x00) {
 			chipType = ChipType.JN5121;
 		} else {
-			log.error("Defaulted to chip type JN5121. Identification may be wrong.");
+			logError("Defaulted to chip type JN5121. Identification may be wrong.");
 			chipType = ChipType.JN5121;
 		}
 
-		log.debug("Chip identified as " + chipType + " (received " + StringUtils.toHexString(response[2]) + " "
+		logDebug("Chip identified as " + chipType + " (received " + StringUtils.toHexString(response[2]) + " "
 				+ StringUtils.toHexString(response[3]) + ")"
 		);
 		return chipType;
@@ -342,7 +338,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		// Throw error if reading failed
 		if (response[1] != 0x00) {
-			log.error(String.format("Failed to read flash type: Response should be 0x00, yet it is: 0x%02x",
+			logError(String.format("Failed to read flash type: Response should be 0x00, yet it is: 0x%02x",
 					response[1]
 			)
 			);
@@ -388,12 +384,13 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
-		log.debug("JennicDevice: trigger Mac Adress");
+		logDebug("JennicDevice: trigger Mac Adress");
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return;
 		}
 		operation = new ReadMacAddressOperation(this);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 
 	}
@@ -408,11 +405,12 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	public boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return false;
 		}
 
 		operation = new FlashProgramOperation(this, program, true);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
@@ -425,13 +423,14 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 */
 	@Override
 	public boolean triggerReboot() throws Exception {
-		log.debug("Starting reboot device thread");
+		logDebug("Starting reboot device thread");
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return false;
 		}
 
 		operation = new RebootDeviceOperation(this);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
@@ -446,10 +445,11 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	public void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return;
 		}
 		operation = new WriteMacAddressOperation(this, mac);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 	}
 
@@ -480,14 +480,14 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 				inStream.close();
 			}
 		} catch (IOException e) {
-			log.debug("Failed to close in-stream :" + e, e);
+			logDebug("Failed to close in-stream :" + e, e);
 		}
 		try {
 			if (outStream != null) {
 				outStream.close();
 			}
 		} catch (IOException e) {
-			log.debug("Failed to close out-stream :" + e, e);
+			logDebug("Failed to close out-stream :" + e, e);
 		}
 		if (serialPort != null) {
 			serialPort.removeEventListener();
@@ -528,7 +528,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	@Override
 	public byte[] writeFlash(int address, byte[] data, int offset, int len) throws Exception {
 		// Send flash program request
-		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
+		// logDebug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.flashProgramRequestMessage(address, data));
 
 		// Read flash program response
@@ -536,12 +536,12 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		// Throw error if writing failed
 		if (response[1] != 0x0) {
-			log.error(String
+			logError(String
 					.format("Failed to write to flash: Response should be 0x00, yet it is: 0x%02x", response[1])
 			);
 			throw new FlashProgramFailedException();
 		} else {
-			// log.debug("Received Ack");
+			// logDebug("Received Ack");
 
 		}
 
@@ -555,7 +555,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 *
 	 */
 	protected void configureFlash(ChipType chipType) throws Exception {
-		log.debug("Configuring flash");
+		logDebug("Configuring flash");
 
 		// Only new chips need to be configured
 		if (chipType != ChipType.JN5121) {
@@ -570,14 +570,14 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 			// Throw error if configuration failed
 			if (response[1] != 0x00) {
-				log.error(String.format("Failed to configure flash ROM: Response should be 0x00, yet it is: 0x%02x",
+				logError(String.format("Failed to configure flash ROM: Response should be 0x00, yet it is: 0x%02x",
 						response[1]
 				)
 				);
 				throw new FlashConfigurationFailedException();
 			}
 		}
-		log.debug("Done. Flash is configured");
+		logDebug("Done. Flash is configured");
 	}
 
 	// ------------------------------------------------------------------------
@@ -587,7 +587,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 *
 	 */
 	void enableFlashErase() throws Exception {
-		// log.debug("Setting FLASH status register to zero");
+		// logDebug("Setting FLASH status register to zero");
 		sendBootLoaderMessage(Messages.statusRegisterWriteMessage((byte) 0x00)); // see
 		// AN
 		// -
@@ -596,7 +596,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 		byte[] response = receiveBootLoaderReply(Messages.WRITE_SR_RESPONSE);
 
 		if (response[1] != 0x0) {
-			log.error(String.format("Failed to write status register."));
+			logError(String.format("Failed to write status register."));
 			throw new FlashEraseFailedException();
 		}
 	}
@@ -610,13 +610,13 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	@Override
 	public void eraseFlash() throws Exception {
 		enableFlashErase();
-		log.debug("Erasing flash");
+		logDebug("Erasing flash");
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage());
 
 		byte[] response = receiveBootLoaderReply(Messages.FLASH_ERASE_RESPONSE);
 
 		if (response[1] != 0x0) {
-			log.error(String.format("Failed to erase flash."));
+			logError(String.format("Failed to erase flash."));
 			throw new FlashEraseFailedException();
 		}
 	}
@@ -630,13 +630,13 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	@Override
 	public void eraseFlash(Sectors.SectorIndex sector) throws Exception {
 		enableFlashErase();
-		log.debug("Erasing sector " + sector);
+		logDebug("Erasing sector " + sector);
 		sendBootLoaderMessage(Messages.sectorEraseRequestMessage(sector));
 
 		byte[] response = receiveBootLoaderReply(Messages.SECTOR_ERASE_RESPONSE);
 
 		if (response[1] != 0x0) {
-			log.error(String.format("Failed to erase flash sector."));
+			logError(String.format("Failed to erase flash sector."));
 			throw new SectorEraseException(sector);
 		}
 
@@ -649,12 +649,12 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 *
 	 */
 	public void serialEvent(SerialPortEvent event) {
-		// log.debug("Serial event");
+		// logDebug("Serial event");
 		switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
 
 				synchronized (dataAvailableMonitor) {
-					// log.debug("DM");
+					// logDebug("DM");
 					dataAvailableMonitor.notifyAll();
 				}
 
@@ -666,7 +666,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 				break;
 			default:
-				log.debug("Serial event (other than data available): " + event);
+				logDebug("Serial event (other than data available): " + event);
 				break;
 		}
 	}
@@ -678,13 +678,10 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 */
 	@Override
 	public void send(MessagePacket p) throws IOException {
-		// log.debug("JD: Sending " + p);
+		// logDebug("JD: Sending " + p);
 
 		if (operationInProgress()) {
-			log
-					.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName()
-							+ ")"
-					);
+			logError("Skipping packet. Another operation already in progress ({})", operation.getClass().getName());
 			return;
 		}
 
@@ -692,11 +689,11 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 		byte b[] = p.getContent();
 
 		if (b == null || type > 0xFF) {
-			log.warn("Skipping empty packet or type > 0xFF.");
+			logWarn("Skipping empty packet or type > 0xFF.");
 			return;
 		}
 		if (b.length > 150) {
-			log.warn("Skipping too large packet (length " + b.length + ")");
+			logWarn("Skipping too large packet (length " + b.length + ")");
 			return;
 		}
 
@@ -768,7 +765,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			message[i] = (byte) inStream.read();
 		}
 
-		// log.debug("Received boot loader msg: " + Tools.toHexString(message));
+		// logDebug("Received boot loader msg: " + Tools.toHexString(message));
 
 		// Read checksum
 		waitDataAvailable(inStream, timeoutMillis);
@@ -810,7 +807,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		while (isConnected() && inStream != null && (avail = inStream.available()) == 0) {
 			if (timeoutMillis > 0 && timeDiff.ms() >= timeoutMillis) {
-				log.warn("Timeout waiting for data (waited: " + timeDiff.ms() + ", timeoutMs:" + timeoutMillis + ")");
+				logWarn("Timeout waiting for data (waited: " + timeDiff.ms() + ", timeoutMs:" + timeoutMillis + ")");
 				throw new TimeoutException();
 			}
 
@@ -818,7 +815,7 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 				try {
 					dataAvailableMonitor.wait(50);
 				} catch (InterruptedException e) {
-					log.error("Interrupted: " + e, e);
+					logError("Interrupted: " + e, e);
 				}
 			}
 		}
@@ -838,12 +835,12 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			// device is supposed to respond)
 			sendBootLoaderMessage(Messages.flashReadRequestMessage(0x24, 0x20));
 			receiveBootLoaderReply(Messages.FLASH_READ_RESPONSE);
-			log.info("Device connection established");
+			logInfo("Device connection established");
 			return true;
 		} catch (TimeoutException to) {
-			log.debug("Still waiting for a connection.");
+			logDebug("Still waiting for a connection.");
 		} catch (Exception error) {
-			log.warn("Exception while waiting for connection", error);
+			logWarn("Exception while waiting for connection", error);
 		}
 
 		flushReceiveBuffer();
@@ -858,17 +855,17 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 */
 	protected void flushReceiveBuffer() {
 		long i = 0;
-		// log.debug("Flushing serial rx buffer");
+		// logDebug("Flushing serial rx buffer");
 
 		if (isConnected()) {
 
 			try {
 				while ((i = inStream.available()) > 0) {
-					log.debug("Skipping " + i + " characters while flushing on the serial rx");
+					logDebug("Skipping " + i + " characters while flushing on the serial rx");
 					inStream.skip(i);
 				}
 			} catch (IOException e) {
-				log.warn("Error while serial rx flushing buffer: " + e, e);
+				logWarn("Error while serial rx flushing buffer: " + e, e);
 			}
 		}
 	}

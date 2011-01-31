@@ -153,4 +153,12 @@ public abstract class iSenseDevice {
 
 	public abstract boolean isConnected();
 
+	/**
+	 * Sets a string that will be printed before every logging statement made. This may e.g. help to identify an
+	 * individual devices logging output if multiple devices are running concurrently.
+	 *
+	 * @param logIdentifier the string to be used as logging statement prefix
+	 */
+	public abstract void setLogIdentifier(String logIdentifier);
+
 }

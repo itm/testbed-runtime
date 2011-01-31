@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class FlashProgramOperation extends iSenseDeviceOperation {
-	// /Logging
-	private static final Logger log = LoggerFactory.getLogger(FlashProgramOperation.class);
 
 	// /
 	private JennicDevice device;
@@ -69,18 +67,18 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
-			log.error("Unable to enter programming mode");
+			logError("Unable to enter programming mode");
 			return false;
 		}
 
 		// Wait for a connection
 		while (!isCancelled() && !device.waitForConnection())
-			log.info("Still waiting for a connection");
+			logInfo("Still waiting for a connection");
 
 		// Return with success if the user has requested to cancel this
 		// operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -91,7 +89,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 		// Check if file and current chip match
 		if (!program.isCompatible(chipType)) {
-			log.error("Chip type(" + chipType + ") and bin-program type(" + program.getFileType() + ") do not match");
+			logError("Chip type(" + chipType + ") and bin-program type(" + program.getFileType() + ") do not match");
 			throw new ProgramChipMismatchException(chipType, program.getFileType());
 		}
 
@@ -102,16 +100,16 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 			try {
 				if (!jennicProgram.insertHeader(device.getFlashHeader())) {
-					log.error("Unable to write flash header to binary file.");
+					logError("Unable to write flash header to binary file.");
 					throw new RuntimeException("Unable to write flash header to binary file.");
 				}
 			} catch (Exception e) {
-				log.error("Unable to write flash header to binary file.");
+				logError("Unable to write flash header to binary file.");
 				throw e;
 			}
 
 		} catch (ClassCastException e) {
-			log.error("Supplied binary file for programming the jennic device was not a jennic file. Unable to insert flash header.");
+			logError("Supplied binary file for programming the jennic device was not a jennic file. Unable to insert flash header.");
 			return false;
 		}
 
@@ -127,7 +125,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			try {
 				device.writeFlash(block.address, block.data, 0, block.data.length);
 			} catch (Exception e) {
-				log.debug("Error while reading flash! Operation will be cancelled!");
+				logDebug("Error while reading flash! Operation will be cancelled!");
 				device.operationCancelled(this);
 				return false;
 			}
@@ -139,7 +137,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 			// Return with success if the user has requested to cancel this
 			// operation
 			if (isCancelled()) {
-				log.debug("Operation has been cancelled");
+				logDebug("Operation has been cancelled");
 				device.operationCancelled(this);
 				return false;
 			}
@@ -149,7 +147,7 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 
 		// Reboot (if requested by the user)
 		if (rebootAfterFlashing) {
-			log.debug("Rebooting device");
+			logDebug("Rebooting device");
 			device.reset();
 		}
 
@@ -168,14 +166,14 @@ public class FlashProgramOperation extends iSenseDeviceOperation {
 				return;
 			}
 		} catch (Throwable t) {
-			log.error("Unhandled error in thread: " + t, t);
+			logError("Unhandled error in thread: " + t, t);
 			operationDone(t);
 			return;
 		} finally {
 			try {
 				device.leaveProgrammingMode();
 			} catch (Throwable e) {
-				log.warn("Unable to leave programming mode:" + e, e);
+				logWarn("Unable to leave programming mode:" + e, e);
 			}
 		}
 
