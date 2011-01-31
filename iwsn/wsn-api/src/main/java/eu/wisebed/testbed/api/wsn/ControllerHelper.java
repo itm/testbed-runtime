@@ -257,7 +257,7 @@ public class ControllerHelper {
 
         synchronized (controllerEndpoints) {
             for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-                log.debug("Delivering request status with requestID {} to endpoint URL {}. Delivery queue size: {}",
+                log.debug("StatusDelivery[requestId={},endpointUrl={},queueSize={}]",
                         new Object[] {
 								requestStatus.getRequestId(),
 								controllerEntry.getKey(),
