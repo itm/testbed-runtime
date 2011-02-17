@@ -194,7 +194,7 @@ public class PacketTypes {
 	// from tiny os
 
 	/**
-	 *
+	 * No Packet Type - no framing 
 	 */
 	public static final int TOS_AMTYPE_PRINTF = 0x64; // = 100
 
