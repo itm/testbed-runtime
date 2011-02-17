@@ -2,24 +2,16 @@ package de.uniluebeck.itm.wsn.deviceutils;
 
 
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.IDeviceBinFile;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.Operation;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDevice;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDeviceListenerAdapter;
-import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicBinFile;
-import de.uniluebeck.itm.wsn.devicedrivers.jennic.JennicDevice;
-import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateBinFile;
-import de.uniluebeck.itm.wsn.devicedrivers.pacemate.PacemateDevice;
-import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbBinFile;
-import de.uniluebeck.itm.wsn.devicedrivers.telosb.TelosbDevice;
+import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeviceFlasherCLI {
+public class DeviceReadMacCLI {
 
-	private static final Logger log = LoggerFactory.getLogger(DeviceFlasherCLI.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceReadMacCLI.class);
 
 	public static void main(String[] args) throws Exception {
 
@@ -33,39 +25,22 @@ public class DeviceFlasherCLI {
 		wisebedLogger.setLevel(Level.INFO);
 		coaLogger.setLevel(Level.INFO);
 
-		if (args.length < 3) {
+		if (args.length < 2) {
 			System.out.println(
-					"Usage: " + DeviceFlasherCLI.class.getSimpleName() + " SENSOR_TYPE SERIAL_PORT IMAGE_FILE"
+					"Usage: " + DeviceReadMacCLI.class.getSimpleName() + " SENSOR_TYPE SERIAL_PORT"
 			);
 			System.out.println(
-					"Example: " + DeviceFlasherCLI.class.getSimpleName() + " isense /dev/ttyUSB0 demoapplication.bin"
+					"Example: " + DeviceReadMacCLI.class.getSimpleName() + " isense /dev/ttyUSB0"
 			);
 			System.exit(1);
 		}
 
 		final iSenseDevice device = DeviceFactory.create(args[0], args[1]);
 
-		IDeviceBinFile iSenseBinFile = null;
-
-		try {
-
-			if (device instanceof JennicDevice) {
-				iSenseBinFile = new JennicBinFile(args[2]);
-			} else if (device instanceof TelosbDevice) {
-				iSenseBinFile = new TelosbBinFile(args[2]);
-			} else if (device instanceof PacemateDevice) {
-				iSenseBinFile = new PacemateBinFile(args[2]);
-			}
-
-		} catch (Exception e) {
-			log.error("" + e, e);
-			return;
-		}
-
 		final Thread cancellationHook = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				device.cancelOperation(Operation.PROGRAM);
+				device.cancelOperation(Operation.READ_MAC);
 			}
 		}
 		);
@@ -77,14 +52,15 @@ public class DeviceFlasherCLI {
 			@Override
 			public void operationDone(final Operation op, final Object result) {
 				lastProgress = -1;
-				if (op == Operation.PROGRAM) {
+				if (op == Operation.READ_MAC) {
 					if (result instanceof Exception) {
-						log.error("Flashing node failed with Exception: " + result, (Exception) result);
+						log.error("Reading MAC address failed with Exception: " + result, (Exception) result);
 						Runtime.getRuntime().removeShutdownHook(cancellationHook);
 						System.exit(1);
 					} else {
 						log.info("Progress: {}%", 100);
-						log.info("Flashing node done!");
+						log.info("Reading MAC address done!");
+						System.out.println(StringUtils.toHexString(((MacAddress) result).getMacBytes()));
 						Runtime.getRuntime().removeShutdownHook(cancellationHook);
 						System.exit(0);
 					}
@@ -102,7 +78,7 @@ public class DeviceFlasherCLI {
 
 			@Override
 			public void operationCanceled(final Operation op) {
-				log.info("Flashing was canceled!");
+				log.info("Reading MAC address was canceled!");
 				lastProgress = -1;
 			}
 		}
@@ -112,11 +88,7 @@ public class DeviceFlasherCLI {
 
 			Runtime.getRuntime().addShutdownHook(cancellationHook);
 
-			if (!device.triggerProgram(iSenseBinFile, true)) {
-				log.error("Failed to trigger programming.");
-				Runtime.getRuntime().removeShutdownHook(cancellationHook);
-				System.exit(1);
-			}
+			device.triggerGetMacAddress(true);
 
 		} catch (Exception e) {
 			log.error("Error while flashing device. Reason: {}", e.getMessage());

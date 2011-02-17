@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReadMacAddressOperation extends iSenseDeviceOperation {
 
-	private static final Logger log = LoggerFactory.getLogger(ReadMacAddressOperation.class);
-
 	private PacemateDevice device;
 
 	private MacAddress macAddress = null;
@@ -55,10 +53,10 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	}
 
 	private boolean readMac() throws Exception {
-		log.debug("readMac");
+		logDebug("readMac");
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
-			log.error("Unable to enter programming mode");
+			logError("Unable to enter programming mode");
 			return false;
 		}
 
@@ -69,20 +67,20 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 
 		// Wait for a connection
 		while (!isCancelled() && !device.waitForConnection()) {
-			log.info("Still waiting for a connection");
+			logInfo("Still waiting for a connection");
 		}
 
 		// Return with success if the user has requested to cancel this
 		// operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
 
 		// Connection established, determine chip type
 		ChipType chipType = device.getChipType();
-		log.debug("Chip type is " + chipType);
+		logDebug("Chip type is " + chipType);
 
 		// Connection established, read flash header
 		long macStart = 0x2ff8;
@@ -95,9 +93,7 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 		byte[] checksum = new byte[header.length - 13 - 2 - 2];
 		System.arraycopy(header, 15, checksum, 0, header.length - 13 - 2 - 2);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Checksum: {}", StringUtils.toHexString(checksum));
-		}
+		logDebug("Checksum: {}", StringUtils.toHexString(checksum));
 
 		System.arraycopy(header, 1, macUUcode, 0, 4);
 		byte[] macpart2 = decode(macUUcode);
@@ -116,11 +112,11 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 		mac[6] = macpart2[0];
 		mac[7] = macpart2[1];
 
-		log.debug("Read raw MAC: " + StringUtils.toHexString(mac));
+		logDebug("Read raw MAC: " + StringUtils.toHexString(mac));
 		macAddress = new MacAddress(mac);
-		log.debug("Read MAC: " + macAddress);
+		logDebug("Read MAC: " + macAddress);
 
-		log.debug("Done, result is: " + macAddress);
+		logDebug("Done, result is: " + macAddress);
 		return true;
 	}
 
@@ -156,18 +152,18 @@ public class ReadMacAddressOperation extends iSenseDeviceOperation {
 	 */
 	public void run() {
 		try {
-			log.debug("starting mac read operation");
+			logDebug("starting mac read operation");
 			if (readMac() && macAddress != null) {
 				try {
 					device.leaveProgrammingMode();
 				} catch (Exception e) {
-					log.warn("Failed to leave programming mode:" + e, e);
+					logWarn("Failed to leave programming mode:" + e, e);
 				}
 				operationDone(macAddress);
 				return;
 			}
 		} catch (Throwable t) {
-			log.error("Unhandled error in thread: " + t, t);
+			logError("Unhandled error in thread: " + t, t);
 			operationDone(t);
 			return;
 		}

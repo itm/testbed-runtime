@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RebootDeviceOperation extends iSenseDeviceOperation {
-	private static final Logger log = LoggerFactory.getLogger(RebootDeviceOperation.class);
 
 	public RebootDeviceOperation(PacemateDevice device) {
 		super(device);
@@ -38,10 +37,10 @@ public class RebootDeviceOperation extends iSenseDeviceOperation {
 	public void run() {
 		try {
 			boolean ok = getDevice().reset();
-			log.info("Resetted device");
+			logInfo("Resetted device");
 			operationDone(ok ? new Boolean(true) : null);
 		} catch (Throwable t) {
-			log.warn("Error while resetting device: " + t, t);
+			logWarn("Error while resetting device: " + t, t);
 			operationDone(null);
 		}
 	}

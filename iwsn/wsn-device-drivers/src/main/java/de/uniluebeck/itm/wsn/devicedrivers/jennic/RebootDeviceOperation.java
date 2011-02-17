@@ -25,8 +25,6 @@ package de.uniluebeck.itm.wsn.devicedrivers.jennic;
 
 import de.uniluebeck.itm.wsn.devicedrivers.generic.Operation;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.iSenseDeviceOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // -------------------------------------------------------------------------
 
@@ -34,12 +32,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RebootDeviceOperation extends iSenseDeviceOperation {
-	/**
-	 * Logging
-	 */
-	private static final Logger log = LoggerFactory.getLogger(RebootDeviceOperation.class);
-
-	// -------------------------------------------------------------------------
 
 	/**
 	 *
@@ -56,10 +48,10 @@ public class RebootDeviceOperation extends iSenseDeviceOperation {
 	public void run() {
 		try {
 			boolean ok = getDevice().reset();
-			log.info("Resetted device");
+			logInfo("Resetted device");
 			operationDone(ok ? new Boolean(true) : null);
 		} catch (Throwable t) {
-			log.warn("Error while resetting device: " + t, t);
+			logWarn("Error while resetting device: " + t, t);
 			operationDone(null);
 		}
 	}

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MessagePacket implements Message {
+
 	/** */
 	protected static Logger log = LoggerFactory.getLogger(MessagePacket.class);
 
@@ -97,8 +98,9 @@ public class MessagePacket implements Message {
 	 *
 	 */
 	private synchronized static long nextId() {
-		if (nextIdCounter >= Long.MAX_VALUE - 1)
+		if (nextIdCounter >= Long.MAX_VALUE - 1) {
 			nextIdCounter = 0;
+		}
 
 		return ++nextIdCounter;
 	}
@@ -127,7 +129,24 @@ public class MessagePacket implements Message {
 	 *
 	 */
 	public String toString() {
-		return "Packet ID[" + id + "]: Type: [" + type + "], content: hex[" + StringUtils.toHexString(content) + "], string[" + new String(content) + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("MessagePacket[id=");
+		builder.append(id);
+		builder.append(",type=");
+		builder.append(type);
+		builder.append(",content(hex)=[");
+		builder.append(StringUtils.toHexString(content));
+		builder.append("],content(string)=\"");
+		if (type == PacketTypes.LOG && content.length > 1) {
+			builder.append(content[0] == PacketTypes.LogType.DEBUG ?
+					"DEBUG: " + new String(content, 1, content.length-1) :
+					"FATAL: " + new String(content, 1, content.length-1)
+			);
+		} else {
+			builder.append(new String(content));
+		}
+		builder.append("\"]");
+		return builder.toString();
 	}
 
 	public byte[] getContent() {

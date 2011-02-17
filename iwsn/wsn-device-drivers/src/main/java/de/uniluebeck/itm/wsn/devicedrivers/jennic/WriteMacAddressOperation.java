@@ -38,10 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class WriteMacAddressOperation extends iSenseDeviceOperation {
-	/**
-	 * Logging
-	 */
-	private static final Logger log = LoggerFactory.getLogger(WriteMacAddressOperation.class);
 
 	/** */
 	private JennicDevice device;
@@ -70,18 +66,18 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 
 		// Enter programming mode
 		if (!device.enterProgrammingMode()) {
-			log.error("Unable to enter programming mode");
+			logError("Unable to enter programming mode");
 			return false;
 		}
 
 		// Wait for a connection
 		while (!isCancelled() && !device.waitForConnection())
-			log.info("Still waiting for a connection");
+			logInfo("Still waiting for a connection");
 
 		// Return with success if the user has requested to cancel this
 		// operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -89,11 +85,11 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 		// Connection established, determine chip type and configure the Flash
 		// chip
 		ChipType chipType = device.getChipType();
-		log.debug("Chip type is " + chipType);
+		logDebug("Chip type is " + chipType);
 
 		// Check if the user has cancelled the operation
 		if (isCancelled()) {
-			log.debug("Operation has been cancelled");
+			logDebug("Operation has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
@@ -103,16 +99,18 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 
 		// Check if this operation has been cancelled
 		if (sector == null) {
-			log.debug("Read has been cancelled");
+			logDebug("Read has been cancelled");
 			device.operationCancelled(this);
 			return false;
 		}
 
 		// Copy address into the header of the first sector
-		if (log.isDebugEnabled()) {
-			log.debug("Copy " + StringUtils.toHexString(mac.getMacBytes()) + " to address " + ChipType.getHeaderStart(chipType) + ", length: "
-					+ mac.getMacBytes().length);
-		}
+		logDebug(
+				"Copy {} to address {}, length: {}",
+				StringUtils.toHexString(mac.getMacBytes()),
+				ChipType.getHeaderStart(chipType),
+				mac.getMacBytes().length
+		);
 		// System.arraycopy(mac.getMacBytes(), 0, sector[0][0], ChipType.
 		// getHeaderStart(chipType),
 		// mac.getMacBytes().length);
@@ -127,7 +125,7 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 		// Write sector 0 with the new MAC
 		writeSector(Sectors.SectorIndex.FIRST, sector);
 
-		log.debug("Done, written MAC Address: " + mac);
+		logDebug("Done, written MAC Address: " + mac);
 		return true;
 
 	}
@@ -145,7 +143,7 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 		int totalBlocks = length / getBlockSize();
 		int residue = length - totalBlocks * getBlockSize();
 
-		log.debug(String.format("length = %d, totalBlocks = %d, residue = %d", length, totalBlocks, residue));
+		logDebug(String.format("length = %d, totalBlocks = %d, residue = %d", length, totalBlocks, residue));
 
 		// Prepare byte array
 		byte[][] sector = new byte[totalBlocks + (residue > 0 ? 1 : 0)][getBlockSize()];
@@ -161,7 +159,7 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 
 			// Check if the user has cancelled the operation
 			if (isCancelled()) {
-				log.debug("Operation has been cancelled");
+				logDebug("Operation has been cancelled");
 				device.operationCancelled(this);
 				return null;
 			}
@@ -182,9 +180,7 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 	private void writeSector(Sectors.SectorIndex index, byte[][] sector) throws Exception {
 		int address = Sectors.getSectorStart(index);
 		for (int i = 0; i < sector.length; ++i) {
-			if (log.isDebugEnabled()) {
-				log.debug("Writing sector " + index + ", block " + i + ": " + StringUtils.toHexString(sector[i]));
-			}
+			logDebug("Writing sector " + index + ", block " + i + ": " + StringUtils.toHexString(sector[i]));
 			device.writeFlash(address, sector[i], 0, sector[i].length);
 			address += sector[i].length;
 			float progress = 0.5f + ((float) i + 1) / ((float) sector.length * 2);
@@ -215,13 +211,13 @@ public class WriteMacAddressOperation extends iSenseDeviceOperation {
 
 			return;
 		} catch (Throwable t) {
-			log.error("Unhandled error in thread: " + t, t);
+			logError("Unhandled error in thread: " + t, t);
 			operationDone(t);
 		} finally {
 			try {
 				device.leaveProgrammingMode();
 			} catch (Exception e) {
-				log.warn("Failed to leave programming mode:" + e, e);
+				logWarn("Failed to leave programming mode:" + e, e);
 			}
 		}
 

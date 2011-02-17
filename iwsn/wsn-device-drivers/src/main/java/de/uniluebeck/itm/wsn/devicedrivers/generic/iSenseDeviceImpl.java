@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	/** */
-	private static final Logger log = LoggerFactory.getLogger(iSenseDeviceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** */
 	protected static final byte DLE = 0x10;
@@ -119,6 +119,8 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 	protected TimeDiff operationProgressTimeDiff = new TimeDiff(100);
 
+	protected String logIdentifier;
+
 	public boolean isFlashDebugOutput() {
 		return flashDebugOutput;
 	}
@@ -151,15 +153,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		}
 
 		// log the update
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] Added promiscuous listener {}, now got {} listeners", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					listener,
-					promiscuousListeners.size()
-			}
-			);
-		}
+		logDebug("Added promiscuous listener {}, now got {} listeners", listener, promiscuousListeners.size());
 	}
 
 	@Override
@@ -187,15 +181,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		}
 
 		// log the update
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] Removed promiscuous listener {}, now got {} listeners", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					listener,
-					promiscuousListeners.size()
-			}
-			);
-		}
+		logDebug("Removed promiscuous listener {}, now got {} listeners", listener, promiscuousListeners.size());
 
 		// de-register listener of all types he subscribed
 		for (Integer type : listeners.keySet()) {
@@ -246,16 +232,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		}
 
 		// log the update
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] Added listener {} for type {}, now got {} listeners", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					listener,
-					type,
-					this.listeners.get(type).size()
-			}
-			);
-		}
+		logDebug("Added listener {} for type {}, now got {} listeners", listener, type, this.listeners.get(type).size());
 	}
 
 	public void deregisterListener(iSenseDeviceListener listener, int type) {
@@ -298,16 +275,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		}
 
 		// log the update
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] Removed listener {} for type {}, now got {} listeners", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					listener,
-					type,
-					listeners.get(type).size()
-			}
-			);
-		}
+		logDebug("Removed listener {} for type {}, now got {} listeners.", listener, type, listeners.get(type).size());
 	}
 
 	// ------------------------------------------------------------------------
@@ -321,13 +289,9 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	public void cancelOperation(Operation op) {
 
 		if (operationInProgress() && getOperation() == op) {
-			log.info("[{},{}] Operation {} of type {} will be cancelled.", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					operation,
-					operation.getOperation()
-			}
-			);
+
+			logInfo("Operation {} of type {} will be cancelled.", operation, operation.getOperation());
+
 			operationCancelRequestActive = true;
 			if (operation != null) {
 				operation.cancelOperation();
@@ -337,12 +301,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			{
 				operation.cancelOperation();
 			}*/
-			log.warn("[{},{}] No operation of type {} to cancel", new Object[]{
-					this.getClass().getSimpleName(),
-					getSerialPort(),
-					op
-			}
-			);
+			logWarn("No operation of type {} to cancel", op);
 		}
 
 	}
@@ -452,16 +411,10 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	public void operationDone(final Operation op, final Object result) {
 
-		if (log.isDebugEnabled()) {
-			if (!(result instanceof IDeviceBinFile)) {
-				log.debug("[{},{}] Operation {} done, result: {}",
-						new Object[]{this.getClass().getSimpleName(), getSerialPort(), op, result}
-				);
-			} else {
-				log.debug("[{},{}] Operation {} done.",
-						new Object[]{this.getClass().getSimpleName(), getSerialPort(), op}
-				);
-			}
+		if (!(result instanceof IDeviceBinFile)) {
+			logDebug("Operation {} done, result: {}", op, result);
+		} else {
+			logDebug("Operation {} done.", op);
 		}
 
 		for (final iSenseDeviceListener l : promiscuousListeners) {
@@ -486,11 +439,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	public void operationCancelled(final iSenseDeviceOperation op) {
 
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] Operation {} cancelled",
-					new Object[]{this.getClass().getSimpleName(), getSerialPort(), op}
-			);
-		}
+		logDebug("Operation {} cancelled", op);
 
 		for (final iSenseDeviceListener l : promiscuousListeners) {
 			l.operationCanceled(op.getOperation());
@@ -515,9 +464,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 
 		if (log.isDebugEnabled() && operationProgressTimeDiff.isTimeout()) {
 			operationProgressTimeDiff.touch();
-			log.debug("[{},{}] Operation {} progress: {}",
-					new Object[]{this.getClass().getSimpleName(), getSerialPort(), op, fraction}
-			);
+			logDebug("Operation {} progress: {}", op, fraction);
 		}
 
 		for (final iSenseDeviceListener l : promiscuousListeners) {
@@ -566,10 +513,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 		} else if (messageMode == MessageMode.PLAIN) {
 			receivePlainText(inStream);
 		} else {
-			log.error("[{},{}] Unknown message type [{}]", new Object[]{
-					this.getClass().getSimpleName(), getSerialPort(), messageMode
-			}
-			);
+			logError("Unknown message type: {}", getSerialPort(), messageMode);
 		}
 	}
 
@@ -607,14 +551,12 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 						ensureBufferSize();
 						packet[packetLength++] = MessagePacket.DLE;
 					} else {
+
 						if (log.isErrorEnabled()) {
-							log.error("[{},{}] iSenseDeviceImpl: Incomplete packet received: \nHEX: {}\nSTR: {}",
-									new Object[]{
-											this.getClass().getSimpleName(),
-											getSerialPort(),
-											StringUtils.toHexString(this.packet, 0, packetLength),
-											new String(this.packet, 0, packetLength)
-									}
+							logError(
+									"Incomplete packet received: \nHEX: {}\nSTR: {}",
+									StringUtils.toHexString(this.packet, 0, packetLength),
+									new String(this.packet, 0, packetLength)
 							);
 						}
 						clearPacket();
@@ -647,12 +589,11 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			}
 
 		} catch (IOException error) {
-			log.error("[{},{}] Error on rx (Retry in 1s): {}",
-					new Object[]{this.getClass().getSimpleName(), getSerialPort(), error}
-			);
+			logError("Error on rx (Retry in 1s): {}", error);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+				logError("" + e);
 			}
 		}
 	}
@@ -681,7 +622,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			// Reset packet information
 			packetLength = 0;
 		} catch (IOException error) {
-			log.debug("[{},{}] Error: {}", new Object[]{this.getClass().getSimpleName(), getSerialPort(), error});
+			logDebug("Error while receiving plain text packet: {}", error);
 		}
 	}
 
@@ -711,11 +652,7 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 	 */
 	public void notifyReceivePlainText(final MessagePlainText p) {
 
-		if (log.isDebugEnabled()) {
-			log.debug("[{},{}] New plain text packet received: {}",
-					new Object[]{this.getClass().getSimpleName(), getSerialPort(), p}
-			);
-		}
+		logDebug("New plain text packet received: {}", p);
 
 		for (final iSenseDeviceListener l : promiscuousListeners) {
 			l.receivePlainText(p);
@@ -744,6 +681,81 @@ public abstract class iSenseDeviceImpl extends iSenseDevice {
 			byte tmp[] = new byte[packetLength + 100];
 			System.arraycopy(this.packet, 0, tmp, 0, packetLength);
 			this.packet = tmp;
+		}
+	}
+
+	@Override
+	public void setLogIdentifier(String logIdentifier) {
+		this.logIdentifier = logIdentifier == null ? null : logIdentifier.endsWith(" ") ? logIdentifier : logIdentifier + " ";
+	}
+
+	protected void logDebug(String format, Object... args) {
+		if (log.isDebugEnabled()) {
+			if (logIdentifier != null) {
+				log.debug(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = this.getClass().getSimpleName();
+				newArgs[1] = getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.debug("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logTrace(String format, Object... args) {
+		if (log.isTraceEnabled()) {
+			if (logIdentifier != null) {
+				log.trace(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = this.getClass().getSimpleName();
+				newArgs[1] = getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.trace("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logInfo(String format, Object... args) {
+		if (log.isInfoEnabled()) {
+			if (logIdentifier != null) {
+				log.info(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = this.getClass().getSimpleName();
+				newArgs[1] = getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.info("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logWarn(String format, Object... args) {
+		if (log.isWarnEnabled()) {
+			if (logIdentifier != null) {
+				log.warn(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = this.getClass().getSimpleName();
+				newArgs[1] = getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.warn("[{},{}] " + format, newArgs);
+			}
+		}
+	}
+
+	protected void logError(String format, Object... args) {
+		if (log.isErrorEnabled()) {
+			if (logIdentifier != null) {
+				log.error(logIdentifier + format, args);
+			} else {
+				Object[] newArgs = new Object[2 + args.length];
+				newArgs[0] = this.getClass().getSimpleName();
+				newArgs[1] = getSerialPort();
+				System.arraycopy(args, 0, newArgs, 2, args.length);
+				log.error("[{},{}] " + format, newArgs);
+			}
 		}
 	}
 

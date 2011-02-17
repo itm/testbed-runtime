@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * @author Friedemann Wesner
  */
 public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
-	private static final Logger log = LoggerFactory.getLogger(TelosbRebootDeviceOperation.class);
 
 	/**
 	 * Constructor
@@ -61,10 +60,10 @@ public class TelosbRebootDeviceOperation extends iSenseDeviceOperation {
 	public void run() {
 		try {
 			boolean ok = getDevice().reset();
-			log.info("Resetted device");
+			logInfo("Resetted device");
 			operationDone(ok ? new Boolean(true) : null);
 		} catch (Throwable t) {
-			log.warn("Error while resetting device: " + t, t);
+			logWarn("Error while resetting device: " + t, t);
 			operationDone(null);
 		}
 	}

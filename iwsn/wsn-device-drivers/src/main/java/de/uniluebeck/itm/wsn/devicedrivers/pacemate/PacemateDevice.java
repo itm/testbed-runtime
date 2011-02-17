@@ -41,8 +41,6 @@ import java.util.Enumeration;
 
 public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventListener {
 
-	private static final Logger log = LoggerFactory.getLogger(PacemateDevice.class);
-
 	private InputStream inStream = null;
 
 	private OutputStream outStream = null;
@@ -103,10 +101,10 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			try {
 				setSerialPort(serialPortName);
 				if (serialPort == null) {
-					log.debug("connect(): serialPort==null");
+					logDebug("connect(): serialPort==null");
 				}
 			} catch (PortInUseException piue) {
-				log.debug("Port already in use. Connection will be removed. ");
+				logDebug("Port already in use. Connection will be removed. ");
 				if (serialPort != null) {
 					serialPort.close();
 				}
@@ -116,7 +114,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				if (serialPort != null) {
 					serialPort.close();
 				}
-				log.debug("Port does not exist. Connection will be removed. " + e, e);
+				logDebug("Port does not exist. Connection will be removed. " + e, e);
 				return false;
 			}
 			return true;
@@ -126,7 +124,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	@SuppressWarnings("unchecked")
 	public void setSerialPort(String port) throws Exception {
-		log.debug("PacemateDevice.setSerialPort({})", port);
+		logDebug("PacemateDevice.setSerialPort({})", port);
 		CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
 		SerialPort sp = null;
 		CommPort commPort = null;
@@ -135,7 +133,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				commPort = cpi.open(this.getClass().getName(), 1000);
 				break;
 			} catch (PortInUseException piue) {
-				log.debug("Port in Use Retrying to connect");
+				logDebug("Port in Use Retrying to connect");
 				if (i >= MAX_RETRIES - 1) {
 					throw (piue);
 				}
@@ -146,9 +144,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		if (commPort instanceof SerialPort) {
 			sp = (SerialPort) commPort;
 		} else {
-			log.debug("Port is no SerialPort");
+			logDebug("Port is no SerialPort");
 		}
-		
+
 		serialPort = sp;
 		serialPort.addEventListener(this);
 		serialPort.notifyOnDataAvailable(true);
@@ -161,7 +159,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	public boolean reset() {
 
-		log.debug("Resetting device Pacemate style");
+		logDebug("Resetting device Pacemate style");
 		serialPort.setDTR(true);
 		try {
 			Thread.sleep(200);
@@ -183,9 +181,9 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		serialPort.setDTR(false);
 		Thread.sleep(200);
 		serialPort.setRTS(false);
-		log.info("Entered programming mode the Pacemate style");
+		logInfo("Entered programming mode the Pacemate style");
 
-		// log.debug("Com port in programming mode");
+		// logDebug("Com port in programming mode");
 		return true;
 	}
 
@@ -194,17 +192,17 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// .flash_baudrate : SettingsKey.read_baudrate;
 		int baudrate = (mode == ComPortMode.Program) ? flashBaudrate : readBaudrate;
 
-		log.debug("set com port " + baudrate + " " + databits + " " + stopbits + " " + parityBit);
+		logDebug("set com port " + baudrate + " " + databits + " " + stopbits + " " + parityBit);
 
 		serialPort.setSerialPortParams(baudrate, databits, stopbits, parityBit);
 
 		serialPort.setDTR(false);
 		serialPort.setRTS(false);
-		log.debug("Setting COM-Port parameters (new style): baudrate: " + serialPort.getBaudRate());
+		logDebug("Setting COM-Port parameters (new style): baudrate: " + serialPort.getBaudRate());
 	}
 
 	public void leaveProgrammingMode() throws Exception {
-		// log.debug("Leaving programming mode.");
+		// logDebug("Leaving programming mode.");
 
 		// Restore normal settings
 		flushReceiveBuffer();
@@ -212,11 +210,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		// Reboot (if requested by the user)
 		if (rebootAfterFlashing) {
-			log.debug("Rebooting device");
+			logDebug("Rebooting device");
 			reset();
 		}
 
-		// log.debug("Done. Left programming mode.");
+		// logDebug("Done. Left programming mode.");
 	}
 
 	public ChipType getChipType() throws Exception {
@@ -231,11 +229,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		if (response.compareTo("196387") == 0) {
 			chipType = ChipType.LPC2136;
 		} else {
-			log.error("Defaulted to chip type LPC2136 (Pacemate). Identification may be wrong." + response);
+			logError("Defaulted to chip type LPC2136 (Pacemate). Identification may be wrong." + response);
 			chipType = ChipType.LPC2136;
 		}
 
-		log.debug("Chip identified as " + chipType + " (received " + response + ")");
+		logDebug("Chip identified as " + chipType + " (received " + response + ")");
 		return chipType;
 	}
 
@@ -253,12 +251,13 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
-		log.debug("PacemateDevice: trigger Mac Adress");
+		logDebug("PacemateDevice: trigger Mac Adress");
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return;
 		}
 		operation = new ReadMacAddressOperation(this);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 
 	}
@@ -267,24 +266,26 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	public boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return false;
 		}
 
 		operation = new FlashProgramOperation(this, program, true);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
 
 	@Override
 	public boolean triggerReboot() throws Exception {
-		log.debug("Starting reboot device thread");
+		logDebug("Starting reboot device thread");
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return false;
 		}
 
 		operation = new RebootDeviceOperation(this);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 		return true;
 	}
@@ -293,10 +294,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	public void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) {
 		this.rebootAfterFlashing = rebootAfterFlashing;
 		if (operationInProgress()) {
-			log.error("Already another operation in progress (" + operation + ")");
+			logError("Already another operation in progress (" + operation + ")");
 			return;
 		}
 		operation = new WriteMacAddressOperation(this, mac);
+		operation.setLogIdentifier(logIdentifier);
 		operation.start();
 	}
 
@@ -318,14 +320,14 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				inStream.close();
 			}
 		} catch (IOException e) {
-			log.debug("Failed to close in-stream :" + e, e);
+			logDebug("Failed to close in-stream :" + e, e);
 		}
 		try {
 			if (outStream != null) {
 				outStream.close();
 			}
 		} catch (IOException e) {
-			log.debug("Failed to close out-stream :" + e, e);
+			logDebug("Failed to close out-stream :" + e, e);
 		}
 		if (serialPort != null) {
 			serialPort.removeEventListener();
@@ -340,9 +342,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 *
 	 * @param address
 	 * @param len
-	 *
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -353,9 +353,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	/**
 	 * @param address
 	 * @param len
-	 *
 	 * @return
-	 *
 	 * @throws Exception
 	 */
 	public byte[] readFlash(long address, int len) throws Exception {
@@ -373,7 +371,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	@Override
 	public byte[] writeFlash(int address, byte[] data, int offset, int len) throws Exception {
 
-		log.error(String.format("Wrong write to flash method use writeToRam instead fro pacemate"));
+		logError(String.format("Wrong write to flash method use writeToRam instead fro pacemate"));
 		throw new FlashProgramFailedException();
 	}
 
@@ -382,13 +380,13 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 */
 	public void writeToRAM(long address, int len) throws Exception {
 		// Send flash program request
-		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
+		// logDebug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.writeToRAMRequestMessage(address, len));
 		//System.out.println("send ready");
 		// Read flash program response
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
-		// log.debug("write to RAM ok");
+		// logDebug("write to RAM ok");
 	}
 
 	/**
@@ -396,17 +394,17 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 */
 	public void copyRAMToFlash(long flashAddress, long ramAddress, int len) throws Exception {
 		// Send flash program request
-		// log.debug("Sending program request for address " + address + " with " + data.length + " bytes");
+		// logDebug("Sending program request for address " + address + " with " + data.length + " bytes");
 		sendBootLoaderMessage(Messages.copyRAMToFlashRequestMessage(flashAddress, ramAddress, len));
 
 		// Read flash program response
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
-		// log.debug("Copy Ram to Flash ok");
+		// logDebug("Copy Ram to Flash ok");
 	}
 
 	protected void configureFlash() throws Exception {
-		// log.debug("Configuring flash");
+		// logDebug("Configuring flash");
 
 		enableFlashErase();
 
@@ -416,11 +414,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// Read flash configure response
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
-		// log.debug("Done. Flash is configured");
+		// logDebug("Done. Flash is configured");
 	}
 
 	protected void configureFlash(int start, int end) throws Exception {
-		// log.debug("Configuring flash");
+		// logDebug("Configuring flash");
 
 		enableFlashErase();
 
@@ -430,11 +428,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		// Read flash configure response
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 
-		// log.debug("Done. Flash is configured");
+		// logDebug("Done. Flash is configured");
 	}
 
 	void enableFlashErase() throws Exception {
-		// log.debug("Erase Flash");
+		// logDebug("Erase Flash");
 		sendBootLoaderMessage(Messages.Unlock_RequestMessage());
 
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
@@ -444,14 +442,14 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	@Override
 	public void eraseFlash() throws Exception {
 		// enableFlashErase();
-		log.debug("Erasing flash");
+		logDebug("Erasing flash");
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(3, 14));
 
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		try {
 			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		} catch (TimeoutException e) {
-			log.debug("one line erase response");
+			logDebug("one line erase response");
 		}
 
 	}
@@ -462,7 +460,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	@Override
 	public void eraseFlash(Sectors.SectorIndex sector) throws Exception {
 		// enableFlashErase();
-		log.debug("Erasing sector "/* + sector*/);
+		logDebug("Erasing sector "/* + sector*/);
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(3, 14));
 
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
@@ -470,32 +468,32 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 	public void eraseFlash(int start, int end) throws Exception {
 		// enableFlashErase();
-		log.debug("Erasing sector "/* + sector*/);
+		logDebug("Erasing sector "/* + sector*/);
 		sendBootLoaderMessage(Messages.flashEraseRequestMessage(start, end));
 
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		try {
 			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 		} catch (TimeoutException e) {
-			log.debug("one line erase response");
+			logDebug("one line erase response");
 		}
 	}
 
 	public void startWriteToRAM(int startAddress, int numberOfBytes) throws Exception {
 
-		log.debug("Start write to RAM "/* + sector*/);
+		logDebug("Start write to RAM "/* + sector*/);
 		sendBootLoaderMessage(Messages.writeToRAMRequestMessage(startAddress, numberOfBytes));
 
 		receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
 	}
 
 	public void serialEvent(SerialPortEvent event) {
-		// log.debug("Serial event");
+		// logDebug("Serial event");
 		switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
 
 				synchronized (dataAvailableMonitor) {
-					// log.debug("DM");
+					// logDebug("DM");
 					dataAvailableMonitor.notifyAll();
 				}
 
@@ -508,17 +506,17 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 				break;
 			default:
-				log.debug("Serial event (other than data available): " + event);
+				logDebug("Serial event (other than data available): " + event);
 				break;
 		}
 	}
 
 	@Override
 	public void send(MessagePacket p) throws IOException {
-		// log.debug("JD: Sending " + p);
+		// logDebug("JD: Sending " + p);
 
 		if (operationInProgress()) {
-			log.error("Skipping packet. Another operation already in progress (" + operation.getClass().getName() + ")"
+			logError("Skipping packet. Another operation already in progress (" + operation.getClass().getName() + ")"
 			);
 			return;
 		}
@@ -536,11 +534,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		//	iSenseStyle = false;
 
 		if (b == null || type > 0xFF) {
-			log.warn("Skipping empty packet or type > 0xFF.");
+			logWarn("Skipping empty packet or type > 0xFF.");
 			return;
 		}
 		if (b.length > 150) {
-			log.warn("Skipping too large packet (length " + b.length + ")");
+			logWarn("Skipping too large packet (length " + b.length + ")");
 			return;
 		}
 
@@ -588,7 +586,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		data[data.length - 1] = 0x0A; // <LF>
 
 		// Print message
-		// log.debug("Sending boot loader msg: " + Tools.toHexString(data));
+		// logDebug("Sending boot loader msg: " + Tools.toHexString(data));
 
 		// Send message
 		outStream.write(data);
@@ -620,7 +618,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		data[dataMessage.length + 1] = 0x0A; // <LF>
 
 		// Print message
-		// log.debug("Sending data msg: " + Tools.toASCIIString(data));
+		// logDebug("Sending data msg: " + Tools.toASCIIString(data));
 
 		// Send message
 		outStream.write(data);
@@ -633,9 +631,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * Writes the CRC to the last two bytes of the Flash pacemate style
 	 *
 	 * @param crc
-	 *
 	 * @return everything OK
-	 *
 	 * @throws Exception
 	 */
 	public boolean writeCRCtoFlash(int crc) throws Exception {
@@ -646,26 +642,26 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		crc_bytes[254] = (byte) ((crc & 0xff00) >> 8);
 		crc_bytes[255] = (byte) (crc & 0xff);
 
-		log.debug("CRC = " + crc + " " + crc_bytes[254] + " " + crc_bytes[255]);
+		logDebug("CRC = " + crc + " " + crc_bytes[254] + " " + crc_bytes[255]);
 
 		try {
 			configureFlash(14, 14);
 		} catch (Exception e) {
-			log.debug("Error while configure flash!");
+			logDebug("Error while configure flash!");
 			return false;
 		}
 
 		try {
 			eraseFlash(14, 14);
 		} catch (Exception e) {
-			log.debug("Error while erasing flash!");
+			logDebug("Error while erasing flash!");
 			return false;
 		}
 
 		try {
 			writeToRAM(startAdressInRam, 256);
 		} catch (Exception e) {
-			log.debug("Error while write to RAM!");
+			logDebug("Error while write to RAM!");
 			return false;
 		}
 
@@ -699,9 +695,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				crc_checksum = PacemateBinFile.calcCRCChecksum(crc_checksum, line[i]);
 			}
 
-			if (log.isDebugEnabled()) {
-				log.debug("Sending data msg: " + StringUtils.toHexString(line));
-			}
+			logDebug("Sending data msg: " + StringUtils.toHexString(line));
 
 			sendDataMessage(PacemateBinFile.encodeCRCData(line, (line.length - offset)));
 		}
@@ -709,20 +703,20 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		try {
 			sendChecksum(crc_checksum);
 		} catch (Exception e) {
-			log.debug("Error while sending checksum for crc!");
+			logDebug("Error while sending checksum for crc!");
 			return false;
 		}
 
 		// if block is completed copy data from RAM to Flash
 		int crc_block_start = 0x3ff00;
 
-		log.debug("Prepare Flash and Copy Ram to Flash 14 14 " + crc_block_start);
+		logDebug("Prepare Flash and Copy Ram to Flash 14 14 " + crc_block_start);
 
 		try {
 			configureFlash(14, 14);
 			copyRAMToFlash(crc_block_start, startAdressInRam, 256);
 		} catch (Exception e) {
-			log.debug("Error while copy RAM to Flash!");
+			logDebug("Error while copy RAM to Flash!");
 			return false;
 		}
 
@@ -743,7 +737,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	public void sendChecksum(long CRC) throws IOException, TimeoutException, UnexpectedResponseException,
 			InvalidChecksumException, NullPointerException {
 
-		// log.debug("Send CRC after 20 Lines or end of Block");
+		// logDebug("Send CRC after 20 Lines or end of Block");
 		sendBootLoaderMessage(Messages.writeCRCRequestMessage(CRC));
 
 		receiveBootLoaderReplyReadCRCOK();
@@ -764,7 +758,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				message[index] = (byte) inStream.read();
 				//System.out.println("************ Done reading from stream");
 			} catch (IOException e) {
-				log.error("" + e, e);
+				logError("" + e, e);
 			}
 			if (message[index] == -1) {
 				a = false;
@@ -781,9 +775,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * Receive the bsl reply message to all request messages with a success answer
 	 *
 	 * @param type
-	 *
 	 * @return
-	 *
 	 * @throws TimeoutException
 	 * @throws UnexpectedResponseException
 	 * @throws InvalidChecksumException
@@ -809,7 +801,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		if (this.isFlashDebugOutput()) {
 			for (int j = 0; j < parts.length; j++) {
-				log.info("BL parts " + parts[j]);
+				logInfo("BL parts " + parts[j]);
 			}
 		}
 
@@ -846,9 +838,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * Receive the BSL reply message for the autobaud / synchronize request
 	 *
 	 * @param type
-	 *
 	 * @return
-	 *
 	 * @throws TimeoutException
 	 * @throws UnexpectedResponseException
 	 * @throws InvalidChecksumException
@@ -949,7 +939,6 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * Read the response to the CRC message
 	 *
 	 * @return
-	 *
 	 * @throws TimeoutException
 	 * @throws UnexpectedResponseException
 	 * @throws InvalidChecksumException
@@ -976,14 +965,14 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			if (parts[1].compareTo(Messages.OK) == 0) {
 				return reply;
 			} else {
-				log.debug("Received boot loader msg: " + replyStr);
+				logDebug("Received boot loader msg: " + replyStr);
 				throw new InvalidChecksumException("Invalid checksum - resend " + replyStr);
 			}
 		} else {
 			if (parts[0].compareTo(Messages.OK) == 0) {
 				return reply;
 			} else {
-				log.debug("Received boot loader msg: " + replyStr);
+				logDebug("Received boot loader msg: " + replyStr);
 				throw new InvalidChecksumException("Invalid checksum - resend " + replyStr);
 			}
 		}
@@ -994,9 +983,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * expected number of  cr lf chars
 	 *
 	 * @param CRLFcount
-	 *
 	 * @return
-	 *
 	 * @throws TimeoutException
 	 * @throws IOException
 	 */
@@ -1042,7 +1029,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		byte[] fullMessage = new byte[index];
 		System.arraycopy(message, 0, fullMessage, 0, index);
 		if (this.isFlashDebugOutput()) {
-			log.info("read lines " + StringUtils.toASCIIString(fullMessage));
+			logInfo("read lines " + StringUtils.toASCIIString(fullMessage));
 		}
 		return fullMessage;
 	}
@@ -1054,7 +1041,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	 * @param index
 	 */
 	private boolean checkResponseMessage(byte[] message, int index) {
-		//log.info("Check Response "+message[index-5]+" "+message[index-4]+" "+message[index-3]+" "+message[index-2]+" "+message[index-1]);
+		//logInfo("Check Response "+message[index-5]+" "+message[index-4]+" "+message[index-3]+" "+message[index-2]+" "+message[index-1]);
 		if ((message[index - 5] == 13)		 // cr
 				&& (message[index - 4] == 10)  // lf
 				&& (message[index - 3] == 48)  // 0
@@ -1069,7 +1056,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 	/**
 	 * Wait at most timeoutMillis for the input stream to become available
 	 *
-	 * @param istream The stream to monitor
+	 * @param istream	   The stream to monitor
 	 * @param timeoutMillis Milliseconds to wait until timeout, 0 for no timeout
 	 * @return The number of characters available
 	 * @throws TimeoutException
@@ -1081,7 +1068,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		while (inStream != null && (avail = inStream.available()) == 0) {
 			if (timeoutMillis > 0 && timeDiff.ms() >= timeoutMillis) {
-				log.warn("Timeout waiting for data (waited: " + timeDiff.ms() + ", timeoutMs:" + timeoutMillis + ")");
+				logWarn("Timeout waiting for data (waited: " + timeDiff.ms() + ", timeoutMs:" + timeoutMillis + ")");
 				throw new TimeoutException();
 			}
 
@@ -1089,7 +1076,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				try {
 					dataAvailableMonitor.wait(50);
 				} catch (InterruptedException e) {
-					log.error("" + e, e);
+					logError("" + e, e);
 				}
 			}
 		}
@@ -1109,7 +1096,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				try {
 					dataAvailableMonitor.wait(50);
 				} catch (InterruptedException e) {
-					log.error(e.toString());
+					logError(e.toString());
 				}
 			}
 		}
@@ -1123,12 +1110,12 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			// device is supposed to respond)
 			sendBootLoaderMessage(Messages.ReadPartIDRequestMessage());
 			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
-			log.info("Device connection established");
+			logInfo("Device connection established");
 			return true;
 		} catch (TimeoutException to) {
-			log.debug("Still waiting for a connection.");
+			logDebug("Still waiting for a connection.");
 		} catch (Exception error) {
-			log.warn("Exception while waiting for connection", error);
+			logWarn("Exception while waiting for connection", error);
 		}
 
 		flushReceiveBuffer();
@@ -1143,11 +1130,11 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			receiveBootLoaderReplySynchronized(Messages.SYNCHRONIZED);
 			sendBootLoaderMessage(Messages.AutoBaudRequest3Message());
 			receiveBootLoaderReplySynchronized(Messages.SYNCHRONIZED_OK);
-			log.info("Autobaud");
+			logInfo("Autobaud");
 		} catch (TimeoutException to) {
-			log.debug("Still waiting for a connection.");
+			logDebug("Still waiting for a connection.");
 		} catch (Exception error) {
-			log.warn("Exception while waiting for connection", error);
+			logWarn("Exception while waiting for connection", error);
 		}
 		return true;
 	}
@@ -1156,27 +1143,27 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 		try {
 			sendBootLoaderMessage(Messages.SetEchoOffMessage());
 			receiveBootLoaderReplySuccess(Messages.CMD_SUCCESS);
-			log.info("Echo off");
+			logInfo("Echo off");
 			echo_on = false;
 		} catch (TimeoutException to) {
-			log.debug("Still waiting for a connection.");
+			logDebug("Still waiting for a connection.");
 		} catch (Exception error) {
-			log.warn("Exception while waiting for connection", error);
+			logWarn("Exception while waiting for connection", error);
 		}
 		return true;
 	}
 
 	protected void flushReceiveBuffer() {
 		long i = 0;
-		// log.debug("Flushing serial rx buffer");
+		// logDebug("Flushing serial rx buffer");
 
 		try {
 			while ((i = inStream.available()) > 0) {
-				log.debug("Skipping " + i + " characters while flushing on the serial rx");
+				logDebug("Skipping " + i + " characters while flushing on the serial rx");
 				inStream.skip(i);
 			}
 		} catch (IOException e) {
-			log.warn("Error while serial rx flushing buffer: " + e, e);
+			logWarn("Error while serial rx flushing buffer: " + e, e);
 		}
 	}
 

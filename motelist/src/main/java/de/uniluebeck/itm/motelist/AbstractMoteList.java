@@ -220,7 +220,7 @@ abstract class AbstractMoteList implements MoteList {
                 device.triggerGetMacAddress(true);
             }
             else{
-            	log.error("device not  ");
+            	log.error("Device not connected");
             }
 
             while (!diff.isTimeout() && !devices.containsKey(data.port)) {

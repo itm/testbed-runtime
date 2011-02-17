@@ -101,7 +101,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		private final ScheduledFuture<?> flashTimeoutRunnable;
 
-		private final TimeDiff lastProgress = new TimeDiff(1500);
+		private final TimeDiff lastProgress = new TimeDiff(3000);
 
 		private FlashProgramCallback listener;
 
@@ -125,17 +125,25 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationCanceled(final Operation op) {
 
+			log.debug("{} => WSNDeviceAppConnectorLocal.FlashProgramListener.operationCancelled({})", nodeUrn, op);
+
 			if (op == Operation.PROGRAM) {
 
-				flashTimeoutRunnable.cancel(true);
+				try {
+					log.warn("{} => Operation was cancelled: {}", nodeUrn, op);
 
-				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-				device.deregisterListener(FlashProgramListener.this);
-				state.setState(State.READY);
+					flashTimeoutRunnable.cancel(true);
+					listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+				} finally {
+					log.debug("{} => Setting state to READY and deregistering FlashProgramListener instance.", nodeUrn);
+					device.deregisterListener(FlashProgramListener.this);
+					state.setState(State.READY);
+				}
 
 			} else {
 				log.error(
-						"Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+						"{} => Received operation state from device drivers != PROGRAM ({}) which should not be possible",
+						nodeUrn,
 						op
 				);
 			}
@@ -144,21 +152,27 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationDone(final Operation op, final Object result) {
 
+			log.debug("{} => WSNDeviceAppConnectorLocal.FlashProgramListener.operationDone({})", nodeUrn, op);
+
 			if (op == Operation.PROGRAM) {
 
-				flashTimeoutRunnable.cancel(true);
+				try {
+					flashTimeoutRunnable.cancel(true);
 
-				if (result instanceof Exception) {
-					log.debug("{} => Failed flashing node. Reason: {}", nodeUrn, result);
-					listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
-				} else {
-					log.debug("{} => Done flashing node.", nodeUrn, result);
-					listener.success(null);
+					if (result instanceof Exception) {
+						log.debug("{} => Failed flashing node. Reason: {}", nodeUrn, result);
+						String message = "Failed flashing node. Reason: " + result;
+						listener.failure((byte) -1, message.getBytes());
+					} else {
+						log.debug("{} => Done flashing node.", nodeUrn, result);
+						listener.success(null);
+					}
+
+				} finally {
+					log.debug("{} => Setting state to READY and deregistering FlashProgramListener instance.", nodeUrn);
+					device.deregisterListener(this);
+					state.setState(State.READY);
 				}
-
-				log.debug("{} => Setting state to READY and deregistering FlashProgramListener instance.", nodeUrn);
-				device.deregisterListener(this);
-				state.setState(State.READY);
 
 			} else {
 				log.error(
@@ -229,13 +243,19 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationCanceled(final Operation op) {
 
+			log.debug("{} => WSNDeviceAppConnectorLocal.ResetListener.operationCanceled({})", nodeUrn, op);
+
 			if (op == Operation.RESET) {
 
-				resetTimeoutRunnableFuture.cancel(true);
+				try {
+					resetTimeoutRunnableFuture.cancel(true);
 
-				listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-				device.deregisterListener(this);
-				state.setState(State.READY);
+					listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+				} finally {
+					log.debug("{} => Setting state to READY and deregistering ResetListener instance.", nodeUrn);
+					device.deregisterListener(this);
+					state.setState(State.READY);
+				}
 
 			} else {
 				log.error(
@@ -250,24 +270,32 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationDone(final Operation op, final Object result) {
 
+			if (log.isDebugEnabled()) {
+				log.debug("{} => WSNDeviceAppConnectorLocal.ResetListener.operationDone({}, {})", new Object[]{nodeUrn, op, result});
+			}
+
 			if (op == Operation.RESET) {
 
-				resetTimeoutRunnableFuture.cancel(true);
+				try {
+					resetTimeoutRunnableFuture.cancel(true);
 
-				if (result instanceof Exception) {
-					log.debug("{} => Failed resetting node. Reason: {}", nodeUrn, result);
-					listener.failure((byte) -1, ((Exception) result).getMessage().getBytes());
-				} else if (result instanceof Boolean && ((Boolean) result)) {
-					log.debug("{} => Done resetting node.", nodeUrn);
-					listener.success(null);
-				} else {
-					log.debug("{} => Failed resetting node.");
-					listener.failure((byte) -1, "Could not reset node.".getBytes());
+					if (result instanceof Exception) {
+						log.debug("{} => Failed resetting node. Reason: {}", nodeUrn, result);
+						String msg = "Failed resetting node. Reason: " + result;
+						listener.failure((byte) -1, msg.getBytes());
+					} else if (result instanceof Boolean && ((Boolean) result)) {
+						log.debug("{} => Done resetting node.", nodeUrn);
+						listener.success(null);
+					} else {
+						log.debug("{} => Failed resetting node.");
+						listener.failure((byte) -1, "Could not reset node.".getBytes());
+					}
+				} finally {
+					log.debug("{} => Setting state to READY and deregistering ResetListener instance.", nodeUrn);
+					device.deregisterListener(this);
+					state.setState(State.READY);
 				}
 
-				log.debug("{} => Setting state to READY and deregistering ResetListener instance.", nodeUrn);
-				device.deregisterListener(this);
-				state.setState(State.READY);
 
 			} else {
 				log.error(
@@ -378,6 +406,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			try {
 
 				device = DeviceFactory.create(nodeType, nodeSerialInterface);
+				device.setLogIdentifier(nodeUrn + " => ");
 
 			} catch (Exception e) {
 				log.warn("{} => Connection to {} device on serial port {} failed. Reason: {}. Retrying in 30 seconds.",
@@ -645,7 +674,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
 			log.warn("{} => {}", nodeUrn, msg);
-			listener.failure((byte) -1, msg.getBytes());
+			listener.failure((byte) -2, msg.getBytes());
 			return;
 		}
 
@@ -653,7 +682,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			state.setState(State.OPERATION_RUNNING);
 		} catch (RuntimeException e) {
 			String msg = "There's an operation (flashProgram, resetNode) running currently. Please try again later.";
-			log.warn("{} => {}", nodeUrn, msg);
+			log.warn("{} => flashProgram: {}", nodeUrn, msg);
 			listener.failure((byte) -1, msg.getBytes());
 			return;
 		}
@@ -675,8 +704,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		} catch (Exception e) {
 			String msg = "Error reading bin file. Reason: " + e;
-			log.error("{} => {}", nodeUrn, msg);
-			listener.failure((byte) -1, msg.getBytes());
+			log.error("{} => flashProgram: {}", nodeUrn, msg);
+			listener.failure((byte) -3, msg.getBytes());
 			state.setState(State.READY);
 			return;
 		}
@@ -712,14 +741,16 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		try {
 
 			if (!device.triggerProgram(iSenseBinFile, true)) {
-				listener.failure((byte) 0, "Failed to trigger programming.".getBytes());
+				String msg = "Failed to trigger programming.";
+				log.debug("{} => flashProgram: {}", nodeUrn, msg);
+				listener.failure((byte) -4, msg.getBytes());
 				device.deregisterListener(flashListener);
 				state.setState(State.READY);
 			}
 
 		} catch (Exception e) {
-			log.error("{} => Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
-			listener.failure((byte) 0, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
+			log.error("{} => flashProgram: Error while flashing device. Reason: {}", nodeUrn, e.getMessage());
+			listener.failure((byte) -5, ("Error while flashing device. Reason: " + e.getMessage()).getBytes());
 			device.deregisterListener(flashListener);
 			state.setState(State.READY);
 		}

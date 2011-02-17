@@ -73,15 +73,15 @@
 		<plugins>
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
-				<version>1.4.5</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.6</version>
 				<executions>
 					<execution>
 						<id>flash</id>
 						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceFlasherCLI</mainClass>
-							<onejarVersion>0.97-RC10</onejarVersion>
+							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
 							<classifier>flash</classifier>
 							<filename>${project.artifactId}-${project.version}-flash.jar</filename>
@@ -123,10 +123,94 @@
 						<phase>package</phase>
 						<configuration>
 							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceListenerCLI</mainClass>
-							<onejarVersion>0.97-RC10</onejarVersion>
+							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
 							<classifier>listen</classifier>
 							<filename>${project.artifactId}-${project.version}-listen.jar</filename>
+							<binlibs>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
+									<includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>readmac</id>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceReadMacCLI</mainClass>
+							<onejarVersion>0.98-RC2</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>readmac</classifier>
+							<filename>${project.artifactId}-${project.version}-readmac.jar</filename>
+							<binlibs>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
+									<includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>writemac</id>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.wsn.deviceutils.DeviceWriteMacCLI</mainClass>
+							<onejarVersion>0.98-RC2</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>writemac</classifier>
+							<filename>${project.artifactId}-${project.version}-writemac.jar</filename>
 							<binlibs>
 								<fileSet>
 									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>

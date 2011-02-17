@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
  * @author dp
  */
 public class NullDevice extends iSenseDeviceImpl {
-	/** */
-	private static final Logger log = LoggerFactory.getLogger(NullDevice.class);
 
 	/**
 	 *
@@ -49,7 +47,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public boolean enterProgrammingMode() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return false;
 	}
 
@@ -60,7 +58,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public void eraseFlash() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	// -------------------------------------------------------------------------
@@ -70,7 +68,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public ChipType getChipType() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return ChipType.Unknown;
 	}
 
@@ -81,7 +79,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public FlashType getFlashType() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return FlashType.Unknown;
 	}
 
@@ -92,7 +90,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public Operation getOperation() {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return Operation.NONE;
 	}
 
@@ -103,7 +101,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public void leaveProgrammingMode() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	// -------------------------------------------------------------------------
@@ -113,7 +111,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public byte[] readFlash(int address, int len) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return new byte[]{};
 	}
 
@@ -124,7 +122,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public boolean reset() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return false;
 	}
 
@@ -135,12 +133,12 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public void send(MessagePacket p) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	@Override
 	public void eraseFlash(Sectors.SectorIndex sector) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	// -------------------------------------------------------------------------
@@ -164,7 +162,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public void triggerGetMacAddress(boolean rebootAfterFlashing) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	// -------------------------------------------------------------------------
@@ -174,7 +172,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public boolean triggerProgram(IDeviceBinFile program, boolean rebootAfterFlashing) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return false;
 	}
 
@@ -185,7 +183,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public void triggerSetMacAddress(MacAddress mac, boolean rebootAfterFlashing) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 	}
 
 	// -------------------------------------------------------------------------
@@ -195,7 +193,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public byte[] writeFlash(int address, byte[] bytes, int offset, int len) throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return new byte[]{};
 	}
 
@@ -206,7 +204,7 @@ public class NullDevice extends iSenseDeviceImpl {
 	 */
 	@Override
 	public boolean triggerReboot() throws Exception {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return false;
 	}
 
@@ -228,7 +226,7 @@ public class NullDevice extends iSenseDeviceImpl {
 
 	@Override
 	public IDeviceBinFile loadBinFile(String fileName) {
-		log.warn("No device connection available (Ignoring action)");
+		logWarn("No device connection available (Ignoring action)");
 		return new NullBinFile();
 	}
 
