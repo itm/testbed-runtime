@@ -109,7 +109,7 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.6</version>
+				<version>1.4.7</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -125,32 +125,43 @@
                             If you don't want to separate just add an directory to the fileset.
                              -->
 							<binlibs>
-								<fileSet>
+								<oneJarFileSet>
 									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
+									<outputDirectory>linux32</outputDirectory>
 									<includes>
 										<include>librxtxParallel.so</include>
                                         <include>librxtxSerial.so</include>
 									</includes>
-								</fileSet>
-								<fileSet>
+								</oneJarFileSet>
+								<oneJarFileSet>
 									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
+									<outputDirectory>linux64</outputDirectory>
 									<includes>
                                         <include>librxtxSerial.so</include>
 									</includes>
-								</fileSet>
-								<fileSet>
+								</oneJarFileSet>
+								<oneJarFileSet>
 									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+									<outputDirectory>macosx</outputDirectory>
 									<includes>
 										<include>librxtxSerial.jnilib</include>
 									</includes>
-								</fileSet>
-								<fileSet>
+								</oneJarFileSet>
+								<oneJarFileSet>
 									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+									<outputDirectory>windows32</outputDirectory>
 									<includes>
 										<include>rxtxParallel.dll</include>
 										<include>rxtxSerial.dll</include>
 									</includes>
-								</fileSet>
+								</oneJarFileSet>
+								<oneJarFileSet>
+									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64</directory>
+									<outputDirectory>windows64</outputDirectory>
+									<includes>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</oneJarFileSet>
                              <!--   <fileSet>
                                     <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
                                     <includes>
