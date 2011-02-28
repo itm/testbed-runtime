@@ -64,9 +64,6 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				nodeAPITimeout = wsnDevice.getNodeapitimeout();
 				nodeUSBChipID = wsnDevice.getUsbchipid();
                 maximumMessageRate = wsnDevice.getMaximumMessageRate();
-                if (maximumMessageRate == null) {
-                    maximumMessageRate = Integer.MAX_VALUE;
-                }
 				Preconditions.checkNotNull(nodeUrn);
 				Preconditions.checkNotNull(nodeType);
 				StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);

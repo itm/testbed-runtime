@@ -41,7 +41,7 @@ public class WSNDeviceAppConnectorFactory {
 					nodeUSBChipID,
 					nodeSerialInterface,
 					nodeAPITimeout,
-                    maximumMessageRate,
+					maximumMessageRate,
 					schedulerService
 			);
 
@@ -53,7 +53,7 @@ public class WSNDeviceAppConnectorFactory {
 					nodeAPITimeout,
 					schedulerService
 			);
-			
+
 		}
 
 		throw new RuntimeException("Unknown device type!");
