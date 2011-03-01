@@ -449,7 +449,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			//if reaching maximum-message-rate do not send more then 1 message
 			if (!maximumMessageRateLimiter.checkIfInSlotAndCount()){
 				if (maximumMessageRateLimiter.dismissedCount() == 1) {
-					sendWarningToUserIfMaximumMessageRateReached();
+					sendWarningToUserMaximumMessageRateReached();
 				}
 				return;
 			}
@@ -493,7 +493,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	};
 
-	private void sendWarningToUserIfMaximumMessageRateReached() {
+	private void sendWarningToUserMaximumMessageRateReached() {
 		log.warn("Maximum message-rate reached! Dropping message(s) in {}:backend.",
 				maximumMessageRateLimiter.dismissedCount(), nodeUrn);
 		String maximumMessageRateReachedMessage = nodeUrn + ":backend: " +
