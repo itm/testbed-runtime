@@ -361,11 +361,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private int flashCount = 0;
 
-	private int messages = 0;
-
 	private RateLimiter maximumMessageRateLimiter;
-
-	private boolean maximumMessageRateReached = false;
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -450,20 +446,12 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		@Override
 		public void receivePacket(MessagePacket p) {
-			String maximumMessageRateReachedMessage = checkIfMaximumMessageRate();
-
-			//if already reached maximumMessageRate do not send more then 1 message
-			if (maximumMessageRateReached) {
+			//if reaching maximum-message-rate do not send more then 1 message
+			if (!maximumMessageRateLimiter.checkIfInSlotAndCount()){
+				if (maximumMessageRateLimiter.dismissedCount() == 1) {
+					sendWarningToUserIfMaximumMessageRateReached();
+				}
 				return;
-			}
-
-			//else check if messageRate reached
-			if (maximumMessageRateReachedMessage != null) {
-				byte[] message = new byte[maximumMessageRateReachedMessage.getBytes().length + 2];
-				System.arraycopy(maximumMessageRateReachedMessage.getBytes(), 0, message, 2, maximumMessageRateReachedMessage.getBytes().length);
-				message[0] = MESSAGE_TYPE_LOG;
-				message[1] = LOG_MESSAGE_TYPE_FATAL;
-				nodeApiDeviceAdapter.sendToNode(ByteBuffer.wrap(message));
 			}
 
 			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
@@ -504,6 +492,18 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		}
 
 	};
+
+	private void sendWarningToUserIfMaximumMessageRateReached() {
+		log.warn("Maximum message-rate reached! Dropping message(s) in {}:backend.",
+				maximumMessageRateLimiter.dismissedCount(), nodeUrn);
+		String maximumMessageRateReachedMessage = nodeUrn + ":backend: " +
+				"Warning: message(s) dropped, because of maximum message rate.";
+		byte[] message = new byte[maximumMessageRateReachedMessage.getBytes().length + 2];
+		System.arraycopy(maximumMessageRateReachedMessage.getBytes(), 0, message, 2, maximumMessageRateReachedMessage.getBytes().length);
+		message[0] = MESSAGE_TYPE_LOG;
+		message[1] = LOG_MESSAGE_TYPE_FATAL;
+		nodeApiDeviceAdapter.sendToNode(ByteBuffer.wrap(message));
+	}
 
 	private NodeApi nodeApi;
 
@@ -927,24 +927,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		}
 
-	}
-
-	/**
-	 * calculating currentMessageRate for comparison with maximum message rate
-	 * Returns a String with error message if maximumMessageRate reached
-	 * if not, returns null
-	 *
-	 * @return String or null
-	 */
-	private synchronized String checkIfMaximumMessageRate() {
-		if (this.maximumMessageRateLimiter.checkAndCount()) {
-			maximumMessageRateReached = false;
-			return null;
-		}
-		maximumMessageRateReached = true;
-		log.warn("Maximum message-rate reached! Dropped {} message(s) in {}:backend.",
-				maximumMessageRateLimiter.dismissedCount(), nodeUrn);
-		return nodeUrn + ":backend: Warning: " + maximumMessageRateLimiter.dismissedCount() + " message(s) dropped, because of maximum message rate.";
 	}
 
 	@Override

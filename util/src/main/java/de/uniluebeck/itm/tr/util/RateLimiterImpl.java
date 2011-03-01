@@ -4,63 +4,92 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ *
+ */
+
 public class RateLimiterImpl implements RateLimiter {
-	private int approvalsPerTimeSlot;
-	private int approvedElements;
-	private int dismissedElements;
-	private TimeDiff timer;
-	private final Lock reentrantLock;
+	private final int approvalsPerTimeSlot;
+	private int approvedCount;
+	private int dismissedCount;
+	private final TimeDiff timer;
+	private final Lock countLock;
 
 	public RateLimiterImpl(int approvalsPerTimeSlot, int slotLength, TimeUnit timeUnit) {
 		this.approvalsPerTimeSlot = approvalsPerTimeSlot;
 		this.timer = new TimeDiff(timeUnit.toMillis(slotLength));
-		approvedElements = 0;
-		dismissedElements = 0;
-		reentrantLock = new ReentrantLock();
+		approvedCount = 0;
+		dismissedCount = 0;
+		countLock = new ReentrantLock();
 	}
 
+	/**
+	 * check if passed objects of current time slot still below allowed approvals per time slot
+	 * if so do increase approved elements
+	 * if not increase dismissed elements
+	 * @return boolean
+	 */
 	@Override
-	public boolean checkAndCount() {
-		reentrantLock.lock();
+	public boolean checkIfInSlotAndCount() {
+		countLock.lock();
 		try {
-			checkIfNextSlot();
-			if (approvedElements < approvalsPerTimeSlot) {
-				approvedElements++;
+			moveToNextSlotIfTimeout();
+			if (approvedCount < approvalsPerTimeSlot) {
+				approvedCount++;
 				return true;
 			} else {
-				dismissedElements++;
+				dismissedCount++;
 				return false;
 			}
 		} finally {
-			reentrantLock.unlock();
+			countLock.unlock();
 		}
 	}
 
+	/**
+	 * returning count of approved elements
+	 * @return int
+	 */
 	@Override
 	public int approvedCount() {
-		reentrantLock.lock();
+		countLock.lock();
 		try {
-			return this.approvedElements;
+			return this.approvedCount;
 		} finally {
-			reentrantLock.unlock();
+			countLock.unlock();
 		}
 	}
 
+	/**
+	 * returning count of dismissed elements
+	 * @return int
+	 */
 	@Override
 	public int dismissedCount() {
-		reentrantLock.lock();
+		countLock.lock();
 		try {
-			return this.dismissedElements;
+			return this.dismissedCount;
 		} finally {
-			reentrantLock.unlock();
+			countLock.unlock();
 		}
 	}
 
-	private void checkIfNextSlot() {
+	/**
+	 * manually move to next slot
+	 */
+	@Override
+	public void nextSlot() {
+		timer.touch();
+		approvedCount = 0;
+		dismissedCount = 0;
+	}
+
+	/**
+	 * check if timeout reached; if so move on to next slot
+	 */
+	private void moveToNextSlotIfTimeout() {
 		if (timer.isTimeout()) {
-			timer.touch();
-			approvedElements = 0;
-			dismissedElements = 0;
+			nextSlot();
 		}
 	}
 }

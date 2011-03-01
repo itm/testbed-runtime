@@ -2,7 +2,6 @@ import de.uniluebeck.itm.tr.util.RateLimiter;
 import de.uniluebeck.itm.tr.util.RateLimiterImpl;
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +17,6 @@ public class RateLimiterUnitTest {
 	TimeUnit timeUnit = TimeUnit.SECONDS;
 
 	private class RateLimiterCheckApprovedRunnable implements Runnable {
-
 		private RateLimiter rateLimiter;
 
 		public RateLimiterCheckApprovedRunnable(RateLimiter rateLimiter){
@@ -26,11 +24,10 @@ public class RateLimiterUnitTest {
 		}
 		@Override
 		public void run() {
-			assertTrue(rateLimiter.checkAndCount());
+			assertTrue(rateLimiter.checkIfInSlotAndCount());
 		}
 	}
 	private class RateLimiterCheckDismissedRunnable implements Runnable {
-
 		private RateLimiter rateLimiter;
 
 		public RateLimiterCheckDismissedRunnable(RateLimiter rateLimiter){
@@ -38,15 +35,15 @@ public class RateLimiterUnitTest {
 		}
 		@Override
 		public void run() {
-			assertFalse(rateLimiter.checkAndCount());
+			assertFalse(rateLimiter.checkIfInSlotAndCount());
 		}
 	}
 
 	@Test
-	public void checkApprovedCounterForOneSlot() {
+	public void checkIfAllPassedObjectsSuccessfullyApprovedInOneSlot() {
 		rateLimiter = new RateLimiterImpl(10, slotLength, timeUnit);
 		for (int i = 0; i < 10; i++) {
-			assertTrue(rateLimiter.checkAndCount());
+			assertTrue(rateLimiter.checkIfInSlotAndCount());
 			assertTrue(rateLimiter.approvedCount() == i + 1);
 			assertTrue(rateLimiter.dismissedCount() == 0);
 		}
@@ -55,10 +52,10 @@ public class RateLimiterUnitTest {
 	}
 
 	@Test
-	public void checkDismissedCounterForOneSlot() {
+	public void checkIfAllPassedObjectsDismissesInOneSlot() {
 		rateLimiter = new RateLimiterImpl(0, slotLength, timeUnit);
 		for (int i = 0; i < 10; i++) {
-			assertFalse(rateLimiter.checkAndCount());
+			assertFalse(rateLimiter.checkIfInSlotAndCount());
 			assertTrue(rateLimiter.dismissedCount() == i + 1);
 			assertTrue(rateLimiter.approvedCount() == 0);
 		}
@@ -67,27 +64,26 @@ public class RateLimiterUnitTest {
 	}
 
 	@Test
-	public void checkApprovedCounterForTwoSlots() throws InterruptedException {
+	public void checkIfAllPassedObjectsSuccessfullyApprovedForTwoSlots() throws InterruptedException {
 		rateLimiter = new RateLimiterImpl(10, slotLength, timeUnit);
-		long touch = System.currentTimeMillis();
 		for (int i = 0; i < 10; i++) {
-			assertTrue(rateLimiter.checkAndCount());
+			assertTrue(rateLimiter.checkIfInSlotAndCount());
 			assertTrue(rateLimiter.approvedCount() == i + 1);
 			assertTrue(rateLimiter.dismissedCount() == 0);
 		}
-		assertFalse(rateLimiter.checkAndCount());
+		assertFalse(rateLimiter.checkIfInSlotAndCount());
 		assertTrue(rateLimiter.dismissedCount() == 1);
-		//wait for next slot
-		Thread.sleep(2000 - (System.currentTimeMillis() - touch));
+		//move on to next slot
+		rateLimiter.nextSlot();
 		for (int i = 0; i < 10; i++) {
-			assertTrue(rateLimiter.checkAndCount());
+			assertTrue(rateLimiter.checkIfInSlotAndCount());
 			assertTrue(rateLimiter.approvedCount() == i + 1);
 			assertTrue(rateLimiter.dismissedCount() == 0);
 		}
 	}
 
 	@Test
-	public void checkThreadSafety() throws Exception {
+	public void checkThreadSafetyOfRateLimiter() throws Exception {
 		ExecutorService executorService = Executors.newFixedThreadPool(4);
 		rateLimiter = new RateLimiterImpl(10, 2, timeUnit);
 		List<Future> futures = new ArrayList<Future>();
@@ -103,14 +99,5 @@ public class RateLimiterUnitTest {
 		}
 		assertEquals(rateLimiter.approvedCount(), 10);
 		assertEquals(rateLimiter.dismissedCount(), 10);		
-	}
-
-	@Test
-	public void tmp(){
-		String msg = "text message";
-		byte[] msgBytes = new byte[msg.getBytes().length + 2];
-		System.arraycopy(msg.getBytes(), 0, msgBytes, 2, msg.getBytes().length);
-		ByteBuffer buffer = ByteBuffer.wrap(msgBytes);
-		buffer.put(0, (byte) 104);
 	}
 }

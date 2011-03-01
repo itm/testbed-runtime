@@ -9,10 +9,11 @@ package de.uniluebeck.itm.tr.util;
  */
 public interface RateLimiter {
 
-	public boolean checkAndCount();
+	public boolean checkIfInSlotAndCount();
 
 	public int approvedCount();
 
 	public int dismissedCount();
 
+	public void nextSlot();
 }
