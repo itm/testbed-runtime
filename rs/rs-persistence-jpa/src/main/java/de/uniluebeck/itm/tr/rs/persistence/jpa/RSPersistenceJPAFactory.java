@@ -27,6 +27,7 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.impl.RSPersistenceJPAImpl;
 
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,8 +37,8 @@ import java.util.Map;
  */
 public class RSPersistenceJPAFactory {
 
-	public static RSPersistence createInstance(Map properties) {
-		return new RSPersistenceJPAImpl(properties);
+	public static RSPersistence createInstance(Map properties, TimeZone localTimeZone) {
+		return new RSPersistenceJPAImpl(properties, localTimeZone);
 	}
 
 }

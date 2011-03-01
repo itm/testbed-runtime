@@ -48,12 +48,14 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 	private EntityManager manager;
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+	private TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPAImpl(@Named("properties") Map properties) {
+	public RSPersistenceJPAImpl(@Named("properties") Map properties, TimeZone localTimeZone) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
 		//EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
 		manager = factory.createEntityManager();
+		this.localTimeZone = localTimeZone;
 	}
 
 	/**
@@ -98,7 +100,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		}
 
 		ReservationDataInternal reservationData = new ReservationDataInternal(secretReservationKey, TypeConverter
-				.convert(confidentialReservationData), urnPrefix);
+				.convert(confidentialReservationData, localTimeZone), urnPrefix);
 		try {
 
 			// save ReservationDataInternal
@@ -137,7 +139,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 					new ReservervationNotFoundException());
 		}
 		try {
-			return TypeConverter.convert(reservationData.getConfidentialReservationData());
+			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
 			throw new RSExceptionException(e.getMessage(), new RSException());
 		}
@@ -162,7 +164,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		manager.getTransaction().commit();
 
 		try {
-			return TypeConverter.convert(reservationData.getConfidentialReservationData());
+			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
 			throw new RSExceptionException(e.getMessage(), new RSException());
 		}
@@ -174,9 +176,9 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 		// transforming to default timezone
 		GregorianCalendar from = interval.getStart().toGregorianCalendar();
-		from.setTimeZone(TimeZone.getTimeZone("GMT"));
+		from.setTimeZone(this.localTimeZone);
 		GregorianCalendar to = interval.getEnd().toGregorianCalendar();
-		from.setTimeZone(TimeZone.getTimeZone("GMT"));
+		from.setTimeZone(this.localTimeZone);
 
 		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, new Long(from.getTimeInMillis()));
@@ -184,7 +186,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 		try {
 			return TypeConverter.convertConfidentialReservationData((List<ReservationDataInternal>) query
-					.getResultList());
+					.getResultList(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
 			throw new RSExceptionException(e.getMessage(), new RSException());
 		}
