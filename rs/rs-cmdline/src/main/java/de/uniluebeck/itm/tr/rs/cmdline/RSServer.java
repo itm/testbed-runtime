@@ -260,7 +260,7 @@ public class RSServer {
 			properties.put(persistenceKey, props.getProperty((String) key));
 		}
 
-		//setDBPersistence-TimeZone - (Default is GMT)
+		//set Database-Persistence-TimeZone if defined in config file, if not set default to GMT)
 		TimeZone persistenceTimeZone = TimeZone.getTimeZone("GMT");
 		if (props.getProperty(propsPrefix + ".timezone") != null) {
 			persistenceTimeZone = TimeZone.getTimeZone(props.getProperty(propsPrefix + ".timezone"));
