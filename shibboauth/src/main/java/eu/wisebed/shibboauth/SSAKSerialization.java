@@ -106,9 +106,9 @@ public class SSAKSerialization {
         List<Cookie> cookies = new LinkedList<Cookie>();
 
         for (String value : cookieValues) {
-            /*if (!value.startsWith(_shibSession_)) {
+            if (!value.startsWith(_shibSession_)) {
                 continue;
-            }*/
+            }
 
             String[] pair = value.split("=");
             if (pair.length != 2) {
