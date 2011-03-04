@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
@@ -31,8 +30,7 @@ import de.uniluebeck.itm.motelist.MoteType;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.devicedrivers.DeviceFactory;
 import de.uniluebeck.itm.wsn.devicedrivers.exceptions.TimeoutException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
@@ -337,13 +335,21 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
+	private static final byte MESSAGE_TYPE_LOG = 104;
+
+	private static final byte LOG_MESSAGE_TYPE_FATAL = 1;
+
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
 	private static final int DEFAULT_NODE_API_TIMEOUT = 1000;
 
+	private static final int DEFAULT_MAXIMUM_MESSAGE_RATE = Integer.MAX_VALUE;
+
 	private String nodeType;
 
 	private String nodeUSBChipID;
+
+	private Integer maximumMessageRate;
 
 	private String nodeSerialInterface;
 
@@ -354,6 +360,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private int resetCount = 0;
 
 	private int flashCount = 0;
+
+	private RateLimiter maximumMessageRateLimiter;
 
 	private Runnable connectRunnable = new Runnable() {
 		@Override
@@ -438,6 +446,13 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		@Override
 		public void receivePacket(MessagePacket p) {
+			//if reaching maximum-message-rate do not send more then 1 message
+			if (!maximumMessageRateLimiter.checkIfInSlotAndCount()){
+				if (maximumMessageRateLimiter.dismissedCount() == 1) {
+					sendWarningToUserMaximumMessageRateReached();
+				}
+				return;
+			}
 
 			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
 
@@ -478,6 +493,18 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	};
 
+	private void sendWarningToUserMaximumMessageRateReached() {
+		log.warn("Maximum message-rate reached! Dropping message(s) in {}:backend.",
+				maximumMessageRateLimiter.dismissedCount(), nodeUrn);
+		String maximumMessageRateReachedMessage = nodeUrn + ":backend: " +
+				"Warning: message(s) dropped, because of maximum message rate.";
+		byte[] message = new byte[maximumMessageRateReachedMessage.getBytes().length + 2];
+		System.arraycopy(maximumMessageRateReachedMessage.getBytes(), 0, message, 2, maximumMessageRateReachedMessage.getBytes().length);
+		message[0] = MESSAGE_TYPE_LOG;
+		message[1] = LOG_MESSAGE_TYPE_FATAL;
+		nodeApiDeviceAdapter.sendToNode(ByteBuffer.wrap(message));
+	}
+
 	private NodeApi nodeApi;
 
 	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
@@ -503,15 +530,17 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	private iSenseDevice device;
 
 	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-									  final String nodeSerialInterface, final Integer nodeAPITimeout,
+									  final String nodeSerialInterface, final Integer nodeAPITimeout, final Integer maximumMessageRate,
 									  final SchedulerService schedulerService) {
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeSerialInterface = nodeSerialInterface;
-
+		this.maximumMessageRate = (maximumMessageRate == null ? DEFAULT_MAXIMUM_MESSAGE_RATE : maximumMessageRate);
 		this.schedulerService = schedulerService;
+
+		this.maximumMessageRateLimiter = new RateLimiterImpl(maximumMessageRate, 1, TimeUnit.SECONDS);
 
 		this.nodeApi =
 				new NodeApi(nodeApiDeviceAdapter, nodeAPITimeout == null ? DEFAULT_NODE_API_TIMEOUT : nodeAPITimeout,
@@ -846,7 +875,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			case READY:
 				try {
-
 					if (messageType == MESSAGE_TYPE_WISELIB_DOWNSTREAM && messageBytes[0] == VIRTUAL_LINK_MESSAGE) {
 
 						log.debug("{} => Delivering virtual link message over node API", nodeUrn);

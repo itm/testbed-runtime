@@ -33,6 +33,7 @@
 			<xsd:element name="serialinterface" type="xsd:string" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="nodeapitimeout" type="xsd:int" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="usbchipid" type="xsd:string" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="maximummessagerate" type="xsd:int" minOccurs="0" maxOccurs="1"/>
 		</xsd:sequence>
 	</xsd:complexType>
 

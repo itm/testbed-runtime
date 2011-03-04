@@ -150,7 +150,7 @@ public class RSServer {
 
 		}
 
-        return server;
+		return server;
 
 	}
 
@@ -163,6 +163,7 @@ public class RSServer {
 		String sessionManagementEndpointUrl = props.getProperty(propsPrefix + ".sessionmanagementendpointurl");
 
 		RSPersistence persistence = createRSPersistence(props, propsPrefix + ".persistence");
+
 		SingleUrnPrefixRS rs = new SingleUrnPrefixRS(urnprefix, snaaEndpointUrl, sessionManagementEndpointUrl, persistence);
 
 		HttpContext context = server.createContext(path);
@@ -259,7 +260,13 @@ public class RSServer {
 			properties.put(persistenceKey, props.getProperty((String) key));
 		}
 
-		return RSPersistenceJPAFactory.createInstance(properties);
+		//set Database-Persistence-TimeZone if defined in config file, if not set default to GMT)
+		TimeZone persistenceTimeZone = TimeZone.getTimeZone("GMT");
+		if (props.getProperty(propsPrefix + ".timezone") != null) {
+			persistenceTimeZone = TimeZone.getTimeZone(props.getProperty(propsPrefix + ".timezone"));
+		}
+
+		return RSPersistenceJPAFactory.createInstance(properties, persistenceTimeZone);
 	}
 
 }
