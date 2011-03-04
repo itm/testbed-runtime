@@ -109,7 +109,7 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.7</version>
+				<version>1.4.9</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
