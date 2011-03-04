@@ -28,6 +28,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.wsn.v211.*;
 import org.joda.time.DateTime;
@@ -75,6 +76,18 @@ public class BeanShellHelper {
 
 		return program;
 
+	}
+
+	public ConfidentialReservationData createReservationData(Date from, int duration, TimeUnit durationUnit,
+																		   String urnPrefix, String username, String... nodeUrns) {
+		return generateConfidentialReservationData(
+				Lists.newArrayList(nodeUrns),
+				from,
+				duration,
+				durationUnit,
+				urnPrefix,
+				username
+		);
 	}
 
 	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
@@ -388,4 +401,12 @@ public class BeanShellHelper {
 		return msg;
 	}
 
+	public List<AuthenticationTriple> createAuthData(final String urnPrefix, final String username, final String password) {
+		ArrayList<AuthenticationTriple> list = Lists.newArrayList();
+		AuthenticationTriple authenticationTriple = new AuthenticationTriple();
+		authenticationTriple.setUsername(username);
+		authenticationTriple.setPassword(password);
+		authenticationTriple.setUrnPrefix(urnPrefix);
+		return list;
+	}
 }

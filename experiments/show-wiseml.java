@@ -26,17 +26,7 @@ import com.google.common.collect.*;
 
 import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 
-//--------------------------------------------------------------------------
-// Configuration
-//--------------------------------------------------------------------------
+String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
+SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
-	String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
-	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
-	
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
-
-//--------------------------------------------------------------------------
-// Application logic
-//--------------------------------------------------------------------------
-
-	System.out.println(WiseMLHelper.prettyPrintWiseML(sessionManagement.getNetwork()));
+System.out.println(WiseMLHelper.prettyPrintWiseML(sessionManagement.getNetwork()));
