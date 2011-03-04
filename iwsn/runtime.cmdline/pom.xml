@@ -232,7 +232,6 @@
                                     <arch>x86_64</arch>
                                     <fileSet>
                                         <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64</directory>
-                                        <outputDirectory>windows64</outputDirectory>
                                         <includes>
                                             <include>rxtxSerial.dll</include>
                                         </includes>
