@@ -53,7 +53,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			WsnDevice wsnDevice = (WsnDevice) unmarshaller.unmarshal((Node) configuration);
 
 			String nodeUrn, nodeType, nodeSerialInterface, nodeUSBChipID;
-			Integer nodeAPITimeout;
+			Integer nodeAPITimeout, maximumMessageRate;
 
 			try {
 
@@ -63,7 +63,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				nodeSerialInterface = wsnDevice.getSerialinterface();
 				nodeAPITimeout = wsnDevice.getNodeapitimeout();
 				nodeUSBChipID = wsnDevice.getUsbchipid();
-
+                maximumMessageRate = wsnDevice.getMaximummessagerate();
 				Preconditions.checkNotNull(nodeUrn);
 				Preconditions.checkNotNull(nodeType);
 				StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
@@ -80,6 +80,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 					nodeSerialInterface,
 					nodeAPITimeout,
 					nodeUSBChipID,
+                    maximumMessageRate,
 					testbedRuntime
 			);
 

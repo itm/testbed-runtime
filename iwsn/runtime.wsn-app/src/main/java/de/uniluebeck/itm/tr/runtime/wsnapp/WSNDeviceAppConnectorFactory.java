@@ -30,7 +30,7 @@ public class WSNDeviceAppConnectorFactory {
 
 
 	public static WSNDeviceAppConnector create(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-											   final String nodeSerialInterface, final Integer nodeAPITimeout,
+											   final String nodeSerialInterface, final Integer nodeAPITimeout, final Integer maximumMessageRate,
 											   final SchedulerService schedulerService) {
 
 		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType) || "mock".equals(nodeType)) {
@@ -41,6 +41,7 @@ public class WSNDeviceAppConnectorFactory {
 					nodeUSBChipID,
 					nodeSerialInterface,
 					nodeAPITimeout,
+					maximumMessageRate,
 					schedulerService
 			);
 
@@ -52,7 +53,7 @@ public class WSNDeviceAppConnectorFactory {
 					nodeAPITimeout,
 					schedulerService
 			);
-			
+
 		}
 
 		throw new RuntimeException("Unknown device type!");

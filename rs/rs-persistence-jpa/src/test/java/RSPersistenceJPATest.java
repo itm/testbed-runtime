@@ -47,7 +47,8 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class RSPersistenceJPATest extends RSPersistenceTest {
-	private static Map<String, String> properties = new HashMap<String, String>() {{
+	private final static TimeZone localTimeZone = TimeZone.getTimeZone("GMT");
+	private static final Map<String, String> properties = new HashMap<String, String>() {{
 		//Configure Apache
 		put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
 		put("hibernate.connection.url", "jdbc:derby:target/default;create=true");
@@ -62,7 +63,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
 		super.setUp();
 
-		RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties);
+		RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties, localTimeZone);
 		super.setPersistence(persistence);
 	}
 
@@ -71,7 +72,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 	public static void main(String[] args) throws Throwable {
 
-		RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties);
+		RSPersistence rsPersistence = RSPersistenceJPAFactory.createInstance(properties, localTimeZone);
 		String urnPrefix = "de";
 
 		Date dateFrom = new Date(System.currentTimeMillis());
@@ -89,7 +90,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		addConfidentialReservationData.setToDate(dateTo.getTime());
 		addConfidentialReservationData.setNodeURNs(urns);
 		addConfidentialReservationData.setData(users);
-		SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData), urnPrefix);
+		SecretReservationKey addKey = rsPersistence.addReservation(TypeConverter.convert(addConfidentialReservationData, localTimeZone), urnPrefix);
 		System.out.println(addKey.getSecretReservationKey() + " added!");
 
 		((RSPersistenceJPAImpl) rsPersistence).printPersistentReservationData();
