@@ -6,13 +6,12 @@
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
         <artifactId>tr</artifactId>
-        <version>0.5.6-SNAPSHOT</version>
+        <version>0.6-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
 	<groupId>de.rwglab</groupId>
 	<artifactId>motap</artifactId>
-	<version>0.5.6-SNAPSHOT</version>
 	<name>MOTAP</name>
 	<packaging>pom</packaging>
 
