@@ -10,44 +10,9 @@
 		<xs:sequence>
 			<xs:element name="sourceNodeId" type="xs:string" />
 			<xs:element name="timestamp" type="xs:dateTime" />
-			<xs:choice>
-				<xs:element name="textMessage" type="tns:textMessage" />
-				<xs:element name="binaryMessage" type="tns:binaryMessage" />
-			</xs:choice>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="textMessage">
-		<xs:sequence>
-			<xs:element name="msg" type="xs:string" />
-			<xs:element name="messageLevel" type="tns:messageLevel" minOccurs="0" />
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="binaryMessage">
-		<xs:sequence>
 			<xs:element name="binaryData" type="xs:base64Binary" />
-			<xs:element name="binaryType" type="xs:byte" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
-
-	<xs:simpleType name="messageType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="TEXT" />
-			<xs:enumeration value="BINARY" />
-		</xs:restriction>
-	</xs:simpleType>
-
-	<xs:simpleType name="messageLevel">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="TRACE" />
-			<xs:enumeration value="DEBUG" />
-			<xs:enumeration value="INFO" />
-			<xs:enumeration value="WARN" />
-			<xs:enumeration value="ERROR" />
-			<xs:enumeration value="FATAL" />
-		</xs:restriction>
-	</xs:simpleType>
 
 	<xs:simpleType name="urn">
 		<xs:restriction base="xs:string">

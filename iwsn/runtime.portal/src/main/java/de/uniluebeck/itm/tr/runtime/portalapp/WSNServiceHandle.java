@@ -32,7 +32,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
-import eu.wisebed.testbed.api.wsn.v211.WSN;
+import eu.wisebed.testbed.api.wsn.v22.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

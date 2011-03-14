@@ -16,6 +16,12 @@
 	<message name="receiveStatus">
 		<part name="parameters" element="tns:receiveStatus" />
 	</message>
+	<message name="receiveNotification">
+		<part name="parameters" element="tns:receiveNotification" />
+	</message>
+	<message name="experimentEnded">
+		<part name="parameters" element="tns:experimentEnded" />
+	</message>
 
 	<portType name="Controller">
 		<operation name="receive">
@@ -23,6 +29,12 @@
 		</operation>
 		<operation name="receiveStatus">
 			<input message="tns:receiveStatus" />
+		</operation>
+		<operation name="receiveNotification">
+			<input message="tns:receiveNotification" />
+		</operation>
+		<operation name="experimentEnded">
+			<input message="tns:experimentEnded" />
 		</operation>
 	</portType>
 
@@ -36,6 +48,18 @@
 			</input>
 		</operation>
 		<operation name="receiveStatus">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+		<operation name="receiveNotification">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+		<operation name="experimentEnded">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />

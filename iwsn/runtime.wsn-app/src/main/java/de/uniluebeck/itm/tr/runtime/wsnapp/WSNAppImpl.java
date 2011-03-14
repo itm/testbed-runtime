@@ -37,7 +37,7 @@ import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

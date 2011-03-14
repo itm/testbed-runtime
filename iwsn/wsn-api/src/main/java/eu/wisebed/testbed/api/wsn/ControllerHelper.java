@@ -25,7 +25,7 @@ package eu.wisebed.testbed.api.wsn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.internal.Nullable;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v211.Controller} Web Service endpoints and
+ * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service endpoints and
  * allows to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a
  * recipient is repeatedly ({@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRIES} times) impossible due to
  * whatever reason, the recipient is removed from the list of recipients. Between every try there's a pause of {@link
@@ -151,7 +151,7 @@ public class ControllerHelper {
     }
 
     /**
-     * The set of {@link eu.wisebed.testbed.api.wsn.v211.Controller} instances currently listening to this WSN service
+     * The set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} instances currently listening to this WSN service
      * instance. Maps from the endpoint URL to an instantiated endpoint proxy.
      */
     private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
@@ -190,7 +190,7 @@ public class ControllerHelper {
     /**
      * Adds a Controller service endpoint URL to the list of recipients.
      *
-     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v211.Controller} Web Service
+     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
      *                              instance
      */
     public void addController(String controllerEndpointUrl) {
@@ -203,7 +203,7 @@ public class ControllerHelper {
     /**
      * Removes a Controller service endpoint URL from the list of recipients.
      *
-     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v211.Controller} Web Service
+     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
      *                              instance
      */
     public void removeController(String controllerEndpointUrl) {
@@ -215,7 +215,7 @@ public class ControllerHelper {
     /**
      * Delivers {@code message} to all recipients.
      *
-     * @param message the {@link eu.wisebed.testbed.api.wsn.v211.Message} instance to deliver
+     * @param message the {@link eu.wisebed.testbed.api.wsn.v22.Message} instance to deliver
      */
     public void receive(Message message) {
 
@@ -238,7 +238,7 @@ public class ControllerHelper {
     /**
      * Delivers {@code requestStatus} to all recipients.
      *
-     * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v211.RequestStatus} instance to deliver
+     * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v22.RequestStatus} instance to deliver
      */
     public void receiveStatus(RequestStatus requestStatus) {
 

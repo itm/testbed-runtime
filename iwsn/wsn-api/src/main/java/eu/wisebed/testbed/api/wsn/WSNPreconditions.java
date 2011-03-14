@@ -23,8 +23,8 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.Program;
+import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v22.Program;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.net.MalformedURLException;
@@ -84,9 +84,7 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesServed(nodeIds);
 
 		checkNotNull(message.getSourceNodeId(), "Source node ID is missing.");
-		checkArgument(message.getTextMessage() != null || message.getBinaryMessage() != null,
-				"Message must contain either a text message or a binary message."
-		);
+		checkArgument(message.getBinaryData() != null, "A message to a node must contain binary data.");
 
 	}
 

@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.wsn.v211.WSN;
+import eu.wisebed.testbed.api.wsn.v22.WSN;
 
 
 public interface WSNService extends Service, WSN {

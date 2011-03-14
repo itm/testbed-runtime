@@ -14,7 +14,7 @@ import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 
 import de.uniluebeck.itm.tr.util.*;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;

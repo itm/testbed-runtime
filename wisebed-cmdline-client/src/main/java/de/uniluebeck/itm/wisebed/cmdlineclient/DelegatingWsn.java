@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;

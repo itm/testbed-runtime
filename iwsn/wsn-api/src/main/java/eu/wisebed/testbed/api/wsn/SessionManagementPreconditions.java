@@ -23,7 +23,7 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
 
 import java.util.HashSet;
 import java.util.List;

@@ -30,7 +30,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,11 +250,11 @@ public class WSNAppTest {
 	}
 
 	public static List<SecretReservationKey> copyRsToWsn(List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> keys) {
-		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> newKeys = new ArrayList<SecretReservationKey>();
+		List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> newKeys = new ArrayList<SecretReservationKey>();
 
 		for (eu.wisebed.testbed.api.rs.v1.SecretReservationKey key : keys) {
-			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey newKey =
-					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			eu.wisebed.testbed.api.wsn.v22.SecretReservationKey newKey =
+					new eu.wisebed.testbed.api.wsn.v22.SecretReservationKey();
 			newKey.setSecretReservationKey(key.getSecretReservationKey());
 			newKey.setUrnPrefix(key.getUrnPrefix());
 			newKeys.add(newKey);

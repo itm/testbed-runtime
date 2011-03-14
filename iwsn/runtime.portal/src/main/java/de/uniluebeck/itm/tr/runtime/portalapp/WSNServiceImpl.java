@@ -41,7 +41,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +73,8 @@ public class WSNServiceImpl implements WSNService {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v211.Controller#receive(eu.wisebed.testbed.api.wsn.v211.Message)} or {@link
-	 * eu.wisebed.testbed.api.wsn.v211.Controller#receiveStatus(eu.wisebed.testbed.api.wsn.v211.RequestStatus)} method. The
+	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(eu.wisebed.testbed.api.wsn.v22.Message)} or {@link
+	 * eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(eu.wisebed.testbed.api.wsn.v22.RequestStatus)} method. The
 	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one controller and, if
 	 * more controllers are attached to the running experiment the maximum thread pool size will be increased. By that, the
 	 * number of threads for web-service calls is bounded by the number of controller endpoints as more threads would not,

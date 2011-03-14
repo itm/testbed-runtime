@@ -36,8 +36,8 @@ import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,14 +187,14 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 		return true;
 	}
 
-	public static List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> parseSecretReservationKeys(String str) {
+	public static List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> parseSecretReservationKeys(String str) {
 		String[] pairs = str.split(";");
-		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> keys = Lists.newArrayList();
+		List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> keys = Lists.newArrayList();
 		for (String pair : pairs) {
 			String urnPrefix = pair.split(",")[0];
 			String secretReservationKeys = pair.split(",")[1];
-			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey key =
-					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			eu.wisebed.testbed.api.wsn.v22.SecretReservationKey key =
+					new eu.wisebed.testbed.api.wsn.v22.SecretReservationKey();
 			key.setUrnPrefix(urnPrefix);
 			key.setSecretReservationKey(secretReservationKeys);
 			keys.add(key);

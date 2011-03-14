@@ -24,9 +24,9 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException;
+import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances that
+	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash

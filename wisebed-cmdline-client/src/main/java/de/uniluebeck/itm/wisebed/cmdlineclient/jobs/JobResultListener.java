@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v22.Message;
 
 import java.io.IOException;
 

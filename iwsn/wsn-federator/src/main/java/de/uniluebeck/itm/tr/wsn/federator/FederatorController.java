@@ -27,9 +27,9 @@ import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v211.Controller;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v22.Controller;
+import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

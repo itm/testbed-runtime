@@ -28,7 +28,7 @@ import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientView;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.*;
-import eu.wisebed.testbed.api.wsn.v211.FlashPrograms;
+import eu.wisebed.testbed.api.wsn.v22.FlashPrograms;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

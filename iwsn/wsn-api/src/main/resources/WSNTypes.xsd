@@ -4,7 +4,7 @@
 		   xmlns:ct="urn:CommonTypes">
 
 	<xs:import namespace="urn:CommonTypes" schemaLocation="CommonTypes.xsd" />
-
+	
 	<xs:complexType name="addController">
 		<xs:sequence>
 			<xs:element name="controllerEndpointUrl" type="xs:string" minOccurs="1" maxOccurs="1"/>
@@ -24,7 +24,6 @@
 	<xs:complexType name="removeControllerResponse">
 		<xs:sequence/>
 	</xs:complexType>
-
 	<xs:complexType name="getVersion">
 		<xs:sequence />
 	</xs:complexType>
@@ -265,7 +264,7 @@
 			<xs:element name="return" type="ct:requestId" maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
-
+	
 	<xs:element name="addController" type="tns:addController"/>
 	<xs:element name="addControllerResponse" type="tns:addControllerResponse"/>
 	<xs:element name="areNodesAlive" type="tns:areNodesAlive" />

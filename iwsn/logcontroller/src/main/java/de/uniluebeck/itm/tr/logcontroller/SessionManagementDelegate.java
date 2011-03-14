@@ -31,10 +31,10 @@ import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.UnknownReservationIdException_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

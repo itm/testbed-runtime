@@ -35,7 +35,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

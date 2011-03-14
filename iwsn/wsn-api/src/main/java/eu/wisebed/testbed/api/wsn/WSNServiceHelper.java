@@ -24,8 +24,7 @@
 package eu.wisebed.testbed.api.wsn;
 
 import de.uniluebeck.itm.tr.util.FileUtils;
-import eu.wisebed.testbed.api.wsn.v211.*;
-import org.apache.log4j.Logger;
+import eu.wisebed.testbed.api.wsn.v22.*;
 
 import javax.xml.ws.BindingProvider;
 import java.io.File;
@@ -44,8 +43,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class WSNServiceHelper {
 
-	private static final Logger log = Logger.getLogger(WSNServiceHelper.class);
-
 	private static File tmpFileSessionManagement = null;
 
 	private static File tmpFileWSN = null;
@@ -62,7 +59,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the Session Management API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.SessionManagement} instance that is
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.SessionManagement} instance that is
 	 *         connected to the Web Service endpoint
 	 */
 	public static SessionManagement getSessionManagementService(String endpointUrl) {
@@ -91,8 +88,8 @@ public class WSNServiceHelper {
 
 		SessionManagement sessionManagementPort = service.getSessionManagementPort();
 
-		Map<String, Object> ctxt = ((BindingProvider) sessionManagementPort).getRequestContext();
-		ctxt.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
+		Map<String, Object> context = ((BindingProvider) sessionManagementPort).getRequestContext();
+		context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
 
 		return sessionManagementPort;
 
@@ -128,8 +125,8 @@ public class WSNServiceHelper {
 
 		Controller controllerPort = service.getControllerPort();
 
-		Map<String, Object> ctxt = ((BindingProvider) controllerPort).getRequestContext();
-		ctxt.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
+		Map<String, Object> context = ((BindingProvider) controllerPort).getRequestContext();
+		context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
 
 		return controllerPort;
 
@@ -139,7 +136,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the Controller API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.Controller} instance that is connected to the Web
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.Controller} instance that is connected to the Web
 	 *         Service endpoint
 	 */
 	public static Controller getControllerService(String endpointUrl) {
@@ -150,7 +147,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the WSN API instance.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v211.WSN} instance that is connected to the Web Service
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.WSN} instance that is connected to the Web Service
 	 *         endpoint
 	 */
 	public static WSN getWSNService(String endpointUrl) {
@@ -179,8 +176,8 @@ public class WSNServiceHelper {
 
 		WSN wsnPort = service.getWSNPort();
 
-		Map<String, Object> ctxt = ((BindingProvider) wsnPort).getRequestContext();
-		ctxt.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
+		Map<String, Object> context = ((BindingProvider) wsnPort).getRequestContext();
+		context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointUrl);
 
 		return wsnPort;
 	}

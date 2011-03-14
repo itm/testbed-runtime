@@ -46,6 +46,14 @@
 		<part name="parameters" element="ct:getNetworkResponse" />
 	</message>
 
+	<message name="getConfiguration">
+		<part name="parameters" element="tns:getConfiguration" />
+	</message>
+
+	<message name="getConfigurationResponse">
+		<part name="parameters" element="tns:getConfigurationResponse" />
+	</message>
+
 	<portType name="SessionManagement">
 		<operation name="getInstance">
 			<input message="tns:getInstance" />
@@ -62,6 +70,10 @@
 		<operation name="getNetwork">
 			<input message="tns:getNetwork" />
 			<output message="tns:getNetworkResponse" />
+		</operation>
+		<operation name="getConfiguration">
+			<input message="tns:getConfiguration" />
+			<output message="tns:getConfigurationResponse" />
 		</operation>
 	</portType>
 
@@ -99,6 +111,15 @@
 			</fault>
 		</operation>
 		<operation name="getNetwork">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+		<operation name="getConfiguration">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />

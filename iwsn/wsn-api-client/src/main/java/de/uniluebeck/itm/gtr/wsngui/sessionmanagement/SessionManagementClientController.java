@@ -28,10 +28,10 @@ import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import de.uniluebeck.itm.gtr.wsngui.wsn.WSNClientView;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v211.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.UnknownReservationIdException_Exception;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

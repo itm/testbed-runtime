@@ -30,7 +30,7 @@ import eu.wisebed.testbed.api.rs.v1.Data;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,13 +182,13 @@ public class BeanShellHelper {
 		return secretAuthKeys;
 	}
 
-	public List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
-		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> newKeys =
-				new ArrayList<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey>();
+	public List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
+		List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> newKeys =
+				new ArrayList<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey>();
 
 		for (SecretReservationKey key : keys) {
-			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey newKey =
-					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			eu.wisebed.testbed.api.wsn.v22.SecretReservationKey newKey =
+					new eu.wisebed.testbed.api.wsn.v22.SecretReservationKey();
 			newKey.setSecretReservationKey(key.getSecretReservationKey());
 			newKey.setUrnPrefix(key.getUrnPrefix());
 			newKeys.add(newKey);
@@ -197,14 +197,14 @@ public class BeanShellHelper {
 		return newKeys;
 	}
 
-	public List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> parseSecretReservationKeys(String str) {
+	public List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> parseSecretReservationKeys(String str) {
 		String[] pairs = str.split(";");
-		List<eu.wisebed.testbed.api.wsn.v211.SecretReservationKey> keys = Lists.newArrayList();
+		List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> keys = Lists.newArrayList();
 		for (String pair : pairs) {
 			String urnPrefix = pair.split(",")[0];
 			String secretReservationKeys = pair.split(",")[1];
-			eu.wisebed.testbed.api.wsn.v211.SecretReservationKey key =
-					new eu.wisebed.testbed.api.wsn.v211.SecretReservationKey();
+			eu.wisebed.testbed.api.wsn.v22.SecretReservationKey key =
+					new eu.wisebed.testbed.api.wsn.v22.SecretReservationKey();
 			key.setUrnPrefix(urnPrefix);
 			key.setSecretReservationKey(secretReservationKeys);
 			keys.add(key);

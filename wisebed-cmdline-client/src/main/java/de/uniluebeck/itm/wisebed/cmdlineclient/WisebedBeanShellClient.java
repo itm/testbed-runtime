@@ -50,7 +50,7 @@ public class WisebedBeanShellClient {
 		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
-		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v211.*;");
+		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v22.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");

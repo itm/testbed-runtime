@@ -34,7 +34,7 @@ import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
 import eu.wisebed.testbed.api.snaa.v1.SNAA;
 import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;

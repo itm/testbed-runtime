@@ -35,7 +35,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +290,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	/**
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances
+	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances
 	 *
 	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
 	 */
@@ -303,10 +303,10 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	/**
-	 * Checks for a given list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances which federated
+	 * Checks for a given list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances which federated
 	 * Session Management endpoints are responsible for which set of URN prefixes.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v211.SecretReservationKey} instances as
+	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances as
 	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
 	 *							  String)}
 	 *

@@ -25,7 +25,7 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
-import eu.wisebed.testbed.api.wsn.v211.Message;
+import eu.wisebed.testbed.api.wsn.v22.Message;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

@@ -25,8 +25,8 @@ package eu.wisebed.motap.connector;
 
 import com.coalesenses.otap.core.connector.DeviceConnector;
 import com.sun.net.httpserver.HttpServer;
-import eu.wisebed.testbed.api.wsn.v211.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 
 import java.util.List;
 

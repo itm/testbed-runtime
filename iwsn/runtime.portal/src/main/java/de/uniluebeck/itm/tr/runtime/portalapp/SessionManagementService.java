@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.wsn.v211.SessionManagement;
+import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 
 
 public interface SessionManagementService extends Service, SessionManagement {

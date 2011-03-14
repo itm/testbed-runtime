@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.logcontroller;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.MessageLevel;
+import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v22.MessageLevel;
 
 import javax.persistence.*;
 
@@ -75,16 +75,16 @@ public abstract class AbstractMessage {
         mes.setTimestamp(XMLGregorianCalendarImpl.parse(from.timeStamp));
         mes.setSourceNodeId(from.sourceNodeId);
         if (from instanceof TextMessage) {
-            eu.wisebed.testbed.api.wsn.v211.TextMessage text = new
-                    eu.wisebed.testbed.api.wsn.v211.TextMessage();
+            eu.wisebed.testbed.api.wsn.v22.TextMessage text = new
+                    eu.wisebed.testbed.api.wsn.v22.TextMessage();
             TextMessage tmsg = (TextMessage) from;
             if (tmsg.messageLevel != null)
                 text.setMessageLevel(MessageLevel.valueOf(tmsg.messageLevel));
             text.setMsg(tmsg.message);
             mes.setTextMessage(text);
         } else {
-            eu.wisebed.testbed.api.wsn.v211.BinaryMessage binary = new
-                    eu.wisebed.testbed.api.wsn.v211.BinaryMessage();
+            eu.wisebed.testbed.api.wsn.v22.BinaryMessage binary = new
+                    eu.wisebed.testbed.api.wsn.v22.BinaryMessage();
             BinaryMessage bmsg = (BinaryMessage) from;
             binary.setBinaryData(bmsg.binaryData);
             binary.setBinaryType(bmsg.binaryType);

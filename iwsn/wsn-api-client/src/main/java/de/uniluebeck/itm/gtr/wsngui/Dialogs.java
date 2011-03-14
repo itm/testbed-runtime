@@ -27,7 +27,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

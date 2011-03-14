@@ -2,10 +2,10 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.protobuf.ByteString;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v211.Status;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v22.Status;
+import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;

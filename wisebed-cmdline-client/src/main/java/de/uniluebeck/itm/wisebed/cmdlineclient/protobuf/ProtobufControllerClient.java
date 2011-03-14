@@ -2,7 +2,7 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.AbstractListenable;
-import eu.wisebed.testbed.api.wsn.v211.*;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;

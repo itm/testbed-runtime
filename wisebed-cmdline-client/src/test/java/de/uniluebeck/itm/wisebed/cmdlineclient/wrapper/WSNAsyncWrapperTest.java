@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
 import com.google.common.collect.Lists;
-import eu.wisebed.testbed.api.wsn.v211.Controller;
-import eu.wisebed.testbed.api.wsn.v211.Message;
-import eu.wisebed.testbed.api.wsn.v211.Program;
-import eu.wisebed.testbed.api.wsn.v211.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v22.Controller;
+import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v22.Program;
+import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

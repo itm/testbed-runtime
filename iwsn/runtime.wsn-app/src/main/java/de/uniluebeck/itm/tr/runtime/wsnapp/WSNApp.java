@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.wsn.v211.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
 
 import java.util.Map;
 import java.util.Set;
