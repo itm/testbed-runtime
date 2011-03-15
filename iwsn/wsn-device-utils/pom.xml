@@ -74,7 +74,7 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.6</version>
+				<version>1.4.9</version>
 				<executions>
 					<execution>
 						<id>flash</id>
@@ -85,33 +85,79 @@
 							<attachToBuild>true</attachToBuild>
 							<classifier>flash</classifier>
 							<filename>${project.artifactId}-${project.version}-flash.jar</filename>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
-									<includes>
-										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
-									<includes>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-									<includes>
-										<include>librxtxSerial.jnilib</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
-									<includes>
-										<include>rxtxParallel.dll</include>
-										<include>rxtxSerial.dll</include>
-									</includes>
-								</fileSet>
+								<!-- mac os x -->
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- windows -->
+								<binlib>
+									<os>windows</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
+										</directory>
+										<includes>
+											<include>rxtxParallel.dll</include>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>windows</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
+										</directory>
+										<includes>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- linux -->
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
+										</directory>
+										<includes>
+											<include>librxtxParallel.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>linux</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
+										</directory>
+										<includes>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
 							</binlibs>
 						</configuration>
 						<goals>
@@ -127,33 +173,79 @@
 							<attachToBuild>true</attachToBuild>
 							<classifier>listen</classifier>
 							<filename>${project.artifactId}-${project.version}-listen.jar</filename>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
-									<includes>
-										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
-									<includes>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-									<includes>
-										<include>librxtxSerial.jnilib</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
-									<includes>
-										<include>rxtxParallel.dll</include>
-										<include>rxtxSerial.dll</include>
-									</includes>
-								</fileSet>
+								<!-- mac os x -->
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- windows -->
+								<binlib>
+									<os>windows</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
+										</directory>
+										<includes>
+											<include>rxtxParallel.dll</include>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>windows</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
+										</directory>
+										<includes>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- linux -->
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
+										</directory>
+										<includes>
+											<include>librxtxParallel.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>linux</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
+										</directory>
+										<includes>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
 							</binlibs>
 						</configuration>
 						<goals>
@@ -169,33 +261,79 @@
 							<attachToBuild>true</attachToBuild>
 							<classifier>readmac</classifier>
 							<filename>${project.artifactId}-${project.version}-readmac.jar</filename>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
-									<includes>
-										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
-									<includes>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-									<includes>
-										<include>librxtxSerial.jnilib</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
-									<includes>
-										<include>rxtxParallel.dll</include>
-										<include>rxtxSerial.dll</include>
-									</includes>
-								</fileSet>
+								<!-- mac os x -->
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- windows -->
+								<binlib>
+									<os>windows</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
+										</directory>
+										<includes>
+											<include>rxtxParallel.dll</include>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>windows</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
+										</directory>
+										<includes>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- linux -->
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
+										</directory>
+										<includes>
+											<include>librxtxParallel.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>linux</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
+										</directory>
+										<includes>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
 							</binlibs>
 						</configuration>
 						<goals>
@@ -211,33 +349,79 @@
 							<attachToBuild>true</attachToBuild>
 							<classifier>writemac</classifier>
 							<filename>${project.artifactId}-${project.version}-writemac.jar</filename>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
-									<includes>
-										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
-									<includes>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-									<includes>
-										<include>librxtxSerial.jnilib</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
-									<includes>
-										<include>rxtxParallel.dll</include>
-										<include>rxtxSerial.dll</include>
-									</includes>
-								</fileSet>
+								<!-- mac os x -->
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- windows -->
+								<binlib>
+									<os>windows</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
+										</directory>
+										<includes>
+											<include>rxtxParallel.dll</include>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>windows</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
+										</directory>
+										<includes>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- linux -->
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
+										</directory>
+										<includes>
+											<include>librxtxParallel.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>linux</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
+										</directory>
+										<includes>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
 							</binlibs>
 						</configuration>
 						<goals>
