@@ -43,11 +43,16 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
 import java.util.*;
 import java.util.concurrent.*;
 
-@WebService(serviceName = "SessionManagementService", targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
-		portName = "SessionManagementPort", endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE)
+@WebService(
+		serviceName = "SessionManagementService",
+		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
+		portName = "SessionManagementPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+)
 public class FederatorSessionManagement implements SessionManagement {
 
 	/**
@@ -66,6 +71,11 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * Session Management Service sessionManagementEndpoint URL <-> Set<URN Prefixes>
 	 */
 	private final BiMap<String, Set<String>> sessionManagementEndpointUrlPrefixSet;
+
+	/**
+	 *
+	 */
+	private final String snaaEndpointUrl;
 
 	/**
 	 *
@@ -104,10 +114,14 @@ public class FederatorSessionManagement implements SessionManagement {
 	 */
 	private SessionManagementPreconditions preconditions;
 
-	public FederatorSessionManagement(BiMap<String, Set<String>> sessionManagementEndpointUrlPrefixSet,
-									  String endpointUrlBase, String path, String reservationEndpointUrl) {
+	public FederatorSessionManagement(final BiMap<String, Set<String>> sessionManagementEndpointUrlPrefixSet,
+									  final String endpointUrlBase,
+									  final String path,
+									  final String reservationEndpointUrl,
+									  final String snaaEndpointUrl) {
 
 		this.sessionManagementEndpointUrlPrefixSet = sessionManagementEndpointUrlPrefixSet;
+		this.snaaEndpointUrl = snaaEndpointUrl;
 		this.endpointUrlBase = endpointUrlBase.endsWith("/") ? endpointUrlBase : endpointUrlBase + "/";
 		this.sessionManagementEndpointUrl = endpointUrlBase + (path.startsWith("/") ? path.substring(1) : path);
 		this.reservationEndpointUrl = reservationEndpointUrl;
@@ -144,7 +158,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	private static class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
 
-		private static class Result {
+		public static class Result {
 
 			public String federatedWSNInstanceEndpointUrl;
 
@@ -446,4 +460,18 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 
 	}
+
+	@Override
+	public void getConfiguration(
+			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> rsEndpointUrl,
+			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<KeyValuePair>> options) {
+
+		rsEndpointUrl.value = this.reservationEndpointUrl;
+		snaaEndpointUrl.value = this.snaaEndpointUrl;
+	}
+
 }

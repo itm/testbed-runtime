@@ -26,11 +26,31 @@
 	<xsd:element name="portalapp">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="webservice" type="WebService" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="webservice" type="WebService" minOccurs="1" maxOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:complexType name="ProtobufInterface">
+		<xsd:annotation>
+			<xsd:documentation>
+				Configuration parameters for the unofficial Google protocol buffers interface.
+				<ul>
+					<li>
+						<b>port</b><br/>
+						the port on which to listen for TCP connections
+					</li>
+					<li>
+						<b>ip</b><br/>
+						the IP address on which to listen for TCP connections, e.g., 0.0.0.0 for all network interfaces
+					</li>
+					<li>
+						<b>hostname</b><br/>
+						the fully qualified hostname on which to listen for TCP connections, e.g., testbed.wisebed.eu
+					</li>
+				</ul>
+				<b>Please note:</b> Either ip OR hostname must be configured.
+			</xsd:documentation>
+		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="port" type="xsd:int" minOccurs="1" maxOccurs="1" />
 			<xsd:choice>
@@ -40,14 +60,67 @@
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="WebService">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				Configuration parameters for the SessionManagement implementation.
+				<ul>
+					<li>
+						<b>urnprefix</b><br/>
+						the URN prefix for which this SessionManagement instance is responsible, e.g., urn:wisebed:uzl1:
+					</li>
+					<li>
+						<b>sessionmanagementendpointurl</b><br/>
+					    the endpoint URL of this SessionManagement instance, usually it's fully qualified domain name
+						+ port and path, e.g. http://testbed.wisebed.eu:8888/sessions
+					</li>
+					<li>
+						<b>wsninstancebaseurl</b><br/>
+						the endpoint URL prefix for instances of the WSN API spawned by this SessionManagement instance
+						upon experiment start. If wsninstancebaseurl is, e.g., http://testbed.wisebed.eu:8888/wsn/ a new
+						WSN instance will run on an URL having this prefix, e.g.,
+						http://testbed.wisebed.eu:8888/wsn/1234567890 where 1234567890 is the randomly generated part.
+					</li>
+					<li>
+						<b>reservationendpointurl</b><br/>
+						the endpoint URL of the reservation system (RS)<br/>
+						<i>optional</i>: if not given no reservation system is used and it is assumed that users have
+						access to all nodes
+					</li>
+					<li>
+						<b>snaaendpointurl</b><br/>
+						the endpoint URL of the authentication and authorization system (SNAA)<br/>
+						<i>optional</i>: if not given no authentication and authorization system is used and the user
+						is assumed to have all rights at all times
+					</li>
+					<li>
+						<b>wisemlfilename</b><br/>
+						the file name of the WiseML document to be delivered if a client calls
+						SessionManagement.getNetwork(). Also used, but being filtered on the subset of reserved nodes
+						if WSN.getNetwork() is called.
+					</li>
+					<li>
+						<b>maximumdeliveryqueuesize</b><br/>
+						determines how many messages to clients should be queued before dropping them. Dropping messages
+						must occur if clients or network connectivity is too slow to deliver all messages in order to
+						not have the backend system e.g., run out of memory.
+					</li>
+					<li>
+						<b>protobufinterface</b><br/>
+						<i>optional</i>: if configured this SessionManagement instance opens the unofficial interface
+						based upon Google protocol buffers
+					</li>
+				</ul>
+			</xsd:documentation>
+		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element name="urnprefix" type="xsd:string" minOccurs="1"/>
-			<xsd:element name="sessionmanagementendpointurl" type="xsd:string" minOccurs="1"/>
-			<xsd:element name="wsninstancebaseurl" type="xsd:string" minOccurs="1"/>
-			<xsd:element name="reservationendpointurl" type="xsd:string" minOccurs="0"/>
-			<xsd:element name="wisemlfilename" type="xsd:string" minOccurs="1"/>
-			<xsd:element name="maximumdeliveryqueuesize" type="xsd:int" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="protobufinterface" type="ProtobufInterface" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="urnprefix" 						type="xsd:string" 			minOccurs="1" maxOccurs="1" />
+			<xsd:element name="sessionmanagementendpointurl" 	type="xsd:string" 			minOccurs="1" maxOccurs="1" />
+			<xsd:element name="wsninstancebaseurl" 				type="xsd:string" 			minOccurs="1" maxOccurs="1" />
+			<xsd:element name="reservationendpointurl" 			type="xsd:string" 			minOccurs="0" maxOccurs="1" />
+			<xsd:element name="snaaendpointurl" 				type="xsd:string" 			minOccurs="0" maxOccurs="1" />
+			<xsd:element name="wisemlfilename" 					type="xsd:string" 			minOccurs="1" maxOccurs="1" />
+			<xsd:element name="maximumdeliveryqueuesize" 		type="xsd:int" 				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="protobufinterface" 				type="ProtobufInterface" 	minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:schema>

@@ -1,5 +1,5 @@
 
-package de.uniluebeck.itm.tr.logcontroller.client;
+package eu.wisebed.testbed.api.messagestore.v1;
 
 import java.util.List;
 import javax.jws.WebMethod;
@@ -32,8 +32,8 @@ public interface MessageStore {
      */
     @WebMethod
     @WebResult(name = "messages-found", targetNamespace = "")
-    @RequestWrapper(localName = "hasMessages", targetNamespace = "urn:MessageStore", className = "de.uniluebeck.itm.tr.logcontroller.client.HasMessages")
-    @ResponseWrapper(localName = "hasMessagesResponse", targetNamespace = "urn:MessageStore", className = "de.uniluebeck.itm.tr.logcontroller.client.HasMessagesResponse")
+    @RequestWrapper(localName = "hasMessages", targetNamespace = "urn:MessageStore", className = "eu.wisebed.testbed.api.messagestore.v1.HasMessages")
+    @ResponseWrapper(localName = "hasMessagesResponse", targetNamespace = "urn:MessageStore", className = "eu.wisebed.testbed.api.messagestore.v1.HasMessagesResponse")
     public boolean hasMessages(
         @WebParam(name = "secretReservationKey", targetNamespace = "")
         SecretReservationKey secretReservationKey);
@@ -41,20 +41,17 @@ public interface MessageStore {
     /**
      * 
      * @param secretReservationKey
-     * @param messageType
      * @param messageLimit
      * @return
-     *     returns java.util.List<de.uniluebeck.itm.tr.logcontroller.client.Message>
+     *     returns java.util.List<eu.wisebed.testbed.api.messagestore.v1.Message>
      */
     @WebMethod
     @WebResult(name = "messages", targetNamespace = "")
-    @RequestWrapper(localName = "fetchMessages", targetNamespace = "urn:MessageStore", className = "de.uniluebeck.itm.tr.logcontroller.client.FetchMessages")
-    @ResponseWrapper(localName = "fetchMessagesResponse", targetNamespace = "urn:MessageStore", className = "de.uniluebeck.itm.tr.logcontroller.client.FetchMessagesResponse")
+    @RequestWrapper(localName = "fetchMessages", targetNamespace = "urn:MessageStore", className = "eu.wisebed.testbed.api.messagestore.v1.FetchMessages")
+    @ResponseWrapper(localName = "fetchMessagesResponse", targetNamespace = "urn:MessageStore", className = "eu.wisebed.testbed.api.messagestore.v1.FetchMessagesResponse")
     public List<Message> fetchMessages(
         @WebParam(name = "secretReservationKey", targetNamespace = "")
         List<SecretReservationKey> secretReservationKey,
-        @WebParam(name = "messageType", targetNamespace = "")
-        MessageType messageType,
         @WebParam(name = "messageLimit", targetNamespace = "")
         int messageLimit);
 

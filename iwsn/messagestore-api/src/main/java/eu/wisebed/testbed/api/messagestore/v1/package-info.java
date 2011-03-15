@@ -1,2 +1,2 @@
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:MessageStore")
-package de.uniluebeck.itm.tr.logcontroller.client;
+package eu.wisebed.testbed.api.messagestore.v1;

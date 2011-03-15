@@ -30,9 +30,11 @@ import eu.wisebed.testbed.api.wsn.v22.Message;
 import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
 import org.apache.log4j.Logger;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 @WebService(serviceName = "ControllerService", targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE, portName = "ControllerPort", endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE)
@@ -59,14 +61,22 @@ public class DelegatingController implements Controller {
 	}
 
 	@Override
-	public void receive(Message msg) {
+	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msg) {
 		controller.receive(msg);
-
 	}
 
 	@Override
-	public void receiveStatus(RequestStatus status) {
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> status) {
 		controller.receiveStatus(status);
 	}
 
+	@Override
+	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msg) {
+		controller.receiveNotification(msg);
+	}
+
+	@Override
+	public void experimentEnded() {
+		controller.experimentEnded();
+	}
 }

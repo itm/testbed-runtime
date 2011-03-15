@@ -26,11 +26,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.MessageType;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.messagestore.v1.Message;
+import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
+import eu.wisebed.testbed.api.messagestore.v1.SecretReservationKey;
 
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -42,86 +43,100 @@ import java.util.Map;
 /**
  * Implementation of MessageStore-Interface using JPA 2.0
  */
-@WebService(targetNamespace = "urn:MessageStore", endpointInterface = "de.uniluebeck.itm.tr.logcontroller.IMessageStore",
-            portName = "MessageStorePort", serviceName = "MessageStore")
-public class DBMessageStore implements IMessageStore, Service {
-    private EntityManagerFactory _factory;
+@WebService(targetNamespace = "urn:MessageStore",
+		endpointInterface = "de.uniluebeck.itm.tr.logcontroller.IMessageStore",
+		portName = "MessageStorePort", serviceName = "MessageStore")
+public class DBMessageStore implements MessageStore, Service {
 
-    public DBMessageStore(Map properties) {
-        Preconditions.checkNotNull(properties, "Properties are null!");
-        _factory =
-                Persistence.createEntityManagerFactory(Server.PERSISTENCE_CONTEXT, properties);
-    }
+	private static final Function<WSNMessage, Message> MESSAGE_CONVERT_FUNCTION = new Function<WSNMessage, Message>() {
+		@Override
+		public Message apply(WSNMessage from) {
 
-    private synchronized EntityManager getManager() {
-        return _factory.createEntityManager();
-    }
+			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessage.convertToXMLMessage(from);
 
-    private Message[] internalFetchMessage(List<SecretReservationKey> keys,
-                                           MessageType type,
-                                           int limit) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("from AbstractMessage a where 1 = 1");
-        if (keys != null && keys.size() > 0) {
-            builder.append(" and ( 0 = 1");
-            for (SecretReservationKey key : keys)
-                builder.append(" or a.reservationKey = ?");
-            builder.append(")");
-        }
-        if (type != null)
-            builder.append(" and a.class = " + (type == MessageType.TEXT ?
-                    TextMessage.class.getSimpleName() : BinaryMessage.class.getSimpleName()));
-        EntityManager manager = getManager();
-        try {
-            TypedQuery<AbstractMessage> query = manager.createQuery(builder.toString(),
-                    AbstractMessage.class);
-            if (keys != null && keys.size() > 0)
-                for (SecretReservationKey key : keys)
-                    query.setParameter(keys.indexOf(key) + 1, key.getSecretReservationKey());
-            if (limit > 0)
-                query.setMaxResults(limit);
-            List<AbstractMessage> result = query.getResultList();
-            Message[] ret = new Message[result.size()];
-            return Lists.transform(result, new Function<AbstractMessage, Message>() {
-                @Override
-                public Message apply(AbstractMessage from) {
-                    return AbstractMessage.convertAbstractMessage(from);
-                }
-            }).toArray(ret);
-        }
-        finally {
-            manager.close();
-        }
-    }
+			Message ret = new Message();
+			ret.setBinaryData(message.getBinaryData());
+			ret.setSourceNodeId(message.getSourceNodeId());
+			ret.setTimestamp(message.getTimestamp());
+			return ret;
+		}
+	};
 
-    @Override
-    public boolean hasMessages(SecretReservationKey secretReservationKey) {
-        EntityManager manager = getManager();
-        try {
-            Object count = manager.createQuery("select count(c) from BinaryMessage c where "
-                    + "c.reservationKey = ?").setParameter(1,
-                    secretReservationKey.getSecretReservationKey()).getSingleResult();
-            return Integer.parseInt(count.toString()) > 0;
-        }
-        finally {
-            manager.close();
-        }
-    }
+	private EntityManagerFactory factory;
 
-    @Override
-    public Message[] fetchMessages(List<SecretReservationKey> secretReservationKey, MessageType messageType, int limit) {
-        return internalFetchMessage(secretReservationKey, messageType, limit);
-    }
+	public DBMessageStore(Map properties) {
+		Preconditions.checkNotNull(properties, "Properties are null!");
+		factory = Persistence.createEntityManagerFactory(Server.PERSISTENCE_CONTEXT, properties);
+	}
 
-    @Override
-    @WebMethod(exclude = true)
-    public void start() throws Exception {
+	private synchronized EntityManager getManager() {
+		return factory.createEntityManager();
+	}
 
-    }
+	@Override
+	@WebMethod(exclude = true)
+	public void start() throws Exception {
 
-    @Override
-    @WebMethod(exclude = true)
-    public void stop() {
-        _factory.close();
-    }
+	}
+
+	@Override
+	@WebMethod(exclude = true)
+	public void stop() {
+		factory.close();
+	}
+
+	@Override
+	public boolean hasMessages(
+			@WebParam(name = "secretReservationKey", targetNamespace = "")
+			final eu.wisebed.testbed.api.messagestore.v1.SecretReservationKey secretReservationKey) {
+		EntityManager manager = getManager();
+		try {
+			Object count = manager.createQuery("select count(c) from BinaryMessage c where "
+					+ "c.reservationKey = ?"
+			).setParameter(1,
+					secretReservationKey.getSecretReservationKey()
+			).getSingleResult();
+			return Integer.parseInt(count.toString()) > 0;
+		} finally {
+			manager.close();
+		}
+	}
+
+	@Override
+	public List<eu.wisebed.testbed.api.messagestore.v1.Message> fetchMessages(
+			@WebParam(name = "secretReservationKey", targetNamespace = "") final
+			List<eu.wisebed.testbed.api.messagestore.v1.SecretReservationKey> secretReservationKeys,
+			@WebParam(name = "messageLimit", targetNamespace = "") final int messageLimit) {
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("from WSNMessage a where 1 = 1");
+		if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
+			builder.append(" and ( 0 = 1");
+			for (SecretReservationKey secretReservationKey : secretReservationKeys) {
+				builder.append(" or a.reservationKey = ?");
+			}
+			builder.append(")");
+		}
+		EntityManager manager = getManager();
+		try {
+			TypedQuery<WSNMessage> query = manager.createQuery(builder.toString(),
+					WSNMessage.class
+			);
+			if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
+				for (SecretReservationKey key : secretReservationKeys) {
+					query.setParameter(secretReservationKeys.indexOf(key) + 1, key.getSecretReservationKey());
+				}
+			}
+			if (messageLimit > 0) {
+				query.setMaxResults(messageLimit);
+			}
+			List<WSNMessage> result = query.getResultList();
+
+			return Lists.transform(result, MESSAGE_CONVERT_FUNCTION);
+
+		} finally {
+			manager.close();
+		}
+
+	}
 }

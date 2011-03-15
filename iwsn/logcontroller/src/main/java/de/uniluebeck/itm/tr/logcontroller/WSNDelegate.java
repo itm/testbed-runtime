@@ -23,18 +23,16 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import de.uniluebeck.itm.gtr.common.Service;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.v22.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Endpoint;
 import java.util.List;
 
 /**
- *  delegate for the wsn-service
+ * Delegate for the WSN service.
  */
 @WebService(
 		serviceName = "WSNService",
@@ -43,103 +41,107 @@ import java.util.List;
 		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
 )
 public class WSNDelegate implements WSN {
-    private WSN _delegate;
-    
-    public WSNDelegate(WSN delegate) {
-        _delegate = delegate;
-    }
 
-    public void addController(@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
-        _delegate.addController(controllerEndpointUrl);
-    }
+	private WSN delegate;
 
-    public void removeController(@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
-        _delegate.removeController(controllerEndpointUrl);
-    }
+	public WSNDelegate(WSN delegate) {
+		this.delegate = delegate;
+	}
 
-    public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
-                       @WebParam(name = "message", targetNamespace = "") Message message) {
-        return _delegate.send(nodeIds, message);
-    }
+	public void addController(
+			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
+		delegate.addController(controllerEndpointUrl);
+	}
 
-    public String getVersion() {
-        return _delegate.getVersion();
-    }
+	public void removeController(
+			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
+		delegate.removeController(controllerEndpointUrl);
+	}
 
-    public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
-        return _delegate.areNodesAlive(nodes);
-    }
+	public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
+					   @WebParam(name = "message", targetNamespace = "") Message message) {
+		return delegate.send(nodeIds, message);
+	}
 
-    public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-        return _delegate.defineNetwork(newNetwork);
-    }
+	public String getVersion() {
+		return delegate.getVersion();
+	}
 
-    public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
-            throws UnsupportedOperationException_Exception {
-        return _delegate.describeCapabilities(capability);
-    }
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
+		return delegate.areNodesAlive(nodes);
+	}
 
-    public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
-                                     @WebParam(name = "targetNode", targetNamespace = "") String targetNode) {
-        return _delegate.destroyVirtualLink(sourceNode, targetNode);
-    }
+	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
+		return delegate.defineNetwork(newNetwork);
+	}
 
-    public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
-        return _delegate.disableNode(node);
-    }
+	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
+			throws UnsupportedOperationException_Exception {
+		return delegate.describeCapabilities(capability);
+	}
 
-    public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-                                      @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
-        return _delegate.disablePhysicalLink(nodeA, nodeB);
-    }
+	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
+									 @WebParam(name = "targetNode", targetNamespace = "") String targetNode) {
+		return delegate.destroyVirtualLink(sourceNode, targetNode);
+	}
 
-    public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
-        return _delegate.enableNode(node);
-    }
+	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+		return delegate.disableNode(node);
+	}
 
-    public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-                                     @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
-        return _delegate.enablePhysicalLink(nodeA, nodeB);
-    }
+	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
+									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+		return delegate.disablePhysicalLink(nodeA, nodeB);
+	}
 
-    public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
-                                @WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices,
-                                @WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
-        return _delegate.flashPrograms(nodeIds, programIndices, programs);
-    }
+	public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+		return delegate.enableNode(node);
+	}
 
-    public List<String> getFilters() {
-        return _delegate.getFilters();
-    }
+	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
+									 @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+		return delegate.enablePhysicalLink(nodeA, nodeB);
+	}
 
-    public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
-            throws UnknownNodeUrnException_Exception {
-        return _delegate.getNeighbourhood(node);
-    }
+	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
+								@WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices,
+								@WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
+		return delegate.flashPrograms(nodeIds, programIndices, programs);
+	}
 
-    public String getNetwork() {
-        return _delegate.getNetwork();
-    }
+	public List<String> getFilters() {
+		return delegate.getFilters();
+	}
 
-    public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node,
-                                     @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
-            throws UnknownNodeUrnException_Exception {
-        return _delegate.getPropertyValueOf(node, propertyName);
-    }
+	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
+			throws UnknownNodeUrnException_Exception {
+		return delegate.getNeighbourhood(node);
+	}
 
-    public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
-        return _delegate.resetNodes(nodes);
-    }
+	public String getNetwork() {
+		return delegate.getNetwork();
+	}
 
-    public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-        return _delegate.setStartTime(time);
-    }
+	public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node,
+									 @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
+			throws UnknownNodeUrnException_Exception {
+		return delegate.getPropertyValueOf(node, propertyName);
+	}
 
-    public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
-                                 @WebParam(name = "targetNode", targetNamespace = "") String targetNode,
-                                 @WebParam(name = "remoteServiceInstance", targetNamespace = "") String remoteServiceInstance,
-                                 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
-                                 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
-        return _delegate.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
-    }
+	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
+		return delegate.resetNodes(nodes);
+	}
+
+	public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
+		return delegate.setStartTime(time);
+	}
+
+	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
+								 @WebParam(name = "targetNode", targetNamespace = "") String targetNode,
+								 @WebParam(name = "remoteServiceInstance", targetNamespace = "")
+								 String remoteServiceInstance,
+								 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
+								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
+		return delegate.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
+	}
 }

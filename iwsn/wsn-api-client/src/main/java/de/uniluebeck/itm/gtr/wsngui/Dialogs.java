@@ -40,10 +40,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 
 public class Dialogs {
@@ -706,8 +704,6 @@ public class Dialogs {
 
         private FieldHelper.XMLGregorianCalendarDateChooserPanel timestampTextField;
 
-        private TextMessagePanel textMessagePanel;
-
         private BinaryMessagePanel binaryMessagePanel;
 
         public MessagePanel() {
@@ -752,9 +748,6 @@ public class Dialogs {
             tabs.setPreferredSize(new Dimension(800, 300));
             add(tabs, c);
 
-            textMessagePanel = new TextMessagePanel();
-            tabs.add("TextMessage", textMessagePanel);
-
             binaryMessagePanel = new BinaryMessagePanel();
             tabs.add("BinaryMessage", binaryMessagePanel);
 
@@ -771,70 +764,15 @@ public class Dialogs {
                 //TODO display some error on the GUI
             }
 
-            if (tabs.getSelectedIndex() == 0) {
-                msg.setTextMessage(textMessagePanel.getResult());
-            } else {
-                msg.setBinaryMessage(binaryMessagePanel.getResult());
-            }
+            msg.setBinaryData(binaryMessagePanel.getResult());
+
             return msg;
 
         }
 
     }
 
-    public static class TextMessagePanel extends AbstractResultPanel<TextMessage> {
-
-        private JTextField jTextField;
-
-        private FieldHelper.EnumJComboBox messageLevelJComboBox;
-
-        public TextMessagePanel() {
-
-            super(new GridBagLayout());
-
-            // string: String
-            // messageLevel: MessageLevel (enum)
-
-            GridBagConstraints c;
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            add(new JLabel("Text message"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            jTextField = new JTextField();
-            Dimension preferredSize = jTextField.getPreferredSize();
-            jTextField.setPreferredSize(new Dimension(400, (int) preferredSize.getHeight()));
-            add(jTextField, c);
-
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            add(new JLabel("Message level"), c);
-
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            messageLevelJComboBox = new FieldHelper.EnumJComboBox(MessageLevel.class);
-            add(messageLevelJComboBox, c);
-
-        }
-
-        @Override
-        public TextMessage getResult() {
-            TextMessage textMessage = new TextMessage();
-            textMessage.setMessageLevel((MessageLevel) messageLevelJComboBox.getValue());
-            textMessage.setMsg(jTextField.getText());
-            return textMessage;
-        }
-
-    }
-
-    public static class BinaryMessagePanel extends AbstractResultPanel<BinaryMessage> {
+    public static class BinaryMessagePanel extends AbstractResultPanel<byte[]> {
 
         private FieldHelper.ByteArrayJTextArea byteArrayTextArea;
 
@@ -878,11 +816,8 @@ public class Dialogs {
         }
 
         @Override
-        public BinaryMessage getResult() {
-            BinaryMessage msg = new BinaryMessage();
-            msg.setBinaryData(byteArrayTextArea.getValue(16));
-            msg.setBinaryType(byteJTextField.getValue(16));
-            return msg;
+        public byte[] getResult() {
+			return byteArrayTextArea.getValue(16);
         }
 
     }

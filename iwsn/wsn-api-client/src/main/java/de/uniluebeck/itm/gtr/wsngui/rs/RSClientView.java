@@ -116,7 +116,7 @@ public class RSClientView extends JPanel {
             panel.add(secretReservationKeysScrollPane);
         }
         {
-            copySecretReservationKeysButton = new JButton("Copy SRKs to Session Management Client");
+            copySecretReservationKeysButton = new JButton("Copy SRKs to Session Management client");
             panel.add(new JLabel());
             panel.add(copySecretReservationKeysButton);
         }

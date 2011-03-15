@@ -93,7 +93,7 @@ public class SNAAClientView extends JPanel {
             panel.add(isAuthenticatedButton);
         }
         {
-            copyToRSButton = new JButton("Copy authentication Result to RS Client");
+            copyToRSButton = new JButton("Copy authentication Result to RS client");
 
             panel.add(new JLabel());
             panel.add(copyToRSButton);

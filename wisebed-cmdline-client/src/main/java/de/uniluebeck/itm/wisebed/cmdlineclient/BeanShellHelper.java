@@ -218,19 +218,9 @@ public class BeanShellHelper {
 		b.append(msg.getSourceNodeId());
 		b.append("]");
 
-		if (msg.getTextMessage() != null) {
-			b.append(", Text [");
-			b.append(msg.getTextMessage().getMsg());
-			b.append("], Level[");
-			b.append(msg.getTextMessage().getMessageLevel());
-			b.append("]");
-		}
-
-		if (msg.getBinaryMessage() != null) {
-			b.append(", BinaryType[");
-			b.append(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()));
-			b.append("], Binary [");
-			b.append(StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+		if (msg.getBinaryData() != null) {
+			b.append(", Binary [");
+			b.append(StringUtils.toHexString(msg.getBinaryData()));
 			b.append("]");
 		}
 
@@ -376,17 +366,13 @@ public class BeanShellHelper {
 	/**
 	 * Generate a binary message to be send to a node with timestamop = now and src node id = 0xffff
 	 *
-	 * @param type Type of the binary message
 	 * @param data Payload of the binary message
 	 *
 	 * @return the binary message
 	 */
-	public static Message buildBinaryMessage(byte type, byte[] data) {
+	public static Message buildBinaryMessage(byte[] data) {
 		Message msg = new Message();
-		BinaryMessage bmsg = new BinaryMessage();
-		bmsg.setBinaryData(data);
-		bmsg.setBinaryType(type);
-		msg.setBinaryMessage(bmsg);
+		msg.setBinaryData(data);
 		msg.setSourceNodeId("urn:wisebed:uzl1:0xffff");
 		try {
 			msg.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(

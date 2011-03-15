@@ -113,7 +113,11 @@ public class AsyncJobObserver {
 
 	}
 
-
+	public void receive(List<RequestStatus> status) {
+		for (RequestStatus s : status) {
+			receive(s);
+		}
+	}
 
 	public void receive(RequestStatus status) {
 

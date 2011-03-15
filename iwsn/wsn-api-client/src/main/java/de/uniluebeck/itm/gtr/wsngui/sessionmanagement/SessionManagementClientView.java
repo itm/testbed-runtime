@@ -97,7 +97,7 @@ public class SessionManagementClientView extends JPanel {
             panel.add(getInstanceResultTextField);
         }
         {
-            getInstanceResultCopyButton = new JButton("Copy to WSN Client");
+            getInstanceResultCopyButton = new JButton("Copy to WSN client");
 
             panel.add(new JLabel());
             panel.add(getInstanceResultCopyButton);

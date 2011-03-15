@@ -31,15 +31,13 @@ import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v22.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.v22.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.Holder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Proxy for SessionManagment-Service, creates an manages WSN-Bindings
+ * Proxy for the SessionManagement service, creates and manages {@link WSNBinding} instances.
  */
 @WebService(
 		serviceName = "SessionManagementService",
@@ -58,139 +56,178 @@ import java.util.concurrent.TimeUnit;
 		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
 )
 public class SessionManagementDelegate implements SessionManagement {
-    private Logger _log = LoggerFactory.getLogger(SessionManagementDelegate.class);
-    private SessionManagement _delegate;
-    private Map<String, Tuple<WSNBinding, Future>> _wsnInstances = Maps.newHashMap();
-    private ControllerService _controller;
-    private RS _reservationService;
-    private ScheduledExecutorService _scheduler = Executors.newScheduledThreadPool(2);
 
-    private SessionManagementDelegate(SessionManagement delegate) {
-        _delegate = delegate;
-    }
+	private static final Logger log = LoggerFactory.getLogger(SessionManagementDelegate.class);
 
-    public SessionManagementDelegate(SessionManagement sessionManagment, ControllerService controllerService) {
-        this(sessionManagment);
-        _controller = controllerService;
-        _reservationService = RSServiceHelper.getRSService(controllerService.getReservationEndpoint());
-    }
+	private SessionManagement delegate;
 
-    @Override
-    public String getInstance(@WebParam(name = "secretReservationKey", targetNamespace = "") List<SecretReservationKey> secretReservationKey,
-                              @WebParam(name = "controller", targetNamespace = "") String controller)
-            throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
-        String reservationHash =
-                SessionManagementHelper.calculateWSNInstanceHash(secretReservationKey);
-        if (!_wsnInstances.containsKey(reservationHash)) {
-            WSNBinding binding =
-                    new WSNBinding(secretReservationKey, _controller.getControllerUrnPrefix(), _controller.getWsnUrnPrefix());
-            controller = binding.startController(controller);
-            String instance = _delegate.getInstance(secretReservationKey, controller);
-            binding.startWSN(instance);
-            Iterator<IMessageListener> listener = _controller.getListenerIterator();
-            while (listener.hasNext())
-                binding.addMessageListener(listener.next());
-            _wsnInstances.put(reservationHash,
-                    new Tuple<WSNBinding, Future>(binding, configurateShutdown(binding, secretReservationKey)));
-            _log.info("WSN-Service on {} created",
-                    _wsnInstances.get(reservationHash).getFirst().getWSN());
-        } else {
-            _wsnInstances.get(reservationHash).getFirst().setController(controller);
-            _log.info("New Controller set for WSN-Service on {}",
-                    _wsnInstances.get(reservationHash).getFirst().getWSN());
-        }
-        return _wsnInstances.get(reservationHash).getFirst().getWSN();
-    }
+	private Map<String, Tuple<WSNBinding, Future>> wsnInstances = Maps.newHashMap();
 
-    @Override
-    public void free(@WebParam(name = "secretReservationKey", targetNamespace = "") List<SecretReservationKey> secretReservationKey)
-            throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
-        String reservationHash =
-                SessionManagementHelper.calculateWSNInstanceHash(secretReservationKey);
-        if (_wsnInstances.containsKey(reservationHash)) {
-            _wsnInstances.get(reservationHash).getSecond().cancel(false);
-            _log.info("WSN-Service on {} shutting down.",
-                    _wsnInstances.get(reservationHash).getFirst().getWSN());
-            _wsnInstances.get(reservationHash).getFirst()
-                    .stop();
-            _wsnInstances.remove(reservationHash);
-        }
-        _delegate.free(secretReservationKey);
-    }
+	private ControllerService controller;
 
-    @Override
-    public String getNetwork() {
-        return _delegate.getNetwork().toString();
-    }
+	private RS reservationService;
 
-    /**
-     * Schedules a new Binding for Shutdown, equivalent to reservationintervall
-     * @param binding
-     * @param reservationKey
-     * @return
-     */
-    private Future configurateShutdown(WSNBinding binding, List<SecretReservationKey> reservationKey) {
-        List<ConfidentialReservationData> reservationData = null;
-        try {
-            reservationData =
-                    _reservationService.getReservation(convert(reservationKey));
-        } catch (Exception e) {
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
+	private SessionManagementDelegate(SessionManagement delegate) {
+		this.delegate = delegate;
+	}
+
+	public SessionManagementDelegate(SessionManagement sessionManagement, ControllerService controllerService) {
+		this(sessionManagement);
+		controller = controllerService;
+		reservationService = RSServiceHelper.getRSService(controllerService.getReservationEndpoint());
+	}
+
+	@Override
+	public String getInstance(
+			@WebParam(name = "secretReservationKey", targetNamespace = "")
+			List<SecretReservationKey> secretReservationKey,
+			@WebParam(name = "controller", targetNamespace = "") String controller)
+			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+		String reservationHash =
+				SessionManagementHelper.calculateWSNInstanceHash(secretReservationKey);
+		if (!wsnInstances.containsKey(reservationHash)) {
+			WSNBinding binding =
+					new WSNBinding(secretReservationKey, this.controller.getControllerUrnPrefix(),
+							this.controller.getWsnUrnPrefix()
+					);
+			controller = binding.startController(controller);
+			String instance = delegate.getInstance(secretReservationKey, controller);
+			binding.startWSN(instance);
+			Iterator<IMessageListener> listener = this.controller.getListenerIterator();
+			while (listener.hasNext()) {
+				binding.addMessageListener(listener.next());
+			}
+			wsnInstances.put(reservationHash,
+					new Tuple<WSNBinding, Future>(binding, configureShutdown(binding, secretReservationKey))
+			);
+			log.info("WSN-Service on {} created",
+					wsnInstances.get(reservationHash).getFirst().getWSN()
+			);
+		} else {
+			wsnInstances.get(reservationHash).getFirst().setController(controller);
+			log.info("New Controller set for WSN-Service on {}",
+					wsnInstances.get(reservationHash).getFirst().getWSN()
+			);
+		}
+		return wsnInstances.get(reservationHash).getFirst().getWSN();
+	}
+
+	@Override
+	public void free(
+			@WebParam(name = "secretReservationKey", targetNamespace = "")
+			List<SecretReservationKey> secretReservationKey)
+			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+		String reservationHash =
+				SessionManagementHelper.calculateWSNInstanceHash(secretReservationKey);
+		if (wsnInstances.containsKey(reservationHash)) {
+			wsnInstances.get(reservationHash).getSecond().cancel(false);
+			log.info("WSN-Service on {} shutting down.",
+					wsnInstances.get(reservationHash).getFirst().getWSN()
+			);
+			wsnInstances.get(reservationHash).getFirst()
+					.stop();
+			wsnInstances.remove(reservationHash);
+		}
+		delegate.free(secretReservationKey);
+	}
+
+	@Override
+	public String getNetwork() {
+		return delegate.getNetwork();
+	}
+
+	@Override
+	public void getConfiguration(
+			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> rsEndpointUrl,
+			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<KeyValuePair>> options) {
+		delegate.getConfiguration(rsEndpointUrl, snaaEndpointUrl, options);
+	}
+
+	/**
+	 * Schedules a new Binding for Shutdown, equivalent to reservation interval.
+	 *
+	 * @param binding
+	 * @param reservationKey
+	 *
+	 * @return
+	 */
+	private Future configureShutdown(WSNBinding binding, List<SecretReservationKey> reservationKey) {
+		List<ConfidentialReservationData> reservationData;
+		try {
+			reservationData =
+					reservationService.getReservation(convert(reservationKey));
+		} catch (Exception e) {
 			throw new RuntimeException(e);
-        }
-        long delay = 0;
-        for (ConfidentialReservationData data : reservationData)
-            delay = Math.max(data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis(), delay);
-        _log.debug("Shutdown of WSN-Binding in {} milliseconds", delay);
-        String reservationHash = SessionManagementHelper.calculateWSNInstanceHash(
-                reservationKey);
-        return _scheduler.schedule(new ShutdownWSNRunnable(binding, reservationHash)
-                , delay, TimeUnit.MILLISECONDS);
-    }
+		}
+		long delay = 0;
+		for (ConfidentialReservationData data : reservationData) {
+			delay = Math.max(data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis(), delay);
+		}
+		log.debug("Shutdown of WSN-Binding in {} milliseconds", delay);
+		String reservationHash = SessionManagementHelper.calculateWSNInstanceHash(
+				reservationKey
+		);
+		return scheduler.schedule(
+				new ShutdownWSNRunnable(binding, reservationHash),
+				delay,
+				TimeUnit.MILLISECONDS
+		);
+	}
 
-    private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(
-            List<SecretReservationKey> secretReservationKey) {
+	private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(
+			List<SecretReservationKey> secretReservationKey) {
 
-        List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> retList =
-                Lists.newArrayListWithCapacity(secretReservationKey.size());
-        for (SecretReservationKey reservationKey : secretReservationKey) {
-            retList.add(convert(reservationKey));
-        }
-        return retList;
-    }
+		List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> retList =
+				Lists.newArrayListWithCapacity(secretReservationKey.size());
+		for (SecretReservationKey reservationKey : secretReservationKey) {
+			retList.add(convert(reservationKey));
+		}
+		return retList;
+	}
 
-    private eu.wisebed.testbed.api.rs.v1.SecretReservationKey convert(SecretReservationKey reservationKey) {
-        eu.wisebed.testbed.api.rs.v1.SecretReservationKey retSRK =
-                new eu.wisebed.testbed.api.rs.v1.SecretReservationKey();
-        retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
-        retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
-        return retSRK;
-    }
+	private eu.wisebed.testbed.api.rs.v1.SecretReservationKey convert(SecretReservationKey reservationKey) {
+		eu.wisebed.testbed.api.rs.v1.SecretReservationKey retSRK =
+				new eu.wisebed.testbed.api.rs.v1.SecretReservationKey();
+		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
+		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
+		return retSRK;
+	}
 
-    /**
-     * Stops all WSN-Instances
-     */
-    public void dispose() {
-        _scheduler.shutdown();
-        for (Tuple<WSNBinding, Future> tuple : _wsnInstances.values())
-            tuple.getFirst().stop();
-        _wsnInstances.clear();
-    }
+	/**
+	 * Stops all WSN-Instances
+	 */
+	public void dispose() {
+		scheduler.shutdown();
+		for (Tuple<WSNBinding, Future> tuple : wsnInstances.values()) {
+			tuple.getFirst().stop();
+		}
+		wsnInstances.clear();
+	}
 
-    private class ShutdownWSNRunnable implements Runnable {
-        private WSNBinding _binding;
-        private String _reservationHash;
+	private class ShutdownWSNRunnable implements Runnable {
 
-        public ShutdownWSNRunnable(WSNBinding binding, String reservationHash) {
-            _binding = binding;
-            _reservationHash = reservationHash;
-        }
+		private WSNBinding binding;
 
-        @Override
-        public void run() {
-            _log.info("WSN-Service on {} shutting down.",
-                    _binding.getWSN());
-            _binding.stop();
-            _wsnInstances.remove(_reservationHash);
-        }
-    }
+		private String reservationHash;
+
+		public ShutdownWSNRunnable(WSNBinding binding, String reservationHash) {
+			this.binding = binding;
+			this.reservationHash = reservationHash;
+		}
+
+		@Override
+		public void run() {
+			log.info("WSN-Service on {} shutting down.",
+					binding.getWSN()
+			);
+			binding.stop();
+			wsnInstances.remove(reservationHash);
+		}
+	}
 }

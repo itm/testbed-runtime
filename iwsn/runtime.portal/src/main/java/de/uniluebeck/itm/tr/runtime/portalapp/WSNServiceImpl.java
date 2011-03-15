@@ -29,7 +29,6 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
@@ -73,8 +72,8 @@ public class WSNServiceImpl implements WSNService {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(eu.wisebed.testbed.api.wsn.v22.Message)} or {@link
-	 * eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(eu.wisebed.testbed.api.wsn.v22.RequestStatus)} method. The
+	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(java.util.List)} or {@link
+	 * eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(java.util.List)} method. The
 	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one controller and, if
 	 * more controllers are attached to the running experiment the maximum thread pool size will be increased. By that, the
 	 * number of threads for web-service calls is bounded by the number of controller endpoints as more threads would not,
@@ -194,37 +193,18 @@ public class WSNServiceImpl implements WSNService {
 
 			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
 
+			final byte[] binaryData = wsnMessage.getBinaryData().toByteArray();
+
 			Message message = new Message();
 			message.setSourceNodeId(wsnMessage.getSourceNodeId());
 			message.setTimestamp(timestamp);
 
-			if (wsnMessage.hasBinaryMessage()) {
-
-				BinaryMessage binaryMessage = new BinaryMessage();
-				binaryMessage.setBinaryData(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
-				binaryMessage.setBinaryType((byte) wsnMessage.getBinaryMessage().getBinaryType());
-
-				message.setBinaryMessage(binaryMessage);
-
-			} else if (wsnMessage.hasTextMessage()) {
-
-				TextMessage textMessage = new TextMessage();
-				textMessage.setMessageLevel(MessageLevel.valueOf(wsnMessage.getTextMessage().getMessageLevel()
-						.toString()
-				)
-				);
-				textMessage.setMsg(wsnMessage.getTextMessage().getMsg());
-
-				message.setTextMessage(textMessage);
-
-			}
-
 			// check if message is a virtual link message
-			boolean isVirtualLinkMessage = wsnMessage.getBinaryMessage() != null
-					&& wsnMessage.getBinaryMessage().hasBinaryData()
-					&& wsnMessage.getBinaryMessage().getBinaryData().toByteArray()[0] == NODE_OUTPUT_VIRTUAL_LINK;
+			boolean isVirtualLinkMessage = binaryData[0] == NODE_OUTPUT_VIRTUAL_LINK;
 
 			if (!isVirtualLinkMessage) {
+
+				message.setBinaryData(binaryData);
 
 				// deliver to controller in every case, he's a promiscuous listener
 				controllerHelper.receive(message);
@@ -233,29 +213,24 @@ public class WSNServiceImpl implements WSNService {
 
 				// message is a virtual link message
 
-				ByteBuffer buffer = ByteBuffer.wrap(wsnMessage.getBinaryMessage().getBinaryData().toByteArray());
-				BinaryMessage binaryMessage = new BinaryMessage();
-				byte[] bytes = new byte[message.getBinaryMessage().getBinaryData().length + 1];
-				bytes[0] = WISELIB_VIRTUAL_LINK_MESSAGE;
-				bytes[1] = 0; // request id according to Node API
+				ByteBuffer buffer = ByteBuffer.wrap(binaryData);
+
+				byte[] bytes = new byte[binaryData.length + 2];
+				bytes[0] = MESSAGE_TYPE_WISELIB_DOWNSTREAM;
+				bytes[1] = WISELIB_VIRTUAL_LINK_MESSAGE;
+				bytes[2] = 0; // request id according to Node API
 
 				// copy payload (i.e. cut away NODE_OUTPUT_VIRTUAL_LINK in the byte zero)
-				int index = 2;
-				for (int i = 1; i < message.getBinaryMessage().getBinaryData().length; ++i) {
-					bytes[index] = message.getBinaryMessage().getBinaryData()[i];
-					index++;
-				}
+				System.arraycopy(binaryData, 1, bytes, 3, binaryData.length-1);
 
-				binaryMessage.setBinaryData(bytes);
-				binaryMessage.setBinaryType(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
+				message.setBinaryData(bytes);
 
 				// check if message is a broadcast or unicast message
 				long destinationNode = 0;
 				try {
 					destinationNode = buffer.getLong(4);
 				} catch (Exception e) {
-					String msg =
-							"probably node akk message popped up in web service this should never happen. ignoring";
+					String msg = "probably node akk message popped up in web service this should never happen. ignoring";
 					log.warn(msg, e);
 				}
 				boolean isBroadcast = destinationNode == 0xFFFF;
@@ -289,7 +264,6 @@ public class WSNServiceImpl implements WSNService {
 					}
 				}
 
-				message.setBinaryMessage(binaryMessage);
 				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
 
 					executorService.execute(new DeliverVirtualLinkMessageRunnable(
@@ -333,7 +307,7 @@ public class WSNServiceImpl implements WSNService {
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
-		// TODO define clean lifecycle for WSN app, following lifecycle of WSNServiceImpl
+		// TODO define clean life cycle for WSN app, following life cycle of WSNServiceImpl
 		/*try {
 			wsnApp.stop();
 		} catch (Exception e) {
@@ -385,15 +359,10 @@ public class WSNServiceImpl implements WSNService {
 		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSendArguments(nodeIds, message);
 
-		// log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
+		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
 
 		final String requestId = secureIdGenerator.getNextId();
 		final long start = System.currentTimeMillis();
-		// linkLogger.debug("sending virtual Link Message:" + (boolean
-		// isVirtualLinkMessage =
-		// message.getBinaryMessage() != null &&
-		// message.getBinaryMessage().hasinaryData() &&
-		// message.getBinaryMessage().getBinaryData()[0] == 52;) );
 
 		//check if only reserved nodes
 		preconditions.checkNodesReserved(nodeIds, reservedNodes);
@@ -414,7 +383,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -434,43 +403,11 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	private WSNAppMessages.Message convert(Message message) {
-
-		WSNAppMessages.Message.Builder builder = WSNAppMessages.Message.newBuilder();
-
-		if (message.getBinaryMessage() != null) {
-
-			// Binary Type is optinal so set type = 0 as internal default
-			if (message.getBinaryMessage().getBinaryType() == null) {
-				message.getBinaryMessage().setBinaryType((byte) 0);
-			}
-
-			WSNAppMessages.Message.BinaryMessage.Builder binaryMessage = WSNAppMessages.Message.BinaryMessage
-					.newBuilder().setBinaryType(message.getBinaryMessage().getBinaryType()).setBinaryData(
-							ByteString.copyFrom(message.getBinaryMessage().getBinaryData())
-					);
-			builder.setBinaryMessage(binaryMessage);
-		}
-
-		if (message.getTextMessage() != null) {
-
-			// Message Level is optinal so set the level to DEBUG as internal default
-			if (message.getTextMessage().getMessageLevel() == null) {
-				message.getTextMessage().setMessageLevel(MessageLevel.DEBUG);
-			}
-
-			WSNAppMessages.Message.TextMessage.Builder textMessage = WSNAppMessages.Message.TextMessage.newBuilder()
-					.setMessageLevel(
-							WSNAppMessages.Message.MessageLevel.valueOf(message.getTextMessage().getMessageLevel()
-									.value()
-							)
-					).setMsg(message.getTextMessage().getMsg());
-			builder.setTextMessage(textMessage);
-		}
-
-		builder.setSourceNodeId(message.getSourceNodeId());
-		builder.setTimestamp(message.getTimestamp().toString());
-
-		return builder.build();
+		return WSNAppMessages.Message.newBuilder()
+				.setBinaryData(ByteString.copyFrom(message.getBinaryData()))
+				.setSourceNodeId(message.getSourceNodeId())
+				.setTimestamp(message.getTimestamp().toString())
+				.build();
 	}
 
 	@Override
@@ -498,7 +435,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -555,7 +492,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -649,7 +586,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -696,7 +633,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		// TODO support filters
@@ -809,7 +746,7 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -864,7 +801,7 @@ public class WSNServiceImpl implements WSNService {
 			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -899,7 +836,7 @@ public class WSNServiceImpl implements WSNService {
 			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -933,7 +870,7 @@ public class WSNServiceImpl implements WSNService {
 			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;
@@ -969,7 +906,7 @@ public class WSNServiceImpl implements WSNService {
 			);
 
 		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnkownNodeUrnRequestStatus(e, requestId);
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
 		}
 
 		return requestId;

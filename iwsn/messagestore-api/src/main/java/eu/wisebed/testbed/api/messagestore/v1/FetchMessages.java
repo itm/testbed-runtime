@@ -1,5 +1,5 @@
 
-package de.uniluebeck.itm.tr.logcontroller.client;
+package eu.wisebed.testbed.api.messagestore.v1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="secretReservationKey" type="{urn:WSNService}secretReservationKey" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="messageType" type="{urn:CommonTypes}messageType" minOccurs="0"/>
  *         &lt;element name="messageLimit" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -32,13 +31,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "fetchMessages", propOrder = {
     "secretReservationKey",
-    "messageType",
     "messageLimit"
 })
 public class FetchMessages {
 
     protected List<SecretReservationKey> secretReservationKey;
-    protected MessageType messageType;
     protected int messageLimit;
 
     /**
@@ -68,30 +65,6 @@ public class FetchMessages {
             secretReservationKey = new ArrayList<SecretReservationKey>();
         }
         return this.secretReservationKey;
-    }
-
-    /**
-     * Gets the value of the messageType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link MessageType }
-     *     
-     */
-    public MessageType getMessageType() {
-        return messageType;
-    }
-
-    /**
-     * Sets the value of the messageType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link MessageType }
-     *     
-     */
-    public void setMessageType(MessageType value) {
-        this.messageType = value;
     }
 
     /**

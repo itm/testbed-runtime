@@ -41,6 +41,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
+import javax.jws.WebParam;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.*;
 import java.util.ArrayList;
@@ -146,22 +147,36 @@ public class FederationDemo {
 
 		Controller myController = new Controller() {
 
-			public void receive(Message msg) {
-				String s = helper.toString(msg);
+			@Override
+			public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msgs) {
+				String s = helper.toString(msgs);
 				log.debug("Received message: " + s);
 				if (finalHtmlLogWriter != null) {
 					try {
-						finalHtmlLogWriter.receiveMessage(msg);
+						for (Message msg : msgs) {
+							finalHtmlLogWriter.receiveMessage(msg);
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 
-			public void receiveStatus(RequestStatus status) {
+			@Override
+			public void receiveStatus(
+					@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> status) {
 				jobs.receive(status);
 			}
 
+			@Override
+			public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msgs) {
+				log.info("Received notification(s): " + Arrays.toString(msgs.toArray()));
+			}
+
+			@Override
+			public void experimentEnded() {
+				log.info("Experiment ended!");
+			}
 		};
 
 		DelegatingController delegator = new DelegatingController(myController);

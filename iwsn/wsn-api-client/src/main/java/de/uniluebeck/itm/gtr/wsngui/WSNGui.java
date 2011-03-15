@@ -28,8 +28,8 @@ import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceView;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientView;
-import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessagestoreClientController;
-import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessagestoreClientView;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientController;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientView;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientController;
@@ -109,17 +109,17 @@ public class WSNGui {
             wsnServiceScrollPane.setPreferredSize(preferredSize);
             new WSNServiceController(wsnServiceView, properties);
 
-            MessagestoreClientView messageStoreView = new MessagestoreClientView();
+            MessageStoreClientView messageStoreView = new MessageStoreClientView();
             JScrollPane messageStoreScrollPane = new JScrollPane(messageStoreView);
             messageStoreScrollPane.setPreferredSize(preferredSize);
-            new MessagestoreClientController(messageStoreView, properties);
+            new MessageStoreClientController(messageStoreView, properties);
 
-            tabs.addTab("SNAA Client", snaaClientScrollPane);
-            tabs.addTab("RS Client", rsClientScrollPane);
-            tabs.addTab("Controller Client", controllerClientScrollPane);
+            tabs.addTab("SNAA client", snaaClientScrollPane);
+            tabs.addTab("RS client", rsClientScrollPane);
+            tabs.addTab("Controller client", controllerClientScrollPane);
             tabs.addTab("Controller Service Dummy", controllerServiceScrollPane);
-            tabs.addTab("Session Management Client", sessionManagementScrollPane);
-            tabs.addTab("WSN Client", wsnClientScrollPane);
+            tabs.addTab("Session Management client", sessionManagementScrollPane);
+            tabs.addTab("WSN client", wsnClientScrollPane);
             tabs.addTab("WSN Service Dummy", wsnServiceScrollPane);
             tabs.addTab("Logcontroller Messagestore", messageStoreScrollPane);
 

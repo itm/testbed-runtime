@@ -67,6 +67,7 @@ public class Federator {
 			checkNotNull(config.path);
 			config.sessionmanagementEndpointURL = (String) properties.get("sessionmanagement_endpoint_url");
 			config.reservationEndpointUrl = (String) properties.get("reservation_endpoint_url");
+			config.snaaEndpointUrl = (String) properties.get("snaa_endpoint_url");
 
 			String[] federates = ((String) properties.get("federates")).split(",");
 
@@ -86,6 +87,8 @@ public class Federator {
 
 		}
 
+		private String snaaEndpointUrl;
+
 		public int port;
 
 		public String path;
@@ -103,6 +106,7 @@ public class Federator {
 					", path='" + path + '\'' +
 					", sessionmanagementEndpointURL='" + sessionmanagementEndpointURL + '\'' +
 					", reservationEndpointUrl='" + reservationEndpointUrl + '\'' +
+					", snaaEndpointUrl='" + snaaEndpointUrl + '\'' +
 					", federates=" + federates +
 					"}";
 		}
@@ -173,13 +177,27 @@ public class Federator {
 		String reservationEndpointUrl =
 				config.reservationEndpointUrl == null || "".equals(config.reservationEndpointUrl) ? null :
 						config.reservationEndpointUrl;
+		String snaaEndpointUrl =
+				config.snaaEndpointUrl == null || "".equals(config.snaaEndpointUrl) ? null :
+						config.snaaEndpointUrl;
 
-		FederatorSessionManagement federatorSessionManagement =
+		final FederatorSessionManagement federatorSessionManagement =
 				new FederatorSessionManagement(sessionManagementEndpointUrlPrefixSet, endpointUrlBase, path,
-						reservationEndpointUrl
+						reservationEndpointUrl, snaaEndpointUrl
 				);
 
 		federatorSessionManagement.start();
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					federatorSessionManagement.stop();
+				} catch (Exception e) {
+					log.error("{}", e);
+				}
+			}
+		});
 
 	}
 

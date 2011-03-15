@@ -47,15 +47,15 @@ import java.util.Set;
  * Connects Controller with WSN and adds listener-functionality
  */
 public class WSNBinding {
-    private Logger _log = LoggerFactory.getLogger(WSNBinding.class);
-    private Endpoint _wsnEndpoint;
-    private Endpoint _controllerEndpoint;
-    private Map<String, String> _secretReservationKey = Maps.newHashMap();
-    private final Set<IMessageListener> _listener = Sets.newHashSet();
-    private final ControllerHelper _controllerHelper = new ControllerHelper();
-    private String _wsnProxyAddress;
+    private Logger log = LoggerFactory.getLogger(WSNBinding.class);
+    private Endpoint wsnEndpoint;
+    private Endpoint controllerEndpoint;
+    private Map<String, String> secretReservationKey = Maps.newHashMap();
+    private final Set<IMessageListener> listeners = Sets.newHashSet();
+    private final ControllerHelper controllerHelper = new ControllerHelper();
+    private String wsnProxyAddress;
     private final String _controllerUrnPrefix;
-    private final String _wsnUrnPrefix;
+    private final String wsnUrnPrefix;
     private SecureIdGenerator _secureIdGenerator = new SecureIdGenerator();
 
     /**
@@ -63,27 +63,40 @@ public class WSNBinding {
      */
     @WebService(name = "ProxyController", targetNamespace = "urn:ControllerService")
     public class ProxyController implements Controller {
-        @Override
-        public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
-            _log.debug("before intercept");
-            interceptReceive(msg);
-            _controllerHelper.receive(msg);
-        }
 
-        @Override
-        public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
-            _controllerHelper.receiveStatus(status);
-        }
-    }
+		@Override
+		public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msgs) {
+			for (Message msg : msgs) {
+				log.debug("before intercept");
+				interceptReceive(msg);
+				controllerHelper.receive(msg);
+			}
+		}
+
+		@Override
+		public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> requestStatuses) {
+			controllerHelper.receiveStatus(requestStatuses);
+		}
+
+		@Override
+		public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msgs) {
+			controllerHelper.receiveNotification(msgs);
+		}
+
+		@Override
+		public void experimentEnded() {
+			controllerHelper.experimentEnded();
+		}
+	}
 
     public WSNBinding(List<SecretReservationKey> secretReservationKey, String controllerUrnPrefix, String wsnUrnPrefix) {
         Preconditions.checkNotNull(secretReservationKey, "SecretReservationKey is null!");
         Preconditions.checkNotNull(controllerUrnPrefix, "ControllerUrnPrefix is null!");
         Preconditions.checkNotNull(wsnUrnPrefix, "wnsUrnPrefix is null!");
         _controllerUrnPrefix = controllerUrnPrefix;
-        _wsnUrnPrefix = wsnUrnPrefix;
+        this.wsnUrnPrefix = wsnUrnPrefix;
         for (SecretReservationKey key : secretReservationKey)
-            _secretReservationKey.put(key.getUrnPrefix(), key.getSecretReservationKey());
+            this.secretReservationKey.put(key.getUrnPrefix(), key.getSecretReservationKey());
     }
 
     /**
@@ -93,8 +106,8 @@ public class WSNBinding {
      */
     public void setController(String controllerEndpoint) {
         Preconditions.checkNotNull(controllerEndpoint, "ControllerEndpoint is null!");
-        _controllerHelper.removeController(controllerEndpoint);
-        _controllerHelper.addController(controllerEndpoint);
+        controllerHelper.removeController(controllerEndpoint);
+        controllerHelper.addController(controllerEndpoint);
     }
 
     /**
@@ -105,9 +118,9 @@ public class WSNBinding {
      */
     public String startWSN(String wsnEndpoint) {
         WSNDelegate wsn = new WSNDelegate(WSNServiceHelper.getWSNService(wsnEndpoint));
-        _wsnProxyAddress = _wsnUrnPrefix + _secureIdGenerator.getNextId();
-        _wsnEndpoint = Endpoint.publish(_wsnProxyAddress, wsn);
-        return _wsnProxyAddress;
+        wsnProxyAddress = wsnUrnPrefix + _secureIdGenerator.getNextId();
+        this.wsnEndpoint = Endpoint.publish(wsnProxyAddress, wsn);
+        return wsnProxyAddress;
     }
 
     /**
@@ -116,7 +129,7 @@ public class WSNBinding {
      * @return
      */
     public String getWSN() {
-        return _wsnProxyAddress;
+        return wsnProxyAddress;
     }
 
     /**
@@ -126,13 +139,13 @@ public class WSNBinding {
      * @return proxy-controller-address
      */
     public String startController(String controllerEndpoint) {
-        if (_controllerEndpoint != null && _controllerEndpoint.isPublished())
-            _controllerEndpoint.stop();
+        if (this.controllerEndpoint != null && this.controllerEndpoint.isPublished())
+            this.controllerEndpoint.stop();
         setController(controllerEndpoint);
         String controllerAddress = _controllerUrnPrefix + _secureIdGenerator.getNextId();
-        _controllerEndpoint = Endpoint.publish(controllerAddress,
+        this.controllerEndpoint = Endpoint.publish(controllerAddress,
                 new ProxyController());
-        _log.debug("Controller-Service on {} published", controllerAddress);
+		log.debug("Controller-Service on {} published", controllerAddress);
         return controllerAddress;
     }
 
@@ -140,31 +153,31 @@ public class WSNBinding {
      * stops all active endpoints
      */
     public void stop() {
-        if (_wsnEndpoint.isPublished())
-            _wsnEndpoint.stop();
-        if (_controllerEndpoint.isPublished())
-            _controllerEndpoint.stop();
-        for (IMessageListener listener : _listener)
+        if (wsnEndpoint.isPublished())
+            wsnEndpoint.stop();
+        if (controllerEndpoint.isPublished())
+            controllerEndpoint.stop();
+        for (IMessageListener listener : this.listeners)
             listener.dispose();
     }
 
     public void addMessageListener(IMessageListener listener) {
-        _listener.add(listener);
+        listeners.add(listener);
     }
 
     /**
-     * calls all message-listener
+     * Calls all message listeners
      *
      * @param msg
      */
     private void interceptReceive(Message msg) {
         String key = null;
-        for (String prefix : _secretReservationKey.keySet())
+        for (String prefix : secretReservationKey.keySet())
             if (msg.getSourceNodeId().toLowerCase().contains(prefix))
-                key = _secretReservationKey.get(prefix);
+                key = secretReservationKey.get(prefix);
         Preconditions.checkNotNull(key, "No Reservation Key for Node {} found!",
                 msg.getSourceNodeId());
-        for (IMessageListener listener : _listener)
+        for (IMessageListener listener : this.listeners)
             listener.newMessage(msg, key);
     }
 

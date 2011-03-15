@@ -36,101 +36,117 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Controller for Proxy-Service
+ * Controller proxy
  */
 public class ControllerService {
-    private Logger _log = LoggerFactory.getLogger(ControllerService.class);
-    private ImmutableMap<String, String> _properties;
-    private Endpoint _sessionManagementEndpoint;
-    private ImmutableSet<IMessageListener> _listenerSet;
-    private Endpoint _messagestoreEndpoint;
 
-    public ControllerService() {
-    }
+	private static final Logger log = LoggerFactory.getLogger(ControllerService.class);
 
-    /**
-     * Preconfiguration of the Controller
-     *
-     * @param properties
-     */
-    public void init(Map properties)
-            throws Exception {
-        Preconditions.checkArgument(properties != null, "Properties-Map is null!");
-        _properties = ImmutableMap.copyOf(properties);
-        _log.debug("Configuration:");
-        for (Map.Entry entry : _properties.entrySet())
-            _log.debug("{} : {}", entry.getKey(), entry.getValue());
+	private ImmutableMap<String, String> properties;
 
-        Preconditions.checkNotNull(_properties.get(Server.MESSAGELISTENER), "No Listenerclass specified!");
-        IMessageListener listener =
-                (IMessageListener) Class.forName(_properties.get(Server.MESSAGELISTENER))
-                        .newInstance();
-        listener.init(_properties);
-        _log.debug("Messagelistener {} initialized", listener.getClass().getSimpleName());
-        _listenerSet = ImmutableSet.of(listener);
-    }
+	private Endpoint sessionManagementEndpoint;
 
-    /**
-     * Starts all Services
-     */
-    public void startup()
-            throws Exception {
-        Preconditions.checkNotNull(_properties.get(Server.SESSIONMANAGEMENT_ENDPOINT),
-                "Property '" + Server.SESSIONMANAGEMENT_ENDPOINT + "' not specified!");
-        SessionManagement sessionManagment =
-                WSNServiceHelper.getSessionManagementService(
-                        _properties.get(Server.SESSIONMANAGEMENT_ENDPOINT));
-        Preconditions.checkNotNull(_properties.get(Server.SESSIONMANAGEMENT_PROXY),
-                "Property '" + Server.SESSIONMANAGEMENT_PROXY + "' not specified!");
-        _sessionManagementEndpoint = Endpoint.publish(_properties.get(Server.SESSIONMANAGEMENT_PROXY),
-                new SessionManagementDelegate(sessionManagment, this));
-        _log.info("SessionManagement-Service on {} published", _properties.get(Server.SESSIONMANAGEMENT_PROXY));
-        Preconditions.checkNotNull(_properties.get(Server.MESSAGESTORE_ENDPOINT),
-                "Property '"+Server.MESSAGESTORE_ENDPOINT+"' not specified!");
-        _messagestoreEndpoint = Endpoint.publish(_properties.get(Server.MESSAGESTORE_ENDPOINT),
-                new DBMessageStore(_properties));
-        _log.info("Messagestore-Service on {} published", _properties.get(Server.MESSAGESTORE_ENDPOINT));
-    }
+	private ImmutableSet<IMessageListener> listenerSet;
 
-    /**
-     * Shuts down all Services
-     *
-     * @throws Throwable
-     */
-    public void shutdown()
-            throws Exception {
-        ((SessionManagementDelegate) _sessionManagementEndpoint.getImplementor()).dispose();
-        _sessionManagementEndpoint.stop();
-        ((DBMessageStore)_messagestoreEndpoint.getImplementor()).stop();
-        _messagestoreEndpoint.stop();
-        _log.info("{} successfully shut down", getClass().getSimpleName());
-    }
+	private Endpoint messageStoreEndpoint;
 
-    /**
-     * Get Messagelisteners
-     *
-     * @return Iterator over all Messagelistener
-     */
-    public Iterator<IMessageListener> getListenerIterator() {
-        return _listenerSet.iterator();
-    }
+	public ControllerService() {
 
-    public String getControllerUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get(Server.CONTROLLER_PROXY_PREFIX),
-                "Property '" + Server.CONTROLLER_PROXY_PREFIX + "' not specified!");
-        return _properties.get(Server.CONTROLLER_PROXY_PREFIX);
-    }
+	}
+
+	/**
+	 * Preconfiguration of the Controller
+	 *
+	 * @param properties
+	 */
+	public void init(Map properties)
+			throws Exception {
+		Preconditions.checkArgument(properties != null, "Properties-Map is null!");
+		this.properties = ImmutableMap.copyOf(properties);
+		log.debug("Configuration:");
+		for (Map.Entry entry : this.properties.entrySet()) {
+			log.debug("{} : {}", entry.getKey(), entry.getValue());
+		}
+
+		Preconditions.checkNotNull(this.properties.get(Server.MESSAGELISTENER), "No Listenerclass specified!");
+		IMessageListener listener =
+				(IMessageListener) Class.forName(this.properties.get(Server.MESSAGELISTENER))
+						.newInstance();
+		listener.init(this.properties);
+		log.debug("Messagelistener {} initialized", listener.getClass().getSimpleName());
+		listenerSet = ImmutableSet.of(listener);
+	}
+
+	/**
+	 * Starts all Services
+	 */
+	public void startup()
+			throws Exception {
+		Preconditions.checkNotNull(properties.get(Server.SESSIONMANAGEMENT_ENDPOINT),
+				"Property '" + Server.SESSIONMANAGEMENT_ENDPOINT + "' not specified!"
+		);
+		SessionManagement sessionManagement =
+				WSNServiceHelper.getSessionManagementService(
+						properties.get(Server.SESSIONMANAGEMENT_ENDPOINT)
+				);
+		Preconditions.checkNotNull(properties.get(Server.SESSIONMANAGEMENT_PROXY),
+				"Property '" + Server.SESSIONMANAGEMENT_PROXY + "' not specified!"
+		);
+		sessionManagementEndpoint = Endpoint.publish(properties.get(Server.SESSIONMANAGEMENT_PROXY),
+				new SessionManagementDelegate(sessionManagement, this)
+		);
+		log.info("SessionManagement-Service on {} published", properties.get(Server.SESSIONMANAGEMENT_PROXY));
+		Preconditions.checkNotNull(properties.get(Server.MESSAGESTORE_ENDPOINT),
+				"Property '" + Server.MESSAGESTORE_ENDPOINT + "' not specified!"
+		);
+		messageStoreEndpoint = Endpoint.publish(properties.get(Server.MESSAGESTORE_ENDPOINT),
+				new DBMessageStore(properties)
+		);
+		log.info("Messagestore-Service on {} published", properties.get(Server.MESSAGESTORE_ENDPOINT));
+	}
+
+	/**
+	 * Shuts down all Services
+	 *
+	 * @throws Throwable
+	 */
+	public void shutdown()
+			throws Exception {
+		((SessionManagementDelegate) sessionManagementEndpoint.getImplementor()).dispose();
+		sessionManagementEndpoint.stop();
+		((DBMessageStore) messageStoreEndpoint.getImplementor()).stop();
+		messageStoreEndpoint.stop();
+		log.info("{} successfully shut down", getClass().getSimpleName());
+	}
+
+	/**
+	 * Get Messagelisteners
+	 *
+	 * @return Iterator over all Messagelistener
+	 */
+	public Iterator<IMessageListener> getListenerIterator() {
+		return listenerSet.iterator();
+	}
+
+	public String getControllerUrnPrefix() {
+		Preconditions.checkNotNull(properties.get(Server.CONTROLLER_PROXY_PREFIX),
+				"Property '" + Server.CONTROLLER_PROXY_PREFIX + "' not specified!"
+		);
+		return properties.get(Server.CONTROLLER_PROXY_PREFIX);
+	}
 
 
-    public String getWsnUrnPrefix() {
-        Preconditions.checkNotNull(_properties.get(Server.WSN_PROXY_PREFIX),
-                "Property '" + Server.WSN_PROXY_PREFIX + "' not specified!");
-        return _properties.get(Server.WSN_PROXY_PREFIX);
-    }
+	public String getWsnUrnPrefix() {
+		Preconditions.checkNotNull(properties.get(Server.WSN_PROXY_PREFIX),
+				"Property '" + Server.WSN_PROXY_PREFIX + "' not specified!"
+		);
+		return properties.get(Server.WSN_PROXY_PREFIX);
+	}
 
-    public String getReservationEndpoint() {
-        Preconditions.checkNotNull(_properties.get(Server.RESERVATION_ENDPOINT),
-                "Property '" + Server.RESERVATION_ENDPOINT + "' not specified!");
-        return _properties.get(Server.RESERVATION_ENDPOINT);
-    }
+	public String getReservationEndpoint() {
+		Preconditions.checkNotNull(properties.get(Server.RESERVATION_ENDPOINT),
+				"Property '" + Server.RESERVATION_ENDPOINT + "' not specified!"
+		);
+		return properties.get(Server.RESERVATION_ENDPOINT);
+	}
 }

@@ -42,14 +42,14 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		log.info("Client connected: {}", e);
+		log.info("client connected: {}", e);
 		channel = e.getChannel();
 		super.channelConnected(ctx, e);
 	}
 
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		log.info("Client disconnected: {}", e);
+		log.info("client disconnected: {}", e);
 		wsnServiceHandle.getProtobufControllerHelper().removeChannel(e.getChannel());
 		protobufControllerServer.removeHandler(this);
 		channel = null;
@@ -61,7 +61,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 		WisebedProtocol.Envelope envelope = (WisebedProtocol.Envelope) e.getMessage();
 		switch (envelope.getBodyType()) {
 			case SECRET_RESERVATION_KEYS:
-				receivedSecretReservationKeys(ctx, e, envelope);
+				receivedSecretReservationKeys(e, envelope);
 				break;
 			case MESSAGE:
 				receivedMessage(ctx, e, envelope);
@@ -88,48 +88,13 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 		final WisebedProtocol.Message message = envelope.getMessage();
 
 
-		final HashSet<String> nodeUrns;
-		final WSNAppMessages.Message wsnAppMessage;
+		final WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.newBuilder()
+				.setTimestamp(message.getTimestamp())
+				.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn())
+				.setBinaryData(message.getNodeBinary().getData())
+				.build();
 
-		if (message.hasNodeBinary()) {
-
-			WSNAppMessages.Message.BinaryMessage.Builder wsnAppBinaryMessageBuilder =
-					WSNAppMessages.Message.BinaryMessage.newBuilder()
-							.setBinaryType(message.getNodeBinary().getType())
-							.setBinaryData(message.getNodeBinary().getData());
-
-			wsnAppMessage = WSNAppMessages.Message.newBuilder()
-					.setTimestamp(message.getTimestamp())
-					.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn())
-					.setBinaryMessage(wsnAppBinaryMessageBuilder)
-					.build();
-
-			nodeUrns = Sets.newHashSet(message.getNodeBinary().getDestinationNodeUrnsList());
-
-
-		} else if (message.hasNodeText()) {
-
-			WSNAppMessages.Message.TextMessage.Builder textMessageBuilder =
-					WSNAppMessages.Message.TextMessage.newBuilder()
-							.setMessageLevel(
-									WSNAppMessages.Message.MessageLevel.valueOf(
-											message.getNodeText().getLevel().getNumber()
-									)
-							)
-							.setMsg(message.getNodeText().getText());
-
-			wsnAppMessage = WSNAppMessages.Message.newBuilder()
-					.setTimestamp(message.getTimestamp())
-					.setSourceNodeId(message.getNodeText().getSourceNodeUrn())
-					.setTextMessage(textMessageBuilder)
-					.build();
-
-			nodeUrns = Sets.newHashSet(message.getNodeText().getDestinationNodeUrnsList());
-
-		} else {
-			log.warn("Received invalid message. Ignoring: {}", message);
-			return;
-		}
+		final HashSet<String> nodeUrns = Sets.newHashSet(message.getNodeBinary().getDestinationNodeUrnsList());
 
 		try {
 			log.debug("Sending message {} to nodeUrns {}", wsnAppMessage, nodeUrns);
@@ -170,7 +135,6 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 									final String text) {
 
 		WisebedProtocol.Message.Backend.Builder backendBuilder = WisebedProtocol.Message.Backend.newBuilder()
-				.setLevel(WisebedProtocol.Message.Level.WARN)
 				.setText(text);
 		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder()
 				.setType(WisebedProtocol.Message.Type.BACKEND)
@@ -195,8 +159,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	}
 
-	private void receivedSecretReservationKeys(final ChannelHandlerContext ctx, final MessageEvent e,
-											   final WisebedProtocol.Envelope envelope) {
+	private void receivedSecretReservationKeys(final MessageEvent e, final WisebedProtocol.Envelope envelope) {
 
 		if (firstMessage) {
 			firstMessage = false;

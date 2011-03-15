@@ -137,12 +137,8 @@ public class SocketConnectorClient {
 
 	private void pingNode() {
 
-		WSNAppMessages.Message.BinaryMessage.Builder binaryMessageBuilder = WSNAppMessages.Message.BinaryMessage.newBuilder()
-				.setBinaryType(0xFF)
-				.setBinaryData(ByteString.copyFrom("Hello World".getBytes()));
-
 		WSNAppMessages.Message.Builder message = WSNAppMessages.Message.newBuilder()
-				.setBinaryMessage(binaryMessageBuilder)
+				.setBinaryData(ByteString.copyFrom("Hello World".getBytes()))
 				.setSourceNodeId("urn:wisebed:nodeconnector:client:1")
 				.setTimestamp("Nobody cares for this demo purpose");
 
@@ -179,26 +175,7 @@ public class SocketConnectorClient {
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(message.getMsgType())) {
 
 				WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.parseFrom(message.getPayload());
-				if (wsnAppMessage.hasTextMessage()) {
-
-					WSNAppMessages.Message.TextMessage textMessage = wsnAppMessage.getTextMessage();
-					WSNAppMessages.Message.MessageLevel messageLevel = textMessage.getMessageLevel();
-					String msg = textMessage.getMsg();
-					log.info("Received sensor node text output with messageLevel=\"{}\" and msg=\"{}\"", messageLevel,
-							msg
-					);
-
-				} else if (wsnAppMessage.hasBinaryMessage()) {
-
-					WSNAppMessages.Message.BinaryMessage binaryMessage = wsnAppMessage.getBinaryMessage();
-					byte binaryType = (byte) binaryMessage.getBinaryType();
-					byte[] binaryData = binaryMessage.getBinaryData().toByteArray();
-
-					log.info("Received sensor node binary output with binaryType=\"{}\" and binaryData=\"{}\"",
-							StringUtils.toHexString(binaryType),
-							StringUtils.toHexString(binaryData)
-					);
-				}
+				log.info("Received sensor node binary output: \"{}\"", StringUtils.toHexString(wsnAppMessage.getBinaryData().toByteArray()));
 
 			} else {
 				log.info("Received message: {}", StringUtils.jaxbMarshal(message));
@@ -240,7 +217,7 @@ public class SocketConnectorClient {
 		// Wait until the connection is made successfully.
 		channel = connectFuture.awaitUninterruptibly().getChannel();
 		if (!connectFuture.isSuccess()) {
-			log.error("Client connect failed", connectFuture.getCause());
+			log.error("client connect failed!", connectFuture.getCause());
 		}
 
 	}

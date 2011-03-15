@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                ~
   ~ All rights reserved.                                                                                              ~
@@ -10,8 +10,8 @@
   ~   disclaimer.                                                                                                     ~
   ~ - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the       ~
   ~   following disclaimer in the documentation and/or other materials provided with the distribution.                ~
-  ~ - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or       ~
-  ~   promote products derived from this software without specific prior written permission.                          ~
+  ~ - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote
+  ~   products derived from this software without specific prior written permission.                                  ~
   ~                                                                                                                   ~
   ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,~
   ~ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE     ~
@@ -22,43 +22,27 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml" xmlns:ns4="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <nodes id="testbeduzl1">
-        <names>
-            <nodename name="urn:wisebed:testbeduzl1:1" description=""/>
-            <nodename name="urn:wisebed:testbeduzl1:2" description=""/>
-            <nodename name="urn:wisebed:testbeduzl1:3" description=""/>
-        </names>
-        <applications>
-            <application name="SocketConnector"
-                         factoryclass="de.uniluebeck.itm.tr.runtime.socketconnector.server.SocketConnectorApplicationFactory">
-                <sc:socketconnector xmlns:sc="http://itm.uniluebeck.de/tr/runtime/socketconnector/server/xml">
-                    <port>1234</port>
-                </sc:socketconnector>
-            </application>
-            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
-                <ns4:device>
-                    <urn>urn:wisebed:testbeduzl1:1</urn>
-                    <type>mock</type>
-                    <serialinterface>urn:wisebed:testbeduzl1:1,2,SECONDS</serialinterface>
-                </ns4:device>
-            </application>
-            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
-                <ns4:device>
-                    <urn>urn:wisebed:testbeduzl1:2</urn>
-                    <type>mock</type>
-                    <serialinterface>urn:wisebed:testbeduzl1:2,2,SECONDS</serialinterface>
-                </ns4:device>
-            </application>
-            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
-                <ns4:device>
-                    <urn>urn:wisebed:testbeduzl1:3</urn>
-                    <type>mock</type>
-                    <serialinterface>urn:wisebed:testbeduzl1:3,2,SECONDS</serialinterface>
-                </ns4:device>
-            </application>
-        </applications>
-    </nodes>
+	<modelVersion>4.0.0</modelVersion>
 
-</ns2:testbed>
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr.iwsn</artifactId>
+		<version>0.6-SNAPSHOT</version>
+		<relativePath>../</relativePath>
+	</parent>
+
+	<artifactId>tr.messagestore-api</artifactId>
+	<packaging>jar</packaging>
+	<name>TR :: MessageStore API</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.util</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

@@ -38,6 +38,10 @@
     <name>TR :: Logging Controller</name>
 
     <dependencies>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.messagestore-api</artifactId>
+		</dependency>
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.wsn-api</artifactId>

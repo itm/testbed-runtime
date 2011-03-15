@@ -34,9 +34,7 @@
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
 		<!-- Configure the persisted entities  -->
-        <class>de.uniluebeck.itm.tr.logcontroller.AbstractMessage</class>
-        <class>de.uniluebeck.itm.tr.logcontroller.TextMessage</class>
-        <class>de.uniluebeck.itm.tr.logcontroller.BinaryMessage</class>
+        <class>de.uniluebeck.itm.tr.logcontroller.WSNMessage</class>
 
 	</persistence-unit>
 </persistence>

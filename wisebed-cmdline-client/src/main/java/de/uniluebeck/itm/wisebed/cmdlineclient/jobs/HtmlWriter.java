@@ -62,19 +62,9 @@ public class HtmlWriter implements JobResultListener {
 		write("		<td>" + timeFormatter.print(new DateTime(msg.getTimestamp().toGregorianCalendar())) + "</td>");
 		write("	</tr>");
 
-		if (msg.getTextMessage() != null) {
+		if (msg.getBinaryData() != null) {
 			write("	<tr>");
-			write("		<td>Text</td>");
-			write("		<td>" + msg.getTextMessage().getMessageLevel() + "</td>");
-			write("		<td>" + msg.getTextMessage().getMsg() + "</td>");
-			write("	</tr>");
-		}
-
-		if (msg.getBinaryMessage() != null) {
-			write("	<tr>");
-			write("		<td>Binary</td>");
-			write("		<td>Type " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + "</td>");
-			write("		<td>" + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()) + "</td>");
+			write("		<td>" + StringUtils.toHexString(msg.getBinaryData()) + "</td>");
 			write("	</tr>");
 		}
 

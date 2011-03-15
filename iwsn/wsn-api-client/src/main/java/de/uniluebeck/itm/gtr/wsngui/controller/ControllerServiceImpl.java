@@ -36,6 +36,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.util.Arrays;
+import java.util.List;
 
 @WebService(
         serviceName = "ControllerService",
@@ -77,15 +78,29 @@ public class ControllerServiceImpl implements Controller {
     }
 
     @Override
-    public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
-        log.info("Received controller message: {}\n{}", msg, StringUtils.jaxbMarshal(msg));
+    public void receive(@WebParam(name = "msg", targetNamespace = "") List<Message> msgs) {
+        log.info("Received controller message: {}\n{}", msgs, StringUtils.jaxbMarshal(msgs));
     }
 
     @Override
-    public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
-        log.info("Received controller status message: {}\n{}",
-                Arrays.toString(status.getStatus().toArray()), StringUtils.jaxbMarshal(status)
+    public void receiveStatus(@WebParam(name = "status", targetNamespace = "") List<RequestStatus> status) {
+		for (RequestStatus requestStatus : status) {
+			log.info("Received controller status message: {}\n{}",
+                Arrays.toString(requestStatus.getStatus().toArray()), StringUtils.jaxbMarshal(status)
         );
+		}
     }
+
+	@Override
+	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msgs) {
+		for (String msg : msgs) {
+			log.info("Received Notification: {}", msg);
+		}
+	}
+
+	@Override
+	public void experimentEnded() {
+		log.info("Experiment ended!");
+	}
 
 }

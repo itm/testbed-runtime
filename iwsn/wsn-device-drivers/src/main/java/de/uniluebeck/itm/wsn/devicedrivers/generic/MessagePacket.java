@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.wsn.devicedrivers.generic;
 
+import com.google.common.base.Preconditions;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,19 @@ public class MessagePacket implements Message {
 	public MessagePacket(int type, byte[] content) {
 		setType(type);
 		setContent(content);
+	}
+
+	public MessagePacket(final byte[] messageBytes) {
+		Preconditions.checkArgument(messageBytes.length > 0, "A MessagePacket must contain at least one byte that "
+				+ "determines the message type!");
+		setType(messageBytes[0]);
+		if (messageBytes.length > 1) {
+			byte[] contentBytes = new byte[messageBytes.length-1];
+			System.arraycopy(messageBytes, 1, contentBytes, 0, messageBytes.length-1);
+			setContent(contentBytes);
+		} else {
+			setContent(new byte[]{});
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -188,6 +202,18 @@ public class MessagePacket implements Message {
 	 */
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * Returns a copy of the byte-array representation of this packet: TYPE CONTENT[0] ... CONTENT[CONTENT.length-1]
+	 *
+	 * @return a copy of the byte-array representation of this packet.
+	 */
+	public byte[] getByteArray() {
+		byte[] bytes = new byte[1 + content.length];
+		bytes[0] = (byte) (0xFF & type);
+		System.arraycopy(content, 0, bytes, 1, content.length);
+		return bytes;
 	}
 
 }

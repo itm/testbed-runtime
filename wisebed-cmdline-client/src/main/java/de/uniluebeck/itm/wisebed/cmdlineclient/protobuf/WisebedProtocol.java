@@ -1267,9 +1267,8 @@ public final class WisebedProtocol {
     
     public enum Type
         implements com.google.protobuf.ProtocolMessageEnum {
-      NODE_TEXT(0, 1),
-      NODE_BINARY(1, 2),
-      BACKEND(2, 3),
+      NODE_BINARY(0, 1),
+      BACKEND(1, 2),
       ;
       
       
@@ -1277,9 +1276,8 @@ public final class WisebedProtocol {
       
       public static Type valueOf(int value) {
         switch (value) {
-          case 1: return NODE_TEXT;
-          case 2: return NODE_BINARY;
-          case 3: return BACKEND;
+          case 1: return NODE_BINARY;
+          case 2: return BACKEND;
           default: return null;
         }
       }
@@ -1310,7 +1308,7 @@ public final class WisebedProtocol {
       }
       
       private static final Type[] VALUES = {
-        NODE_TEXT, NODE_BINARY, BACKEND, 
+        NODE_BINARY, BACKEND, 
       };
       public static Type valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -1332,540 +1330,6 @@ public final class WisebedProtocol {
       }
       
       // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Type)
-    }
-    
-    public enum Level
-        implements com.google.protobuf.ProtocolMessageEnum {
-      TRACE(0, 1),
-      DEBUG(1, 2),
-      INFO(2, 3),
-      WARN(3, 4),
-      ERROR(4, 5),
-      FATAL(5, 6),
-      ;
-      
-      
-      public final int getNumber() { return value; }
-      
-      public static Level valueOf(int value) {
-        switch (value) {
-          case 1: return TRACE;
-          case 2: return DEBUG;
-          case 3: return INFO;
-          case 4: return WARN;
-          case 5: return ERROR;
-          case 6: return FATAL;
-          default: return null;
-        }
-      }
-      
-      public static com.google.protobuf.Internal.EnumLiteMap<Level>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static com.google.protobuf.Internal.EnumLiteMap<Level>
-          internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<Level>() {
-              public Level findValueByNumber(int number) {
-                return Level.valueOf(number)
-      ;        }
-            };
-      
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.getDescriptor().getEnumTypes().get(1);
-      }
-      
-      private static final Level[] VALUES = {
-        TRACE, DEBUG, INFO, WARN, ERROR, FATAL, 
-      };
-      public static Level valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-      private final int index;
-      private final int value;
-      private Level(int index, int value) {
-        this.index = index;
-        this.value = value;
-      }
-      
-      static {
-        de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.getDescriptor();
-      }
-      
-      // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Level)
-    }
-    
-    public static final class NodeText extends
-        com.google.protobuf.GeneratedMessage {
-      // Use NodeText.newBuilder() to construct.
-      private NodeText() {
-        initFields();
-      }
-      private NodeText(boolean noInit) {}
-      
-      private static final NodeText defaultInstance;
-      public static NodeText getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public NodeText getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_fieldAccessorTable;
-      }
-      
-      // required string source_node_urn = 1;
-      public static final int SOURCE_NODE_URN_FIELD_NUMBER = 1;
-      private boolean hasSourceNodeUrn;
-      private java.lang.String sourceNodeUrn_ = "";
-      public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
-      public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
-      
-      // required .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Level level = 2;
-      public static final int LEVEL_FIELD_NUMBER = 2;
-      private boolean hasLevel;
-      private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level level_;
-      public boolean hasLevel() { return hasLevel; }
-      public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level getLevel() { return level_; }
-      
-      // required string text = 3;
-      public static final int TEXT_FIELD_NUMBER = 3;
-      private boolean hasText;
-      private java.lang.String text_ = "";
-      public boolean hasText() { return hasText; }
-      public java.lang.String getText() { return text_; }
-      
-      // repeated string destination_node_urns = 4;
-      public static final int DESTINATION_NODE_URNS_FIELD_NUMBER = 4;
-      private java.util.List<java.lang.String> destinationNodeUrns_ =
-        java.util.Collections.emptyList();
-      public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
-        return destinationNodeUrns_;
-      }
-      public int getDestinationNodeUrnsCount() { return destinationNodeUrns_.size(); }
-      public java.lang.String getDestinationNodeUrns(int index) {
-        return destinationNodeUrns_.get(index);
-      }
-      
-      private void initFields() {
-        level_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.TRACE;
-      }
-      public final boolean isInitialized() {
-        if (!hasSourceNodeUrn) return false;
-        if (!hasLevel) return false;
-        if (!hasText) return false;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (hasSourceNodeUrn()) {
-          output.writeString(1, getSourceNodeUrn());
-        }
-        if (hasLevel()) {
-          output.writeEnum(2, getLevel().getNumber());
-        }
-        if (hasText()) {
-          output.writeString(3, getText());
-        }
-        for (java.lang.String element : getDestinationNodeUrnsList()) {
-          output.writeString(4, element);
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (hasSourceNodeUrn()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(1, getSourceNodeUrn());
-        }
-        if (hasLevel()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeEnumSize(2, getLevel().getNumber());
-        }
-        if (hasText()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(3, getText());
-        }
-        {
-          int dataSize = 0;
-          for (java.lang.String element : getDestinationNodeUrnsList()) {
-            dataSize += com.google.protobuf.CodedOutputStream
-              .computeStringSizeNoTag(element);
-          }
-          size += dataSize;
-          size += 1 * getDestinationNodeUrnsList().size();
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> {
-        private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText result;
-        
-        // Construct using de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.newBuilder()
-        private Builder() {}
-        
-        private static Builder create() {
-          Builder builder = new Builder();
-          builder.result = new de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText();
-          return builder;
-        }
-        
-        protected de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText internalGetResult() {
-          return result;
-        }
-        
-        public Builder clear() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "Cannot call clear() after build().");
-          }
-          result = new de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText();
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(result);
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText getDefaultInstanceForType() {
-          return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDefaultInstance();
-        }
-        
-        public boolean isInitialized() {
-          return result.isInitialized();
-        }
-        public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText build() {
-          if (result != null && !isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return buildPartial();
-        }
-        
-        private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          if (!isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return buildPartial();
-        }
-        
-        public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText buildPartial() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "build() has already been called on this Builder.");
-          }
-          if (result.destinationNodeUrns_ != java.util.Collections.EMPTY_LIST) {
-            result.destinationNodeUrns_ =
-              java.util.Collections.unmodifiableList(result.destinationNodeUrns_);
-          }
-          de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText returnMe = result;
-          result = null;
-          return returnMe;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText) {
-            return mergeFrom((de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText other) {
-          if (other == de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDefaultInstance()) return this;
-          if (other.hasSourceNodeUrn()) {
-            setSourceNodeUrn(other.getSourceNodeUrn());
-          }
-          if (other.hasLevel()) {
-            setLevel(other.getLevel());
-          }
-          if (other.hasText()) {
-            setText(other.getText());
-          }
-          if (!other.destinationNodeUrns_.isEmpty()) {
-            if (result.destinationNodeUrns_.isEmpty()) {
-              result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-            }
-            result.destinationNodeUrns_.addAll(other.destinationNodeUrns_);
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  return this;
-                }
-                break;
-              }
-              case 10: {
-                setSourceNodeUrn(input.readString());
-                break;
-              }
-              case 16: {
-                int rawValue = input.readEnum();
-                de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level value = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.valueOf(rawValue);
-                if (value == null) {
-                  unknownFields.mergeVarintField(2, rawValue);
-                } else {
-                  setLevel(value);
-                }
-                break;
-              }
-              case 26: {
-                setText(input.readString());
-                break;
-              }
-              case 34: {
-                addDestinationNodeUrns(input.readString());
-                break;
-              }
-            }
-          }
-        }
-        
-        
-        // required string source_node_urn = 1;
-        public boolean hasSourceNodeUrn() {
-          return result.hasSourceNodeUrn();
-        }
-        public java.lang.String getSourceNodeUrn() {
-          return result.getSourceNodeUrn();
-        }
-        public Builder setSourceNodeUrn(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasSourceNodeUrn = true;
-          result.sourceNodeUrn_ = value;
-          return this;
-        }
-        public Builder clearSourceNodeUrn() {
-          result.hasSourceNodeUrn = false;
-          result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
-          return this;
-        }
-        
-        // required .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Level level = 2;
-        public boolean hasLevel() {
-          return result.hasLevel();
-        }
-        public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level getLevel() {
-          return result.getLevel();
-        }
-        public Builder setLevel(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level value) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          result.hasLevel = true;
-          result.level_ = value;
-          return this;
-        }
-        public Builder clearLevel() {
-          result.hasLevel = false;
-          result.level_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.TRACE;
-          return this;
-        }
-        
-        // required string text = 3;
-        public boolean hasText() {
-          return result.hasText();
-        }
-        public java.lang.String getText() {
-          return result.getText();
-        }
-        public Builder setText(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasText = true;
-          result.text_ = value;
-          return this;
-        }
-        public Builder clearText() {
-          result.hasText = false;
-          result.text_ = getDefaultInstance().getText();
-          return this;
-        }
-        
-        // repeated string destination_node_urns = 4;
-        public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
-          return java.util.Collections.unmodifiableList(result.destinationNodeUrns_);
-        }
-        public int getDestinationNodeUrnsCount() {
-          return result.getDestinationNodeUrnsCount();
-        }
-        public java.lang.String getDestinationNodeUrns(int index) {
-          return result.getDestinationNodeUrns(index);
-        }
-        public Builder setDestinationNodeUrns(int index, java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.destinationNodeUrns_.set(index, value);
-          return this;
-        }
-        public Builder addDestinationNodeUrns(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  if (result.destinationNodeUrns_.isEmpty()) {
-            result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-          }
-          result.destinationNodeUrns_.add(value);
-          return this;
-        }
-        public Builder addAllDestinationNodeUrns(
-            java.lang.Iterable<? extends java.lang.String> values) {
-          if (result.destinationNodeUrns_.isEmpty()) {
-            result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-          }
-          super.addAll(values, result.destinationNodeUrns_);
-          return this;
-        }
-        public Builder clearDestinationNodeUrns() {
-          result.destinationNodeUrns_ = java.util.Collections.emptyList();
-          return this;
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.NodeText)
-      }
-      
-      static {
-        defaultInstance = new NodeText(true);
-        de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.internalForceInit();
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.NodeText)
     }
     
     public static final class NodeBinary extends
@@ -1902,22 +1366,15 @@ public final class WisebedProtocol {
       public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
       public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
       
-      // required uint32 type = 2;
-      public static final int TYPE_FIELD_NUMBER = 2;
-      private boolean hasType;
-      private int type_ = 0;
-      public boolean hasType() { return hasType; }
-      public int getType() { return type_; }
-      
-      // required bytes data = 3;
-      public static final int DATA_FIELD_NUMBER = 3;
+      // required bytes data = 2;
+      public static final int DATA_FIELD_NUMBER = 2;
       private boolean hasData;
       private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasData() { return hasData; }
       public com.google.protobuf.ByteString getData() { return data_; }
       
-      // repeated string destination_node_urns = 4;
-      public static final int DESTINATION_NODE_URNS_FIELD_NUMBER = 4;
+      // repeated string destination_node_urns = 3;
+      public static final int DESTINATION_NODE_URNS_FIELD_NUMBER = 3;
       private java.util.List<java.lang.String> destinationNodeUrns_ =
         java.util.Collections.emptyList();
       public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
@@ -1932,7 +1389,6 @@ public final class WisebedProtocol {
       }
       public final boolean isInitialized() {
         if (!hasSourceNodeUrn) return false;
-        if (!hasType) return false;
         if (!hasData) return false;
         return true;
       }
@@ -1943,14 +1399,11 @@ public final class WisebedProtocol {
         if (hasSourceNodeUrn()) {
           output.writeString(1, getSourceNodeUrn());
         }
-        if (hasType()) {
-          output.writeUInt32(2, getType());
-        }
         if (hasData()) {
-          output.writeBytes(3, getData());
+          output.writeBytes(2, getData());
         }
         for (java.lang.String element : getDestinationNodeUrnsList()) {
-          output.writeString(4, element);
+          output.writeString(3, element);
         }
         getUnknownFields().writeTo(output);
       }
@@ -1965,13 +1418,9 @@ public final class WisebedProtocol {
           size += com.google.protobuf.CodedOutputStream
             .computeStringSize(1, getSourceNodeUrn());
         }
-        if (hasType()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeUInt32Size(2, getType());
-        }
         if (hasData()) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(3, getData());
+            .computeBytesSize(2, getData());
         }
         {
           int dataSize = 0;
@@ -2147,9 +1596,6 @@ public final class WisebedProtocol {
           if (other.hasSourceNodeUrn()) {
             setSourceNodeUrn(other.getSourceNodeUrn());
           }
-          if (other.hasType()) {
-            setType(other.getType());
-          }
           if (other.hasData()) {
             setData(other.getData());
           }
@@ -2188,15 +1634,11 @@ public final class WisebedProtocol {
                 setSourceNodeUrn(input.readString());
                 break;
               }
-              case 16: {
-                setType(input.readUInt32());
-                break;
-              }
-              case 26: {
+              case 18: {
                 setData(input.readBytes());
                 break;
               }
-              case 34: {
+              case 26: {
                 addDestinationNodeUrns(input.readString());
                 break;
               }
@@ -2226,25 +1668,7 @@ public final class WisebedProtocol {
           return this;
         }
         
-        // required uint32 type = 2;
-        public boolean hasType() {
-          return result.hasType();
-        }
-        public int getType() {
-          return result.getType();
-        }
-        public Builder setType(int value) {
-          result.hasType = true;
-          result.type_ = value;
-          return this;
-        }
-        public Builder clearType() {
-          result.hasType = false;
-          result.type_ = 0;
-          return this;
-        }
-        
-        // required bytes data = 3;
+        // required bytes data = 2;
         public boolean hasData() {
           return result.hasData();
         }
@@ -2265,7 +1689,7 @@ public final class WisebedProtocol {
           return this;
         }
         
-        // repeated string destination_node_urns = 4;
+        // repeated string destination_node_urns = 3;
         public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
           return java.util.Collections.unmodifiableList(result.destinationNodeUrns_);
         }
@@ -2344,13 +1768,6 @@ public final class WisebedProtocol {
         return de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_Backend_fieldAccessorTable;
       }
       
-      // required .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Level level = 1;
-      public static final int LEVEL_FIELD_NUMBER = 1;
-      private boolean hasLevel;
-      private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level level_;
-      public boolean hasLevel() { return hasLevel; }
-      public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level getLevel() { return level_; }
-      
       // required string text = 2;
       public static final int TEXT_FIELD_NUMBER = 2;
       private boolean hasText;
@@ -2359,10 +1776,8 @@ public final class WisebedProtocol {
       public java.lang.String getText() { return text_; }
       
       private void initFields() {
-        level_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.TRACE;
       }
       public final boolean isInitialized() {
-        if (!hasLevel) return false;
         if (!hasText) return false;
         return true;
       }
@@ -2370,9 +1785,6 @@ public final class WisebedProtocol {
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
         getSerializedSize();
-        if (hasLevel()) {
-          output.writeEnum(1, getLevel().getNumber());
-        }
         if (hasText()) {
           output.writeString(2, getText());
         }
@@ -2385,10 +1797,6 @@ public final class WisebedProtocol {
         if (size != -1) return size;
       
         size = 0;
-        if (hasLevel()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeEnumSize(1, getLevel().getNumber());
-        }
         if (hasText()) {
           size += com.google.protobuf.CodedOutputStream
             .computeStringSize(2, getText());
@@ -2551,9 +1959,6 @@ public final class WisebedProtocol {
         
         public Builder mergeFrom(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend other) {
           if (other == de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.getDefaultInstance()) return this;
-          if (other.hasLevel()) {
-            setLevel(other.getLevel());
-          }
           if (other.hasText()) {
             setText(other.getText());
           }
@@ -2582,16 +1987,6 @@ public final class WisebedProtocol {
                 }
                 break;
               }
-              case 8: {
-                int rawValue = input.readEnum();
-                de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level value = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.valueOf(rawValue);
-                if (value == null) {
-                  unknownFields.mergeVarintField(1, rawValue);
-                } else {
-                  setLevel(value);
-                }
-                break;
-              }
               case 18: {
                 setText(input.readString());
                 break;
@@ -2600,27 +1995,6 @@ public final class WisebedProtocol {
           }
         }
         
-        
-        // required .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Level level = 1;
-        public boolean hasLevel() {
-          return result.hasLevel();
-        }
-        public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level getLevel() {
-          return result.getLevel();
-        }
-        public Builder setLevel(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level value) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          result.hasLevel = true;
-          result.level_ = value;
-          return this;
-        }
-        public Builder clearLevel() {
-          result.hasLevel = false;
-          result.level_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Level.TRACE;
-          return this;
-        }
         
         // required string text = 2;
         public boolean hasText() {
@@ -2676,24 +2050,16 @@ public final class WisebedProtocol {
     public boolean hasNodeBinary() { return hasNodeBinary; }
     public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeBinary getNodeBinary() { return nodeBinary_; }
     
-    // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.NodeText node_text = 4;
-    public static final int NODE_TEXT_FIELD_NUMBER = 4;
-    private boolean hasNodeText;
-    private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText nodeText_;
-    public boolean hasNodeText() { return hasNodeText; }
-    public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText getNodeText() { return nodeText_; }
-    
-    // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Backend backend = 5;
-    public static final int BACKEND_FIELD_NUMBER = 5;
+    // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Backend backend = 4;
+    public static final int BACKEND_FIELD_NUMBER = 4;
     private boolean hasBackend;
     private de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend backend_;
     public boolean hasBackend() { return hasBackend; }
     public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend getBackend() { return backend_; }
     
     private void initFields() {
-      type_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Type.NODE_TEXT;
+      type_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Type.NODE_BINARY;
       nodeBinary_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeBinary.getDefaultInstance();
-      nodeText_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDefaultInstance();
       backend_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.getDefaultInstance();
     }
     public final boolean isInitialized() {
@@ -2701,9 +2067,6 @@ public final class WisebedProtocol {
       if (!hasTimestamp) return false;
       if (hasNodeBinary()) {
         if (!getNodeBinary().isInitialized()) return false;
-      }
-      if (hasNodeText()) {
-        if (!getNodeText().isInitialized()) return false;
       }
       if (hasBackend()) {
         if (!getBackend().isInitialized()) return false;
@@ -2723,11 +2086,8 @@ public final class WisebedProtocol {
       if (hasNodeBinary()) {
         output.writeMessage(3, getNodeBinary());
       }
-      if (hasNodeText()) {
-        output.writeMessage(4, getNodeText());
-      }
       if (hasBackend()) {
-        output.writeMessage(5, getBackend());
+        output.writeMessage(4, getBackend());
       }
       getUnknownFields().writeTo(output);
     }
@@ -2750,13 +2110,9 @@ public final class WisebedProtocol {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, getNodeBinary());
       }
-      if (hasNodeText()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, getNodeText());
-      }
       if (hasBackend()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, getBackend());
+          .computeMessageSize(4, getBackend());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2925,9 +2281,6 @@ public final class WisebedProtocol {
         if (other.hasNodeBinary()) {
           mergeNodeBinary(other.getNodeBinary());
         }
-        if (other.hasNodeText()) {
-          mergeNodeText(other.getNodeText());
-        }
         if (other.hasBackend()) {
           mergeBackend(other.getBackend());
         }
@@ -2980,15 +2333,6 @@ public final class WisebedProtocol {
               break;
             }
             case 34: {
-              de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.Builder subBuilder = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.newBuilder();
-              if (hasNodeText()) {
-                subBuilder.mergeFrom(getNodeText());
-              }
-              input.readMessage(subBuilder, extensionRegistry);
-              setNodeText(subBuilder.buildPartial());
-              break;
-            }
-            case 42: {
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.Builder subBuilder = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.newBuilder();
               if (hasBackend()) {
                 subBuilder.mergeFrom(getBackend());
@@ -3019,7 +2363,7 @@ public final class WisebedProtocol {
       }
       public Builder clearType() {
         result.hasType = false;
-        result.type_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Type.NODE_TEXT;
+        result.type_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Type.NODE_BINARY;
         return this;
       }
       
@@ -3081,44 +2425,7 @@ public final class WisebedProtocol {
         return this;
       }
       
-      // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.NodeText node_text = 4;
-      public boolean hasNodeText() {
-        return result.hasNodeText();
-      }
-      public de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText getNodeText() {
-        return result.getNodeText();
-      }
-      public Builder setNodeText(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        result.hasNodeText = true;
-        result.nodeText_ = value;
-        return this;
-      }
-      public Builder setNodeText(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.Builder builderForValue) {
-        result.hasNodeText = true;
-        result.nodeText_ = builderForValue.build();
-        return this;
-      }
-      public Builder mergeNodeText(de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText value) {
-        if (result.hasNodeText() &&
-            result.nodeText_ != de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDefaultInstance()) {
-          result.nodeText_ =
-            de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.newBuilder(result.nodeText_).mergeFrom(value).buildPartial();
-        } else {
-          result.nodeText_ = value;
-        }
-        result.hasNodeText = true;
-        return this;
-      }
-      public Builder clearNodeText() {
-        result.hasNodeText = false;
-        result.nodeText_ = de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.getDefaultInstance();
-        return this;
-      }
-      
-      // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Backend backend = 5;
+      // optional .de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.Message.Backend backend = 4;
       public boolean hasBackend() {
         return result.hasBackend();
       }
@@ -3935,11 +3242,6 @@ public final class WisebedProtocol {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeBinary_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -3986,33 +3288,22 @@ public final class WisebedProtocol {
       "ebed.cmdlineclient.protobuf.SecretReserv" +
       "ationKeys.SecretReservationKey\0327\n\024Secret" +
       "ReservationKey\022\022\n\nurn_prefix\030\001 \002(\t\022\013\n\003ke" +
-      "y\030\002 \002(\t\"\334\006\n\007Message\022L\n\004type\030\001 \002(\0162>.de.u" +
+      "y\030\002 \002(\t\"\254\003\n\007Message\022L\n\004type\030\001 \002(\0162>.de.u" +
       "niluebeck.itm.wisebed.cmdlineclient.prot",
       "obuf.Message.Type\022\021\n\ttimestamp\030\002 \002(\t\022Y\n\013" +
       "node_binary\030\003 \001(\0132D.de.uniluebeck.itm.wi" +
       "sebed.cmdlineclient.protobuf.Message.Nod" +
-      "eBinary\022U\n\tnode_text\030\004 \001(\0132B.de.uniluebe" +
-      "ck.itm.wisebed.cmdlineclient.protobuf.Me" +
-      "ssage.NodeText\022R\n\007backend\030\005 \001(\0132A.de.uni" +
-      "luebeck.itm.wisebed.cmdlineclient.protob" +
-      "uf.Message.Backend\032\240\001\n\010NodeText\022\027\n\017sourc" +
-      "e_node_urn\030\001 \002(\t\022N\n\005level\030\002 \002(\0162?.de.uni" +
-      "luebeck.itm.wisebed.cmdlineclient.protob",
-      "uf.Message.Level\022\014\n\004text\030\003 \002(\t\022\035\n\025destin" +
-      "ation_node_urns\030\004 \003(\t\032`\n\nNodeBinary\022\027\n\017s" +
-      "ource_node_urn\030\001 \002(\t\022\014\n\004type\030\002 \002(\r\022\014\n\004da" +
-      "ta\030\003 \002(\014\022\035\n\025destination_node_urns\030\004 \003(\t\032" +
-      "g\n\007Backend\022N\n\005level\030\001 \002(\0162?.de.uniluebec" +
-      "k.itm.wisebed.cmdlineclient.protobuf.Mes" +
-      "sage.Level\022\014\n\004text\030\002 \002(\t\"3\n\004Type\022\r\n\tNODE" +
-      "_TEXT\020\001\022\017\n\013NODE_BINARY\020\002\022\013\n\007BACKEND\020\003\"G\n" +
-      "\005Level\022\t\n\005TRACE\020\001\022\t\n\005DEBUG\020\002\022\010\n\004INFO\020\003\022\010" +
-      "\n\004WARN\020\004\022\t\n\005ERROR\020\005\022\t\n\005FATAL\020\006\"\267\001\n\rReque",
-      "stStatus\022\022\n\nrequest_id\030\001 \002(\t\022V\n\006status\030\002" +
-      " \003(\0132F.de.uniluebeck.itm.wisebed.cmdline" +
-      "client.protobuf.RequestStatus.Status\032:\n\006" +
-      "Status\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005value\030\002 \002(\005\022" +
-      "\017\n\007message\030\003 \001(\t"
+      "eBinary\022R\n\007backend\030\004 \001(\0132A.de.uniluebeck" +
+      ".itm.wisebed.cmdlineclient.protobuf.Mess" +
+      "age.Backend\032R\n\nNodeBinary\022\027\n\017source_node" +
+      "_urn\030\001 \002(\t\022\014\n\004data\030\002 \002(\014\022\035\n\025destination_" +
+      "node_urns\030\003 \003(\t\032\027\n\007Backend\022\014\n\004text\030\002 \002(\t" +
+      "\"$\n\004Type\022\017\n\013NODE_BINARY\020\001\022\013\n\007BACKEND\020\002\"\267" +
+      "\001\n\rRequestStatus\022\022\n\nrequest_id\030\001 \002(\t\022V\n\006",
+      "status\030\002 \003(\0132F.de.uniluebeck.itm.wisebed" +
+      ".cmdlineclient.protobuf.RequestStatus.St" +
+      "atus\032:\n\006Status\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005valu" +
+      "e\030\002 \002(\005\022\017\n\007message\030\003 \001(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4048,31 +3339,23 @@ public final class WisebedProtocol {
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor,
-              new java.lang.String[] { "Type", "Timestamp", "NodeBinary", "NodeText", "Backend", },
+              new java.lang.String[] { "Type", "Timestamp", "NodeBinary", "Backend", },
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.class,
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Builder.class);
-          internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_descriptor =
-            internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor.getNestedTypes().get(0);
-          internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeText_descriptor,
-              new java.lang.String[] { "SourceNodeUrn", "Level", "Text", "DestinationNodeUrns", },
-              de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.class,
-              de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeText.Builder.class);
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeBinary_descriptor =
-            internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor.getNestedTypes().get(1);
+            internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor.getNestedTypes().get(0);
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeBinary_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_NodeBinary_descriptor,
-              new java.lang.String[] { "SourceNodeUrn", "Type", "Data", "DestinationNodeUrns", },
+              new java.lang.String[] { "SourceNodeUrn", "Data", "DestinationNodeUrns", },
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeBinary.class,
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.NodeBinary.Builder.class);
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_Backend_descriptor =
-            internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor.getNestedTypes().get(2);
+            internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_descriptor.getNestedTypes().get(1);
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_Backend_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_Message_Backend_descriptor,
-              new java.lang.String[] { "Level", "Text", },
+              new java.lang.String[] { "Text", },
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.class,
               de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.WisebedProtocol.Message.Backend.Builder.class);
           internal_static_de_uniluebeck_itm_wisebed_cmdlineclient_protobuf_RequestStatus_descriptor =

@@ -32,8 +32,6 @@ public class ProtobufControllerHelper extends ControllerHelper {
 		}
 	};
 
-	private long BACKEND_MESSAGE_INTERVAL = 1000;
-
 	public ProtobufControllerHelper(Integer maximumDeliveryQueueSize) {
 		super(maximumDeliveryQueueSize);
 	}
@@ -46,6 +44,8 @@ public class ProtobufControllerHelper extends ControllerHelper {
 	@Override
 	public void receive(Message message) {
 		if (channels.size() > 0) {
+
+			final long BACKEND_MESSAGE_INTERVAL = 1000;
 
 			// only send message to client if delivery queue is smaller than maximum
 			if (currentMessageDeliveryQueueSize < maximumDeliveryQueueSize) {
@@ -65,7 +65,6 @@ public class ProtobufControllerHelper extends ControllerHelper {
 				log.warn("Dropped one or more messages. Informing protobuf controllers.");
 
 				WisebedProtocol.Message.Backend.Builder backendBuilder = WisebedProtocol.Message.Backend.newBuilder()
-						.setLevel(WisebedProtocol.Message.Level.ERROR)
 						.setText("Your experiment is generating too many messages to be delivered. "
 								+ "Therefore the backend drops messages. "
 								+ "Please make sure the message rate is lowered."
@@ -93,17 +92,18 @@ public class ProtobufControllerHelper extends ControllerHelper {
 	}
 
 	@Override
-	public void receiveUnkownNodeUrnRequestStatus(UnknownNodeUrnException_Exception e, String requestId) {
+	public void receiveUnknownNodeUrnRequestStatus(UnknownNodeUrnException_Exception e, String requestId) {
 		if (channels.size() > 0) {
 
 			WisebedProtocol.RequestStatus.Builder requestStatusBuilder = WisebedProtocol.RequestStatus.newBuilder()
 					.setRequestId(requestId);
 
 			for (String urn : e.getFaultInfo().getUrn()) {
-				WisebedProtocol.RequestStatus.Status.Builder statusBuilder = WisebedProtocol.RequestStatus.Status.newBuilder()
-						.setNodeUrn(urn)
-						.setMessage(e.getFaultInfo().getMessage())
-						.setValue(-1);
+				WisebedProtocol.RequestStatus.Status.Builder statusBuilder =
+						WisebedProtocol.RequestStatus.Status.newBuilder()
+								.setNodeUrn(urn)
+								.setMessage(e.getFaultInfo().getMessage())
+								.setValue(-1);
 				requestStatusBuilder.addStatus(statusBuilder);
 			}
 
@@ -114,7 +114,7 @@ public class ProtobufControllerHelper extends ControllerHelper {
 
 			channels.write(envelope);
 		}
-		super.receiveUnkownNodeUrnRequestStatus(e, requestId);
+		super.receiveUnknownNodeUrnRequestStatus(e, requestId);
 	}
 
 	public void addChannel(Channel channel) {
@@ -127,29 +127,15 @@ public class ProtobufControllerHelper extends ControllerHelper {
 
 	private WisebedProtocol.Envelope convert(Message message) {
 
-		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder();
-		messageBuilder.setTimestamp(message.getTimestamp().toXMLFormat());
+		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder()
+				.setTimestamp(message.getTimestamp().toXMLFormat());
 
-		if (message.getBinaryMessage() != null) {
+		WisebedProtocol.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedProtocol.Message.NodeBinary.newBuilder()
+				.setSourceNodeUrn(message.getSourceNodeId())
+				.setData(ByteString.copyFrom(message.getBinaryData()));
 
-			WisebedProtocol.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedProtocol.Message.NodeBinary.newBuilder()
-					.setSourceNodeUrn(message.getSourceNodeId())
-					.setType(message.getBinaryMessage().getBinaryType())
-					.setData(ByteString.copyFrom(message.getBinaryMessage().getBinaryData()));
-			messageBuilder.setNodeBinary(nodeBinaryBuilder);
-			messageBuilder.setType(WisebedProtocol.Message.Type.NODE_BINARY);
-
-		} else if (message.getTextMessage() != null) {
-
-			WisebedProtocol.Message.NodeText.Builder nodeTextBuilder = WisebedProtocol.Message.NodeText.newBuilder()
-					.setSourceNodeUrn(message.getSourceNodeId())
-					.setLevel(WisebedProtocol.Message.Level.valueOf(message.getTextMessage().getMessageLevel().value()))
-					.setText(message.getTextMessage().getMsg());
-
-			messageBuilder.setNodeText(nodeTextBuilder);
-			messageBuilder.setType(WisebedProtocol.Message.Type.NODE_TEXT);
-
-		}
+		messageBuilder.setNodeBinary(nodeBinaryBuilder);
+		messageBuilder.setType(WisebedProtocol.Message.Type.NODE_BINARY);
 
 		return WisebedProtocol.Envelope.newBuilder()
 				.setBodyType(WisebedProtocol.Envelope.BodyType.MESSAGE)

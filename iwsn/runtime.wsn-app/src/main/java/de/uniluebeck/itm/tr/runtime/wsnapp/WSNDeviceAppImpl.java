@@ -34,7 +34,6 @@ import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -404,49 +403,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", nodeUrn);
 
-		byte[] messageBytes = null;
-		byte messageType = -1;
-
-		if (message.hasBinaryMessage()) {
-
-			WSNAppMessages.Message.BinaryMessage binaryMessage = message.getBinaryMessage();
-
-			if (!binaryMessage.hasBinaryType()) {
-
-				log.warn("{} => Message type missing in message {}", nodeUrn, message);
-				callback.failure((byte) -1, "Message type missing".getBytes());
-				return;
-
-			} else {
-
-				messageType = (byte) binaryMessage.getBinaryType();
-				messageBytes = binaryMessage.getBinaryData().toByteArray();
-
-				if (log.isDebugEnabled()) {
-					log.debug("{} => Delivering binary message of type {} and payload {}", new Object[]{
-							nodeUrn, StringUtils.toHexString(messageType), StringUtils.toHexString(messageBytes)
-					}
-					);
-				}
-
-			}
-
-		} else if (message.hasTextMessage()) {
-
-			log.debug("{} => Delivering text message \"{}\"", message.getTextMessage());
-			WSNAppMessages.Message.TextMessage textMessage = message.getTextMessage();
-
-			messageType = (byte) textMessage.getMessageLevel().getNumber();
-			messageBytes = textMessage.getMsg().getBytes();
-
-		} else {
-
-			log.error("{} => This case MUST NOT OCCUR or something is wrong!!!!!!!!!!!!!!!", nodeUrn);
-			callback.failure((byte) -1, "Text missing in text message".getBytes());
-
-		}
-
-		connector.sendMessage(messageType, messageBytes, callback);
+		byte[] messageBytes = message.getBinaryData().toByteArray();
+		connector.sendMessage(messageBytes, callback);
 	}
 
 	public void executeFlashPrograms(final WSNAppMessages.OperationInvocation invocation,
@@ -522,51 +480,8 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 			WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
 					.setSourceNodeId(nodeUrn)
-					.setTimestamp(now.toXMLFormat());
-
-			boolean isTextMessage = PacketTypes.LOG == p.getType();
-
-			if (isTextMessage) {
-
-				byte[] content = p.getContent();
-
-				if (content != null && content.length > 1) {
-
-					WSNAppMessages.Message.MessageLevel messageLevel;
-
-					switch (content[0]) {
-						case PacketTypes.LogType.FATAL:
-							messageLevel = WSNAppMessages.Message.MessageLevel.FATAL;
-							break;
-						default:
-							messageLevel = WSNAppMessages.Message.MessageLevel.DEBUG;
-							break;
-					}
-
-					String textMessage = new String(content, 1, content.length - 1);
-
-					WSNAppMessages.Message.TextMessage.Builder textMessageBuilder =
-							WSNAppMessages.Message.TextMessage.newBuilder()
-									.setMessageLevel(messageLevel)
-									.setMsg(textMessage);
-
-					messageBuilder.setTextMessage(textMessageBuilder);
-
-				} else {
-					log.debug("{} => Received text message without content. Ignoring packet: {}", nodeUrn, p);
-					return;
-				}
-
-			} else {
-
-				WSNAppMessages.Message.BinaryMessage.Builder binaryMessageBuilder =
-						WSNAppMessages.Message.BinaryMessage.newBuilder()
-								.setBinaryType(p.getType())
-								.setBinaryData(ByteString.copyFrom(p.getContent()));
-
-				messageBuilder.setBinaryMessage(binaryMessageBuilder);
-
-			}
+					.setTimestamp(now.toXMLFormat())
+					.setBinaryData(ByteString.copyFrom(p.getByteArray()));
 
 			WSNAppMessages.Message message = messageBuilder.build();
 

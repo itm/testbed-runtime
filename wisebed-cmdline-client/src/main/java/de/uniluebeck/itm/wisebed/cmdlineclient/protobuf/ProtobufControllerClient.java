@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.AbstractListenable;
 import eu.wisebed.testbed.api.wsn.v22.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -46,7 +46,8 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 
 	private ExecutorService workerExecutor;
 
-	public static ProtobufControllerClient create(String hostname, int port, List<SecretReservationKey> secretReservationKeys) {
+	public static ProtobufControllerClient create(String hostname, int port,
+												  List<SecretReservationKey> secretReservationKeys) {
 		return new ProtobufControllerClient(hostname, port, secretReservationKeys);
 	}
 
@@ -90,19 +91,22 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 				for (ProtobufControllerClientListener listener : listeners) {
 					listener.onConnectionClosed();
 				}
-				new Thread(new Runnable(){
+				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						shutdown();
 					}
-				}).start();
+				}
+				).start();
 			}
-		});
+		}
+		);
 
 		channel = channelFuture.getChannel();
 		log.debug("Connected.");
 
-		WisebedProtocol.SecretReservationKeys.Builder secretReservationKeysBuilder = WisebedProtocol.SecretReservationKeys.newBuilder();
+		WisebedProtocol.SecretReservationKeys.Builder secretReservationKeysBuilder =
+				WisebedProtocol.SecretReservationKeys.newBuilder();
 		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
 			secretReservationKeysBuilder.addKeys(WisebedProtocol.SecretReservationKeys.SecretReservationKey.newBuilder()
 					.setUrnPrefix(secretReservationKey.getUrnPrefix())
@@ -124,7 +128,9 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 			public void run() {
 				disconnect();
 			}
-		}));
+		}
+		)
+		);
 
 	}
 
@@ -150,7 +156,7 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 
 	void receivedRequestStatus(WisebedProtocol.RequestStatus requestStatus) {
 		for (Controller listener : listeners) {
-			listener.receiveStatus(convert(requestStatus));
+			listener.receiveStatus(Lists.newArrayList(convert(requestStatus)));
 		}
 	}
 
@@ -172,39 +178,25 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 	}
 
 	void receivedMessage(WisebedProtocol.Message message) {
-		for (Controller listener : listeners) {
-			listener.receive(convert(message));
+		switch (message.getType()) {
+			case NODE_BINARY:
+				for (Controller listener : listeners) {
+					listener.receive(Lists.newArrayList(convert(message)));
+				}
+				break;
+			case BACKEND:
+				for (Controller listener : listeners) {
+					listener.receiveNotification(Lists.<String>newArrayList(message.getBackend().getText()));
+				}
+				break;
 		}
+
 	}
 
 	private Message convert(WisebedProtocol.Message message) {
 		Message cMessage = new Message();
-		TextMessage textMessage;
-		BinaryMessage binaryMessage;
-		switch (message.getType()) {
-			case NODE_BINARY:
-				binaryMessage = new BinaryMessage();
-				binaryMessage.setBinaryType((byte) (0xFF & message.getNodeBinary().getType()));
-				binaryMessage.setBinaryData(message.getNodeBinary().getData().toByteArray());
-				cMessage.setBinaryMessage(binaryMessage);
-				cMessage.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn());
-				break;
-			case NODE_TEXT:
-				textMessage = new TextMessage();
-				textMessage.setMessageLevel(MessageLevel.fromValue(message.getNodeText().getLevel().name()));
-				textMessage.setMsg(message.getNodeText().getText());
-				cMessage.setTextMessage(textMessage);
-				cMessage.setSourceNodeId(message.getNodeText().getSourceNodeUrn());
-				break;
-			case BACKEND:
-				textMessage = new TextMessage();
-				textMessage.setMessageLevel(MessageLevel.fromValue(message.getBackend().getLevel().name()));
-				textMessage.setMsg(message.getBackend().getText());
-				cMessage.setTextMessage(textMessage);
-				cMessage.setSourceNodeId("backend");
-				break;
-		}
-		cMessage.setTimestamp(datatypeFactory.newXMLGregorianCalendar(message.getTimestamp()));
+		cMessage.setBinaryData(message.getNodeBinary().getData().toByteArray());
+		cMessage.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn());
 		return cMessage;
 	}
 

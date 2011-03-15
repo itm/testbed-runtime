@@ -74,31 +74,9 @@ message Program {
 
 // ==== send ====
 message Message {
-
-    enum MessageLevel {
-        TRACE = 0;
-        DEBUG = 1;
-        INFO = 2;
-        WARN = 3;
-        ERROR = 4;
-        FATAL = 5;
-    }
-
-    message TextMessage {
-        required string msg = 1;
-        required MessageLevel messageLevel = 2;
-    }
-
-    message BinaryMessage {
-        required bytes binaryData = 1;
-        required uint32 binaryType = 2;
-    }
-
     required string sourceNodeId = 1;
     required string timestamp = 2;
-    optional TextMessage textMessage = 3;
-    optional BinaryMessage binaryMessage = 4;
-
+    required bytes binaryData = 3;
 }
 
 
@@ -145,96 +123,9 @@ message OperationInvocation {
          DISABLE_PHYSICAL_LINK = 8;
          ENABLE_PHYSICAL_LINK = 9;
 
-         //GET_VERSION
-         //DEFINE_NETWORK
-         //DESCRIBE_CAPABILITIES
-         //GET_FILTERS
-         //GET_NEIGHBORHOOD
-         //GET_NETWORK
-         //GET_PROPERTY_VALUE_OF
-         //SET_START_TIME
-
-         
     }
 
     required Operation operation = 1;
     optional bytes arguments = 2;
 
 }
-
-
-
-//message DefineNetworkRequest {
-//	required string newNetwork = 1;
-//}
-
-//message DefineNetworkResponse {
-//	required string response = 1;
-//}
-
-//message DescribeCapabilitiesRequest {
-//	required string capability = 1;
-//}
-
-//message DescribeCapabilitiesResponse {
-//	required string response = 1;
-//}
-
-//message DestroyVirtualLinkRequest {
-//	required string sourceNode = 1;
-//	required string targetNode = 2;
-//}
-
-//message DestroyVirtualLinkResponse {
-//	required string response = 1;
-//}
-
-//message GetFiltersRequest {
-//}
-
-//message GetFiltersResponse {
-//	repeated string response = 1;
-//}
-
-//message GetNeighbourhoodRequest {
-//	required string node = 1;
-//}
-
-//message GetNeighbourhoodResponse {
-//	repeated string response = 1;
-//}
-
-//message GetNetworkRequest {
-//}
-
-//message GetNetworkResponse {
-//	required string response = 1;
-//}
-
-//message GetPropertyValueOfRequest {
-//	required string node = 1;
-//	required string propertyName = 2;
-//}
-
-//message GetPropertyValueOfResponse {
-//	required string response = 1;
-//}
-
-//message Time {
-//	required int32 hour = 1;
-//	required int32 minute = 2;
-//	required int32 second = 3;
-//	required int32 millisecond = 4;
-//	required int32 timezone = 5;
-//}
-
-//message SetStartTimeRequest {
-//	required Time time = 1;
-//}
-
-//message SetStartTimeResponse {
-//	required string response = 1;
-//}
-
-//message GetVersionRequest {
-//}

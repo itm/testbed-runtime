@@ -38,7 +38,7 @@ public class WorkingWSN implements WSN {
 					status.setNodeId(nodeId);
 					status.setValue(value);
 					requestStatus.getStatus().add(status);
-					controller.receiveStatus(requestStatus);
+					controller.receiveStatus(Lists.newArrayList(requestStatus));
 				}
 			}, random.nextInt(100), TimeUnit.MILLISECONDS
 			);

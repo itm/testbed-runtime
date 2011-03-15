@@ -78,7 +78,7 @@ public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceApp
 	}
 
 	@Override
-	public void sendMessage(final byte binaryType, final byte[] binaryMessage, final Callback listener) {
+	public void sendMessage(final byte[] binaryMessage, final Callback listener) {
 		// TODO implement
 	}
 

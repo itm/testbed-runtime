@@ -32,13 +32,23 @@ public class WSNAsyncWrapperTest {
 	public void setUp() {
 		Controller controller = new Controller() {
 			@Override
-			public void receive(@WebParam(name = "msg", targetNamespace = "") final Message msg) {
+			public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msg) {
 				// nothing to do
 			}
 
 			@Override
-			public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final RequestStatus status) {
+			public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> status) {
 				wrapper.receive(status);
+			}
+
+			@Override
+			public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msg) {
+				// nothing to do
+			}
+
+			@Override
+			public void experimentEnded() {
+				// nothing to do
 			}
 		};
 		WorkingWSN wsn = new WorkingWSN(controller);

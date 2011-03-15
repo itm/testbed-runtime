@@ -41,6 +41,7 @@
     <modules>
         <module>csv2config</module>
         <module>logcontroller</module>
+        <module>messagestore-api</module>
         <module>runtime</module>
         <module>runtime.cmdline</module>
         <module>runtime.portal</module>

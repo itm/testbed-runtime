@@ -37,9 +37,15 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@WebService(serviceName = "ControllerService", targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE, portName = "ControllerPort", endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE)
+@WebService(
+		serviceName = "ControllerService",
+		targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+		portName = "ControllerPort",
+		endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+)
 public class FederatorController implements Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorController.class);
@@ -140,8 +146,7 @@ public class FederatorController implements Controller {
 		controllerHelper.removeController(controllerEndpointUrl);
 	}
 
-	@Override
-	public void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+	private void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
 		controllerHelper.receive(msg);
 	}
 
@@ -179,8 +184,7 @@ public class FederatorController implements Controller {
 		controllerHelper.receiveStatus(status);
 	}
 
-	@Override
-	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+	private void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
 
 		String federatorRequestId = requestIdMappingCache.get(status.getRequestId());
 
@@ -197,4 +201,27 @@ public class FederatorController implements Controller {
 		}
 	}
 
+	@Override
+	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> messageList) {
+		for (Message message : messageList) {
+			receive(message);
+		}
+	}
+
+	@Override
+	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> requestStatusList) {
+		for (RequestStatus requestStatus : requestStatusList) {
+			receiveStatus(requestStatus);
+		}
+	}
+
+	@Override
+	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> notificationList) {
+		controllerHelper.receiveNotification(notificationList);
+	}
+
+	@Override
+	public void experimentEnded() {
+		controllerHelper.experimentEnded();
+	}
 }

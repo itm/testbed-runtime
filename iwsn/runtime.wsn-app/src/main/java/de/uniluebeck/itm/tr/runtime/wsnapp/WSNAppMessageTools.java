@@ -33,24 +33,11 @@ public class WSNAppMessageTools {
 			builder.append(message.getSourceNodeId());
 			builder.append(" => ");
 		}
-		if (message.hasBinaryMessage()) {
+		if (message.getBinaryData() != null) {
 			builder.append("Binary[");
-			builder.append("type=");
-			builder.append(StringUtils.toHexString((byte) message.getBinaryMessage().getBinaryType()));
-			builder.append(",data=");
-			builder.append(
-					StringUtils.toHexString(message.getBinaryMessage().getBinaryData().toByteArray())
-			);
+			builder.append("data=");
+			builder.append(StringUtils.toHexString(message.getBinaryData().toByteArray()));
 			builder.append("]");
-		}
-		if (message.hasTextMessage()) {
-			builder.append("Text[");
-			builder.append("level=");
-			builder.append(message.getTextMessage().getMessageLevel());
-			builder.append(",msg=\"");
-			String msg = message.getTextMessage().getMsg();
-			builder.append(msg.endsWith("\n") ? msg.substring(0, msg.length()-2) : msg);
-			builder.append("\"]");
 		}
 		return builder.toString();
 	}

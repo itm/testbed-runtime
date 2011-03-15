@@ -23,6 +23,7 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.internal.Nullable;
 import eu.wisebed.testbed.api.wsn.v22.*;
@@ -34,6 +35,7 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -42,139 +44,157 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service endpoints and
- * allows to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a
- * recipient is repeatedly ({@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRIES} times) impossible due to
- * whatever reason, the recipient is removed from the list of recipients. Between every try there's a pause of {@link
- * eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIMEOUT} in time unit {@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIMEUNIT}.
+ * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service endpoints and allows
+ * to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a recipient is
+ * repeatedly ({@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRIES} times) impossible due to whatever reason, the
+ * recipient is removed from the list of recipients. Between every try there's a pause of {@link
+ * eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIMEOUT} in time unit {@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIME_UNIT}.
  */
 public class ControllerHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerHelper.class);
 
-    public static final int RETRIES = 3;
+	public static final int RETRIES = 3;
 
-    public static final long RETRY_TIMEOUT = 5;
+	public static final long RETRY_TIMEOUT = 5;
 
-    public static final TimeUnit RETRY_TIMEUNIT = TimeUnit.SECONDS;
+	public static final TimeUnit RETRY_TIME_UNIT = TimeUnit.SECONDS;
 
-    private static final int DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE = 1000;
+	private static final int DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE = 1000;
 
-    protected final int maximumDeliveryQueueSize;
+	protected final int maximumDeliveryQueueSize;
 
 	public int getControllerCount() {
-        return controllerEndpoints.size();
-    }
+		return controllerEndpoints.size();
+	}
 
-    private abstract class AbstractDeliverRunnable implements Runnable {
+	private abstract class AbstractDeliverRunnable implements Runnable {
 
-        private int retries = 0;
+		private int retries = 0;
 
-        private final Map.Entry<String, Controller> controllerEntry;
+		private final Map.Entry<String, Controller> controllerEntry;
 
-        protected AbstractDeliverRunnable(Map.Entry<String, Controller> controllerEntry) {
-            this.controllerEntry = controllerEntry;
-        }
+		protected AbstractDeliverRunnable(Map.Entry<String, Controller> controllerEntry) {
+			this.controllerEntry = controllerEntry;
+		}
 
-        @Override
-        public final void run() {
+		@Override
+		public final void run() {
 
-            if (retries < RETRIES) {
+			if (retries < RETRIES) {
 
-                retries++;
-                try {
+				retries++;
+				try {
 
-                    deliver(controllerEntry.getValue());
+					deliver(controllerEntry.getValue());
 
-                } catch (Exception e) {
-                    log.warn("Could not deliver message / request status to Controller at endpoint URL {}. "
-                            + "Trying again in {} {}"
-                            + "Error = {}",
-                            new Object[]{
-                                    controllerEntry.getKey(),
-                                    RETRY_TIMEOUT,
-                                    RETRY_TIMEUNIT.toString().toLowerCase(),
-                                    e
-                            }
-                    );
-                    executorService.schedule(this, RETRY_TIMEOUT, RETRY_TIMEUNIT);
-                }
-            } else {
+				} catch (Exception e) {
+					log.warn("Could not deliver message / request status to Controller at endpoint URL {}. "
+							+ "Trying again in {} {}"
+							+ "Error = {}",
+							new Object[]{
+									controllerEntry.getKey(),
+									RETRY_TIMEOUT,
+									RETRY_TIME_UNIT.toString().toLowerCase(),
+									e
+							}
+					);
+					executorService.schedule(this, RETRY_TIMEOUT, RETRY_TIME_UNIT);
+				}
+			} else {
 
-                log.warn("Repeatedly (tried {} times) could not deliver message to Controller at endpoint URL {}. "
-                        + "Removing controller endpoint...",
-                        new Object[]{
-                                RETRIES, controllerEntry.getKey()
-                        }
-                );
+				log.warn("Repeatedly (tried {} times) could not deliver message to Controller at endpoint URL {}. "
+						+ "Removing controller endpoint...",
+						new Object[]{
+								RETRIES, controllerEntry.getKey()
+						}
+				);
 
-                removeController(controllerEntry.getKey());
+				removeController(controllerEntry.getKey());
 
-            }
-        }
+			}
+		}
 
-        protected abstract void deliver(Controller controller);
+		protected abstract void deliver(Controller controller);
 
-    }
+	}
 
-    private class DeliverRequestStatusRunnable extends AbstractDeliverRunnable {
+	private class DeliverRequestStatusRunnable extends AbstractDeliverRunnable {
 
-        private RequestStatus requestStatus;
+		private List<RequestStatus> requestStatus;
 
-        private DeliverRequestStatusRunnable(Map.Entry<String, Controller> controllerEntry,
-                                             RequestStatus requestStatus) {
-            super(controllerEntry);
-            this.requestStatus = requestStatus;
-        }
+		private DeliverRequestStatusRunnable(Map.Entry<String, Controller> controllerEntry,
+											 List<RequestStatus> requestStatus) {
+			super(controllerEntry);
+			this.requestStatus = requestStatus;
+		}
 
-        @Override
-        protected void deliver(Controller controller) {
-            controller.receiveStatus(requestStatus);
-        }
+		@Override
+		protected void deliver(Controller controller) {
+			controller.receiveStatus(requestStatus);
+		}
 
-    }
+	}
 
-    private class DeliverMessageRunnable extends AbstractDeliverRunnable {
+	private class DeliverNotificationRunnable extends AbstractDeliverRunnable {
 
-        private Message msg;
+		private final List<String> notifications;
 
-        private DeliverMessageRunnable(Map.Entry<String, Controller> controllerEntry, Message msg) {
-            super(controllerEntry);
-            this.msg = msg;
-        }
+		public DeliverNotificationRunnable(final Map.Entry<String, Controller> controllerEntry,
+										   final List<String> notifications) {
+			super(controllerEntry);
+			this.notifications = notifications;
+		}
 
-        @Override
-        protected void deliver(Controller controller) {
-            controller.receive(msg);
-        }
+		@Override
+		protected void deliver(final Controller controller) {
+			controller.receiveNotification(notifications);
+		}
+	}
 
-    }
+	private class DeliverMessageRunnable extends AbstractDeliverRunnable {
 
-    /**
-     * The set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} instances currently listening to this WSN service
-     * instance. Maps from the endpoint URL to an instantiated endpoint proxy.
-     */
-    private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
+		private List<Message> msg;
 
-    /**
-     * Used to deliver messages and request status messages in parallel.
-     */
-    private final ScheduledThreadPoolExecutor executorService;
+		private DeliverMessageRunnable(Map.Entry<String, Controller> controllerEntry, List<Message> msg) {
+			super(controllerEntry);
+			this.msg = msg;
+		}
 
-    public ControllerHelper() {
-        this(DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
-    }
+		@Override
+		protected void deliver(Controller controller) {
+			controller.receive(msg);
+		}
 
-    /**
-     * Constructs a new {@link ControllerHelper} instance.
-     */
-    public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
+	}
+
+	/**
+	 * The set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} instances currently listening to this WSN service
+	 * instance. Maps from the endpoint URL to an instantiated endpoint proxy.
+	 */
+	private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
+
+	/**
+	 * Used to deliver messages and request status messages in parallel.
+	 */
+	private final ScheduledThreadPoolExecutor executorService;
+
+	public ControllerHelper() {
+		this(DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
+	}
+
+	/**
+	 * Constructs a new {@link ControllerHelper} instance.
+	 *
+	 * @param maximumDeliveryQueueSize the maximum size of the message delivery queue after which messages are dropped
+	 */
+	public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
 
 		this.maximumDeliveryQueueSize =
-                maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
+				maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
 
-        executorService = new ScheduledThreadPoolExecutor(1,
-                new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
+		executorService = new ScheduledThreadPoolExecutor(1,
+				new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
 				new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
@@ -182,65 +202,94 @@ public class ControllerHelper {
 						executorService.schedule(r, 100, TimeUnit.MILLISECONDS);
 					}
 				}
-        );
+		);
 		executorService.setMaximumPoolSize(Integer.MAX_VALUE);
 
-    }
+	}
 
-    /**
-     * Adds a Controller service endpoint URL to the list of recipients.
-     *
-     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
-     *                              instance
-     */
-    public void addController(String controllerEndpointUrl) {
-        Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, executorService);
-        synchronized (controllerEndpoints) {
-            controllerEndpoints.put(controllerEndpointUrl, controller);
-        }
-    }
+	/**
+	 * Adds a Controller service endpoint URL to the list of recipients.
+	 *
+	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
+	 *                              instance
+	 */
+	public void addController(String controllerEndpointUrl) {
+		Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, executorService);
+		synchronized (controllerEndpoints) {
+			controllerEndpoints.put(controllerEndpointUrl, controller);
+		}
+	}
 
-    /**
-     * Removes a Controller service endpoint URL from the list of recipients.
-     *
-     * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
-     *                              instance
-     */
-    public void removeController(String controllerEndpointUrl) {
-        synchronized (controllerEndpoints) {
-            controllerEndpoints.remove(controllerEndpointUrl);
-        }
-    }
+	/**
+	 * Removes a Controller service endpoint URL from the list of recipients.
+	 *
+	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
+	 *                              instance
+	 */
+	public void removeController(String controllerEndpointUrl) {
+		synchronized (controllerEndpoints) {
+			controllerEndpoints.remove(controllerEndpointUrl);
+		}
+	}
 
-    /**
-     * Delivers {@code message} to all recipients.
-     *
-     * @param message the {@link eu.wisebed.testbed.api.wsn.v22.Message} instance to deliver
-     */
-    public void receive(Message message) {
-
-        if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
-            log.error("More than {} messages in the delivery queue. Dropping message!", maximumDeliveryQueueSize
-            );
-            // TODO find more elegant solution on how to cope with too much load
-            return;
-        }
-
-        synchronized (controllerEndpoints) {
-            for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-                log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
-				DeliverMessageRunnable runnable = new DeliverMessageRunnable(controllerEntry, message);
+	public void receiveNotification(final List<String> notifications) {
+		synchronized (controllerEndpoints) {
+			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
+				log.debug("Delivering notification to endpoint URL {}", controllerEntry.getKey());
+				DeliverNotificationRunnable runnable = new DeliverNotificationRunnable(controllerEntry, notifications);
 				executorService.submit(runnable);
-            }
-        }
-    }
+			}
+		}
+	}
 
-    /**
-     * Delivers {@code requestStatus} to all recipients.
-     *
-     * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v22.RequestStatus} instance to deliver
-     */
-    public void receiveStatus(RequestStatus requestStatus) {
+	public void experimentEnded() {
+		// TODO implement
+	}
+
+	public void receive(List<Message> messages) {
+		for (Message message : messages) {
+			receive(message);
+		}
+	}
+
+	/**
+	 * Delivers {@code message} to all recipients.
+	 *
+	 * @param message the {@link eu.wisebed.testbed.api.wsn.v22.Message} instance to deliver
+	 */
+	public void receive(Message message) {
+
+		if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+			log.error("More than {} messages in the delivery queue. Dropping message!", maximumDeliveryQueueSize
+			);
+			// TODO find more elegant solution on how to cope with too much load
+			return;
+		}
+
+		// TODO use bundling of messages according to v22 api
+
+		synchronized (controllerEndpoints) {
+			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
+				log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
+				DeliverMessageRunnable runnable =
+						new DeliverMessageRunnable(controllerEntry, Lists.newArrayList(message));
+				executorService.submit(runnable);
+			}
+		}
+	}
+
+	public void receiveStatus(List<RequestStatus> requestStatuses) {
+		for (RequestStatus requestStatus : requestStatuses) {
+			receiveStatus(requestStatus);
+		}
+	}
+
+	/**
+	 * Delivers {@code requestStatus} to all recipients.
+	 *
+	 * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v22.RequestStatus} instance to deliver
+	 */
+	public void receiveStatus(RequestStatus requestStatus) {
 
 		/*
 
@@ -255,42 +304,45 @@ public class ControllerHelper {
 
         */
 
-        synchronized (controllerEndpoints) {
-            for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-                log.debug("StatusDelivery[requestId={},endpointUrl={},queueSize={}]",
-                        new Object[] {
+		// TODO use bundling of messages according to v22 api
+
+		synchronized (controllerEndpoints) {
+			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
+				log.debug("StatusDelivery[requestId={},endpointUrl={},queueSize={}]",
+						new Object[]{
 								requestStatus.getRequestId(),
 								controllerEntry.getKey(),
 								executorService.getQueue().size()
 						}
-                );
-                executorService.submit(new DeliverRequestStatusRunnable(controllerEntry, requestStatus));
-            }
-        }
-    }
+				);
+				executorService
+						.submit(new DeliverRequestStatusRunnable(controllerEntry, Lists.newArrayList(requestStatus)));
+			}
+		}
+	}
 
-    public void receiveUnkownNodeUrnRequestStatus(final UnknownNodeUrnException_Exception e, final String requestId) {
+	public void receiveUnknownNodeUrnRequestStatus(final UnknownNodeUrnException_Exception e, final String requestId) {
 
-        for (String nodeUrn : e.getFaultInfo().getUrn()) {
+		for (String nodeUrn : e.getFaultInfo().getUrn()) {
 
-            Status status = new Status();
-            status.setMsg(e.getFaultInfo().getMessage());
-            status.setNodeId(nodeUrn);
-            status.setValue(-1);
+			Status status = new Status();
+			status.setMsg(e.getFaultInfo().getMessage());
+			status.setNodeId(nodeUrn);
+			status.setValue(-1);
 
-            RequestStatus requestStatus = new RequestStatus();
-            requestStatus.setRequestId(requestId);
-            requestStatus.getStatus().add(status);
+			RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(requestId);
+			requestStatus.getStatus().add(status);
 
-            this.receiveStatus(requestStatus);
+			this.receiveStatus(requestStatus);
 
-        }
+		}
 
-    }
+	}
 
-    public int getMaximumDeliveryQueueSize() {
-        return maximumDeliveryQueueSize;
-    }
+	public int getMaximumDeliveryQueueSize() {
+		return maximumDeliveryQueueSize;
+	}
 
 	public static boolean testConnectivity(String controllerEndpointURL) {
 		try {

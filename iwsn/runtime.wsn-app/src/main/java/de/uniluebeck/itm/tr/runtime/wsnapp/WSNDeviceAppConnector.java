@@ -57,7 +57,7 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 
 	void setVirtualLink(long targetNode, Callback listener);
 
-	void sendMessage(byte binaryType, byte[] binaryMessage, Callback listener);
+	void sendMessage(byte[] binaryMessage, Callback listener);
 
 	void resetNode(Callback listener);
 

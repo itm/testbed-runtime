@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
+ *   promote products derived from this software without specific prior written permission.                           *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,73 +21,94 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.wsperf;
+package de.uniluebeck.itm.tr.logcontroller;
 
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.BinaryMessage;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.WSN;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.ws.Endpoint;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.concurrent.Executors;
+import javax.persistence.*;
 
-/**
- * User: bimschas Date: 17.05.2010 Time: 20:54:32
- */
-public class WSPerformanceTest {
 
-	public static void main(String[] args) throws DatatypeConfigurationException, MalformedURLException {
+@Entity
+@Table(name = "WsnMessages")
+public class WSNMessage {
 
-		String wsnEndpointUrl = "http://localhost:8080/wsn/";
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-		WSNImpl wsnImpl = new WSNImpl();
+	private String reservationKey;
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(wsnEndpointUrl);
+	private String timeStamp;
 
-		System.out.println("Starting WSPerformanceTest service...");
-		System.out.println("Endpoint URL: " + wsnEndpointUrl);
-		System.out.println("Binding  URL: " + bindAllInterfacesUrl);
+	private String sourceNodeId;
 
-		Endpoint endpoint = Endpoint.publish(bindAllInterfacesUrl, wsnImpl);
-		endpoint.setExecutor(Executors.newCachedThreadPool());
+	@Lob
+	private byte[] binaryData;
 
-		System.out.println("Started WSPerformanceTest on " + bindAllInterfacesUrl);
-
-		WSN wsn = WSNServiceHelper.getWSNService(wsnEndpointUrl);
-
-		List<String> nodeUrns = Arrays.asList("urn:wisebed:testbeduzl1:n1");
-
-		long before = System.currentTimeMillis();
-
-		for (int i = 0; i < 1000; i++) {
-
-			BinaryMessage binaryMessage = new BinaryMessage();
-			binaryMessage.setBinaryType((byte) 0);
-			binaryMessage.setBinaryData(new byte[]{0x00});
-
-			Message message = new Message();
-			message.setSourceNodeId("urn:wisebed:testbeduzl1:n2");
-			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(
-					(GregorianCalendar) GregorianCalendar.getInstance()));
-			message.setBinaryMessage(binaryMessage);
-
-			wsn.send(nodeUrns, message);
-		}
-
-		long after = System.currentTimeMillis();
-
-		System.out.println("Overall duration: " + (after - before) + " ms");
-		System.out.println("Duration per invocation: " + ((after - before) / 1000) + " ms");
-
-		endpoint.stop();
-
+	/**
+	 * Converts XML message type into JPA entity
+	 *
+	 * @param message XML message
+	 *
+	 * @return JPA entity
+	 */
+	public static WSNMessage convertFromXMLMessage(Message message) {
+		WSNMessage result = new WSNMessage();
+		result.sourceNodeId = message.getSourceNodeId();
+		result.timeStamp = message.getTimestamp().toString();
+		result.binaryData = message.getBinaryData();
+		return result;
 	}
 
+	/**
+	 * Converts a JPA entity into XML message type
+	 *
+	 * @param from the JPA entity
+	 *
+	 * @return the XML message type
+	 */
+	public static Message convertToXMLMessage(WSNMessage from) {
+		Message mes = new Message();
+		mes.setTimestamp(XMLGregorianCalendarImpl.parse(from.timeStamp));
+		mes.setSourceNodeId(from.sourceNodeId);
+		mes.setBinaryData(from.binaryData);
+		return mes;
+	}
+
+	public byte[] getBinaryData() {
+		return binaryData;
+	}
+
+	public void setBinaryData(final byte[] binaryData) {
+		this.binaryData = binaryData;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(final Long id) {
+		this.id = id;
+	}
+
+	public String getSourceNodeId() {
+		return sourceNodeId;
+	}
+
+	public void setSourceNodeId(final String sourceNodeId) {
+		this.sourceNodeId = sourceNodeId;
+	}
+
+	public String getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(final String timeStamp) {
+		this.timeStamp = timeStamp;
+	}
+
+	public void setReservationKey(final String reservationKey) {
+		this.reservationKey = reservationKey;
+	}
 }

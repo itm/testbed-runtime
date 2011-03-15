@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.gtr.wsngui.controller;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.gtr.wsngui.Dialogs;
 import de.uniluebeck.itm.gtr.wsngui.WSNClientProperties;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
@@ -65,7 +66,7 @@ public class ControllerClientController {
 
 			if (message != null) {
 
-				getControllerService().receive(message);
+				getControllerService().receive(Lists.newArrayList(message));
 				log.info("Called Controller.receive() successfully...");
 
 			}
@@ -87,7 +88,7 @@ public class ControllerClientController {
 
 			if (status != null) {
 
-				getControllerService().receiveStatus(status);
+				getControllerService().receiveStatus(Lists.newArrayList(status));
 				log.info("Called Controller.receiveStatus() successfully...");
 
 			}

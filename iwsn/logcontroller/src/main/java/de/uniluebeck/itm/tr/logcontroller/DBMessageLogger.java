@@ -38,41 +38,41 @@ import java.util.Map;
  */
 public class DBMessageLogger implements IMessageListener {
 
-    private static final Logger _log = LoggerFactory.getLogger(DBMessageLogger.class);
+	private static final Logger log = LoggerFactory.getLogger(DBMessageLogger.class);
 
-    private EntityManager _manager;
+	private EntityManager manager;
 
-    @Override
-    public void init(Map properties) {
-        Preconditions.checkNotNull(properties, "Properties are null!");
-        EntityManagerFactory factory =
-                Persistence.createEntityManagerFactory(Server.PERSISTENCE_CONTEXT, properties);
-        _manager = factory.createEntityManager();
-        _log.debug("JPA-Entitymanager created");
-    }
+	@Override
+	public void init(Map properties) {
+		Preconditions.checkNotNull(properties, "Properties are null!");
+		EntityManagerFactory factory =
+				Persistence.createEntityManagerFactory(Server.PERSISTENCE_CONTEXT, properties);
+		manager = factory.createEntityManager();
+		log.debug("JPA-Entitymanager created");
+	}
 
-    @Override
-    public void newMessage(Message msg, String reservationKey) {
-        AbstractMessage message = AbstractMessage.convertMessage(msg);
-        Preconditions.checkNotNull(reservationKey, "No Reservation Key.");
-        message.reservationKey = reservationKey;
-        synchronized (_manager) {
-            try {
-                _manager.getTransaction().begin();
-                _manager.persist(message);
-                _manager.getTransaction().commit();
-                _log.info("{} from {} saved to Database", message.getClass().getSimpleName(), message.sourceNodeId);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                _manager.getTransaction().rollback();
-            }
-        }
-    }
+	@Override
+	public void newMessage(Message msg, String reservationKey) {
+		WSNMessage message = WSNMessage.convertFromXMLMessage(msg);
+		Preconditions.checkNotNull(reservationKey, "No Reservation Key.");
+		message.setReservationKey(reservationKey);
+		synchronized (manager) {
+			try {
+				manager.getTransaction().begin();
+				manager.persist(message);
+				manager.getTransaction().commit();
+				log.info("Message from {} saved to database", message.getSourceNodeId());
+			} catch (Exception e) {
+				e.printStackTrace();
+				manager.getTransaction().rollback();
+			}
+		}
+	}
 
-    @Override
-    public void dispose() {
-        if (_manager.isOpen())
-            _manager.close();
-    }
+	@Override
+	public void dispose() {
+		if (manager.isOpen()) {
+			manager.close();
+		}
+	}
 }

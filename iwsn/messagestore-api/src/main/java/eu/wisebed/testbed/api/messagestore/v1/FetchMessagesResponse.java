@@ -1,5 +1,5 @@
 
-package de.uniluebeck.itm.tr.logcontroller.client;
+package eu.wisebed.testbed.api.messagestore.v1;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -45,6 +45,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Endpoint;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -56,38 +57,39 @@ class WisebedMotapConnectorImpl extends DeviceConnector {
 	public class MyController implements Controller {
 
 		@Override
-		public void receive(@WebParam(name = "msg", targetNamespace = "") final Message msg) {
+		public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msgs) {
+			for (Message msg : msgs) {
 
-			if (log.isTraceEnabled()) {
-				log.trace("{}", getMsgString(msg));
-			}
+				if (log.isTraceEnabled()) {
+					log.trace("{} | {} => {}", new Object[] {
+							msg.getTimestamp().toString(),
+							msg.getSourceNodeId(),
+							StringUtils.toHexString(msg.getBinaryData())
+					});
+				}
 
-			if (nodeURN.equals(msg.getSourceNodeId()) && msg.getBinaryMessage() != null) {
-				BinaryMessage binaryMessage = msg.getBinaryMessage();
-				receivePacket(new MessagePacket(binaryMessage.getBinaryType(), binaryMessage.getBinaryData()));
+				if (nodeURN.equals(msg.getSourceNodeId())) {
+					receivePacket(new MessagePacket(msg.getBinaryData()));
+				}
 			}
 		}
 
 		@Override
-		public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final RequestStatus status) {
+		public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> status) {
 			// nothing to do
 		}
 
-		private String getMsgString(Message msg) {
-			String message = msg.getTimestamp().toString() + " | " + msg.getSourceNodeId() + " => ";
-			if (msg.getBinaryMessage() != null) {
-				message += StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + " : " +
-						StringUtils.toHexString(msg.getBinaryMessage().getBinaryData());
-			} else if (msg.getTextMessage() != null) {
-				message += msg.getTextMessage().getMessageLevel().value() + " : " +
-						(msg.getTextMessage().getMsg().endsWith("\n") ?
-								msg.getTextMessage().getMsg()
-										.substring(0, msg.getTextMessage().getMsg().length() - 2) :
-								msg.getTextMessage().getMsg());
+		@Override
+		public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> msgs) {
+			for (String msg : msgs) {
+				log.info("{}", msg);
 			}
-			return message;
 		}
 
+		@Override
+		public void experimentEnded() {
+			// nothing to do
+		}
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(WisebedMotapConnectorImpl.class);
@@ -181,20 +183,20 @@ class WisebedMotapConnectorImpl extends DeviceConnector {
 	}
 
 	@Override
-	public boolean send(final int type, final byte[] b) {
+	public boolean send(final int type, final byte[] data) {
 		try {
 
 			Message message = new Message();
-			BinaryMessage binaryMessage = new BinaryMessage();
-			binaryMessage.setBinaryType((byte) (type & 0xFF));
-			binaryMessage.setBinaryData(b);
-			message.setBinaryMessage(binaryMessage);
+			ByteBuffer buffer = ByteBuffer.allocate(1 + data.length);
+			buffer.put((byte) (type & 0xFF));
+			buffer.put(data);
+			message.setBinaryData(buffer.array());
 			message.setSourceNodeId(nodeURN);
 			message.setTimestamp(datatypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
 
 			wsnEndpoint.send(Lists.newArrayList(nodeURN), message);
 
-			log.trace("Sent packet {} to {} in testbed.", binaryMessage, nodeURN);
+			log.trace("Sent packet {} to {} in testbed.", message, nodeURN);
 
 		} catch (Exception e) {
 			log.error("" + e, e);

@@ -29,44 +29,24 @@ message SecretReservationKeys {
 message Message {
 
   enum Type {
-    NODE_TEXT = 1;
-    NODE_BINARY = 2;
-    BACKEND = 3;
-  }
-
-  enum Level {
-    TRACE = 1;
-    DEBUG = 2;
-    INFO = 3;
-    WARN = 4;
-    ERROR = 5;
-    FATAL = 6;
-  }
-
-  message NodeText {
-    required string source_node_urn = 1;
-    required Level level = 2;
-    required string text = 3;
-    repeated string destination_node_urns = 4;
+    NODE_BINARY = 1;
+    BACKEND = 2;
   }
 
   message NodeBinary {
     required string source_node_urn = 1;
-    required uint32 type = 2;
-    required bytes data = 3;
-    repeated string destination_node_urns = 4;
+    required bytes data = 2;
+    repeated string destination_node_urns = 3;
   }
 
   message Backend {
-    required Level level = 1;
     required string text = 2;
   }
 
   required Type type = 1;
   required string timestamp = 2;
   optional NodeBinary node_binary = 3;
-  optional NodeText node_text = 4;
-  optional Backend backend = 5;
+  optional Backend backend = 4;
 }
 
 message RequestStatus {

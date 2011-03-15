@@ -1,5 +1,5 @@
 
-package de.uniluebeck.itm.tr.logcontroller.client;
+package eu.wisebed.testbed.api.messagestore.v1;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,8 +21,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *       &lt;sequence>
  *         &lt;element name="sourceNodeId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="timestamp" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
- *         &lt;element name="textMessage" type="{urn:CommonTypes}textMessage" minOccurs="0"/>
- *         &lt;element name="binaryMessage" type="{urn:CommonTypes}binaryMessage" minOccurs="0"/>
+ *         &lt;element name="binaryData" type="{http://www.w3.org/2001/XMLSchema}base64Binary"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -35,8 +34,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 @XmlType(name = "message", namespace = "urn:CommonTypes", propOrder = {
     "sourceNodeId",
     "timestamp",
-    "textMessage",
-    "binaryMessage"
+    "binaryData"
 })
 public class Message {
 
@@ -45,8 +43,8 @@ public class Message {
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar timestamp;
-    protected TextMessage textMessage;
-    protected BinaryMessage binaryMessage;
+    @XmlElement(required = true)
+    protected byte[] binaryData;
 
     /**
      * Gets the value of the sourceNodeId property.
@@ -97,51 +95,25 @@ public class Message {
     }
 
     /**
-     * Gets the value of the textMessage property.
+     * Gets the value of the binaryData property.
      * 
      * @return
      *     possible object is
-     *     {@link TextMessage }
-     *     
+     *     byte[]
      */
-    public TextMessage getTextMessage() {
-        return textMessage;
+    public byte[] getBinaryData() {
+        return binaryData;
     }
 
     /**
-     * Sets the value of the textMessage property.
+     * Sets the value of the binaryData property.
      * 
      * @param value
      *     allowed object is
-     *     {@link TextMessage }
-     *     
+     *     byte[]
      */
-    public void setTextMessage(TextMessage value) {
-        this.textMessage = value;
-    }
-
-    /**
-     * Gets the value of the binaryMessage property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BinaryMessage }
-     *     
-     */
-    public BinaryMessage getBinaryMessage() {
-        return binaryMessage;
-    }
-
-    /**
-     * Sets the value of the binaryMessage property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BinaryMessage }
-     *     
-     */
-    public void setBinaryMessage(BinaryMessage value) {
-        this.binaryMessage = value;
+    public void setBinaryData(byte[] value) {
+        this.binaryData = ((byte[]) value);
     }
 
 }
