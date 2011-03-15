@@ -64,5 +64,29 @@
 		</dependency>
 
 	</dependencies>
+	
+		<build>
+		<plugins>
+			<plugin>
+				<groupId>org.dstovall</groupId>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
+				<version>1.4.5</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerCmdLine</mainClass>
+							<onejarVersion>0.97-RC10</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>onejar</classifier>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

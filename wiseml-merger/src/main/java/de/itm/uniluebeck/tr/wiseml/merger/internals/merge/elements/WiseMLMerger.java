@@ -45,12 +45,17 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	private boolean mergeScenarioLists() {
 		//System.out.println("next: scenario list");
 		
-		queue.add(new ScenarioListMerger(
-				this,
-				findSequenceReaders(WiseMLSequence.Scenario),
-				null,
-				null));
+		WiseMLTreeReader[] reader = findSequenceReaders(WiseMLSequence.Scenario);
 		
+		if (reader == null)
+			warn("Scenario List is empty - skip this");
+		else{
+			queue.add(new ScenarioListMerger(
+					this,
+					reader,
+					null,
+					null));
+		}
 		// next state
 		state++;
 		
@@ -60,13 +65,18 @@ public class WiseMLMerger extends WiseMLElementMerger {
 	private boolean mergeTraceLists() {
 		//System.out.println("next: trace list");
 		
-		// add list merger to queue
-		queue.add(new TraceListMerger(
-				this,
-				findSequenceReaders(WiseMLSequence.Trace),
-				null,
-				null));
+		WiseMLTreeReader[] reader = findSequenceReaders(WiseMLSequence.Scenario);
 		
+		if (reader == null)
+			warn("Trace List is empty - skip this");
+		else{
+			// add list merger to queue
+			queue.add(new TraceListMerger(
+					this,
+					findSequenceReaders(WiseMLSequence.Trace),
+					null,
+					null));
+		}
 		// next state
 		state++;
 		
