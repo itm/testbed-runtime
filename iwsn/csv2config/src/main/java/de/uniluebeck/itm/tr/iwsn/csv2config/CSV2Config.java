@@ -258,6 +258,8 @@ public class CSV2Config {
 
 		public String reservationSystemEndpointURL;
 
+		public String snaaEndpointUrl = null;
+
 		public String setupOriginX = null;
 
 		public String setupOriginY = null;
@@ -277,7 +279,6 @@ public class CSV2Config {
 		public String protobufHostname = null;
 
 		public Integer protobufPort = null;
-
 	}
 
 	private CmdLineParameters cmdLineParameters = new CmdLineParameters();
@@ -353,6 +354,7 @@ public class CSV2Config {
 		WebService webservice = new WebService();
 		webservice.setReservationendpointurl(cmdLineParameters.reservationSystemEndpointURL);
 		webservice.setSessionmanagementendpointurl(cmdLineParameters.sessionmanagementendpointurl);
+		webservice.setSnaaendpointurl(cmdLineParameters.snaaEndpointUrl);
 		webservice.setUrnprefix(cmdLineParameters.testbedPrefix);
 		webservice.setWisemlfilename(cmdLineParameters.wisemlfilename);
 		webservice.setWsninstancebaseurl(cmdLineParameters.wsninstancebaseurl);
@@ -582,6 +584,7 @@ public class CSV2Config {
 						Boolean.parseBoolean(properties.getProperty("mac-autodetection", "true"));
 				cmdLineParameters.useHexValues = Boolean.parseBoolean(properties.getProperty("hex", "true"));
 				cmdLineParameters.reservationSystemEndpointURL = properties.getProperty("portal.reservationsystem");
+				cmdLineParameters.snaaEndpointUrl = properties.getProperty("portal.snaaendpointurl");
 
 			} else {
 				throw new Exception("Please supply -p");
