@@ -72,12 +72,19 @@ WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 Controller controller = new Controller() {
-	public void receive(Message msg) {
+	public void receive(List msg) {
 		// nothing to do
 	}
-	public void receiveStatus(RequestStatus status) {
-		//log.info("Received request status: {}", helper.toString(status));
-		wsn.receive(status);
+	public void receiveStatus(List requestStatuses) {
+		wsn.receive(requestStatus);
+	}
+	public void receiveNotification(List<String> msgs) {
+		for (int i=0; i<msgs.size(); i++) {
+			log.info(msgs.get(i));
+		}
+	}
+	public void experimentEnded() {
+		log.info("Experiment ended");
 	}
 };
 

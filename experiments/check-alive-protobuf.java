@@ -65,11 +65,19 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 
 	ProtobufControllerClient pcc = ProtobufControllerClient.create(pccHost, pccPort, helper.parseSecretReservationKeys(secretReservationKeys));
 	pcc.addListener(new ProtobufControllerClientListener() {
-		public void receive(Message msg) {
+		public void receive(List msg) {
 			// nothing to do
 		}
-		public void receiveStatus(RequestStatus requestStatus) {
+		public void receiveStatus(List requestStatuses) {
 			wsn.receive(requestStatus);
+		}
+		public void receiveNotification(List<String> msgs) {
+			for (int i=0; i<msgs.size(); i++) {
+				log.info(msgs.get(i));
+			}
+		}
+		public void experimentEnded() {
+			log.info("Experiment ended");
 		}
 		public void onConnectionEstablished() {
 			log.debug("Connection established.");

@@ -40,20 +40,31 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 
 	ProtobufControllerClient pcc = ProtobufControllerClient.create(pccHost, pccPort, helper.parseSecretReservationKeys(secretReservationKeys));
 	pcc.addListener(new ProtobufControllerClientListener() {
-		public void receive(Message msg) {
-			synchronized(System.out) {
-                System.out.print(msg.getTimestamp() + " | " + msg.getSourceNodeId() + " | ");
-                if (msg.getTextMessage() != null) {
-                    String msgString = msg.getTextMessage().getMsg();
-                    System.out.print(msg.getTextMessage().getMessageLevel() + " | ");
-                    System.out.println(msgString.endsWith("\n") ? msgString.substring(0, msgString.length()-2) : msgString);
-                } else if (msg.getBinaryMessage() != null) {
-                    System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + "  | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
-                }
-            }
+		public void receive(List msgs) {
+			for (int i=0; i<msg.size(); i++) {
+				Message msg = (Message) msgs.get(i);
+				synchronized(System.out) {
+					System.out.print(msg.getTimestamp() + " | " + msg.getSourceNodeId() + " | ");
+					if (msg.getTextMessage() != null) {
+						String msgString = msg.getTextMessage().getMsg();
+						System.out.print(msg.getTextMessage().getMessageLevel() + " | ");
+						System.out.println(msgString.endsWith("\n") ? msgString.substring(0, msgString.length()-2) : msgString);
+                	} else if (msg.getBinaryMessage() != null) {
+                	    System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + "  | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
+           	    	}
+            	}
+			}
 		}
-		public void receiveStatus(RequestStatus requestStatus) {
+		public void receiveStatus(List requestStatuses) {
 			// nothing to do
+		}
+		public void receiveNotification(List<String> msgs) {
+			for (int i=0; i<msgs.size(); i++) {
+				log.info(msgs.get(i));
+			}
+		}
+		public void experimentEnded() {
+			log.info("Experiment ended");
 		}
 		public void onConnectionEstablished() {
 			log.debug("Connection established.");
