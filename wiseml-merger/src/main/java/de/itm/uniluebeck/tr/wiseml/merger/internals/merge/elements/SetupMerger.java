@@ -247,6 +247,10 @@ public class SetupMerger extends WiseMLElementMerger {
 
 	private void mergeDescription(String[] descriptions) {
 		boolean conflict = !allEqual(descriptions);
+
+//        System.out.println("JUHU"+configuration.getDescriptionResolution());
+//        System.out.println("conflict = "+conflict);
+//        System.out.println("is forced = "+configuration.isForceResolveDescription());
 		if (configuration.isForceResolveDescription() || conflict) {
 			if (conflict) {
 				switch (configuration.getDescriptionResolution()) {
@@ -264,19 +268,21 @@ public class SetupMerger extends WiseMLElementMerger {
 			
 			switch (configuration.getDescriptionOutput()) {
 			case UseCustomPlusInputDescriptions:
-				description = configuration.getCustomDescription() + "\n\n";
+				description = configuration.getCustomDescription() + "\n";
 			case ListInputDescriptions: {
 				StringBuilder sb = new StringBuilder();
 				sb.append(description);
 				for (int i = 0; i < descriptions.length; i++) {
 					if (descriptions[i] != null) {
-						sb.append(descriptions[i]);
+						sb.append("\t"+(i+1)+": "+descriptions[i]);
 						sb.append("\n\n");
 					}
 				}
 				description = sb.toString();
 			}
 			}
+			
+//			System.out.println("description = "+description);
 			
 			queue.add(new DescriptionReader(this, description));
 		}

@@ -109,25 +109,25 @@ public class MergerConfiguration {
 	@Conflict(name = "interpolation", item = Conflict.Item.CustomValue, defaultValue = "none")
 	private Interpolation customInterpolation;
 	
-	@Conflict(name = "coordinateType", item = Conflict.Item.Resolution, defaultValue = "ThrowException")
+	@Conflict(name = "coordinateType", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
 	private ConflictResolution coordinateTypeResolution;
 	
-	@Conflict(name = "coordinateType", item = Conflict.Item.Output, defaultValue = "UseFirstFile")
+	@Conflict(name = "coordinateType", item = Conflict.Item.Output, defaultValue = "UseCustom")
 	private CoordinateTypeOutput coordinateTypeOutput;
 	
 	@Conflict(name = "coordinateType", item = Conflict.Item.CustomValue, defaultValue = "XYZ")
 	private String customCoordinateType;
 	
-	@Conflict(name = "description", item = Conflict.Item.Resolution, defaultValue = "ResolveSilently")
+	@Conflict(name = "description", item = Conflict.Item.Resolution, defaultValue = "ResolveWithWarning")
 	private ConflictResolution descriptionResolution;
 	
 	@Conflict(name = "description", item = Conflict.Item.Output, defaultValue = "UseCustomPlusInputDescriptions")
 	private DescriptionOutput descriptionOutput;
 	
-	@Conflict(name = "description", item = Conflict.Item.CustomValue, defaultValue = "Created by merging multiple files.\nOriginal descriptions:\n")
+	@Conflict(name = "description", item = Conflict.Item.CustomValue, defaultValue = "Created by merging multiple files.\n\tOriginal descriptions:\n")
 	private String customDescription;
 	
-	@Property(category = "conflict", name = "description.forceResolve", defaultValue = "false")
+	@Property(category = "conflict", name = "description.forceResolve", defaultValue = "true")
 	private boolean forceResolveDescription;
 	
 	@Property(category = XML_OUTPUT_CATEGORY, name = "indentation", defaultValue = "OneSpace")

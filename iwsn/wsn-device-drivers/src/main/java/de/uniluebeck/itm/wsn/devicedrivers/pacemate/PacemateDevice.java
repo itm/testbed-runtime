@@ -523,6 +523,15 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 
 		byte type = (byte) (0xFF & p.getType());
 		byte b[] = p.getContent();
+		
+		boolean iSenseStyle = true;
+		
+		// if the type was set to 0 send the message without iSense framing to the node
+		// e.g. to Contiki or TinyOs Os
+		
+		// not fully implemented yet
+		//if (type == 0x64)
+		//	iSenseStyle = false;
 
 		if (b == null || type > 0xFF) {
 			logWarn("Skipping empty packet or type > 0xFF.");
@@ -533,44 +542,33 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 			return;
 		}
 
-		// Send start signal DLE STX
-		this.outStream.write(DLE_STX);
-
-		// Send the type escaped
-		outStream.write(type);
-		if (type == DLE) {
-			outStream.write(DLE);
-		}
-
-		// Transmit each byte escaped
-		for (int i = 0; i < b.length; ++i) {
-			outStream.write(b[i]);
-			if (b[i] == DLE) {
+		if (iSenseStyle == true){
+			// Send start signal DLE STX
+			this.outStream.write(DLE_STX);
+	
+			// Send the type escaped
+			outStream.write(type);
+			if (type == DLE) {
 				outStream.write(DLE);
 			}
+	
+			// Transmit each byte escaped
+			for (int i = 0; i < b.length; ++i) {
+				outStream.write(b[i]);
+				if (b[i] == DLE) {
+					outStream.write(DLE);
+				}
+			}
+	
+			// Send final DLT ETX
+			outStream.write(DLE_ETX);
+			outStream.flush();
+		} else{
+			// Transmit the byte array without dle framing 
+			for (int i = 0; i < b.length; ++i) {
+				outStream.write(b[i]);
+			}
 		}
-		// Compute CRC over packet (including the type)
-		/*
-		byte btemp[] = new byte[b.length+1];
-		btemp[0] = type;
-		for (int i = 0; i < b.length; i++)
-			btemp[i+1] = b[i];
-		
-		byte crc[] = {(byte)0xAA, (byte)0xAA, (byte)0xAA, (byte)0xAA};
-		for (int i=0; i < btemp.length; i++)
-			crc[i%4] = (byte)(0xFF & (crc[i%4]^btemp[i]));
-		//System.out.println("crc: " + " " + (int)(0xFF & crc[0])+ " " + (int)(0xFF & crc[1])+ " " + (int)(0xFF & crc[2])+ " " + (int)(0xFF & crc[3]));
-		for (int i = 0; i<4; i++)
-		{
-			outStream.write(crc[i]);
-			if (crc[i] == DLE)
-				outStream.write(DLE);
-		}*/
-		// End: Compute CRC over packet
-
-		// Send final DLT ETX
-		outStream.write(DLE_ETX);
-		outStream.flush();
 	}
 
 	/**

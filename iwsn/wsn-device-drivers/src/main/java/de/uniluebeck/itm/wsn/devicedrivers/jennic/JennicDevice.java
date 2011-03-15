@@ -687,6 +687,15 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 
 		byte type = (byte) (0xFF & p.getType());
 		byte b[] = p.getContent();
+		
+		boolean iSenseStyle = true;
+		
+		// if the type was set to 0 send the message without iSense framing to the node
+		// e.g. to Contiki or TinyOs Os
+		
+		// not fully implemented yet
+		//if (type == 0x64)
+		//	iSenseStyle = false;
 
 		if (b == null || type > 0xFF) {
 			logWarn("Skipping empty packet or type > 0xFF.");
@@ -697,25 +706,32 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			return;
 		}
 
-		// Send start signal DLE STX
-		this.outStream.write(DLE_STX);
+		if (iSenseStyle == true){
+			// Send start signal DLE STX
+			this.outStream.write(DLE_STX);
 
-		// Send the type escaped
-		outStream.write(type);
-		if (type == DLE) {
-			outStream.write(DLE);
-		}
-
-		// Transmit each byte escaped
-		for (int i = 0; i < b.length; ++i) {
-			outStream.write(b[i]);
-			if (b[i] == DLE) {
+			// Send the type escaped
+			outStream.write(type);
+			if (type == DLE) {
 				outStream.write(DLE);
 			}
+	
+			// Transmit each byte escaped
+			for (int i = 0; i < b.length; ++i) {
+				outStream.write(b[i]);
+				if (b[i] == DLE) {
+					outStream.write(DLE);
+				}
+			}
+	
+			// Send final DLT ETX
+			outStream.write(DLE_ETX);
+		} else{
+			// Transmit the byte array without dle framing 
+			for (int i = 0; i < b.length; ++i) {
+				outStream.write(b[i]);
+			}
 		}
-
-		// Send final DLT ETX
-		outStream.write(DLE_ETX);
 		outStream.flush();
 	}
 
