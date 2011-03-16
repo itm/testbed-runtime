@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -195,6 +196,7 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 
 	private Message convert(WisebedProtocol.Message message) {
 		Message cMessage = new Message();
+		cMessage.setTimestamp(datatypeFactory.newXMLGregorianCalendar(message.getTimestamp()));
 		cMessage.setBinaryData(message.getNodeBinary().getData().toByteArray());
 		cMessage.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn());
 		return cMessage;
