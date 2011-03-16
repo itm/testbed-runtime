@@ -51,8 +51,14 @@ import com.google.common.collect.*;
 			for (int i=0; i<msgs.size(); i++) {
 				Message msg = (Message) msgs.get(i);
 				synchronized(System.out) {
-					System.out.print(msg.getTimestamp() + " | " + msg.getSourceNodeId() + " | ");
-                	System.out.println(new String(msg.getBinaryData()) + "  | " + StringUtils.toHexString(msg.getBinaryData()));
+					
+					String text = StringUtils.replaceNonPrintableAsciiCharacters(new String(msg.getBinaryData()));
+					
+					System.out.print(msg.getTimestamp() + " | ");
+					System.out.print(msg.getSourceNodeId() + " | ");
+					System.out.print(text + " | ");
+					System.out.print(StringUtils.toHexString(msg.getBinaryData()));
+					System.out.println();
             	}
 			}
 		}
