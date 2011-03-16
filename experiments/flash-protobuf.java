@@ -58,7 +58,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 		System.exit(1);
 	}
 
-	log.info("Got an WSN instance URL, endpoint is: {}", wsnEndpointURL);
+	log.info("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
 	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
@@ -77,6 +77,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 		}
 		public void experimentEnded() {
 			log.info("Experiment ended");
+			System.exit(0);
 		}
 		public void onConnectionEstablished() {
 			log.debug("Connection established.");

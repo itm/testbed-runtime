@@ -48,17 +48,11 @@ import com.google.common.collect.*;
 
 	Controller controller = new Controller() {
 		public void receive(List msgs) {
-			for (int i=0; i<msg.size(); i++) {
+			for (int i=0; i<msgs.size(); i++) {
 				Message msg = (Message) msgs.get(i);
 				synchronized(System.out) {
 					System.out.print(msg.getTimestamp() + " | " + msg.getSourceNodeId() + " | ");
-					if (msg.getTextMessage() != null) {
-						String msgString = msg.getTextMessage().getMsg();
-						System.out.print(msg.getTextMessage().getMessageLevel() + " | ");
-						System.out.println(msgString.endsWith("\n") ? msgString.substring(0, msgString.length()-2) : msgString);
-                	} else if (msg.getBinaryMessage() != null) {
-                	    System.out.println(StringUtils.toHexString(msg.getBinaryMessage().getBinaryType()) + "  | " + StringUtils.toHexString(msg.getBinaryMessage().getBinaryData()));
-           	    	}
+                	System.out.println(new String(msg.getBinaryData()) + "  | " + StringUtils.toHexString(msg.getBinaryData()));
             	}
 			}
 		}
@@ -72,6 +66,7 @@ import com.google.common.collect.*;
 		}
 		public void experimentEnded() {
 			log.info("Experiment ended");
+			System.exit(0);
 		}
 	};
 
@@ -95,7 +90,7 @@ import com.google.common.collect.*;
 		System.exit(1);
 	}
 
-	log.info("Got an WSN instance URL, endpoint is: {}", wsnEndpointURL);
+	log.info("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
 	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
