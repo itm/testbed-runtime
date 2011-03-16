@@ -433,8 +433,7 @@ public class ControllerHelper {
 	 * @param message the {@link eu.wisebed.testbed.api.wsn.v22.Message} instance to deliver
 	 */
 	public void receive(Message message) {
-
-
+		receive(Lists.newArrayList(message));
 	}
 
 	public void receiveStatus(List<RequestStatus> requestStatusList) {
