@@ -28,4 +28,6 @@ public interface WSNNodeMessageReceiver {
 
 	void receive(WSNAppMessages.Message message);
 
+	void receiveNotification(WSNAppMessages.Notification notification);
+
 }

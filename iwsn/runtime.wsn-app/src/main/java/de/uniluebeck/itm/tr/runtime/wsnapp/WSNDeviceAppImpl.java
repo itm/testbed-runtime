@@ -506,6 +506,34 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				);
 			}
 		}
+
+		@Override
+		public void receiveNotification(final String notification) {
+
+			WSNAppMessages.Notification message = WSNAppMessages.Notification.newBuilder()
+					.setMessage(notification)
+					.build();
+
+			for (String nodeMessageListener : nodeMessageListeners) {
+
+				if (log.isDebugEnabled()) {
+					log.debug("{} => Delivering notification to {}: {}", new String[] {
+							nodeUrn,
+							nodeMessageListener,
+							notification
+					});
+				}
+
+				testbedRuntime.getUnreliableMessagingService().sendAsync(
+						nodeUrn,
+						nodeMessageListener,
+						WSNApp.MSG_TYPE_LISTENER_NOTIFICATION,
+						message.toByteArray(),
+						1,
+						System.currentTimeMillis() + 5000
+				);
+			}
+		}
 	};
 
 	@Override

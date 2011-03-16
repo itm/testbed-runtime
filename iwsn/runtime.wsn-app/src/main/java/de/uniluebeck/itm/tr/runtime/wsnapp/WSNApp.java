@@ -49,6 +49,11 @@ public interface WSNApp extends Service, TestbedApplication {
 	/**
 	 *
 	 */
+	public static final String MSG_TYPE_LISTENER_NOTIFICATION = WSNApp.class.getCanonicalName() + "/LISTENER_NOTIFICATION";
+
+	/**
+	 *
+	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 

@@ -275,6 +275,11 @@ public class WSNServiceImpl implements WSNService {
 			}
 
 		}
+
+		@Override
+		public void receiveNotification(final WSNAppMessages.Notification notification) {
+			controllerHelper.receiveNotification(Lists.newArrayList(notification.getMessage()));
+		}
 	}
 
 	@Override
@@ -288,16 +293,12 @@ public class WSNServiceImpl implements WSNService {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(wsnInstanceEndpointUrl.toString());
 		log.debug("Endpoint URL: " + wsnInstanceEndpointUrl.toString());
 		log.debug("Binding  URL: " + bindAllInterfacesUrl);
-		log.debug("Maximum delivery queue size: {}", controllerHelper.getMaximumDeliveryQueueSize());
 
 		wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
 
-		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
-
 		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
 
-		log.info("Started WSN service!");
-
+		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
 	}
 
 	@Override

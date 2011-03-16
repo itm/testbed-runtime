@@ -108,32 +108,64 @@ class WSNAppImpl implements WSNApp {
 		@Override
 		public void messageReceived(Messages.Msg msg) {
 
-			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType()) && reservedNodes.contains(msg.getFrom())) {
+			boolean fromReservedNode = reservedNodes.contains(msg.getFrom());
 
-				try {
+			if (fromReservedNode) {
 
-					WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
-							.mergeFrom(msg.getPayload())
-							.build();
+				boolean isMessage = WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType());
+				boolean isNotification = WSNApp.MSG_TYPE_LISTENER_NOTIFICATION.equals(msg.getMsgType());
 
-					if (log.isDebugEnabled()) {
-						String output = WSNAppMessageTools.toString(message, true);
-						output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
-						log.debug("{}", output);
-					}
+				if (isMessage) {
+					deliverMessage(msg);
+				} else if (isNotification) {
+					deliverNotification(msg);
+				}
+			}
 
-					for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-						receiver.receive(message);
-					}
+		}
 
-				} catch (InvalidProtocolBufferException e) {
-					log.error("" + e, e);
+		private void deliverMessage(final Messages.Msg msg) {
+
+			try {
+
+				WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
+						.mergeFrom(msg.getPayload())
+						.build();
+
+				if (log.isDebugEnabled()) {
+					String output = WSNAppMessageTools.toString(message, true);
+					output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
+					log.debug("{}", output);
 				}
 
+				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+					receiver.receive(message);
+				}
+
+			} catch (InvalidProtocolBufferException e) {
+				log.error("" + e, e);
+			}
+		}
+
+		private void deliverNotification(final Messages.Msg msg) {
+
+			try {
+
+				WSNAppMessages.Notification notification = WSNAppMessages.Notification.newBuilder()
+						.mergeFrom(msg.getPayload())
+						.build();
+
+				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+					receiver.receiveNotification(notification);
+				}
+
+			} catch (InvalidProtocolBufferException e) {
+				log.error("" + e, e);
 			}
 
 		}
 	};
+
 
 	@Override
 	public void start() throws Exception {

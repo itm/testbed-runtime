@@ -7,12 +7,16 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  *
  */
-
 public class RateLimiterImpl implements RateLimiter {
+
 	private final int approvalsPerTimeSlot;
+
 	private int approvedCount;
+
 	private int dismissedCount;
+
 	private final TimeDiff timer;
+
 	private final Lock countLock;
 
 	public RateLimiterImpl(int approvalsPerTimeSlot, int slotLength, TimeUnit timeUnit) {
@@ -24,9 +28,9 @@ public class RateLimiterImpl implements RateLimiter {
 	}
 
 	/**
-	 * check if passed objects of current time slot still below allowed approvals per time slot
-	 * if so do increase approved elements
-	 * if not increase dismissed elements
+	 * check if passed objects of current time slot still below allowed approvals per time slot if so do increase approved
+	 * elements if not increase dismissed elements
+	 *
 	 * @return boolean
 	 */
 	@Override
@@ -48,6 +52,7 @@ public class RateLimiterImpl implements RateLimiter {
 
 	/**
 	 * returning count of approved elements
+	 *
 	 * @return int
 	 */
 	@Override
@@ -62,6 +67,7 @@ public class RateLimiterImpl implements RateLimiter {
 
 	/**
 	 * returning count of dismissed elements
+	 *
 	 * @return int
 	 */
 	@Override
