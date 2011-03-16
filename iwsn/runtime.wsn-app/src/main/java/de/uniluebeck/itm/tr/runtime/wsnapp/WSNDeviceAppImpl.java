@@ -136,7 +136,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		Preconditions.checkNotNull(testbedRuntime);
 		Preconditions.checkNotNull(nodeUrn);
 		Preconditions.checkNotNull(nodeType);
-        Preconditions.checkNotNull(maximumMessageRate);
 
 		this.testbedRuntime = testbedRuntime;
 		this.nodeUrn = nodeUrn;
