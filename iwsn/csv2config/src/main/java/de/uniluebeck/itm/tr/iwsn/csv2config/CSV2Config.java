@@ -279,6 +279,8 @@ public class CSV2Config {
 		public String protobufHostname = null;
 
 		public Integer protobufPort = null;
+
+		public Integer maximummessagerate = null;
 	}
 
 	private CmdLineParameters cmdLineParameters = new CmdLineParameters();
@@ -430,6 +432,10 @@ public class CSV2Config {
 			WsnDevice wsnDevice = new WsnDevice();
 			wsnDevice.setType(nextLine[columns.get(NODE_TYPE)]);
 			wsnDevice.setUrn(nodeUrn);
+
+			if (cmdLineParameters.maximummessagerate != null) {
+				wsnDevice.setMaximummessagerate(cmdLineParameters.maximummessagerate);
+			}
 
 			String nodePort = nextLine[columns.get(NODE_PORT)];
 			if (nodePort != null && !"".equals(nodePort)) {
@@ -583,6 +589,11 @@ public class CSV2Config {
 				cmdLineParameters.useAutodetection =
 						Boolean.parseBoolean(properties.getProperty("mac-autodetection", "true"));
 				cmdLineParameters.useHexValues = Boolean.parseBoolean(properties.getProperty("hex", "true"));
+
+				if (properties.getProperty("maximummessagerate") != null) {
+					cmdLineParameters.maximummessagerate = Integer.parseInt(properties.getProperty("maximummessagerate"));
+				}
+
 				cmdLineParameters.reservationSystemEndpointURL = properties.getProperty("portal.reservationsystem");
 				cmdLineParameters.snaaEndpointUrl = properties.getProperty("portal.snaaendpointurl");
 
