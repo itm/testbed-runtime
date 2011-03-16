@@ -52,9 +52,9 @@ import com.google.common.collect.*;
 			// nothing to do
 		}
 		public void receiveStatus(List requestStatuses) {
-			wsn.receive(requestStatus);
+			wsn.receive(requestStatuses);
 		}
-		public void receiveNotification(List<String> msgs) {
+		public void receiveNotification(List msgs) {
 			for (int i=0; i<msgs.size(); i++) {
 				log.info(msgs.get(i));
 			}

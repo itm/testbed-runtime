@@ -65,7 +65,7 @@ import com.google.common.collect.*;
 		public void receiveStatus(List requestStatuses) {
 			// nothing to do
 		}
-		public void receiveNotification(List<String> msgs) {
+		public void receiveNotification(List msgs) {
 			for (int i=0; i<msgs.size(); i++) {
 				log.info(msgs.get(i));
 			}
