@@ -307,13 +307,7 @@ public class WSNServiceImpl implements WSNService {
 		log.info("Stopping WSN service...");
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
-
-		// TODO define clean life cycle for WSN app, following life cycle of WSNServiceImpl
-		/*try {
-			wsnApp.stop();
-		} catch (Exception e) {
-			log.error("" + e, e);
-		}*/
+		controllerHelper.experimentEnded();
 
 		if (wsnInstanceEndpoint != null) {
 			wsnInstanceEndpoint.stop();
