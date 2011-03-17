@@ -48,11 +48,11 @@ import java.util.Map;
 		portName = "MessageStorePort", serviceName = "MessageStore")
 public class DBMessageStore implements MessageStore, Service {
 
-	private static final Function<WSNMessage, Message> MESSAGE_CONVERT_FUNCTION = new Function<WSNMessage, Message>() {
+	private static final Function<WsnMessage, Message> MESSAGE_CONVERT_FUNCTION = new Function<WsnMessage, Message>() {
 		@Override
-		public Message apply(WSNMessage from) {
+		public Message apply(WsnMessage from) {
 
-			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessage.convertToXMLMessage(from);
+			eu.wisebed.testbed.api.wsn.v22.Message message = WsnMessage.convertToXMLMessage(from);
 
 			Message ret = new Message();
 			ret.setBinaryData(message.getBinaryData());
@@ -109,7 +109,7 @@ public class DBMessageStore implements MessageStore, Service {
 			@WebParam(name = "messageLimit", targetNamespace = "") final int messageLimit) {
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("from WSNMessage a where 1 = 1");
+		builder.append("from WsnMessage a where 1 = 1");
 		if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
 			builder.append(" and ( 0 = 1");
 			for (SecretReservationKey secretReservationKey : secretReservationKeys) {
@@ -119,8 +119,8 @@ public class DBMessageStore implements MessageStore, Service {
 		}
 		EntityManager manager = getManager();
 		try {
-			TypedQuery<WSNMessage> query = manager.createQuery(builder.toString(),
-					WSNMessage.class
+			TypedQuery<WsnMessage> query = manager.createQuery(builder.toString(),
+					WsnMessage.class
 			);
 			if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
 				for (SecretReservationKey key : secretReservationKeys) {
@@ -130,7 +130,7 @@ public class DBMessageStore implements MessageStore, Service {
 			if (messageLimit > 0) {
 				query.setMaxResults(messageLimit);
 			}
-			List<WSNMessage> result = query.getResultList();
+			List<WsnMessage> result = query.getResultList();
 
 			return Lists.transform(result, MESSAGE_CONVERT_FUNCTION);
 
