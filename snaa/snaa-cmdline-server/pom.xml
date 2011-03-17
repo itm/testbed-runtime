@@ -126,7 +126,7 @@
             <plugin>
                 <groupId>org.dstovall</groupId>
                 <artifactId>onejar-maven-plugin-rc8fix</artifactId>
-                <version>1.4.5</version>
+                <version>1.4.10</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -135,6 +135,7 @@
                             <onejarVersion>0.97-RC10</onejarVersion>
                             <attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>
