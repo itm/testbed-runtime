@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
@@ -52,7 +53,7 @@ public class BeanShellHelper {
 	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
 
 	public static Program readProgram(String pathname, String name, final String other, final String platform,
-									   final String version) throws Exception {
+									  final String version) throws Exception {
 
 		final ProgramMetaData programMetaData = new ProgramMetaData();
 		programMetaData.setName(name);
@@ -79,7 +80,7 @@ public class BeanShellHelper {
 	}
 
 	public ConfidentialReservationData createReservationData(Date from, int duration, TimeUnit durationUnit,
-																		   String urnPrefix, String username, String... nodeUrns) {
+															 String urnPrefix, String username, String... nodeUrns) {
 		return generateConfidentialReservationData(
 				Lists.newArrayList(nodeUrns),
 				from,
@@ -92,7 +93,15 @@ public class BeanShellHelper {
 
 	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
 																		   int duration, TimeUnit durationUnit,
-																		   String urnPrefix, String username) {
+																		   List<String> urnPrefixes,
+																		   List<String> userNames) {
+
+
+		Preconditions.checkArgument(
+				urnPrefixes.size() == userNames.size(),
+				"The list of URN prefixes must have the same length as the list of usernames and the list of passwords"
+		);
+		Preconditions.checkArgument(urnPrefixes.size() > 0, "At least the credentials of one testbed must be given.");
 
 		try {
 
@@ -123,20 +132,37 @@ public class BeanShellHelper {
 			reservationData.getNodeURNs().addAll(nodeURNs);
 			reservationData.setFrom(datatypeFactory.newXMLGregorianCalendar(dtFrom.toGregorianCalendar()));
 			reservationData.setTo(datatypeFactory.newXMLGregorianCalendar(dtUntil.toGregorianCalendar()));
-			reservationData.setUserData("demo-script");
+			reservationData.setUserData(userNames.get(0));
 
-			Data data = new Data();
-			data.setUrnPrefix(urnPrefix);
-			data.setUsername(username);
+			for (int i = 0; i < urnPrefixes.size(); i++) {
 
-			reservationData.getData().add(data);
+				Data data = new Data();
+
+				data.setUrnPrefix(urnPrefixes.get(i));
+				data.setUsername(userNames.get(i));
+
+				reservationData.getData().add(data);
+
+			}
 
 			return reservationData;
 
 		} catch (DatatypeConfigurationException e) {
 			throw new RuntimeException(e);
 		}
+	}
 
+	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
+																		   int duration, TimeUnit durationUnit,
+																		   String urnPrefix, String userName) {
+		return generateConfidentialReservationData(
+				nodeURNs,
+				from,
+				duration,
+				durationUnit,
+				Lists.newArrayList(urnPrefix),
+				Lists.newArrayList(userName)
+		);
 	}
 
 	public List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String username,
@@ -262,7 +288,7 @@ public class BeanShellHelper {
 			b.append(secretReservationKey.getSecretReservationKey());
 
 			if (secretReservationKeyIterator.hasNext()) {
-				b.append(";");
+				b.append("\\;");
 			}
 		}
 		return b.toString();
@@ -387,7 +413,8 @@ public class BeanShellHelper {
 		return msg;
 	}
 
-	public List<AuthenticationTriple> createAuthData(final String urnPrefix, final String username, final String password) {
+	public List<AuthenticationTriple> createAuthData(final String urnPrefix, final String username,
+													 final String password) {
 		ArrayList<AuthenticationTriple> list = Lists.newArrayList();
 		AuthenticationTriple authenticationTriple = new AuthenticationTriple();
 		authenticationTriple.setUsername(username);

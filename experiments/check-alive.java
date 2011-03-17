@@ -32,7 +32,7 @@ import com.google.common.collect.*;
 
 	// Endpoint URL of local controller instance, the testbed will use this URL to send us node outputs
 	String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8090/controller";
-	String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
+	String secretReservationKeys 		= System.getProperty("testbed.secretreservationkeys");
 
 	// Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");

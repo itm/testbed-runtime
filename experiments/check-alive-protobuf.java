@@ -32,11 +32,11 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*;
 //--------------------------------------------------------------------------
 
 	// Endpoint URL of local controller instance, the testbed will use this URL to send us node outputs
-	String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
+	String secretReservationKeys		= System.getProperty("testbed.secretreservationkeys");
 
 	// Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
-	String nodeUrnsToCheck = System.getProperty("testbed.nodeurns");
+	String nodeUrnsToCheck 				= System.getProperty("testbed.nodeurns");
 
 	// Retrieve Java proxies of the endpoint URLs above
 	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);

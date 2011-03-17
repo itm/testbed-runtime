@@ -20,6 +20,8 @@ import de.uniluebeck.itm.tr.util.*;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 
 import de.uniluebeck.itm.wisebed.cmdlineclient.*;
+
+import com.google.common.base.*;
 import com.google.common.collect.*;
 
 
@@ -29,10 +31,18 @@ import com.google.common.collect.*;
 //--------------------------------------------------------------------------
 
     // Authentication credentials and other relevant information used again and again as method parameters
-	String urnPrefix 					= System.getProperty("testbed.urnprefixes");
-    String username						= System.getProperty("testbed.usernames");
-    String password						= System.getProperty("testbed.passwords");
-    
+
+	Splitter csvSplitter                = Splitter.on(",").trimResults().omitEmptyStrings();
+
+	List urnPrefixes					= Lists.newArrayList(csvSplitter.split(System.getProperty("testbed.urnprefixes")));
+    List usernames						= Lists.newArrayList(csvSplitter.split(System.getProperty("testbed.usernames")));
+    List passwords						= Lists.newArrayList(csvSplitter.split(System.getProperty("testbed.passwords")));
+
+	Preconditions.checkArgument(
+		urnPrefixes.size() == usernames.size() && usernames.size() == passwords.size(),
+		"The list of URN prefixes must have the same length as the list of usernames and the list of passwords"
+	);
+
     // Endpoint URLs of Authentication (SNAA), Reservation (RS) and Experimentation (iWSN) services
     String snaaEndpointURL 				= System.getProperty("testbed.snaa.endpointurl");
     String rsEndpointURL				= System.getProperty("testbed.rs.endpointurl");
@@ -47,8 +57,6 @@ import com.google.common.collect.*;
 	RS reservationSystem				= RSServiceHelper.getRSService(rsEndpointURL);
 	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL); 
 
-
-
 //--------------------------------------------------------------------------
 // Application logic
 //--------------------------------------------------------------------------
@@ -58,12 +66,17 @@ import com.google.common.collect.*;
 	//--------------------------------------------------------------------------
 
 	// build argument types
-	AuthenticationTriple credentials = new AuthenticationTriple();
-	credentials.setUrnPrefix(urnPrefix);
-	credentials.setUsername(username);
-	credentials.setPassword(password);
 	List credentialsList = new ArrayList();
-	credentialsList.add(credentials);
+	for (int i=0; i<urnPrefixes.size(); i++) {
+		
+		AuthenticationTriple credentials = new AuthenticationTriple();
+		
+		credentials.setUrnPrefix(urnPrefixes.get(i));
+		credentials.setUsername(usernames.get(i));
+		credentials.setPassword(passwords.get(i));
+		
+		credentialsList.add(credentials);
+	}
 
 	// do the authentication
 	log.info("Authenticating...");
@@ -83,15 +96,15 @@ import com.google.common.collect.*;
 	if (nodeURNs == null || "".equals(nodeURNs)) {
 		nodeURNsToReserve = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {"isense"});
 	} else {
-		nodeURNsToReserve = Lists.newArrayList(nodeURNs.split(","));
+		nodeURNsToReserve = Lists.newArrayList(csvSplitter.split(nodeURNs));
 	}
-	log.info("Retrieved the node URNs of all iSense nodes: {}", Arrays.toString(nodeURNsToReserve.toArray()));
+	log.info("Retrieved the node URNs of all iSense nodes: {}", Joiner.on(", ").join(nodeURNsToReserve));
 
 	// create reservation request data to reserve all iSense nodes for 10 minutes
 	ConfidentialReservationData reservationData = helper.generateConfidentialReservationData(
 			nodeURNsToReserve,
 			new Date(System.currentTimeMillis() + (offset*60*1000)), duration, TimeUnit.MINUTES,
-			urnPrefix, username
+			urnPrefixes, usernames
 	);
 
 	// do the reservation
