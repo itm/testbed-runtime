@@ -27,11 +27,11 @@
 
 		<!-- Place every urn of sensor nodes as name here -->
 		<names>
-			<nodename name="urn:wisebed:testbeduzl1:1" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:2" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:3" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:4" description=""/>
-			<nodename name="urn:wisebed:testbeduzl1:5" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:0x0001" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:0x0002" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:0x0003" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:0x0004" description=""/>
+			<nodename name="urn:wisebed:testbeduzl1:0x0005" description=""/>
 		</names>
 
 		<applications>
@@ -43,6 +43,8 @@
 						<urnprefix>urn:wisebed:testbeduzl1:</urnprefix>
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
+						<reservationendpointurl>http://localhost:30011/rs</reservationendpointurl>
+                        <snaaendpointurl>http://localhost:20011/snaa</snaaendpointurl>
 						<wisemlfilename>../conf/tr.iwsn-wiseml.xml</wisemlfilename>
 					</webservice>
 				</portal:portalapp>
@@ -50,39 +52,39 @@
 
 			<!-- Instantiation of the application component that handles communication with the sensor nodes -->
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:device xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:wisebed:testbeduzl1:1</urn>
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:wisebed:testbeduzl1:0x0001</urn>
 					<type>mock</type>
-					<serialinterface>urn:wisebed:testbeduzl1:1,2,SECONDS</serialinterface>
-				</wsn:device>
+					<serialinterface>urn:wisebed:testbeduzl1:0x0001,2,SECONDS</serialinterface>
+				</wsn:wsnDevice>
 			</application>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:device xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:wisebed:testbeduzl1:2</urn>
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:wisebed:testbeduzl1:0x0002</urn>
 					<type>mock</type>
-					<serialinterface>urn:wisebed:testbeduzl1:2,2,SECONDS</serialinterface>
-				</wsn:device>
+					<serialinterface>urn:wisebed:testbeduzl1:0x0002,2,SECONDS</serialinterface>
+				</wsn:wsnDevice>
 			</application>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:device xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:wisebed:testbeduzl1:3</urn>
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:wisebed:testbeduzl1:0x0003</urn>
 					<type>mock</type>
-					<serialinterface>urn:wisebed:testbeduzl3:1,2,SECONDS</serialinterface>
-				</wsn:device>
+					<serialinterface>urn:wisebed:testbeduzl3:0x0003,2,SECONDS</serialinterface>
+				</wsn:wsnDevice>
 			</application>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:device xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:wisebed:testbeduzl1:4</urn>
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:wisebed:testbeduzl1:0x0004</urn>
 					<type>mock</type>
-					<serialinterface>urn:wisebed:testbeduzl4:1,2,SECONDS</serialinterface>
-				</wsn:device>
+					<serialinterface>urn:wisebed:testbeduzl4:0x0004,2,SECONDS</serialinterface>
+				</wsn:wsnDevice>
 			</application>
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:device xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:wisebed:testbeduzl1:5</urn>
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:wisebed:testbeduzl1:0x0005</urn>
 					<type>mock</type>
-					<serialinterface>urn:wisebed:testbeduzl5:1,2,SECONDS</serialinterface>
-				</wsn:device>
+					<serialinterface>urn:wisebed:testbeduzl5:0x0005,2,SECONDS</serialinterface>
+				</wsn:wsnDevice>
 			</application>
 
 		</applications>
