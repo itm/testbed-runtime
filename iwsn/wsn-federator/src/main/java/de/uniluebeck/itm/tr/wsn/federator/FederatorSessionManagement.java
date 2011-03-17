@@ -147,6 +147,14 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	public void stop() throws Exception {
 
+		log.info("Stopping all WSN federator instances...");
+		for (FederatorWSN federatorWSN : instanceCache.values()) {
+			federatorWSN.stop();
+			log.info("Stopped WSN federator instance on {}.", federatorWSN.getWsnEndpointUrl());
+		}
+		log.info("Stopped all WSN federator instances!");
+
+		log.info("Stopping Session Management federator instance on {}...", sessionManagementEndpointUrl);
 		if (sessionManagementEndpoint != null) {
 			sessionManagementEndpoint.stop();
 			log.info("Stopped Session Management federator on {}", sessionManagementEndpointUrl);

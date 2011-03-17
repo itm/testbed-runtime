@@ -493,13 +493,14 @@ public class FederatorWSN implements WSN {
 		List<String> networkStrings = new ArrayList<String>();
 
 		// fork getNetwork() calls to federated testbeds
-		Collection<WSN> federatedWSNs = nodeUrnEndpointMapping.values();
-		List<Future<String>> futures = new ArrayList<Future<String>>(federatedWSNs.size());
-		for (final WSN wsn : federatedWSNs) {
+		Set<String> federatedWsnEndpointUrls = prefixSet.keySet();
+
+		List<Future<String>> futures = new ArrayList<Future<String>>(federatedWsnEndpointUrls.size());
+		for (final String wsnEndpointURL : federatedWsnEndpointUrls) {
 			futures.add(executorService.submit(new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					return wsn.getNetwork();
+					return WSNServiceHelper.getWSNService(wsnEndpointURL).getNetwork();
 				}
 			}
 			));
