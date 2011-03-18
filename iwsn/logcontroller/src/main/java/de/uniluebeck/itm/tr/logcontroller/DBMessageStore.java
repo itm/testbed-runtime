@@ -48,11 +48,11 @@ import java.util.Map;
 		portName = "MessageStorePort", serviceName = "MessageStore")
 public class DBMessageStore implements MessageStore, Service {
 
-	private static final Function<WSNMessages, Message> MESSAGE_CONVERT_FUNCTION = new Function<WSNMessages, Message>() {
+	private static final Function<WSNMessage, Message> MESSAGE_CONVERT_FUNCTION = new Function<WSNMessage, Message>() {
 		@Override
-		public Message apply(WSNMessages from) {
+		public Message apply(WSNMessage from) {
 
-			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessages.convertToXMLMessage(from);
+			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessage.convertToXMLMessage(from);
 
 			Message ret = new Message();
 			ret.setBinaryData(message.getBinaryData());
@@ -109,7 +109,7 @@ public class DBMessageStore implements MessageStore, Service {
 			@WebParam(name = "messageLimit", targetNamespace = "") final int messageLimit) {
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("from WSNMessages a where 1 = 1");
+		builder.append("from WSNMessage a where 1 = 1");
 		if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
 			builder.append(" and ( 0 = 1");
 			for (SecretReservationKey secretReservationKey : secretReservationKeys) {
@@ -119,8 +119,8 @@ public class DBMessageStore implements MessageStore, Service {
 		}
 		EntityManager manager = getManager();
 		try {
-			TypedQuery<WSNMessages> query = manager.createQuery(builder.toString(),
-					WSNMessages.class
+			TypedQuery<WSNMessage> query = manager.createQuery(builder.toString(),
+					WSNMessage.class
 			);
 			if (secretReservationKeys != null && secretReservationKeys.size() > 0) {
 				for (SecretReservationKey key : secretReservationKeys) {
@@ -130,7 +130,7 @@ public class DBMessageStore implements MessageStore, Service {
 			if (messageLimit > 0) {
 				query.setMaxResults(messageLimit);
 			}
-			List<WSNMessages> result = query.getResultList();
+			List<WSNMessage> result = query.getResultList();
 
 			return Lists.transform(result, MESSAGE_CONVERT_FUNCTION);
 
