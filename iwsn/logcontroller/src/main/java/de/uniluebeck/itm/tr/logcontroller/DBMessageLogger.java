@@ -53,7 +53,7 @@ public class DBMessageLogger implements IMessageListener {
 
 	@Override
 	public void newMessage(Message msg, String reservationKey) {
-		WsnMessage message = WsnMessage.convertFromXMLMessage(msg);
+		WSNMessages message = WSNMessages.convertFromXMLMessage(msg);
 		Preconditions.checkNotNull(reservationKey, "No Reservation Key.");
 		message.setReservationKey(reservationKey);
 		synchronized (manager) {

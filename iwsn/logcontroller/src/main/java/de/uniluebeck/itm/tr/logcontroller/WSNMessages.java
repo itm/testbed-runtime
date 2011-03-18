@@ -31,7 +31,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "WsnMessages")
-public class WsnMessage {
+public class WSNMessages {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,8 +53,8 @@ public class WsnMessage {
 	 *
 	 * @return JPA entity
 	 */
-	public static WsnMessage convertFromXMLMessage(Message message) {
-		WsnMessage result = new WsnMessage();
+	public static WSNMessages convertFromXMLMessage(Message message) {
+		WSNMessages result = new WSNMessages();
 		result.sourceNodeId = message.getSourceNodeId();
 		result.timeStamp = message.getTimestamp().toString();
 		result.binaryData = message.getBinaryData();
@@ -68,7 +68,7 @@ public class WsnMessage {
 	 *
 	 * @return the XML message type
 	 */
-	public static Message convertToXMLMessage(WsnMessage from) {
+	public static Message convertToXMLMessage(WSNMessages from) {
 		Message mes = new Message();
 		mes.setTimestamp(XMLGregorianCalendarImpl.parse(from.timeStamp));
 		mes.setSourceNodeId(from.sourceNodeId);
