@@ -28,8 +28,8 @@ import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceController;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerServiceView;
 import de.uniluebeck.itm.gtr.wsngui.controller.ControllerClientView;
-import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientControllers;
-import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientViews;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientController;
+import de.uniluebeck.itm.gtr.wsngui.logcontroller.MessageStoreClientView;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientController;
 import de.uniluebeck.itm.gtr.wsngui.rs.RSClientView;
 import de.uniluebeck.itm.gtr.wsngui.sessionmanagement.SessionManagementClientController;
@@ -109,10 +109,10 @@ public class WSNGui {
             wsnServiceScrollPane.setPreferredSize(preferredSize);
             new WSNServiceController(wsnServiceView, properties);
 
-            MessageStoreClientViews messageStoreViews = new MessageStoreClientViews();
-            JScrollPane messageStoreScrollPane = new JScrollPane(messageStoreViews);
+            MessageStoreClientView messageStoreView = new MessageStoreClientView();
+            JScrollPane messageStoreScrollPane = new JScrollPane(messageStoreView);
             messageStoreScrollPane.setPreferredSize(preferredSize);
-            new MessageStoreClientControllers(messageStoreViews, properties);
+            new MessageStoreClientController(messageStoreView, properties);
 
             tabs.addTab("SNAA client", snaaClientScrollPane);
             tabs.addTab("RS client", rsClientScrollPane);

@@ -3,7 +3,7 @@ package de.uniluebeck.itm.gtr.wsngui.logcontroller;
 import javax.swing.*;
 import java.awt.*;
 
-public class MessageStoreClientViews extends JPanel {
+public class MessageStoreClientView extends JPanel {
 
 	private JTextField endpointUrlTextField;
 
@@ -17,7 +17,7 @@ public class MessageStoreClientViews extends JPanel {
 
 	private JButton fetchButton;
 
-	public MessageStoreClientViews() {
+	public MessageStoreClientView() {
 
 		super(new GridLayout(1, 1));
 

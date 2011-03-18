@@ -19,16 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class MessageStoreClientControllers extends DefaultTableModel {
+public class MessageStoreClientController extends DefaultTableModel {
 
-	private MessageStoreClientViews views;
+	private MessageStoreClientView view;
 
 	private ActionListener hasMessagesActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				SecretReservationKey key = new SecretReservationKey();
-				key.setSecretReservationKey(views.getReservationKeyTextField().getText());
+				key.setSecretReservationKey(view.getReservationKeyTextField().getText());
 				JOptionPane.showMessageDialog(null, getStore().hasMessages(convert(key)));
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -42,11 +42,11 @@ public class MessageStoreClientControllers extends DefaultTableModel {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				SecretReservationKey key = new SecretReservationKey();
-				key.setSecretReservationKey(views.getReservationKeyTextField().getText());
+				key.setSecretReservationKey(view.getReservationKeyTextField().getText());
 				List<SecretReservationKey> list = ImmutableList.of(key);
 				int limit = 0;
 				try {
-					limit = Integer.parseInt(views.getLimitTextField().getText());
+					limit = Integer.parseInt(view.getLimitTextField().getText());
 				} catch (NumberFormatException ex) {
 					JOptionPane.showMessageDialog(null, ex.getMessage());
 				}
@@ -106,18 +106,18 @@ public class MessageStoreClientControllers extends DefaultTableModel {
 	}
 
 	private MessageStore getStore() {
-		String endpoint = views.getEndpointUrlTextField().getText();
+		String endpoint = view.getEndpointUrlTextField().getText();
 		if (endpoint != null) {
 			return MessageStoreServiceHelper.getMessageStoreService(endpoint);
 		}
 		return null;
 	}
 
-	public MessageStoreClientControllers(MessageStoreClientViews messageStoreViews, Properties properties) {
+	public MessageStoreClientController(MessageStoreClientView messageStoreView, Properties properties) {
 		initMessageData();
-		views = messageStoreViews;
+		view = messageStoreView;
 		try {
-			views.getEndpointUrlTextField().setText(
+			view.getEndpointUrlTextField().setText(
 					properties.getProperty(WSNClientProperties.LOGCONTROLLER_STORE_ENDPOINTURL,
 							"http://" + InetAddress.getLocalHost().getHostName()
 									+ ":8887/messagestore"
@@ -126,11 +126,11 @@ public class MessageStoreClientControllers extends DefaultTableModel {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		views.getCheckMessagesButton().addActionListener(hasMessagesActionListener);
-		views.getLimitTextField().setText("-1");
-		views.getFetchButton().addActionListener(fetchMessagesActionListener);
-		views.getMessageTable().setModel(this);
-		views.getMessageTable().setAutoCreateColumnsFromModel(true);
+		view.getCheckMessagesButton().addActionListener(hasMessagesActionListener);
+		view.getLimitTextField().setText("-1");
+		view.getFetchButton().addActionListener(fetchMessagesActionListener);
+		view.getMessageTable().setModel(this);
+		view.getMessageTable().setAutoCreateColumnsFromModel(true);
 		super.fireTableChanged(new TableModelEvent(this));
 	}
 
