@@ -55,8 +55,10 @@
 		<module>snaa/snaa-jaaslogin</module>
 		<module>snaa/snaa-wisebed</module>
 
+		<module>assemblies/experimentation-scripts</module>
 		<module>assembly</module>
 		<module>assembly-federator</module>
+
 		<module>shibboauth</module>
 		<module>util</module>
 		<module>motelist</module>
