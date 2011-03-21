@@ -1,0 +1,11 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 2 ]
+then
+	echo "Usage $0 PROPERTIES_FILE DURATION_IN_MINUTES [OFFSET_IN_MINUTES] [NODE_URNS]"
+	echo "Example: $0 ../live.properties 30 10 urn:wisebed:uzl1:0xcbe4"
+	exit 1
+fi
+
+java -Dtestbed.duration=$2 -Dtestbed.offset=$3 -Dtestbed.nodeurns=$4 -jar $BASEDIR/../lib/tr.wisebed-cmdline-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/reserve.java
