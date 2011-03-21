@@ -33,6 +33,10 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
 public class ShibbolethSecretAuthenticationKey implements Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private List<LinkedHashMap<String, Object>> cookieMaps;
 
     public ShibbolethSecretAuthenticationKey(List<Cookie> cookies){

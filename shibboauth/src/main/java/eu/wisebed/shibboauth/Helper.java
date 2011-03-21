@@ -54,14 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Helper {
-
     private static final Logger log = LoggerFactory.getLogger(Helper.class);
-
-    public static void addUserAgentHeaders(AbstractHttpMessage m) {
-        m.addHeader("User-Agent",
-                "Mozilla/5.0 (Windows; U; Windows NT 6.1; nl; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13");
-        m.addHeader("Accept-Encoding", "");
-    }
 
     /**
      * @param response
@@ -265,6 +258,11 @@ public class Helper {
         return new URL(b.toString());
     }
 
+    public static void addUserAgentHeaders(AbstractHttpMessage m) {
+        m.addHeader("User-Agent",
+                "Mozilla/5.0 (Windows; U; Windows NT 6.1; nl; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13");
+    }
+
     /**
      * @return
      * @throws KeyManagementException
@@ -278,16 +276,26 @@ public class Helper {
             public void process(final HttpResponse response, final HttpContext context) throws HttpException,
                     IOException {
                 HttpEntity entity = response.getEntity();
-                Header ceheader = entity.getContentEncoding();
-                if (ceheader != null) {
-                    HeaderElement[] codecs = ceheader.getElements();
-                    for (int i = 0; i < codecs.length; i++) {
-                        if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+                Header contentEncodingHeader = entity.getContentEncoding();
+
+                if (contentEncodingHeader != null) {
+                    log.debug("{} Content-Encoding header: {} = {}", contentEncodingHeader.getName(), contentEncodingHeader.getValue());
+                    log.debug("{} Content-Encoding header element(s) supplied.", contentEncodingHeader.getElements());
+
+                    for (HeaderElement headerElement : contentEncodingHeader.getElements()) {
+                        log.debug("Content-Encoding Header: {} = {}", headerElement.getName(), headerElement.getValue());
+
+                        if (headerElement.getName().equalsIgnoreCase("gzip")) {
                             response.setEntity(new GzipDecompressDecoder(response.getEntity()));
                             return;
                         }
+
                     }
+
+                } else {
+                    log.debug("No Content-Encoding header supplied.");
                 }
+
             }
 
         });
