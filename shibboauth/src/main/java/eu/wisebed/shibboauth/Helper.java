@@ -42,10 +42,7 @@ public class Helper {
 	private static final Logger log = LoggerFactory.getLogger(Helper.class);
 
 	public static void addUserAgentHeaders(AbstractHttpMessage m) {
-		m.addHeader("Accept", "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*");
-		m.addHeader("Accept-Language", "de");
-		m.addHeader("Accept-Encoding", "gzip, deflate");
-		m.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
+		m.addHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; nl; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13");
 	}
 
 	/**
