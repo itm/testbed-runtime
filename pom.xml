@@ -57,7 +57,7 @@
 
 		<module>assemblies/experimentation-scripts</module>
 		<module>assemblies/assembly</module>
-		<module>assembly-federator</module>
+		<module>assemblies/assembly-federator</module>
 
 		<module>shibboauth</module>
 		<module>util</module>
