@@ -23,10 +23,14 @@
 
 package eu.wisebed.shibboauth;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import java.io.Serializable;
-import java.util.*;
 
 public class ShibbolethSecretAuthenticationKey implements Serializable {
     private List<LinkedHashMap<String, Object>> cookieMaps;

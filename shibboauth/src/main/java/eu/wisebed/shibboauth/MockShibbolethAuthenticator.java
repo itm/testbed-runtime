@@ -1,14 +1,13 @@
 package eu.wisebed.shibboauth;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
