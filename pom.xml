@@ -56,7 +56,7 @@
 		<module>snaa/snaa-wisebed</module>
 
 		<module>assemblies/experimentation-scripts</module>
-		<module>assembly</module>
+		<module>assemblies/assembly</module>
 		<module>assembly-federator</module>
 
 		<module>shibboauth</module>
