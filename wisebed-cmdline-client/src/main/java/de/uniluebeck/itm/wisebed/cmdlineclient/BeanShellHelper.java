@@ -238,6 +238,29 @@ public class BeanShellHelper {
 		return keys;
 	}
 
+	public String toString(Message msg, boolean legacyFormat) {
+
+		if (!legacyFormat) {
+			return toString(msg);
+		}
+
+		StringBuilder b = new StringBuilder();
+		b.append("Source [");
+		b.append(msg.getSourceNodeId());
+		b.append("], ");
+		b.append("Text [");
+		b.append(new String(msg.getBinaryData(), 2, msg.getBinaryData().length-2));
+		b.append("], ");
+		b.append("Level [");
+		b.append(msg.getBinaryData()[1] == 0x00 ? "DEBUG" : "FATAL");
+		b.append("], ");
+		b.append("Time [");
+		b.append(msg.getTimestamp().toXMLFormat());
+		b.append("]");
+
+		return b.toString();
+	}
+
 	public String toString(Message msg) {
 		StringBuilder b = new StringBuilder();
 		b.append("Source [");
