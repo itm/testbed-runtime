@@ -93,8 +93,8 @@ public class SSAKSerialization {
         {
             out.append(cookieMap.get(CookieProperties.sp_name)).append("=").append(cookieMap.get(CookieProperties.sp_value)).append("@");
             out.append(cookieMap.get(CookieProperties.sp_domain)).append(";");
-            out.append(cookieMap.get(CookieProperties.idp_name)).append("=").append(cookieMap.get(CookieProperties.idp_value)).append("@");
-            out.append(cookieMap.get(CookieProperties.idp_domain)).append(";");
+            out.append(cookieMap.get(CookieProperties.idp_name)).append("=").append(cookieMap.get(CookieProperties.idp_domain)).append(":");
+            out.append(cookieMap.get(CookieProperties.idp_value)).append(";");
         }
         
         log.fatal("NEW COOKIE AUTH KEY IS =="+out.toString());
@@ -133,31 +133,56 @@ public class SSAKSerialization {
         
         String domains[] = cookieValues[cookieValues.length-1].split("@");
         String domain = "";
+        String name = "";
+        String value = "";
         if (domains.length == 2)
         	domain = domains[1];
 
         List<Cookie> cookies = new LinkedList<Cookie>();
 
-        for (String value : cookieValues) {
-            if (!(value.startsWith(_shibSession_) && (value.startsWith(_idp_session)))) {
-                continue;
+        for (String data : cookieValues) { 
+        	
+        	name= "";
+        	value="";
+        	
+            if (data.startsWith(_shibSession_)){//name=value@domain
+            	String[] key_value = data.split("@");
+                
+                if (key_value.length == 2)
+                	domain = key_value[1];
+                
+                String[] pair = key_value[0].split("=");
+                if (pair.length != 2) {
+                    throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
+                }
+                name = pair[0];
+                value = pair[1];
             }
             
-            String[] key_value = value.split("@");
+            if(data.startsWith(_idp_session)){//name=domain:value
+            	 String[] key_value = data.split(":");
+                 
+                 if (key_value.length == 2)
+                 	value = key_value[1];
+                 
+                 String[] pair = key_value[0].split("=");
+                 if (pair.length != 2) {
+                     throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
+                 }
+                 name = pair[0];
+                 domain = pair[1];
+             }
             
-            if (key_value.length == 2)
-            	domain = key_value[1];
-            
-            String[] pair = key_value[0].split("=");
-            if (pair.length != 2) {
-                throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
+            if (!((name.equals("")) && (value.equals("")))){
+            	log.fatal("NEW COOKIE "+name+" "+value+" "+domain);
+            	BasicClientCookie cookie = new BasicClientCookie(name, value);
+            	cookie.setDomain(domain);
+            	cookie.setVersion(0);
+            	cookie.setPath("/");
+            	cookies.add(cookie);
             }
-            BasicClientCookie cookie = new BasicClientCookie(pair[0], pair[1]);
-            cookie.setDomain(domain);
-            cookie.setVersion(0);
-            cookie.setPath("/");
-            cookies.add(cookie);
-        }
+            }
+           
         return cookies;
     }
 
