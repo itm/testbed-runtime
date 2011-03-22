@@ -21,13 +21,20 @@
 			<directory>src/main/assembly/</directory>
 			<outputDirectory>.</outputDirectory>
 			<includes>
+				<include>conf/*</include>
+			</includes>
+			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
 				<include>**/*</include>
-				<include>logs/</include>
 			</includes>
 			<excludes>
+				<exclude>conf/</exclude>
 				<exclude>bin/</exclude>
 			</excludes>
-			<filtered>true</filtered>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/assembly/bin/</directory>
