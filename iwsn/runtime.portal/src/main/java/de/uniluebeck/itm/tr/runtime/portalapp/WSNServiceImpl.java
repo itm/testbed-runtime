@@ -162,6 +162,8 @@ public class WSNServiceImpl implements WSNService {
 
 	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
 
+		private static final byte MESSAGE_TYPE_PLOT = 105;
+
 		private static final byte MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
 		private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
@@ -200,7 +202,9 @@ public class WSNServiceImpl implements WSNService {
 			message.setTimestamp(timestamp);
 
 			// check if message is a virtual link message
-			boolean isVirtualLinkMessage = binaryData[0] == NODE_OUTPUT_VIRTUAL_LINK;
+			boolean isVirtualLinkMessage =
+					binaryData[0] == MESSAGE_TYPE_PLOT &&
+					binaryData[1] == NODE_OUTPUT_VIRTUAL_LINK;
 
 			if (!isVirtualLinkMessage) {
 
