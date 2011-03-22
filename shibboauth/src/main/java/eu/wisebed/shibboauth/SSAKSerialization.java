@@ -124,18 +124,33 @@ public class SSAKSerialization {
     }
 
     private static class CookieNotFoundException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public CookieNotFoundException(String s) {
             super(s);
         }
     }
 
     private static class CookiePropertyNotFoundException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public CookiePropertyNotFoundException(String s) {
             super(s);
         }
     }
 
     private static class NotDeserializableException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public NotDeserializableException(String s) {
             super(s);
         }
