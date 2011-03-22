@@ -25,6 +25,7 @@ package eu.wisebed.shibboauth;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,19 +34,29 @@ import java.util.Map;
 
 public class SSAKSerialization {
     private static class CookieProperties {
-        private static String name = "name";
-        private static String value = "value";
-        private static String domain = "domain";
+        private static String sp_name = "sp_name";
+        private static String sp_value = "sp_value";
+        private static String sp_domain = "sp_domain";
+
+        private static String idp_name = "idp_name";
+        private static String idp_value = "idp_value";
+        private static String idp_domain = "idp_domain";
     }
 
     private static String _shibSession_ = "_shibsession_";
+    private static String _idp_session = "_idp_session";
+
+    private static final Logger log = Logger.getLogger(SSAKSerialization.class);
 
     private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
         Cookie shibSessionCookie = null;
+        Cookie idpSessionCookie = null;
         for (Cookie cookie : cookies) {
             if (cookie.getName().startsWith(_shibSession_)) {
                 shibSessionCookie = cookie;
-                break;
+            }
+            if (cookie.getName().startsWith(_idp_session)) {
+                idpSessionCookie = cookie;
             }
         }
 
@@ -55,18 +66,22 @@ public class SSAKSerialization {
 
         //fill cookie-map
         Map<String, String> cookieMap = new HashMap<String, String>();
-        cookieMap.put(CookieProperties.name, shibSessionCookie.getName());
-        cookieMap.put(CookieProperties.value, shibSessionCookie.getValue());
-        cookieMap.put(CookieProperties.domain, shibSessionCookie.getDomain());
+        cookieMap.put(CookieProperties.sp_name, shibSessionCookie.getName());
+        cookieMap.put(CookieProperties.sp_value, shibSessionCookie.getValue());
+        cookieMap.put(CookieProperties.sp_domain, shibSessionCookie.getDomain());
+
+        cookieMap.put(CookieProperties.idp_name, idpSessionCookie.getName());
+        cookieMap.put(CookieProperties.idp_value, idpSessionCookie.getValue());
+        cookieMap.put(CookieProperties.idp_domain, idpSessionCookie.getDomain());
 
         return cookieMap;
     }
 
     public static String serialize(List<Cookie> cookies) throws CookiePropertyNotFoundException, CookieNotFoundException {
         Map<String, String> cookieMap = cookieListToMap(cookies);
-        if (!(cookieMap.containsKey(CookieProperties.name) &&
-                cookieMap.containsKey(CookieProperties.value) &&
-                cookieMap.containsKey(CookieProperties.domain))) {
+        if (!(cookieMap.containsKey(CookieProperties.sp_name) &&
+                cookieMap.containsKey(CookieProperties.sp_value) &&
+                cookieMap.containsKey(CookieProperties.sp_domain))) {
             throw new CookiePropertyNotFoundException("Cookie-Property '" + "' not found in cookie-map");
         }
 
@@ -76,14 +91,27 @@ public class SSAKSerialization {
         // format:
         // (name=value;)*name=value@domain
         {
-            out.append(cookieMap.get(CookieProperties.name)).append("=").append(cookieMap.get(CookieProperties.value)).append("@");
-            out.append(cookieMap.get(CookieProperties.domain));
+            out.append(cookieMap.get(CookieProperties.sp_name)).append("=").append(cookieMap.get(CookieProperties.sp_value)).append("@");
+            out.append(cookieMap.get(CookieProperties.sp_domain)).append(";");
+            out.append(cookieMap.get(CookieProperties.idp_name)).append("=").append(cookieMap.get(CookieProperties.idp_value)).append("@");
+            out.append(cookieMap.get(CookieProperties.idp_domain)).append(";");
         }
+        
+        log.fatal("NEW COOKIE AUTH KEY IS =="+out.toString());
+        
         return out.toString();
     }
 
     public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
 
+    	log.fatal("NEW STRING TO BE DESERIALIZED =="+serializedString);
+    	
+    	// old version was 
+    	//		key=value;key=value;key=value@domain
+    	// new version is 
+    	//		key=value@domain;key=value@domain;key=value@domain
+    	
+    	
         //remove whitespaces
         serializedString = serializedString.replaceAll(" ", "");
         //make Cookies out of serialized cookie-string
@@ -91,26 +119,36 @@ public class SSAKSerialization {
         // (name=value;)*name=value@domain
 
         //getting domain-value
-        String[] lastEntryValues = serializedString.split("@");
-        if (lastEntryValues.length != 2) {
-            throw new NotDeserializableException("Could not extract domain-value while de-serializing '" + serializedString + "'");
-        }
-        String domain = lastEntryValues[1];
+//        String[] lastEntryValues = serializedString.split("@");
+//        if (lastEntryValues.length != 2) {
+//            throw new NotDeserializableException("Could not extract domain-value while de-serializing '" + serializedString + "'");
+//        }
+//        
 
         //getting other key,value pairs
-        String[] cookieValues = lastEntryValues[0].split(";");
+        String[] cookieValues = serializedString.split(";");
         if (cookieValues.length == 0) {
             throw new NotDeserializableException("Could not de-serialize empty String");
         }
+        
+        String domains[] = cookieValues[cookieValues.length-1].split("@");
+        String domain = "";
+        if (domains.length == 2)
+        	domain = domains[1];
 
         List<Cookie> cookies = new LinkedList<Cookie>();
 
         for (String value : cookieValues) {
-            if (!value.startsWith(_shibSession_)) {
+            if (!(value.startsWith(_shibSession_) && (value.startsWith(_idp_session)))) {
                 continue;
             }
-
-            String[] pair = value.split("=");
+            
+            String[] key_value = value.split("@");
+            
+            if (key_value.length == 2)
+            	domain = key_value[1];
+            
+            String[] pair = key_value[0].split("=");
             if (pair.length != 2) {
                 throw new NotDeserializableException("Could de-serialize key-value-pair '" + value + "'");
             }
