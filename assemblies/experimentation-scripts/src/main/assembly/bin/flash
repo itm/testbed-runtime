@@ -1,0 +1,11 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 2 ]
+then
+	echo "Usage $0 PROPERTIES_FILE SECRET_RESERVATION_KEYS IMAGE [NODEURNS]"
+	echo "Example: $0 live.properties urn:wisebed:uzl1:,D2C88AEE416EDD2FD4038BC1252A8900 iseraerial-isense.bin urn:wisebed:uzl1:0xcc3d,urn:wisebed:uzl1:0xcc3e"
+	exit 1
+fi
+
+java -Dtestbed.secretreservationkeys=$2 -Dtestbed.image=$3 -Dtestbed.nodeurns=$4 -jar $BASEDIR/../lib/tr.wisebed-cmdline-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/flash.java -v

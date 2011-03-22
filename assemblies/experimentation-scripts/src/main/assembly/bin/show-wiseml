@@ -1,0 +1,11 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage $0 PROPERTIES_FILE"
+	echo "Example: $0 live.properties"
+	exit 1
+fi
+
+java -jar $BASEDIR/../lib/tr.wisebed-cmdline-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/show-wiseml.java

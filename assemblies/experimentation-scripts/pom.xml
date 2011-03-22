@@ -23,34 +23,24 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>tr</artifactId>
-        <groupId>de.uniluebeck.itm</groupId>
-        <version>0.6.1-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tr.assembly-federator</artifactId>
+	<modelVersion>4.0.0</modelVersion>
 
-	<packaging>jar</packaging>
-	<name>TR :: Assembly Federator</name>
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.6.1-SNAPSHOT</version>
+		<relativePath>../../</relativePath>
+	</parent>
 
+	<artifactId>tr.experimentation-scripts</artifactId>
+	<packaging>pom</packaging>
+	<name>TR :: Experimentation Scripts</name>
+	
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-cmdline</artifactId>
-			<classifier>onejar</classifier>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-cmdline-server</artifactId>
-			<classifier>onejar</classifier>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-federator</artifactId>
+			<artifactId>tr.wisebed-cmdline-client</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>
@@ -63,7 +53,7 @@
 				<version>2.2-beta-5</version>
 				<configuration>
 					<descriptors>
-						<descriptor>assembly-federator.xml</descriptor>
+						<descriptor>assembly.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
@@ -78,4 +68,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

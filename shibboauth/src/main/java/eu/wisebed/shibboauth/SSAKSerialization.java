@@ -23,10 +23,10 @@
 
 package eu.wisebed.shibboauth;
 
+
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.log4j.Logger;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -162,18 +162,33 @@ public class SSAKSerialization {
     }
 
     private static class CookieNotFoundException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public CookieNotFoundException(String s) {
             super(s);
         }
     }
 
     private static class CookiePropertyNotFoundException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public CookiePropertyNotFoundException(String s) {
             super(s);
         }
     }
 
     private static class NotDeserializableException extends Exception {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
         public NotDeserializableException(String s) {
             super(s);
         }
