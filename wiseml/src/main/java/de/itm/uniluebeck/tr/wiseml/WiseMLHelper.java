@@ -50,8 +50,15 @@ public class WiseMLHelper {
 		Wiseml wiseml = deserialize(serializedWiseML);
 
 		for (Setup.Node node : wiseml.getSetup().getNode()) {
-			if (types == null || types.length == 0 || nodeTypes.contains(node.getNodeType())) {
+			if (types == null || types.length == 0) {
 				nodeUrns.add(node.getId());
+			} else {
+				// if "containsIgnoreCase"...
+				for (String nodeType : nodeTypes) {
+					if (nodeType.equalsIgnoreCase(node.getNodeType())) {
+						nodeUrns.add(node.getId());
+					}
+				}
 			}
 		}
 
