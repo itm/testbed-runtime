@@ -1,16 +1,22 @@
+
 package eu.wisebed.testbed.api.rs.v1;
 
-import javax.xml.bind.annotation.*;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * <p>Java class for publicReservationData complex type.
- * <p/>
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ * 
  * <pre>
  * &lt;complexType name="publicReservationData">
  *   &lt;complexContent>
@@ -25,114 +31,130 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "publicReservationData", propOrder = {
-		"from",
-		"nodeURNs",
-		"to",
-		"userData"
+    "from",
+    "nodeURNs",
+    "to",
+    "userData"
 })
 @XmlSeeAlso({
-		ConfidentialReservationData.class
+    ConfidentialReservationData.class
 })
 public class PublicReservationData {
 
-	@XmlElement(required = true)
-	@XmlSchemaType(name = "dateTime")
-	protected XMLGregorianCalendar from;
-	@XmlElement(required = true)
-	protected List<String> nodeURNs;
-	@XmlElement(required = true)
-	@XmlSchemaType(name = "dateTime")
-	protected XMLGregorianCalendar to;
-	protected String userData;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar from;
+    @XmlElement(required = true)
+    protected List<String> nodeURNs;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar to;
+    protected String userData;
 
-	/**
-	 * Gets the value of the from property.
-	 *
-	 * @return possible object is
-	 *         {@link XMLGregorianCalendar }
-	 */
-	public XMLGregorianCalendar getFrom() {
-		return from;
-	}
+    /**
+     * Gets the value of the from property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getFrom() {
+        return from;
+    }
 
-	/**
-	 * Sets the value of the from property.
-	 *
-	 * @param value allowed object is
-	 *              {@link XMLGregorianCalendar }
-	 */
-	public void setFrom(XMLGregorianCalendar value) {
-		this.from = value;
-	}
+    /**
+     * Sets the value of the from property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setFrom(XMLGregorianCalendar value) {
+        this.from = value;
+    }
 
-	/**
-	 * Gets the value of the nodeURNs property.
-	 * <p/>
-	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the nodeURNs property.
-	 * <p/>
-	 * <p/>
-	 * For example, to add a new item, do as follows:
-	 * <pre>
-	 *    getNodeURNs().add(newItem);
-	 * </pre>
-	 * <p/>
-	 * <p/>
-	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link String }
-	 */
-	public List<String> getNodeURNs() {
-		if (nodeURNs == null) {
-			nodeURNs = new ArrayList<String>();
-		}
-		return this.nodeURNs;
-	}
+    /**
+     * Gets the value of the nodeURNs property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the nodeURNs property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getNodeURNs().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link String }
+     * 
+     * 
+     */
+    public List<String> getNodeURNs() {
+        if (nodeURNs == null) {
+            nodeURNs = new ArrayList<String>();
+        }
+        return this.nodeURNs;
+    }
 
-	/**
-	 * Gets the value of the to property.
-	 *
-	 * @return possible object is
-	 *         {@link XMLGregorianCalendar }
-	 */
-	public XMLGregorianCalendar getTo() {
-		return to;
-	}
+    /**
+     * Gets the value of the to property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getTo() {
+        return to;
+    }
 
-	/**
-	 * Sets the value of the to property.
-	 *
-	 * @param value allowed object is
-	 *              {@link XMLGregorianCalendar }
-	 */
-	public void setTo(XMLGregorianCalendar value) {
-		this.to = value;
-	}
+    /**
+     * Sets the value of the to property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setTo(XMLGregorianCalendar value) {
+        this.to = value;
+    }
 
-	/**
-	 * Gets the value of the userData property.
-	 *
-	 * @return possible object is
-	 *         {@link String }
-	 */
-	public String getUserData() {
-		return userData;
-	}
+    /**
+     * Gets the value of the userData property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserData() {
+        return userData;
+    }
 
-	/**
-	 * Sets the value of the userData property.
-	 *
-	 * @param value allowed object is
-	 *              {@link String }
-	 */
-	public void setUserData(String value) {
-		this.userData = value;
-	}
+    /**
+     * Sets the value of the userData property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserData(String value) {
+        this.userData = value;
+    }
 
 }

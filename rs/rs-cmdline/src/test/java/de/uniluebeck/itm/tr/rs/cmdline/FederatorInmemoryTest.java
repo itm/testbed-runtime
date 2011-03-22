@@ -271,7 +271,7 @@ public class FederatorInmemoryTest {
     @Test
     public void test()
             throws ReservervationConflictExceptionException, RSExceptionException, AuthorizationExceptionException,
-			ReservationNotFoundExceptionException, DatatypeConfigurationException {
+			ReservervationNotFoundExceptionException, DatatypeConfigurationException {
         makeReservation();
         getReservationBeforeDeletion();
         getReservations();
@@ -297,7 +297,7 @@ public class FederatorInmemoryTest {
         }
     }
 
-    private void getReservationErrorTesting() throws ReservationNotFoundExceptionException, RSExceptionException {
+    private void getReservationErrorTesting() throws ReservervationNotFoundExceptionException, RSExceptionException {
         //testing on null
         try {
             rsFederator.getReservation(null);
@@ -320,7 +320,7 @@ public class FederatorInmemoryTest {
             rsFederator.getReservation(Arrays.asList(key));
             fail("Should have raised ReservationNotFoundException");
         }
-        catch (ReservationNotFoundExceptionException e) {
+        catch (ReservervationNotFoundExceptionException e) {
             // do nothing
         }
     }
@@ -399,7 +399,7 @@ public class FederatorInmemoryTest {
         }
     }
 
-    public void getReservationBeforeDeletion() throws RSExceptionException, ReservationNotFoundExceptionException {
+    public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
             List<ConfidentialReservationData> reservationData = rsFederator.getReservation(tempKeyList);
@@ -427,15 +427,15 @@ public class FederatorInmemoryTest {
             List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
             try {
                 rsFederator.getReservation(tempKeyList);
-                fail("Should have raised an ReservationNotFoundExceptionException");
+                fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservationNotFoundExceptionException e) {
+            catch (ReservervationNotFoundExceptionException e) {
             }
         }
     }
 
     public void deleteReservationBeforeDeletion()
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
             rsFederator.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
@@ -447,9 +447,9 @@ public class FederatorInmemoryTest {
             List<SecretReservationKey> tempKeyList = reservationKeyMap.get(i);
             try {
                 rsFederator.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
-                fail("Should have raised an ReservationNotFoundExceptionException");
+                fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservationNotFoundExceptionException e) {
+            catch (ReservervationNotFoundExceptionException e) {
                 ;
             }
         }

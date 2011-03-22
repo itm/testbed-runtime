@@ -270,7 +270,7 @@ public class SingleUrnPrefixInmemoryTest {
         }
     }
 
-    public void getReservationBeforeDeletion() throws RSExceptionException, ReservationNotFoundExceptionException {
+    public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
 
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
@@ -294,9 +294,9 @@ public class SingleUrnPrefixInmemoryTest {
             tempKeyList.add(reservationKeyMap.get(i));
             try {
                 rs.getReservation(tempKeyList).get(0);
-                fail("Should have raised an ReservationNotFoundExceptionException");
+                fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservationNotFoundExceptionException e) {
+            catch (ReservervationNotFoundExceptionException e) {
             }
         }
     }
@@ -327,7 +327,7 @@ public class SingleUrnPrefixInmemoryTest {
     }
 
     public void deleteReservationBeforeDeletion()
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
@@ -341,9 +341,9 @@ public class SingleUrnPrefixInmemoryTest {
             tempKeyList.add(reservationKeyMap.get(i));
             try {
                 rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
-                fail("Should have raised an ReservationNotFoundExceptionException");
+                fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservationNotFoundExceptionException expected) {
+            catch (ReservervationNotFoundExceptionException expected) {
             }
         }
     }

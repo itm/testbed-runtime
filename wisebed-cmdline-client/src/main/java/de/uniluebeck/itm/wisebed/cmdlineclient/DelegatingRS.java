@@ -57,7 +57,7 @@ public class DelegatingRS implements RS {
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSExceptionException, ReservervationNotFoundExceptionException {
 		return delegate.getReservation(secretReservationKey);
 	}
 
@@ -67,7 +67,7 @@ public class DelegatingRS implements RS {
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSExceptionException, ReservervationNotFoundExceptionException {
 		delegate.deleteReservation(authenticationData, secretReservationKey);
 	}
 

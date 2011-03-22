@@ -35,7 +35,7 @@ import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservationNotFoundExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.*;
 import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
 import eu.wisebed.testbed.api.wsn.v22.KeyValuePair;
@@ -495,7 +495,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			log.warn(msg + ": " + e, e);
 			// TODO replace with more generic exception type
 			throw WSNServiceHelper.createUnknownReservationIdException(msg, null, e);
-		} catch (ReservationNotFoundExceptionException e) {
+		} catch (ReservervationNotFoundExceptionException e) {
 			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
 			throw WSNServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
 		}

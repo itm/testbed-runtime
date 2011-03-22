@@ -86,7 +86,7 @@ public class FederatorRS implements RS {
         @Override
         public List<SecretReservationKey> call() throws Exception {
             RS port = RSServiceHelper.getRSService(endpointUrl);
-            List<SecretReservationKey> secretReservationKeyList = null;
+            List<SecretReservationKey> secretReservationKeyList;
             secretReservationKeyList = port.makeReservation(secretAuthenticationKeys, reservation);
             return secretReservationKeyList;
         }
@@ -183,7 +183,7 @@ public class FederatorRS implements RS {
 
     private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSExceptionException {
         StringBuilder builder = new StringBuilder();
-        builder.append("The following errors occured: \n");
+        builder.append("The following errors occurred: \n");
         for (String failMessage : failMessages) {
             builder.append(failMessage);
             builder.append("\n");
@@ -239,7 +239,7 @@ public class FederatorRS implements RS {
             } catch (InterruptedException e) {
                 log.error("InterruptedException while trying to delete reservation!", e);
             } catch (ExecutionException e) {
-                log.warn("Exception occured while deleting reservation!", e);
+                log.warn("Exception occurred while deleting reservation!", e);
             }
         }
 
@@ -270,10 +270,6 @@ public class FederatorRS implements RS {
         return map;
     }
 
-    /**
-     * @param reservation
-     * @return
-     */
     private BiMap<String, ConfidentialReservationData> constructEndpointUrlToReservationMap(
             ConfidentialReservationData reservation) {
 
@@ -543,7 +539,7 @@ public class FederatorRS implements RS {
     public List<ConfidentialReservationData> getReservation(
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
 
         assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -568,10 +564,10 @@ public class FederatorRS implements RS {
                 if (e.getCause() instanceof RSExceptionException) {
                     throw (RSExceptionException) e.getCause();
                 }
-                if (e.getCause() instanceof ReservationNotFoundExceptionException) {
-                    throw (ReservationNotFoundExceptionException) e.getCause();
+                if (e.getCause() instanceof ReservervationNotFoundExceptionException) {
+                    throw (ReservervationNotFoundExceptionException) e.getCause();
                 }
-                throwRSException("Unknown exception occured!", e.getCause());
+                throwRSException("Unknown exception occurred!", e.getCause());
             }
         }
 
@@ -584,7 +580,7 @@ public class FederatorRS implements RS {
             List<SecretAuthenticationKey> authenticationData,
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKey)
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
 
         assertNotNull(authenticationData, "authenticationData");
         assertNotNull(secretReservationKey, "secretReservationKey");

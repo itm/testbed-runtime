@@ -10,8 +10,8 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.1
  * 
  */
-@WebFault(name = "AuthorizationFault", targetNamespace = "urn:RSService")
-public class AuthorizationExceptionException
+@WebFault(name = "ReservationNotFoundFault", targetNamespace = "urn:RSService")
+public class ReservervationNotFoundExceptionException
     extends Exception
 {
 
@@ -19,14 +19,14 @@ public class AuthorizationExceptionException
      * Java type that goes as soapenv:Fault detail element.
      * 
      */
-    private AuthorizationException faultInfo;
+    private ReservervationNotFoundException faultInfo;
 
     /**
      * 
      * @param message
      * @param faultInfo
      */
-    public AuthorizationExceptionException(String message, AuthorizationException faultInfo) {
+    public ReservervationNotFoundExceptionException(String message, ReservervationNotFoundException faultInfo) {
         super(message);
         this.faultInfo = faultInfo;
     }
@@ -37,7 +37,7 @@ public class AuthorizationExceptionException
      * @param faultInfo
      * @param cause
      */
-    public AuthorizationExceptionException(String message, AuthorizationException faultInfo, Throwable cause) {
+    public ReservervationNotFoundExceptionException(String message, ReservervationNotFoundException faultInfo, Throwable cause) {
         super(message, cause);
         this.faultInfo = faultInfo;
     }
@@ -45,9 +45,9 @@ public class AuthorizationExceptionException
     /**
      * 
      * @return
-     *     returns fault bean: eu.wisebed.testbed.api.rs.v1.AuthorizationException
+     *     returns fault bean: eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundException
      */
-    public AuthorizationException getFaultInfo() {
+    public ReservervationNotFoundException getFaultInfo() {
         return faultInfo;
     }
 

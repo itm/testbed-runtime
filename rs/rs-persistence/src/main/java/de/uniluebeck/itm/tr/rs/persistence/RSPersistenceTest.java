@@ -98,7 +98,7 @@ public abstract class RSPersistenceTest {
 		}
 	}
 
-	public void getReservationBeforeDeletion() throws RSExceptionException, ReservationNotFoundExceptionException {
+	public void getReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
 		for (int i = 0; i < reservationKeyList.size(); i++) {
 			assertTrue(equals(persistence.getReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
 		}
@@ -108,8 +108,8 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyList.size(); i++) {
 			try {
 				persistence.getReservation(reservationKeyList.get(i));
-				fail("Should have raised an ReservationNotFoundExceptionException");
-			} catch (ReservationNotFoundExceptionException e) {
+				fail("Should have raised an ReservervationNotFoundExceptionException");
+			} catch (ReservervationNotFoundExceptionException e) {
 
 			}
 		}
@@ -176,7 +176,7 @@ public abstract class RSPersistenceTest {
 
 	}
 
-	public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservationNotFoundExceptionException {
+	public void deleteReservationBeforeDeletion() throws RSExceptionException, ReservervationNotFoundExceptionException {
 		for (int i = 0; i < this.reservationKeyList.size(); i++) {
 			assertTrue(equals(persistence.deleteReservation(reservationKeyList.get(i)), reservationDataList.get(i)));
 		}
@@ -195,8 +195,8 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < this.reservationKeyList.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyList.get(i));
-				fail("Should have raised an ReservationNotFoundExceptionException");
-			} catch (ReservationNotFoundExceptionException e) {
+				fail("Should have raised an ReservervationNotFoundExceptionException");
+			} catch (ReservervationNotFoundExceptionException e) {
 				;
 			}
 		}
