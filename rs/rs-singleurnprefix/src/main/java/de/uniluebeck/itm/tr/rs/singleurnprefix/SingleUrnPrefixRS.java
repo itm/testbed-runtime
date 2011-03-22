@@ -152,7 +152,7 @@ public class SingleUrnPrefixRS implements RS {
     @Override
     public List<ConfidentialReservationData> getReservation(
             @WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
 
         Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
@@ -163,7 +163,7 @@ public class SingleUrnPrefixRS implements RS {
             String msg = "Reservation not found for key " + secretReservationKey;
             ReservervationNotFoundException exception = new ReservervationNotFoundException();
             exception.setMessage(msg);
-            throw new ReservationNotFoundExceptionException(msg, exception);
+            throw new ReservervationNotFoundExceptionException(msg, exception);
         }
 
         List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
@@ -177,7 +177,7 @@ public class SingleUrnPrefixRS implements RS {
             List<SecretAuthenticationKey> authenticationData,
             @WebParam(name = "secretReservationKey", targetNamespace = "")
             List<SecretReservationKey> secretReservationKeys)
-            throws RSExceptionException, ReservationNotFoundExceptionException {
+            throws RSExceptionException, ReservervationNotFoundExceptionException {
 
         Preconditions.checkNotNull(authenticationData, "Parameter authenticationData is null!");
         Preconditions.checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
