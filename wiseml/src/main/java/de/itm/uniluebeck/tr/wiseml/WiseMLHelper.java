@@ -241,6 +241,7 @@ public class WiseMLHelper {
 	 *
 	 * @return a String representation of {@code node}
 	 */
+	@SuppressWarnings("unused")
 	public static String toString(Node node) {
 		return "Node{" +
 				"id='" + node.getId() + '\'' +
@@ -260,6 +261,7 @@ public class WiseMLHelper {
 	 *
 	 * @return a String representation of {@code capabilities}
 	 */
+	@SuppressWarnings("unused")
 	public static String toString(List<Capability> capabilities) {
 		return Arrays.toString(capabilities.toArray());
 	}
@@ -271,6 +273,7 @@ public class WiseMLHelper {
 	 *
 	 * @return a String representation of {@code capability}
 	 */
+	@SuppressWarnings("unused")
 	public static String toString(Capability capability) {
 		return "Capability{" +
 				"_default='" + capability.getDefault() + '\'' +
@@ -287,6 +290,7 @@ public class WiseMLHelper {
 	 *
 	 * @return a String representation of {@code nodeProperties}
 	 */
+	@SuppressWarnings("unused")
 	public static String toString(NodeProperties nodeProperties) {
 		return "NodeProperties{" +
 				"capability=" + nodeProperties.getCapability() +
