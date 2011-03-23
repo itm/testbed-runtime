@@ -47,25 +47,33 @@ import java.util.List;
 @XmlSeeAlso({
 		eu.wisebed.ns.wiseml._1.Setup.Link.class
 })
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class LinkProperties {
 
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Boolean encrypted;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Boolean virtual;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Rssi rssi;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected List<Capability> capability;
 
 	/**
 	 * Gets the value of the encrypted property.
 	 *
-	 * @return possible object is
-	 *         {@link Boolean }
+	 * @return possible object is {@link Boolean }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Boolean isEncrypted() {
 		return encrypted;
 	}
@@ -73,10 +81,10 @@ public class LinkProperties {
 	/**
 	 * Sets the value of the encrypted property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Boolean }
+	 * @param value allowed object is {@link Boolean }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setEncrypted(Boolean value) {
 		this.encrypted = value;
 	}
@@ -84,10 +92,10 @@ public class LinkProperties {
 	/**
 	 * Gets the value of the virtual property.
 	 *
-	 * @return possible object is
-	 *         {@link Boolean }
+	 * @return possible object is {@link Boolean }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Boolean isVirtual() {
 		return virtual;
 	}
@@ -95,10 +103,10 @@ public class LinkProperties {
 	/**
 	 * Sets the value of the virtual property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Boolean }
+	 * @param value allowed object is {@link Boolean }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setVirtual(Boolean value) {
 		this.virtual = value;
 	}
@@ -106,10 +114,10 @@ public class LinkProperties {
 	/**
 	 * Gets the value of the rssi property.
 	 *
-	 * @return possible object is
-	 *         {@link Rssi }
+	 * @return possible object is {@link Rssi }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Rssi getRssi() {
 		return rssi;
 	}
@@ -117,10 +125,10 @@ public class LinkProperties {
 	/**
 	 * Sets the value of the rssi property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Rssi }
+	 * @param value allowed object is {@link Rssi }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setRssi(Rssi value) {
 		this.rssi = value;
 	}
@@ -129,10 +137,9 @@ public class LinkProperties {
 	 * Gets the value of the capability property.
 	 * <p/>
 	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the capability property.
+	 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+	 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+	 * capability property.
 	 * <p/>
 	 * <p/>
 	 * For example, to add a new item, do as follows:
@@ -142,10 +149,10 @@ public class LinkProperties {
 	 * <p/>
 	 * <p/>
 	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link Capability }
+	 * Objects of the following type(s) are allowed in the list {@link Capability }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public List<Capability> getCapability() {
 		if (capability == null) {
 			capability = new ArrayList<Capability>();

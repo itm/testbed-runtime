@@ -39,21 +39,25 @@ import javax.xml.bind.annotation.XmlType;
 		"link"
 })
 @XmlRootElement(name = "defaults")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Defaults {
 
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected NodeProperties node;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected LinkProperties link;
 
 	/**
 	 * Gets the value of the node property.
 	 *
-	 * @return possible object is
-	 *         {@link NodeProperties }
+	 * @return possible object is {@link NodeProperties }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public NodeProperties getNode() {
 		return node;
 	}
@@ -61,10 +65,10 @@ public class Defaults {
 	/**
 	 * Sets the value of the node property.
 	 *
-	 * @param value allowed object is
-	 *              {@link NodeProperties }
+	 * @param value allowed object is {@link NodeProperties }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setNode(NodeProperties value) {
 		this.node = value;
 	}
@@ -72,10 +76,10 @@ public class Defaults {
 	/**
 	 * Gets the value of the link property.
 	 *
-	 * @return possible object is
-	 *         {@link LinkProperties }
+	 * @return possible object is {@link LinkProperties }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public LinkProperties getLink() {
 		return link;
 	}
@@ -83,10 +87,10 @@ public class Defaults {
 	/**
 	 * Sets the value of the link property.
 	 *
-	 * @param value allowed object is
-	 *              {@link LinkProperties }
+	 * @param value allowed object is {@link LinkProperties }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setLink(LinkProperties value) {
 		this.link = value;
 	}

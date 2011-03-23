@@ -16,48 +16,66 @@ import javax.xml.namespace.QName;
 
 
 /**
- * This object contains factory methods for each
- * Java content interface and Java element interface
- * generated in the eu.wisebed.ns.wiseml._1 package.
- * <p>An ObjectFactory allows you to programatically
- * construct new instances of the Java representation
- * for XML content. The Java representation of XML
- * content can consist of schema derived interfaces
- * and classes representing the binding of schema
- * type definitions, element declarations and model
- * groups.  Factory methods for each of these are
- * provided in this class.
+ * This object contains factory methods for each Java content interface and Java element interface generated in the
+ * eu.wisebed.ns.wiseml._1 package. <p>An ObjectFactory allows you to programatically construct new instances of the
+ * Java representation for XML content. The Java representation of XML content can consist of schema derived interfaces
+ * and classes representing the binding of schema type definitions, element declarations and model groups.  Factory
+ * methods for each of these are provided in this class.
  */
 @XmlRegistry
 public class ObjectFactory {
 
 	private final static QName _Gateway_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "gateway");
+
 	private final static QName _Theta_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "theta");
+
 	private final static QName _Position_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "position");
+
 	private final static QName _Virtual_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "virtual");
+
 	private final static QName _Interpolation_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "interpolation");
+
 	private final static QName _Origin_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "origin");
+
 	private final static QName _Name_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "name");
+
 	private final static QName _Description_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "description");
+
 	private final static QName _Start_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "start");
+
 	private final static QName _Default_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "default");
+
 	private final static QName _ProgramDetails_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "programDetails");
+
 	private final static QName _Duration_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "duration");
+
 	private final static QName _Encrypted_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "encrypted");
+
 	private final static QName _Unit_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "unit");
+
 	private final static QName _Timestamp_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "timestamp");
+
 	private final static QName _X_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "x");
+
 	private final static QName _Y_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "y");
+
 	private final static QName _End_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "end");
+
 	private final static QName _Phi_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "phi");
+
 	private final static QName _Z_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "z");
+
 	private final static QName _NodeType_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "nodeType");
+
 	private final static QName _Timeinfo_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "timeinfo");
+
 	private final static QName _Datatype_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "datatype");
+
 	private final static QName _CoordinateType_QNAME = new QName("http://wisebed.eu/ns/wiseml/1.0", "coordinateType");
 
 	/**
-	 * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: eu.wisebed.ns.wiseml._1
+	 * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package:
+	 * eu.wisebed.ns.wiseml._1
 	 */
 	public ObjectFactory() {
 	}

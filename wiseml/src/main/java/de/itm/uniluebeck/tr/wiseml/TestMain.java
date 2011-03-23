@@ -36,6 +36,7 @@ public class TestMain {
 
 	/**
 	 * @param args
+	 *
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
@@ -54,7 +55,10 @@ public class TestMain {
 		t.setId("testid");
 
 		// add timestamp
-		t.getTraceItem().add(datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()).toXMLFormat());
+		t.getTraceItem()
+				.add(datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance())
+						.toXMLFormat()
+				);
 
 		// add node temperature reading
 		Trace.Node node = new Trace.Node();
@@ -73,7 +77,10 @@ public class TestMain {
 
 		t.getTraceItem().add(node);
 
-		t.getTraceItem().add(datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance()).toXMLFormat());
+		t.getTraceItem()
+				.add(datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance())
+						.toXMLFormat()
+				);
 		Trace.Link link = new Trace.Link();
 		link.setSource("urn:wisebed:uzl:0xfe80");
 		link.setTarget("urn:wisebed:uzl:0xfe81");

@@ -32,27 +32,33 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @XmlRootElement(name = "rssi")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Rssi {
 
 	@XmlAttribute(required = true)
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Dtypes datatype;
+
 	@XmlAttribute(required = true)
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Units unit;
+
 	@XmlAttribute(name = "default", required = true)
 	@XmlSchemaType(name = "anySimpleType")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String _default;
 
 	/**
 	 * Gets the value of the datatype property.
 	 *
-	 * @return possible object is
-	 *         {@link Dtypes }
+	 * @return possible object is {@link Dtypes }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Dtypes getDatatype() {
 		return datatype;
 	}
@@ -60,10 +66,10 @@ public class Rssi {
 	/**
 	 * Sets the value of the datatype property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Dtypes }
+	 * @param value allowed object is {@link Dtypes }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setDatatype(Dtypes value) {
 		this.datatype = value;
 	}
@@ -71,10 +77,10 @@ public class Rssi {
 	/**
 	 * Gets the value of the unit property.
 	 *
-	 * @return possible object is
-	 *         {@link Units }
+	 * @return possible object is {@link Units }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Units getUnit() {
 		return unit;
 	}
@@ -82,10 +88,10 @@ public class Rssi {
 	/**
 	 * Sets the value of the unit property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Units }
+	 * @param value allowed object is {@link Units }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setUnit(Units value) {
 		this.unit = value;
 	}
@@ -93,10 +99,10 @@ public class Rssi {
 	/**
 	 * Gets the value of the default property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getDefault() {
 		return _default;
 	}
@@ -104,10 +110,10 @@ public class Rssi {
 	/**
 	 * Sets the value of the default property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setDefault(String value) {
 		this._default = value;
 	}

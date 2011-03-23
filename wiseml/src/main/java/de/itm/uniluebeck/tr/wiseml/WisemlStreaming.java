@@ -38,6 +38,7 @@ public class WisemlStreaming {
 	private BufferedWriter out;
 
 	static class XmlTidy extends Thread {
+
 		private final InputStream instream;
 
 		private final OutputStream outstream;
@@ -69,7 +70,9 @@ public class WisemlStreaming {
 
 	public void addHeader() throws IOException {
 		addFragment("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		addFragment("<wiseml xmlns=\"http://wisebed.eu/ns/wiseml/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://wisebed.eu/ns/wiseml/1.0\" version=\"1.0\">\n");
+		addFragment(
+				"<wiseml xmlns=\"http://wisebed.eu/ns/wiseml/1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://wisebed.eu/ns/wiseml/1.0\" version=\"1.0\">\n"
+		);
 	}
 
 	public void addFooter() throws IOException {
