@@ -34,6 +34,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.Constants;
@@ -41,6 +42,8 @@ import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v22.*;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +54,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -72,12 +74,11 @@ public class WSNServiceImpl implements WSNService {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(java.util.List)} or {@link
-	 * eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(java.util.List)} method. The
-	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one controller and, if
-	 * more controllers are attached to the running experiment the maximum thread pool size will be increased. By that, the
-	 * number of threads for web-service calls is bounded by the number of controller endpoints as more threads would not,
-	 * in theory, increase the throughput to the controllers.
+	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(java.util.List)}
+	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
+	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
+	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as
+	 * more threads would not, in theory, increase the throughput to the controllers.
 	 */
 	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(
 			1,
@@ -193,91 +194,129 @@ public class WSNServiceImpl implements WSNService {
 				return;
 			}
 
-			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
+			// check if message is a virtual link message
+			boolean isVirtualLinkMessage = wsnMessage.getBinaryData().byteAt(0) == MESSAGE_TYPE_PLOT &&
+					wsnMessage.getBinaryData().byteAt(1) == NODE_OUTPUT_VIRTUAL_LINK;
 
-			final byte[] binaryData = wsnMessage.getBinaryData().toByteArray();
+			if (!isVirtualLinkMessage) {
+				deliverNonVirtualLinkMessageToControllers(wsnMessage);
+			} else {
+				deliverVirtualLinkMessage(wsnMessage);
+			}
+		}
+
+		private void deliverVirtualLinkMessage(final WSNAppMessages.Message wsnMessage) {
+
+			byte[] binaryData = wsnMessage.getBinaryData().toByteArray();
+
+			long destinationNode = readDestinationNodeURN(binaryData);
+			Map<String, WSN> recipients =
+					determineVirtualLinkMessageRecipients(wsnMessage.getSourceNodeId(), destinationNode);
+
+			if (recipients.size() > 0) {
+
+				Message outboundVirtualLinkMessage = constructOutboundVirtualLinkMessage(wsnMessage, binaryData);
+
+				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
+
+					String targetNode = recipient.getKey();
+					WSN recipientEndpointProxy = recipient.getValue();
+
+					executorService.execute(
+							new DeliverVirtualLinkMessageRunnable(
+									wsnMessage.getSourceNodeId(),
+									targetNode,
+									recipientEndpointProxy,
+									outboundVirtualLinkMessage
+							)
+					);
+				}
+			}
+		}
+
+		private Message constructOutboundVirtualLinkMessage(final WSNAppMessages.Message wsnMessage,
+															final byte[] binaryData) {
+
+			// byte 0: ISense Packet Type
+			// byte 1: Node API Command Type
+			// byte 2: RSSI
+			// byte 3: LQI
+			// byte 4: Payload Length
+			// byte 5-8: Destination Node URN
+			// byte 9-12: Source Node URN
+			// byte 13-13+Payload Length: Payload
+
+			Message outboundVirtualLinkMessage = new Message();
+			outboundVirtualLinkMessage.setSourceNodeId(wsnMessage.getSourceNodeId());
+			outboundVirtualLinkMessage.setTimestamp(
+					datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp())
+			);
+
+			// construct message that is actually sent to the destination node URN
+			ChannelBuffer header = ChannelBuffers.buffer(3);
+			header.setByte(0, MESSAGE_TYPE_WISELIB_DOWNSTREAM);
+			header.setByte(1, WISELIB_VIRTUAL_LINK_MESSAGE);
+			header.setByte(2, 0); // request id according to Node API
+
+			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(binaryData, 2, binaryData.length - 2);
+			ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
+
+
+			byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
+			packet.getBytes(0, outboundVirtualLinkMessageBinaryData);
+
+			outboundVirtualLinkMessage.setBinaryData(outboundVirtualLinkMessageBinaryData);
+
+			return outboundVirtualLinkMessage;
+		}
+
+		private Map<String, WSN> determineVirtualLinkMessageRecipients(final String sourceNodeURN,
+																	   final long destinationNode) {
+
+			// check if message is a broadcast or unicast message
+			boolean isBroadcast = destinationNode == 0xFFFF;
+
+			// send virtual link message to all recipients
+			Map<String, WSN> recipients = new HashMap<String, WSN>();
+
+			if (isBroadcast) {
+
+				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
+				if (map != null) {
+					for (Map.Entry<String, WSN> entry : map.entrySet()) {
+						recipients.put(entry.getKey(), entry.getValue());
+					}
+				}
+
+			} else {
+
+				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeURN);
+				for (String targetNode : map.keySet()) {
+
+					if (StringUtils.parseHexOrDecLongFromUrn(targetNode) == destinationNode) {
+						recipients.put(targetNode, map.get(targetNode));
+					}
+				}
+			}
+
+			return recipients;
+		}
+
+		private long readDestinationNodeURN(final byte[] virtualLinkMessage) {
+			ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(virtualLinkMessage);
+			return buffer.getLong(4);
+		}
+
+		private void deliverNonVirtualLinkMessageToControllers(final WSNAppMessages.Message wsnMessage) {
+
+			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
 
 			Message message = new Message();
 			message.setSourceNodeId(wsnMessage.getSourceNodeId());
 			message.setTimestamp(timestamp);
+			message.setBinaryData(wsnMessage.getBinaryData().toByteArray());
 
-			// check if message is a virtual link message
-			boolean isVirtualLinkMessage =
-					binaryData[0] == MESSAGE_TYPE_PLOT &&
-					binaryData[1] == NODE_OUTPUT_VIRTUAL_LINK;
-
-			if (!isVirtualLinkMessage) {
-
-				message.setBinaryData(binaryData);
-
-				// deliver to controller in every case, he's a promiscuous listener
-				controllerHelper.receive(message);
-
-			} else {
-
-				// message is a virtual link message
-
-				ByteBuffer buffer = ByteBuffer.wrap(binaryData);
-
-				byte[] bytes = new byte[binaryData.length + 2];
-				bytes[0] = MESSAGE_TYPE_WISELIB_DOWNSTREAM;
-				bytes[1] = WISELIB_VIRTUAL_LINK_MESSAGE;
-				bytes[2] = 0; // request id according to Node API
-
-				// copy payload (i.e. cut away NODE_OUTPUT_VIRTUAL_LINK in the byte zero)
-				System.arraycopy(binaryData, 1, bytes, 3, binaryData.length-1);
-
-				message.setBinaryData(bytes);
-
-				// check if message is a broadcast or unicast message
-				long destinationNode = 0;
-				try {
-					destinationNode = buffer.getLong(4);
-				} catch (Exception e) {
-					String msg = "probably node akk message popped up in web service this should never happen. ignoring";
-					log.warn(msg, e);
-				}
-				boolean isBroadcast = destinationNode == 0xFFFF;
-
-				// send virtual link message to all recipients
-				Map<String, WSN> recipients = new HashMap<String, WSN>();
-
-				if (isBroadcast) {
-
-					ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
-					if (map == null) {
-						log.warn("received virtual link message, but no virtual links defined, ignoring");
-						return;
-					}
-					for (Map.Entry<String, WSN> entry : map.entrySet()) {
-						recipients.put(entry.getKey(), entry.getValue());
-					}
-
-				} else {
-
-					ImmutableMap<String, WSN> map = virtualLinksMap.get(wsnMessage.getSourceNodeId());
-					for (String targetNode : map.keySet()) {
-
-						String[] split = targetNode.split(":");
-
-						if (Long.parseLong(split[split.length - 1]) == destinationNode) {
-
-							recipients.put(targetNode, map.get(targetNode));
-							break;
-						}
-					}
-				}
-
-				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
-
-					executorService.execute(new DeliverVirtualLinkMessageRunnable(
-							wsnMessage.getSourceNodeId(), recipient.getKey(), recipient.getValue(), message
-					)
-					);
-				}
-
-			}
-
+			controllerHelper.receive(message);
 		}
 
 		@Override
@@ -673,6 +712,8 @@ public class WSNServiceImpl implements WSNService {
 			virtualLinksMapBuilder.put(sourceNode, targetNodeMapBuilder.build());
 			virtualLinksMap = virtualLinksMapBuilder.build();
 
+		} else {
+			log.debug("+++ Not adding virtual link from {} to {} as it is already established", sourceNode, targetNode);
 		}
 
 	}
