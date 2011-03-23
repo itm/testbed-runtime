@@ -1,6 +1,8 @@
 package de.itm.uniluebeck.tr.wiseml;
 
 import com.google.common.collect.Lists;
+import eu.wisebed.ns.wiseml._1.Capability;
+import eu.wisebed.ns.wiseml._1.NodeProperties;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Setup.Node;
 import eu.wisebed.ns.wiseml._1.Wiseml;
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXB;
 import java.io.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,38 +28,36 @@ public class WiseMLHelper {
 	}
 
 	/**
-	 * Parses the WiseML document that is passed in as String in {@code wiseML} and reads out all node URNs that are
-	 * contained in the setup-part of the document.
+	 * De-serializes the WiseML document and returns the object representation of the parsed document.
 	 *
-	 * @param serializedWiseML a serialized WiseML document
+	 * @param serializedWiseML the serialized WiseML document
 	 *
-	 * @return a List of node URNs
+	 * @return the object representation of the parsed document
 	 */
 	@SuppressWarnings("unused")
-	public static List<String> getNodeUrns(final String serializedWiseML) {
-		return getNodeUrns(serializedWiseML, (String[]) null);
+	public static Wiseml deserialize(final String serializedWiseML) {
+		return JAXB.unmarshal(new StringReader(serializedWiseML), Wiseml.class);
 	}
 
 	/**
-	 * Parses the WiseML document that is passed in as String in {@code serializedWiseML} and reads out all node URNs that
-	 * are contained in the setup-part of the document.
+	 * Parses the serialized WiseML document and returns the {@link Node} instance with URN {@code nodeID}.
 	 *
-	 * @param serializedWiseML a serialized WiseML document
-	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
-	 *                         contained in the WiseML document
+	 * @param serializedWiseML the serialized WiseML document
+	 * @param nodeID		   the URN of the node to return
 	 *
-	 * @return a List of node URNs
+	 * @return the {@link Node} instance with URN {@code nodeID}
 	 */
 	@SuppressWarnings("unused")
-	public static List<String> getNodeUrns(final String serializedWiseML, final String... types) {
+	public static Node getNode(final String serializedWiseML, final String nodeID) {
+		Wiseml wiseml = deserialize(serializedWiseML);
 
-		List<String> nodeUrns = new LinkedList<String>();
-
-		for (Node node : getNodes(serializedWiseML, types)) {
-			nodeUrns.add(node.getId());
+		for (Setup.Node node : wiseml.getSetup().getNode()) {
+			if (node.getId().equals(nodeID)) {
+				return node;
+			}
 		}
 
-		return nodeUrns;
+		return null;
 	}
 
 	/**
@@ -131,50 +132,38 @@ public class WiseMLHelper {
 	}
 
 	/**
-	 * Parses the serialized WiseML document and returns the {@link Node} instance with URN {@code nodeID}.
+	 * Parses the WiseML document that is passed in as String in {@code wiseML} and reads out all node URNs that are
+	 * contained in the setup-part of the document.
 	 *
-	 * @param serializedWiseML the serialized WiseML document
-	 * @param nodeID		   the URN of the node to return
+	 * @param serializedWiseML a serialized WiseML document
 	 *
-	 * @return the {@link Node} instance with URN {@code nodeID}
+	 * @return a List of node URNs
 	 */
 	@SuppressWarnings("unused")
-	public static Node getNode(final String serializedWiseML, final String nodeID) {
-		Wiseml wiseml = deserialize(serializedWiseML);
+	public static List<String> getNodeUrns(final String serializedWiseML) {
+		return getNodeUrns(serializedWiseML, (String[]) null);
+	}
 
-		for (Setup.Node node : wiseml.getSetup().getNode()) {
-			if (node.getId().equals(nodeID)) {
-				return node;
-			}
+	/**
+	 * Parses the WiseML document that is passed in as String in {@code serializedWiseML} and reads out all node URNs that
+	 * are contained in the setup-part of the document.
+	 *
+	 * @param serializedWiseML a serialized WiseML document
+	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
+	 *                         contained in the WiseML document
+	 *
+	 * @return a List of node URNs
+	 */
+	@SuppressWarnings("unused")
+	public static List<String> getNodeUrns(final String serializedWiseML, final String... types) {
+
+		List<String> nodeUrns = new LinkedList<String>();
+
+		for (Node node : getNodes(serializedWiseML, types)) {
+			nodeUrns.add(node.getId());
 		}
 
-		return null;
-	}
-
-	/**
-	 * De-serializes the WiseML document and returns the object representation of the parsed document.
-	 *
-	 * @param serializedWiseML the serialized WiseML document
-	 *
-	 * @return the object representation of the parsed document
-	 */
-	@SuppressWarnings("unused")
-	public static Wiseml deserialize(final String serializedWiseML) {
-		return JAXB.unmarshal(new StringReader(serializedWiseML), Wiseml.class);
-	}
-
-	/**
-	 * Serializes the {@link Wiseml} instance.
-	 *
-	 * @param wiseML the {@link Wiseml} instance to serialize
-	 *
-	 * @return the serialized WiseML document
-	 */
-	@SuppressWarnings("unused")
-	public static String serialize(final Wiseml wiseML) {
-		StringWriter writer = new StringWriter();
-		JAXB.marshal(wiseML, writer);
-		return writer.toString();
+		return nodeUrns;
 	}
 
 	/**
@@ -229,6 +218,84 @@ public class WiseMLHelper {
 			return null;
 		}
 
+	}
+
+	/**
+	 * Serializes the {@link Wiseml} instance.
+	 *
+	 * @param wiseML the {@link Wiseml} instance to serialize
+	 *
+	 * @return the serialized WiseML document
+	 */
+	@SuppressWarnings("unused")
+	public static String serialize(final Wiseml wiseML) {
+		StringWriter writer = new StringWriter();
+		JAXB.marshal(wiseML, writer);
+		return writer.toString();
+	}
+
+	/**
+	 * Returns a String representation of {@code node}.
+	 *
+	 * @param node the {@link Node} instance
+	 *
+	 * @return a String representation of {@code node}
+	 */
+	public static String toString(Node node) {
+		return "Node{" +
+				"id='" + node.getId() + '\'' +
+				", capability=" + toString(node.getCapability()) +
+				", position=" + node.getPosition() +
+				", gateway=" + node.isGateway() +
+				", programDetails='" + node.getProgramDetails() + '\'' +
+				", nodeType='" + node.getNodeType() + '\'' +
+				", description='" + node.getDescription() + '\'' +
+				"}";
+	}
+
+	/**
+	 * Returns a String representation of {@code capabilities}.
+	 *
+	 * @param capabilities the {@link List<Capability>} instance
+	 *
+	 * @return a String representation of {@code capabilities}
+	 */
+	public static String toString(List<Capability> capabilities) {
+		return Arrays.toString(capabilities.toArray());
+	}
+
+	/**
+	 * Returns a String representation of {@code capability}.
+	 *
+	 * @param capability the {@link Capability} instance
+	 *
+	 * @return a String representation of {@code capability}
+	 */
+	public static String toString(Capability capability) {
+		return "Capability{" +
+				"_default='" + capability.getDefault() + '\'' +
+				", name='" + capability.getName() + '\'' +
+				", datatype=" + capability.getDatatype() +
+				", unit=" + capability.getUnit() +
+				'}';
+	}
+
+	/**
+	 * Returns a String representation of {@code nodeProperties}.
+	 *
+	 * @param nodeProperties the {@link NodeProperties} instance
+	 *
+	 * @return a String representation of {@code nodeProperties}
+	 */
+	public static String toString(NodeProperties nodeProperties) {
+		return "NodeProperties{" +
+				"capability=" + nodeProperties.getCapability() +
+				", position=" + nodeProperties.getPosition() +
+				", gateway=" + nodeProperties.isGateway() +
+				", programDetails='" + nodeProperties.getProgramDetails() + '\'' +
+				", nodeType='" + nodeProperties.getNodeType() + '\'' +
+				", description='" + nodeProperties.getDescription() + '\'' +
+				'}';
 	}
 
 }
