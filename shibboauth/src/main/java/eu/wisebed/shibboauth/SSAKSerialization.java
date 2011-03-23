@@ -97,14 +97,14 @@ public class SSAKSerialization {
             out.append(cookieMap.get(CookieProperties.idp_value)).append(";");
         }
         
-        log.fatal("NEW COOKIE AUTH KEY IS =="+out.toString());
+        log.debug("Serialize cookie store to =="+out.toString());
         
         return out.toString();
     }
 
     public static List<Cookie> deserialize(String serializedString) throws NotDeserializableException {
 
-    	log.fatal("NEW STRING TO BE DESERIALIZED =="+serializedString);
+    	log.debug("Deserialize string to cookie store =="+serializedString);
     	
     	// old version was 
     	//		key=value;key=value;key=value@domain
@@ -174,7 +174,7 @@ public class SSAKSerialization {
              }
             
             if (!((name.equals("")) && (value.equals("")))){
-            	log.fatal("NEW COOKIE "+name+" "+value+" "+domain);
+            	log.debug("NEW COOKIE "+name+" "+value+" "+domain);
             	BasicClientCookie cookie = new BasicClientCookie(name, value);
             	cookie.setDomain(domain);
             	cookie.setVersion(0);
