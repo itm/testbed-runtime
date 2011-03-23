@@ -304,7 +304,7 @@ public class WSNServiceImpl implements WSNService {
 
 		private long readDestinationNodeURN(final byte[] virtualLinkMessage) {
 			ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(virtualLinkMessage);
-			return buffer.getLong(4);
+			return buffer.getLong(5);
 		}
 
 		private void deliverNonVirtualLinkMessageToControllers(final WSNAppMessages.Message wsnMessage) {
