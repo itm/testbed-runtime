@@ -15,9 +15,13 @@ import java.util.List;
 
 public class WiseMLHelper {
 
+	/**
+	 * The logger instance
+	 */
 	private static final Logger log = LoggerFactory.getLogger(WiseMLHelper.class);
 
 	private WiseMLHelper() {
+		// forbid access
 	}
 
 	/**
@@ -28,74 +32,175 @@ public class WiseMLHelper {
 	 *
 	 * @return a List of node URNs
 	 */
-	public static List<String> getNodeUrns(String serializedWiseML) {
+	@SuppressWarnings("unused")
+	public static List<String> getNodeUrns(final String serializedWiseML) {
 		return getNodeUrns(serializedWiseML, (String[]) null);
 	}
 
 	/**
-	 * Parses the WiseML document that is passed in as String in {@code wiseML} and reads out all node URNs that are
-	 * contained in the setup-part of the document.
+	 * Parses the WiseML document that is passed in as String in {@code serializedWiseML} and reads out all node URNs that
+	 * are contained in the setup-part of the document.
 	 *
 	 * @param serializedWiseML a serialized WiseML document
-	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB motes
+	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
 	 *                         contained in the WiseML document
 	 *
 	 * @return a List of node URNs
 	 */
-	public static List<String> getNodeUrns(String serializedWiseML, String... types) {
+	@SuppressWarnings("unused")
+	public static List<String> getNodeUrns(final String serializedWiseML, final String... types) {
 
-		List<String> nodeTypes = types == null ? null : Lists.newArrayList(types);
 		List<String> nodeUrns = new LinkedList<String>();
 
-		Wiseml wiseml = deserialize(serializedWiseML);
+		for (Node node : getNodes(serializedWiseML, types)) {
+			nodeUrns.add(node.getId());
+		}
 
-		for (Setup.Node node : wiseml.getSetup().getNode()) {
+		return nodeUrns;
+	}
+
+	/**
+	 * Reads out all nodes that are contained in the setup-part of the document.
+	 *
+	 * @param wiseml a serialized WiseML document
+	 *
+	 * @return a List of {@link Node} instances
+	 */
+	@SuppressWarnings("unused")
+	public static List<Node> getNodes(final Wiseml wiseml) {
+		return getNodes(wiseml, (String[]) null);
+	}
+
+	/**
+	 * Parses the WiseML document that is passed in as String in {@code serializedWiseML} and reads out all nodes that are
+	 * contained in the setup-part of the document.
+	 *
+	 * @param serializedWiseML a serialized WiseML document
+	 *
+	 * @return a List of {@link Node} instances
+	 */
+	@SuppressWarnings("unused")
+	public static List<Node> getNodes(final String serializedWiseML) {
+		return getNodes(serializedWiseML, (String[]) null);
+	}
+
+	/**
+	 * Parses the WiseML document that is passed in as String in {@code serializedWiseML} and reads out all nodes that are
+	 * contained in the setup-part of the document.
+	 *
+	 * @param serializedWiseML a serialized WiseML document
+	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
+	 *                         contained in the WiseML document
+	 *
+	 * @return a List of {@link Node} instances
+	 */
+	@SuppressWarnings("unused")
+	public static List<Node> getNodes(final String serializedWiseML, final String... types) {
+		return getNodes(deserialize(serializedWiseML), types);
+	}
+
+	/**
+	 * Reads out all nodes that are contained in the setup-part of the document.
+	 *
+	 * @param wiseml the WiseML document
+	 * @param types  node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes contained
+	 *               in the WiseML document
+	 *
+	 * @return a List of {@link Node} instances
+	 */
+	@SuppressWarnings("unused")
+	public static List<Node> getNodes(final Wiseml wiseml, final String... types) {
+
+		List<String> nodeTypes = types == null ? null : Lists.newArrayList(types);
+		List<Node> nodes = Lists.newArrayList();
+
+		for (Node node : wiseml.getSetup().getNode()) {
 			if (types == null || types.length == 0) {
-				nodeUrns.add(node.getId());
+				nodes.add(node);
 			} else {
 				// if "containsIgnoreCase"...
 				for (String nodeType : nodeTypes) {
 					if (nodeType.equalsIgnoreCase(node.getNodeType())) {
-						nodeUrns.add(node.getId());
+						nodes.add(node);
 					}
 				}
 			}
 		}
 
-		return nodeUrns;
-
+		return nodes;
 	}
-	
-	public static Node getNode(String serializedWiseML, String nodeID){
+
+	/**
+	 * Parses the serialized WiseML document and returns the {@link Node} instance with URN {@code nodeID}.
+	 *
+	 * @param serializedWiseML the serialized WiseML document
+	 * @param nodeID		   the URN of the node to return
+	 *
+	 * @return the {@link Node} instance with URN {@code nodeID}
+	 */
+	@SuppressWarnings("unused")
+	public static Node getNode(final String serializedWiseML, final String nodeID) {
 		Wiseml wiseml = deserialize(serializedWiseML);
-		
+
 		for (Setup.Node node : wiseml.getSetup().getNode()) {
 			if (node.getId().equals(nodeID)) {
 				return node;
 			}
 		}
-		
+
 		return null;
 	}
 
-	public static Wiseml deserialize(String serializedWiseML) {
+	/**
+	 * De-serializes the WiseML document and returns the object representation of the parsed document.
+	 *
+	 * @param serializedWiseML the serialized WiseML document
+	 *
+	 * @return the object representation of the parsed document
+	 */
+	@SuppressWarnings("unused")
+	public static Wiseml deserialize(final String serializedWiseML) {
 		return JAXB.unmarshal(new StringReader(serializedWiseML), Wiseml.class);
 	}
 
-	public static String serialize(Wiseml wiseML) {
+	/**
+	 * Serializes the {@link Wiseml} instance.
+	 *
+	 * @param wiseML the {@link Wiseml} instance to serialize
+	 *
+	 * @return the serialized WiseML document
+	 */
+	@SuppressWarnings("unused")
+	public static String serialize(final Wiseml wiseML) {
 		StringWriter writer = new StringWriter();
 		JAXB.marshal(wiseML, writer);
 		return writer.toString();
 	}
 
-	public static String prettyPrintWiseML(String serializedWiseML) {
+	/**
+	 * Returns a prettily formatted and indented version of the given serialized WiseML document in {@code
+	 * serializedWiseML}.
+	 *
+	 * @param serializedWiseML the serialized WiseML document
+	 *
+	 * @return a prettily formatted and indented serialized WiseML document
+	 */
+	@SuppressWarnings("unused")
+	public static String prettyPrintWiseML(final String serializedWiseML) {
 		return serialize(deserialize(serializedWiseML));
 	}
 
-	public static String readWiseMLFromFile(String filename) {
+	/**
+	 * Reads a WiseML document from a file and returns it serialized and prettily formatted and indented.
+	 *
+	 * @param filename the name of the file to read from
+	 *
+	 * @return a serialized and prettily formatted and indented WiseML document or {@code null} if an error occurs
+	 */
+	@SuppressWarnings("unused")
+	public static String readWiseMLFromFile(final String filename) {
 
-		String wiseMLFilename = filename;
-		File wiseMLFile = new File(wiseMLFilename);
+		File wiseMLFile = new File(filename);
 
 		if (!wiseMLFile.exists()) {
 			log.error("WiseML file {} does not exist!", wiseMLFile.getAbsolutePath());
@@ -117,7 +222,7 @@ public class WiseMLHelper {
 				wiseMLBuilder.append(wiseMLFileReader.readLine());
 			}
 
-			return wiseMLBuilder.toString();
+			return prettyPrintWiseML(wiseMLBuilder.toString());
 
 		} catch (IOException e) {
 			log.error("" + e, e);
