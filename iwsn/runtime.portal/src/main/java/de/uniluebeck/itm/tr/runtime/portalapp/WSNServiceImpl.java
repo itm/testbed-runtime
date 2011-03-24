@@ -254,13 +254,12 @@ public class WSNServiceImpl implements WSNService {
 
 			// construct message that is actually sent to the destination node URN
 			ChannelBuffer header = ChannelBuffers.buffer(3);
-			header.setByte(0, MESSAGE_TYPE_WISELIB_DOWNSTREAM);
-			header.setByte(1, WISELIB_VIRTUAL_LINK_MESSAGE);
-			header.setByte(2, 0); // request id according to Node API
+			header.writeByte(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
+			header.writeByte(WISELIB_VIRTUAL_LINK_MESSAGE);
+			header.writeByte(0); // request id according to Node API
 
 			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(binaryData, 2, binaryData.length - 2);
 			ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
-
 
 			byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
 			packet.getBytes(0, outboundVirtualLinkMessageBinaryData);
