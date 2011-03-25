@@ -22,7 +22,7 @@ Mailing List
 There's a user mailing list (testbed-runtime-users@itm.uni-luebeck.de) you are free
 to join by sending an e-mail to testbed-runtime-users-subscribe@itm.uni-luebeck.de, to
 unsubscribe please send an e-mail to testbed-runtime-users-unsubscribe@itm.uni-luebeck.de.
-You can also visit the mailing list archives at [4]. Community and developer support will
+You can also visit the [mailing list archives][tr-mailinglist]. Community and developer support will
 be preferably given through this list.
 
 Binary Downloads
@@ -34,14 +34,7 @@ Building
 --------
 
 Testbed Runtime is based on the [Apache Maven][maven] build system. Clone the project and
-simply run 'mvn package' or 'mvn install' for building.
-
-Modules
--------
-
-Testbed Runtime delivers a set of modules that can be independently used from each
-other (as long as dependencies are met). A description of the individual modules here
-is yet to be done, stay tuned. 
+simply run 'mvn install' (or 'mvn clean install' to be on the safe side) for building.
 
 License
 -------
