@@ -34,16 +34,7 @@
 
 	<modules>
 
-		<module>rs/rs-api</module>
-		<module>rs/rs-cmdline</module>
-		<module>rs/rs-dummy</module>
-		<module>rs/rs-federator</module>
-		<module>rs/rs-singleurnprefix</module>
-		<module>rs/rs-persistence</module>
-		<module>rs/rs-persistence-gcal</module>
-		<module>rs/rs-persistence-inmemory</module>
-		<module>rs/rs-persistence-jpa</module>
-
+		<module>rs/</module>
 		<module>iwsn/</module>
 
 		<module>snaa/snaa-api</module>
@@ -63,7 +54,6 @@
 		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
-		<module>protobuf-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
