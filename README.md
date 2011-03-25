@@ -21,9 +21,9 @@ Mailing List
 
 There's a user mailing list ([testbed-runtime-users@itm.uni-luebeck.de](mailto:testbed-runtime-users@itm.uni-luebeck.de)) you are free
 to join.
-  * You can join by sending an e-mail to [testbed-runtime-users-subscribe@itm.uni-luebeck.de](mailto:testbed-runtime-users-subscribe@itm.uni-luebeck.de).
-  * To unsubscribe please send an e-mail to [testbed-runtime-users-unsubscribe@itm.uni-luebeck.de](mailto:testbed-runtime-users-unsubscribe@itm.uni-luebeck.de).
-  * You can also visit the [mailing list archives][tr-mailinglist].
+   * You can join by sending an e-mail to [testbed-runtime-users-subscribe@itm.uni-luebeck.de](mailto:testbed-runtime-users-subscribe@itm.uni-luebeck.de).
+   * To unsubscribe please send an e-mail to [testbed-runtime-users-unsubscribe@itm.uni-luebeck.de](mailto:testbed-runtime-users-unsubscribe@itm.uni-luebeck.de).
+   * You can also visit the [mailing list archives][tr-mailinglist].
 
 Community and developer support will be given through this list only!
 
