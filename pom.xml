@@ -36,15 +36,7 @@
 
 		<module>rs/</module>
 		<module>iwsn/</module>
-
-		<module>snaa/snaa-api</module>
-		<module>snaa/snaa-cmdline-client</module>
-		<module>snaa/snaa-cmdline-server</module>
-		<module>snaa/snaa-dummy</module>
-		<module>snaa/snaa-federator</module>
-		<module>snaa/snaa-shibboleth</module>
-		<module>snaa/snaa-jaaslogin</module>
-		<module>snaa/snaa-wisebed</module>
+		<module>snaa/</module>
 
 		<module>assemblies/experimentation-scripts</module>
 		<module>assemblies/assembly</module>
