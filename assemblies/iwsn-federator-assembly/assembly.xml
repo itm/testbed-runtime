@@ -7,6 +7,7 @@
 	</formats>
 	<dependencySets>
 		<dependencySet>
+			<useProjectArtifact>false</useProjectArtifact>
 			<outputDirectory>/lib</outputDirectory>
 			<includes>
 				<include>de.uniluebeck.itm:tr.wsn-federator</include>

@@ -33,7 +33,7 @@
 
     <artifactId>tr.iwsn-federator-assembly</artifactId>
 	<packaging>pom</packaging>
-	<name>TR :: iWSN Federator assembly</name>
+	<name>TR :: iWSN Federator Assembly</name>
 
 	<dependencies>
 		<dependency>
