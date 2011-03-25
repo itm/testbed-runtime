@@ -25,7 +25,7 @@
 		<description>The WSN testbed of the University of Lübeck, Germany</description>
 		<defaults>
 			<node>
-				<nodeType>iSense</nodeType>
+				<nodeType>mock</nodeType>
 				<capability>
 					<name>temperature</name>
 					<datatype>decimal</datatype>
@@ -40,20 +40,20 @@
 				</capability>
 			</node>
 		</defaults>
-		<node id="urn:wisebed:testbeduzl1:1" >
-			<nodeType>iSense</nodeType>
+		<node id="urn:local:0x0001" >
+			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:2" >
-			<nodeType>iSense</nodeType>
+		<node id="urn:local:0x0002" >
+			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:3" >
-			<nodeType>iSense</nodeType>
+		<node id="urn:local:0x0003" >
+			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:4" >
-			<nodeType>iSense</nodeType>
+		<node id="urn:local:0x0004" >
+			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:wisebed:testbeduzl1:5" >
-			<nodeType>iSense</nodeType>
+		<node id="urn:local:0x0005" >
+			<nodeType>mock</nodeType>
 		</node>
 	</setup>
 </wiseml>
