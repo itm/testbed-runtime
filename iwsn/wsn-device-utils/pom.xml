@@ -73,7 +73,7 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.9</version>
+				<version>1.4.10</version>
 				<executions>
 					<execution>
 						<id>flash</id>
@@ -87,6 +87,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -98,6 +99,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -157,6 +159,20 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>arm</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
+										<includes>
+											<include>librxtxSerial-2.1-7.so</include>
+											<include>librxtxSerial.la</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -175,6 +191,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -186,6 +203,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -245,6 +263,20 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>arm</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
+										<includes>
+											<include>librxtxSerial-2.1-7.so</include>
+											<include>librxtxSerial.la</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -263,6 +295,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -274,6 +307,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -333,6 +367,20 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>arm</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
+										<includes>
+											<include>librxtxSerial-2.1-7.so</include>
+											<include>librxtxSerial.la</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -351,6 +399,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -362,6 +411,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -421,6 +471,20 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>arm</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
+										<includes>
+											<include>librxtxSerial-2.1-7.so</include>
+											<include>librxtxSerial.la</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
