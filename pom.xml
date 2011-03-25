@@ -34,13 +34,10 @@
 
 	<modules>
 
+		<module>assemblies/</module>
 		<module>rs/</module>
 		<module>iwsn/</module>
 		<module>snaa/</module>
-
-		<module>assemblies/experimentation-scripts</module>
-		<module>assemblies/assembly</module>
-		<module>assemblies/assembly-federator</module>
 
 		<module>shibboauth</module>
 		<module>util</module>
