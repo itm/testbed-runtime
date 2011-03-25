@@ -1,13 +1,12 @@
 Testbed Runtime
 ===============
-
-What is Testbed Runtime?
---------------------------
- 
 Testbed Runtime is a set of programs that together form a wireless sensor networks
 testbed infrastructure. It implements the APIs defined by the european research project
-[WISEBED][wisebed], namely RS (Reservation System), SNAA (Sensor Network Authentication and
-Authorization) and iWSN (Wireless Sensor Network API).
+[WISEBED][wisebed]:
+
+   * RS (Reservation System)
+   * SNAA (Sensor Network Authentication and Authorization)
+   * iWSN (Wireless Sensor Network API)
 
 Documentation and Issue Tracking
 --------------------------------
