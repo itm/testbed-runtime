@@ -1,0 +1,4 @@
+#!/bin/bash
+DIR=`dirname $0`
+cd "$DIR/../../"
+mvn -am -pl assemblies/iwsn-assembly clean install -DskipTests

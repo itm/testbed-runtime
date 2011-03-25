@@ -1,0 +1,20 @@
+  Testbed Runtime Sensor Network Authentication and Authorization (SNAA) implementation
+
+What does this directory contain?
+
+  This directory contains the implementation of the WISEBED Sensor Network Authentication and
+  Authorization (SNAA) API.
+  It further contains configuration files and startup scripts for Linux (32 and 64 bit) as well as
+  for Mac OS X (Universal, 64 bit). The startup scripts work like the well-known init scripts
+  of Linux.
+
+  $SNAA_ASSEMBLY_HOME/bin/   - startup scripts
+  $SNAA_ASSEMBLY_HOME/conf/  - configuration files
+  $SNAA_ASSEMBLY_HOME/lib/   - native libraries and java jars
+  $SNAA_ASSEMBLY_HOME/logs/  - logging output
+
+  The programs can be started and stopped by running the appropriate script and passing the
+  argument 'start' or 'stop'. Passing the argument 'install' will install the program startup
+  script as daemon to the default runlevel, running 'remove' will remove the daemon.
+
+  The program are always started in non-interactive daemon mode, logging to the logs/ directory.

@@ -24,26 +24,49 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-        <groupId>de.uniluebeck.itm</groupId>
-        <artifactId>tr</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
-        <relativePath>../</relativePath>
-    </parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.6.2-SNAPSHOT</version>
+		<relativePath>../../</relativePath>
+	</parent>
 
-    <groupId>de.uniluebeck.itm</groupId>
-    <artifactId>tr.assemblies</artifactId>
-    <packaging>pom</packaging>
-    <name>TR :: Assemblies</name>
+	<artifactId>tr.snaa-assembly</artifactId>
+	<packaging>pom</packaging>
+	<name>TR :: SNAA Assembly</name>
+	
+	<dependencies>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-cmdline-server</artifactId>
+			<classifier>onejar</classifier>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
-    <modules>
-		<module>assembly-federator</module>
-		<module>experimentation-scripts</module>
-		<module>iwsn-assembly</module>
-		<module>rs-assembly</module>
-		<module>snaa-assembly</module>
-    </modules>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-5</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

@@ -1,0 +1,19 @@
+  Testbed Runtime reservation system (RS) assembly
+
+What does this directory contain?
+
+  This directory contains the implementation of the WISEBED reservation system (RS) API RS.
+  It further contains configuration files and startup scripts for Linux (32 and 64 bit) as well as
+  for Mac OS X (Universal, 64 bit). The startup scripts work like the well-known init scripts
+  of Linux.
+
+  $RS_ASSEMBLY_HOME/bin/   - startup scripts
+  $RS_ASSEMBLY_HOME/conf/  - configuration files
+  $RS_ASSEMBLY_HOME/lib/   - native libraries and java jars
+  $RS_ASSEMBLY_HOME/logs/  - logging output
+
+  The programs can be started and stopped by running the appropriate script and passing the
+  argument 'start' or 'stop'. Passing the argument 'install' will install the program startup
+  script as daemon to the default runlevel, running 'remove' will remove the daemon.
+
+  The program are always started in non-interactive daemon mode, logging to the logs/ directory.
