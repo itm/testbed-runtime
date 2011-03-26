@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.wsn-api-client</artifactId>
+	<artifactId>tr.debugging-gui-client</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: WSN API GUI Client</name>
+	<name>TR :: Debugging GUI Client</name>
 
 	<dependencies>
 
@@ -86,23 +86,18 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>de.uniluebeck.itm.gtr.wsngui.WSNGui</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.1</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.10</version>
 				<executions>
 					<execution>
+						<phase>package</phase>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.gtr.wsngui.WSNGui</mainClass>
+							<onejarVersion>0.98-RC2</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>onejar</classifier>
+						</configuration>
 						<goals>
 							<goal>one-jar</goal>
 						</goals>

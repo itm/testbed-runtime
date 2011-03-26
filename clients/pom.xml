@@ -39,6 +39,7 @@
     <name>TR :: Clients</name>
 
     <modules>
+		<module>debugging-gui-client</module>
 		<module>scripting-client</module>
     </modules>
 
