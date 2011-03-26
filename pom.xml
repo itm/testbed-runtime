@@ -248,7 +248,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wisebed-cmdline-client</artifactId>
+				<artifactId>tr.scripting-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

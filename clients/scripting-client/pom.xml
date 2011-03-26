@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.wisebed-cmdline-client</artifactId>
+	<artifactId>tr.scripting-client</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Wisebed Command Line Client</name>
+	<name>TR :: Scripting Client</name>
 
 	<dependencies>
 

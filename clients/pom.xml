@@ -39,7 +39,7 @@
     <name>TR :: Clients</name>
 
     <modules>
-		<module>wisebed-cmdline-client</module>
+		<module>scripting-client</module>
     </modules>
 
 </project>
