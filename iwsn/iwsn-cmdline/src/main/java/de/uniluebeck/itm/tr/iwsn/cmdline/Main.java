@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.cmdline;
+package de.uniluebeck.itm.tr.iwsn.cmdline;
 
 import com.google.common.collect.ImmutableList;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -36,15 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 
-/**
- * Created by IntelliJ IDEA. User: bimschas Date: 26.04.2010 Time: 16:50:56 TODO change
- */
 public class Main {
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
         start(args);
     }

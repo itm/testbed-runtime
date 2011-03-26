@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime.cmdline</artifactId>
+	<artifactId>tr.iwsn-cmdline</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime Commandline Client</name>
+	<name>TR :: iWSN Commandline Executable</name>
 
 	<dependencies>
 
@@ -114,7 +114,7 @@
 					<execution>
 						<phase>package</phase>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.tr.runtime.cmdline.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.Main</mainClass>
 							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
                             <classifier>onejar</classifier>
