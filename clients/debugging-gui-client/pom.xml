@@ -93,7 +93,7 @@
 					<execution>
 						<phase>package</phase>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.gtr.wsngui.WSNGui</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.debuggingguiclient.WSNGui</mainClass>
 							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
 							<classifier>onejar</classifier>
