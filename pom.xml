@@ -35,6 +35,7 @@
 	<modules>
 
 		<module>assemblies/</module>
+		<module>clients/</module>
 		<module>rs/</module>
 		<module>iwsn/</module>
 		<module>snaa/</module>
@@ -43,7 +44,6 @@
 		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
-		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
 		<module>motap</module>
