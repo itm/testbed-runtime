@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo ""
+echo "Copying assembly to testbed hosts..."
+pscp --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE ~/.m2/repository/de/uniluebeck/itm/tr.assembly/$TR_VERSION/tr.assembly-$TR_VERSION-assembly.tar.gz /opt/
+pscp --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE ~/.m2/repository/de/uniluebeck/itm/tr.assembly/$TR_VERSION/tr.assembly-$TR_VERSION-assembly.tar.gz /opt/
+
+echo ""
+echo "Unpacking assembly on testbed hosts..."
+pssh --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE "if [ -d /opt/tr.assembly-$TR_VERSION/ ]; then rm -rf /opt/tr.assembly-$TR_VERSION/; fi; tar xvzf /opt/tr.assembly-$TR_VERSION-assembly.tar.gz -C /opt/; rm /opt/tr.assembly-$TR_VERSION-assembly.tar.gz; chown -R $TESTBED_USER:$TESTBED_USER /opt/tr.assembly-$TR_VERSION; chmod -R ug+rwX /opt/tr.assembly-$TR_VERSION; chmod -R o-rwX /opt/tr.assembly-$TR_VERSION"
+pssh --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE "if [ -d /opt/tr.assembly-$TR_VERSION/ ]; then rm -rf /opt/tr.assembly-$TR_VERSION/; fi; tar xvzf /opt/tr.assembly-$TR_VERSION-assembly.tar.gz -C /opt/; rm /opt/tr.assembly-$TR_VERSION-assembly.tar.gz; chown -R $TESTBED_USER:$TESTBED_USER /opt/tr.assembly-$TR_VERSION; chmod -R ug+rwX /opt/tr.assembly-$TR_VERSION; chmod -R o-rwX /opt/tr.assembly-$TR_VERSION"
