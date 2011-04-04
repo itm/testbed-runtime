@@ -59,6 +59,10 @@ public class TypeConverter {
 		ConfidentialReservationDataInternal internal = new ConfidentialReservationDataInternal();
 
 		GregorianCalendar fromGregorianCalendar = external.getFrom().toGregorianCalendar();
+
+		// strange workaround to initialize object before setting timezone
+		fromGregorianCalendar.getTimeInMillis();
+
 		fromGregorianCalendar.setTimeZone(localTimeZone);
 		internal.setFromDate(fromGregorianCalendar.getTimeInMillis());
 
@@ -66,6 +70,10 @@ public class TypeConverter {
 		internal.setData(convertExternalToInternal(external.getData()));
 
 		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
+
+		// strange workaround to initialize object before setting timezone
+		toGregorianCalendar.getTimeInMillis();
+
 		toGregorianCalendar.setTimeZone(localTimeZone);
 		internal.setToDate(toGregorianCalendar.getTimeInMillis());
 
