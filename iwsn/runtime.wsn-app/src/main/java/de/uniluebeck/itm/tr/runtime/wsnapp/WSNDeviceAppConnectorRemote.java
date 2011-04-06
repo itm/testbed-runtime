@@ -31,20 +31,27 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
 
-	private String nodeUrn;
+	private final String nodeUrn;
 
-	private String nodeType;
+	private final String nodeType;
 
-	private Integer nodeAPITimeout;
+	private final Integer nodeAPITimeout;
 
-	private SchedulerService schedulerService;
+	private final SchedulerService schedulerService;
+
+	private final Integer timeoutReset;
+
+	private final Integer timeoutFlash;
 
 	public WSNDeviceAppConnectorRemote(final String nodeUrn, final String nodeType, final Integer nodeAPITimeout,
-									   final SchedulerService schedulerService) {
+									   final SchedulerService schedulerService, final Integer timeoutReset,
+									   final Integer timeoutFlash) {
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
 		this.nodeAPITimeout = nodeAPITimeout;
 		this.schedulerService = schedulerService;
+		this.timeoutReset = timeoutReset;
+		this.timeoutFlash = timeoutFlash;
 	}
 
 	@Override
@@ -95,12 +102,6 @@ public class WSNDeviceAppConnectorRemote extends AbstractListenable<WSNDeviceApp
 	@Override
 	public void flashProgram(final WSNAppMessages.Program program, final FlashProgramCallback listener) {
 		// TODO implement
-	}
-
-	private void notifyListener(MessagePacket p) {
-		for (NodeOutputListener listener : listeners) {
-			listener.receivedPacket(p);
-		}
 	}
 
 	@Override

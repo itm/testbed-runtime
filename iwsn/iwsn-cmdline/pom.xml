@@ -117,100 +117,112 @@
 							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.Main</mainClass>
 							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
-                            <classifier>onejar</classifier>
+							<classifier>onejar</classifier>
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
-                                <!-- mac os x -->
-                                <!--
+								<!-- mac os x -->
+								<!--
 								<binlib>
-                                    <os>mac os x</os>
-                                    <arch>x86</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-                                        <includes>
-                                            <include>librxtxSerial.jnilib</include>
-                                        </includes>
-                                    </fileSet>
-                                </binlib>
-								-->
-                                <binlib>
-                                    <os>mac os x</os>
-                                    <arch>x86_64</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-                                        <includes>
-                                            <include>librxtxSerial.jnilib</include>
-                                        </includes>
-                                    </fileSet>
-                                </binlib>
-                                <!-- windows -->
-                                <binlib>
-                                    <os>windows</os>
-                                    <arch>x86</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
-                                        <includes>
-                                            <include>rxtxParallel.dll</include>
-                                            <include>rxtxSerial.dll</include>
-                                        </includes>
-                                    </fileSet>
-                                </binlib>
-                                <binlib>
-                                    <os>windows</os>
-                                    <arch>x86_64</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64</directory>
-                                        <includes>
-                                            <include>rxtxSerial.dll</include>
-                                        </includes>
-                                    </fileSet>                                    
-                                </binlib>
-                                <!-- linux -->
-                                <binlib>
-                                    <os>linux</os>
-                                    <arch>x86</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32</directory>
-                                        <includes>
-                                            <include>librxtxParallel.so</include>
-                                            <include>librxtxSerial.so</include>
-                                        </includes>
-                                    </fileSet>
-                                </binlib>
-                                <binlib>
-                                    <os>linux</os>
-                                    <arch>x86_64</arch>
-                                    <fileSet>
-                                        <directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64</directory>
-                                        <includes>
-                                            <include>librxtxSerial.so</include>
-                                        </includes>
-                                    </fileSet>
-                                </binlib>
-								<!-- <binlib>
-									<os>linux</os>
-									<arch>arm</arch>
+									<os>mac os x</os>
+									<arch>x86</arch>
 									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/arm</directory>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
 										<includes>
-											<include>librxtxI2C-2.1-7.so</include>
-											<include>librxtxI2C.la</include>
-											<include>librxtxI2C.so</include>
-											<include>librxtxParallel-2.1-7.so</include>
-											<include>librxtxParallel.la</include>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<binlib>
+									<os>mac os x</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+										<includes>
+											<include>librxtxSerial.jnilib</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- windows -->
+								<binlib>
+									<os>windows</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+										<includes>
+											<include>rxtxParallel.dll</include>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<binlib>
+									<os>windows</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64</directory>
+										<includes>
+											<include>rxtxSerial.dll</include>
+										</includes>
+									</fileSet>                                    
+								</binlib>
+								<!-- linux -->
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
+										</directory>
+										<includes>
 											<include>librxtxParallel.so</include>
-											<include>librxtxRaw-2.1-7.so</include>
-											<include>librxtxRaw.la</include>
-											<include>librxtxRaw.so</include>
-											<include>librxtxRS485-2.1-7.so</include>
-											<include>librxtxRS485.la</include>
-											<include>librxtxRS485.so</include>
-											<include>librxtxSerial-2.1-7.so</include>
-											<include>librxtxSerial.la</include>
 											<include>librxtxSerial.so</include>
 										</includes>
 									</fileSet>
-								</binlib> -->
+								</binlib>
+								<binlib>
+									<os>linux</os>
+									<arch>x86_64</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
+										</directory>
+										<includes>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
