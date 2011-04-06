@@ -67,21 +67,21 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				nodeUSBChipID = wsnDevice.getUsbchipid();
 				maximumMessageRate = wsnDevice.getMaximummessagerate();
 
-				timeoutNodeAPI = wsnDevice.getTimeouts().getNodeapi();
+				timeoutNodeAPI = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getNodeapi();
 				Preconditions.checkArgument(
 						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
 						"The timeout value for the Node API must either be omitted (null) to use the default value "
 								+ "or larger than 0 (zero). Current value: " + timeoutNodeAPI
 				);
 
-				timeoutReset = wsnDevice.getTimeouts().getReset();
+				timeoutReset = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getReset();
 				Preconditions.checkArgument(
 						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
 						"The timeout value for the reset operation must either be omitted (null) to use the default "
 								+ "value or larger than 0 (zero). Current value: " + timeoutNodeAPI
 				);
 
-				timeoutFlash = wsnDevice.getTimeouts().getFlash();
+				timeoutFlash = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getFlash();
 				Preconditions.checkArgument(
 						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
 						"The timeout value for the flash operation must either be omitted (null) to use the default "
