@@ -130,8 +130,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	private WSNDeviceAppConnector connector;
 
 	public WSNDeviceAppImpl(final String nodeUrn, final String nodeType, final String nodeSerialInterface,
-							final Integer nodeAPITimeout, final String nodeUSBChipID, final Integer maximumMessageRate,
-							final TestbedRuntime testbedRuntime) {
+							final Integer timeoutNodeAPI, final String nodeUSBChipID, final Integer maximumMessageRate,
+							final TestbedRuntime testbedRuntime,
+							final Integer timeoutReset, final Integer timeoutFlash) {
 
 		Preconditions.checkNotNull(testbedRuntime);
 		Preconditions.checkNotNull(nodeUrn);
@@ -151,9 +152,11 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				nodeType,
 				nodeUSBChipID,
 				nodeSerialInterface,
-				nodeAPITimeout,
+				timeoutNodeAPI,
                 maximumMessageRate,
-				testbedRuntime.getSchedulerService()
+				testbedRuntime.getSchedulerService(),
+				timeoutReset,
+				timeoutFlash
 		);
 
 	}
