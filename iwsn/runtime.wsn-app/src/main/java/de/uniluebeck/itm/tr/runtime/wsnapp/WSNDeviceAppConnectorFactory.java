@@ -48,7 +48,7 @@ public class WSNDeviceAppConnectorFactory {
 
 		if (isLocal) {
 
-			boolean newDrivers = System.getProperties().containsValue("testbed.newdrivers");
+			boolean newDrivers = System.getProperties().containsKey("testbed.newdrivers");
 
 			if (newDrivers) {
 
