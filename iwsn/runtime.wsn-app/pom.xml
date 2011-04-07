@@ -55,6 +55,21 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.motelist</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.jennic</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.pacemate</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.telosb</artifactId>
+			<version>0.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

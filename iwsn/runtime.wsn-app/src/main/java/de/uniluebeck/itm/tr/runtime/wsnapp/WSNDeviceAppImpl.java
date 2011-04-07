@@ -33,7 +33,6 @@ import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +152,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				nodeUSBChipID,
 				nodeSerialInterface,
 				timeoutNodeAPI,
-                maximumMessageRate,
+				maximumMessageRate,
 				testbedRuntime.getSchedulerService(),
 				timeoutReset,
 				timeoutFlash
@@ -470,10 +469,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	WSNDeviceAppConnector.NodeOutputListener nodeOutputListener = new WSNDeviceAppConnector.NodeOutputListener() {
 		@Override
-		public void receivedPacket(final MessagePacket p) {
+		public void receivedPacket(final byte[] bytes) {
 
 			if (log.isDebugEnabled() && nodeMessageListeners.size() == 0) {
-				log.debug("{} => Received packet but no message listeners registered! Packet: {}", nodeUrn, p);
+				log.debug(
+						"{} => Received packet but no message listeners registered! Packet: {}",
+						nodeUrn,
+						StringUtils.toHexString(bytes)
+				);
 				return;
 			}
 
@@ -483,7 +486,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
 					.setSourceNodeId(nodeUrn)
 					.setTimestamp(now.toXMLFormat())
-					.setBinaryData(ByteString.copyFrom(p.getByteArray()));
+					.setBinaryData(ByteString.copyFrom(bytes));
 
 			WSNAppMessages.Message message = messageBuilder.build();
 
@@ -519,11 +522,12 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			for (String nodeMessageListener : nodeMessageListeners) {
 
 				if (log.isDebugEnabled()) {
-					log.debug("{} => Delivering notification to {}: {}", new String[] {
+					log.debug("{} => Delivering notification to {}: {}", new String[]{
 							nodeUrn,
 							nodeMessageListener,
 							notification
-					});
+					}
+					);
 				}
 
 				testbedRuntime.getUnreliableMessagingService().sendAsync(
