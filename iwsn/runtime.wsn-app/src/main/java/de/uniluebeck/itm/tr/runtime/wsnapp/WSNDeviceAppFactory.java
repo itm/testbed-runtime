@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Preconditions;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.util.StringUtils;
@@ -53,20 +52,41 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			WsnDevice wsnDevice = (WsnDevice) unmarshaller.unmarshal((Node) configuration);
 
 			String nodeUrn, nodeType, nodeSerialInterface, nodeUSBChipID;
-			Integer nodeAPITimeout, maximumMessageRate;
+			Integer timeoutNodeAPI, maximumMessageRate, timeoutReset, timeoutFlash;
 
 			try {
 
 				nodeUrn = wsnDevice.getUrn();
-				nodeType = wsnDevice.getType();
-				nodeType = wsnDevice.getType();
-				nodeSerialInterface = wsnDevice.getSerialinterface();
-				nodeAPITimeout = wsnDevice.getNodeapitimeout();
-				nodeUSBChipID = wsnDevice.getUsbchipid();
-                maximumMessageRate = wsnDevice.getMaximummessagerate();
 				Preconditions.checkNotNull(nodeUrn);
-				Preconditions.checkNotNull(nodeType);
 				StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
+
+				nodeType = wsnDevice.getType();
+				Preconditions.checkNotNull(nodeType);
+
+				nodeSerialInterface = wsnDevice.getSerialinterface();
+				nodeUSBChipID = wsnDevice.getUsbchipid();
+				maximumMessageRate = wsnDevice.getMaximummessagerate();
+
+				timeoutNodeAPI = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getNodeapi();
+				Preconditions.checkArgument(
+						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
+						"The timeout value for the Node API must either be omitted (null) to use the default value "
+								+ "or larger than 0 (zero). Current value: " + timeoutNodeAPI
+				);
+
+				timeoutReset = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getReset();
+				Preconditions.checkArgument(
+						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
+						"The timeout value for the reset operation must either be omitted (null) to use the default "
+								+ "value or larger than 0 (zero). Current value: " + timeoutNodeAPI
+				);
+
+				timeoutFlash = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getFlash();
+				Preconditions.checkArgument(
+						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
+						"The timeout value for the flash operation must either be omitted (null) to use the default "
+								+ "value or larger than 0 (zero). Current value: " + timeoutNodeAPI
+				);
 
 			} catch (Exception e) {
 				// ignore this device as it is badly configured
@@ -78,10 +98,12 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 					nodeUrn,
 					nodeType,
 					nodeSerialInterface,
-					nodeAPITimeout,
+					timeoutNodeAPI,
 					nodeUSBChipID,
-                    maximumMessageRate,
-					testbedRuntime
+					maximumMessageRate,
+					testbedRuntime,
+					timeoutReset,
+					timeoutFlash
 			);
 
 		} catch (JAXBException e) {

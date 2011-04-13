@@ -42,29 +42,37 @@ import javax.xml.datatype.XMLGregorianCalendar;
 		"duration",
 		"unit"
 })
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Timeinfo {
 
 	@XmlElement(required = true)
 	@XmlSchemaType(name = "dateTime")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected XMLGregorianCalendar start;
+
 	@XmlSchemaType(name = "dateTime")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected XMLGregorianCalendar end;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String duration;
+
 	@XmlElement(required = true)
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String unit;
 
 	/**
 	 * Gets the value of the start property.
 	 *
-	 * @return possible object is
-	 *         {@link XMLGregorianCalendar }
+	 * @return possible object is {@link XMLGregorianCalendar }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public XMLGregorianCalendar getStart() {
 		return start;
 	}
@@ -72,10 +80,10 @@ public class Timeinfo {
 	/**
 	 * Sets the value of the start property.
 	 *
-	 * @param value allowed object is
-	 *              {@link XMLGregorianCalendar }
+	 * @param value allowed object is {@link XMLGregorianCalendar }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setStart(XMLGregorianCalendar value) {
 		this.start = value;
 	}
@@ -83,10 +91,10 @@ public class Timeinfo {
 	/**
 	 * Gets the value of the end property.
 	 *
-	 * @return possible object is
-	 *         {@link XMLGregorianCalendar }
+	 * @return possible object is {@link XMLGregorianCalendar }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public XMLGregorianCalendar getEnd() {
 		return end;
 	}
@@ -94,10 +102,10 @@ public class Timeinfo {
 	/**
 	 * Sets the value of the end property.
 	 *
-	 * @param value allowed object is
-	 *              {@link XMLGregorianCalendar }
+	 * @param value allowed object is {@link XMLGregorianCalendar }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setEnd(XMLGregorianCalendar value) {
 		this.end = value;
 	}
@@ -105,10 +113,10 @@ public class Timeinfo {
 	/**
 	 * Gets the value of the duration property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getDuration() {
 		return duration;
 	}
@@ -116,10 +124,10 @@ public class Timeinfo {
 	/**
 	 * Sets the value of the duration property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setDuration(String value) {
 		this.duration = value;
 	}
@@ -127,10 +135,10 @@ public class Timeinfo {
 	/**
 	 * Gets the value of the unit property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getUnit() {
 		return unit;
 	}
@@ -138,10 +146,10 @@ public class Timeinfo {
 	/**
 	 * Sets the value of the unit property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setUnit(String value) {
 		this.unit = value;
 	}

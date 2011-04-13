@@ -35,7 +35,8 @@ import java.util.List;
 		"scenarioItem"
 })
 @XmlRootElement(name = "scenario")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Scenario {
 
 	@XmlElements({
@@ -46,21 +47,23 @@ public class Scenario {
 			@XmlElement(name = "node", required = true, type = Scenario.Node.class),
 			@XmlElement(name = "disableLink", required = true, type = DisableLink.class)
 	})
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected List<Object> scenarioItem;
+
 	@XmlAttribute(required = true)
 	@XmlSchemaType(name = "anySimpleType")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String id;
 
 	/**
 	 * Gets the value of the scenarioItem property.
 	 * <p/>
 	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the scenarioItem property.
+	 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+	 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+	 * scenarioItem property.
 	 * <p/>
 	 * <p/>
 	 * For example, to add a new item, do as follows:
@@ -70,15 +73,11 @@ public class Scenario {
 	 * <p/>
 	 * <p/>
 	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link EnableLink }
-	 * {@link String }
-	 * {@link EnableNode }
-	 * {@link DisableNode }
-	 * {@link Scenario.Node }
-	 * {@link DisableLink }
+	 * Objects of the following type(s) are allowed in the list {@link EnableLink } {@link String } {@link EnableNode }
+	 * {@link DisableNode } {@link Scenario.Node } {@link DisableLink }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public List<Object> getScenarioItem() {
 		if (scenarioItem == null) {
 			scenarioItem = new ArrayList<Object>();
@@ -89,10 +88,10 @@ public class Scenario {
 	/**
 	 * Gets the value of the id property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getId() {
 		return id;
 	}
@@ -100,10 +99,10 @@ public class Scenario {
 	/**
 	 * Sets the value of the id property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setId(String value) {
 		this.id = value;
 	}
@@ -132,28 +131,31 @@ public class Scenario {
 	@XmlType(name = "", propOrder = {
 			"positionAndData"
 	})
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public static class Node {
 
 		@XmlElements({
 				@XmlElement(name = "position", type = Coordinate.class),
 				@XmlElement(name = "data", type = Data.class)
 		})
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected List<Object> positionAndData;
+
 		@XmlAttribute(required = true)
 		@XmlSchemaType(name = "anySimpleType")
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected String id;
 
 		/**
 		 * Gets the value of the positionAndData property.
 		 * <p/>
 		 * <p/>
-		 * This accessor method returns a reference to the live list,
-		 * not a snapshot. Therefore any modification you make to the
-		 * returned list will be present inside the JAXB object.
-		 * This is why there is not a <CODE>set</CODE> method for the positionAndData property.
+		 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+		 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+		 * the positionAndData property.
 		 * <p/>
 		 * <p/>
 		 * For example, to add a new item, do as follows:
@@ -163,11 +165,10 @@ public class Scenario {
 		 * <p/>
 		 * <p/>
 		 * <p/>
-		 * Objects of the following type(s) are allowed in the list
-		 * {@link Coordinate }
-		 * {@link Data }
+		 * Objects of the following type(s) are allowed in the list {@link Coordinate } {@link Data }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public List<Object> getPositionAndData() {
 			if (positionAndData == null) {
 				positionAndData = new ArrayList<Object>();
@@ -178,10 +179,10 @@ public class Scenario {
 		/**
 		 * Gets the value of the id property.
 		 *
-		 * @return possible object is
-		 *         {@link String }
+		 * @return possible object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public String getId() {
 			return id;
 		}
@@ -189,10 +190,10 @@ public class Scenario {
 		/**
 		 * Sets the value of the id property.
 		 *
-		 * @param value allowed object is
-		 *              {@link String }
+		 * @param value allowed object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setId(String value) {
 			this.id = value;
 		}

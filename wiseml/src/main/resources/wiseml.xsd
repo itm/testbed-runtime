@@ -14,14 +14,14 @@
 	<xs:element name="wiseml">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="wiseml:setup"/>
-				<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:scenario"/>
-				<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:trace"/>
+				<xs:element ref="wiseml:setup" />
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:scenario" />
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:trace" />
 			</xs:sequence>
 			<xs:attribute name="version" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:token">
-						<xs:enumeration value="1.0"/>
+						<xs:enumeration value="1.0" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -31,47 +31,47 @@
 	<xs:element name="setup">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:group minOccurs="0" ref="wiseml:setup.properties"/>
-				<xs:element minOccurs="0" ref="wiseml:defaults"/>
-				<xs:group maxOccurs="unbounded" ref="wiseml:node"/>
-				<xs:group minOccurs="0" maxOccurs="unbounded" ref="wiseml:link"/>
+				<xs:group minOccurs="0" ref="wiseml:setup.properties" />
+				<xs:element minOccurs="0" ref="wiseml:defaults" />
+				<xs:group maxOccurs="unbounded" ref="wiseml:node" />
+				<xs:group minOccurs="0" maxOccurs="unbounded" ref="wiseml:link" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 	<xs:group name="setup.properties">
 		<xs:sequence>
-			<xs:element minOccurs="0" ref="wiseml:origin"/>
-			<xs:element minOccurs="0" ref="wiseml:timeinfo"/>
-			<xs:element minOccurs="0" ref="wiseml:interpolation"/>
-			<xs:element minOccurs="0" ref="wiseml:coordinateType"/>
-			<xs:element minOccurs="0" ref="wiseml:description"/>
+			<xs:element minOccurs="0" ref="wiseml:origin" />
+			<xs:element minOccurs="0" ref="wiseml:timeinfo" />
+			<xs:element minOccurs="0" ref="wiseml:interpolation" />
+			<xs:element minOccurs="0" ref="wiseml:coordinateType" />
+			<xs:element minOccurs="0" ref="wiseml:description" />
 		</xs:sequence>
 	</xs:group>
-	<xs:element name="origin" type="wiseml:coordinate"/>
-	<xs:element name="timeinfo" type="wiseml:timeinfo"/>
-	<xs:element name="interpolation" type="wiseml:interpolation"/>
-	<xs:element name="coordinateType" type="xs:string"/>
-	<xs:element name="description" type="xs:string"/>
+	<xs:element name="origin" type="wiseml:coordinate" />
+	<xs:element name="timeinfo" type="wiseml:timeinfo" />
+	<xs:element name="interpolation" type="wiseml:interpolation" />
+	<xs:element name="coordinateType" type="xs:string" />
+	<xs:element name="description" type="xs:string" />
 	<xs:complexType name="timeinfo">
 		<xs:sequence>
-			<xs:element ref="wiseml:start"/>
+			<xs:element ref="wiseml:start" />
 			<xs:choice>
-				<xs:element ref="wiseml:end"/>
-				<xs:element ref="wiseml:duration"/>
+				<xs:element ref="wiseml:end" />
+				<xs:element ref="wiseml:duration" />
 			</xs:choice>
-			<xs:element ref="wiseml:unit"/>
+			<xs:element ref="wiseml:unit" />
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="start" type="xs:dateTime"/>
-	<xs:element name="end" type="xs:dateTime"/>
-	<xs:element name="duration" type="xs:string"/>
-	<xs:element name="unit" type="xs:string"/>
+	<xs:element name="start" type="xs:dateTime" />
+	<xs:element name="end" type="xs:dateTime" />
+	<xs:element name="duration" type="xs:string" />
+	<xs:element name="unit" type="xs:string" />
 	<!-- DEFAULTS -->
 	<xs:element name="defaults">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element minOccurs="0" name="node" type="wiseml:node.properties"/>
-				<xs:element minOccurs="0" name="link" type="wiseml:link.properties"/>
+				<xs:element minOccurs="0" name="node" type="wiseml:node.properties" />
+				<xs:element minOccurs="0" name="link" type="wiseml:link.properties" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -82,7 +82,7 @@
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="wiseml:node.properties">
-							<xs:attribute name="id" use="required"/>
+							<xs:attribute name="id" use="required" />
 						</xs:extension>
 					</xs:complexContent>
 				</xs:complexType>
@@ -91,18 +91,18 @@
 	</xs:group>
 	<xs:complexType name="node.properties">
 		<xs:sequence>
-			<xs:element minOccurs="0" ref="wiseml:position"/>
-			<xs:element minOccurs="0" ref="wiseml:gateway"/>
-			<xs:element minOccurs="0" ref="wiseml:programDetails"/>
-			<xs:element minOccurs="0" ref="wiseml:nodeType"/>
-			<xs:element minOccurs="0" ref="wiseml:description"/>
-			<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:capability"/>
+			<xs:element minOccurs="0" ref="wiseml:position" />
+			<xs:element minOccurs="0" ref="wiseml:gateway" />
+			<xs:element minOccurs="0" ref="wiseml:programDetails" />
+			<xs:element minOccurs="0" ref="wiseml:nodeType" />
+			<xs:element minOccurs="0" ref="wiseml:description" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:capability" />
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="position" type="wiseml:coordinate"/>
-	<xs:element name="gateway" type="xs:boolean"/>
-	<xs:element name="programDetails" type="xs:string"/>
-	<xs:element name="nodeType" type="xs:string"/>
+	<xs:element name="position" type="wiseml:coordinate" />
+	<xs:element name="gateway" type="xs:boolean" />
+	<xs:element name="programDetails" type="xs:string" />
+	<xs:element name="nodeType" type="xs:string" />
 	<!-- LINK -->
 	<xs:group name="link">
 		<xs:sequence>
@@ -110,8 +110,8 @@
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="wiseml:link.properties">
-							<xs:attribute name="source" use="required"/>
-							<xs:attribute name="target" use="required"/>
+							<xs:attribute name="source" use="required" />
+							<xs:attribute name="target" use="required" />
 						</xs:extension>
 					</xs:complexContent>
 				</xs:complexType>
@@ -120,74 +120,74 @@
 	</xs:group>
 	<xs:complexType name="link.properties">
 		<xs:sequence>
-			<xs:element minOccurs="0" ref="wiseml:encrypted"/>
-			<xs:element minOccurs="0" ref="wiseml:virtual"/>
-			<xs:element minOccurs="0" ref="wiseml:rssi"/>
-			<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:capability"/>
+			<xs:element minOccurs="0" ref="wiseml:encrypted" />
+			<xs:element minOccurs="0" ref="wiseml:virtual" />
+			<xs:element minOccurs="0" ref="wiseml:rssi" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:capability" />
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="encrypted" type="xs:boolean"/>
-	<xs:element name="virtual" type="xs:boolean"/>
+	<xs:element name="encrypted" type="xs:boolean" />
+	<xs:element name="virtual" type="xs:boolean" />
 	<xs:element name="rssi">
 		<xs:complexType>
-			<xs:attribute name="datatype" use="required" type="wiseml:dtypes"/>
-			<xs:attribute name="unit" use="required" type="wiseml:units"/>
-			<xs:attribute name="default" use="required"/>
+			<xs:attribute name="datatype" use="required" type="wiseml:dtypes" />
+			<xs:attribute name="unit" use="required" type="wiseml:units" />
+			<xs:attribute name="default" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<!-- SETUP COMMON ELEMENTS -->
 	<xs:element name="capability">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="wiseml:name"/>
-				<xs:element ref="wiseml:datatype"/>
-				<xs:element name="unit" type="wiseml:units"/>
-				<xs:element ref="wiseml:default"/>
+				<xs:element ref="wiseml:name" />
+				<xs:element ref="wiseml:datatype" />
+				<xs:element name="unit" type="wiseml:units" />
+				<xs:element ref="wiseml:default" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="name" type="xs:string"/>
-	<xs:element name="datatype" type="wiseml:dtypes"/>
-	<xs:element name="default" type="xs:string"/>
+	<xs:element name="name" type="xs:string" />
+	<xs:element name="datatype" type="wiseml:dtypes" />
+	<xs:element name="default" type="xs:string" />
 	<!-- SCENARIO -->
 	<xs:element name="scenario">
 		<xs:complexType>
-			<xs:group maxOccurs="unbounded" ref="wiseml:scenario.item"/>
-			<xs:attribute name="id" use="required"/>
+			<xs:group maxOccurs="unbounded" ref="wiseml:scenario.item" />
+			<xs:attribute name="id" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:group name="scenario.item">
 		<xs:sequence>
-			<xs:element ref="wiseml:timestamp"/>
+			<xs:element ref="wiseml:timestamp" />
 			<xs:choice maxOccurs="unbounded">
-				<xs:element ref="wiseml:enableNode"/>
-				<xs:element ref="wiseml:disableNode"/>
-				<xs:element ref="wiseml:enableLink"/>
-				<xs:element ref="wiseml:disableLink"/>
-				<xs:group ref="wiseml:node.scenario"/>
+				<xs:element ref="wiseml:enableNode" />
+				<xs:element ref="wiseml:disableNode" />
+				<xs:element ref="wiseml:enableLink" />
+				<xs:element ref="wiseml:disableLink" />
+				<xs:group ref="wiseml:node.scenario" />
 			</xs:choice>
 		</xs:sequence>
 	</xs:group>
 	<xs:element name="enableNode">
 		<xs:complexType>
-			<xs:attribute name="id" use="required"/>
+			<xs:attribute name="id" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="disableNode">
 		<xs:complexType>
-			<xs:attribute name="id" use="required"/>
+			<xs:attribute name="id" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="enableLink">
 		<xs:complexType>
-			<xs:attribute name="source" use="required"/>
-			<xs:attribute name="target" use="required"/>
+			<xs:attribute name="source" use="required" />
+			<xs:attribute name="target" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="disableLink">
 		<xs:complexType>
-			<xs:attribute name="source" use="required"/>
-			<xs:attribute name="target" use="required"/>
+			<xs:attribute name="source" use="required" />
+			<xs:attribute name="target" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:group name="node.scenario">
@@ -195,45 +195,45 @@
 			<xs:element name="node">
 				<xs:complexType>
 					<xs:sequence maxOccurs="unbounded">
-						<xs:element minOccurs="0" ref="wiseml:position"/>
-						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data"/>
+						<xs:element minOccurs="0" ref="wiseml:position" />
+						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data" />
 					</xs:sequence>
-					<xs:attribute name="id" use="required"/>
+					<xs:attribute name="id" use="required" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
 	</xs:group>
 	<xs:element name="data">
 		<xs:complexType mixed="true">
-			<xs:attribute name="key" use="required"/>
+			<xs:attribute name="key" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<!-- TRACE -->
 	<xs:element name="trace">
 		<xs:complexType>
-			<xs:group maxOccurs="unbounded" ref="wiseml:trace.item"/>
-			<xs:attribute name="id" use="required"/>
+			<xs:group maxOccurs="unbounded" ref="wiseml:trace.item" />
+			<xs:attribute name="id" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:group name="trace.item">
 		<xs:sequence>
-			<xs:element ref="wiseml:timestamp"/>
+			<xs:element ref="wiseml:timestamp" />
 			<xs:choice maxOccurs="unbounded">
-				<xs:group ref="wiseml:node.traceitem"/>
-				<xs:group ref="wiseml:link.traceitem"/>
+				<xs:group ref="wiseml:node.traceitem" />
+				<xs:group ref="wiseml:link.traceitem" />
 			</xs:choice>
 		</xs:sequence>
 	</xs:group>
-	<xs:element name="timestamp" type="xs:string"/>
+	<xs:element name="timestamp" type="xs:string" />
 	<xs:group name="node.traceitem">
 		<xs:sequence>
 			<xs:element name="node">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element minOccurs="0" ref="wiseml:position"/>
-						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data"/>
+						<xs:element minOccurs="0" ref="wiseml:position" />
+						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data" />
 					</xs:sequence>
-					<xs:attribute name="id" use="required"/>
+					<xs:attribute name="id" use="required" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
@@ -243,11 +243,11 @@
 			<xs:element name="link">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element minOccurs="0" name="rssi" type="xs:string"/>
-						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data"/>
+						<xs:element minOccurs="0" name="rssi" type="xs:string" />
+						<xs:element minOccurs="0" maxOccurs="unbounded" ref="wiseml:data" />
 					</xs:sequence>
-					<xs:attribute name="source" use="required"/>
-					<xs:attribute name="target" use="required"/>
+					<xs:attribute name="source" use="required" />
+					<xs:attribute name="target" use="required" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
@@ -255,52 +255,52 @@
 	<!-- DATA TYPES -->
 	<xs:simpleType name="dtypes">
 		<xs:restriction base="xs:token">
-			<xs:enumeration value="decimal"/>
-			<xs:enumeration value="integer"/>
+			<xs:enumeration value="decimal" />
+			<xs:enumeration value="integer" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="units">
 		<xs:restriction base="xs:token">
-			<xs:enumeration value="meters"/>
-			<xs:enumeration value="centimeters"/>
-			<xs:enumeration value="radians"/>
-			<xs:enumeration value="degrees"/>
-			<xs:enumeration value="seconds"/>
-			<xs:enumeration value="milliseconds"/>
-			<xs:enumeration value="dBm"/>
-			<xs:enumeration value="kelvin"/>
-			<xs:enumeration value="percentage"/>
-			<xs:enumeration value="lux"/>
-			<xs:enumeration value="raw"/>
+			<xs:enumeration value="meters" />
+			<xs:enumeration value="centimeters" />
+			<xs:enumeration value="radians" />
+			<xs:enumeration value="degrees" />
+			<xs:enumeration value="seconds" />
+			<xs:enumeration value="milliseconds" />
+			<xs:enumeration value="dBm" />
+			<xs:enumeration value="kelvin" />
+			<xs:enumeration value="percentage" />
+			<xs:enumeration value="lux" />
+			<xs:enumeration value="raw" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="interpolation">
 		<xs:restriction base="xs:token">
-			<xs:enumeration value="none"/>
-			<xs:enumeration value="linear"/>
-			<xs:enumeration value="polynomial"/>
-			<xs:enumeration value="cubic"/>
-			<xs:enumeration value="spline"/>
+			<xs:enumeration value="none" />
+			<xs:enumeration value="linear" />
+			<xs:enumeration value="polynomial" />
+			<xs:enumeration value="cubic" />
+			<xs:enumeration value="spline" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:attributeGroup name="unit">
-		<xs:attribute name="unit" use="required" type="wiseml:units"/>
+		<xs:attribute name="unit" use="required" type="wiseml:units" />
 	</xs:attributeGroup>
 	<xs:attributeGroup name="dtype">
-		<xs:attribute name="datatype" use="required" type="wiseml:dtypes"/>
+		<xs:attribute name="datatype" use="required" type="wiseml:dtypes" />
 	</xs:attributeGroup>
 	<xs:complexType name="coordinate">
 		<xs:sequence>
-			<xs:element ref="wiseml:x"/>
-			<xs:element ref="wiseml:y"/>
-			<xs:element minOccurs="0" ref="wiseml:z"/>
-			<xs:element minOccurs="0" ref="wiseml:phi"/>
-			<xs:element minOccurs="0" ref="wiseml:theta"/>
+			<xs:element ref="wiseml:x" />
+			<xs:element ref="wiseml:y" />
+			<xs:element minOccurs="0" ref="wiseml:z" />
+			<xs:element minOccurs="0" ref="wiseml:phi" />
+			<xs:element minOccurs="0" ref="wiseml:theta" />
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="x" type="xs:double"/>
-	<xs:element name="y" type="xs:double"/>
-	<xs:element name="z" type="xs:double"/>
-	<xs:element name="phi" type="xs:double"/>
-	<xs:element name="theta" type="xs:double"/>
+	<xs:element name="x" type="xs:double" />
+	<xs:element name="y" type="xs:double" />
+	<xs:element name="z" type="xs:double" />
+	<xs:element name="phi" type="xs:double" />
+	<xs:element name="theta" type="xs:double" />
 </xs:schema>

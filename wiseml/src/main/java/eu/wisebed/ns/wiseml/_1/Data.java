@@ -32,24 +32,28 @@ import javax.xml.bind.annotation.*;
 		"content"
 })
 @XmlRootElement(name = "data")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Data {
 
 	@XmlValue
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String content;
+
 	@XmlAttribute(required = true)
 	@XmlSchemaType(name = "anySimpleType")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String key;
 
 	/**
 	 * Gets the value of the content property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getContent() {
 		return content;
 	}
@@ -57,10 +61,10 @@ public class Data {
 	/**
 	 * Sets the value of the content property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setContent(String value) {
 		this.content = value;
 	}
@@ -68,10 +72,10 @@ public class Data {
 	/**
 	 * Gets the value of the key property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getKey() {
 		return key;
 	}
@@ -79,10 +83,10 @@ public class Data {
 	/**
 	 * Sets the value of the key property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setKey(String value) {
 		this.key = value;
 	}

@@ -30,13 +30,15 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlType(name = "dtypes")
 @XmlEnum
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public enum Dtypes {
 
 	@XmlEnumValue("decimal")
 	DECIMAL("decimal"),
 	@XmlEnumValue("integer")
 	INTEGER("integer");
+
 	private final String value;
 
 	Dtypes(String v) {

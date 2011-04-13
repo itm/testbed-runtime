@@ -52,4 +52,13 @@ public class Logging {
 			coaLogger.setLevel(Level.INFO);
 		}
 	}
+
+
+        public static void setDebugLoggingDefaults() {
+		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-20.20C{3} | %-5p | %m%n");
+                final Appender appender = new ConsoleAppender(patternLayout);
+                Logger.getRootLogger().removeAllAppenders();
+                Logger.getRootLogger().addAppender(appender);
+                Logger.getRootLogger().setLevel(Level.DEBUG);
+	}
 }

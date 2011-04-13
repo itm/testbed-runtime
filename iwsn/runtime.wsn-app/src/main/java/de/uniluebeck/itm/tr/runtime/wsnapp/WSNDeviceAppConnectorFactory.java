@@ -30,9 +30,11 @@ public class WSNDeviceAppConnectorFactory {
 
 
 	public static WSNDeviceAppConnector create(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-											   final String nodeSerialInterface, final Integer nodeAPITimeout,
+											   final String nodeSerialInterface, final Integer timeoutNodeAPI,
 											   final Integer maximumMessageRate,
-											   final SchedulerService schedulerService) {
+											   final SchedulerService schedulerService,
+											   final Integer timeoutReset,
+											   final Integer timeoutFlash) {
 
 		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType) || "mock".equals(nodeType)) {
 
@@ -41,9 +43,11 @@ public class WSNDeviceAppConnectorFactory {
 					nodeType,
 					nodeUSBChipID,
 					nodeSerialInterface,
-					nodeAPITimeout,
+					timeoutNodeAPI,
 					maximumMessageRate,
-					schedulerService
+					schedulerService,
+					timeoutReset,
+					timeoutFlash
 			);
 
 		} else if ("isense-motap".equals(nodeType)) {
@@ -51,8 +55,10 @@ public class WSNDeviceAppConnectorFactory {
 			return new WSNDeviceAppConnectorRemote(
 					nodeUrn,
 					nodeType,
-					nodeAPITimeout,
-					schedulerService
+					timeoutNodeAPI,
+					schedulerService,
+					timeoutReset,
+					timeoutFlash
 			);
 
 		}

@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr.iwsn</artifactId>
-		<version>0.6.1-SNAPSHOT</version>
+		<version>0.6.2-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
@@ -73,7 +73,7 @@
 			<plugin>
 				<groupId>org.dstovall</groupId>
 				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.9</version>
+				<version>1.4.10</version>
 				<executions>
 					<execution>
 						<id>flash</id>
@@ -87,6 +87,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -98,6 +99,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -157,6 +159,40 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -175,6 +211,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -186,6 +223,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -245,6 +283,40 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -263,6 +335,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -274,6 +347,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -333,6 +407,40 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>
@@ -351,6 +459,7 @@
 							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 							<binlibs>
 								<!-- mac os x -->
+								<!--
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86</arch>
@@ -362,6 +471,7 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								-->
 								<binlib>
 									<os>mac os x</os>
 									<arch>x86_64</arch>
@@ -421,6 +531,40 @@
 										</includes>
 									</fileSet>
 								</binlib>
+								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
+								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
+								<!--
+								<binlib>
+									<os>linux</os>
+									<arch>x86</arch>
+									<fileSet>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
+										<includes>
+											<include>librxtxI2C.so</include>
+											<include>librxtxParallel.so</include>
+											<include>librxtxRaw.so</include>
+											<include>librxtxRS485.so</include>
+											<include>librxtxSerial.so</include>
+										</includes>
+									</fileSet>
+								</binlib>
+								-->
 							</binlibs>
 						</configuration>
 						<goals>

@@ -29,41 +29,20 @@
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.6.1-SNAPSHOT</version>
+	<version>0.6.2-SNAPSHOT</version>
 	<name>TR</name>
 
 	<modules>
 
-		<module>rs/rs-api</module>
-		<module>rs/rs-cmdline</module>
-		<module>rs/rs-dummy</module>
-		<module>rs/rs-federator</module>
-		<module>rs/rs-singleurnprefix</module>
-		<module>rs/rs-persistence</module>
-		<module>rs/rs-persistence-gcal</module>
-		<module>rs/rs-persistence-inmemory</module>
-		<module>rs/rs-persistence-jpa</module>
-
+		<module>assemblies/</module>
+		<module>rs/</module>
 		<module>iwsn/</module>
-
-		<module>snaa/snaa-api</module>
-		<module>snaa/snaa-cmdline-client</module>
-		<module>snaa/snaa-cmdline-server</module>
-		<module>snaa/snaa-dummy</module>
-		<module>snaa/snaa-federator</module>
-		<module>snaa/snaa-shibboleth</module>
-		<module>snaa/snaa-jaaslogin</module>
-		<module>snaa/snaa-wisebed</module>
-
-		<module>assemblies/experimentation-scripts</module>
-		<module>assemblies/assembly</module>
-		<module>assemblies/assembly-federator</module>
+		<module>snaa/</module>
 
 		<module>shibboauth</module>
 		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
-		<module>protobuf-api</module>
 		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>

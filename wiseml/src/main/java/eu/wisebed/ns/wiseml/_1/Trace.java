@@ -35,7 +35,8 @@ import java.util.List;
 		"traceItem"
 })
 @XmlRootElement(name = "trace")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Trace {
 
 	@XmlElements({
@@ -43,21 +44,23 @@ public class Trace {
 			@XmlElement(name = "link", required = true, type = Trace.Link.class),
 			@XmlElement(name = "node", required = true, type = Trace.Node.class)
 	})
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected List<Object> traceItem;
+
 	@XmlAttribute(required = true)
 	@XmlSchemaType(name = "anySimpleType")
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String id;
 
 	/**
 	 * Gets the value of the traceItem property.
 	 * <p/>
 	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the traceItem property.
+	 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+	 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+	 * traceItem property.
 	 * <p/>
 	 * <p/>
 	 * For example, to add a new item, do as follows:
@@ -67,12 +70,10 @@ public class Trace {
 	 * <p/>
 	 * <p/>
 	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link String }
-	 * {@link Trace.Link }
-	 * {@link Trace.Node }
+	 * Objects of the following type(s) are allowed in the list {@link String } {@link Trace.Link } {@link Trace.Node }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public List<Object> getTraceItem() {
 		if (traceItem == null) {
 			traceItem = new ArrayList<Object>();
@@ -83,10 +84,10 @@ public class Trace {
 	/**
 	 * Gets the value of the id property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getId() {
 		return id;
 	}
@@ -94,10 +95,10 @@ public class Trace {
 	/**
 	 * Sets the value of the id property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setId(String value) {
 		this.id = value;
 	}
@@ -128,29 +129,37 @@ public class Trace {
 			"rssi",
 			"data"
 	})
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public static class Link {
 
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected String rssi;
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected List<Data> data;
+
 		@XmlAttribute(required = true)
 		@XmlSchemaType(name = "anySimpleType")
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected String source;
+
 		@XmlAttribute(required = true)
 		@XmlSchemaType(name = "anySimpleType")
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected String target;
 
 		/**
 		 * Gets the value of the rssi property.
 		 *
-		 * @return possible object is
-		 *         {@link String }
+		 * @return possible object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public String getRssi() {
 			return rssi;
 		}
@@ -158,10 +167,10 @@ public class Trace {
 		/**
 		 * Sets the value of the rssi property.
 		 *
-		 * @param value allowed object is
-		 *              {@link String }
+		 * @param value allowed object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setRssi(String value) {
 			this.rssi = value;
 		}
@@ -170,10 +179,9 @@ public class Trace {
 		 * Gets the value of the data property.
 		 * <p/>
 		 * <p/>
-		 * This accessor method returns a reference to the live list,
-		 * not a snapshot. Therefore any modification you make to the
-		 * returned list will be present inside the JAXB object.
-		 * This is why there is not a <CODE>set</CODE> method for the data property.
+		 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+		 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+		 * the data property.
 		 * <p/>
 		 * <p/>
 		 * For example, to add a new item, do as follows:
@@ -183,10 +191,10 @@ public class Trace {
 		 * <p/>
 		 * <p/>
 		 * <p/>
-		 * Objects of the following type(s) are allowed in the list
-		 * {@link Data }
+		 * Objects of the following type(s) are allowed in the list {@link Data }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public List<Data> getData() {
 			if (data == null) {
 				data = new ArrayList<Data>();
@@ -197,10 +205,10 @@ public class Trace {
 		/**
 		 * Gets the value of the source property.
 		 *
-		 * @return possible object is
-		 *         {@link String }
+		 * @return possible object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public String getSource() {
 			return source;
 		}
@@ -208,10 +216,10 @@ public class Trace {
 		/**
 		 * Sets the value of the source property.
 		 *
-		 * @param value allowed object is
-		 *              {@link String }
+		 * @param value allowed object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setSource(String value) {
 			this.source = value;
 		}
@@ -219,10 +227,10 @@ public class Trace {
 		/**
 		 * Gets the value of the target property.
 		 *
-		 * @return possible object is
-		 *         {@link String }
+		 * @return possible object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public String getTarget() {
 			return target;
 		}
@@ -230,10 +238,10 @@ public class Trace {
 		/**
 		 * Sets the value of the target property.
 		 *
-		 * @param value allowed object is
-		 *              {@link String }
+		 * @param value allowed object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setTarget(String value) {
 			this.target = value;
 		}
@@ -265,25 +273,31 @@ public class Trace {
 			"position",
 			"data"
 	})
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public static class Node {
 
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected Coordinate position;
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected List<Data> data;
+
 		@XmlAttribute(required = true)
 		@XmlSchemaType(name = "anySimpleType")
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		protected String id;
 
 		/**
 		 * Gets the value of the position property.
 		 *
-		 * @return possible object is
-		 *         {@link Coordinate }
+		 * @return possible object is {@link Coordinate }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public Coordinate getPosition() {
 			return position;
 		}
@@ -291,10 +305,10 @@ public class Trace {
 		/**
 		 * Sets the value of the position property.
 		 *
-		 * @param value allowed object is
-		 *              {@link Coordinate }
+		 * @param value allowed object is {@link Coordinate }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setPosition(Coordinate value) {
 			this.position = value;
 		}
@@ -303,10 +317,9 @@ public class Trace {
 		 * Gets the value of the data property.
 		 * <p/>
 		 * <p/>
-		 * This accessor method returns a reference to the live list,
-		 * not a snapshot. Therefore any modification you make to the
-		 * returned list will be present inside the JAXB object.
-		 * This is why there is not a <CODE>set</CODE> method for the data property.
+		 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+		 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for
+		 * the data property.
 		 * <p/>
 		 * <p/>
 		 * For example, to add a new item, do as follows:
@@ -316,10 +329,10 @@ public class Trace {
 		 * <p/>
 		 * <p/>
 		 * <p/>
-		 * Objects of the following type(s) are allowed in the list
-		 * {@link Data }
+		 * Objects of the following type(s) are allowed in the list {@link Data }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public List<Data> getData() {
 			if (data == null) {
 				data = new ArrayList<Data>();
@@ -330,10 +343,10 @@ public class Trace {
 		/**
 		 * Gets the value of the id property.
 		 *
-		 * @return possible object is
-		 *         {@link String }
+		 * @return possible object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public String getId() {
 			return id;
 		}
@@ -341,10 +354,10 @@ public class Trace {
 		/**
 		 * Sets the value of the id property.
 		 *
-		 * @param value allowed object is
-		 *              {@link String }
+		 * @param value allowed object is {@link String }
 		 */
-		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+		@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+				comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 		public void setId(String value) {
 			this.id = value;
 		}

@@ -49,28 +49,36 @@ import java.util.List;
 		"trace"
 })
 @XmlRootElement(name = "wiseml")
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class Wiseml {
 
 	@XmlElement(required = true)
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected Setup setup;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected List<Scenario> scenario;
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected List<Trace> trace;
+
 	@XmlAttribute(required = true)
 	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	protected String version;
 
 	/**
 	 * Gets the value of the setup property.
 	 *
-	 * @return possible object is
-	 *         {@link Setup }
+	 * @return possible object is {@link Setup }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public Setup getSetup() {
 		return setup;
 	}
@@ -78,10 +86,10 @@ public class Wiseml {
 	/**
 	 * Sets the value of the setup property.
 	 *
-	 * @param value allowed object is
-	 *              {@link Setup }
+	 * @param value allowed object is {@link Setup }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setSetup(Setup value) {
 		this.setup = value;
 	}
@@ -90,10 +98,9 @@ public class Wiseml {
 	 * Gets the value of the scenario property.
 	 * <p/>
 	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the scenario property.
+	 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+	 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+	 * scenario property.
 	 * <p/>
 	 * <p/>
 	 * For example, to add a new item, do as follows:
@@ -103,10 +110,10 @@ public class Wiseml {
 	 * <p/>
 	 * <p/>
 	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link Scenario }
+	 * Objects of the following type(s) are allowed in the list {@link Scenario }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public List<Scenario> getScenario() {
 		if (scenario == null) {
 			scenario = new ArrayList<Scenario>();
@@ -118,10 +125,9 @@ public class Wiseml {
 	 * Gets the value of the trace property.
 	 * <p/>
 	 * <p/>
-	 * This accessor method returns a reference to the live list,
-	 * not a snapshot. Therefore any modification you make to the
-	 * returned list will be present inside the JAXB object.
-	 * This is why there is not a <CODE>set</CODE> method for the trace property.
+	 * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+	 * the returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+	 * trace property.
 	 * <p/>
 	 * <p/>
 	 * For example, to add a new item, do as follows:
@@ -131,10 +137,10 @@ public class Wiseml {
 	 * <p/>
 	 * <p/>
 	 * <p/>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link Trace }
+	 * Objects of the following type(s) are allowed in the list {@link Trace }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public List<Trace> getTrace() {
 		if (trace == null) {
 			trace = new ArrayList<Trace>();
@@ -145,10 +151,10 @@ public class Wiseml {
 	/**
 	 * Gets the value of the version property.
 	 *
-	 * @return possible object is
-	 *         {@link String }
+	 * @return possible object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public String getVersion() {
 		return version;
 	}
@@ -156,10 +162,10 @@ public class Wiseml {
 	/**
 	 * Sets the value of the version property.
 	 *
-	 * @param value allowed object is
-	 *              {@link String }
+	 * @param value allowed object is {@link String }
 	 */
-	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+	@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+			comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 	public void setVersion(String value) {
 		this.version = value;
 	}

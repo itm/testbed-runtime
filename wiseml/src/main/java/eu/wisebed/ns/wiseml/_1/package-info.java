@@ -5,4 +5,5 @@
 // Generated on: 2010.06.03 at 09:15:54 AM MESZ 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://wisebed.eu/ns/wiseml/1.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package eu.wisebed.ns.wiseml._1;
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://wisebed.eu/ns/wiseml/1.0",
+		elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package eu.wisebed.ns.wiseml._1;

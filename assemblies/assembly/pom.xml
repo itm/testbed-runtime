@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.6.1-SNAPSHOT</version>
+		<version>0.6.2-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
@@ -40,6 +40,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.runtime.cmdline</artifactId>
+			<classifier>onejar</classifier>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-cmdline</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
@@ -47,12 +53,6 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-cmdline-server</artifactId>
-			<classifier>onejar</classifier>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.runtime.cmdline</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>

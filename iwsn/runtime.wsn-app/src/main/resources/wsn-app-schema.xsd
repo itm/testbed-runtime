@@ -24,16 +24,25 @@
 <xsd:schema targetNamespace="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml"
 			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 
-	<xsd:element name="device" type="WsnDevice" />
+	<xsd:element name="wsnDevice" type="WsnDevice" />
+
+	<xsd:complexType name="Timeouts">
+		<xsd:all>
+			<xsd:element name="reset" type="xsd:int" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="flash" type="xsd:int" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="nodeapi" type="xsd:int" minOccurs="0" maxOccurs="1" />
+		</xsd:all>
+	</xsd:complexType>
 
 	<xsd:complexType name="WsnDevice">
 		<xsd:sequence>
 			<xsd:element name="urn" type="xsd:string" />
 			<xsd:element name="type" type="xsd:string" />
 			<xsd:element name="serialinterface" type="xsd:string" minOccurs="0" maxOccurs="1" />
-			<xsd:element name="nodeapitimeout" type="xsd:int" minOccurs="0" maxOccurs="1" />
+			<!--<xsd:element name="nodeapitimeout" type="xsd:int" minOccurs="0" maxOccurs="1" />-->
 			<xsd:element name="usbchipid" type="xsd:string" minOccurs="0" maxOccurs="1" />
-            <xsd:element name="maximummessagerate" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="maximummessagerate" type="xsd:int" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="timeouts" type="Timeouts" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 

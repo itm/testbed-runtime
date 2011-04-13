@@ -39,7 +39,8 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlType(name = "units")
 @XmlEnum
-@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
+@Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2010-06-03T09:15:54+02:00",
+		comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public enum Units {
 
 	@XmlEnumValue("meters")
@@ -64,6 +65,7 @@ public enum Units {
 	LUX("lux"),
 	@XmlEnumValue("raw")
 	RAW("raw");
+
 	private final String value;
 
 	Units(String v) {

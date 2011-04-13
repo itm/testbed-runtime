@@ -51,7 +51,7 @@ public class SSAKSerialization {
     private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
         Cookie shibSessionCookie = null;
         Cookie idpSessionCookie = null;
-        for (Cookie cookie : cookies) {
+		for (Cookie cookie : cookies) {
             if (cookie.getName().startsWith(_shibSession_)) {
                 shibSessionCookie = cookie;
             }
@@ -66,13 +66,18 @@ public class SSAKSerialization {
 
         //fill cookie-map
         Map<String, String> cookieMap = new HashMap<String, String>();
-        cookieMap.put(CookieProperties.sp_name, shibSessionCookie.getName());
-        cookieMap.put(CookieProperties.sp_value, shibSessionCookie.getValue());
-        cookieMap.put(CookieProperties.sp_domain, shibSessionCookie.getDomain());
 
-        cookieMap.put(CookieProperties.idp_name, idpSessionCookie.getName());
-        cookieMap.put(CookieProperties.idp_value, idpSessionCookie.getValue());
-        cookieMap.put(CookieProperties.idp_domain, idpSessionCookie.getDomain());
+		if (shibSessionCookie != null) {
+			cookieMap.put(CookieProperties.sp_name, shibSessionCookie.getName());
+			cookieMap.put(CookieProperties.sp_value, shibSessionCookie.getValue());
+			cookieMap.put(CookieProperties.sp_domain, shibSessionCookie.getDomain());
+		}
+
+		if (idpSessionCookie != null) {
+			cookieMap.put(CookieProperties.idp_name, idpSessionCookie.getName());
+			cookieMap.put(CookieProperties.idp_value, idpSessionCookie.getValue());
+			cookieMap.put(CookieProperties.idp_domain, idpSessionCookie.getDomain());
+		}
 
         return cookieMap;
     }

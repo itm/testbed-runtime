@@ -109,8 +109,9 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 				if (sa.isAuthenticated()) {
 					SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-					secretAuthKey
-							.setSecretAuthenticationKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
+					secretAuthKey.setSecretAuthenticationKey(
+							SSAKSerialization.serialize(sa.getCookieStore().getCookies())
+					);
 					secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
 					secretAuthKey.setUsername(triple.getUsername());
 					keys.add(secretAuthKey);
