@@ -91,12 +91,12 @@ public abstract class RSPersistenceTest {
 	 * intervals and an {@link Integer} value indicating how many reservations there should be in the interval. Used in
 	 * {@link RSPersistenceTest#testGetReservations()}.
 	 */
-	protected final static List<IntervalData> intervals;
+	private static final List<IntervalData> intervals = new ArrayList<IntervalData>();
 
-	protected final static DatatypeFactory datatypeFactory;
+	private static final DatatypeFactory datatypeFactory;
 
 	static {
-		intervals = new ArrayList<IntervalData>();
+
 		try {
 			datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
@@ -116,24 +116,23 @@ public abstract class RSPersistenceTest {
 		);
 
 		description = "query interval does not overlap, since it lies after reservation interval";
-		intervals.add(new IntervalData(reservationEndingTime.plusMillis(1000), reservationEndingTime.plusMillis(20000), 0,
+		intervals.add(new IntervalData(reservationEndingTime.plusMillis(1), reservationEndingTime.plusMillis(20000), 0,
 				description
 		)
 		);
 
 		description = "query interval overlaps on the end of the reservation interval";
-		intervals.add(new IntervalData(reservationEndingTime.minusMillis(2000), reservationEndingTime.plusMillis(20000),
+		intervals.add(new IntervalData(reservationEndingTime.minusMillis(1), reservationEndingTime.plusMillis(20000),
 				RESERVATION_COUNT, description
 		)
 		);
 
 		description = "query interval overlaps on the start of the reservation interval";
 		intervals
-				.add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime.plusMillis(2000),
+				.add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime.plusMillis(1),
 						RESERVATION_COUNT, description
 				)
 				);
-
 
 		description = "query interval overlaps on the exact millisecond on reservation start";
 		intervals.add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime, 0,
