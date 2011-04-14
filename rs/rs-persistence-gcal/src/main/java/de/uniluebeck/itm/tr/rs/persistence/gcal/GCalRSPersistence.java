@@ -52,10 +52,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 public class GCalRSPersistence implements RSPersistence {
 
@@ -239,11 +236,16 @@ public class GCalRSPersistence implements RSPersistence {
 
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 
-		DateTime gcalStart = new DateTime(interval.getStart().toDate(), interval.getStart().getZone().toTimeZone());
-		DateTime gcalEnd = new DateTime(interval.getEnd().toDate(), interval.getEnd().getZone().toTimeZone());
+		//because of different timespan logic of calendar api we need to shift the timespan to match interval
+		long shiftStartMillis = interval.getStart().getMillis() - 2000;
+		long shiftEndMillis = interval.getEnd().getMillis() + 2000;
+
+		DateTime gcalStart = new DateTime(new Date(shiftStartMillis), interval.getStart().getZone().toTimeZone());
+		DateTime gcalEnd = new DateTime(new Date(shiftEndMillis), interval.getEnd().getZone().toTimeZone());
 
 		myQuery.setMinimumStartTime(gcalStart);
 		myQuery.setMaximumStartTime(gcalEnd);
+
 		myQuery.setMaxResults(maxResults);
 
 		// Send the request and receive the response:
@@ -261,7 +263,12 @@ public class GCalRSPersistence implements RSPersistence {
 				try {
 
 					reservation = convert(entry).getReservation();
-					reservations.add(reservation);
+					Interval reservedInterval = new Interval(
+										new org.joda.time.DateTime(reservation.getFrom().toGregorianCalendar()),
+										new org.joda.time.DateTime(reservation.getTo().toGregorianCalendar()));
+					if (reservedInterval.overlaps(interval)) {
+						reservations.add(reservation);
+					}
 
 				} catch (RSExceptionException e) {
 					if (e.getCause() instanceof JAXBException) {
@@ -278,9 +285,6 @@ public class GCalRSPersistence implements RSPersistence {
 
 					Interval firstInterval = getReservationInterval(first);
 					Interval secondInterval = getReservationInterval(second);
-
-					assert !firstInterval.overlaps(secondInterval);
-					assert firstInterval.isBefore(secondInterval) || secondInterval.isBefore(firstInterval);
 
 					return firstInterval.isBefore(secondInterval) ? -1 : 1;
 				}

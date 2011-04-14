@@ -31,30 +31,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.ArrayList;
 
-/**
- * Created by IntelliJ IDEA.
- * User: rohwedder
- * Date: 21.04.2010
- * Time: 14:21:16
- * To change this template use File | Settings | File Templates.
- */
 public class RSPersistenceGCalTest extends RSPersistenceTest {
+
 	@Before
-	public void setUp() throws RSExceptionException, DatatypeConfigurationException {
+	public void setUp() throws RSExceptionException {
 		super.setUp();
 		RSPersistence persistence = new GCalRSPersistence("nrohwedder@gmx.de", "rohwedder");
 		super.setPersistence(persistence);
-	}
-
-	@Test
-	public void test() throws Throwable {
-		this.addReservations();
-		//TODO NOT working... WHY??
-		//this.getReservations();
-		this.getReservationBeforeDeletion();
-		this.deleteReservationBeforeDeletion();
-		this.getReservationAfterDeletion();
-		this.deleteReservationAfterDeletion();
 	}
 }
