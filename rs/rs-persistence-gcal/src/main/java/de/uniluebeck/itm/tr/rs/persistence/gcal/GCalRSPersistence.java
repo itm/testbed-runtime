@@ -244,6 +244,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 		myQuery.setMinimumStartTime(gcalStart);
 		myQuery.setMaximumStartTime(gcalEnd);
+
 		myQuery.setMaxResults(maxResults);
 
 		// Send the request and receive the response:
@@ -279,8 +280,9 @@ public class GCalRSPersistence implements RSPersistence {
 					Interval firstInterval = getReservationInterval(first);
 					Interval secondInterval = getReservationInterval(second);
 
-					assert !firstInterval.overlaps(secondInterval);
-					assert firstInterval.isBefore(secondInterval) || secondInterval.isBefore(firstInterval);
+					//?????
+//					assert !firstInterval.overlaps(secondInterval);
+//					assert firstInterval.isBefore(secondInterval) || secondInterval.isBefore(firstInterval);
 
 					return firstInterval.isBefore(secondInterval) ? -1 : 1;
 				}
