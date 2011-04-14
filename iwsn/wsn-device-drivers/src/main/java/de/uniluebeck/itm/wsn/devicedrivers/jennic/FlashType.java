@@ -29,17 +29,21 @@ package de.uniluebeck.itm.wsn.devicedrivers.jennic;
 public enum FlashType {
 
 	/**
-	 * STM25P10A flash chip
+	 * STM25P10A flash chip - properly jn5121
 	 */
 	STM25P10A,
 	/**
-	 * SST25VF010A flash chip
+	 * SST25VF010A flash chip - properly jn5139 jn5139r1
 	 */
 	SST25VF010A,
 	/**
-	 * Atmel25F512 flash chip
+	 * Atmel25F512 flash chip  - properly no idea
 	 */
 	Atmel25F512,
+	/**
+	 * STM25P40 flash chip  - properly jn5148 new ones
+	 */
+	STM25P40,
 	/**
 	 * unknown flash chip
 	 */
@@ -58,6 +62,8 @@ public enum FlashType {
 				return 0x01;
 			case Atmel25F512:
 				return 0x02;
+			case STM25P40:
+				return 0x03;
 			default:
 				return 126;
 		}
