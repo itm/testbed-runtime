@@ -10,44 +10,43 @@
 		</xsd:schema>
 	</types>
 
+	<message name="experimentEnded">
+		<part name="parameters" element="tns:experimentEnded" />
+	</message>
 	<message name="receive">
 		<part name="parameters" element="tns:receive" />
-	</message>
-	<message name="receiveStatus">
-		<part name="parameters" element="tns:receiveStatus" />
 	</message>
 	<message name="receiveNotification">
 		<part name="parameters" element="tns:receiveNotification" />
 	</message>
-	<message name="experimentEnded">
-		<part name="parameters" element="tns:experimentEnded" />
+	<message name="receiveStatus">
+		<part name="parameters" element="tns:receiveStatus" />
 	</message>
 
 	<portType name="Controller">
+		<operation name="experimentEnded">
+			<input message="tns:experimentEnded" />
+		</operation>
 		<operation name="receive">
 			<input message="tns:receive" />
-		</operation>
-		<operation name="receiveStatus">
-			<input message="tns:receiveStatus" />
 		</operation>
 		<operation name="receiveNotification">
 			<input message="tns:receiveNotification" />
 		</operation>
-		<operation name="experimentEnded">
-			<input message="tns:experimentEnded" />
+		<operation name="receiveStatus">
+			<input message="tns:receiveStatus" />
 		</operation>
 	</portType>
 
 	<binding name="ControllerPortBinding" type="tns:Controller">
-		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
-					  style="document" />
-		<operation name="receive">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+		<operation name="experimentEnded">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
 			</input>
 		</operation>
-		<operation name="receiveStatus">
+		<operation name="receive">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -59,7 +58,7 @@
 				<soap:body use="literal" />
 			</input>
 		</operation>
-		<operation name="experimentEnded">
+		<operation name="receiveStatus">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
