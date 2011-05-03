@@ -41,11 +41,15 @@ public enum ChipType {
 	 */
 	JN513XR1,
 	/**
-	 * Mode for Shawn simulator
+	 * Mode for JN5148 platform
 	 */
 	Shawn,
 	/**
 	 * Mode for Telos Revision B (TelosB) platform
+	 */
+	JN5148,
+	/**
+	 * Mode for Shawn simulator
 	 */
 	TelosB,
 	/**
@@ -70,6 +74,8 @@ public enum ChipType {
 			headerStart = 0x24;
 		else if (chipType == ChipType.JN513XR1)
 			headerStart = 0x24 + 0x0C;
+		else if (chipType == ChipType.JN5148)
+			headerStart = 0x24 + 0x0C;
 
 		return headerStart;
 	}
@@ -87,6 +93,8 @@ public enum ChipType {
 			headerLength = 0x20;
 		else if (chipType == ChipType.JN513XR1)
 			headerLength = 0x20;
+		else if (chipType == ChipType.JN5148)
+			headerLength = 0x20;
 
 		return headerLength;
 	}
@@ -103,6 +111,8 @@ public enum ChipType {
 			case JN513X:
 				return 0x24;
 			case JN513XR1:
+				return 0x30;
+			case JN5148:
 				return 0x30;
 		}
 		return -1;
@@ -124,8 +134,10 @@ public enum ChipType {
 		if (chipType == 3)
 			return ChipType.Shawn;
 		if (chipType == 4)
-			return ChipType.TelosB;
+			return ChipType.JN5148;
 		if (chipType == 5)
+			return ChipType.TelosB;
+		if (chipType == 6)
 			return ChipType.LPC2136;
 		return ChipType.Unknown;
 	}
@@ -147,6 +159,8 @@ public enum ChipType {
 				return "JN513xR1";
 			case Shawn:
 				return "Shawn";
+			case JN5148:
+				return "JN5148";
 			case TelosB:
 				return "Telos Rev B";
 			case LPC2136:
