@@ -25,8 +25,8 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v22.Status;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Status;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

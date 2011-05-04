@@ -2,10 +2,10 @@ package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.v23.*;
 
 import javax.jws.WebParam;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -64,8 +64,17 @@ public class WorkingWSN implements WSN {
 	}
 
 	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		final String requestId = secureIdGenerator.getNextId();
+		scheduleReply(nodes, requestId, 1);
+		return requestId;
+	}
+
+	@Override
 	public String getVersion() {
-		return "2.1";
+		return Constants.VERSION;
 	}
 
 	@Override
@@ -73,17 +82,6 @@ public class WorkingWSN implements WSN {
 		final String requestId = secureIdGenerator.getNextId();
 		scheduleReply(nodes, requestId, 1);
 		return requestId;
-	}
-
-	@Override
-	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") final String newNetwork) {
-		throw new RuntimeException("Not yet implemented.");
-	}
-
-	@Override
-	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") final String capability)
-			throws UnsupportedOperationException_Exception {
-		throw new RuntimeException("Not yet implemented.");
 	}
 
 	@Override
@@ -135,13 +133,12 @@ public class WorkingWSN implements WSN {
 	}
 
 	@Override
-	public List<String> getFilters() {
-		throw new RuntimeException("Not yet implemented.");
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return Lists.newArrayList();
 	}
 
 	@Override
-	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") final String node)
-			throws UnknownNodeUrnException_Exception {
+	public List<String> getFilters() {
 		throw new RuntimeException("Not yet implemented.");
 	}
 
@@ -151,23 +148,10 @@ public class WorkingWSN implements WSN {
 	}
 
 	@Override
-	public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") final String node,
-									 @WebParam(name = "propertyName", targetNamespace = "")
-									 final String propertyName)
-			throws UnknownNodeUrnException_Exception {
-		throw new RuntimeException("Not yet implemented.");
-	}
-
-	@Override
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes) {
 		final String requestId = secureIdGenerator.getNextId();
 		scheduleReply(nodes, requestId, 1);
 		return requestId;
-	}
-
-	@Override
-	public String setStartTime(@WebParam(name = "time", targetNamespace = "") final XMLGregorianCalendar time) {
-		throw new RuntimeException("Not yet implemented.");
 	}
 
 	@Override

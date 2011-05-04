@@ -32,13 +32,12 @@ import de.uniluebeck.itm.tr.util.*;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
 import java.util.*;
@@ -294,6 +293,13 @@ public class FederatorWSN implements WSN {
 		return requestId;
 	}
 
+	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
 	// =================================================================================================================
 
 	@Override
@@ -460,6 +466,11 @@ public class FederatorWSN implements WSN {
 		}
 
 		return requestId;
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	private BiMap<String, ProgramWrapper> filterFlashProgramsMap(List<String> subsetNodeIds,
@@ -677,23 +688,6 @@ public class FederatorWSN implements WSN {
 	// *****************************************************************************************************************
 
 	@Override
-	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-
-		preconditions.checkDefineNetworkArguments(newNetwork);
-
-		throw new RuntimeException("Operation not implemented.");
-	}
-
-	@Override
-	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
-			throws UnsupportedOperationException_Exception {
-
-		preconditions.checkDescribeCapabilitiesArguments(capability);
-
-		throw new RuntimeException("Operation not implemented.");
-	}
-
-	@Override
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
 
 		preconditions.checkDisableNodeArguments(node);
@@ -729,33 +723,6 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public List<String> getFilters() {
-		throw new RuntimeException("Operation not implemented.");
-	}
-
-	@Override
-	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
-			throws UnknownNodeUrnException_Exception {
-
-		preconditions.checkGetNeighbourhoodArguments(node);
-
-		throw new RuntimeException("Operation not implemented.");
-	}
-
-	@Override
-	public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node,
-									 @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
-			throws UnknownNodeUrnException_Exception {
-
-		preconditions.checkGetPropertyValueOfArguments(node, propertyName);
-
-		throw new RuntimeException("Operation not implemented.");
-	}
-
-	@Override
-	public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-
-		preconditions.checkSetStartTimeArguments(time);
-
 		throw new RuntimeException("Operation not implemented.");
 	}
 

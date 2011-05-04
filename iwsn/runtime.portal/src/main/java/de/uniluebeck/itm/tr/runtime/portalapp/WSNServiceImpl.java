@@ -29,6 +29,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
@@ -41,7 +42,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class WSNServiceImpl implements WSNService {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v22.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v22.Controller#receiveStatus(java.util.List)}
+	 * eu.wisebed.testbed.api.wsn.v23.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v23.Controller#receiveStatus(java.util.List)}
 	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
 	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
 	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as
@@ -126,8 +127,6 @@ public class WSNServiceImpl implements WSNService {
 
 	private final Wiseml wiseMLFilename;
 
-	private final String urnPrefix;
-
 	private final Set<String> reservedNodes;
 
 	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
@@ -153,7 +152,6 @@ public class WSNServiceImpl implements WSNService {
 		}
 
 		this.preconditions = new WSNPreconditions();
-		this.urnPrefix = urnPrefix;
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
 
@@ -393,7 +391,6 @@ public class WSNServiceImpl implements WSNService {
 	public String send(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
 					   @WebParam(name = "msg", targetNamespace = "") Message message) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSendArguments(nodeIds, message);
 
 		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
@@ -419,12 +416,19 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
 
+	}
+
+	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	private RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
@@ -450,7 +454,6 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkAreNodesAliveArguments(nodeIds);
 		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
@@ -471,8 +474,8 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -484,7 +487,6 @@ public class WSNServiceImpl implements WSNService {
 								final List<Integer> programIndices,
 								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
@@ -528,11 +530,16 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return Lists.newArrayList();
 	}
 
 	private void sendFailureInfoToClient(List<String> nodeIds, String requestId, Exception e) {
@@ -601,7 +608,6 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkResetNodesArguments(nodeIds);
 		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
@@ -622,8 +628,8 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -642,7 +648,6 @@ public class WSNServiceImpl implements WSNService {
 								 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
 								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 		preconditions.checkNodeReserved(sourceNode, reservedNodes);
 		preconditions.checkNodeReserved(targetNode, reservedNodes);
@@ -669,8 +674,8 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		// TODO support filters
@@ -700,8 +705,7 @@ public class WSNServiceImpl implements WSNService {
 
 			//We now add all existing source nodes to the map except for the current source node
 			//It looks a bit strange but we cannot use putAll and then overwrite an existing key
-			//because the ImmutableMapBuider forbids duplicate keys
-			//TODO This is utterly slow, fix this
+			//because the ImmutableMapBuilder forbids duplicate keys
 			for (String existingSourceNode : virtualLinksMap.keySet()) {
 				if (!existingSourceNode.equals(sourceNode)) {
 					virtualLinksMapBuilder.put(existingSourceNode, virtualLinksMap.get(existingSourceNode));
@@ -733,7 +737,6 @@ public class WSNServiceImpl implements WSNService {
 
 			ImmutableMap.Builder<String, ImmutableMap<String, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
 
-			//TODO This is utterly slow, fix this
 			for (String existingSourceNode : virtualLinksMap.keySet()) {
 				if (!existingSourceNode.equals(sourceNode)) {
 					virtualLinksMapBuilder.put(existingSourceNode, virtualLinksMap.get(existingSourceNode));
@@ -757,7 +760,6 @@ public class WSNServiceImpl implements WSNService {
 	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
 									 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
 		preconditions.checkNodeReserved(sourceNode, reservedNodes);
 		preconditions.checkNodeReserved(targetNode, reservedNodes);
@@ -784,39 +786,16 @@ public class WSNServiceImpl implements WSNService {
 				}
 			}
 			);
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
 	}
 
-
-	@Override
-	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkDefineNetworkArguments(newNetwork);
-
-		log.debug("WSNServiceImpl.defineNetwork");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	@Override
-	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
-			throws UnsupportedOperationException_Exception {
-
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkDescribeCapabilitiesArguments(capability);
-
-		log.debug("WSNServiceImpl.describeCapabilities");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
 	@Override
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -839,8 +818,8 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -850,7 +829,6 @@ public class WSNServiceImpl implements WSNService {
 	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
 									  @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
 		preconditions.checkNodeReserved(nodeA, reservedNodes);
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
@@ -874,8 +852,8 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -885,7 +863,6 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String enableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnableNodeArguments(node);
 		preconditions.checkNodeReserved(node, reservedNodes);
 
@@ -908,8 +885,8 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -920,7 +897,6 @@ public class WSNServiceImpl implements WSNService {
 	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
 									 @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
 		preconditions.checkNodeReserved(nodeA, reservedNodes);
 		preconditions.checkNodeReserved(nodeB, reservedNodes);
@@ -944,8 +920,8 @@ public class WSNServiceImpl implements WSNService {
 			}
 			);
 
-		} catch (UnknownNodeUrnException_Exception e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		} catch (UnknownNodeUrnsException e) {
+			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -955,41 +931,6 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public List<String> getFilters() {
 		log.debug("WSNServiceImpl.getFilters");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	@Override
-	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
-			throws UnknownNodeUrnException_Exception {
-
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkGetNeighbourhoodArguments(node);
-		preconditions.checkNodeReserved(node, reservedNodes);
-
-		log.debug("WSNServiceImpl.getNeighbourhood");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	@Override
-	public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node,
-									 @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
-			throws UnknownNodeUrnException_Exception {
-
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkGetPropertyValueOfArguments(node, propertyName);
-		preconditions.checkNodeReserved(node, reservedNodes);
-
-		log.debug("WSNServiceImpl.getPropertyValueOf");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
-	}
-
-	@Override
-	public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-
-		// TODO catch precondition exceptions and throw cleanly defined exception to client
-		preconditions.checkSetStartTimeArguments(time);
-
-		log.debug("WSNServiceImpl.setStartTime");
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 

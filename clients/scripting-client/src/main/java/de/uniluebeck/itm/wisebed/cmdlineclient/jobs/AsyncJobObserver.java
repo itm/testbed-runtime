@@ -27,7 +27,7 @@ import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.TimedCacheListener;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

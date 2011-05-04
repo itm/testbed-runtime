@@ -52,7 +52,7 @@ public class DBMessageStore implements MessageStore, Service {
 		@Override
 		public Message apply(WSNMessage from) {
 
-			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessage.convertToXMLMessage(from);
+			eu.wisebed.testbed.api.wsn.v23.Message message = WSNMessage.convertToXMLMessage(from);
 
 			Message ret = new Message();
 			ret.setBinaryData(message.getBinaryData());

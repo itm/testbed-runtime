@@ -23,16 +23,16 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.wsn;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,27 +97,22 @@ public class WSNServiceImpl implements WSN {
         return generator.getNextId();
     }
 
-    @Override
+	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return generator.getNextId();
+	}
+
+	@Override
     public String getVersion() {
         log.info("WSNServiceImpl.getVersion");
-        return "2.1";
+        return "2.3";
     }
 
     @Override
     public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
         log.info("WSNServiceImpl.checkAreNodesAlive");
-        return generator.getNextId();
-    }
-
-    @Override
-    public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-        log.info("WSNServiceImpl.defineNetwork");
-        return generator.getNextId();
-    }
-
-    @Override
-    public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability) throws UnsupportedOperationException_Exception {
-        log.info("WSNServiceImpl.describeCapabilities");
         return generator.getNextId();
     }
 
@@ -157,15 +152,15 @@ public class WSNServiceImpl implements WSN {
         return generator.getNextId();
     }
 
-    @Override
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		log.info("WSNServiceImpl.getSupportedChannelHandlers()");
+		return Lists.newArrayList();
+	}
+
+	@Override
     public List<String> getFilters() {
         log.info("WSNServiceImpl.getFilters");
-        return new ArrayList<String>();
-    }
-
-    @Override
-    public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node) throws UnknownNodeUrnException_Exception {
-        log.info("WSNServiceImpl.getNeighbourhood");
         return new ArrayList<String>();
     }
 
@@ -176,20 +171,8 @@ public class WSNServiceImpl implements WSN {
     }
 
     @Override
-    public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node, @WebParam(name = "propertyName", targetNamespace = "") String propertyName) throws UnknownNodeUrnException_Exception {
-        log.info("WSNServiceImpl.getPropertyValueOf");
-        return generator.getNextId();
-    }
-
-    @Override
     public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
         log.info("WSNServiceImpl.resetNodes");
-        return generator.getNextId();
-    }
-
-    @Override
-    public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-        log.info("WSNServiceImpl.setStartTime");
         return generator.getNextId();
     }
 

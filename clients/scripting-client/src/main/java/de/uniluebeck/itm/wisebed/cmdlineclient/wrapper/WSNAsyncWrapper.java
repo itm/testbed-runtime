@@ -5,12 +5,11 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.AsyncJobObserver;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResultListener;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.Program;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v22.WSN;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.Program;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.WSN;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -116,11 +115,6 @@ public class WSNAsyncWrapper {
 	}
 
 	@SuppressWarnings("unused")
-	public Future<JobResult> defineNetwork(String newNetwork) {
-		throw new UnsupportedOperationException("Not yet implemented!");
-	}
-
-	@SuppressWarnings("unused")
 	public Future<String> describeCapabilities(String capability) {
 		throw new UnsupportedOperationException("Not yet implemented!");
 	}
@@ -194,31 +188,11 @@ public class WSNAsyncWrapper {
 		);
 	}
 
-	public Future<List<String>> getNeighbourhood(final String node) {
-		return executor.submit(new Callable<List<String>>() {
-			@Override
-			public List<String> call() throws Exception {
-				return wsn.getNeighbourhood(node);
-			}
-		}
-		);
-	}
-
 	public Future<String> getNetwork() {
 		return executor.submit(new Callable<String>() {
 			@Override
 			public String call() throws Exception {
 				return wsn.getNetwork();
-			}
-		}
-		);
-	}
-
-	public Future<String> getPropertyValueOf(final String node, final String propertyName) {
-		return executor.submit(new Callable<String>() {
-			@Override
-			public String call() throws Exception {
-				return wsn.getPropertyValueOf(node, propertyName);
 			}
 		}
 		);
@@ -230,11 +204,6 @@ public class WSNAsyncWrapper {
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
 		return future;
-	}
-
-	@SuppressWarnings("unused")
-	public Future<?> setStartTime(XMLGregorianCalendar time) {
-		throw new UnsupportedOperationException("Not yet implemented!");
 	}
 
 	public Future<JobResult> setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance,

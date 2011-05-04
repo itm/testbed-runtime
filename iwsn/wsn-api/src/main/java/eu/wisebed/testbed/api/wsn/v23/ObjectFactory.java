@@ -29,18 +29,22 @@ public class ObjectFactory {
     private final static QName _DisableNode_QNAME = new QName("urn:WSNService", "disableNode");
     private final static QName _DisableNodeResponse_QNAME = new QName("urn:WSNService", "disableNodeResponse");
     private final static QName _DestroyVirtualLinkResponse_QNAME = new QName("urn:WSNService", "destroyVirtualLinkResponse");
+    private final static QName _SendResponse_QNAME = new QName("urn:WSNService", "sendResponse");
     private final static QName _EnablePhysicalLink_QNAME = new QName("urn:WSNService", "enablePhysicalLink");
     private final static QName _DisablePhysicalLinkResponse_QNAME = new QName("urn:WSNService", "disablePhysicalLinkResponse");
-    private final static QName _SendResponse_QNAME = new QName("urn:WSNService", "sendResponse");
+    private final static QName _AddController_QNAME = new QName("urn:WSNService", "addController");
     private final static QName _GetNetworkResponse_QNAME = new QName("urn:CommonTypes", "getNetworkResponse");
     private final static QName _EnableNodeResponse_QNAME = new QName("urn:WSNService", "enableNodeResponse");
     private final static QName _GetSupportedChannelHandlers_QNAME = new QName("urn:WSNService", "getSupportedChannelHandlers");
     private final static QName _FlashPrograms_QNAME = new QName("urn:WSNService", "flashPrograms");
+    private final static QName _AreNodesAlive_QNAME = new QName("urn:WSNService", "areNodesAlive");
     private final static QName _ResetNodesResponse_QNAME = new QName("urn:WSNService", "resetNodesResponse");
+    private final static QName _RemoveController_QNAME = new QName("urn:WSNService", "removeController");
     private final static QName _SetVirtualLink_QNAME = new QName("urn:WSNService", "setVirtualLink");
-    private final static QName _AreNodesAliveResponse_QNAME = new QName("urn:CommonTypes", "areNodesAliveResponse");
-    private final static QName _EnableNode_QNAME = new QName("urn:WSNService", "enableNode");
+    private final static QName _RemoveControllerResponse_QNAME = new QName("urn:WSNService", "removeControllerResponse");
     private final static QName _GetFilters_QNAME = new QName("urn:WSNService", "getFilters");
+    private final static QName _AddControllerResponse_QNAME = new QName("urn:WSNService", "addControllerResponse");
+    private final static QName _EnableNode_QNAME = new QName("urn:WSNService", "enableNode");
     private final static QName _DisablePhysicalLink_QNAME = new QName("urn:WSNService", "disablePhysicalLink");
     private final static QName _GetSupportedChannelHandlersResponse_QNAME = new QName("urn:WSNService", "getSupportedChannelHandlersResponse");
     private final static QName _SetChannelPipelineResponse_QNAME = new QName("urn:WSNService", "setChannelPipelineResponse");
@@ -51,8 +55,8 @@ public class ObjectFactory {
     private final static QName _GetVersionResponse_QNAME = new QName("urn:WSNService", "getVersionResponse");
     private final static QName _GetVersion_QNAME = new QName("urn:WSNService", "getVersion");
     private final static QName _Message_QNAME = new QName("urn:CommonTypes", "message");
-    private final static QName _AreNodesAlive_QNAME = new QName("urn:CommonTypes", "areNodesAlive");
     private final static QName _ResetNodes_QNAME = new QName("urn:WSNService", "resetNodes");
+    private final static QName _AreNodesAliveResponse_QNAME = new QName("urn:WSNService", "areNodesAliveResponse");
     private final static QName _GetNetwork_QNAME = new QName("urn:CommonTypes", "getNetwork");
     private final static QName _SetChannelPipeline_QNAME = new QName("urn:WSNService", "setChannelPipeline");
 
@@ -64,75 +68,83 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ChannelHandlerDescription }
-     * 
-     */
-    public ChannelHandlerDescription createChannelHandlerDescription() {
-        return new ChannelHandlerDescription();
-    }
-
-    /**
-     * Create an instance of {@link SetChannelPipelineResponse }
-     * 
-     */
-    public SetChannelPipelineResponse createSetChannelPipelineResponse() {
-        return new SetChannelPipelineResponse();
-    }
-
-    /**
-     * Create an instance of {@link ResetNodesResponse }
-     * 
-     */
-    public ResetNodesResponse createResetNodesResponse() {
-        return new ResetNodesResponse();
-    }
-
-    /**
-     * Create an instance of {@link ResetNodes }
-     * 
-     */
-    public ResetNodes createResetNodes() {
-        return new ResetNodes();
-    }
-
-    /**
-     * Create an instance of {@link Message }
-     * 
-     */
-    public Message createMessage() {
-        return new Message();
-    }
-
-    /**
-     * Create an instance of {@link EnablePhysicalLink }
-     * 
-     */
-    public EnablePhysicalLink createEnablePhysicalLink() {
-        return new EnablePhysicalLink();
-    }
-
-    /**
-     * Create an instance of {@link DisableNode }
-     * 
-     */
-    public DisableNode createDisableNode() {
-        return new DisableNode();
-    }
-
-    /**
-     * Create an instance of {@link DisableNodeResponse }
-     * 
-     */
-    public DisableNodeResponse createDisableNodeResponse() {
-        return new DisableNodeResponse();
-    }
-
-    /**
      * Create an instance of {@link Program }
      * 
      */
     public Program createProgram() {
         return new Program();
+    }
+
+    /**
+     * Create an instance of {@link DestroyVirtualLinkResponse }
+     * 
+     */
+    public DestroyVirtualLinkResponse createDestroyVirtualLinkResponse() {
+        return new DestroyVirtualLinkResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetVirtualLink }
+     * 
+     */
+    public SetVirtualLink createSetVirtualLink() {
+        return new SetVirtualLink();
+    }
+
+    /**
+     * Create an instance of {@link SendResponse }
+     * 
+     */
+    public SendResponse createSendResponse() {
+        return new SendResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetFilters }
+     * 
+     */
+    public GetFilters createGetFilters() {
+        return new GetFilters();
+    }
+
+    /**
+     * Create an instance of {@link GetSupportedChannelHandlersResponse }
+     * 
+     */
+    public GetSupportedChannelHandlersResponse createGetSupportedChannelHandlersResponse() {
+        return new GetSupportedChannelHandlersResponse();
+    }
+
+    /**
+     * Create an instance of {@link RemoveControllerResponse }
+     * 
+     */
+    public RemoveControllerResponse createRemoveControllerResponse() {
+        return new RemoveControllerResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetNetworkResponse }
+     * 
+     */
+    public GetNetworkResponse createGetNetworkResponse() {
+        return new GetNetworkResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetNetwork }
+     * 
+     */
+    public GetNetwork createGetNetwork() {
+        return new GetNetwork();
+    }
+
+    /**
+     * Create an instance of {@link AddControllerResponse }
+     * 
+     */
+    public AddControllerResponse createAddControllerResponse() {
+        return new AddControllerResponse();
     }
 
     /**
@@ -144,11 +156,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Send }
+     * Create an instance of {@link EnablePhysicalLink }
      * 
      */
-    public Send createSend() {
-        return new Send();
+    public EnablePhysicalLink createEnablePhysicalLink() {
+        return new EnablePhysicalLink();
+    }
+
+    /**
+     * Create an instance of {@link SetChannelPipelineResponse }
+     * 
+     */
+    public SetChannelPipelineResponse createSetChannelPipelineResponse() {
+        return new SetChannelPipelineResponse();
+    }
+
+    /**
+     * Create an instance of {@link EnableNode }
+     * 
+     */
+    public EnableNode createEnableNode() {
+        return new EnableNode();
     }
 
     /**
@@ -168,94 +196,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetNetworkResponse }
-     * 
-     */
-    public GetNetworkResponse createGetNetworkResponse() {
-        return new GetNetworkResponse();
-    }
-
-    /**
-     * Create an instance of {@link DisablePhysicalLinkResponse }
-     * 
-     */
-    public DisablePhysicalLinkResponse createDisablePhysicalLinkResponse() {
-        return new DisablePhysicalLinkResponse();
-    }
-
-    /**
-     * Create an instance of {@link EnableNodeResponse }
-     * 
-     */
-    public EnableNodeResponse createEnableNodeResponse() {
-        return new EnableNodeResponse();
-    }
-
-    /**
-     * Create an instance of {@link DestroyVirtualLinkResponse }
-     * 
-     */
-    public DestroyVirtualLinkResponse createDestroyVirtualLinkResponse() {
-        return new DestroyVirtualLinkResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetFiltersResponse }
-     * 
-     */
-    public GetFiltersResponse createGetFiltersResponse() {
-        return new GetFiltersResponse();
-    }
-
-    /**
-     * Create an instance of {@link SendResponse }
-     * 
-     */
-    public SendResponse createSendResponse() {
-        return new SendResponse();
-    }
-
-    /**
-     * Create an instance of {@link EnablePhysicalLinkResponse }
-     * 
-     */
-    public EnablePhysicalLinkResponse createEnablePhysicalLinkResponse() {
-        return new EnablePhysicalLinkResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetNetwork }
-     * 
-     */
-    public GetNetwork createGetNetwork() {
-        return new GetNetwork();
-    }
-
-    /**
-     * Create an instance of {@link DisablePhysicalLink }
-     * 
-     */
-    public DisablePhysicalLink createDisablePhysicalLink() {
-        return new DisablePhysicalLink();
-    }
-
-    /**
-     * Create an instance of {@link FlashPrograms }
-     * 
-     */
-    public FlashPrograms createFlashPrograms() {
-        return new FlashPrograms();
-    }
-
-    /**
-     * Create an instance of {@link GetSupportedChannelHandlersResponse }
-     * 
-     */
-    public GetSupportedChannelHandlersResponse createGetSupportedChannelHandlersResponse() {
-        return new GetSupportedChannelHandlersResponse();
-    }
-
-    /**
      * Create an instance of {@link ChannelHandlerConfiguration }
      * 
      */
@@ -272,51 +212,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link EnableNode }
-     * 
-     */
-    public EnableNode createEnableNode() {
-        return new EnableNode();
-    }
-
-    /**
-     * Create an instance of {@link SetVirtualLink }
-     * 
-     */
-    public SetVirtualLink createSetVirtualLink() {
-        return new SetVirtualLink();
-    }
-
-    /**
-     * Create an instance of {@link GetVersion }
-     * 
-     */
-    public GetVersion createGetVersion() {
-        return new GetVersion();
-    }
-
-    /**
-     * Create an instance of {@link GetFilters }
-     * 
-     */
-    public GetFilters createGetFilters() {
-        return new GetFilters();
-    }
-
-    /**
      * Create an instance of {@link ProgramMetaData }
      * 
      */
     public ProgramMetaData createProgramMetaData() {
         return new ProgramMetaData();
-    }
-
-    /**
-     * Create an instance of {@link AreNodesAlive }
-     * 
-     */
-    public AreNodesAlive createAreNodesAlive() {
-        return new AreNodesAlive();
     }
 
     /**
@@ -328,11 +228,83 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link DisableNode }
+     * 
+     */
+    public DisableNode createDisableNode() {
+        return new DisableNode();
+    }
+
+    /**
      * Create an instance of {@link GetVersionResponse }
      * 
      */
     public GetVersionResponse createGetVersionResponse() {
         return new GetVersionResponse();
+    }
+
+    /**
+     * Create an instance of {@link AddController }
+     * 
+     */
+    public AddController createAddController() {
+        return new AddController();
+    }
+
+    /**
+     * Create an instance of {@link GetVersion }
+     * 
+     */
+    public GetVersion createGetVersion() {
+        return new GetVersion();
+    }
+
+    /**
+     * Create an instance of {@link GetFiltersResponse }
+     * 
+     */
+    public GetFiltersResponse createGetFiltersResponse() {
+        return new GetFiltersResponse();
+    }
+
+    /**
+     * Create an instance of {@link ResetNodes }
+     * 
+     */
+    public ResetNodes createResetNodes() {
+        return new ResetNodes();
+    }
+
+    /**
+     * Create an instance of {@link DisablePhysicalLink }
+     * 
+     */
+    public DisablePhysicalLink createDisablePhysicalLink() {
+        return new DisablePhysicalLink();
+    }
+
+    /**
+     * Create an instance of {@link EnablePhysicalLinkResponse }
+     * 
+     */
+    public EnablePhysicalLinkResponse createEnablePhysicalLinkResponse() {
+        return new EnablePhysicalLinkResponse();
+    }
+
+    /**
+     * Create an instance of {@link AreNodesAlive }
+     * 
+     */
+    public AreNodesAlive createAreNodesAlive() {
+        return new AreNodesAlive();
+    }
+
+    /**
+     * Create an instance of {@link DisableNodeResponse }
+     * 
+     */
+    public DisableNodeResponse createDisableNodeResponse() {
+        return new DisableNodeResponse();
     }
 
     /**
@@ -344,11 +316,75 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link FlashPrograms }
+     * 
+     */
+    public FlashPrograms createFlashPrograms() {
+        return new FlashPrograms();
+    }
+
+    /**
+     * Create an instance of {@link EnableNodeResponse }
+     * 
+     */
+    public EnableNodeResponse createEnableNodeResponse() {
+        return new EnableNodeResponse();
+    }
+
+    /**
+     * Create an instance of {@link ChannelHandlerDescription }
+     * 
+     */
+    public ChannelHandlerDescription createChannelHandlerDescription() {
+        return new ChannelHandlerDescription();
+    }
+
+    /**
+     * Create an instance of {@link RemoveController }
+     * 
+     */
+    public RemoveController createRemoveController() {
+        return new RemoveController();
+    }
+
+    /**
+     * Create an instance of {@link DisablePhysicalLinkResponse }
+     * 
+     */
+    public DisablePhysicalLinkResponse createDisablePhysicalLinkResponse() {
+        return new DisablePhysicalLinkResponse();
+    }
+
+    /**
+     * Create an instance of {@link Message }
+     * 
+     */
+    public Message createMessage() {
+        return new Message();
+    }
+
+    /**
      * Create an instance of {@link DestroyVirtualLink }
      * 
      */
     public DestroyVirtualLink createDestroyVirtualLink() {
         return new DestroyVirtualLink();
+    }
+
+    /**
+     * Create an instance of {@link ResetNodesResponse }
+     * 
+     */
+    public ResetNodesResponse createResetNodesResponse() {
+        return new ResetNodesResponse();
+    }
+
+    /**
+     * Create an instance of {@link Send }
+     * 
+     */
+    public Send createSend() {
+        return new Send();
     }
 
     /**
@@ -397,6 +433,15 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SendResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "sendResponse")
+    public JAXBElement<SendResponse> createSendResponse(SendResponse value) {
+        return new JAXBElement<SendResponse>(_SendResponse_QNAME, SendResponse.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link EnablePhysicalLink }{@code >}}
      * 
      */
@@ -415,12 +460,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SendResponse }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link AddController }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "urn:WSNService", name = "sendResponse")
-    public JAXBElement<SendResponse> createSendResponse(SendResponse value) {
-        return new JAXBElement<SendResponse>(_SendResponse_QNAME, SendResponse.class, null, value);
+    @XmlElementDecl(namespace = "urn:WSNService", name = "addController")
+    public JAXBElement<AddController> createAddController(AddController value) {
+        return new JAXBElement<AddController>(_AddController_QNAME, AddController.class, null, value);
     }
 
     /**
@@ -460,12 +505,30 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AreNodesAlive }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "areNodesAlive")
+    public JAXBElement<AreNodesAlive> createAreNodesAlive(AreNodesAlive value) {
+        return new JAXBElement<AreNodesAlive>(_AreNodesAlive_QNAME, AreNodesAlive.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ResetNodesResponse }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "urn:WSNService", name = "resetNodesResponse")
     public JAXBElement<ResetNodesResponse> createResetNodesResponse(ResetNodesResponse value) {
         return new JAXBElement<ResetNodesResponse>(_ResetNodesResponse_QNAME, ResetNodesResponse.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link RemoveController }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "removeController")
+    public JAXBElement<RemoveController> createRemoveController(RemoveController value) {
+        return new JAXBElement<RemoveController>(_RemoveController_QNAME, RemoveController.class, null, value);
     }
 
     /**
@@ -478,21 +541,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AreNodesAliveResponse }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link RemoveControllerResponse }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "urn:CommonTypes", name = "areNodesAliveResponse")
-    public JAXBElement<AreNodesAliveResponse> createAreNodesAliveResponse(AreNodesAliveResponse value) {
-        return new JAXBElement<AreNodesAliveResponse>(_AreNodesAliveResponse_QNAME, AreNodesAliveResponse.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link EnableNode }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "urn:WSNService", name = "enableNode")
-    public JAXBElement<EnableNode> createEnableNode(EnableNode value) {
-        return new JAXBElement<EnableNode>(_EnableNode_QNAME, EnableNode.class, null, value);
+    @XmlElementDecl(namespace = "urn:WSNService", name = "removeControllerResponse")
+    public JAXBElement<RemoveControllerResponse> createRemoveControllerResponse(RemoveControllerResponse value) {
+        return new JAXBElement<RemoveControllerResponse>(_RemoveControllerResponse_QNAME, RemoveControllerResponse.class, null, value);
     }
 
     /**
@@ -502,6 +556,24 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "urn:WSNService", name = "getFilters")
     public JAXBElement<GetFilters> createGetFilters(GetFilters value) {
         return new JAXBElement<GetFilters>(_GetFilters_QNAME, GetFilters.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AddControllerResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "addControllerResponse")
+    public JAXBElement<AddControllerResponse> createAddControllerResponse(AddControllerResponse value) {
+        return new JAXBElement<AddControllerResponse>(_AddControllerResponse_QNAME, AddControllerResponse.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link EnableNode }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "enableNode")
+    public JAXBElement<EnableNode> createEnableNode(EnableNode value) {
+        return new JAXBElement<EnableNode>(_EnableNode_QNAME, EnableNode.class, null, value);
     }
 
     /**
@@ -595,21 +667,21 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AreNodesAlive }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "urn:CommonTypes", name = "areNodesAlive")
-    public JAXBElement<AreNodesAlive> createAreNodesAlive(AreNodesAlive value) {
-        return new JAXBElement<AreNodesAlive>(_AreNodesAlive_QNAME, AreNodesAlive.class, null, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ResetNodes }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "urn:WSNService", name = "resetNodes")
     public JAXBElement<ResetNodes> createResetNodes(ResetNodes value) {
         return new JAXBElement<ResetNodes>(_ResetNodes_QNAME, ResetNodes.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AreNodesAliveResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "urn:WSNService", name = "areNodesAliveResponse")
+    public JAXBElement<AreNodesAliveResponse> createAreNodesAliveResponse(AreNodesAliveResponse value) {
+        return new JAXBElement<AreNodesAliveResponse>(_AreNodesAliveResponse_QNAME, AreNodesAliveResponse.class, null, value);
     }
 
     /**

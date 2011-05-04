@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "areNodesAlive", namespace = "urn:CommonTypes", propOrder = {
+@XmlType(name = "areNodesAlive", propOrder = {
     "nodes"
 })
 public class AreNodesAlive {

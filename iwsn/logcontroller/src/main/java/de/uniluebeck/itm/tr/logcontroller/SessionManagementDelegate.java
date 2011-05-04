@@ -31,7 +31,7 @@ import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
 import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +112,13 @@ public class SessionManagementDelegate implements SessionManagement {
 			);
 		}
 		return wsnInstances.get(reservationHash).getFirst().getWSN();
+	}
+
+	@Override
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
+								String controllerEndpointUrl) {
+		return delegate.areNodesAlive(nodes, controllerEndpointUrl);
 	}
 
 	@Override

@@ -34,12 +34,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 05.03.2010
- * Time: 12:49:01
- */
 public class FieldHelper {
 
     public static class XMLGregorianCalendarDateChooserPanel extends DateChooserPanel {
@@ -48,8 +42,7 @@ public class FieldHelper {
             Date date = getDate();
             GregorianCalendar gregorianCalendar = new GregorianCalendar();
             gregorianCalendar.setTime(date);
-            XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-            return calendar;
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
         }
 
     }

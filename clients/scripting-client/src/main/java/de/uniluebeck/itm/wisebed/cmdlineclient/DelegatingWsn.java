@@ -24,11 +24,10 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 
 @WebService(
@@ -49,16 +48,6 @@ public class DelegatingWsn implements WSN {
 	@Override
 	public String areNodesAlive(List<String> nodes) {
 		return delegate.areNodesAlive(nodes);
-	}
-
-	@Override
-	public String defineNetwork(String newNetwork) {
-		return delegate.defineNetwork(newNetwork);
-	}
-
-	@Override
-	public String describeCapabilities(String capability) throws UnsupportedOperationException_Exception {
-		return delegate.describeCapabilities(capability);
 	}
 
 	@Override
@@ -92,23 +81,18 @@ public class DelegatingWsn implements WSN {
 	}
 
 	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return delegate.getSupportedChannelHandlers();
+	}
+
+	@Override
 	public List<String> getFilters() {
 		return delegate.getFilters();
 	}
 
 	@Override
-	public List<String> getNeighbourhood(String node) throws UnknownNodeUrnException_Exception {
-		return delegate.getNeighbourhood(node);
-	}
-
-	@Override
 	public String getNetwork() {
 		return delegate.getNetwork();
-	}
-
-	@Override
-	public String getPropertyValueOf(String node, String propertyName) throws UnknownNodeUrnException_Exception {
-		return delegate.getPropertyValueOf(node, propertyName);
 	}
 
 	@Override
@@ -139,8 +123,10 @@ public class DelegatingWsn implements WSN {
 	}
 
 	@Override
-	public String setStartTime(XMLGregorianCalendar time) {
-		return delegate.setStartTime(time);
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return delegate.setChannelPipeline(nodes, channelHandlerConfigurations);
 	}
 
 	@Override

@@ -2,10 +2,9 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.protobuf.ByteString;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v22.Status;
-import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Status;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
@@ -13,6 +12,9 @@ import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Set;
 
 
 public class ProtobufControllerHelper extends ControllerHelper {
@@ -92,17 +94,18 @@ public class ProtobufControllerHelper extends ControllerHelper {
 	}
 
 	@Override
-	public void receiveUnknownNodeUrnRequestStatus(UnknownNodeUrnException_Exception e, String requestId) {
+	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
+												   final String requestId) {
 		if (channels.size() > 0) {
 
 			WisebedProtocol.RequestStatus.Builder requestStatusBuilder = WisebedProtocol.RequestStatus.newBuilder()
 					.setRequestId(requestId);
 
-			for (String urn : e.getFaultInfo().getUrn()) {
+			for (String nodeUrn : nodeUrns) {
 				WisebedProtocol.RequestStatus.Status.Builder statusBuilder =
 						WisebedProtocol.RequestStatus.Status.newBuilder()
-								.setNodeUrn(urn)
-								.setMessage(e.getFaultInfo().getMessage())
+								.setNodeUrn(nodeUrn)
+								.setMessage(msg)
 								.setValue(-1);
 				requestStatusBuilder.addStatus(statusBuilder);
 			}
@@ -114,7 +117,7 @@ public class ProtobufControllerHelper extends ControllerHelper {
 
 			channels.write(envelope);
 		}
-		super.receiveUnknownNodeUrnRequestStatus(e, requestId);
+		super.receiveUnknownNodeUrnRequestStatus(nodeUrns, msg, requestId);
 	}
 
 	public void addChannel(Channel channel) {

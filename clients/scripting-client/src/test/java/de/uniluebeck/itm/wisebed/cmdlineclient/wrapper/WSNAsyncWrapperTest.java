@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
 import com.google.common.collect.Lists;
-import eu.wisebed.testbed.api.wsn.v22.Controller;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.Program;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.Program;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -112,14 +112,6 @@ public class WSNAsyncWrapperTest {
 	}
 
 	@Test
-	public void testDefineNetwork() throws Exception {
-		try {
-			wrapper.defineNetwork("");
-		} catch (Exception expected) {
-		}
-	}
-
-	@Test
 	public void testDescribeCapabilities() throws Exception {
 		try {
 			wrapper.describeCapabilities("");
@@ -211,24 +203,8 @@ public class WSNAsyncWrapperTest {
 	}
 
 	@Test
-	public void testGetNeighbourhood() throws Exception {
-		try {
-			wrapper.getNeighbourhood(sourceNodeURN);
-		} catch (Exception expected) {
-		}
-	}
-
-	@Test
 	public void testGetNetwork() throws Exception {
 		wrapper.getNetwork().get();
-	}
-
-	@Test
-	public void testGetPropertyValueOf() throws Exception {
-		try {
-			wrapper.getPropertyValueOf(sourceNodeURN, "");
-		} catch (Exception expected) {
-		}
 	}
 
 	@Test

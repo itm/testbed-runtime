@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
 
-import eu.wisebed.testbed.api.wsn.v22.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
 
 public interface ProtobufControllerClientListener extends Controller {
 

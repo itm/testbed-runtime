@@ -23,14 +23,16 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import com.google.common.base.Joiner;
 import de.uniluebeck.itm.tr.util.FileUtils;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 
 import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -59,7 +61,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the Session Management API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.SessionManagement} instance that is
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.SessionManagement} instance that is
 	 *         connected to the Web Service endpoint
 	 */
 	public static SessionManagement getSessionManagementService(String endpointUrl) {
@@ -136,7 +138,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the Controller API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.Controller} instance that is connected to the Web
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.Controller} instance that is connected to the Web
 	 *         Service endpoint
 	 */
 	public static Controller getControllerService(String endpointUrl) {
@@ -147,7 +149,7 @@ public class WSNServiceHelper {
 	 * Returns the port to the WSN API instance.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v22.WSN} instance that is connected to the Web Service
+	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.WSN} instance that is connected to the Web Service
 	 *         endpoint
 	 */
 	public static WSN getWSNService(String endpointUrl) {
@@ -195,14 +197,6 @@ public class WSNServiceHelper {
 		exception.setMessage(msg);
 		exception.setReservationId(reservationId);
 		return new UnknownReservationIdException_Exception(msg, exception, e);
-	}
-
-	public static UnknownNodeUrnException_Exception createUnknownNodeUrnException(Collection<String> nodeUrns) {
-		String msg = "At least one node URNs is unknown. Ignoring request...";
-		UnknownNodeUrnException exception = new UnknownNodeUrnException();
-		exception.getUrn().addAll(nodeUrns);
-		exception.setMessage(msg);
-		return new UnknownNodeUrnException_Exception(msg, exception);
 	}
 
 }

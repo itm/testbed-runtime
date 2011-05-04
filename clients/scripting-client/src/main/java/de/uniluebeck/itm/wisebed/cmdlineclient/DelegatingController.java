@@ -25,9 +25,9 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v22.Controller;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
 import org.apache.log4j.Logger;
 
 import javax.jws.WebParam;

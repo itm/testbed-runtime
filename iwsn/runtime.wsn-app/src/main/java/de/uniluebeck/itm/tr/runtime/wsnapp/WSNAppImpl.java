@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
@@ -36,8 +37,6 @@ import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,7 +223,7 @@ class WSNAppImpl implements WSNApp {
 				callback.receivedRequestStatus(requestStatus);
 
 			} catch (InvalidProtocolBufferException e) {
-				callbackError("Internal error occured while delivering message...", -2);
+				callbackError("Internal error occurred while delivering message...", -2);
 			}
 		}
 
@@ -262,9 +261,9 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void send(final Set<String> nodeUrns, final WSNAppMessages.Message message, final Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(nodeUrns);
+		assertNodeUrnsKnown(nodeUrns);
 
 		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
 				.newBuilder()
@@ -297,7 +296,7 @@ class WSNAppImpl implements WSNApp {
 		}
 	}
 
-	private void checkNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnException_Exception {
+	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
 
 		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
 		ImmutableSet<String> remoteNodeNames = testbedRuntime.getRoutingTableService().getEntries().keySet();
@@ -313,16 +312,17 @@ class WSNAppImpl implements WSNApp {
 		}
 
 		if (unknownNodeUrns != null) {
-			throw WSNServiceHelper.createUnknownNodeUrnException(nodeUrns);
+
+			String msg = "Ignoring request as the following node URNs are unknown: " + Joiner.on(", ").join(unknownNodeUrns);
+			throw new UnknownNodeUrnsException(unknownNodeUrns, msg);
 		}
 
 	}
 
 	@Override
-	public void areNodesAlive(final Set<String> nodeUrns, final Callback callback)
-			throws UnknownNodeUrnException_Exception {
+	public void areNodesAlive(final Set<String> nodeUrns, final Callback callback) throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(nodeUrns);
+		assertNodeUrnsKnown(nodeUrns);
 
 		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
 				.newBuilder()
@@ -346,11 +346,11 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void flashPrograms(final Map<String, WSNAppMessages.Program> programs, final Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(programs.keySet());
+		assertNodeUrnsKnown(programs.keySet());
 
-		WSNAppMessages.OperationInvocation operationInvocationProto = WSNAppMessages.OperationInvocation
+		WSNAppMessages.OperationInvocation operationInvocationProtobuf = WSNAppMessages.OperationInvocation
 				.newBuilder()
 				.setOperation(WSNAppMessages.OperationInvocation.Operation.FLASH_PROGRAMS)
 				.buildPartial();
@@ -360,7 +360,7 @@ class WSNAppImpl implements WSNApp {
 			final String nodeUrn = entry.getKey();
 
 			WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
-					.newBuilder(operationInvocationProto)
+					.newBuilder(operationInvocationProtobuf)
 					.setArguments(entry.getValue().toByteString())
 					.build();
 
@@ -421,10 +421,9 @@ class WSNAppImpl implements WSNApp {
 	}
 
 	@Override
-	public void resetNodes(final Set<String> nodeUrns, final Callback callback)
-			throws UnknownNodeUrnException_Exception {
+	public void resetNodes(final Set<String> nodeUrns, final Callback callback) throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(nodeUrns);
+		assertNodeUrnsKnown(nodeUrns);
 
 		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
@@ -461,9 +460,9 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
+		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
 
 		WSNAppMessages.SetVirtualLinkRequest.Builder setVirtualLinkRequestBuilder = WSNAppMessages.SetVirtualLinkRequest
 				.newBuilder()
@@ -487,9 +486,9 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
+		assertNodeUrnsKnown(Arrays.asList(sourceNodeUrn));
 
 		WSNAppMessages.DestroyVirtualLinkRequest.Builder destroyVirtualLinkRequestBuilder =
 				WSNAppMessages.DestroyVirtualLinkRequest
@@ -514,9 +513,9 @@ class WSNAppImpl implements WSNApp {
 	}
 
 	@Override
-	public void disableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception {
+	public void disableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(nodeUrn));
+		assertNodeUrnsKnown(Arrays.asList(nodeUrn));
 
 		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
@@ -534,9 +533,9 @@ class WSNAppImpl implements WSNApp {
 	}
 
 	@Override
-	public void enableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception {
+	public void enableNode(final String nodeUrn, Callback callback) throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(nodeUrn));
+		assertNodeUrnsKnown(Arrays.asList(nodeUrn));
 
 		WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
@@ -555,9 +554,9 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void enablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+		assertNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
 
 		WSNAppMessages.EnablePhysicalLink enablePhysicalLink = WSNAppMessages.EnablePhysicalLink
 				.newBuilder()
@@ -582,9 +581,9 @@ class WSNAppImpl implements WSNApp {
 
 	@Override
 	public void disablePhysicalLink(final String nodeUrnA, final String nodeUrnB, Callback callback)
-			throws UnknownNodeUrnException_Exception {
+			throws UnknownNodeUrnsException {
 
-		checkNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
+		assertNodeUrnsKnown(Arrays.asList(nodeUrnA, nodeUrnB));
 
 		WSNAppMessages.DisablePhysicalLink disablePhysicalLink = WSNAppMessages.DisablePhysicalLink
 				.newBuilder()

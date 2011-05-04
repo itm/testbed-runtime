@@ -23,8 +23,8 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.Program;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.Program;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.net.MalformedURLException;
@@ -122,16 +122,6 @@ public class WSNPreconditions {
 
 	// *****************************************************************************************************************
 
-	public void checkDefineNetworkArguments(String newNetwork) {
-		checkNotNull(newNetwork);
-		// TODO implement
-	}
-
-	public void checkDescribeCapabilitiesArguments(String capability) {
-		checkNotNull(capability);
-		// TODO implement
-	}
-
 	public void checkDisableNodeArguments(String node) {
 		checkNotNull(node);
 		commonPreconditions.checkNodesServed(node);
@@ -155,24 +145,6 @@ public class WSNPreconditions {
 		checkNotNull(nodeA);
 		checkNotNull(nodeB);
 		commonPreconditions.checkNodesServed(nodeA, nodeB);
-		// TODO implement
-	}
-
-	public void checkGetNeighbourhoodArguments(String node) {
-		checkNotNull(node);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
-	}
-
-	public void checkGetPropertyValueOfArguments(String node, String propertyName) {
-		checkNotNull(node);
-		checkNotNull(propertyName);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
-	}
-
-	public void checkSetStartTimeArguments(XMLGregorianCalendar time) {
-		checkNotNull(time);
 		// TODO implement
 	}
 

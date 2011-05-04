@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
+import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
+import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +122,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 						}
 					}
 			);
-		} catch (UnknownNodeUrnException_Exception exception) {
+		} catch (UnknownNodeUrnsException exception) {
 			String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception.getMessage();
 			log.error(text);
 			sendBackendMessage(ctx, e.getRemoteAddress(), text);

@@ -26,14 +26,25 @@ public interface WSN {
 
     /**
      * 
+     * @param controllerEndpointUrl
+     */
+    @WebMethod
+    @RequestWrapper(localName = "addController", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.AddController")
+    @ResponseWrapper(localName = "addControllerResponse", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.AddControllerResponse")
+    public void addController(
+        @WebParam(name = "controllerEndpointUrl", targetNamespace = "")
+        String controllerEndpointUrl);
+
+    /**
+     * 
      * @param nodes
      * @return
      *     returns java.lang.String
      */
     @WebMethod
     @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "areNodesAlive", targetNamespace = "urn:CommonTypes", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAlive")
-    @ResponseWrapper(localName = "areNodesAliveResponse", targetNamespace = "urn:CommonTypes", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAliveResponse")
+    @RequestWrapper(localName = "areNodesAlive", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAlive")
+    @ResponseWrapper(localName = "areNodesAliveResponse", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAliveResponse")
     public String areNodesAlive(
         @WebParam(name = "nodes", targetNamespace = "")
         List<String> nodes);
@@ -180,6 +191,17 @@ public interface WSN {
     @RequestWrapper(localName = "getVersion", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.GetVersion")
     @ResponseWrapper(localName = "getVersionResponse", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.GetVersionResponse")
     public String getVersion();
+
+    /**
+     * 
+     * @param controllerEndpointUrl
+     */
+    @WebMethod
+    @RequestWrapper(localName = "removeController", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.RemoveController")
+    @ResponseWrapper(localName = "removeControllerResponse", targetNamespace = "urn:WSNService", className = "eu.wisebed.testbed.api.wsn.v23.RemoveControllerResponse")
+    public void removeController(
+        @WebParam(name = "controllerEndpointUrl", targetNamespace = "")
+        String controllerEndpointUrl);
 
     /**
      * 

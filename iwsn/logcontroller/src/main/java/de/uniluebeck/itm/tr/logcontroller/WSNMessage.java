@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.logcontroller;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v23.Message;
 
 import javax.persistence.*;
 

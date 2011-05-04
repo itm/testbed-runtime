@@ -37,10 +37,10 @@ import eu.wisebed.testbed.api.rs.v1.RS;
 import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
 import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.*;
-import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v22.KeyValuePair;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v22.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.v23.ExperimentNotRunningException_Exception;
+import eu.wisebed.testbed.api.wsn.v23.KeyValuePair;
+import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v23.UnknownReservationIdException_Exception;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +133,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		/**
 		 * The filename of the file containing the WiseML document that is to delivered when
-		 * {@link eu.wisebed.testbed.api.wsn.v22.SessionManagement#getNetwork()} is called.
+		 * {@link eu.wisebed.testbed.api.wsn.v23.SessionManagement#getNetwork()} is called.
 		 */
 		private final String wiseMLFilename;
 
@@ -391,6 +391,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				throw new RuntimeException("Node URN " + node + " unknown to testbed runtime environment.");
 			}
 		}
+	}
+
+	@Override
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
+								String controllerEndpointUrl) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override

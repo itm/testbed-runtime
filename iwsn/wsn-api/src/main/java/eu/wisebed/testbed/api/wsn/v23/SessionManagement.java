@@ -28,22 +28,25 @@ public interface SessionManagement {
     /**
      * 
      * @param nodes
+     * @param controllerEndpointUrl
      * @return
      *     returns java.lang.String
      */
     @WebMethod
     @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "areNodesAlive", targetNamespace = "urn:CommonTypes", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAlive")
-    @ResponseWrapper(localName = "areNodesAliveResponse", targetNamespace = "urn:CommonTypes", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAliveResponse")
+    @RequestWrapper(localName = "areNodesAlive", targetNamespace = "urn:SessionManagementService", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAlive")
+    @ResponseWrapper(localName = "areNodesAliveResponse", targetNamespace = "urn:SessionManagementService", className = "eu.wisebed.testbed.api.wsn.v23.AreNodesAliveResponse")
     public String areNodesAlive(
         @WebParam(name = "nodes", targetNamespace = "")
-        List<String> nodes);
+        List<String> nodes,
+        @WebParam(name = "controllerEndpointUrl", targetNamespace = "")
+        String controllerEndpointUrl);
 
     /**
      * 
      * @param secretReservationKey
-     * @throws ExperimentNotRunningException_Exception
      * @throws UnknownReservationIdException_Exception
+     * @throws ExperimentNotRunningException_Exception
      */
     @WebMethod
     @RequestWrapper(localName = "free", targetNamespace = "urn:SessionManagementService", className = "eu.wisebed.testbed.api.wsn.v23.Free")
@@ -77,8 +80,8 @@ public interface SessionManagement {
      * @param controller
      * @return
      *     returns java.lang.String
-     * @throws ExperimentNotRunningException_Exception
      * @throws UnknownReservationIdException_Exception
+     * @throws ExperimentNotRunningException_Exception
      */
     @WebMethod
     @WebResult(targetNamespace = "")

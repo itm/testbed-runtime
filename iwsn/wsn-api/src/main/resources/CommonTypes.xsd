@@ -2,17 +2,6 @@
 <xs:schema version="1.0" targetNamespace="urn:CommonTypes"
 		   xmlns:tns="urn:CommonTypes" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:complexType name="areNodesAlive">
-		<xs:sequence>
-			<xs:element name="nodes" type="xs:string" nillable="true" minOccurs="1" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="areNodesAliveResponse">
-		<xs:sequence>
-			<xs:element name="return" type="tns:requestId" maxOccurs="1" minOccurs="1" />
-		</xs:sequence>
-	</xs:complexType>
-
 	<xs:complexType name="getNetwork">
 		<xs:sequence />
 	</xs:complexType>
@@ -41,8 +30,6 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
-	<xs:element name="areNodesAlive" type="tns:areNodesAlive" />
-	<xs:element name="areNodesAliveResponse" type="tns:areNodesAliveResponse" />
 	<xs:element name="getNetwork" type="tns:getNetwork" />
 	<xs:element name="getNetworkResponse" type="tns:getNetworkResponse" />
 	<xs:element name="message" type="tns:message" />

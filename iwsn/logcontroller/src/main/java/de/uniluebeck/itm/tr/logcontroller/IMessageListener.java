@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import eu.wisebed.testbed.api.wsn.v22.Message;
+import eu.wisebed.testbed.api.wsn.v23.Message;
 
 import java.util.Map;
 

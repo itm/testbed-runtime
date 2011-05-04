@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import eu.wisebed.testbed.api.messagestore.MessageStoreServiceHelper;
 import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;

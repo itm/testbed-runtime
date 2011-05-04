@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "receive", namespace = "urn:ControllerService", propOrder = {
+@XmlType(name = "receive", propOrder = {
     "msg"
 })
 public class Receive {

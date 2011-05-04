@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "requestStatus", namespace = "urn:ControllerService", propOrder = {
+@XmlType(name = "requestStatus", propOrder = {
     "requestId",
     "status"
 })

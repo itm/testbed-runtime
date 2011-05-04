@@ -35,7 +35,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,9 +253,7 @@ public class FederatorSessionManagement implements SessionManagement {
 			federatorWSN.addController(controller);
 
 		} catch (Exception e) {
-			// TODO throw generic but declared exception
-			throw WSNServiceHelper
-					.createExperimentNotRunningException("The federator service could not be started.", e);
+			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 		}
 
 		// delegate calls to the relevant federated Session Management API
@@ -290,15 +288,13 @@ public class FederatorSessionManagement implements SessionManagement {
 
 				// if one delegate call fails also fail
 				log.error("" + e, e);
-				// TODO use more generic error message
-				throw WSNServiceHelper.createExperimentNotRunningException(e.getMessage(), e);
+				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 
 			} catch (ExecutionException e) {
 
 				// if one delegate call fails also fail
 				log.error("" + e, e);
-				// TODO use more generic error message
-				throw WSNServiceHelper.createExperimentNotRunningException(e.getMessage(), e);
+				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 			}
 		}
 
@@ -312,7 +308,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	/**
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances
+	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances
 	 *
 	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
 	 */
@@ -325,10 +321,10 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	/**
-	 * Checks for a given list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances which federated
+	 * Checks for a given list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances which federated
 	 * Session Management endpoints are responsible for which set of URN prefixes.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances as
+	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances as
 	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
 	 *							  String)}
 	 *
@@ -358,6 +354,13 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 
 		return map;
+	}
+
+	@Override
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
+								String controllerEndpointUrl) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override

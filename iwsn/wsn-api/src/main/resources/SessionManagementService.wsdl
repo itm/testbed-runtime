@@ -15,10 +15,10 @@
 	</types>
 
 	<message name="areNodesAlive">
-		<part name="parameters" element="ct:areNodesAlive" />
+		<part name="parameters" element="tns:areNodesAlive" />
 	</message>
 	<message name="areNodesAliveResponse">
-		<part name="parameters" element="ct:areNodesAliveResponse" />
+		<part name="parameters" element="tns:areNodesAliveResponse" />
 	</message>
 	<message name="free">
 		<part name="parameters" element="tns:free" />

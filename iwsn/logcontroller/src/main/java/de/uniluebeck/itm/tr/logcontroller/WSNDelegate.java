@@ -24,11 +24,10 @@
 package de.uniluebeck.itm.tr.logcontroller;
 
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 
 /**
@@ -63,21 +62,19 @@ public class WSNDelegate implements WSN {
 		return delegate.send(nodeIds, message);
 	}
 
+	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return delegate.setChannelPipeline(nodes, channelHandlerConfigurations);
+	}
+
 	public String getVersion() {
 		return delegate.getVersion();
 	}
 
 	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 		return delegate.areNodesAlive(nodes);
-	}
-
-	public String defineNetwork(@WebParam(name = "newNetwork", targetNamespace = "") String newNetwork) {
-		return delegate.defineNetwork(newNetwork);
-	}
-
-	public String describeCapabilities(@WebParam(name = "capability", targetNamespace = "") String capability)
-			throws UnsupportedOperationException_Exception {
-		return delegate.describeCapabilities(capability);
 	}
 
 	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
@@ -109,31 +106,21 @@ public class WSNDelegate implements WSN {
 		return delegate.flashPrograms(nodeIds, programIndices, programs);
 	}
 
-	public List<String> getFilters() {
-		return delegate.getFilters();
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return delegate.getSupportedChannelHandlers();
 	}
 
-	public List<String> getNeighbourhood(@WebParam(name = "node", targetNamespace = "") String node)
-			throws UnknownNodeUrnException_Exception {
-		return delegate.getNeighbourhood(node);
+	public List<String> getFilters() {
+		return delegate.getFilters();
 	}
 
 	public String getNetwork() {
 		return delegate.getNetwork();
 	}
 
-	public String getPropertyValueOf(@WebParam(name = "node", targetNamespace = "") String node,
-									 @WebParam(name = "propertyName", targetNamespace = "") String propertyName)
-			throws UnknownNodeUrnException_Exception {
-		return delegate.getPropertyValueOf(node, propertyName);
-	}
-
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 		return delegate.resetNodes(nodes);
-	}
-
-	public String setStartTime(@WebParam(name = "time", targetNamespace = "") XMLGregorianCalendar time) {
-		return delegate.setStartTime(time);
 	}
 
 	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,

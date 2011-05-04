@@ -29,10 +29,10 @@ import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.testbed.api.wsn.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.Controller;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

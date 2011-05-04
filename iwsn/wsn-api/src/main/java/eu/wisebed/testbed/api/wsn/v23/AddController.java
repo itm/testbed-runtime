@@ -8,16 +8,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for areNodesAliveResponse complex type.
+ * <p>Java class for addController complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="areNodesAliveResponse">
+ * &lt;complexType name="addController">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="return" type="{urn:CommonTypes}requestId"/>
+ *         &lt;element name="controllerEndpointUrl" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -27,36 +27,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "areNodesAliveResponse", propOrder = {
-    "_return"
+@XmlType(name = "addController", propOrder = {
+    "controllerEndpointUrl"
 })
-public class AreNodesAliveResponse {
+public class AddController {
 
-    @XmlElement(name = "return", required = true)
-    protected String _return;
+    @XmlElement(required = true)
+    protected String controllerEndpointUrl;
 
     /**
-     * Gets the value of the return property.
+     * Gets the value of the controllerEndpointUrl property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getReturn() {
-        return _return;
+    public String getControllerEndpointUrl() {
+        return controllerEndpointUrl;
     }
 
     /**
-     * Sets the value of the return property.
+     * Sets the value of the controllerEndpointUrl property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setReturn(String value) {
-        this._return = value;
+    public void setControllerEndpointUrl(String value) {
+        this.controllerEndpointUrl = value;
     }
 
 }

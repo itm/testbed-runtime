@@ -27,10 +27,10 @@ package de.uniluebeck.itm.tr.debuggingguiclient.wsn;
 import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.FlashPrograms;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.Send;
-import eu.wisebed.testbed.api.wsn.v22.WSN;
+import eu.wisebed.testbed.api.wsn.v23.FlashPrograms;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.Send;
+import eu.wisebed.testbed.api.wsn.v23.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.wsn.v22.UnknownNodeUrnException_Exception;
 
 import java.util.Map;
 import java.util.Set;
@@ -93,36 +92,30 @@ public interface WSNApp extends Service, TestbedApplication {
 	 * @param nodeUrns
 	 * @param message
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param nodeUrns
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
+	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param programs
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
 
 
 	/**
 	 *
 	 * @param nodeUrns
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnException_Exception;
+	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
@@ -141,55 +134,45 @@ public interface WSNApp extends Service, TestbedApplication {
 	 * @param sourceNodeUrn
 	 * @param targetNodeUrn
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param sourceNodeUrn
 	 * @param targetNodeUrn
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param nodeUrn
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
+	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param nodeUrn
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnException_Exception;
+	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param nodeUrnA
 	 * @param nodeUrnB
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
 	/**
 	 *
 	 * @param nodeUrnA
 	 * @param nodeUrnB
 	 * @param callback
-	 * @throws UnknownNodeUrnException_Exception
 	 */
-	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback)
-			throws UnknownNodeUrnException_Exception;
+	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
 }

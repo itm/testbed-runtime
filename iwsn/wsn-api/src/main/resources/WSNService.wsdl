@@ -13,19 +13,17 @@
 		</xsd:schema>
 	</types>
 
-	<!--
 	<message name="addController">
 		<part name="parameters" element="tns:addController"/>
 	</message>
 	<message name="addControllerResponse">
 		<part name="parameters" element="tns:addControllerResponse"/>
 	</message>
-	-->
 	<message name="areNodesAlive">
-		<part name="parameters" element="ct:areNodesAlive" />
+		<part name="parameters" element="tns:areNodesAlive" />
 	</message>
 	<message name="areNodesAliveResponse">
-		<part name="parameters" element="ct:areNodesAliveResponse" />
+		<part name="parameters" element="tns:areNodesAliveResponse" />
 	</message>
 	<message name="destroyVirtualLink">
 		<part name="parameters" element="tns:destroyVirtualLink" />
@@ -87,14 +85,12 @@
 	<message name="getVersionResponse">
 		<part name="parameters" element="tns:getVersionResponse" />
 	</message>
-	<!--
 	<message name="removeController">
 		<part name="parameters" element="tns:removeController"/>
 	</message>
 	<message name="removeControllerResponse">
 		<part name="parameters" element="tns:removeControllerResponse"/>
 	</message>
-	-->
 	<message name="resetNodes">
 		<part name="parameters" element="tns:resetNodes" />
 	</message>
@@ -121,12 +117,10 @@
 	</message>
 
 	<portType name="WSN">
-		<!--
 		<operation name="addController">
 			<input message="tns:addController"/>
 			<output message="tns:addControllerResponse"/>
 		</operation>
-		-->
 		<operation name="areNodesAlive">
 			<input message="tns:areNodesAlive" />
 			<output message="tns:areNodesAliveResponse" />
@@ -171,12 +165,10 @@
 			<input message="tns:getVersion" />
 			<output message="tns:getVersionResponse" />
 		</operation>
-		<!--
 		<operation name="removeController">
 			<input message="tns:removeController"/>
 			<output message="tns:removeControllerResponse"/>
 		</operation>
-		-->
 		<operation name="resetNodes">
 			<input message="tns:resetNodes" />
 			<output message="tns:resetNodesResponse" />
@@ -197,7 +189,6 @@
 
 	<binding name="WSNPortBinding" type="tns:WSN">
 		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
-		<!--
 		<operation name="addController">
 			<soap:operation soapAction=""/>
 			<input>
@@ -207,7 +198,6 @@
 				<soap:body use="literal"/>
 			</output>
 		</operation>
-		-->
 		<operation name="areNodesAlive">
 			<soap:operation soapAction="" />
 			<input>
@@ -307,7 +297,6 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<!--
 		<operation name="removeController">
 			<soap:operation soapAction=""/>
 			<input>
@@ -317,7 +306,6 @@
 				<soap:body use="literal"/>
 			</output>
 		</operation>
-		-->
 		<operation name="resetNodes">
 			<soap:operation soapAction="" />
 			<input>

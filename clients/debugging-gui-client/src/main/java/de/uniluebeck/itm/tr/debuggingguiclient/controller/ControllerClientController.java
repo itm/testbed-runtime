@@ -27,9 +27,9 @@ import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.Controller;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -29,17 +29,14 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.internal.Nullable;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import eu.wisebed.testbed.api.wsn.v22.*;
+import eu.wisebed.testbed.api.wsn.v23.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service endpoints and allows
+ * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service endpoints and allows
  * to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a recipient is
  * repeatedly ({@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRIES} times) impossible due to whatever reason, the
  * recipient is removed from the list of recipients. Between every try there's a pause of {@link
@@ -255,7 +252,7 @@ public class ControllerHelper {
 	protected final int maximumDeliveryQueueSize;
 
 	/**
-	 * The set of {@link eu.wisebed.testbed.api.wsn.v22.Controller} instances currently listening to this WSN service
+	 * The set of {@link eu.wisebed.testbed.api.wsn.v23.Controller} instances currently listening to this WSN service
 	 * instance. Maps from the endpoint URL to an instantiated endpoint proxy.
 	 */
 	private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
@@ -322,7 +319,7 @@ public class ControllerHelper {
 	/**
 	 * Adds a Controller service endpoint URL to the list of recipients.
 	 *
-	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
+	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service
 	 *                              instance
 	 */
 	public void addController(String controllerEndpointUrl) {
@@ -335,7 +332,7 @@ public class ControllerHelper {
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v22.Controller} Web Service
+	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service
 	 *                              instance
 	 */
 	public void removeController(String controllerEndpointUrl) {
@@ -430,7 +427,7 @@ public class ControllerHelper {
 	/**
 	 * Delivers {@code message} to all currently registered controllers.
 	 *
-	 * @param message the {@link eu.wisebed.testbed.api.wsn.v22.Message} instance to deliver
+	 * @param message the {@link eu.wisebed.testbed.api.wsn.v23.Message} instance to deliver
 	 */
 	public void receive(Message message) {
 		receive(Lists.newArrayList(message));
@@ -451,7 +448,7 @@ public class ControllerHelper {
 	/**
 	 * Delivers {@code requestStatus} to all recipients.
 	 *
-	 * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v22.RequestStatus} instance to deliver
+	 * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v23.RequestStatus} instance to deliver
 	 */
 	public void receiveStatus(RequestStatus requestStatus) {
 		receiveStatus(Lists.newArrayList(requestStatus));
@@ -461,25 +458,27 @@ public class ControllerHelper {
 	 * Sends a request status to all currently connected controllers indicating that the request included an unknown node
 	 * URN by setting it's return value field to -1 and passing the exception message.
 	 *
-	 * @param e		 the exception
+	 * @param nodeUrns the nodeUrns that failed
+	 * @param msg an error message that should be sent with the status update
 	 * @param requestId the requestId
 	 */
-	public void receiveUnknownNodeUrnRequestStatus(final UnknownNodeUrnException_Exception e, final String requestId) {
+	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg, final String requestId) {
 
-		for (String nodeUrn : e.getFaultInfo().getUrn()) {
+		RequestStatus requestStatus = new RequestStatus();
+		requestStatus.setRequestId(requestId);
+
+		for (String nodeUrn : nodeUrns) {
 
 			Status status = new Status();
-			status.setMsg(e.getFaultInfo().getMessage());
+			status.setMsg(msg);
 			status.setNodeId(nodeUrn);
 			status.setValue(-1);
 
-			RequestStatus requestStatus = new RequestStatus();
-			requestStatus.setRequestId(requestId);
 			requestStatus.getStatus().add(status);
 
-			this.receiveStatus(requestStatus);
-
 		}
+
+		this.receiveStatus(requestStatus);
 
 	}
 
