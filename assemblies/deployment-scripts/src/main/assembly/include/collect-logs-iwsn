@@ -1,0 +1,19 @@
+#!/bin/bash
+
+OUT_DIR=$TESTBED_FOLDER"/logs/iwsn-"$(date "+%Y%m%d%H%M%S")"/"
+
+if [ -d $OUT_DIR ]
+then
+	echo "Output directory already exists! Don't want to overwrite anything valuable, so I'm aborting..."
+	exit 1
+fi
+
+echo "Collecting iWSN logs from testbed hosts..."
+
+for host in `cat $TESTBED_GATEWAY_HOSTS_FILE`
+do
+	mkdir -p $OUT_DIR/$host/ && (scp -p $TESTBED_USER@$host:/opt/tr.iwsn-assembly/logs/tr.*.log $OUT_DIR/$host/ 2>/dev/null || echo "$host: no logfiles found!")
+done
+mkdir -p $OUT_DIR/$TESTBED_PORTAL_HOST/ && (scp -p $TESTBED_USER@$TESTBED_PORTAL_HOST:/opt/tr.iwsn-assembly/logs/tr.*.log $OUT_DIR/$TESTBED_PORTAL_HOST/ 2>/dev/null || echo "$TESTBED_PORTAL_HOST: no logfiles found!")
+
+echo "Successfully collected logs. Please see $OUT_DIR..."

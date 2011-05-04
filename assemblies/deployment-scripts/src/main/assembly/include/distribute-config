@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo ""
+echo "Copying configs to testbed hosts..."
+pscp --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE --recursive $TESTBED_FOLDER/conf/ /opt/tr.assembly/
+pscp --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE --recursive $TESTBED_FOLDER/conf/ /opt/tr.assembly/

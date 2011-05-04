@@ -3,8 +3,6 @@
 // See <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Any modifications to this file will be lost upon recompilation of the source schema. 
 // Generated on: 2011.04.06 at 03:58:17 PM MESZ 
-//
-
 
 package de.uniluebeck.itm.tr.runtime.wsnapp.xml;
 

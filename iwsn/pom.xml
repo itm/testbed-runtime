@@ -40,17 +40,16 @@
 
     <modules>
         <module>csv2config</module>
+        <module>iwsn-cmdline</module>
         <module>logcontroller</module>
         <module>messagestore-api</module>
         <module>runtime</module>
-        <module>runtime.cmdline</module>
         <module>runtime.portal</module>
         <module>runtime.socket-connector</module>
 		<module>runtime.stats</module>
         <module>runtime.wsn-app</module>
         <module>runtime.xml-testbed-factory</module>
         <module>wsn-api</module>
-        <module>wsn-api-client</module>
         <module>wsn-device-drivers</module>
 		<module>wsn-device-utils</module>
         <module>wsn-federator</module>

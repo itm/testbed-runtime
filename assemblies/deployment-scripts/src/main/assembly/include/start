@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo ""
+echo "Starting iWSN on all gateways hosts..."
+
+pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE "/opt/tr.assembly/bin/tr.iwsn-linux-x86-32 start"
+
+echo ""
+echo "Starting iWSN, RS and SNAA on portal host..."
+pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE "/opt/tr.assembly/bin/tr.iwsn-linux-x86-32 start"
+pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE "/opt/tr.assembly/bin/tr.rs-linux-x86-32 start"
+pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE "/opt/tr.assembly/bin/tr.snaa-linux-x86-32 start"

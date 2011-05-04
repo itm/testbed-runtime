@@ -1,0 +1,1541 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml" xmlns:ns4="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml" xmlns:ns3="http://itm.uniluebeck.de/tr/runtime/portalapp/xml">
+    <nodes id="wisebed.itm.uni-luebeck.de">
+        <names>
+            <nodename name="wisebed.itm.uni-luebeck.de"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="wisebed.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.portalapp.PortalServerFactory" name="Portal">
+                <ns3:portalapp>
+                    <webservice>
+                        <urnprefix>urn:wisebed:uzl1:</urnprefix>
+                        <sessionmanagementendpointurl>http://wisebed.itm.uni-luebeck.de:8888/sessions</sessionmanagementendpointurl>
+                        <wsninstancebaseurl>http://wisebed.itm.uni-luebeck.de:8888/wsn/</wsninstancebaseurl>
+                        <reservationendpointurl>http://wisebed.itm.uni-luebeck.de:8889/rs</reservationendpointurl>
+                        <snaaendpointurl>http://wisebed.itm.uni-luebeck.de:8890/snaa</snaaendpointurl>
+                        <wisemlfilename>../conf/tr.iwsn-wiseml.xml</wisemlfilename>
+                        <protobufinterface>
+                            <port>8885</port>
+                            <ip>0.0.0.0</ip>
+                        </protobufinterface>
+                    </webservice>
+                </ns3:portalapp>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl01.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x1bb3"/>
+            <nodename name="urn:wisebed:uzl1:0x99a8"/>
+            <nodename name="urn:wisebed:uzl1:0x997e"/>
+            <nodename name="urn:wisebed:uzl1:513"/>
+            <nodename name="urn:wisebed:uzl1:441"/>
+            <nodename name="urn:wisebed:uzl1:607"/>
+            <nodename name="urn:wisebed:uzl1:0xfee3"/>
+            <nodename name="urn:wisebed:uzl1:0x5502"/>
+            <nodename name="urn:wisebed:uzl1:0xd2fb"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl01.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1bb3</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x99a8</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x997e</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:513</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:441</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:607</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xfee3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTBYH2</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5502</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCNPG</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xd2fb</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO21W</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl02.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x14e2"/>
+            <nodename name="urn:wisebed:uzl1:0x1cca"/>
+            <nodename name="urn:wisebed:uzl1:0xf85d"/>
+            <nodename name="urn:wisebed:uzl1:611"/>
+            <nodename name="urn:wisebed:uzl1:459"/>
+            <nodename name="urn:wisebed:uzl1:487"/>
+            <nodename name="urn:wisebed:uzl1:0x739d"/>
+            <nodename name="urn:wisebed:uzl1:0x435c"/>
+            <nodename name="urn:wisebed:uzl1:0x3eee"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl02.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x14e2</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1cca</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf85d</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:611</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:459</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:487</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x739d</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC03W</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x435c</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO22U</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x3eee</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTKTHZ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl03.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x5a34"/>
+            <nodename name="urn:wisebed:uzl1:0xcf04"/>
+            <nodename name="urn:wisebed:uzl1:0xcc33"/>
+            <nodename name="urn:wisebed:uzl1:640"/>
+            <nodename name="urn:wisebed:uzl1:600"/>
+            <nodename name="urn:wisebed:uzl1:493"/>
+            <nodename name="urn:wisebed:uzl1:0x2891"/>
+            <nodename name="urn:wisebed:uzl1:0x58ca"/>
+            <nodename name="urn:wisebed:uzl1:0x012c"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl03.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5a34</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcf04</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcc33</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:640</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:600</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:493</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2891</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUTJJ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x58ca</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCOMU</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x012c</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTKTD6</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl05.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x151f"/>
+            <nodename name="urn:wisebed:uzl1:0x1c6c"/>
+            <nodename name="urn:wisebed:uzl1:0x1c73"/>
+            <nodename name="urn:wisebed:uzl1:598"/>
+            <nodename name="urn:wisebed:uzl1:564"/>
+            <nodename name="urn:wisebed:uzl1:576"/>
+            <nodename name="urn:wisebed:uzl1:0xaa70"/>
+            <nodename name="urn:wisebed:uzl1:0xe3c2"/>
+            <nodename name="urn:wisebed:uzl1:0x8477"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl05.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x151f</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1c6c</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1c73</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:598</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:564</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:576</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xaa70</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCMG7</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xe3c2</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQRTAOQ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x8477</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO1YJ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl06.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x61e1"/>
+            <nodename name="urn:wisebed:uzl1:0xf7b7"/>
+            <nodename name="urn:wisebed:uzl1:0x61e5"/>
+            <nodename name="urn:wisebed:uzl1:262"/>
+            <nodename name="urn:wisebed:uzl1:492"/>
+            <nodename name="urn:wisebed:uzl1:463"/>
+            <nodename name="urn:wisebed:uzl1:0xb354"/>
+            <nodename name="urn:wisebed:uzl1:0x53fc"/>
+            <nodename name="urn:wisebed:uzl1:0x4056"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl06.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x61e1</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf7b7</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x61e5</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:262</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:492</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:463</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xb354</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIXWF</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x53fc</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC0H1</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x4056</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTKW8L</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl07.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x1c2c"/>
+            <nodename name="urn:wisebed:uzl1:0x1bd8"/>
+            <nodename name="urn:wisebed:uzl1:0x1bb0"/>
+            <nodename name="urn:wisebed:uzl1:508"/>
+            <nodename name="urn:wisebed:uzl1:458"/>
+            <nodename name="urn:wisebed:uzl1:540"/>
+            <nodename name="urn:wisebed:uzl1:0x2c26"/>
+            <nodename name="urn:wisebed:uzl1:0x0553"/>
+            <nodename name="urn:wisebed:uzl1:0x2ad3"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl07.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1c2c</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1bd8</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1bb0</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:508</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:458</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:540</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2c26</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO206</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x0553</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUVIB</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2ad3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUOHZ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl08.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0xcc3a"/>
+            <nodename name="urn:wisebed:uzl1:0x85a4"/>
+            <nodename name="urn:wisebed:uzl1:0x80f5"/>
+            <nodename name="urn:wisebed:uzl1:559"/>
+            <nodename name="urn:wisebed:uzl1:635"/>
+            <nodename name="urn:wisebed:uzl1:522"/>
+            <nodename name="urn:wisebed:uzl1:0x2b37"/>
+            <nodename name="urn:wisebed:uzl1:0x55db"/>
+            <nodename name="urn:wisebed:uzl1:0x1327"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl08.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcc3a</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x85a4</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x80f5</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:559</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:635</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:522</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2b37</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCS1H</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x55db</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCMB6</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1327</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIXVU</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl09.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x599d"/>
+            <nodename name="urn:wisebed:uzl1:0xcbe4"/>
+            <nodename name="urn:wisebed:uzl1:0xf859"/>
+            <nodename name="urn:wisebed:uzl1:547"/>
+            <nodename name="urn:wisebed:uzl1:415"/>
+            <nodename name="urn:wisebed:uzl1:500"/>
+            <nodename name="urn:wisebed:uzl1:0xd1dd"/>
+            <nodename name="urn:wisebed:uzl1:0x17e9"/>
+            <nodename name="urn:wisebed:uzl1:0xc26b"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl09.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x599d</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcbe4</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf859</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:547</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:415</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:500</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xd1dd</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO23Y</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x17e9</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO24K</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xc26b</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC1FE</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl10.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x99af"/>
+            <nodename name="urn:wisebed:uzl1:0x753d"/>
+            <nodename name="urn:wisebed:uzl1:0x1b57"/>
+            <nodename name="urn:wisebed:uzl1:468"/>
+            <nodename name="urn:wisebed:uzl1:588"/>
+            <nodename name="urn:wisebed:uzl1:642"/>
+            <nodename name="urn:wisebed:uzl1:0x7b2d"/>
+            <nodename name="urn:wisebed:uzl1:0xc251"/>
+            <nodename name="urn:wisebed:uzl1:0xf9f3"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl10.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x99af</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x753d</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1b57</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:468</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:588</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:642</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x7b2d</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIX94</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xc251</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC09M</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf9f3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCO24</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl11.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x5a35"/>
+            <nodename name="urn:wisebed:uzl1:0x1b74"/>
+            <nodename name="urn:wisebed:uzl1:0xcc3d"/>
+            <nodename name="urn:wisebed:uzl1:608"/>
+            <nodename name="urn:wisebed:uzl1:503"/>
+            <nodename name="urn:wisebed:uzl1:435"/>
+            <nodename name="urn:wisebed:uzl1:0x7e56"/>
+            <nodename name="urn:wisebed:uzl1:0x73ba"/>
+            <nodename name="urn:wisebed:uzl1:0x746e"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl11.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5a35</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1b74</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcc3d</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:608</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:503</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:435</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x7e56</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIX7D</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x73ba</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUO23</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x746e</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC0EI</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl13.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x970b"/>
+            <nodename name="urn:wisebed:uzl1:0x1b5a"/>
+            <nodename name="urn:wisebed:uzl1:0x1b6b"/>
+            <nodename name="urn:wisebed:uzl1:512"/>
+            <nodename name="urn:wisebed:uzl1:610"/>
+            <nodename name="urn:wisebed:uzl1:430"/>
+            <nodename name="urn:wisebed:uzl1:0x3f32"/>
+            <nodename name="urn:wisebed:uzl1:0x534d"/>
+            <nodename name="urn:wisebed:uzl1:0x543e"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl13.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x970b</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1b5a</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1b6b</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:512</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:610</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:430</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x3f32</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC1IU</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x534d</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTJ1CL</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x543e</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUO2O</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl14.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x1c72"/>
+            <nodename name="urn:wisebed:uzl1:0xf851"/>
+            <nodename name="urn:wisebed:uzl1:0xcff1"/>
+            <nodename name="urn:wisebed:uzl1:427"/>
+            <nodename name="urn:wisebed:uzl1:491"/>
+            <nodename name="urn:wisebed:uzl1:498"/>
+            <nodename name="urn:wisebed:uzl1:0x408b"/>
+            <nodename name="urn:wisebed:uzl1:0x3757"/>
+            <nodename name="urn:wisebed:uzl1:0xf620"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl14.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1c72</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf851</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcff1</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:427</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:491</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:498</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x408b</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC1EB</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x3757</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO25J</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf620</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCOMC</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl15.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x1cd2"/>
+            <nodename name="urn:wisebed:uzl1:0x7e6c"/>
+            <nodename name="urn:wisebed:uzl1:0xcc43"/>
+            <nodename name="urn:wisebed:uzl1:527"/>
+            <nodename name="urn:wisebed:uzl1:414"/>
+            <nodename name="urn:wisebed:uzl1:634"/>
+            <nodename name="urn:wisebed:uzl1:0xf242"/>
+            <nodename name="urn:wisebed:uzl1:0xe412"/>
+            <nodename name="urn:wisebed:uzl1:0x5680"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl15.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1cd2</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x7e6c</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcc43</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:527</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:414</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:634</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xf242</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO261</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xe412</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCNMM</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5680</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTBYBQ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl16.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x85ba"/>
+            <nodename name="urn:wisebed:uzl1:0x9960"/>
+            <nodename name="urn:wisebed:uzl1:0x9961"/>
+            <nodename name="urn:wisebed:uzl1:420"/>
+            <nodename name="urn:wisebed:uzl1:210"/>
+            <nodename name="urn:wisebed:uzl1:545"/>
+            <nodename name="urn:wisebed:uzl1:0x0b15"/>
+            <nodename name="urn:wisebed:uzl1:0x30c3"/>
+            <nodename name="urn:wisebed:uzl1:0x8555"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl16.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x85ba</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x9960</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x9961</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:420</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:210</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:545</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x0b15</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCMJP</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x30c3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUQ2B</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x8555</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIWGD</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl17.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x14f7"/>
+            <nodename name="urn:wisebed:uzl1:0x96f9"/>
+            <nodename name="urn:wisebed:uzl1:0xc179"/>
+            <nodename name="urn:wisebed:uzl1:558"/>
+            <nodename name="urn:wisebed:uzl1:568"/>
+            <nodename name="urn:wisebed:uzl1:534"/>
+            <nodename name="urn:wisebed:uzl1:0x2b7a"/>
+            <nodename name="urn:wisebed:uzl1:0x390a"/>
+            <nodename name="urn:wisebed:uzl1:0x561d"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl17.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x14f7</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x96f9</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xc179</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:558</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:568</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:534</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2b7a</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC060</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x390a</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCPH1</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x561d</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIZV3</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl18.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x96df"/>
+            <nodename name="urn:wisebed:uzl1:0x9995"/>
+            <nodename name="urn:wisebed:uzl1:0x971e"/>
+            <nodename name="urn:wisebed:uzl1:520"/>
+            <nodename name="urn:wisebed:uzl1:590"/>
+            <nodename name="urn:wisebed:uzl1:465"/>
+            <nodename name="urn:wisebed:uzl1:0x436e"/>
+            <nodename name="urn:wisebed:uzl1:0x9815"/>
+            <nodename name="urn:wisebed:uzl1:0x5d3d"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl18.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x96df</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x9995</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x971e</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:520</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:590</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:465</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x436e</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTC23U</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x9815</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTKUV8</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5d3d</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTIWIP</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl19.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0xcbe5"/>
+            <nodename name="urn:wisebed:uzl1:0x1234"/>
+            <nodename name="urn:wisebed:uzl1:0x14e0"/>
+            <nodename name="urn:wisebed:uzl1:481"/>
+            <nodename name="urn:wisebed:uzl1:553"/>
+            <nodename name="urn:wisebed:uzl1:482"/>
+            <nodename name="urn:wisebed:uzl1:0x1bfc"/>
+            <nodename name="urn:wisebed:uzl1:0xdedf"/>
+            <nodename name="urn:wisebed:uzl1:0xddd3"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl19.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xcbe5</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1234</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x14e0</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:481</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:553</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:482</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1bfc</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQRTAR0</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xdedf</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQVUVKQ</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0xddd3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTCMDS</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+    <nodes id="testbeduzl20.itm.uni-luebeck.de">
+        <names>
+            <nodename name="urn:wisebed:uzl1:0x96f0"/>
+            <nodename name="urn:wisebed:uzl1:0x1721"/>
+            <nodename name="urn:wisebed:uzl1:0x5980"/>
+            <nodename name="urn:wisebed:uzl1:624"/>
+            <nodename name="urn:wisebed:uzl1:488"/>
+            <nodename name="urn:wisebed:uzl1:636"/>
+            <nodename name="urn:wisebed:uzl1:0x2f2e"/>
+            <nodename name="urn:wisebed:uzl1:0x0fce"/>
+            <nodename name="urn:wisebed:uzl1:0x3ff3"/>
+        </names>
+        <serverconnections>
+            <serverconnection address="testbeduzl20.itm.uni-luebeck.de:8880" type="tcp"/>
+        </serverconnections>
+        <applications>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x96f0</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x1721</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x5980</urn>
+                    <type>isense</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:624</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:488</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:636</urn>
+                    <type>pacemate</type>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x2f2e</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTKTGE</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x0fce</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTO21B</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+            <application factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory" name="WSNDeviceApp">
+                <ns4:wsnDevice>
+                    <urn>urn:wisebed:uzl1:0x3ff3</urn>
+                    <type>telosb</type>
+                    <usbchipid>XBQTBXTF</usbchipid>
+                    <maximummessagerate>50</maximummessagerate>
+                </ns4:wsnDevice>
+            </application>
+        </applications>
+    </nodes>
+</ns2:testbed>

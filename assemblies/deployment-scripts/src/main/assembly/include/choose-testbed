@@ -1,0 +1,35 @@
+#!/bin/bash
+
+BASEDIR=`dirname $0`
+
+# check if sufficient arguments were given
+if [ "$#" -lt "$ARGS_REQ" ]
+then
+	echo "Usage: $0 TESTBED $ARGS_ADDITIONAL"
+	exit 1
+fi
+
+# check if argument given is a valid folder and set folder variable
+if [ -d "$BASEDIR/testbeds/$1" ]
+then
+	TESTBED="$1"
+	TESTBED_FOLDER="$BASEDIR/testbeds/$1"
+	TESTBED_PORTAL_HOST_FILE="$TESTBED_FOLDER/portal-host"
+	TESTBED_PORTAL_HOST=`cat $TESTBED_FOLDER/portal-host`
+	TESTBED_GATEWAY_HOSTS_FILE="$TESTBED_FOLDER/gateway-hosts"
+	TESTBED_USER=`cat $TESTBED_FOLDER/username`
+else
+	echo "The given argument \"$1\" is not a valid folder in $BASEDIR/testbeds/"
+	exit 1
+fi
+
+# ask user if he is sure to execute the command if specified necessary
+if [ -f "$TESTBED_FOLDER/ask" ]
+then
+	echo -n "You are about to execute this command on the live testbed. Are you sure you want to continue (y/n)? "
+	read doit
+	if [ "$doit" != "y" ]
+	then
+		exit 1
+	fi
+fi
