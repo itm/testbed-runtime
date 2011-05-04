@@ -41,7 +41,7 @@ public class WSNServiceController {
     
     private WSNServiceView view;
 
-    private WSNServiceImpl wsnService;
+    private WSNServiceDummyImpl wsnService;
 
     private ActionListener startServiceCheckboxActionListener = new ActionListener() {
         @Override
@@ -49,7 +49,7 @@ public class WSNServiceController {
             if (view.getStartServiceCheckbox().isSelected()) {
 
                 String endpointUrl = view.getEndpointUrlTextField().getText();
-                wsnService = new WSNServiceImpl(endpointUrl);
+                wsnService = new WSNServiceDummyImpl(endpointUrl);
 
                 try {
                     wsnService.start();

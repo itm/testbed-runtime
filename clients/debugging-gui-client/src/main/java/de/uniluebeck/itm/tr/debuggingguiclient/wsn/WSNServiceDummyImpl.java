@@ -44,9 +44,9 @@ import java.util.List;
         portName = "WSNPort",
         endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
 )
-public class WSNServiceImpl implements WSN {
+public class WSNServiceDummyImpl implements WSN {
 
-    private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WSNServiceDummyImpl.class);
 
     private String endpointUrl;
 
@@ -54,7 +54,7 @@ public class WSNServiceImpl implements WSN {
 
     private SecureIdGenerator generator = new SecureIdGenerator();
 
-    public WSNServiceImpl(String endpointUrl) {
+    public WSNServiceDummyImpl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
 
