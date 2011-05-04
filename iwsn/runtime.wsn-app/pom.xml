@@ -82,7 +82,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.deviceobserver</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>

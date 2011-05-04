@@ -215,4 +215,32 @@ public class DeviceObserverImpl implements DeviceObserver {
 		}
 		return true;
 	}
+
+	/**
+	 * checks if device with referenceId is connected
+	 * @param referenceID referenceId of device
+	 * @return	true if device connected, else false
+	 */
+
+	private boolean isConnected(String referenceID){
+		for (DeviceEventListener deviceEventListener : deviceEventListenerMap.keySet()){
+			if (referenceID.equals(deviceEventListenerMap.get(deviceEventListener).get(DeviceObserverUtils.KEY_REFERENCE_ID))){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * checks if device with referenceId is connected informs logger if connected or not
+	 * @param referenceID referenceID for device
+	 */
+	public void checkConnectivity(String referenceID){
+		String message = "DeviceObserver notifying: Device with referenceID: " + referenceID + " is ";
+		if (isConnected(referenceID)){
+			logger.info( message + "connected!");
+		} else {
+			logger.info(message + "disconnected!");
+		}
+	}
 }

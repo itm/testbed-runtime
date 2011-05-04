@@ -29,6 +29,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 
 public class main {
 
+	//test main with using of RSCDeviceEventListenerImpl
 	public static void main(String[] args){
 		Logging.setLoggingDefaults();
 		DeviceObserver observer = new DeviceObserverImpl();
