@@ -218,29 +218,51 @@ public class DeviceObserverImpl implements DeviceObserver {
 
 	/**
 	 * checks if device with referenceId is connected
+	 *
 	 * @param referenceID referenceId of device
-	 * @return	true if device connected, else false
+	 * @return true if device connected, else false
 	 */
 
-	private boolean isConnected(String referenceID){
-		for (DeviceEventListener deviceEventListener : deviceEventListenerMap.keySet()){
-			if (referenceID.equals(deviceEventListenerMap.get(deviceEventListener).get(DeviceObserverUtils.KEY_REFERENCE_ID))){
-				return true;
+	private List<DeviceEventListener> getDeviceEventListenersFromReferenceID(String referenceID) {
+		List<DeviceEventListener> deviceEventListeners = new ArrayList<DeviceEventListener>();
+		for (DeviceEventListener deviceEventListener : deviceEventListenerMap.keySet()) {
+			if (referenceID.equals(deviceEventListenerMap.get(deviceEventListener).get(DeviceObserverUtils.KEY_REFERENCE_ID))) {
+				deviceEventListeners.add(deviceEventListener);
 			}
 		}
-		return false;
+		return deviceEventListeners;
 	}
 
 	/**
 	 * checks if device with referenceId is connected informs logger if connected or not
+	 *
 	 * @param referenceID referenceID for device
 	 */
-	public void checkConnectivity(String referenceID){
+	public void checkConnectivity(String referenceID) {
 		String message = "DeviceObserver notifying: Device with referenceID: " + referenceID + " is ";
-		if (isConnected(referenceID)){
-			logger.info( message + "connected!");
+		if (getDeviceEventListenersFromReferenceID(referenceID).size() != 0) {
+			logger.info(message + "connected!");
 		} else {
 			logger.info(message + "disconnected!");
 		}
+	}
+
+	/**
+	 * checks if device with referenceId for specific DeviceEventListenerImplementation is connected or not
+	 * @param deviceEventListenerImplementation  DeviceEventListenerImplementation to be checked for
+	 * @param referenceID	referenceId of Device
+	 */
+	public void checkConnectivity(Class deviceEventListenerImplementation, String referenceID) {
+		String message = "DeviceObserver notifying: Device for DeviceEventListener: " + deviceEventListenerImplementation + " and with referenceID: " + referenceID + " is ";
+		List<DeviceEventListener> listenersForReferenceId = getDeviceEventListenersFromReferenceID(referenceID);
+		if (listenersForReferenceId.size() != 0) {
+			for (DeviceEventListener listener : listenersForReferenceId) {
+				if (deviceEventListenerImplementation.isAssignableFrom(listener.getClass())) {
+					logger.info(message + "connected");
+					return;
+				}
+			}
+		}
+		logger.info(message + "disconnected");
 	}
 }
