@@ -52,7 +52,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <mainClass>de.uniluebeck.itm.deviceobserver.Main</mainClass>
+                            <mainClass>de.uniluebeck.itm.deviceobserver.main</mainClass>
                             <onejarVersion>0.97-RC10</onejarVersion>
                         </configuration>
                         <goals>

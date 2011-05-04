@@ -27,7 +27,6 @@ import de.uniluebeck.itm.deviceobserver.DeviceEventListener;
 import de.uniluebeck.itm.deviceobserver.DeviceObserver;
 import de.uniluebeck.itm.deviceobserver.exception.DeviceNotConnectableException;
 import de.uniluebeck.itm.deviceobserver.exception.DeviceNotDisconnectableException;
-import de.uniluebeck.itm.deviceobserver.factory.DeviceEventListenerFactory;
 import de.uniluebeck.itm.deviceobserver.util.CSVMoteListExtractor;
 import de.uniluebeck.itm.deviceobserver.util.DeviceObserverUtils;
 import org.slf4j.Logger;
@@ -43,12 +42,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class DeviceObserverImpl implements DeviceObserver {
 
-	private Map<DeviceEventListener, Map<String, String>> deviceEventListeners;
+	private Map<DeviceEventListener, Map<String, String>> deviceEventListenerMap;
 	private final static Logger logger = LoggerFactory.getLogger(DeviceObserverImpl.class);
 	private final long initialDelay;
 	private final long period;
 	private String[] csvDevices = null;
 	private final ScheduledThreadPoolExecutor executor;
+	private List<Class> deviceEventListeners;
 
 	/**
 	 * Default constructor
@@ -65,12 +65,13 @@ public class DeviceObserverImpl implements DeviceObserver {
 	 */
 	public DeviceObserverImpl(final long initialDelay, final long period) {
 		this.executor = new ScheduledThreadPoolExecutor(1);
-		this.deviceEventListeners = new HashMap<DeviceEventListener, Map<String, String>>();
+		this.deviceEventListenerMap = new HashMap<DeviceEventListener, Map<String, String>>();
 		this.initialDelay = initialDelay;
 		this.period = period;
+		this.deviceEventListeners = new ArrayList<Class>();
 	}
 
-	public synchronized void setCsvDevices(String[] csv) {
+	protected synchronized void setCsvDevices(String[] csv) {
 		this.csvDevices = csv;
 	}
 
@@ -80,7 +81,7 @@ public class DeviceObserverImpl implements DeviceObserver {
 	 * @param device device as string with csv
 	 * @return
 	 */
-	private Map<String, String> createDeviceMap(String device) {
+	private synchronized Map<String, String> createDeviceMap(String device) {
 		Map<String, String> deviceMap = new HashMap<String, String>();
 		try {
 			StringTokenizer tokenizer = new StringTokenizer(device, ",");
@@ -108,57 +109,83 @@ public class DeviceObserverImpl implements DeviceObserver {
 		executor.scheduleAtFixedRate(runnableObserver, initialDelay, period, TimeUnit.SECONDS);
 	}
 
-	private synchronized void addAndRemoveListener() {
-		addListener();
-		removeListener();
-	}
-
 	@Override
 	public synchronized void stop() {
-		deviceEventListeners.clear();
+		deviceEventListenerMap.clear();
 		executor.shutdown();
 		logger.info("Device Observer stopped...");
 	}
 
-	public Set<DeviceEventListener> getEventListeners() {
-		return this.deviceEventListeners.keySet();
+	@Override
+	public synchronized boolean addListener(DeviceEventListener deviceEventListener) {
+		return deviceEventListeners.add(deviceEventListener.getClass());
 	}
 
 	@Override
-	public synchronized void addListener() {
+	public synchronized boolean removeListener(DeviceEventListener deviceEventListener) {
+		return deviceEventListeners.remove(deviceEventListener.getClass());
+	}
+
+	//check for to be removed Listeners
+	protected synchronized void addAndRemoveListener() {
+		addDeviceEventListeners();
+		removeDeviceEventListeners();
+	}
+
+	public Set<DeviceEventListener> getEventListenerInstances() {
+		return this.deviceEventListenerMap.keySet();
+	}
+
+	private synchronized void addDeviceEventListeners() {
 		for (String line : csvDevices) {
 			Map<String, String> deviceMap = createDeviceMap(line);
-			if (containsDevice(deviceMap)) continue;
+			if (containsDevice(deviceMap)) {
+				continue;
+			}
 
-			DeviceEventListener deviceEventListener = DeviceEventListenerFactory.createDeviceEventListenerInstance();
-			try {
-				deviceEventListener.connected(deviceMap);
-				this.deviceEventListeners.put(deviceEventListener, deviceMap);
-				logger.debug("... added DeviceEventListener for device {}", deviceMap);
-			} catch (DeviceNotConnectableException e) {
-				logger.warn("Could not connect device {}! {}", deviceMap, e.getMessage());
+			if (deviceEventListeners.size() == 0) {
+				logger.warn("No DeviceEventListener-Instance available!");
+				continue;
+			}
+			for (Class listener : deviceEventListeners) {
+				try {
+					DeviceEventListener deviceEventListenerInstance = (DeviceEventListener) listener.newInstance();
+					deviceEventListenerInstance.connected(deviceMap);
+					deviceEventListenerMap.put(deviceEventListenerInstance, deviceMap);
+				} catch (InstantiationException e) {
+					logger.warn(e.getLocalizedMessage());
+				} catch (IllegalArgumentException e) {
+					logger.warn(e.getLocalizedMessage());
+				} catch (IllegalAccessException e) {
+					logger.warn(e.getLocalizedMessage());
+				} catch (DeviceNotConnectableException e) {
+					logger.warn("Could not connect device: " + deviceMap);
+				}
 			}
 		}
 	}
 
-	@Override
-	public synchronized void removeListener() {
-		List<DeviceEventListener> removedEventListener = new ArrayList<DeviceEventListener>();
-		for (DeviceEventListener deviceEventListener : deviceEventListeners.keySet()) {
-			Map<String, String> deviceMap = deviceEventListeners.get(deviceEventListener);
-			if (deviceRemoved(deviceMap)) {
-				removedEventListener.add(deviceEventListener);
-			}
-		}
+	private synchronized void removeDeviceEventListeners() {
+		for (DeviceEventListener deviceEventListener : getToBeRemovedEventListeners()) {
+			Map<String, String> deviceMap = this.deviceEventListenerMap.remove(deviceEventListener);
 
-		for (DeviceEventListener deviceEventListener : removedEventListener) {
-			Map<String, String> deviceMap = this.deviceEventListeners.remove(deviceEventListener);
 			try {
 				deviceEventListener.disconnected(deviceMap);
 			} catch (DeviceNotDisconnectableException e) {
 				logger.warn("Could not disconnect device {}", deviceMap);
 			}
 		}
+	}
+
+	private synchronized List<DeviceEventListener> getToBeRemovedEventListeners() {
+		List<DeviceEventListener> removedEventListeners = new ArrayList<DeviceEventListener>();
+		for (DeviceEventListener deviceEventListener : deviceEventListenerMap.keySet()) {
+			Map<String, String> deviceMap = deviceEventListenerMap.get(deviceEventListener);
+			if (deviceRemoved(deviceMap)) {
+				removedEventListeners.add(deviceEventListener);
+			}
+		}
+		return removedEventListeners;
 	}
 
 	/**
@@ -168,8 +195,8 @@ public class DeviceObserverImpl implements DeviceObserver {
 	 * @return
 	 */
 	private boolean containsDevice(Map<String, String> deviceMap) {
-		for (DeviceEventListener deviceEventListener : deviceEventListeners.keySet()) {
-			if (deviceMap.equals(deviceEventListeners.get(deviceEventListener))) return true;
+		for (DeviceEventListener deviceEventListener : deviceEventListenerMap.keySet()) {
+			if (deviceMap.equals(deviceEventListenerMap.get(deviceEventListener))) return true;
 		}
 		return false;
 

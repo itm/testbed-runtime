@@ -23,12 +23,16 @@
 
 package de.uniluebeck.itm.deviceobserver;
 
-import de.uniluebeck.itm.deviceobserver.factory.DeviceObserverFactory;
+import de.uniluebeck.itm.deviceobserver.impl.DeviceObserverImpl;
+import de.uniluebeck.itm.deviceobserver.impl.RSCDeviceEventListenerImpl;
+import de.uniluebeck.itm.tr.util.Logging;
 
-public class Main {
+public class main {
 
 	public static void main(String[] args){
-		DeviceObserver observer = DeviceObserverFactory.createDeviceObserverInstance();
+		Logging.setLoggingDefaults();
+		DeviceObserver observer = new DeviceObserverImpl();
+		observer.addListener(new RSCDeviceEventListenerImpl());
 		observer.start();
 	}
 }

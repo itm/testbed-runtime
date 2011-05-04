@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.deviceobserver.exception;
 
 public class DeviceNotConnectableException extends Exception {
-	public DeviceNotConnectableException() {
-		super();
+	public DeviceNotConnectableException(String message) {
+		super(message);
 	}
 }

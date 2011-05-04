@@ -21,29 +21,22 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-import de.uniluebeck.itm.deviceobserver.DeviceEventListener;
-import de.uniluebeck.itm.deviceobserver.exception.DeviceNotConnectableException;
-import de.uniluebeck.itm.deviceobserver.exception.DeviceNotDisconnectableException;
-import de.uniluebeck.itm.deviceobserver.factory.DeviceEventListenerFactory;
-import de.uniluebeck.itm.deviceobserver.factory.DeviceObserverFactory;
-import de.uniluebeck.itm.deviceobserver.impl.DeviceObserverImpl;
 import de.uniluebeck.itm.deviceobserver.impl.MockDeviceEventListenerImpl;
+import de.uniluebeck.itm.deviceobserver.impl.MockDeviceObserverImpl;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
 
 public class DeviceObserverTest {
-
-	DeviceObserverImpl deviceObserver;
+	private MockDeviceObserverImpl deviceObserver;
 
 	@Before
 	public void setUp() {
 		Logging.setLoggingDefaults();
-		DeviceEventListenerFactory.setDeviceEventListenerImplementation(MockDeviceEventListenerImpl.class);
-		deviceObserver = (DeviceObserverImpl) DeviceObserverFactory.createDeviceObserverInstance();
+		deviceObserver = new MockDeviceObserverImpl();
+		deviceObserver.addListener(new MockDeviceEventListenerImpl());
 	}
 
 	@Test
@@ -51,47 +44,25 @@ public class DeviceObserverTest {
 		//test for valid input
 		//add 3 mock devices
 		deviceObserver.setCsvDevices(CsvDeviceTestOutput.pacemate);
-		deviceObserver.addListener();
 		//test for 3 eventlisteners
-		assertEquals(deviceObserver.getEventListeners().size(), 3);
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 3);
 		//check for removed devices
-		deviceObserver.removeListener();
-		assertEquals(deviceObserver.getEventListeners().size(), 3);
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 3);
 		//remove devices
 		deviceObserver.setCsvDevices(new String[]{});
-		deviceObserver.addListener();
-		assertEquals(deviceObserver.getEventListeners().size(), 3);
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 0);
 		//check if all devices successfully removed
-		deviceObserver.removeListener();
-		assertEquals(deviceObserver.getEventListeners().size(), 0);
 	}
 
 	@Test
 	public void testDeviceObserverForNotConnectableDevice(){
 		//test for not valid input for not connectable device
 		deviceObserver.setCsvDevices(CsvDeviceTestOutput.notConnectableDevice);
-		deviceObserver.addListener();
-		assertEquals(deviceObserver.getEventListeners().size(), 0);
-		deviceObserver.removeListener();
-
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 0);
 	}
 
-	@Test
-	public void testDeviceEventListenerForNotDisConnectableDevice(){
-		//test not connectable
-		DeviceEventListener deviceEventListener = DeviceEventListenerFactory.createDeviceEventListenerInstance();
-		try {
-			deviceEventListener.connected(CsvDeviceTestOutput.notConnectableMap);
-			fail("Should have Raised a NotConnectableException");
-		} catch (DeviceNotConnectableException e) {
-
-		}
-		//test not disconnectable
-		try {
-			deviceEventListener.disconnected(CsvDeviceTestOutput.notConnectableMap);
-			fail("Should have raised a NotDisconnectableException");
-		} catch (DeviceNotDisconnectableException e){
-
-		}
-	}
 }

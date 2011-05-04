@@ -23,6 +23,11 @@
 
 package de.uniluebeck.itm.deviceobserver;
 
+import de.uniluebeck.itm.deviceobserver.impl.MockDeviceEventListenerImpl;
+import de.uniluebeck.itm.deviceobserver.impl.RSCDeviceEventListenerImpl;
+
+import java.util.Map;
+
 public interface DeviceObserver {
 
 	/**
@@ -36,12 +41,17 @@ public interface DeviceObserver {
 	public void stop();
 
 	/**
-	 * needs to be called to add a listener for each device which is to be plugged in
+	 * needs to be called to add a listener for an deviceEventListener-instance
+	 *
+	 * @param deviceEventListener
+	 * @return true if adding was successful, else false
 	 */
-	public void addListener();
+	public boolean addListener(DeviceEventListener deviceEventListener);
 
 	/**
-	 * needs to be called to remove the listener for each disconnected device
+	 * needs to be called to remove the listener for an devicelistener-instance
+	 * @param deviceEventListener
+	 * @return true if removing was successful, else false
 	 */
-	public void removeListener();
+	public boolean removeListener(DeviceEventListener deviceEventListener);
 }

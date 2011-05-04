@@ -73,7 +73,7 @@ public class RSCDeviceEventListenerImpl implements DeviceEventListener {
 	private void disconnect() throws DeviceNotDisconnectableException {
 		if (connection == null) {
 			LOGGER.warn("Could not disconnect device! No connection available!");
-			throw new DeviceNotDisconnectableException();
+			throw new DeviceNotDisconnectableException("Device Not Disconnectable");
 		}
 		connection.shutdown(true);
 	}
@@ -89,7 +89,7 @@ public class RSCDeviceEventListenerImpl implements DeviceEventListener {
 		} catch (Exception e) {
 			String message = "Exception in DeviceEventListener:createConnection! Cause: " + e.getLocalizedMessage();
 			LOGGER.warn(message);
-			throw new DeviceNotConnectableException();
+			throw new DeviceNotConnectableException(message);
 		}
 	}
 
@@ -120,8 +120,9 @@ public class RSCDeviceEventListenerImpl implements DeviceEventListener {
 			if (this.conn != null) {
 				this.conn.connect(devicePort);
 			} else {
-				LOGGER.warn("Could not create connection for type: " + deviceType);
-				throw new DeviceNotConnectableException();
+				String message = "Could not create connection for type: " + deviceType;
+				LOGGER.warn(message);
+				throw new DeviceNotConnectableException(message);
 			}
 			return this.conn;
 		}
