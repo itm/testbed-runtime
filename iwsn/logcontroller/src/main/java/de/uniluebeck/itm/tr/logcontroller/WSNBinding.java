@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.testbed.api.wsn.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v23.Controller;
 import eu.wisebed.testbed.api.wsn.v23.Message;

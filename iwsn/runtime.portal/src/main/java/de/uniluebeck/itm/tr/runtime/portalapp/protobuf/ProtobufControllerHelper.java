@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.protobuf.ByteString;
-import eu.wisebed.testbed.api.wsn.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.v23.Message;
 import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
 import eu.wisebed.testbed.api.wsn.v23.Status;
@@ -13,7 +13,6 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 
 

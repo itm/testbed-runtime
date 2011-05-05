@@ -71,7 +71,9 @@ public class FederatorWSN implements WSN {
 			new TimedCache<String, WSN>(10, TimeUnit.MINUTES);
 
 	private final ScheduledExecutorService executorService =
-			Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("FederatorWSN-Thread %d").build());
+			Executors.newScheduledThreadPool(1,
+					new ThreadFactoryBuilder().setNameFormat("FederatorWSN-Thread %d").build()
+			);
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
@@ -210,54 +212,6 @@ public class FederatorWSN implements WSN {
 		return wsnEndpointUrl;
 	}
 
-	private static abstract class AbstractRequestRunnable implements Runnable {
-
-		private FederatorController federatorController;
-
-		protected final WSN wsnEndpoint;
-
-		protected final String federatorRequestId;
-
-		protected AbstractRequestRunnable(FederatorController federatorController, WSN wsnEndpoint,
-										  String federatorRequestId) {
-
-			this.federatorController = federatorController;
-			this.wsnEndpoint = wsnEndpoint;
-			this.federatorRequestId = federatorRequestId;
-		}
-
-		protected void done(String federatedRequestId) {
-			federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
-		}
-	}
-
-	// =================================================================================================================
-
-	private static class SendRunnable extends AbstractRequestRunnable {
-
-		private List<String> nodeIds;
-
-		private Message message;
-
-		private SendRunnable(FederatorController federatorController, WSN wsnEndpoint, String federatorRequestId,
-							 List<String> nodeIds, Message message) {
-
-			super(federatorController, wsnEndpoint, federatorRequestId);
-
-			this.nodeIds = nodeIds;
-			this.message = message;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.send(nodeIds, message));
-			}
-		}
-
-	}
-
 	@Override
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
@@ -294,39 +248,8 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
-									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		throw new RuntimeException("Not yet implemented!");
-	}
-
-	// =================================================================================================================
-
-	@Override
 	public String getVersion() {
 		return Constants.VERSION;
-	}
-
-	// =================================================================================================================
-
-	private static class AreNodesAliveRunnable extends AbstractRequestRunnable {
-
-		private List<String> nodes;
-
-		private AreNodesAliveRunnable(FederatorController federatorController, WSN wsnEndpoint,
-									  String federatorRequestId,
-									  List<String> nodes) {
-			super(federatorController, wsnEndpoint, federatorRequestId);
-			this.nodes = nodes;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.areNodesAlive(nodes));
-			}
-		}
 	}
 
 	@Override
@@ -343,43 +266,11 @@ public class FederatorWSN implements WSN {
 			WSN endpoint = entry.getKey();
 			List<String> nodeIdSubset = entry.getValue();
 
-			executorService.submit(new AreNodesAliveRunnable(federatorController, endpoint, requestId, nodeIdSubset));
+			executorService.submit(new WSNAreNodesAliveRunnable(federatorController, endpoint, requestId, nodeIdSubset));
 		}
 
 		return requestId;
 	}
-
-	// =================================================================================================================
-
-	private static class FlashProgramsRunnable extends AbstractRequestRunnable {
-
-		private List<String> nodeIds;
-
-		private List<Integer> programIndices;
-
-		private List<Program> programs;
-
-		private FlashProgramsRunnable(FederatorController federatorController, WSN wsnEndpoint,
-									  String federatorRequestId,
-									  List<String> nodeIds, List<Integer> programIndices, List<Program> programs) {
-
-			super(federatorController, wsnEndpoint, federatorRequestId);
-
-			this.nodeIds = nodeIds;
-			this.programIndices = programIndices;
-			this.programs = programs;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.flashPrograms(nodeIds, programIndices, programs));
-			}
-		}
-
-	}
-
 
 	private class ProgramWrapper {
 
@@ -458,19 +349,20 @@ public class FederatorWSN implements WSN {
 			}
 
 			//Submit the sub-job
-			executorService.submit(new FlashProgramsRunnable(federatorController, endpoint, requestId, subsetNodeIds,
-					Arrays.asList(subsetProgramIndices), Arrays.asList(subsetPrograms)
-			)
+			executorService.submit(
+					new FlashProgramsRunnable(
+							federatorController,
+							endpoint,
+							requestId,
+							subsetNodeIds,
+							Arrays.asList(subsetProgramIndices),
+							Arrays.asList(subsetPrograms)
+					)
 			);
 
 		}
 
 		return requestId;
-	}
-
-	@Override
-	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-		throw new RuntimeException("Not yet implemented!");
 	}
 
 	private BiMap<String, ProgramWrapper> filterFlashProgramsMap(List<String> subsetNodeIds,
@@ -496,8 +388,6 @@ public class FederatorWSN implements WSN {
 
 	}
 
-	// =================================================================================================================
-
 	@Override
 	public String getNetwork() {
 
@@ -514,7 +404,8 @@ public class FederatorWSN implements WSN {
 					return WSNServiceHelper.getWSNService(wsnEndpointURL).getNetwork();
 				}
 			}
-			));
+			)
+			);
 		}
 
 		// join getNetwork() calls
@@ -537,29 +428,6 @@ public class FederatorWSN implements WSN {
 		}
 	}
 
-	// =================================================================================================================
-
-	private static class ResetNodesRunnable extends AbstractRequestRunnable {
-
-		private List<String> nodes;
-
-		private ResetNodesRunnable(FederatorController federatorController, WSN wsnEndpoint, String federatorRequestId,
-								   List<String> nodes) {
-
-			super(federatorController, wsnEndpoint, federatorRequestId);
-
-			this.nodes = nodes;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.resetNodes(nodes));
-			}
-		}
-	}
-
 	@Override
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
 		preconditions.checkResetNodesArguments(nodes);
@@ -579,44 +447,6 @@ public class FederatorWSN implements WSN {
 		return requestId;
 	}
 
-	// =================================================================================================================
-
-	private static class SetVirtualLinkRunnable extends AbstractRequestRunnable {
-
-		private String sourceNode;
-
-		private String targetNode;
-
-		private String remoteServiceInstance;
-
-		private List<String> parameters;
-
-		private List<String> filters;
-
-		private SetVirtualLinkRunnable(FederatorController federatorController, WSN wsnEndpoint,
-									   String federatorRequestId,
-									   String sourceNode, String targetNode, String remoteServiceInstance,
-									   List<String> parameters,
-									   List<String> filters) {
-
-			super(federatorController, wsnEndpoint, federatorRequestId);
-
-			this.sourceNode = sourceNode;
-			this.targetNode = targetNode;
-			this.remoteServiceInstance = remoteServiceInstance;
-			this.parameters = parameters;
-			this.filters = filters;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters));
-			}
-		}
-	}
-
 	@Override
 	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNode,
 								 @WebParam(name = "targetNode", targetNamespace = "") String targetNode,
@@ -631,40 +461,20 @@ public class FederatorWSN implements WSN {
 		WSN endpoint = calculateEndpointUrl(sourceNode);
 
 		log.debug("Invoking setVirtualLink on {}", endpoint);
-		executorService
-				.submit(new SetVirtualLinkRunnable(federatorController, endpoint, requestId, sourceNode, targetNode,
-						remoteServiceInstance, parameters, filters
+		executorService.submit(
+				new SetVirtualLinkRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						sourceNode,
+						targetNode,
+						remoteServiceInstance,
+						parameters,
+						filters
 				)
-				);
+		);
 
 		return requestId;
-	}
-
-	// =================================================================================================================
-
-	private static class DestroyVirtualLinkRunnable extends AbstractRequestRunnable {
-
-		private String sourceNode;
-
-		private String targetNode;
-
-		private DestroyVirtualLinkRunnable(FederatorController federatorController, WSN wsnEndpoint,
-										   String federatorRequestId,
-										   String sourceNode, String targetNode) {
-
-			super(federatorController, wsnEndpoint, federatorRequestId);
-
-			this.sourceNode = sourceNode;
-			this.targetNode = targetNode;
-		}
-
-		@Override
-		public void run() {
-			// instance wsnEndpoint is potentially not thread-safe!!!
-			synchronized (wsnEndpoint) {
-				done(wsnEndpoint.destroyVirtualLink(sourceNode, targetNode));
-			}
-		}
 	}
 
 	@Override
@@ -677,15 +487,18 @@ public class FederatorWSN implements WSN {
 		WSN endpoint = calculateEndpointUrl(sourceNode);
 
 		log.debug("Invoking destroyVirtualLink on {}", endpoint);
-		executorService
-				.submit(new DestroyVirtualLinkRunnable(federatorController, endpoint, requestId, sourceNode, targetNode
+		executorService.submit(
+				new DestroyVirtualLinkRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						sourceNode,
+						targetNode
 				)
-				);
+		);
 
 		return requestId;
 	}
-
-	// *****************************************************************************************************************
 
 	@Override
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
@@ -724,6 +537,18 @@ public class FederatorWSN implements WSN {
 	@Override
 	public List<String> getFilters() {
 		throw new RuntimeException("Operation not implemented.");
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
+									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 }

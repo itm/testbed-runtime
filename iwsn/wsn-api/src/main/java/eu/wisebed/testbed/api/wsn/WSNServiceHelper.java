@@ -23,7 +23,6 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import com.google.common.base.Joiner;
 import de.uniluebeck.itm.tr.util.FileUtils;
 import eu.wisebed.testbed.api.wsn.v23.*;
 
@@ -32,8 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;

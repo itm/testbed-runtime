@@ -21,22 +21,27 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package eu.wisebed.testbed.api.wsn;
+package eu.wisebed.testbed.api.wsn.controllerhelper;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.internal.Nullable;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import eu.wisebed.testbed.api.wsn.v23.*;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.v23.Controller;
+import eu.wisebed.testbed.api.wsn.v23.Message;
+import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
+import eu.wisebed.testbed.api.wsn.v23.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -48,203 +53,16 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service endpoints and allows
  * to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a recipient is
- * repeatedly ({@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRIES} times) impossible due to whatever reason, the
- * recipient is removed from the list of recipients. Between every try there's a pause of {@link
- * eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIMEOUT} in time unit {@link eu.wisebed.testbed.api.wsn.ControllerHelper#RETRY_TIME_UNIT}.
+ * repeatedly ({@link ControllerHelperConstants#RETRIES} times) impossible due to whatever reason, the recipient is
+ * removed from the list of recipients. Between every try there's a pause of {@link
+ * ControllerHelperConstants#RETRY_TIMEOUT} in time unit {@link ControllerHelperConstants#RETRY_TIME_UNIT}.
  */
-public class ControllerHelper {
+public class ControllerHelper implements DeliverFailureListener {
 
 	/**
 	 * The logger instance for this class.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(ControllerHelper.class);
-
-	/**
-	 * Number of message delivery retries. If delivering a message fails, e.g., due to temporarily unavailable network
-	 * connection on either server or client side the delivery will be retried after {@link ControllerHelper#RETRY_TIMEOUT}
-	 * time units (cf. {@link ControllerHelper#RETRY_TIME_UNIT}).
-	 */
-	protected static final int RETRIES = 3;
-
-	/**
-	 * Number of time units to wait for retry of message delivery (cf. {@link ControllerHelper#RETRY_TIME_UNIT}).
-	 */
-	protected static final long RETRY_TIMEOUT = 5;
-
-	/**
-	 * The time unit of the {@link ControllerHelper#RETRY_TIMEOUT}.
-	 */
-	protected static final TimeUnit RETRY_TIME_UNIT = TimeUnit.SECONDS;
-
-	/**
-	 * The default maximum number of messages to be held in a delivery queue before new messages are discarded.
-	 */
-	protected static final int DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE = 1000;
-
-	/**
-	 * Base class for message delivery. Retries message delivery {@link ControllerHelper#RETRIES} times if an error occurs
-	 * before "giving up". If delivery fails repeatedly the controller for which it fails is removed.
-	 */
-	private abstract class AbstractDeliverRunnable implements Runnable {
-
-		protected int retries = 0;
-
-		protected final Map.Entry<String, Controller> controllerEntry;
-
-		protected AbstractDeliverRunnable(Map.Entry<String, Controller> controllerEntry) {
-			this.controllerEntry = controllerEntry;
-		}
-
-		@Override
-		public final void run() {
-
-			if (retries < RETRIES) {
-
-				retries++;
-				try {
-
-					// try to deliver the message
-					deliver(controllerEntry.getValue());
-
-				} catch (Exception e) {
-
-					// delivery failed
-					log.warn("Could not deliver message / request status to Controller at endpoint URL {}. "
-							+ "Trying again in {} {}"
-							+ "Error = {}",
-							new Object[]{
-									controllerEntry.getKey(),
-									RETRY_TIMEOUT,
-									RETRY_TIME_UNIT.toString().toLowerCase(),
-									e
-							}
-					);
-
-					// reschedule delivery
-					executorService.schedule(this, RETRY_TIMEOUT, RETRY_TIME_UNIT);
-				}
-			} else {
-
-				// if number of delivery retries is larger than maximum do not try delivery again
-				log.warn("Repeatedly (tried {} times) could not deliver message to Controller at endpoint URL {}. "
-						+ "Removing controller endpoint...",
-						new Object[]{
-								RETRIES, controllerEntry.getKey()
-						}
-				);
-
-				// delete controller from list of controllers as obviously this controller is offline
-				removeController(controllerEntry.getKey());
-			}
-		}
-
-		/**
-		 * Does the actual delivery logic to the client <b>exactly one time</b>.
-		 *
-		 * @param controller the Controller proxy to the client to deliver to
-		 */
-		protected abstract void deliver(Controller controller);
-
-	}
-
-	private class DeliverRequestStatusRunnable extends AbstractDeliverRunnable {
-
-		private Function<List<RequestStatus>, List<String>> extractRequestIdListFunction =
-				new Function<List<RequestStatus>, List<String>>() {
-					@Override
-					public List<String> apply(final List<RequestStatus> requestStatuses) {
-						if (requestStatuses == null) {
-							return null;
-						}
-						List<String> requestIds = Lists.newArrayListWithCapacity(requestStatuses.size());
-						for (RequestStatus requestStatus : requestStatuses) {
-							requestIds.add(requestStatus.getRequestId());
-						}
-						return requestIds;
-					}
-				};
-
-		private Function<List<? extends Object>, String> convertListToStringFunction =
-				new Function<List<? extends Object>, String>() {
-					@Override
-					public String apply(final List<? extends Object> objects) {
-						return objects == null ? null : Arrays.toString(objects.toArray());
-					}
-				};
-
-		private Function<List<RequestStatus>, String> convertRequestStatusListToStringFunction = Functions.compose(
-				convertListToStringFunction,
-				extractRequestIdListFunction
-		);
-
-		private List<RequestStatus> requestStatusList;
-
-		private DeliverRequestStatusRunnable(Map.Entry<String, Controller> controllerEntry,
-											 List<RequestStatus> requestStatusList) {
-			super(controllerEntry);
-			this.requestStatusList = requestStatusList;
-		}
-
-		@Override
-		protected void deliver(Controller controller) {
-
-			if (log.isDebugEnabled()) {
-
-				log.debug("StatusDelivery[requestIds={},endpointUrl={},queueSize={}]",
-						new Object[]{
-								convertRequestStatusListToStringFunction.apply(requestStatusList),
-								controllerEntry.getKey(),
-								executorService.getQueue().size()
-						}
-				);
-			}
-
-			controller.receiveStatus(requestStatusList);
-		}
-	}
-
-	private class DeliverNotificationRunnable extends AbstractDeliverRunnable {
-
-		private final List<String> notifications;
-
-		public DeliverNotificationRunnable(final Map.Entry<String, Controller> controllerEntry,
-										   final List<String> notifications) {
-			super(controllerEntry);
-			this.notifications = notifications;
-		}
-
-		@Override
-		protected void deliver(final Controller controller) {
-			controller.receiveNotification(notifications);
-		}
-	}
-
-	private class DeliverMessageRunnable extends AbstractDeliverRunnable {
-
-		private List<Message> msg;
-
-		private DeliverMessageRunnable(Map.Entry<String, Controller> controllerEntry, List<Message> msg) {
-			super(controllerEntry);
-			this.msg = msg;
-		}
-
-		@Override
-		protected void deliver(Controller controller) {
-			controller.receive(msg);
-		}
-	}
-
-	private class ExperimentEndedRunnable extends AbstractDeliverRunnable {
-
-		public ExperimentEndedRunnable(final Map.Entry<String, Controller> controllerEntry) {
-			super(controllerEntry);
-		}
-
-		@Override
-		protected void deliver(final Controller controller) {
-			controller.experimentEnded();
-		}
-	}
 
 	/**
 	 * The actual instance maximum number of messages to be held in a delivery queue before new messages are discarded.
@@ -260,7 +78,7 @@ public class ControllerHelper {
 	/**
 	 * Used to deliver messages and request status messages in parallel.
 	 */
-	private final ScheduledThreadPoolExecutor executorService;
+	private final ScheduledThreadPoolExecutor scheduler;
 
 	/**
 	 * A {@link TimeDiff} instance that is used to determine if a notification should be sent to the controller that
@@ -280,7 +98,7 @@ public class ControllerHelper {
 	private final Lock messageDropLock = new ReentrantLock();
 
 	public ControllerHelper() {
-		this(DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
+		this(ControllerHelperConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
 	}
 
 	/**
@@ -288,22 +106,24 @@ public class ControllerHelper {
 	 *
 	 * @param maximumDeliveryQueueSize the maximum size of the message delivery queue after which messages are dropped
 	 */
-	public ControllerHelper(@Nullable Integer maximumDeliveryQueueSize) {
+	public ControllerHelper(final @Nullable Integer maximumDeliveryQueueSize) {
 
 		this.maximumDeliveryQueueSize =
-				maximumDeliveryQueueSize == null ? DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE : maximumDeliveryQueueSize;
+				maximumDeliveryQueueSize == null ?
+						ControllerHelperConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE :
+						maximumDeliveryQueueSize;
 
-		executorService = new ScheduledThreadPoolExecutor(1,
+		scheduler = new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
 				new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
 						log.warn("!!!! ControllerHelper.rejectedExecution !!!! Re-scheduling in 100ms.");
-						executorService.schedule(r, 100, TimeUnit.MILLISECONDS);
+						scheduler.schedule(r, 100, TimeUnit.MILLISECONDS);
 					}
 				}
 		);
-		executorService.setMaximumPoolSize(Integer.MAX_VALUE);
+		scheduler.setMaximumPoolSize(Integer.MAX_VALUE);
 
 	}
 
@@ -323,7 +143,7 @@ public class ControllerHelper {
 	 *                              instance
 	 */
 	public void addController(String controllerEndpointUrl) {
-		Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, executorService);
+		Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, scheduler);
 		synchronized (controllerEndpoints) {
 			controllerEndpoints.put(controllerEndpointUrl, controller);
 		}
@@ -352,10 +172,41 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
 				log.debug("Delivering notification to endpoint URL {}", controllerEntry.getKey());
-				DeliverNotificationRunnable runnable = new DeliverNotificationRunnable(controllerEntry, notifications);
-				executorService.submit(runnable);
+				DeliverNotificationRunnable runnable = new DeliverNotificationRunnable(
+						scheduler,
+						this,
+						controllerEntry.getKey(),
+						controllerEntry.getValue(),
+						notifications
+				);
+				scheduler.submit(runnable);
 			}
 		}
+	}
+
+	/**
+	 * Sends status messages to client for all node URNs containing the given {@code statusValue} and the Exceptions error
+	 * message.
+	 *
+	 * @param nodeUrns	the node URNs for which the error occurred
+	 * @param requestId   the request ID to which this status messages belong
+	 * @param e		   the Exception that occurred
+	 * @param statusValue the Integer value that should be sent to the controllers
+	 */
+	public void receiveFailureStatusMessages(List<String> nodeUrns, String requestId, Exception e, int statusValue) {
+
+		RequestStatus requestStatus = new RequestStatus();
+		requestStatus.setRequestId(requestId);
+
+		for (String nodeId : nodeUrns) {
+			Status status = new Status();
+			status.setNodeId(nodeId);
+			status.setValue(statusValue);
+			status.setMsg(e.getMessage());
+			requestStatus.getStatus().add(status);
+		}
+
+		receiveStatus(requestStatus);
 	}
 
 	/**
@@ -365,8 +216,13 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
 				log.debug("Calling experimentEnded() on endpoint URL {}", controllerEntry.getKey());
-				ExperimentEndedRunnable runnable = new ExperimentEndedRunnable(controllerEntry);
-				executorService.submit(runnable);
+				DeliverExperimentEndedRunnable runnable = new DeliverExperimentEndedRunnable(
+						scheduler,
+						this,
+						controllerEntry.getKey(),
+						controllerEntry.getValue()
+				);
+				scheduler.submit(runnable);
 			}
 		}
 	}
@@ -378,7 +234,7 @@ public class ControllerHelper {
 	 */
 	public void receive(List<Message> messages) {
 
-		if (executorService.getQueue().size() > maximumDeliveryQueueSize) {
+		if (scheduler.getQueue().size() > maximumDeliveryQueueSize) {
 			log.error("More than {} messages in the delivery queue. Dropping message!", maximumDeliveryQueueSize);
 			sendDropNotificationIfNotificationRateAllows(messages.size());
 			return;
@@ -389,8 +245,14 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
 				log.debug("Delivering message to endpoint URL {}", controllerEntry.getKey());
-				DeliverMessageRunnable runnable = new DeliverMessageRunnable(controllerEntry, messages);
-				executorService.submit(runnable);
+				DeliverMessageRunnable runnable = new DeliverMessageRunnable(
+						scheduler,
+						this,
+						controllerEntry.getKey(),
+						controllerEntry.getValue(),
+						messages
+				);
+				scheduler.submit(runnable);
 			}
 		}
 	}
@@ -440,7 +302,14 @@ public class ControllerHelper {
 		synchronized (controllerEndpoints) {
 
 			for (Map.Entry<String, Controller> controllerEntry : controllerEndpoints.entrySet()) {
-				executorService.submit(new DeliverRequestStatusRunnable(controllerEntry, requestStatusList));
+				scheduler.submit(new DeliverRequestStatusRunnable(
+						scheduler,
+						this,
+						controllerEntry.getKey(),
+						controllerEntry.getValue(),
+						requestStatusList
+				)
+				);
 			}
 		}
 	}
@@ -458,11 +327,12 @@ public class ControllerHelper {
 	 * Sends a request status to all currently connected controllers indicating that the request included an unknown node
 	 * URN by setting it's return value field to -1 and passing the exception message.
 	 *
-	 * @param nodeUrns the nodeUrns that failed
-	 * @param msg an error message that should be sent with the status update
+	 * @param nodeUrns  the nodeUrns that failed
+	 * @param msg	   an error message that should be sent with the status update
 	 * @param requestId the requestId
 	 */
-	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg, final String requestId) {
+	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
+												   final String requestId) {
 
 		RequestStatus requestStatus = new RequestStatus();
 		requestStatus.setRequestId(requestId);
@@ -483,21 +353,21 @@ public class ControllerHelper {
 	}
 
 	/**
-	 * Tests the connectivity of the given endpoint URL ({@code controllerEndpointURL}}) by trying to establish a TCP
-	 * connection to this port.
+	 * Tests the connectivity of the given endpoint URL ({@code endpointURL}}) by trying to establish a TCP connection to
+	 * this port.
 	 *
-	 * @param controllerEndpointURL the endpoint URL of the Web service for which to test connectivity
+	 * @param endpointURL the endpoint URL of the Web service for which to test connectivity
 	 *
 	 * @return {@code true} if a connection can be established (i.e. connectivity is given), {@code false} otherwise
 	 */
-	public static boolean testConnectivity(String controllerEndpointURL) {
+	public static boolean testConnectivity(String endpointURL) {
 
 		URI uri;
 
 		try {
-			uri = URI.create(controllerEndpointURL);
+			uri = URI.create(endpointURL);
 		} catch (Exception e) {
-			log.error("Invalid controllerEndpointURL given in testConnectivity(): {}", controllerEndpointURL);
+			log.error("Invalid endpoint URL given in testConnectivity(): {}", endpointURL);
 			return false;
 		}
 
@@ -513,6 +383,26 @@ public class ControllerHelper {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Calls {@link ControllerHelper#testConnectivity(String)} and throws an {@link IllegalArgumentException} if
+	 * connectivity is not given.
+	 *
+	 * @param endpointUrl the endpoint URL to check
+	 */
+	public static void checkConnectivity(final String endpointUrl) {
+		if (!testConnectivity(endpointUrl)) {
+			throw new RuntimeException(
+					"Could not connect to host/port of the given endpoint URL: \"" + endpointUrl + "\". "
+							+ "Make sure you're not behind a firewall/NAT and the endpoint is already started."
+			);
+		}
+	}
+
+	@Override
+	public void deliveryFailed(final String controllerEndpointUrl) {
+		removeController(controllerEndpointUrl);
 	}
 
 }

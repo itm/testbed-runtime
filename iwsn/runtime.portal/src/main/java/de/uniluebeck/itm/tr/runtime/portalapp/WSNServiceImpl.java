@@ -24,10 +24,9 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.protobuf.ByteString;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
@@ -39,7 +38,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.v23.*;
@@ -74,91 +73,9 @@ public class WSNServiceImpl implements WSNService {
 	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
 
 	/**
-	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v23.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v23.Controller#receiveStatus(java.util.List)}
-	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
-	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
-	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as
-	 * more threads would not, in theory, increase the throughput to the controllers.
+	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from sensor nodes and
+	 * dispatches them according to their content to either listeners or virtual links.
 	 */
-	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(
-			1,
-			Integer.MAX_VALUE,
-			60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>(),
-			new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build()
-	);
-
-	/**
-	 * Used to generate secure non-predictable secure request IDs as used request-response matching identifier.
-	 */
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-
-	/**
-	 * The WSNApp instance associated with this WSN service instance. Does all the testbed internal work around
-	 * communicating with the nodes.
-	 */
-	private WSNApp wsnApp;
-
-	/**
-	 * The endpoint URL of this WSN service instance.
-	 */
-	private URL wsnInstanceEndpointUrl;
-
-	/**
-	 * The endpoint of this WSN instance.
-	 */
-	private Endpoint wsnInstanceEndpoint;
-
-	/**
-	 * Used for executing all parallel jobs.
-	 */
-	private ScheduledExecutorService executorService;
-
-	/**
-	 * Used to check method preconditions upon invocation of this WSN services public Web Service APIs methods.
-	 */
-	private WSNPreconditions preconditions;
-
-	/**
-	 * Used to manage controllers and send them messages and request statuses.
-	 */
-	private ControllerHelper controllerHelper;
-
-	private final Wiseml wiseMLFilename;
-
-	private final Set<String> reservedNodes;
-
-	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
-						  final Wiseml wiseMLFilename, final String[] reservedNodes,
-						  final ControllerHelper controllerHelper, final WSNApp wsnApp) {
-
-		checkNotNull(urnPrefix);
-		checkNotNull(wsnInstanceEndpointUrl);
-		checkNotNull(wiseMLFilename);
-		checkNotNull(wsnApp);
-
-		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
-		this.wsnApp = wsnApp;
-		this.wiseMLFilename = wiseMLFilename;
-		this.controllerHelper = controllerHelper;
-
-		executorService = Executors.newSingleThreadScheduledExecutor(
-				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
-		);
-
-		if (controllerEndpointUrl != null) {
-			addController(controllerEndpointUrl.toString());
-		}
-
-		this.preconditions = new WSNPreconditions();
-		this.preconditions.addServedUrnPrefixes(urnPrefix);
-		this.reservedNodes = Sets.newHashSet(reservedNodes);
-
-	}
-
-	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
-
 	private class WSNNodeMessageReceiverInternal implements WSNNodeMessageReceiver {
 
 		private static final byte MESSAGE_TYPE_PLOT = 105;
@@ -322,6 +239,153 @@ public class WSNServiceImpl implements WSNService {
 		}
 	}
 
+	/**
+	 * A runnable that delivers virtual link messages to the intended testbed.
+	 */
+	private class DeliverVirtualLinkMessageRunnable implements Runnable {
+
+		private String sourceNode;
+
+		private String targetNode;
+
+		private WSN recipient;
+
+		private Message message;
+
+		private int tries = 0;
+
+		public DeliverVirtualLinkMessageRunnable(final String sourceNode, final String targetNode, final WSN recipient,
+												 final Message message) {
+			this.sourceNode = sourceNode;
+			this.targetNode = targetNode;
+			this.recipient = recipient;
+			this.message = message;
+		}
+
+		@Override
+		public void run() {
+			if (tries < 3) {
+
+				tries++;
+
+				log.debug("Delivering virtual link message to remote testbed service.");
+
+				try {
+
+					recipient.send(Arrays.asList(targetNode), message);
+
+				} catch (Exception e) {
+
+					if (tries >= 3) {
+
+						log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
+						destroyVirtualLink(sourceNode, targetNode);
+
+					} else {
+						log.warn("Error while delivering virtual link message to remote testbed service. "
+								+ "Trying again in 5 seconds."
+						);
+						executorService.schedule(this, 5, TimeUnit.SECONDS);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
+	 * eu.wisebed.testbed.api.wsn.v23.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v23.Controller#receiveStatus(java.util.List)}
+	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
+	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
+	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as
+	 * more threads would not, in theory, increase the throughput to the controllers.
+	 */
+	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(
+			1,
+			Integer.MAX_VALUE,
+			60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>(),
+			new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build()
+	);
+
+	/**
+	 * Used to generate secure non-predictable secure request IDs as used request-response matching identifier.
+	 */
+	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+
+	/**
+	 * The WSNApp instance associated with this WSN service instance. Does all the testbed internal work around
+	 * communicating with the nodes.
+	 */
+	private WSNApp wsnApp;
+
+	/**
+	 * The endpoint URL of this WSN service instance.
+	 */
+	private URL wsnInstanceEndpointUrl;
+
+	/**
+	 * The endpoint of this WSN instance.
+	 */
+	private Endpoint wsnInstanceEndpoint;
+
+	/**
+	 * Used for executing all parallel jobs.
+	 */
+	private ScheduledExecutorService executorService;
+
+	/**
+	 * Used to check method preconditions upon invocation of this WSN services public Web Service APIs methods.
+	 */
+	private WSNPreconditions preconditions;
+
+	/**
+	 * Used to manage controllers and send them messages and request statuses.
+	 */
+	private ControllerHelper controllerHelper;
+
+	/**
+	 * The WiseML document that is delivered when {@link WSNServiceImpl#getNetwork()} is called.
+	 */
+	private final Wiseml wiseML;
+
+	/**
+	 * The set of node URNs that are reserved and thereby associated with this {@link WSN} instance.
+	 */
+	private final ImmutableSet<String> reservedNodes;
+
+	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
+						  final Wiseml wiseML, final String[] reservedNodes,
+						  final ControllerHelper controllerHelper, final WSNApp wsnApp) {
+
+		checkNotNull(urnPrefix);
+		checkNotNull(wsnInstanceEndpointUrl);
+		checkNotNull(wiseML);
+		checkNotNull(wsnApp);
+
+		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
+		this.wsnApp = wsnApp;
+		this.wiseML = wiseML;
+		this.controllerHelper = controllerHelper;
+
+		executorService = Executors.newSingleThreadScheduledExecutor(
+				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
+		);
+
+		if (controllerEndpointUrl != null) {
+			addController(controllerEndpointUrl.toString());
+		}
+
+		this.preconditions = new WSNPreconditions();
+		this.preconditions.addServedUrnPrefixes(urnPrefix);
+		this.preconditions.addKnownNodeUrns(reservedNodes);
+
+		this.reservedNodes = ImmutableSet.copyOf(reservedNodes);
+
+	}
+
+	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
+
 	@Override
 	public void start() throws Exception {
 
@@ -369,14 +433,7 @@ public class WSNServiceImpl implements WSNService {
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
-		boolean canConnect = ControllerHelper.testConnectivity(controllerEndpointUrl);
-		if (!canConnect) {
-			throw new RuntimeException("Could not connect to host/port of the given controller endpoint URL. "
-					+ "Make sure you're not behind a firewall/NAT and the controller endpoint is already started "
-					+ "when calling this method."
-			);
-		}
-
+		ControllerHelper.testConnectivity(controllerEndpointUrl);
 		controllerHelper.addController(controllerEndpointUrl);
 	}
 
@@ -398,21 +455,18 @@ public class WSNServiceImpl implements WSNService {
 		final String requestId = secureIdGenerator.getNextId();
 		final long start = System.currentTimeMillis();
 
-		//check if only reserved nodes
-		preconditions.checkNodesReserved(nodeIds, reservedNodes);
-
 		try {
-			wsnApp.send(new HashSet<String>(nodeIds), convert(message), new WSNApp.Callback() {
+			wsnApp.send(new HashSet<String>(nodeIds), TypeConverter.convert(message), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					long end = System.currentTimeMillis();
 					log.debug("Received reply from device after {} ms.", (end - start));
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(nodeIds, requestId, e);
+					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
@@ -428,34 +482,14 @@ public class WSNServiceImpl implements WSNService {
 	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
 									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
 									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		// TODO implement
 		throw new RuntimeException("Not yet implemented!");
-	}
-
-	private RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
-		RequestStatus retRequestStatus = new RequestStatus();
-		retRequestStatus.setRequestId(requestId);
-		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();
-		Status retStatus = new Status();
-		retStatus.setMsg(status.getMsg());
-		retStatus.setNodeId(status.getNodeId());
-		retStatus.setValue(status.getValue());
-		retRequestStatus.getStatus().add(retStatus);
-		return retRequestStatus;
-	}
-
-	private WSNAppMessages.Message convert(Message message) {
-		return WSNAppMessages.Message.newBuilder()
-				.setBinaryData(ByteString.copyFrom(message.getBinaryData()))
-				.setSourceNodeId(message.getSourceNodeId())
-				.setTimestamp(message.getTimestamp().toString())
-				.build();
 	}
 
 	@Override
 	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
 		preconditions.checkAreNodesAliveArguments(nodeIds);
-		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
 		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
 
@@ -465,12 +499,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.areNodesAlive(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(nodeIds, requestId, e);
+					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
@@ -488,14 +522,13 @@ public class WSNServiceImpl implements WSNService {
 								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
 
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
-		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
 		log.debug("WSNServiceImpl.flashPrograms");
 
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
-			wsnApp.flashPrograms(convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
+			wsnApp.flashPrograms(TypeConverter.convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
@@ -521,12 +554,12 @@ public class WSNServiceImpl implements WSNService {
 					}
 
 					// deliver output to client
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(nodeIds, requestId, e);
+					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
@@ -539,77 +572,20 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		// TODO implement
 		return Lists.newArrayList();
-	}
-
-	private void sendFailureInfoToClient(List<String> nodeIds, String requestId, Exception e) {
-
-		RequestStatus requestStatus = new RequestStatus();
-		requestStatus.setRequestId(requestId);
-
-		for (String nodeId : nodeIds) {
-			Status status = new Status();
-			status.setNodeId(nodeId);
-			status.setValue(-1);
-			status.setMsg(e.getMessage());
-			requestStatus.getStatus().add(status);
-		}
-
-		controllerHelper.receiveStatus(requestStatus);
-	}
-
-	private Map<String, WSNAppMessages.Program> convert(List<String> nodeIds, List<Integer> programIndices,
-														List<Program> programs) {
-
-		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
-
-		List<WSNAppMessages.Program> convertedPrograms = convert(programs);
-
-		for (int i = 0; i < nodeIds.size(); i++) {
-			programsMap.put(nodeIds.get(i), convertedPrograms.get(programIndices.get(i)));
-		}
-
-		return programsMap;
-	}
-
-	private List<WSNAppMessages.Program> convert(List<Program> programs) {
-		List<WSNAppMessages.Program> list = new ArrayList<WSNAppMessages.Program>(programs.size());
-		for (Program program : programs) {
-			list.add(convert(program));
-		}
-		return list;
-	}
-
-	private WSNAppMessages.Program convert(Program program) {
-		return WSNAppMessages.Program.newBuilder().setMetaData(convert(program.getMetaData())).setProgram(
-				ByteString.copyFrom(program.getProgram())
-		).build();
-	}
-
-	private WSNAppMessages.Program.ProgramMetaData convert(ProgramMetaData metaData) {
-		if (metaData == null) {
-			metaData = new ProgramMetaData();
-			metaData.setName("");
-			metaData.setOther("");
-			metaData.setPlatform("");
-			metaData.setVersion("");
-		}
-		return WSNAppMessages.Program.ProgramMetaData.newBuilder().setName(metaData.getName()).setOther(
-				metaData.getOther()
-		).setPlatform(metaData.getPlatform()).setVersion(metaData.getVersion()).build();
 	}
 
 	@Override
 	public String getNetwork() {
 		log.debug("WSNServiceImpl.getNetwork");
-		return WiseMLHelper.serialize(wiseMLFilename);
+		return WiseMLHelper.serialize(wiseML);
 	}
 
 	@Override
 	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
 
 		preconditions.checkResetNodesArguments(nodeIds);
-		preconditions.checkNodesReserved(nodeIds, reservedNodes);
 
 		log.debug("WSNServiceImpl.resetNodes");
 
@@ -619,12 +595,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.resetNodes(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(nodeIds, requestId, e);
+					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
@@ -649,8 +625,6 @@ public class WSNServiceImpl implements WSNService {
 								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
 
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
-		preconditions.checkNodeReserved(sourceNode, reservedNodes);
-		preconditions.checkNodeReserved(targetNode, reservedNodes);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -660,7 +634,7 @@ public class WSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 
 					if (requestStatus.getStatus().getValue() == 1) {
 						addVirtualLink(sourceNode, targetNode, remoteServiceInstance);
@@ -670,7 +644,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(sourceNode), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
 				}
 			}
 			);
@@ -730,7 +704,6 @@ public class WSNServiceImpl implements WSNService {
 			ImmutableMap.Builder<String, WSN> targetNodeMapBuilder = ImmutableMap.builder();
 			for (Map.Entry<String, WSN> oldEntry : virtualLinksMap.get(sourceNode).entrySet()) {
 				if (!targetNode.equals(oldEntry.getKey())) {
-					// TODO why is this executing??
 					targetNodeMapBuilder.put(oldEntry.getKey(), oldEntry.getValue());
 				}
 			}
@@ -761,8 +734,6 @@ public class WSNServiceImpl implements WSNService {
 									 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
 
 		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
-		preconditions.checkNodeReserved(sourceNode, reservedNodes);
-		preconditions.checkNodeReserved(targetNode, reservedNodes);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -772,7 +743,7 @@ public class WSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 
 					if (requestStatus.getStatus().getValue() == 1) {
 						removeVirtualLink(sourceNode, targetNode);
@@ -782,7 +753,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(sourceNode), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
 				}
 			}
 			);
@@ -797,7 +768,6 @@ public class WSNServiceImpl implements WSNService {
 	public String disableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
 		preconditions.checkDisableNodeArguments(node);
-		preconditions.checkNodeReserved(node, reservedNodes);
 
 		log.debug("WSNServiceImpl.disableNode");
 
@@ -808,12 +778,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.disableNode(node, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
 				}
 			}
 			);
@@ -830,8 +800,6 @@ public class WSNServiceImpl implements WSNService {
 									  @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
-		preconditions.checkNodeReserved(nodeA, reservedNodes);
-		preconditions.checkNodeReserved(nodeB, reservedNodes);
 
 		log.debug("WSNServiceImpl.disablePhysicalLink");
 
@@ -842,12 +810,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.disablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
 				}
 			}
 			);
@@ -864,7 +832,6 @@ public class WSNServiceImpl implements WSNService {
 	public String enableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
 
 		preconditions.checkEnableNodeArguments(node);
-		preconditions.checkNodeReserved(node, reservedNodes);
 
 		log.debug("WSNServiceImpl.enableNode");
 
@@ -875,12 +842,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.enableNode(node, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(node), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
 				}
 			}
 			);
@@ -898,8 +865,6 @@ public class WSNServiceImpl implements WSNService {
 									 @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
 
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
-		preconditions.checkNodeReserved(nodeA, reservedNodes);
-		preconditions.checkNodeReserved(nodeB, reservedNodes);
 
 		log.debug("WSNServiceImpl.enablePhysicalLink");
 
@@ -910,12 +875,12 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.enablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(convert(requestStatus, requestId));
+					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					sendFailureInfoToClient(Lists.newArrayList(nodeA), requestId, e);
+					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
 				}
 			}
 			);
@@ -934,53 +899,4 @@ public class WSNServiceImpl implements WSNService {
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
-	private class DeliverVirtualLinkMessageRunnable implements Runnable {
-
-		private String sourceNode;
-
-		private String targetNode;
-
-		private WSN recipient;
-
-		private Message message;
-
-		private int tries = 0;
-
-		public DeliverVirtualLinkMessageRunnable(final String sourceNode, final String targetNode, final WSN recipient,
-												 final Message message) {
-			this.sourceNode = sourceNode;
-			this.targetNode = targetNode;
-			this.recipient = recipient;
-			this.message = message;
-		}
-
-		@Override
-		public void run() {
-			if (tries < 3) {
-
-				tries++;
-
-				log.debug("Delivering virtual link message to remote testbed service.");
-
-				try {
-
-					recipient.send(Arrays.asList(targetNode), message);
-
-				} catch (Exception e) {
-
-					if (tries >= 3) {
-
-						log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
-						destroyVirtualLink(sourceNode, targetNode);
-
-					} else {
-						log.warn("Error while delivering virtual link message to remote testbed service. "
-								+ "Trying again in 5 seconds."
-						);
-						executorService.schedule(this, 5, TimeUnit.SECONDS);
-					}
-				}
-			}
-		}
-	}
 }
