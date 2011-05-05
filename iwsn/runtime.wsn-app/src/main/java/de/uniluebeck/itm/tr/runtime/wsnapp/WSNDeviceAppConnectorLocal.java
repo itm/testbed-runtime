@@ -580,7 +580,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		this.deviceObserver = new DeviceObserverImpl();
 		this.deviceObserver.addListener(new WSNDeviceAppConnectorLocalDeviceEventListenerImpl());
-		this.deviceObserver.start();
 	}
 
 	@Override
@@ -1018,6 +1017,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void start() throws Exception {
 		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
 		nodeApi.start();
+		deviceObserver.start();
 	}
 
 	@Override
@@ -1030,7 +1030,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 			device.shutdown();
 		}
-
+		deviceObserver.stop();
 	}
 
 	private void checkDeviceObserverConnectivity() {
