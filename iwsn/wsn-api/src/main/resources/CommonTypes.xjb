@@ -1,0 +1,11 @@
+﻿<jxb:bindings version="1.0"
+			  xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+			  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	
+	<jxb:bindings schemaLocation="CommonTypes.xsd" node="/xs:schema">
+		<jxb:schemaBindings>
+			<jxb:package name="eu.wisebed.api.common" />
+		</jxb:schemaBindings>
+	</jxb:bindings>
+	
+</jxb:bindings>
