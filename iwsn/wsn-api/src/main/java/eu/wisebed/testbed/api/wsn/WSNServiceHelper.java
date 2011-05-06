@@ -23,6 +23,14 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import de.uniluebeck.itm.tr.util.FileUtils;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.ControllerService;
+import eu.wisebed.api.sm.*;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.wsn.WSNService;
+
+import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,20 +39,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.xml.ws.BindingProvider;
-
-import de.uniluebeck.itm.tr.util.FileUtils;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.ControllerService;
-import eu.wisebed.api.sm.ExperimentNotRunningException;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.SessionManagementService;
-import eu.wisebed.api.sm.UnknownReservationIdException;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.api.wsn.WSNService;
 
 
 /**
@@ -68,18 +62,20 @@ public class WSNServiceHelper {
 	 * Returns the port to the Session Management API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.SessionManagement} instance that is
-	 *         connected to the Web Service endpoint
+	 *
+	 * @return a {@link eu.wisebed.api.sm.SessionManagement} instance that is connected to the Web Service endpoint
 	 */
 	public static SessionManagement getSessionManagementService(String endpointUrl) {
 
-		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("SessionManagementService.wsdl");
+		InputStream resourceStream =
+				WSNServiceHelper.class.getClassLoader().getResourceAsStream("SessionManagementService.wsdl");
 
 		tmpFileSessionManagementLock.lock();
 		try {
 			if (tmpFileSessionManagement == null) {
 				try {
-					tmpFileSessionManagement = FileUtils.copyToTmpFile(resourceStream, "tr.controller.sessionmanagement", "wsdl");
+					tmpFileSessionManagement =
+							FileUtils.copyToTmpFile(resourceStream, "tr.controller.sessionmanagement", "wsdl");
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -106,7 +102,8 @@ public class WSNServiceHelper {
 
 	public static Controller getControllerService(String endpointUrl, ExecutorService executorService) {
 
-		InputStream resourceStream = WSNServiceHelper.class.getClassLoader().getResourceAsStream("ControllerService.wsdl");
+		InputStream resourceStream =
+				WSNServiceHelper.class.getClassLoader().getResourceAsStream("ControllerService.wsdl");
 
 		tmpFileControllerLock.lock();
 		try {
@@ -145,8 +142,8 @@ public class WSNServiceHelper {
 	 * Returns the port to the Controller API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.Controller} instance that is connected to the Web
-	 *         Service endpoint
+	 *
+	 * @return a {@link Controller} instance that is connected to the Web Service endpoint
 	 */
 	public static Controller getControllerService(String endpointUrl) {
 		return getControllerService(endpointUrl, null);
@@ -156,8 +153,8 @@ public class WSNServiceHelper {
 	 * Returns the port to the WSN API instance.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.wsn.v23.WSN} instance that is connected to the Web Service
-	 *         endpoint
+	 *
+	 * @return a {@link WSN} instance that is connected to the Web Service endpoint
 	 */
 	public static WSN getWSNService(String endpointUrl) {
 
@@ -198,7 +195,9 @@ public class WSNServiceHelper {
 		return new ExperimentNotRunningException_Exception(msg, exception, e);
 	}
 
-	public static UnknownReservationIdException_Exception createUnknownReservationIdException(String msg, String reservationId, Exception e) {
+	public static UnknownReservationIdException_Exception createUnknownReservationIdException(String msg,
+																							  String reservationId,
+																							  Exception e) {
 
 		UnknownReservationIdException exception = new UnknownReservationIdException();
 		exception.setMessage(msg);

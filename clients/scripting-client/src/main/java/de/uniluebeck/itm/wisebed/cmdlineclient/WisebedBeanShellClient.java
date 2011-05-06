@@ -23,24 +23,19 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
+import bsh.EvalError;
+import bsh.Interpreter;
+import org.apache.commons.cli.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import bsh.EvalError;
-import bsh.Interpreter;
 
 public class WisebedBeanShellClient {
 
@@ -54,7 +49,10 @@ public class WisebedBeanShellClient {
 		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
-		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.v23.*;");
+		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
+		importsForBeanShell.add("import eu.wisebed.api.common.*;");
+		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
+		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
@@ -93,10 +91,11 @@ public class WisebedBeanShellClient {
 
 			log.debug("Option for -f: " + line.getOptionValue('f'));
 
-			if (line.hasOption('f'))
+			if (line.hasOption('f')) {
 				beanShellFile = new File(line.getOptionValue('f'));
-			else
+			} else {
 				throw new Exception("Please supply -f");
+			}
 
 		} catch (Exception e) {
 			log.error("Invalid command line: " + e, e);

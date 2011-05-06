@@ -23,37 +23,10 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Endpoint;
-
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
@@ -73,6 +46,22 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.Endpoint;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @WebService(
 		serviceName = "WSNService",
@@ -309,7 +298,7 @@ public class WSNServiceImpl implements WSNService {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.testbed.api.wsn.v23.Controller#receive(java.util.List)} or {@link eu.wisebed.testbed.api.wsn.v23.Controller#receiveStatus(java.util.List)}
+	 * eu.wisebed.api.controller.Controller#receive(java.util.List)} or {@link eu.wisebed.api.controller.Controller#receiveStatus(java.util.List)}
 	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
 	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
 	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as

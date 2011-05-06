@@ -23,29 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
@@ -72,12 +49,26 @@ import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @WebService(
 		serviceName = "SessionManagementService",
 		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
 		portName = "SessionManagementPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE
 )
 public class SessionManagementServiceImpl implements SessionManagementService {
 
@@ -151,7 +142,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		/**
 		 * The filename of the file containing the WiseML document that is to delivered when {@link
-		 * eu.wisebed.testbed.api.wsn.v23.SessionManagement#getNetwork()} is called.
+		 * eu.wisebed.api.sm.SessionManagement#getNetwork()} is called.
 		 */
 		private final String wiseMLFilename;
 
@@ -216,13 +207,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
 	/**
-	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.testbed.api.wsn.v23.SessionManagement#areNodesAlive(java.util.List,
+	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
 	private final WSNApp wsnApp;
 
 	/**
-	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.testbed.api.wsn.v23.SessionManagement#areNodesAlive(java.util.List,
+	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
 	private ControllerHelper controllerHelper;

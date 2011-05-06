@@ -23,6 +23,18 @@
 
 package eu.wisebed.testbed.api.wsn.controllerhelper;
 
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.internal.Nullable;
+import de.uniluebeck.itm.tr.util.TimeDiff;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
@@ -37,27 +49,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.internal.Nullable;
-
-import de.uniluebeck.itm.tr.util.TimeDiff;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-
 
 /**
- * Helper class that manages a set of {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service endpoints and allows
- * to asynchronously deliver messages and request status updates to them in parallel. If the delivery to a recipient is
- * repeatedly ({@link ControllerHelperConstants#RETRIES} times) impossible due to whatever reason, the recipient is
- * removed from the list of recipients. Between every try there's a pause of {@link
- * ControllerHelperConstants#RETRY_TIMEOUT} in time unit {@link ControllerHelperConstants#RETRY_TIME_UNIT}.
+ * Helper class that manages a set of {@link Controller} Web Service endpoints and allows to asynchronously deliver
+ * messages and request status updates to them in parallel. If the delivery to a recipient is repeatedly ({@link
+ * ControllerHelperConstants#RETRIES} times) impossible due to whatever reason, the recipient is removed from the list
+ * of recipients. Between every try there's a pause of {@link ControllerHelperConstants#RETRY_TIMEOUT} in time unit
+ * {@link ControllerHelperConstants#RETRY_TIME_UNIT}.
  */
 public class ControllerHelper implements DeliverFailureListener {
 
@@ -72,8 +70,8 @@ public class ControllerHelper implements DeliverFailureListener {
 	protected final int maximumDeliveryQueueSize;
 
 	/**
-	 * The set of {@link eu.wisebed.testbed.api.wsn.v23.Controller} instances currently listening to this WSN service
-	 * instance. Maps from the endpoint URL to an instantiated endpoint proxy.
+	 * The set of {@link Controller} instances currently listening to this WSN service instance. Maps from the endpoint URL
+	 * to an instantiated endpoint proxy.
 	 */
 	private final Map<String, Controller> controllerEndpoints = new HashMap<String, Controller>();
 
@@ -141,8 +139,7 @@ public class ControllerHelper implements DeliverFailureListener {
 	/**
 	 * Adds a Controller service endpoint URL to the list of recipients.
 	 *
-	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service
-	 *                              instance
+	 * @param controllerEndpointUrl the endpoint URL of a {@link Controller} Web Service instance
 	 */
 	public void addController(String controllerEndpointUrl) {
 		Controller controller = WSNServiceHelper.getControllerService(controllerEndpointUrl, scheduler);
@@ -154,8 +151,7 @@ public class ControllerHelper implements DeliverFailureListener {
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param controllerEndpointUrl the endpoint URL of a {@link eu.wisebed.testbed.api.wsn.v23.Controller} Web Service
-	 *                              instance
+	 * @param controllerEndpointUrl the endpoint URL of a {@link Controller} Web Service instance
 	 */
 	public void removeController(String controllerEndpointUrl) {
 		synchronized (controllerEndpoints) {
@@ -291,7 +287,7 @@ public class ControllerHelper implements DeliverFailureListener {
 	/**
 	 * Delivers {@code message} to all currently registered controllers.
 	 *
-	 * @param message the {@link eu.wisebed.testbed.api.wsn.v23.Message} instance to deliver
+	 * @param message the {@link Message} instance to deliver
 	 */
 	public void receive(Message message) {
 		receive(Lists.newArrayList(message));
@@ -319,7 +315,7 @@ public class ControllerHelper implements DeliverFailureListener {
 	/**
 	 * Delivers {@code requestStatus} to all recipients.
 	 *
-	 * @param requestStatus the {@link eu.wisebed.testbed.api.wsn.v23.RequestStatus} instance to deliver
+	 * @param requestStatus the {@link RequestStatus} instance to deliver
 	 */
 	public void receiveStatus(RequestStatus requestStatus) {
 		receiveStatus(Lists.newArrayList(requestStatus));

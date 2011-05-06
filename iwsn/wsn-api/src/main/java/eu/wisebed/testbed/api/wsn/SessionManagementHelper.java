@@ -39,7 +39,7 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances that
+	 * @param secretReservationKeys the list of {@link eu.wisebed.api.sm.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash
@@ -61,7 +61,6 @@ public class SessionManagementHelper {
 
 		ExperimentNotRunningException exception = new ExperimentNotRunningException();
 		exception.setMessage(msg);
-		ExperimentNotRunningException_Exception e = new ExperimentNotRunningException_Exception(msg, exception);
-		return e;
+		return new ExperimentNotRunningException_Exception(msg, exception);
 	}
 }

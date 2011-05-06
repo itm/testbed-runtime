@@ -60,7 +60,7 @@ import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 		serviceName = "SessionManagementService",
 		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
 		portName = "SessionManagementPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE
 )
 public class SessionManagementDelegate implements SessionManagement {
 

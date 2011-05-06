@@ -72,7 +72,7 @@ import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 		serviceName = "SessionManagementService",
 		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
 		portName = "SessionManagementPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE
 )
 public class FederatorSessionManagement implements SessionManagement {
 
@@ -342,7 +342,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	/**
 	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances
+	 * @param secretReservationKeys the list of {@link SecretReservationKey} instances
 	 *
 	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
 	 */
@@ -355,10 +355,10 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	/**
-	 * Checks for a given list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances which federated
+	 * Checks for a given list of {@link SecretReservationKey} instances which federated
 	 * Session Management endpoints are responsible for which set of URN prefixes.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v23.SecretReservationKey} instances as
+	 * @param secretReservationKeys the list of {@link SecretReservationKey} instances as
 	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
 	 *							  String)}
 	 *

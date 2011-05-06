@@ -35,10 +35,10 @@ public class Constants {
 
 	public static final String NAMESPACE_WSN_SERVICE = "urn:WSNService";
 
-	public static final String ENDPOINT_INTERFACE_WSN_SERVICE = "eu.wisebed.testbed.api.wsn.v23.WSN";
+	public static final String ENDPOINT_INTERFACE_WSN_SERVICE = "eu.wisebed.api.wsn.WSN";
 
-	public static final String ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE = "eu.wisebed.testbed.api.wsn.v23.SessionManagement";
+	public static final String ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE = "eu.wisebed.api.sm.SessionManagement";
 
-	public static final String ENDPOINT_INTERFACE_CONTROLLER_SERVICE = "eu.wisebed.testbed.api.wsn.v23.Controller";
+	public static final String ENDPOINT_INTERFACE_CONTROLLER_SERVICE = "eu.wisebed.api.controller.Controller";
 
 }
