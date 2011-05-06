@@ -23,15 +23,18 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.base.Preconditions;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
+import eu.wisebed.api.common.Message;
 
 /**
  * saves all messages to the database

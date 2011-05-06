@@ -23,16 +23,16 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.Program;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.Program;
 
 
 public class WSNPreconditions {

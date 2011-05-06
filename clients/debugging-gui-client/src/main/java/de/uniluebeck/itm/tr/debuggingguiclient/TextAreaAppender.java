@@ -23,10 +23,11 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient;
 
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
-
-import javax.swing.*;
 
 public class TextAreaAppender extends WriterAppender {
 

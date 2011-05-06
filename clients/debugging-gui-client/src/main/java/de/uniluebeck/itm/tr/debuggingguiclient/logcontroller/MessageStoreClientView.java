@@ -1,7 +1,13 @@
 package de.uniluebeck.itm.tr.debuggingguiclient.logcontroller;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 
 public class MessageStoreClientView extends JPanel {
 

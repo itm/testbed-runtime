@@ -22,8 +22,16 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.tr.debuggingguiclient.snaa;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 
 public class SNAAClientView extends JPanel {

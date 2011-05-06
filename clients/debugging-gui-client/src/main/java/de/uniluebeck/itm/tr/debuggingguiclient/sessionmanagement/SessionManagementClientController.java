@@ -23,17 +23,6 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.sessionmanagement;
 
-import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
-import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
-import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNClientView;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v23.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v23.SessionManagement;
-import eu.wisebed.testbed.api.wsn.v23.UnknownReservationIdException_Exception;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -41,6 +30,18 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+
+import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
+import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
+import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNClientView;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 public class SessionManagementClientController {
 

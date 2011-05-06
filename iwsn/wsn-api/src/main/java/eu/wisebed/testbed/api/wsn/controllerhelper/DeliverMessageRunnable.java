@@ -1,10 +1,10 @@
 package eu.wisebed.testbed.api.wsn.controllerhelper;
 
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
 
 class DeliverMessageRunnable extends DeliverRunnable {
 

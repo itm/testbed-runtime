@@ -1,10 +1,11 @@
 package eu.wisebed.testbed.api.wsn.controllerhelper;
 
-import eu.wisebed.testbed.api.wsn.v23.Controller;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import eu.wisebed.api.controller.Controller;
 
 /**
  * Base class for message delivery. Retries message delivery {@link ControllerHelperConstants#RETRIES} times if an error

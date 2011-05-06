@@ -23,20 +23,22 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.controller;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import java.util.Arrays;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.testbed.api.wsn.Constants;
 
 @WebService(
         serviceName = "ControllerService",

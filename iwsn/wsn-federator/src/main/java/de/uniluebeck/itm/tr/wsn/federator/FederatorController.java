@@ -23,22 +23,24 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 
 @WebService(
 		serviceName = "ControllerService",

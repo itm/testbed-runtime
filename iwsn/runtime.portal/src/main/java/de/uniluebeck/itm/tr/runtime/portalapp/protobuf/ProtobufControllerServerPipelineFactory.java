@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
+import static org.jboss.netty.channel.Channels.pipeline;
+
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -8,7 +9,7 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
-import static org.jboss.netty.channel.Channels.pipeline;
+import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 
 
 public class ProtobufControllerServerPipelineFactory implements ChannelPipelineFactory {

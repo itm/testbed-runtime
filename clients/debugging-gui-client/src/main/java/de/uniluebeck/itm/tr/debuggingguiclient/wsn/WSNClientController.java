@@ -24,21 +24,23 @@
 package de.uniluebeck.itm.tr.debuggingguiclient.wsn;
 
 
-import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
-import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v23.FlashPrograms;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.Send;
-import eu.wisebed.testbed.api.wsn.v23.WSN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
+import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.FlashPrograms;
+import eu.wisebed.api.wsn.Send;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 
 public class WSNClientController {

@@ -23,9 +23,9 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import eu.wisebed.testbed.api.wsn.v23.Message;
-
 import java.util.Map;
+
+import eu.wisebed.api.common.Message;
 
 /**
  * Messagelistener on an WSNBinding

@@ -1,14 +1,15 @@
 package eu.wisebed.testbed.api.wsn.controllerhelper;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
 
 class DeliverRequestStatusRunnable extends DeliverRunnable {
 

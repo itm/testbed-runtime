@@ -23,8 +23,13 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.wsn;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 
 public class WSNClientView extends JPanel {

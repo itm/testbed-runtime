@@ -23,16 +23,16 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 
 public class SessionManagementPreconditions {
 

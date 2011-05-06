@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.testbed.api.wsn.v23.WSN;
+import eu.wisebed.api.wsn.WSN;
 
 class DestroyVirtualLinkRunnable extends AbstractRequestRunnable {
 

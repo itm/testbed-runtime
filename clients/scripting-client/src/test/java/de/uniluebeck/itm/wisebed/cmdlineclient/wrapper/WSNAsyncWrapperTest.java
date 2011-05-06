@@ -1,15 +1,9 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
-import com.google.common.collect.Lists;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.Program;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
-import javax.jws.WebParam;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +11,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
+import javax.jws.WebParam;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.wsn.Program;
 
 
 public class WSNAsyncWrapperTest {
@@ -98,7 +103,7 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testGetVersion() throws Exception {
-		assertEquals("2.1", wrapper.getVersion().get());
+		assertEquals("2.3", wrapper.getVersion().get());
 	}
 
 	@Test

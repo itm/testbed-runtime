@@ -23,25 +23,61 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.ns.wiseml._1.Setup;
-import eu.wisebed.ns.wiseml._1.Wiseml;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v23.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.LayoutManager;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.xml.bind.JAXBContext;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.*;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.wsn.FlashPrograms;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.ProgramMetaData;
+import eu.wisebed.api.wsn.Send;
+import eu.wisebed.ns.wiseml._1.Setup;
+import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 
 public class Dialogs {

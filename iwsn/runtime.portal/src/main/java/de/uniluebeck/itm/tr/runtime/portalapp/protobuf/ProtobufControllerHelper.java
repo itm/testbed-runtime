@@ -1,10 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import com.google.protobuf.ByteString;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v23.Status;
+import java.util.Set;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
@@ -13,7 +10,12 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import com.google.protobuf.ByteString;
+
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 
 
 public class ProtobufControllerHelper extends ControllerHelper {

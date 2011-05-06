@@ -1,8 +1,13 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.AbstractListenable;
-import eu.wisebed.testbed.api.wsn.v23.*;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -11,13 +16,14 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.tr.util.AbstractListenable;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.sm.SecretReservationKey;
 
 public class ProtobufControllerClient extends AbstractListenable<ProtobufControllerClientListener> {
 

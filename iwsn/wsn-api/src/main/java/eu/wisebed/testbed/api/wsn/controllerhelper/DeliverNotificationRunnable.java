@@ -1,9 +1,9 @@
 package eu.wisebed.testbed.api.wsn.controllerhelper;
 
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import eu.wisebed.api.controller.Controller;
 
 class DeliverNotificationRunnable extends DeliverRunnable {
 

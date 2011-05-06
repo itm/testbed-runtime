@@ -23,19 +23,21 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import org.apache.log4j.Logger;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.Executors;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.Executors;
+
+import org.apache.log4j.Logger;
+
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.testbed.api.wsn.Constants;
 
 @WebService(serviceName = "ControllerService", targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE, portName = "ControllerPort", endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE)
 public class DelegatingController implements Controller {

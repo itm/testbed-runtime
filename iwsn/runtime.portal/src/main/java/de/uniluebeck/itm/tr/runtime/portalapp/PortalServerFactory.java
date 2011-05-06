@@ -23,22 +23,17 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.inject.Guice;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
-import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
-import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.gtr.application.TestbedApplication;
+import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
 
 public class PortalServerFactory implements TestbedApplicationFactory {

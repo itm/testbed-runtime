@@ -1,16 +1,25 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v23.*;
-
-import javax.jws.WebParam;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.jws.WebParam;
+
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.ChannelHandlerDescription;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.wsn.Constants;
 
 
 public class WorkingWSN implements WSN {

@@ -23,17 +23,19 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import com.google.common.collect.Sets;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v23.Status;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.google.common.collect.Sets;
+
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
 
 public class Job {
 

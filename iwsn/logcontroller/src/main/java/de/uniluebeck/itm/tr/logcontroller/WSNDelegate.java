@@ -23,12 +23,17 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.v23.*;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.List;
+
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.ChannelHandlerDescription;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.wsn.Constants;
 
 /**
  * Delegate for the WSN service.

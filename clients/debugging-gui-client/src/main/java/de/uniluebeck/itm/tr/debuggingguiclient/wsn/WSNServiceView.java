@@ -23,11 +23,16 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.wsn;
 
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.awt.*;
 
 
 public class WSNServiceView extends JPanel {

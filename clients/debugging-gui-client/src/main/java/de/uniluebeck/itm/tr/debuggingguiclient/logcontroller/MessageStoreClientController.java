@@ -1,16 +1,5 @@
 package de.uniluebeck.itm.tr.debuggingguiclient.logcontroller;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
-import eu.wisebed.testbed.api.messagestore.MessageStoreServiceHelper;
-import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
-
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -18,6 +7,19 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.testbed.api.messagestore.MessageStoreServiceHelper;
+import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
 
 public class MessageStoreClientController extends DefaultTableModel {
 

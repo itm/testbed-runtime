@@ -1,11 +1,17 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
-import com.google.common.base.Preconditions;
-import org.jboss.netty.channel.*;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.base.Preconditions;
 
 public class ProtobufControllerClientHandler extends SimpleChannelUpstreamHandler {
 

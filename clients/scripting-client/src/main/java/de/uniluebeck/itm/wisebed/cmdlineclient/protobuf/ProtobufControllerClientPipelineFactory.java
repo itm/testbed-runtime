@@ -8,8 +8,6 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
-import static org.jboss.netty.channel.Channels.pipeline;
-
 public class ProtobufControllerClientPipelineFactory implements ChannelPipelineFactory {
 
 	private final ProtobufControllerClient protobufControllerClient;

@@ -1,19 +1,25 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import com.google.common.util.concurrent.ValueFuture;
+
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.AsyncJobObserver;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResultListener;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.Program;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v23.WSN;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.*;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.WSN;
 
 
 public class WSNAsyncWrapper {

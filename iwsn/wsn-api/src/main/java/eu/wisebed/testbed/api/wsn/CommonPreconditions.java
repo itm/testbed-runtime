@@ -23,12 +23,12 @@
 
 package eu.wisebed.testbed.api.wsn;
 
+import java.util.Collection;
+import java.util.Set;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-
-import java.util.Collection;
-import java.util.Set;
 
 
 /**

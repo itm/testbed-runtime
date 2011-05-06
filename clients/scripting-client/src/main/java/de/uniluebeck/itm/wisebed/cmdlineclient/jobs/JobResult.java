@@ -23,12 +23,12 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
-import org.joda.time.DateTime;
-
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import org.joda.time.DateTime;
+
+import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
 
 public class JobResult {
 

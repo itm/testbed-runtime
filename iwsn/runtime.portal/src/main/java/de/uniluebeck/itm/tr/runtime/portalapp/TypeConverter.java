@@ -1,13 +1,18 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.protobuf.ByteString;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import eu.wisebed.testbed.api.wsn.v23.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.protobuf.ByteString;
+
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.ProgramMetaData;
 
 /**
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.

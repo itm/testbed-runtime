@@ -23,19 +23,20 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
-import eu.wisebed.testbed.api.wsn.v23.Message;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
+import eu.wisebed.api.common.Message;
 
 public class HtmlWriter implements JobResultListener {
 	private static final Logger log = Logger.getLogger(HtmlWriter.class);

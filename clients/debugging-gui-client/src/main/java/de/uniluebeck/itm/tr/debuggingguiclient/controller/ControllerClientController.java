@@ -23,21 +23,23 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient.controller;
 
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
-import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v23.Controller;
-import eu.wisebed.testbed.api.wsn.v23.Message;
-import eu.wisebed.testbed.api.wsn.v23.RequestStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
+import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 
 public class ControllerClientController {

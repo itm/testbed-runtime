@@ -22,17 +22,6 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.tr.debuggingguiclient.snaa;
 
-import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
-import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientView;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -40,6 +29,19 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
+import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientView;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.testbed.api.snaa.v1.Action;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.testbed.api.snaa.v1.SNAA;
+import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 
 
 public class SNAAClientController {

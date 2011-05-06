@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.testbed.api.wsn.v23.WSN;
-
 import java.util.List;
+
+import eu.wisebed.api.wsn.WSN;
 
 class ResetNodesRunnable extends AbstractRequestRunnable {
 

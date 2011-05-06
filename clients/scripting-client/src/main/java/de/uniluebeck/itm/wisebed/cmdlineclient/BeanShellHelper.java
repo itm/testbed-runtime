@@ -23,21 +23,6 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.Data;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.wsn.v23.*;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -45,8 +30,37 @@ import java.io.FileInputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.ProgramMetaData;
+import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.Data;
+import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 
 public class BeanShellHelper {
 
@@ -208,13 +222,13 @@ public class BeanShellHelper {
 		return secretAuthKeys;
 	}
 
-	public List<eu.wisebed.testbed.api.wsn.v23.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
-		List<eu.wisebed.testbed.api.wsn.v23.SecretReservationKey> newKeys =
-				new ArrayList<eu.wisebed.testbed.api.wsn.v23.SecretReservationKey>();
+	public List<eu.wisebed.api.sm.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
+		List<eu.wisebed.api.sm.SecretReservationKey> newKeys =
+				new ArrayList<eu.wisebed.api.sm.SecretReservationKey>();
 
 		for (SecretReservationKey key : keys) {
-			eu.wisebed.testbed.api.wsn.v23.SecretReservationKey newKey =
-					new eu.wisebed.testbed.api.wsn.v23.SecretReservationKey();
+			eu.wisebed.api.sm.SecretReservationKey newKey =
+					new eu.wisebed.api.sm.SecretReservationKey();
 			newKey.setSecretReservationKey(key.getSecretReservationKey());
 			newKey.setUrnPrefix(key.getUrnPrefix());
 			newKeys.add(newKey);
@@ -223,14 +237,13 @@ public class BeanShellHelper {
 		return newKeys;
 	}
 
-	public List<eu.wisebed.testbed.api.wsn.v23.SecretReservationKey> parseSecretReservationKeys(String str) {
+	public List<eu.wisebed.api.sm.SecretReservationKey> parseSecretReservationKeys(String str) {
 		String[] pairs = str.split(";");
-		List<eu.wisebed.testbed.api.wsn.v23.SecretReservationKey> keys = Lists.newArrayList();
+		List<eu.wisebed.api.sm.SecretReservationKey> keys = Lists.newArrayList();
 		for (String pair : pairs) {
 			String urnPrefix = pair.split(",")[0];
 			String secretReservationKeys = pair.split(",")[1];
-			eu.wisebed.testbed.api.wsn.v23.SecretReservationKey key =
-					new eu.wisebed.testbed.api.wsn.v23.SecretReservationKey();
+			eu.wisebed.api.sm.SecretReservationKey key = new eu.wisebed.api.sm.SecretReservationKey();
 			key.setUrnPrefix(urnPrefix);
 			key.setSecretReservationKey(secretReservationKeys);
 			keys.add(key);

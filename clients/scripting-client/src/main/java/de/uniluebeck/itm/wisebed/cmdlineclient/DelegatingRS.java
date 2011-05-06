@@ -23,11 +23,21 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import eu.wisebed.testbed.api.rs.v1.*;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.List;
+
+import eu.wisebed.testbed.api.rs.v1.AuthorizationExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.GetReservations;
+import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
+import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationConflictExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
+import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
+import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 
 public class DelegatingRS implements RS {
 

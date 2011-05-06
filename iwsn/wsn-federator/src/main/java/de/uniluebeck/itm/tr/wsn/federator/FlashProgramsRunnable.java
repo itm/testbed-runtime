@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.testbed.api.wsn.v23.Program;
-import eu.wisebed.testbed.api.wsn.v23.WSN;
-
 import java.util.List;
+
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.WSN;
 
 class FlashProgramsRunnable extends AbstractRequestRunnable {
 

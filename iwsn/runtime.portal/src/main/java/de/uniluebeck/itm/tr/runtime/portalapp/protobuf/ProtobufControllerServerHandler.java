@@ -1,22 +1,33 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
-import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
-import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import eu.wisebed.testbed.api.wsn.v23.SecretReservationKey;
-import org.jboss.netty.channel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.DefaultChannelFuture;
+import org.jboss.netty.channel.DownstreamMessageEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
+import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
+import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import eu.wisebed.api.sm.SecretReservationKey;
 
 public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandler {
 
