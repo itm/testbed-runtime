@@ -45,7 +45,7 @@
         <module>logcontroller</module>
         <module>messagestore-api</module>
         <module>overlay</module>
-        <module>runtime.socket-connector</module>
+        <module>overlay-socketconnector</module>
 		<module>runtime.stats</module>
         <module>runtime.wsn-app</module>
         <module>runtime.xml-testbed-factory</module>

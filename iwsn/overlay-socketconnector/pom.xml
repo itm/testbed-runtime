@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime.socket-connector</artifactId>
+	<artifactId>tr.overlay-socketconnector</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime Socket Connector</name>
+	<name>TR :: Overlay Socket Connector</name>
 
 	<dependencies>
 

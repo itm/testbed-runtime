@@ -57,7 +57,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.runtime.socket-connector</artifactId>
+			<artifactId>tr.overlay-socketconnector</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
