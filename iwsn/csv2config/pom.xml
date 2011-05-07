@@ -17,7 +17,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.runtime.wsn-app</artifactId>
+			<artifactId>tr.iwsn-deviceapp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>

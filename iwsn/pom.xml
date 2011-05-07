@@ -47,7 +47,7 @@
         <module>overlay</module>
         <module>overlay-socketconnector</module>
 		<module>overlay-stats</module>
-        <module>runtime.wsn-app</module>
+        <module>iwsn-deviceapp</module>
         <module>wsn-api</module>
         <module>wsn-device-drivers</module>
 		<module>wsn-device-utils</module>

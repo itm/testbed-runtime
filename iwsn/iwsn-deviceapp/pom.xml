@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime.wsn-app</artifactId>
+	<artifactId>tr.iwsn-deviceapp</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime WSN App</name>
+	<name>TR :: iWSN Device App</name>
 
 	<dependencies>
 
