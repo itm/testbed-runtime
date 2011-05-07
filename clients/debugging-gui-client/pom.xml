@@ -45,10 +45,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.messagestore-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.util</artifactId>
 		</dependency>
 		<dependency>

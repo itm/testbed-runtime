@@ -55,16 +55,6 @@
 
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.logcontroller</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.messagestore-api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence</artifactId>
 				<version>${project.version}</version>
 			</dependency>
