@@ -22,13 +22,8 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import de.uniluebeck.itm.gtr.common.Service;
-import eu.wisebed.testbed.api.messagestore.v1.Message;
-import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
-import eu.wisebed.testbed.api.messagestore.v1.SecretReservationKey;
+import java.util.List;
+import java.util.Map;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -37,8 +32,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
-import java.util.List;
-import java.util.Map;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import de.uniluebeck.itm.gtr.common.Service;
+import eu.wisebed.testbed.api.messagestore.v1.Message;
+import eu.wisebed.testbed.api.messagestore.v1.MessageStore;
+import eu.wisebed.testbed.api.messagestore.v1.SecretReservationKey;
 
 /**
  * Implementation of MessageStore-Interface using JPA 2.0
@@ -52,7 +54,7 @@ public class DBMessageStore implements MessageStore, Service {
 		@Override
 		public Message apply(WSNMessage from) {
 
-			eu.wisebed.testbed.api.wsn.v22.Message message = WSNMessage.convertToXMLMessage(from);
+			eu.wisebed.api.common.Message message = WSNMessage.convertToXMLMessage(from);
 
 			Message ret = new Message();
 			ret.setBinaryData(message.getBinaryData());

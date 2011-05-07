@@ -84,10 +84,22 @@ public class Messages {
 	public static final int FLASH_TYPE_READ_RESPONSE = 0x26;
 
 	/**	 */
+	public static final int CHANGE_BAUD_RATE_REQUEST = 0x27;
+
+	/**	 */
+	public static final int CHANGE_BAUD_RATE_RESPONSE = 0x28;
+
+	/**	 */
 	public static final int FLASH_CONFIGURE_REQUEST = 0x2C;
 
 	/**	 */
 	public static final int FLASH_CONFIGURE_RESPONSE = 0x2D;
+	
+	/**	 */
+	public static final int CHIP_ID_REQUEST = 0x32;
+	
+	/**	 */
+	public static final int CHIP_ID_RESPONSE = 0x33;
 
 	/**	 */
 	public static byte[] addressToBytes(int value) {
@@ -172,6 +184,19 @@ public class Messages {
 		message[0] = WRITE_SR_REQUEST;
 		message[1] = status;
 		return message;
+	}
+	
+	/** */
+	public static byte[] changeBaudRateMessage() {
+		byte[] message = new byte[2];
+		message[0] = CHANGE_BAUD_RATE_REQUEST;
+		message[1] = 9;
+		return message;
+	}
+	
+	/** */
+	public static byte[] chipIdMessage() {
+		return new byte[] { CHIP_ID_REQUEST };
 	}
 
 }

@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.runtime</artifactId>
+            <artifactId>tr.overlay</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

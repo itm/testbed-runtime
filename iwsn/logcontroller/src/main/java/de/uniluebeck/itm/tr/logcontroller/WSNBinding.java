@@ -23,25 +23,28 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.testbed.api.wsn.ControllerHelper;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.Controller;
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.RequestStatus;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
 
 /**
  * Connects Controller with WSN and adds listener-functionality

@@ -23,28 +23,50 @@
 
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.testbed.api.rs.v1.*;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.testbed.api.rs.v1.AuthorizationException;
+import eu.wisebed.testbed.api.rs.v1.AuthorizationExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.Data;
+import eu.wisebed.testbed.api.rs.v1.GetReservations;
+import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
+import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.testbed.api.rs.v1.RSException;
+import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationConflictException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationConflictExceptionException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundException;
+import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
+import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
+import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.snaa.v1.Action;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
 import eu.wisebed.testbed.api.snaa.v1.SNAA;
 import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.*;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
         targetNamespace = "urn:RSService")

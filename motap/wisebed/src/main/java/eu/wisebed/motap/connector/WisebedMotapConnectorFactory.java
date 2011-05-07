@@ -23,12 +23,13 @@
 
 package eu.wisebed.motap.connector;
 
+import java.util.List;
+
 import com.coalesenses.otap.core.connector.DeviceConnector;
 import com.sun.net.httpserver.HttpServer;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
 
-import java.util.List;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
 
 
 public class WisebedMotapConnectorFactory {

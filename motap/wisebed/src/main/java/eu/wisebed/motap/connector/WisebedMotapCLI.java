@@ -23,6 +23,20 @@
 
 package eu.wisebed.motap.connector;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.coalesenses.otap.core.MotapController;
 import com.coalesenses.otap.core.OtapPlugin;
 import com.coalesenses.otap.core.cli.AbstractOtapCLI;
@@ -33,20 +47,12 @@ import com.coalesenses.otap.core.seraerial.SerAerialPacket;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpServer;
+
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.concurrent.Executors;
 
 public class WisebedMotapCLI extends AbstractOtapCLI {
 
@@ -187,14 +193,13 @@ public class WisebedMotapCLI extends AbstractOtapCLI {
 		return true;
 	}
 
-	public static List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> parseSecretReservationKeys(String str) {
+	public static List<eu.wisebed.api.sm.SecretReservationKey> parseSecretReservationKeys(String str) {
 		String[] pairs = str.split(";");
-		List<eu.wisebed.testbed.api.wsn.v22.SecretReservationKey> keys = Lists.newArrayList();
+		List<eu.wisebed.api.sm.SecretReservationKey> keys = Lists.newArrayList();
 		for (String pair : pairs) {
 			String urnPrefix = pair.split(",")[0];
 			String secretReservationKeys = pair.split(",")[1];
-			eu.wisebed.testbed.api.wsn.v22.SecretReservationKey key =
-					new eu.wisebed.testbed.api.wsn.v22.SecretReservationKey();
+			eu.wisebed.api.sm.SecretReservationKey key = new eu.wisebed.api.sm.SecretReservationKey();
 			key.setUrnPrefix(urnPrefix);
 			key.setSecretReservationKey(secretReservationKeys);
 			keys.add(key);

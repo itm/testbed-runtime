@@ -23,31 +23,39 @@
 
 package eu.wisebed.motap.connector;
 
-import com.coalesenses.otap.core.connector.DeviceConnector;
-import com.coalesenses.otap.core.seraerial.SerAerialPacket;
-import com.google.common.collect.Lists;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpServer;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Endpoint;
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.GregorianCalendar;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.coalesenses.otap.core.connector.DeviceConnector;
+import com.coalesenses.otap.core.seraerial.SerAerialPacket;
+import com.google.common.collect.Lists;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpServer;
+
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
+import de.uniluebeck.itm.wsn.devicedrivers.generic.PacketTypes;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 
 class WisebedMotapConnectorImpl extends DeviceConnector {

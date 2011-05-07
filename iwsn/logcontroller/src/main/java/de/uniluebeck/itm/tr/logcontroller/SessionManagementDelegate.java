@@ -23,21 +23,6 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.v22.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Holder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +31,28 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Holder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.common.KeyValuePair;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.rs.RSServiceHelper;
+import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.testbed.api.wsn.Constants;
+import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
+
 /**
  * Proxy for the SessionManagement service, creates and manages {@link WSNBinding} instances.
  */
@@ -53,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 		serviceName = "SessionManagementService",
 		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
 		portName = "SessionManagementPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANGEMENT_SERVICE
+		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE
 )
 public class SessionManagementDelegate implements SessionManagement {
 
@@ -112,6 +119,13 @@ public class SessionManagementDelegate implements SessionManagement {
 			);
 		}
 		return wsnInstances.get(reservationHash).getFirst().getWSN();
+	}
+
+	@Override
+	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
+								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
+								String controllerEndpointUrl) {
+		return delegate.areNodesAlive(nodes, controllerEndpointUrl);
 	}
 
 	@Override

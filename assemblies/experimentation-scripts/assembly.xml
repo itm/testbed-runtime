@@ -4,13 +4,15 @@
 
 	<formats>
 		<format>tar.gz</format>
+		<format>zip</format>
+		<format>dir</format>
 	</formats>
 	<dependencySets>
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>
 			<outputDirectory>/lib</outputDirectory>
 			<includes>
-               	<include>de.uniluebeck.itm:tr.wisebed-cmdline-client</include>
+               	<include>de.uniluebeck.itm:tr.scripting-client</include>
            	</includes>
 		</dependencySet>
 	</dependencySets>

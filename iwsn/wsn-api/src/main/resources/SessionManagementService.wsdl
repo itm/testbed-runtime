@@ -9,57 +9,53 @@
 
 	<types>
 		<xsd:schema>
-			<xsd:import namespace="urn:SessionManagementService" schemaLocation="SessionManagementTypes.xsd" />
 			<xsd:import namespace="urn:CommonTypes" schemaLocation="CommonTypes.xsd" />
+			<xsd:import namespace="urn:SessionManagementService" schemaLocation="SessionManagementTypes.xsd" />
 		</xsd:schema>
 	</types>
 
+	<message name="areNodesAlive">
+		<part name="parameters" element="tns:areNodesAlive" />
+	</message>
+	<message name="areNodesAliveResponse">
+		<part name="parameters" element="tns:areNodesAliveResponse" />
+	</message>
+	<message name="free">
+		<part name="parameters" element="tns:free" />
+	</message>
+	<message name="freeResponse">
+		<part name="parameters" element="tns:freeResponse" />
+	</message>
+	<message name="getConfiguration">
+		<part name="parameters" element="tns:getConfiguration" />
+	</message>
+	<message name="getConfigurationResponse">
+		<part name="parameters" element="tns:getConfigurationResponse" />
+	</message>
 	<message name="getInstance">
 		<part name="parameters" element="tns:getInstance" />
 	</message>
-
 	<message name="getInstanceResponse">
 		<part name="parameters" element="tns:getInstanceResponse" />
+	</message>
+	<message name="getNetwork">
+		<part name="parameters" element="ct:getNetwork" />
+	</message>
+	<message name="getNetworkResponse">
+		<part name="parameters" element="ct:getNetworkResponse" />
 	</message>
 
 	<message name="ExperimentNotRunningException">
 		<part name="fault" element="tns:ExperimentNotRunningException" />
 	</message>
-
 	<message name="UnknownReservationIdException">
 		<part name="fault" element="tns:UnknownReservationIdException" />
 	</message>
 
-	<message name="free">
-		<part name="parameters" element="tns:free" />
-	</message>
-
-	<message name="freeResponse">
-		<part name="parameters" element="tns:freeResponse" />
-	</message>
-
-	<message name="getNetwork">
-		<part name="parameters" element="ct:getNetwork" />
-	</message>
-
-	<message name="getNetworkResponse">
-		<part name="parameters" element="ct:getNetworkResponse" />
-	</message>
-
-	<message name="getConfiguration">
-		<part name="parameters" element="tns:getConfiguration" />
-	</message>
-
-	<message name="getConfigurationResponse">
-		<part name="parameters" element="tns:getConfigurationResponse" />
-	</message>
-
 	<portType name="SessionManagement">
-		<operation name="getInstance">
-			<input message="tns:getInstance" />
-			<output message="tns:getInstanceResponse" />
-			<fault message="tns:ExperimentNotRunningException" name="ExperimentNotRunningException" />
-			<fault message="tns:UnknownReservationIdException" name="UnknownReservationIdException" />
+		<operation name="areNodesAlive">
+			<input message="tns:areNodesAlive" />
+			<output message="tns:areNodesAliveResponse" />
 		</operation>
 		<operation name="free">
 			<input message="tns:free" />
@@ -67,20 +63,25 @@
 			<fault message="tns:ExperimentNotRunningException" name="ExperimentNotRunningException" />
 			<fault message="tns:UnknownReservationIdException" name="UnknownReservationIdException" />
 		</operation>
-		<operation name="getNetwork">
-			<input message="tns:getNetwork" />
-			<output message="tns:getNetworkResponse" />
-		</operation>
 		<operation name="getConfiguration">
 			<input message="tns:getConfiguration" />
 			<output message="tns:getConfigurationResponse" />
 		</operation>
+		<operation name="getInstance">
+			<input message="tns:getInstance" />
+			<output message="tns:getInstanceResponse" />
+			<fault message="tns:ExperimentNotRunningException" name="ExperimentNotRunningException" />
+			<fault message="tns:UnknownReservationIdException" name="UnknownReservationIdException" />
+		</operation>
+		<operation name="getNetwork">
+			<input message="tns:getNetwork" />
+			<output message="tns:getNetworkResponse" />
+		</operation>
 	</portType>
 
 	<binding name="SessionManagementPortBinding" type="tns:SessionManagement">
-		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
-					  style="document" />
-		<operation name="getInstance">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+		<operation name="areNodesAlive">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -88,12 +89,6 @@
 			<output>
 				<soap:body use="literal" />
 			</output>
-			<fault name="ExperimentNotRunningException">
-				<soap:fault name="ExperimentNotRunningException" use="literal" />
-			</fault>
-			<fault name="UnknownReservationIdException">
-				<soap:fault name="UnknownReservationIdException" use="literal" />
-			</fault>
 		</operation>
 		<operation name="free">
 			<soap:operation soapAction="" />
@@ -110,7 +105,7 @@
 				<soap:fault name="UnknownReservationIdException" use="literal" />
 			</fault>
 		</operation>
-		<operation name="getNetwork">
+		<operation name="getConfiguration">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -119,7 +114,22 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<operation name="getConfiguration">
+		<operation name="getInstance">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="ExperimentNotRunningException">
+				<soap:fault name="ExperimentNotRunningException" use="literal" />
+			</fault>
+			<fault name="UnknownReservationIdException">
+				<soap:fault name="UnknownReservationIdException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="getNetwork">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />

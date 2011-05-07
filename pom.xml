@@ -35,6 +35,7 @@
 	<modules>
 
 		<module>assemblies/</module>
+		<module>clients/</module>
 		<module>rs/</module>
 		<module>iwsn/</module>
 		<module>snaa/</module>
@@ -43,7 +44,6 @@
 		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
-		<module>wisebed-cmdline-client</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
 		<module>motap</module>
@@ -86,11 +86,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.xml-testbed-factory</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.wsn-device-drivers</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -126,33 +121,33 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime</artifactId>
+				<artifactId>tr.overlay</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.cmdline</artifactId>
+				<artifactId>tr.iwsn-cmdline</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.cmdline</artifactId>
+				<artifactId>tr.iwsn-cmdline</artifactId>
 				<classifier>onejar</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.portal</artifactId>
+				<artifactId>tr.iwsn-service</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.stats</artifactId>
+				<artifactId>tr.overlay-stats</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.wsn-app</artifactId>
+				<artifactId>tr.iwsn-deviceapp</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -203,7 +198,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wsn-api-client</artifactId>
+				<artifactId>tr.debugging-gui-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -238,7 +233,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.socket-connector</artifactId>
+				<artifactId>tr.overlay-socketconnector</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -248,7 +243,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wisebed-cmdline-client</artifactId>
+				<artifactId>tr.scripting-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

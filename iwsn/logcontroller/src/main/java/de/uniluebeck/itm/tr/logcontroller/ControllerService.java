@@ -23,17 +23,20 @@
 
 package de.uniluebeck.itm.tr.logcontroller;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.v22.SessionManagement;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.xml.ws.Endpoint;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Endpoint;
-import java.util.Iterator;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 /**
  * Controller proxy

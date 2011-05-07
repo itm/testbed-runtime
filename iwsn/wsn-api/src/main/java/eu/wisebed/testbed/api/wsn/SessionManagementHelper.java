@@ -24,13 +24,13 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException;
-import eu.wisebed.testbed.api.wsn.v22.ExperimentNotRunningException_Exception;
-import eu.wisebed.testbed.api.wsn.v22.SecretReservationKey;
-
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import eu.wisebed.api.sm.ExperimentNotRunningException;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.sm.SecretReservationKey;
 
 
 public class SessionManagementHelper {
@@ -39,7 +39,7 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.testbed.api.wsn.v22.SecretReservationKey} instances that
+	 * @param secretReservationKeys the list of {@link eu.wisebed.api.sm.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash
@@ -61,7 +61,6 @@ public class SessionManagementHelper {
 
 		ExperimentNotRunningException exception = new ExperimentNotRunningException();
 		exception.setMessage(msg);
-		ExperimentNotRunningException_Exception e = new ExperimentNotRunningException_Exception(msg, exception);
-		return e;
+		return new ExperimentNotRunningException_Exception(msg, exception);
 	}
 }
