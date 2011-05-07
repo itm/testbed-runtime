@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime.portal</artifactId>
+	<artifactId>tr.iwsn-service</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime Portal Web Services</name>
+	<name>TR :: iWSN Web Service</name>
 
 	<dependencies>
 

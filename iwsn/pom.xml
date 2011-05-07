@@ -41,10 +41,10 @@
     <modules>
         <module>csv2config</module>
         <module>iwsn-cmdline</module>
+        <module>iwsn-service</module>
         <module>logcontroller</module>
         <module>messagestore-api</module>
         <module>overlay</module>
-        <module>runtime.portal</module>
         <module>runtime.socket-connector</module>
 		<module>runtime.stats</module>
         <module>runtime.wsn-app</module>

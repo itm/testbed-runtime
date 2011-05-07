@@ -142,7 +142,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.portal</artifactId>
+				<artifactId>tr.iwsn-service</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
