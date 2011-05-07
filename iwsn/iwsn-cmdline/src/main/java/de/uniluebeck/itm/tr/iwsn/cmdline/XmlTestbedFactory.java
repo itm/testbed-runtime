@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr;
+package de.uniluebeck.itm.tr.iwsn.cmdline;
 
 import com.google.common.collect.ImmutableList;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -31,7 +31,6 @@ import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
 import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Triple;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.xml.*;

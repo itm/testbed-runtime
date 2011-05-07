@@ -26,7 +26,6 @@ package de.uniluebeck.itm.tr.iwsn.cmdline;
 import com.google.common.collect.ImmutableList;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.tr.XmlTestbedFactory;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.cli.*;

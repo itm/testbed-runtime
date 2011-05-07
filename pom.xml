@@ -86,11 +86,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.xml-testbed-factory</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.wsn-device-drivers</artifactId>
 				<version>${project.version}</version>
 			</dependency>
