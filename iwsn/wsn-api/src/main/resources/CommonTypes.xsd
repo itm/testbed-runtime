@@ -2,9 +2,21 @@
 <xs:schema version="1.0" targetNamespace="urn:CommonTypes"
 		   xmlns:tns="urn:CommonTypes" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:simpleType name="requestId">
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
+	<xs:complexType name="getNetwork">
+		<xs:sequence />
+	</xs:complexType>
+	<xs:complexType name="getNetworkResponse">
+		<xs:sequence>
+			<xs:element name="return" type="xs:string" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="KeyValuePair">
+		<xs:sequence>
+			<xs:element name="key" type="xs:string"/>
+			<xs:element name="value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:complexType name="message">
 		<xs:sequence>
@@ -14,25 +26,12 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:simpleType name="urn">
-		<xs:restriction base="xs:string">
-			<xs:pattern value="urn:.*" />
-		</xs:restriction>
+	<xs:simpleType name="requestId">
+		<xs:restriction base="xs:string" />
 	</xs:simpleType>
-
-	<xs:complexType name="getNetwork">
-		<xs:sequence />
-	</xs:complexType>
-
-	<xs:complexType name="getNetworkResponse">
-		<xs:sequence>
-			<xs:element name="return" type="xs:string" minOccurs="1" maxOccurs="1" />
-		</xs:sequence>
-	</xs:complexType>
 
 	<xs:element name="getNetwork" type="tns:getNetwork" />
 	<xs:element name="getNetworkResponse" type="tns:getNetworkResponse" />
 	<xs:element name="message" type="tns:message" />
-	<xs:element name="urn" type="tns:urn" />
 
 </xs:schema>

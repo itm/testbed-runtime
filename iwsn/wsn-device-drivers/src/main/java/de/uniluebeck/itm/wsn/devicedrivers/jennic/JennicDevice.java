@@ -28,8 +28,6 @@ import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.devicedrivers.exceptions.*;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 import gnu.io.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
@@ -289,37 +287,79 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 	 */
 
 	public ChipType getChipType() throws Exception {
-		// Send chip type read request
-		sendBootLoaderMessage(Messages.ramReadRequestMessage(0x100000FC, 0x0004));
-
-		// Read chip type read response
-		byte[] response = receiveBootLoaderReply(Messages.RAM_READ_RESPONSE);
-
-		// Throw error if reading failed
-		if (response[1] != 0x00) {
-			logError(String.format("Failed to read chip type from RAM: Response should be 0x00, yet it is: 0x%02x",
-					response[1]
-			)
-			);
-			throw new RamReadFailedException();
-		}
-
+		
 		ChipType chipType = ChipType.Unknown;
-
-		if (response[2] == 0x00 && response[3] == 0x20) {
-			chipType = ChipType.JN513X;
-		} else if (response[2] == 0x10 && response[3] == 0x00) {
-			chipType = ChipType.JN513XR1;
-		} else if (response[2] == 0x20 && response[3] == 0x00) {
-			chipType = ChipType.JN5121;
-		} else {
-			logError("Defaulted to chip type JN5121. Identification may be wrong.");
-			chipType = ChipType.JN5121;
-		}
-
-		logDebug("Chip identified as " + chipType + " (received " + StringUtils.toHexString(response[2]) + " "
-				+ StringUtils.toHexString(response[3]) + ")"
-		);
+		
+		sendBootLoaderMessage(Messages.chipIdMessage());
+		
+		try {
+			// Read chip type read response
+				byte[] res = receiveBootLoaderReply(Messages.CHIP_ID_RESPONSE);
+				String S = "received: (len="+res.length+") ";
+				for (int i = 0; i < res.length; i++)
+					S = S + "res["+i+"]="+StringUtils.toHexString(res[i]) + " ";
+				logDebug(S);
+				if (res.length == 6)
+				{
+					if ( ((res[1]==0) && (res[2]==0x10) && (res[3]==0x40) && (res[4]==0x46) && (res[5]==(byte)0x86)) ||
+							((res[1]==0) && (res[2]==0x10) && (res[3]==(byte)0x80) && (res[4]==0x46) && (res[5]==(byte)0x86)) )
+					{
+						chipType = ChipType.JN5148;
+						logDebug("Chip identified as " + chipType + ".");
+						/*sendBootLoaderMessage(Messages.changeBaudRateMessage());
+						try {
+							res = receiveBootLoaderReply(Messages.CHANGE_BAUD_RATE_RESPONSE);
+							if (res[1]==0)
+							{
+								log.debug("receive baud rate response --> setting baud rate to 115200.");
+								int baudrate = 115200;
+								int databits = Settings.instance().getInt(SettingsKey.databits);
+								int stopbits = Settings.instance().getInt(SettingsKey.stopbits);
+								int parity = Settings.instance().getInt(SettingsKey.parity);
+								serialPort.setSerialPortParams(baudrate, databits, stopbits, parity);
+								
+							}
+						}
+						catch (UnexpectedResponseException e ) {}*/
+					}
+					else logError("BYTES incorrect res[1]="+res[1]+" != "+0+ "res[2]="+res[2]+" != "+0x10+ "res[3]="+res[3]+" != "+0x40+ "res[4]="+res[4]+" != "+0x46+ "res[5]="+res[5]+" != "+(byte)0x86);
+				} else logError("length incorrect");
+			} 
+			catch (UnexpectedResponseException e)
+			{
+		
+				// Send chip type read request
+				sendBootLoaderMessage(Messages.ramReadRequestMessage(0x100000FC, 0x0004));
+		
+				// Read chip type read response
+				byte[] response = receiveBootLoaderReply(Messages.RAM_READ_RESPONSE);
+		
+				// Throw error if reading failed
+				if (response[1] != 0x00) {
+					logError(String.format("Failed to read chip type from RAM: Response should be 0x00, yet it is: 0x%02x",
+							response[1]
+					)
+					);
+					throw new RamReadFailedException();
+				}
+		
+				chipType = ChipType.Unknown;
+		
+				if (response[2] == 0x00 && response[3] == 0x20) {
+					chipType = ChipType.JN513X;
+				} else if (response[2] == 0x10 && response[3] == 0x00) {
+					chipType = ChipType.JN513XR1;
+				} else if (response[2] == 0x20 && response[3] == 0x00) {
+					chipType = ChipType.JN5121;
+				} else {
+					logError("Defaulted to chip type JN5121. Identification may be wrong.");
+					chipType = ChipType.JN5121;
+				}
+		
+				logDebug("Chip identified as " + chipType + " (received " + StringUtils.toHexString(response[2]) + " "
+						+ StringUtils.toHexString(response[3]) + ")"
+				);
+			}
 		return chipType;
 	}
 
@@ -353,6 +393,8 @@ public class JennicDevice extends iSenseDeviceImpl implements SerialPortEventLis
 			ft = FlashType.STM25P10A;
 		} else if (response[2] == (byte) 0x1F && response[3] == (byte) 0x60) {
 			ft = FlashType.Atmel25F512;
+		} else if (response[2] == (byte) 0x12 && response[3] == (byte) 0x12) {
+			ft = FlashType.STM25P40;
 		} else {
 			ft = FlashType.Unknown;
 		}

@@ -8,8 +8,8 @@
 
 	<types>
 		<xsd:schema>
-			<xsd:import namespace="urn:WSNService" schemaLocation="WSNTypes.xsd" />
 			<xsd:import namespace="urn:CommonTypes" schemaLocation="CommonTypes.xsd" />
+			<xsd:import namespace="urn:WSNService" schemaLocation="WSNTypes.xsd" />
 		</xsd:schema>
 	</types>
 
@@ -19,44 +19,11 @@
 	<message name="addControllerResponse">
 		<part name="parameters" element="tns:addControllerResponse"/>
 	</message>
-	<message name="removeController">
-		<part name="parameters" element="tns:removeController"/>
-	</message>
-	<message name="removeControllerResponse">
-		<part name="parameters" element="tns:removeControllerResponse"/>
-	</message>
-	<message name="send">
-		<part name="parameters" element="tns:send" />
-	</message>
-	<message name="sendResponse">
-		<part name="parameters" element="tns:sendResponse" />
-	</message>
-	<message name="getVersion">
-		<part name="parameters" element="tns:getVersion" />
-	</message>
-	<message name="getVersionResponse">
-		<part name="parameters" element="tns:getVersionResponse" />
-	</message>
 	<message name="areNodesAlive">
 		<part name="parameters" element="tns:areNodesAlive" />
 	</message>
 	<message name="areNodesAliveResponse">
 		<part name="parameters" element="tns:areNodesAliveResponse" />
-	</message>
-	<message name="defineNetwork">
-		<part name="parameters" element="tns:defineNetwork" />
-	</message>
-	<message name="defineNetworkResponse">
-		<part name="parameters" element="tns:defineNetworkResponse" />
-	</message>
-	<message name="describeCapabilities">
-		<part name="parameters" element="tns:describeCapabilities" />
-	</message>
-	<message name="describeCapabilitiesResponse">
-		<part name="parameters" element="tns:describeCapabilitiesResponse" />
-	</message>
-	<message name="UnsupportedOperationException">
-		<part name="fault" element="tns:UnsupportedOperationException" />
 	</message>
 	<message name="destroyVirtualLink">
 		<part name="parameters" element="tns:destroyVirtualLink" />
@@ -100,14 +67,11 @@
 	<message name="getFiltersResponse">
 		<part name="parameters" element="tns:getFiltersResponse" />
 	</message>
-	<message name="getNeighbourhood">
-		<part name="parameters" element="tns:getNeighbourhood" />
+	<message name="getSupportedChannelHandlers">
+		<part name="parameters" element="tns:getSupportedChannelHandlers" />
 	</message>
-	<message name="getNeighbourhoodResponse">
-		<part name="parameters" element="tns:getNeighbourhoodResponse" />
-	</message>
-	<message name="UnknownNodeUrnException">
-		<part name="fault" element="tns:UnknownNodeUrnException" />
+	<message name="getSupportedChannelHandlersResponse">
+		<part name="parameters" element="tns:getSupportedChannelHandlersResponse" />
 	</message>
 	<message name="getNetwork">
 		<part name="parameters" element="ct:getNetwork" />
@@ -115,11 +79,17 @@
 	<message name="getNetworkResponse">
 		<part name="parameters" element="ct:getNetworkResponse" />
 	</message>
-	<message name="getPropertyValueOf">
-		<part name="parameters" element="tns:getPropertyValueOf" />
+	<message name="getVersion">
+		<part name="parameters" element="tns:getVersion" />
 	</message>
-	<message name="getPropertyValueOfResponse">
-		<part name="parameters" element="tns:getPropertyValueOfResponse" />
+	<message name="getVersionResponse">
+		<part name="parameters" element="tns:getVersionResponse" />
+	</message>
+	<message name="removeController">
+		<part name="parameters" element="tns:removeController"/>
+	</message>
+	<message name="removeControllerResponse">
+		<part name="parameters" element="tns:removeControllerResponse"/>
 	</message>
 	<message name="resetNodes">
 		<part name="parameters" element="tns:resetNodes" />
@@ -127,11 +97,17 @@
 	<message name="resetNodesResponse">
 		<part name="parameters" element="tns:resetNodesResponse" />
 	</message>
-	<message name="setStartTime">
-		<part name="parameters" element="tns:setStartTime" />
+	<message name="send">
+		<part name="parameters" element="tns:send" />
 	</message>
-	<message name="setStartTimeResponse">
-		<part name="parameters" element="tns:setStartTimeResponse" />
+	<message name="sendResponse">
+		<part name="parameters" element="tns:sendResponse" />
+	</message>
+	<message name="setChannelPipeline">
+		<part name="parameters" element="tns:setChannelPipeline" />
+	</message>
+	<message name="setChannelPipelineResponse">
+		<part name="parameters" element="tns:setChannelPipelineResponse" />
 	</message>
 	<message name="setVirtualLink">
 		<part name="parameters" element="tns:setVirtualLink" />
@@ -145,30 +121,9 @@
 			<input message="tns:addController"/>
 			<output message="tns:addControllerResponse"/>
 		</operation>
-		<operation name="removeController">
-			<input message="tns:removeController"/>
-			<output message="tns:removeControllerResponse"/>
-		</operation>
-		<operation name="send">
-			<input message="tns:send" />
-			<output message="tns:sendResponse" />
-		</operation>
-		<operation name="getVersion">
-			<input message="tns:getVersion" />
-			<output message="tns:getVersionResponse" />
-		</operation>
 		<operation name="areNodesAlive">
 			<input message="tns:areNodesAlive" />
 			<output message="tns:areNodesAliveResponse" />
-		</operation>
-		<operation name="defineNetwork">
-			<input message="tns:defineNetwork" />
-			<output message="tns:defineNetworkResponse" />
-		</operation>
-		<operation name="describeCapabilities">
-			<input message="tns:describeCapabilities" />
-			<output message="tns:describeCapabilitiesResponse" />
-			<fault message="tns:UnsupportedOperationException" name="UnsupportedOperationException" />
 		</operation>
 		<operation name="destroyVirtualLink">
 			<input message="tns:destroyVirtualLink" />
@@ -194,31 +149,37 @@
 			<input message="tns:flashPrograms" />
 			<output message="tns:flashProgramsResponse" />
 		</operation>
+		<operation name="getSupportedChannelHandlers">
+			<input message="tns:getSupportedChannelHandlers" />
+			<output message="tns:getSupportedChannelHandlersResponse" />
+		</operation>
 		<operation name="getFilters">
 			<input message="tns:getFilters" />
 			<output message="tns:getFiltersResponse" />
-		</operation>
-		<operation name="getNeighbourhood">
-			<input message="tns:getNeighbourhood" />
-			<output message="tns:getNeighbourhoodResponse" />
-			<fault message="tns:UnknownNodeUrnException" name="UnknownNodeUrnException" />
 		</operation>
 		<operation name="getNetwork">
 			<input message="tns:getNetwork" />
 			<output message="tns:getNetworkResponse" />
 		</operation>
-		<operation name="getPropertyValueOf">
-			<input message="tns:getPropertyValueOf" />
-			<output message="tns:getPropertyValueOfResponse" />
-			<fault message="tns:UnknownNodeUrnException" name="UnknownNodeUrnException" />
+		<operation name="getVersion">
+			<input message="tns:getVersion" />
+			<output message="tns:getVersionResponse" />
+		</operation>
+		<operation name="removeController">
+			<input message="tns:removeController"/>
+			<output message="tns:removeControllerResponse"/>
 		</operation>
 		<operation name="resetNodes">
 			<input message="tns:resetNodes" />
 			<output message="tns:resetNodesResponse" />
 		</operation>
-		<operation name="setStartTime">
-			<input message="tns:setStartTime" />
-			<output message="tns:setStartTimeResponse" />
+		<operation name="send">
+			<input message="tns:send" />
+			<output message="tns:sendResponse" />
+		</operation>
+		<operation name="setChannelPipeline">
+			<input message="tns:setChannelPipeline" />
+			<output message="tns:setChannelPipelineResponse" />
 		</operation>
 		<operation name="setVirtualLink">
 			<input message="tns:setVirtualLink" />
@@ -227,8 +188,7 @@
 	</portType>
 
 	<binding name="WSNPortBinding" type="tns:WSN">
-		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
-					  style="document" />
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
 		<operation name="addController">
 			<soap:operation soapAction=""/>
 			<input>
@@ -236,33 +196,6 @@
 			</input>
 			<output>
 				<soap:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="removeController">
-			<soap:operation soapAction=""/>
-			<input>
-				<soap:body use="literal"/>
-			</input>
-			<output>
-				<soap:body use="literal"/>
-			</output>
-		</operation>
-		<operation name="send">
-			<soap:operation soapAction="" />
-			<input>
-				<soap:body use="literal" />
-			</input>
-			<output>
-				<soap:body use="literal" />
-			</output>
-		</operation>
-		<operation name="getVersion">
-			<soap:operation soapAction="" />
-			<input>
-				<soap:body use="literal" />
-			</input>
-			<output>
-				<soap:body use="literal" />
 			</output>
 		</operation>
 		<operation name="areNodesAlive">
@@ -273,27 +206,6 @@
 			<output>
 				<soap:body use="literal" />
 			</output>
-		</operation>
-		<operation name="defineNetwork">
-			<soap:operation soapAction="" />
-			<input>
-				<soap:body use="literal" />
-			</input>
-			<output>
-				<soap:body use="literal" />
-			</output>
-		</operation>
-		<operation name="describeCapabilities">
-			<soap:operation soapAction="" />
-			<input>
-				<soap:body use="literal" />
-			</input>
-			<output>
-				<soap:body use="literal" />
-			</output>
-			<fault name="UnsupportedOperationException">
-				<soap:fault name="UnsupportedOperationException" use="literal" />
-			</fault>
 		</operation>
 		<operation name="destroyVirtualLink">
 			<soap:operation soapAction="" />
@@ -349,7 +261,7 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<operation name="getFilters">
+		<operation name="getSupportedChannelHandlers">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -358,7 +270,7 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<operation name="getNeighbourhood">
+		<operation name="getFilters">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -366,9 +278,6 @@
 			<output>
 				<soap:body use="literal" />
 			</output>
-			<fault name="UnknownNodeUrnException">
-				<soap:fault name="UnknownNodeUrnException" use="literal" />
-			</fault>
 		</operation>
 		<operation name="getNetwork">
 			<soap:operation soapAction="" />
@@ -379,7 +288,7 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<operation name="getPropertyValueOf">
+		<operation name="getVersion">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />
@@ -387,9 +296,15 @@
 			<output>
 				<soap:body use="literal" />
 			</output>
-			<fault name="UnknownNodeUrnException">
-				<soap:fault name="UnknownNodeUrnException" use="literal" />
-			</fault>
+		</operation>
+		<operation name="removeController">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
 		</operation>
 		<operation name="resetNodes">
 			<soap:operation soapAction="" />
@@ -400,7 +315,16 @@
 				<soap:body use="literal" />
 			</output>
 		</operation>
-		<operation name="setStartTime">
+		<operation name="send">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+		<operation name="setChannelPipeline">
 			<soap:operation soapAction="" />
 			<input>
 				<soap:body use="literal" />

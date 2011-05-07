@@ -1,4 +1,0 @@
-#!/bin/bash
-DIR=`dirname $0`
-cd "$DIR/../"
-mvn -am -pl wisebed-cmdline-client clean install -DskipTests

@@ -23,76 +23,153 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collection;
+import java.util.Set;
 
-import java.util.*;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
-
+/**
+ * Helper class containing several methods to check method parameter preconditions. Holds a set of served URN prefixes
+ * and a set of known node URNs (e.g. the set of node URNs that are part of the current reservation) as its state and
+ * runs every check against these two sets.
+ */
 public class CommonPreconditions {
-	private static final Logger log = LoggerFactory.getLogger(CommonPreconditions.class);
 
-	private final Set<String> urnPrefixes = new HashSet<String>();
+	/**
+	 * The set of known nodes.
+	 */
+	private ImmutableSet<String> knownNodeUrns = ImmutableSet.of();
 
-	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
+	/**
+	 * The set of served URN prefixes.
+	 */
+	private ImmutableSet<String> servedUrnPrefixes = ImmutableSet.of();
 
-		for (String servedUrnPrefix : servedUrnPrefixes) {
-			urnPrefixes.add(servedUrnPrefix);
-		}
+	private static final Joiner joiner = Joiner.on(", ");
 
+	/**
+	 * Adds {@code knownNodeUrns} to the set of known nodes. All checks regarding known nodes will be run against the
+	 * resulting set of known nodes.
+	 *
+	 * @param knownNodeUrns the known node URNs to add
+	 */
+	public void addKnownNodeUrns(final String... knownNodeUrns) {
+		this.knownNodeUrns = ImmutableSet.<String>builder().addAll(this.knownNodeUrns).add(knownNodeUrns).build();
 	}
 
-	public void checkNodesServed(String... nodes) {
-		boolean match;
-		for (String node : nodes) {
-			match = false;
-			for (String urnPrefix : urnPrefixes) {
-				checkNotNull(node, "A node supplied in the list of nodes is null");
-				if (node.startsWith(urnPrefix)) {
-					match = true;
-					break;
+	/**
+	 * Adds {@code servedUrnPrefixes} to the set of served URN prefixes. All checks that test for URN prefix matches will
+	 * be run against the resulting set of served URN prefixes.
+	 *
+	 * @param servedUrnPrefixes the served URN prefixes to add
+	 */
+	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
+		this.servedUrnPrefixes =
+				ImmutableSet.<String>builder().addAll(this.servedUrnPrefixes).add(servedUrnPrefixes).build();
+	}
+
+	/**
+	 * Checks if the prefixes of the node URNs in {@code nodeUrns} are served.
+	 *
+	 * @param nodeUrns the node URNs to check
+	 *
+	 * @throws RuntimeException if at least one of the node URNs prefix is not served
+	 * @see CommonPreconditions#addServedUrnPrefixes(String...)
+	 */
+	public void checkNodeUrnsPrefixesServed(String... nodeUrns) {
+		checkNodeUrnsPrefixesServed(Sets.<String>newHashSet(nodeUrns));
+	}
+
+	/**
+	 * Checks if the prefixes of the node URNs in {@code nodeUrns} are served.
+	 *
+	 * @param nodeUrns the node URNs to check
+	 *
+	 * @throws RuntimeException if at least one of the node URNs prefix is not served
+	 * @see CommonPreconditions#addServedUrnPrefixes(String...)
+	 */
+	public void checkNodeUrnsPrefixesServed(Collection<String> nodeUrns) {
+
+		Set<String> nodeUrnsOfUnservedPrefixes = Sets.newHashSet();
+
+		for (String nodeUrn : nodeUrns) {
+
+			boolean nodeUrnMatch = false;
+
+			for (String servedUrnPrefix : servedUrnPrefixes) {
+				if (nodeUrn.startsWith(servedUrnPrefix)) {
+					nodeUrnMatch = true;
 				}
 			}
-			if (!match) {
-				throw new IllegalArgumentException(
-						"The node URN " + node + " is not served by this instance. Valid prefixes are: " + urnPrefixes
-				);
+
+			if (!nodeUrnMatch) {
+				nodeUrnsOfUnservedPrefixes.add(nodeUrn);
 			}
 		}
-		// TODO check if nodes are known
-	}
 
-	public void checkNodesServed(Collection<String> nodes) {
-		checkNodesServed(nodes.toArray(new String[nodes.size()]));
-		// TODO check if nodes are known
-	}
-
-	public void checkUrnPrefixesServed(Set<String> urnPrefixes) {
-		checkArgument(this.urnPrefixes.containsAll(urnPrefixes),
-				"One of the URN prefixes is not served by this instance!"
-		);
-	}
-
-	//check current reserved nodes from rs on nodeNames
-	public void checkNodesReserved(List<String> nodeNames, Set<String> reservedNodes) {
-		if (reservedNodes == null) return;
-		for (String nodeName : nodeNames) {
-			if (!reservedNodes.contains(nodeName))
-				log.error("Tried to send Message to Node " + nodeName + "but Node not reserved! Execution aborted!");
+		if (nodeUrnsOfUnservedPrefixes.size() > 0) {
+			throw new IllegalArgumentException(
+					"Ignoring request as the following node URNs have prefixes not served: " +
+							joiner.join(nodeUrnsOfUnservedPrefixes)
+			);
 		}
-
 	}
 
-	//check current reserved nodes from rs on NodeName
-	public void checkNodeReserved(String nodeName, Set<String> reservedNodes) {
-		if (reservedNodes == null) return;
-		if (!reservedNodes.contains(nodeName))
-			log.error("Tried to send Message to Node " + nodeName + "but Node not reserved! Execution aborted!");
+	/**
+	 * Checks if all URN prefixes in {@code urnPrefixes} are served.
+	 *
+	 * @param urnPrefixes the URN prefixes to check
+	 *
+	 * @throws IllegalArgumentException if at least one the URN prefixes is unknown
+	 * @see CommonPreconditions#addServedUrnPrefixes(String...)
+	 */
+	public void checkUrnPrefixesServed(Set<String> urnPrefixes) {
 
+		Set<String> unservedUrnPrefixes = Sets.difference(urnPrefixes, servedUrnPrefixes);
+
+		if (unservedUrnPrefixes.size() > 0) {
+			throw new IllegalArgumentException("Ignoring request as the following URN prefixes are not served: " +
+					joiner.join(unservedUrnPrefixes)
+			);
+		}
 	}
 
+	/**
+	 * Checks if all node URNs in {@code nodeNames} are known (e.g. part of the reservation).
+	 *
+	 * @param nodeUrns the node URNs to check
+	 *
+	 * @throws IllegalArgumentException if at least one node URN is not known
+	 * @see CommonPreconditions#addKnownNodeUrns(String...)
+	 */
+	public void checkNodesKnown(final String... nodeUrns) {
+		checkNodesKnown(Sets.<String>newHashSet(nodeUrns));
+	}
+
+	/**
+	 * Checks if all node URNs in {@code nodeNames} are known (e.g. part of the reservation).
+	 *
+	 * @param nodeUrns the node URNs to check
+	 *
+	 * @throws IllegalArgumentException if at least one node URN is not known
+	 * @see CommonPreconditions#addKnownNodeUrns(String...)
+	 */
+	public void checkNodesKnown(final Collection<String> nodeUrns) {
+
+		Set<String> unknownNodeUrns =
+				Sets.difference(
+						(nodeUrns instanceof Set ? (Set<String>) nodeUrns : Sets.<String>newHashSet(nodeUrns)),
+						knownNodeUrns
+				);
+
+		if (unknownNodeUrns.size() > 0) {
+			throw new IllegalArgumentException("Ignoring request as the following nodes are not known or not part of "
+					+ "the current reservation: " + joiner.join(unknownNodeUrns)
+			);
+		}
+	}
 
 }

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+source include/stop
+source include/start

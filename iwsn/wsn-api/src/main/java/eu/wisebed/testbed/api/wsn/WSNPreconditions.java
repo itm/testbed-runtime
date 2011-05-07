@@ -23,17 +23,16 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import eu.wisebed.testbed.api.wsn.v22.Message;
-import eu.wisebed.testbed.api.wsn.v22.Program;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Set;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.Program;
 
 
 public class WSNPreconditions {
@@ -44,12 +43,16 @@ public class WSNPreconditions {
 		this.commonPreconditions = new CommonPreconditions();
 	}
 
+	public void addKnownNodeUrns(String... reservedNodeUrns) {
+		commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
+	}
+
 	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 	}
 
-	public void checkAreNodesAliveArguments(List<String> nodes) {
-		commonPreconditions.checkNodesServed(nodes);
+	public void checkAreNodesAliveArguments(Collection<String> nodes) {
+		commonPreconditions.checkNodesKnown(nodes);
 	}
 
 	public void checkFlashProgramsArguments(List<String> nodeIds, List<Integer> programIndices,
@@ -62,12 +65,13 @@ public class WSNPreconditions {
 		// check if there's at least on node to flash
 		checkArgument(nodeIds.size() > 0);
 
-		commonPreconditions.checkNodesServed(nodeIds);
+		commonPreconditions.checkNodesKnown(nodeIds);
 
 		// check if for every node there's a corresponding program index and the program exists
 		checkArgument(nodeIds.size() == programIndices.size(),
 				"For every node URN there must be a corresponding program index."
 		);
+
 		for (int i = 0; i < programIndices.size(); i++) {
 			checkArgument(programIndices.get(i) < programs.size(), "There is no program for index %s for node URN %s.",
 					i, nodeIds.get(i)
@@ -81,7 +85,7 @@ public class WSNPreconditions {
 		checkNotNull(nodeIds);
 		checkNotNull(message);
 
-		commonPreconditions.checkNodesServed(nodeIds);
+		commonPreconditions.checkNodesKnown(nodeIds);
 
 		checkNotNull(message.getSourceNodeId(), "Source node ID is missing.");
 		checkArgument(message.getBinaryData() != null, "A message to a node must contain binary data.");
@@ -90,7 +94,7 @@ public class WSNPreconditions {
 
 	public void checkResetNodesArguments(List<String> nodes) {
 		checkNotNull(nodes);
-		commonPreconditions.checkNodesServed(nodes);
+		commonPreconditions.checkNodesKnown(nodes);
 	}
 
 	@SuppressWarnings("unused")
@@ -101,12 +105,12 @@ public class WSNPreconditions {
 		checkNotNull(targetNode);
 		checkNotNull(remoteServiceInstance);
 
-		commonPreconditions.checkNodesServed(sourceNode);
+		commonPreconditions.checkNodesKnown(sourceNode);
 
 		try {
 			new URL(remoteServiceInstance);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("The remoteServiceInstance argument is not a valid URL!");
+			throw new IllegalArgumentException("The remoteServiceInstance argument (\""+remoteServiceInstance+"\") is not a valid URL!");
 		}
 
 	}
@@ -116,72 +120,38 @@ public class WSNPreconditions {
 		checkNotNull(sourceNode);
 		checkNotNull(targetNode);
 
-		commonPreconditions.checkNodesServed(sourceNode);
+		commonPreconditions.checkNodeUrnsPrefixesServed(sourceNode);
 
-	}
-
-	// *****************************************************************************************************************
-
-	public void checkDefineNetworkArguments(String newNetwork) {
-		checkNotNull(newNetwork);
-		// TODO implement
-	}
-
-	public void checkDescribeCapabilitiesArguments(String capability) {
-		checkNotNull(capability);
-		// TODO implement
 	}
 
 	public void checkDisableNodeArguments(String node) {
+
 		checkNotNull(node);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
+
+		commonPreconditions.checkNodesKnown(node);
 	}
 
 	public void checkDisablePhysicalLinkArguments(String nodeA, String nodeB) {
+
 		checkNotNull(nodeA);
 		checkNotNull(nodeB);
-		commonPreconditions.checkNodesServed(nodeA, nodeB);
-		// TODO implement
+
+		commonPreconditions.checkNodesKnown(nodeA, nodeB);
 	}
 
 	public void checkEnableNodeArguments(String node) {
+
 		checkNotNull(node);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
+
+		commonPreconditions.checkNodesKnown(node);
 	}
 
 	public void checkEnablePhysicalLinkArguments(String nodeA, String nodeB) {
+
 		checkNotNull(nodeA);
 		checkNotNull(nodeB);
-		commonPreconditions.checkNodesServed(nodeA, nodeB);
-		// TODO implement
-	}
 
-	public void checkGetNeighbourhoodArguments(String node) {
-		checkNotNull(node);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
-	}
-
-	public void checkGetPropertyValueOfArguments(String node, String propertyName) {
-		checkNotNull(node);
-		checkNotNull(propertyName);
-		commonPreconditions.checkNodesServed(node);
-		// TODO implement
-	}
-
-	public void checkSetStartTimeArguments(XMLGregorianCalendar time) {
-		checkNotNull(time);
-		// TODO implement
-	}
-
-	public void checkNodesReserved(List<String> nodeNames, Set<String> reservedNodes) {
-		commonPreconditions.checkNodesReserved(nodeNames, reservedNodes);
-	}
-
-	public void checkNodeReserved(String nodeName, Set<String> reservedNodes) {
-		commonPreconditions.checkNodeReserved(nodeName, reservedNodes);
+		commonPreconditions.checkNodesKnown(nodeA, nodeB);
 	}
 
 }
