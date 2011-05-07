@@ -126,7 +126,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime</artifactId>
+				<artifactId>tr.overlay</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

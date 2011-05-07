@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime</artifactId>
+	<artifactId>tr.overlay</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime</name>
+	<name>TR :: Overlay</name>
 
 	<dependencies>
 

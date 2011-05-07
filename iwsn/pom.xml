@@ -43,7 +43,7 @@
         <module>iwsn-cmdline</module>
         <module>logcontroller</module>
         <module>messagestore-api</module>
-        <module>runtime</module>
+        <module>overlay</module>
         <module>runtime.portal</module>
         <module>runtime.socket-connector</module>
 		<module>runtime.stats</module>
