@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.runtime.stats</artifactId>
+	<artifactId>tr.overlay-stats</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Runtime Stats</name>
+	<name>TR :: Overlay Statistics</name>
 
 	<dependencies>
 

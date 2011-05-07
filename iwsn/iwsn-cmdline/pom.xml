@@ -61,7 +61,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.runtime.stats</artifactId>
+			<artifactId>tr.overlay-stats</artifactId>
 		</dependency>
 
 		<!--

@@ -147,7 +147,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.runtime.stats</artifactId>
+				<artifactId>tr.overlay-stats</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
