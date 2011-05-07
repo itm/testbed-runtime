@@ -23,11 +23,6 @@
 
 package de.uniluebeck.itm.deviceobserver;
 
-import de.uniluebeck.itm.deviceobserver.impl.MockDeviceEventListenerImpl;
-import de.uniluebeck.itm.deviceobserver.impl.RSCDeviceEventListenerImpl;
-
-import java.util.Map;
-
 public interface DeviceObserver {
 
 	/**
