@@ -10,7 +10,7 @@
         <relativePath>../</relativePath>
     </parent>
 
-	<artifactId>tr.csv2config</artifactId>
+	<artifactId>tr.iwsn-csv2config</artifactId>
 	<packaging>jar</packaging>
 	<name>TR :: CSV-to-Configuration Tool</name>
 

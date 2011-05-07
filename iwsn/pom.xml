@@ -39,8 +39,8 @@
     <name>TR :: iWSN</name>
 
     <modules>
-        <module>csv2config</module>
         <module>iwsn-cmdline</module>
+        <module>iwsn-csv2config</module>
         <module>iwsn-service</module>
         <module>logcontroller</module>
         <module>messagestore-api</module>
