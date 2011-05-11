@@ -97,7 +97,7 @@ import com.google.common.collect.*;
 	String serializedWiseML = sessionManagement.getNetwork();
 	List nodeURNsToReserve;
 	if (nodeURNs == null || "".equals(nodeURNs)) {
-		nodeURNsToReserve = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {"isense"});
+		nodeURNsToReserve = WiseMLHelper.getNodeUrns(serializedWiseML, new String[] {});
 	} else {
 		nodeURNsToReserve = Lists.newArrayList(csvSplitter.split(nodeURNs));
 	}
