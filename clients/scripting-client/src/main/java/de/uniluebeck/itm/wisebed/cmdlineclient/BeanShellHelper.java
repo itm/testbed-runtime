@@ -62,7 +62,7 @@ import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
 import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
 
-public abstract class BeanShellHelper {
+public class BeanShellHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
 
