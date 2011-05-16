@@ -25,23 +25,28 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.wsn.WSN;
 
-abstract class AbstractRequestRunnable implements Runnable {
+class DisablePhysicalLinkRunnable extends AbstractRequestRunnable {
 
-	private final FederatorController federatorController;
+	private final String nodeUrnA;
 
-	protected final WSN wsnEndpoint;
+	private final String nodeUrnB;
 
-	protected final String federatorRequestId;
+	public DisablePhysicalLinkRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
+									   final String federatorRequestId,
+									   final String nodeUrnA, final String nodeUrnB) {
 
-	protected AbstractRequestRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-									  final String federatorRequestId) {
+		super(federatorController, wsnEndpoint, federatorRequestId);
 
-		this.federatorController = federatorController;
-		this.wsnEndpoint = wsnEndpoint;
-		this.federatorRequestId = federatorRequestId;
+		this.nodeUrnA = nodeUrnA;
+		this.nodeUrnB = nodeUrnB;
 	}
 
-	protected void done(String federatedRequestId) {
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
+	@Override
+	public void run() {
+		// instance wsnEndpoint is potentially not thread-safe!!!
+		synchronized (wsnEndpoint) {
+			done(wsnEndpoint.disablePhysicalLink(nodeUrnA, nodeUrnB));
+		}
 	}
+
 }

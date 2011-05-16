@@ -441,11 +441,24 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String disableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+	public String disableNode(@WebParam(name = "node", targetNamespace = "") String nodeUrn) {
 
-		preconditions.checkDisableNodeArguments(node);
+		preconditions.checkDisableNodeArguments(nodeUrn);
 
-		throw new RuntimeException("Operation not implemented.");
+		String requestId = secureIdGenerator.getNextId();
+		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
+
+		log.debug("Invoking disableNode({}) on {}", nodeUrn, endpoint);
+		executorService.submit(
+				new DisableNodeRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						nodeUrn
+				)
+		);
+
+		return requestId;
 	}
 
 	@Override
@@ -453,6 +466,8 @@ public class FederatorWSN implements WSN {
 									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
+
+
 
 		throw new RuntimeException("Operation not implemented.");
 	}

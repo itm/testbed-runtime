@@ -293,17 +293,12 @@ public class FederatorSessionManagement implements SessionManagement {
 						ImmutableSet.copyOf(federatedUrnPrefixSet)
 				);
 
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 
 				// if one delegate call fails also fail
 				log.error("" + e, e);
 				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 
-			} catch (ExecutionException e) {
-
-				// if one delegate call fails also fail
-				log.error("" + e, e);
-				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 			}
 		}
 
