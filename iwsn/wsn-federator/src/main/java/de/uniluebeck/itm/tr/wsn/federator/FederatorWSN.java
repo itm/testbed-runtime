@@ -462,14 +462,26 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-									  @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeUrnA,
+									  @WebParam(name = "nodeB", targetNamespace = "") String nodeUrnB) {
 
-		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
+		preconditions.checkDisablePhysicalLinkArguments(nodeUrnA, nodeUrnB);
 
+		String requestId = secureIdGenerator.getNextId();
+		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
 
+		log.debug("Invoking disablePhysicalLink({}, {}) on {}", new Object[] {nodeUrnA, nodeUrnB, endpoint});
+		executorService.submit(
+				new DisablePhysicalLinkRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						nodeUrnA,
+						nodeUrnB
+				)
+		);
 
-		throw new RuntimeException("Operation not implemented.");
+		return requestId;
 	}
 
 	@Override
