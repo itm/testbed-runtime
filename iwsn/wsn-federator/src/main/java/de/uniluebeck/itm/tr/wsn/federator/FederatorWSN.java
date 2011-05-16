@@ -394,8 +394,13 @@ public class FederatorWSN implements WSN {
 								 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
 								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
 
-		preconditions
-				.checkSetVirtualLinkArguments(sourceNodeUrn, targetNode, remoteServiceInstance, parameters, filters);
+		preconditions.checkSetVirtualLinkArguments(
+				sourceNodeUrn,
+				targetNode,
+				remoteServiceInstance,
+				parameters,
+				filters
+		);
 
 		String requestId = secureIdGenerator.getNextId();
 		WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
@@ -506,12 +511,26 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeA,
-									 @WebParam(name = "nodeB", targetNamespace = "") String nodeB) {
+	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeUrnA,
+									 @WebParam(name = "nodeB", targetNamespace = "") String nodeUrnB) {
 
-		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
+		preconditions.checkEnablePhysicalLinkArguments(nodeUrnA, nodeUrnB);
 
-		throw new RuntimeException("Operation not implemented.");
+		String requestId = secureIdGenerator.getNextId();
+		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
+
+		log.debug("Invoking enablePhysicalLink({}, {}) on {}", new Object[] {nodeUrnA, nodeUrnB, endpoint});
+		executorService.submit(
+				new EnablePhysicalLinkRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						nodeUrnA,
+						nodeUrnB
+				)
+		);
+
+		return requestId;
 	}
 
 	@Override
