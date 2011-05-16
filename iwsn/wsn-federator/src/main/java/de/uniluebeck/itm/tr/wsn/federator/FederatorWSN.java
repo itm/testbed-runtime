@@ -485,11 +485,24 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String enableNode(@WebParam(name = "node", targetNamespace = "") String node) {
+	public String enableNode(@WebParam(name = "node", targetNamespace = "") String nodeUrn) {
 
-		preconditions.checkEnableNodeArguments(node);
+		preconditions.checkEnableNodeArguments(nodeUrn);
 
-		throw new RuntimeException("Operation not implemented.");
+		String requestId = secureIdGenerator.getNextId();
+		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
+
+		log.debug("Invoking enableNode({}) on {}", new Object[] {nodeUrn, endpoint});
+		executorService.submit(
+				new EnableNodeRunnable(
+						federatorController,
+						endpoint,
+						requestId,
+						nodeUrn
+				)
+		);
+
+		return requestId;
 	}
 
 	@Override
