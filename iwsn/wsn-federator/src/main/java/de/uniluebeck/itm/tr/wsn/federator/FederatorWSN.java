@@ -29,6 +29,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.*;
+import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
@@ -475,7 +476,7 @@ public class FederatorWSN implements WSN {
 		String requestId = secureIdGenerator.getNextId();
 		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
 
-		log.debug("Invoking disablePhysicalLink({}, {}) on {}", new Object[] {nodeUrnA, nodeUrnB, endpoint});
+		log.debug("Invoking disablePhysicalLink({}, {}) on {}", new Object[]{nodeUrnA, nodeUrnB, endpoint});
 		executorService.submit(
 				new DisablePhysicalLinkRunnable(
 						federatorController,
@@ -497,7 +498,7 @@ public class FederatorWSN implements WSN {
 		String requestId = secureIdGenerator.getNextId();
 		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
 
-		log.debug("Invoking enableNode({}) on {}", new Object[] {nodeUrn, endpoint});
+		log.debug("Invoking enableNode({}) on {}", new Object[]{nodeUrn, endpoint});
 		executorService.submit(
 				new EnableNodeRunnable(
 						federatorController,
@@ -519,7 +520,7 @@ public class FederatorWSN implements WSN {
 		String requestId = secureIdGenerator.getNextId();
 		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
 
-		log.debug("Invoking enablePhysicalLink({}, {}) on {}", new Object[] {nodeUrnA, nodeUrnB, endpoint});
+		log.debug("Invoking enablePhysicalLink({}, {}) on {}", new Object[]{nodeUrnA, nodeUrnB, endpoint});
 		executorService.submit(
 				new EnablePhysicalLinkRunnable(
 						federatorController,
@@ -578,6 +579,86 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+
+		/*
+		ImmutableSet<String> endpointUrls = federationManager.getEndpointUrls();
+		Map<String, Future<List<ChannelHandlerDescription>>> endpointUrlToResultsMapping = Maps.newHashMap();
+
+		// fork calls to endpoints
+		for (final String endpointUrl : endpointUrls) {
+
+			Future<List<ChannelHandlerDescription>> future =
+					executorService.submit(new Callable<List<ChannelHandlerDescription>>() {
+						@Override
+						public List<ChannelHandlerDescription> call() throws Exception {
+							WSN endpoint = federationManager.getEndpointByEndpointUrl(endpointUrl);
+							return endpoint.getSupportedChannelHandlers();
+						}
+					}
+					);
+			endpointUrlToResultsMapping.put(endpointUrl, future);
+		}
+
+		// join results from endpoints
+		// calculate the list of ChannelHandlerDescriptions that are supported by every federated WSN endpoint
+		// two ChannelHandlerDescription are equal if their names match and all keys of their configurationOptions match
+
+		Comparator<ChannelHandlerDescription> channelHandlerDescriptionComparator =
+				new Comparator<ChannelHandlerDescription>() {
+					@Override
+					public int compare(final ChannelHandlerDescription o1, final ChannelHandlerDescription o2) {
+
+						int nameComparison = o1.getName().compareTo(o2.getName());
+
+						// name is equal, so compare configurationOptions
+						if (nameComparison == 0) {
+
+							Set<String> configurationKeys1 = Sets.newHashSet();
+							for (KeyValuePair keyValuePair : o1.getConfigurationOptions()) {
+								configurationKeys1.add(keyValuePair.getKey());
+							}
+
+							Set<String> configurationKeys2 = Sets.newHashSet();
+							for (KeyValuePair keyValuePair : o2.getConfigurationOptions()) {
+								configurationKeys2.add(keyValuePair.getKey());
+							}
+
+							boolean equalConfigurationOptions = Sets.symmetricDifference(
+									configurationKeys1,
+									configurationKeys2
+							).size() == 0;
+
+							return equalConfigurationOptions ? 0 : -1;
+
+						}
+
+						return nameComparison;
+					}
+				};
+
+
+
+		ImmutableSet<String> intersectedFilterNames = null;
+		for (Map.Entry<String, Future<ImmutableSet<String>>> entry : endpointUrlToResultsMapping.entrySet()) {
+
+			try {
+
+				ImmutableSet<String> endpointFilters = entry.getValue().get();
+
+				if (intersectedFilters == null) {
+					intersectedFilters = endpointFilters;
+				} else {
+					intersectedFilters = ImmutableSet.copyOf(Sets.intersection(intersectedFilters, endpointFilters));
+				}
+
+			} catch (Exception e) {
+				log.error("Error while calling getFilters() on federated WSN endpoint \"{}\". Ignoring this endpoint.",
+						entry.getKey()
+				);
+			}
+		}
+		*/
+
 		throw new RuntimeException("Not yet implemented!");
 	}
 
