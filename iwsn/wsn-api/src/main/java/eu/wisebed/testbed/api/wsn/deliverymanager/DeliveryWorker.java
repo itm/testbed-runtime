@@ -109,7 +109,14 @@ class DeliveryWorker implements Runnable {
 							"{} => Calling Controller.experimentEnded() as experiment ended and all messages have been delivered.",
 							endpointUrl
 					);
-					endpoint.experimentEnded();
+					try {
+						endpoint.experimentEnded();
+					} catch (Exception e) {
+						log.warn(
+								"Exception while calling experimentEnded() on endpoint {} after delivering all queued messages.",
+								endpointUrl
+						);
+					}
 					deliveryManager.removeController(endpointUrl);
 					return;
 				}
@@ -118,19 +125,30 @@ class DeliveryWorker implements Runnable {
 				lock.unlock();
 			}
 
-			// deliver notifications, statuses and messages according to their priority one after another
-			if (!notificationQueue.isEmpty()) {
-				deliverNotifications();
-				continue;
-			}
+			try {
 
-			if (!statusQueue.isEmpty()) {
-				deliverStatuses();
-				continue;
-			}
+				// deliver notifications, statuses and messages according to their priority one after another
+				if (!notificationQueue.isEmpty()) {
+					deliverNotifications();
+					continue;
+				}
 
-			if (!messageQueue.isEmpty()) {
-				deliverMessages();
+				if (!statusQueue.isEmpty()) {
+					deliverStatuses();
+					continue;
+				}
+
+				if (!messageQueue.isEmpty()) {
+					deliverMessages();
+				}
+
+			} catch (Exception e) {
+				log.warn(
+						"Exception while delivering messages to controller endpoint {}. Removing endpoint. Reason: {}",
+						endpoint,
+						e
+				);
+				deliveryManager.removeController(endpointUrl);
 			}
 
 			// wait for new work to arrive if queues are empty
@@ -158,13 +176,14 @@ class DeliveryWorker implements Runnable {
 
 		lock.lock();
 		try {
-			while (!messageQueue.isEmpty()) {
+			while (!messageQueue.isEmpty() && messageList.size() < MAXIMUM_MESSAGE_LIST_SIZE) {
 				messageList.add(messageQueue.poll());
 			}
 		} finally {
 			lock.unlock();
 		}
 
+		log.debug("Delivering {} messages to endpoint {}", messageList.size(), endpointUrl);
 		endpoint.receive(messageList);
 	}
 
@@ -181,6 +200,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
+		log.debug("Delivering {} status messages to endpoint {}", statusList.size(), endpointUrl);
 		endpoint.receiveStatus(statusList);
 	}
 
@@ -196,6 +216,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
+		log.debug("Delivering {} notifications to endpoint {}", notificationList.size(), endpointUrl);
 		endpoint.receiveNotification(notificationList);
 	}
 
@@ -231,7 +252,7 @@ class DeliveryWorker implements Runnable {
 
 			int messagesAdded = 0;
 			if (queueSpaceAvailable > 0) {
-				for (int i = 0; i < queueSpaceAvailable; i++) {
+				for (int i = 0; i < messages.size() && i < queueSpaceAvailable; i++) {
 					messageQueue.add(messages.get(i));
 					messagesAdded++;
 				}

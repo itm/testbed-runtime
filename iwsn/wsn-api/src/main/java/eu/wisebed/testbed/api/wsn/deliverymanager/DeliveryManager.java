@@ -104,6 +104,10 @@ public class DeliveryManager {
 	 */
 	public void addController(String endpointUrl) {
 
+		if (controllers.containsKey(endpointUrl)) {
+			return;
+		}
+
 		final Controller endpoint = WSNServiceHelper.getControllerService(
 				endpointUrl,
 				executorService

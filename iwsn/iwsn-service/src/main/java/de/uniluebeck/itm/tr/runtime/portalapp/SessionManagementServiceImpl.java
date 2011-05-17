@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
@@ -249,7 +250,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
 
-		this.deliveryManagerExecutorService = Executors.newCachedThreadPool();
+		this.deliveryManagerExecutorService = Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat("DeliveryManager %d").build()
+		);
 		this.deliveryManager = new DeliveryManager(deliveryManagerExecutorService);
 
 	}
