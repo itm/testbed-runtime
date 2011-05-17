@@ -933,10 +933,13 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 					} else {
 
-						log.debug(
-								"{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link message.",
-								nodeUrn
-						);
+						if (log.isDebugEnabled()) {
+							log.debug(
+									"{} => Delivering non-virtual link message: {}",
+									nodeUrn,
+									StringUtils.toHexString(messageBytes)
+							);
+						}
 
 						device.send(new MessagePacket(messageBytes));
 						listener.success(null);
