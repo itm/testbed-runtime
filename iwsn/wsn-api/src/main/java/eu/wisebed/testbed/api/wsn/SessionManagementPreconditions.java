@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
 
 public class SessionManagementPreconditions {
 
@@ -76,7 +76,7 @@ public class SessionManagementPreconditions {
 
 	public void checkAreNodesAliveArguments(final Collection<String> nodes, final String controllerEndpointUrl) {
 		commonPreconditions.checkNodesKnown(nodes);
-		ControllerHelper.checkConnectivity(controllerEndpointUrl);
+		ControllerDeliveryManager.checkConnectivity(controllerEndpointUrl);
 	}
 
 	private void checkUrnPrefixesServed(List<SecretReservationKey> secretReservationKeys) {

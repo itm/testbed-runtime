@@ -15,12 +15,12 @@ import com.google.protobuf.ByteString;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
 
 
-public class ProtobufControllerHelper extends ControllerHelper {
+public class ProtobufControllerDeliveryManager extends ControllerDeliveryManager {
 
-	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerDeliveryManager.class);
 
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
@@ -35,7 +35,7 @@ public class ProtobufControllerHelper extends ControllerHelper {
 		}
 	};
 
-	public ProtobufControllerHelper(Integer maximumDeliveryQueueSize) {
+	public ProtobufControllerDeliveryManager(Integer maximumDeliveryQueueSize) {
 		super(maximumDeliveryQueueSize);
 	}
 

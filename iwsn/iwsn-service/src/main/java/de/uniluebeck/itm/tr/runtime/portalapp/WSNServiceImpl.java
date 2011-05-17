@@ -45,7 +45,7 @@ import eu.wisebed.ns.wiseml._1.Wiseml;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
@@ -234,12 +234,12 @@ public class WSNServiceImpl implements WSNService {
 			message.setTimestamp(timestamp);
 			message.setBinaryData(wsnMessage.getBinaryData().toByteArray());
 
-			controllerHelper.receive(message);
+			controllerDeliveryManager.receive(message);
 		}
 
 		@Override
 		public void receiveNotification(final WSNAppMessages.Notification notification) {
-			controllerHelper.receiveNotification(Lists.newArrayList(notification.getMessage()));
+			controllerDeliveryManager.receiveNotification(Lists.newArrayList(notification.getMessage()));
 		}
 	}
 
@@ -346,7 +346,7 @@ public class WSNServiceImpl implements WSNService {
 	/**
 	 * Used to manage controllers and send them messages and request statuses.
 	 */
-	private ControllerHelper controllerHelper;
+	private ControllerDeliveryManager controllerDeliveryManager;
 
 	/**
 	 * The WiseML document that is delivered when {@link WSNServiceImpl#getNetwork()} is called.
@@ -360,7 +360,7 @@ public class WSNServiceImpl implements WSNService {
 
 	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
 						  final Wiseml wiseML, final String[] reservedNodes,
-						  final ControllerHelper controllerHelper, final WSNApp wsnApp) {
+						  final ControllerDeliveryManager controllerDeliveryManager, final WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
@@ -370,7 +370,7 @@ public class WSNServiceImpl implements WSNService {
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
-		this.controllerHelper = controllerHelper;
+		this.controllerDeliveryManager = controllerDeliveryManager;
 
 		executorService = Executors.newSingleThreadScheduledExecutor(
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
@@ -415,7 +415,7 @@ public class WSNServiceImpl implements WSNService {
 		log.info("Stopping WSN service...");
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
-		controllerHelper.experimentEnded();
+		controllerDeliveryManager.experimentEnded();
 
 		if (wsnInstanceEndpoint != null) {
 			wsnInstanceEndpoint.stop();
@@ -437,15 +437,15 @@ public class WSNServiceImpl implements WSNService {
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
-		ControllerHelper.testConnectivity(controllerEndpointUrl);
-		controllerHelper.addController(controllerEndpointUrl);
+		ControllerDeliveryManager.testConnectivity(controllerEndpointUrl);
+		controllerDeliveryManager.addController(controllerEndpointUrl);
 	}
 
 	@Override
 	public void removeController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
-		controllerHelper.removeController(controllerEndpointUrl);
+		controllerDeliveryManager.removeController(controllerEndpointUrl);
 	}
 
 	@Override
@@ -465,17 +465,17 @@ public class WSNServiceImpl implements WSNService {
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					long end = System.currentTimeMillis();
 					log.debug("Received reply from device after {} ms.", (end - start));
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -503,17 +503,17 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.areNodesAlive(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -558,17 +558,17 @@ public class WSNServiceImpl implements WSNService {
 					}
 
 					// deliver output to client
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -599,17 +599,17 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.resetNodes(new HashSet<String>(nodeIds), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -638,7 +638,7 @@ public class WSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 
 					if (requestStatus.getStatus().getValue() == 1) {
 						addVirtualLink(sourceNode, targetNode, remoteServiceInstance);
@@ -648,12 +648,12 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		// TODO support filters
@@ -747,7 +747,7 @@ public class WSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 
 					if (requestStatus.getStatus().getValue() == 1) {
 						removeVirtualLink(sourceNode, targetNode);
@@ -757,12 +757,12 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNode), requestId, e, -1);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -782,18 +782,18 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.disableNode(node, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
 				}
 			}
 			);
 
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -814,18 +814,18 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.disablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
 				}
 			}
 			);
 
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -846,18 +846,18 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.enableNode(node, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(node), requestId, e, -1);
 				}
 			}
 			);
 
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;
@@ -879,18 +879,18 @@ public class WSNServiceImpl implements WSNService {
 			wsnApp.enablePhysicalLink(nodeA, nodeB, new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
 				@Override
 				public void failure(final Exception e) {
-					controllerHelper.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
+					controllerDeliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeA), requestId, e, -1);
 				}
 			}
 			);
 
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 
 		return requestId;

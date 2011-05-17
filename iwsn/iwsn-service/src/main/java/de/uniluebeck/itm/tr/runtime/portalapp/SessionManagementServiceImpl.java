@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
@@ -48,7 +48,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +216,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
-	private ControllerHelper controllerHelper;
+	private ControllerDeliveryManager controllerDeliveryManager;
 
 	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
@@ -240,7 +240,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.preconditions.addKnownNodeUrns(nodeUrnsServedArray);
 
 		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
-		this.controllerHelper = new ControllerHelper();
+		this.controllerDeliveryManager = new ControllerDeliveryManager();
 	}
 
 	@Override
@@ -292,7 +292,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
 		if (!"NONE".equals(controller)) {
-			ControllerHelper.checkConnectivity(controller);
+			ControllerDeliveryManager.checkConnectivity(controller);
 		}
 
 		// extract the one and only relevant secretReservationKey
@@ -378,7 +378,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					controllerEndpointUrl,
 					config.wiseMLFilename,
 					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufControllerHelper(config.maximumDeliveryQueueSize),
+					new ProtobufControllerDeliveryManager(config.maximumDeliveryQueueSize),
 					protobufControllerServer
 			);
 
@@ -430,27 +430,27 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
-		this.controllerHelper.addController(controllerEndpointUrl);
+		this.controllerDeliveryManager.addController(controllerEndpointUrl);
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
 			wsnApp.areNodesAlive(new HashSet<String>(nodes), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-					controllerHelper.removeController(controllerEndpointUrl);
+					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					controllerDeliveryManager.removeController(controllerEndpointUrl);
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodes, requestId, e, -1);
-					controllerHelper.removeController(controllerEndpointUrl);
+					controllerDeliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
+					controllerDeliveryManager.removeController(controllerEndpointUrl);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-			controllerHelper.removeController(controllerEndpointUrl);
+			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			controllerDeliveryManager.removeController(controllerEndpointUrl);
 		}
 
 		return requestId;

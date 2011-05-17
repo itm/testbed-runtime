@@ -57,12 +57,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * of recipients. Between every try there's a pause of {@link ControllerHelperConstants#RETRY_TIMEOUT} in time unit
  * {@link ControllerHelperConstants#RETRY_TIME_UNIT}.
  */
-public class ControllerHelper implements DeliverFailureListener {
+public class ControllerDeliveryManager implements DeliverFailureListener {
 
 	/**
 	 * The logger instance for this class.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(ControllerHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerDeliveryManager.class);
 
 	/**
 	 * The actual instance maximum number of messages to be held in a delivery queue before new messages are discarded.
@@ -92,21 +92,21 @@ public class ControllerHelper implements DeliverFailureListener {
 	private int messagesDroppedSinceLastNotification = 0;
 
 	/**
-	 * A lock for the critical region defined by {@link ControllerHelper#lastMessageDropNotificationTimeDiff} and {@link
-	 * ControllerHelper#messagesDroppedSinceLastNotification}.
+	 * A lock for the critical region defined by {@link ControllerDeliveryManager#lastMessageDropNotificationTimeDiff} and {@link
+	 * ControllerDeliveryManager#messagesDroppedSinceLastNotification}.
 	 */
 	private final Lock messageDropLock = new ReentrantLock();
 
-	public ControllerHelper() {
+	public ControllerDeliveryManager() {
 		this(ControllerHelperConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
 	}
 
 	/**
-	 * Constructs a new {@link ControllerHelper} instance.
+	 * Constructs a new {@link ControllerDeliveryManager} instance.
 	 *
 	 * @param maximumDeliveryQueueSize the maximum size of the message delivery queue after which messages are dropped
 	 */
-	public ControllerHelper(final @Nullable Integer maximumDeliveryQueueSize) {
+	public ControllerDeliveryManager(final @Nullable Integer maximumDeliveryQueueSize) {
 
 		this.maximumDeliveryQueueSize =
 				maximumDeliveryQueueSize == null ?
@@ -114,11 +114,11 @@ public class ControllerHelper implements DeliverFailureListener {
 						maximumDeliveryQueueSize;
 
 		scheduler = new ScheduledThreadPoolExecutor(1,
-				new ThreadFactoryBuilder().setNameFormat("ControllerHelper-MessageExecutor %d").build(),
+				new ThreadFactoryBuilder().setNameFormat("ControllerDeliveryManager-MessageExecutor %d").build(),
 				new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(final Runnable r, final ThreadPoolExecutor executor) {
-						log.warn("!!!! ControllerHelper.rejectedExecution !!!! Re-scheduling in 100ms.");
+						log.warn("!!!! ControllerDeliveryManager.rejectedExecution !!!! Re-scheduling in 100ms.");
 						scheduler.schedule(r, 100, TimeUnit.MILLISECONDS);
 					}
 				}
@@ -384,7 +384,7 @@ public class ControllerHelper implements DeliverFailureListener {
 	}
 
 	/**
-	 * Calls {@link ControllerHelper#testConnectivity(String)} and throws an {@link IllegalArgumentException} if
+	 * Calls {@link ControllerDeliveryManager#testConnectivity(String)} and throws an {@link IllegalArgumentException} if
 	 * connectivity is not given.
 	 *
 	 * @param endpointUrl the endpoint URL to check

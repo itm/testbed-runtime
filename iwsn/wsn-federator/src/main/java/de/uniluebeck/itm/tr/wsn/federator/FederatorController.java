@@ -40,7 +40,7 @@ import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
 
 @WebService(
 		serviceName = "ControllerService",
@@ -77,11 +77,11 @@ public class FederatorController implements Controller {
 
 	private Endpoint controllerEndpoint;
 
-	private ControllerHelper controllerHelper;
+	private ControllerDeliveryManager controllerDeliveryManager;
 
 	public FederatorController(String controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.controllerHelper = new ControllerHelper();
+		this.controllerDeliveryManager = new ControllerDeliveryManager();
 	}
 
 	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
@@ -141,15 +141,15 @@ public class FederatorController implements Controller {
 	}
 
 	public void addController(String controllerEndpointUrl) {
-		controllerHelper.addController(controllerEndpointUrl);
+		controllerDeliveryManager.addController(controllerEndpointUrl);
 	}
 
 	public void removeController(String controllerEndpointUrl) {
-		controllerHelper.removeController(controllerEndpointUrl);
+		controllerDeliveryManager.removeController(controllerEndpointUrl);
 	}
 
 	private void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
-		controllerHelper.receive(msg);
+		controllerDeliveryManager.receive(msg);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class FederatorController implements Controller {
 	 */
 	private void changeIdAndDispatch(String newRequestId, RequestStatus status) {
 		status.setRequestId(newRequestId);
-		controllerHelper.receiveStatus(status);
+		controllerDeliveryManager.receiveStatus(status);
 	}
 
 	private void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
@@ -223,12 +223,12 @@ public class FederatorController implements Controller {
 
 	@Override
 	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> notificationList) {
-		controllerHelper.receiveNotification(notificationList);
+		controllerDeliveryManager.receiveNotification(notificationList);
 	}
 
 	@Override
 	public void experimentEnded() {
-		controllerHelper.experimentEnded();
+		controllerDeliveryManager.experimentEnded();
 	}
 
 	String getControllerEndpointUrl() {
