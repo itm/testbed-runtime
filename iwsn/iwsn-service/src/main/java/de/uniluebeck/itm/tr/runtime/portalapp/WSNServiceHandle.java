@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.common.Service;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerDeliveryManager;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
@@ -55,7 +55,7 @@ public class WSNServiceHandle implements Service {
 											  URL controllerServiceEndpointURL,
 											  String wiseMLFilename,
 											  String[] reservedNodes,
-											  ProtobufControllerDeliveryManager protobufControllerHelper,
+											  ProtobufDeliveryManager protobufControllerHelper,
 											  ProtobufControllerServer protobufControllerServer) {
 
 			// De-serialize original WiseML and strip out all nodes that are not part of this reservation
@@ -95,11 +95,11 @@ public class WSNServiceHandle implements Service {
 
 	private ProtobufControllerServer protobufControllerServer;
 
-	private final ProtobufControllerDeliveryManager protobufControllerHelper;
+	private final ProtobufDeliveryManager protobufControllerHelper;
 
 	WSNServiceHandle(String secretReservationKey, URL wsnInstanceEndpointUrl, WSNService wsnService, WSNApp wsnApp,
 					 ProtobufControllerServer protobufControllerServer,
-					 ProtobufControllerDeliveryManager protobufControllerHelper) {
+					 ProtobufDeliveryManager protobufControllerHelper) {
 
 		this.secretReservationKey = secretReservationKey;
 		this.wsnService = wsnService;
@@ -150,7 +150,7 @@ public class WSNServiceHandle implements Service {
 		return wsnInstanceEndpointUrl;
 	}
 
-	public ProtobufControllerDeliveryManager getProtobufControllerHelper() {
+	public ProtobufDeliveryManager getProtobufControllerHelper() {
 		return protobufControllerHelper;
 	}
 

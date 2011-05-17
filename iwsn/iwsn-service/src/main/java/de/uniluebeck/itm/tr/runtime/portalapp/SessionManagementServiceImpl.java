@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerDeliveryManager;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
@@ -33,6 +33,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
@@ -48,7 +49,7 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
+import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,8 @@ import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -216,7 +219,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
-	private ControllerDeliveryManager controllerDeliveryManager;
+	private DeliveryManager deliveryManager;
+
+	/**
+	 * Used for the {@link SessionManagementServiceImpl#deliveryManager}.
+	 */
+	private ExecutorService deliveryManagerExecutorService;
 
 	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
@@ -240,7 +248,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.preconditions.addKnownNodeUrns(nodeUrnsServedArray);
 
 		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
-		this.controllerDeliveryManager = new ControllerDeliveryManager();
+
+		this.deliveryManagerExecutorService = Executors.newCachedThreadPool();
+		this.deliveryManager = new DeliveryManager(deliveryManagerExecutorService);
+
 	}
 
 	@Override
@@ -292,7 +303,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
 		if (!"NONE".equals(controller)) {
-			ControllerDeliveryManager.checkConnectivity(controller);
+			NetworkUtils.checkConnectivity(controller);
 		}
 
 		// extract the one and only relevant secretReservationKey
@@ -378,7 +389,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					controllerEndpointUrl,
 					config.wiseMLFilename,
 					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufControllerDeliveryManager(config.maximumDeliveryQueueSize),
+					new ProtobufDeliveryManager(deliveryManagerExecutorService, config.maximumDeliveryQueueSize),
 					protobufControllerServer
 			);
 
@@ -430,27 +441,27 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
-		this.controllerDeliveryManager.addController(controllerEndpointUrl);
+		this.deliveryManager.addController(controllerEndpointUrl);
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
 			wsnApp.areNodesAlive(new HashSet<String>(nodes), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerDeliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-					controllerDeliveryManager.removeController(controllerEndpointUrl);
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					deliveryManager.removeController(controllerEndpointUrl);
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerDeliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
-					controllerDeliveryManager.removeController(controllerEndpointUrl);
+					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
+					deliveryManager.removeController(controllerEndpointUrl);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerDeliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-			controllerDeliveryManager.removeController(controllerEndpointUrl);
+			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			deliveryManager.removeController(controllerEndpointUrl);
 		}
 
 		return requestId;

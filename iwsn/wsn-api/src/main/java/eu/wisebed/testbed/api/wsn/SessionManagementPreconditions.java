@@ -31,8 +31,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.uniluebeck.itm.tr.util.NetworkUtils;
 import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerDeliveryManager;
+import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 
 public class SessionManagementPreconditions {
 
@@ -76,7 +77,7 @@ public class SessionManagementPreconditions {
 
 	public void checkAreNodesAliveArguments(final Collection<String> nodes, final String controllerEndpointUrl) {
 		commonPreconditions.checkNodesKnown(nodes);
-		ControllerDeliveryManager.checkConnectivity(controllerEndpointUrl);
+		NetworkUtils.checkConnectivity(controllerEndpointUrl);
 	}
 
 	private void checkUrnPrefixesServed(List<SecretReservationKey> secretReservationKeys) {
