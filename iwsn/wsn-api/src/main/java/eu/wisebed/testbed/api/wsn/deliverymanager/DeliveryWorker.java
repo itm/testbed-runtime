@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,17 +43,17 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The queue that contains all {@link Message} objects to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Queue<Message> messageQueue;
+	private final Deque<Message> messageQueue;
 
 	/**
 	 * The queue that contains all {@link RequestStatus} to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Queue<RequestStatus> statusQueue;
+	private final Deque<RequestStatus> statusQueue;
 
 	/**
 	 * The queue that contains all notifications to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Queue<String> notificationQueue;
+	private final Deque<String> notificationQueue;
 
 	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
@@ -74,11 +74,15 @@ class DeliveryWorker implements Runnable {
 
 	private final Condition workAvailable = lock.newCondition();
 
-	public DeliveryWorker(final DeliveryManager deliveryManager, final String endpointUrl,
+	private final int maximumDeliveryQueueSize;
+
+	public DeliveryWorker(final DeliveryManager deliveryManager,
+						  final String endpointUrl,
 						  final Controller endpoint,
-						  final Queue<Message> messageQueue,
-						  final Queue<RequestStatus> statusQueue,
-						  final Queue<String> notificationQueue) {
+						  final Deque<Message> messageQueue,
+						  final Deque<RequestStatus> statusQueue,
+						  final Deque<String> notificationQueue,
+						  final int maximumDeliveryQueueSize) {
 
 		checkNotNull(deliveryManager);
 		checkNotNull(endpointUrl);
@@ -93,10 +97,13 @@ class DeliveryWorker implements Runnable {
 		this.messageQueue = messageQueue;
 		this.statusQueue = statusQueue;
 		this.notificationQueue = notificationQueue;
+		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
 	}
 
 	@Override
 	public void run() {
+
+		int subsequentDeliveryErrors = 0;
 
 		while (!stopDelivery) {
 
@@ -106,14 +113,14 @@ class DeliveryWorker implements Runnable {
 
 				if (experimentEnded && deliveryQueuesEmpty()) {
 					log.debug(
-							"{} => Calling Controller.experimentEnded() as experiment ended and all messages have been delivered.",
+							"{} => Calling experimentEnded() as experiment ended and all messages have been delivered.",
 							endpointUrl
 					);
 					try {
 						endpoint.experimentEnded();
 					} catch (Exception e) {
 						log.warn(
-								"Exception while calling experimentEnded() on endpoint {} after delivering all queued messages.",
+								"{} => Exception while calling experimentEnded() after delivering all queued messages.",
 								endpointUrl
 						);
 					}
@@ -125,30 +132,47 @@ class DeliveryWorker implements Runnable {
 				lock.unlock();
 			}
 
-			try {
+			boolean deliverySuccessful = true;
 
-				// deliver notifications, statuses and messages according to their priority one after another
-				if (!notificationQueue.isEmpty()) {
-					deliverNotifications();
-					continue;
+			// deliver notifications, statuses and messages according to their priority one after another
+			if (!notificationQueue.isEmpty()) {
+				deliverySuccessful = deliverNotifications();
+			} else if (!statusQueue.isEmpty()) {
+				deliverySuccessful = deliverStatuses();
+			} else if (!messageQueue.isEmpty()) {
+				deliverySuccessful = deliverMessages();
+			}
+
+			if (deliverySuccessful) {
+
+				subsequentDeliveryErrors = 0;
+
+			} else {
+
+				subsequentDeliveryErrors++;
+
+				if (subsequentDeliveryErrors < DeliveryManagerConstants.RETRIES) {
+
+					// wait a little before retrying, could be a temporary network outage
+					try {
+
+						Thread.sleep(
+								DeliveryManagerConstants.RETRY_TIME_UNIT.toMillis(
+										DeliveryManagerConstants.RETRY_TIMEOUT
+								)
+						);
+
+					} catch (InterruptedException e1) {
+						log.error("{} => Interrupted while waiting for retry: " + e1, endpointUrl);
+						stopDelivery();
+						continue;
+					}
+
+				} else {
+
+					log.warn("{} => Repeatedly could not deliver messages. Removing endpoint.", endpointUrl);
+					deliveryManager.removeController(endpointUrl); // will also call stopDelivery()
 				}
-
-				if (!statusQueue.isEmpty()) {
-					deliverStatuses();
-					continue;
-				}
-
-				if (!messageQueue.isEmpty()) {
-					deliverMessages();
-				}
-
-			} catch (Exception e) {
-				log.warn(
-						"Exception while delivering messages to controller endpoint {}. Removing endpoint. Reason: {}",
-						endpoint,
-						e
-				);
-				deliveryManager.removeController(endpointUrl);
 			}
 
 			// wait for new work to arrive if queues are empty
@@ -158,7 +182,7 @@ class DeliveryWorker implements Runnable {
 					workAvailable.await();
 				}
 			} catch (InterruptedException e) {
-				log.error("Interrupted while waiting for work to arrive: " + e, e);
+				log.error("{} => Interrupted while waiting for work to arrive: " + e, endpointUrl);
 				stopDelivery();
 			} finally {
 				lock.unlock();
@@ -170,24 +194,48 @@ class DeliveryWorker implements Runnable {
 
 	}
 
-	private void deliverMessages() {
+	private boolean deliverMessages() {
 
 		final List<Message> messageList = Lists.newArrayListWithExpectedSize(MAXIMUM_MESSAGE_LIST_SIZE);
 
 		lock.lock();
 		try {
+
 			while (!messageQueue.isEmpty() && messageList.size() < MAXIMUM_MESSAGE_LIST_SIZE) {
 				messageList.add(messageQueue.poll());
 			}
+
 		} finally {
 			lock.unlock();
 		}
 
-		log.debug("Delivering {} messages to endpoint {}", messageList.size(), endpointUrl);
-		endpoint.receive(messageList);
+		log.debug("{} => Delivering {} messages.", endpointUrl, messageList.size());
+		try {
+
+			// try to send messages to endpoint
+			endpoint.receive(messageList);
+			return true;
+
+		} catch (Exception e) {
+
+			// if delivery failed
+			log.warn("{} => Exception while delivering messages. Reason: {}", endpointUrl, e);
+
+			// put messages back in that have been taken out before (in reverse order)
+			lock.lock();
+			try {
+				for (int i = messageList.size() - 1; i >= 0; i--) {
+					messageQueue.addFirst(messageList.get(i));
+				}
+			} finally {
+				lock.unlock();
+			}
+
+			return false;
+		}
 	}
 
-	private void deliverStatuses() {
+	private boolean deliverStatuses() {
 
 		final List<RequestStatus> statusList = Lists.newArrayListWithExpectedSize(MAXIMUM_REQUEST_STATUS_LIST_SIZE);
 
@@ -200,11 +248,34 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.debug("Delivering {} status messages to endpoint {}", statusList.size(), endpointUrl);
-		endpoint.receiveStatus(statusList);
+		log.debug("{} => Delivering {} status messages", endpointUrl, statusList.size());
+		try {
+
+			endpoint.receiveStatus(statusList);
+			return true;
+
+		} catch (Exception e) {
+
+			// if delivery failed
+			log.warn("{} => Exception while delivering status messages. Reason: {}", endpointUrl, e);
+
+			// put statuses back in that have been taken out before (in reverse order)
+			lock.lock();
+			try {
+				for (int i = statusList.size() - 1; i >= 0; i--) {
+					statusQueue.addFirst(statusList.get(i));
+				}
+			} finally {
+				lock.unlock();
+			}
+
+			return false;
+
+		}
 	}
 
-	private void deliverNotifications() {
+	private boolean deliverNotifications() {
+
 		final List<String> notificationList = Lists.newArrayList();
 
 		lock.lock();
@@ -216,8 +287,30 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.debug("Delivering {} notifications to endpoint {}", notificationList.size(), endpointUrl);
-		endpoint.receiveNotification(notificationList);
+		log.debug("{} => Delivering {} notifications", endpointUrl, notificationList.size());
+		try {
+
+			endpoint.receiveNotification(notificationList);
+			return true;
+
+		} catch (Exception e) {
+
+			// if delivery failed
+			log.warn("{} => Exception while delivering notifications. Reason: {}", endpointUrl, e);
+
+			// put statuses back in that have been taken out before (in reverse order)
+			lock.lock();
+			try {
+				for (int i = notificationList.size() - 1; i >= 0; i--) {
+					notificationQueue.addFirst(notificationList.get(i));
+				}
+			} finally {
+				lock.unlock();
+			}
+
+			return false;
+
+		}
 	}
 
 	private boolean deliveryQueuesEmpty() {
@@ -247,8 +340,7 @@ class DeliveryWorker implements Runnable {
 		lock.lock();
 		try {
 
-			int queueSpaceAvailable =
-					DeliveryManagerConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE - messageQueue.size();
+			int queueSpaceAvailable = maximumDeliveryQueueSize - messageQueue.size();
 
 			int messagesAdded = 0;
 			if (queueSpaceAvailable > 0) {

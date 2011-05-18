@@ -34,20 +34,16 @@ import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 
 
 /**
  * Helper class that manages a set of {@link Controller} Web Service endpoints and allows to asynchronously deliver
- * messages and request status updates to them in parallel. If the delivery to a recipient is repeatedly ({@link
- * DeliveryManagerConstants#RETRIES} times) impossible due to whatever reason, the recipient is removed from
- * the list of recipients. Between every try there's a pause of {@link DeliveryManagerConstants#RETRY_TIMEOUT}
- * in time unit {@link DeliveryManagerConstants#RETRY_TIME_UNIT}.
+ * messages, notifications and request status updates to them in parallel. If the delivery to a recipient is repeatedly
+ * ({@link DeliveryManagerConstants#RETRIES} times) impossible due to whatever reason, the recipient is removed from the
+ * list of recipients. Between every try there's a pause of {@link DeliveryManagerConstants#RETRY_TIMEOUT} in time unit
+ * {@link DeliveryManagerConstants#RETRY_TIME_UNIT}.
  */
 public class DeliveryManager {
 
@@ -91,10 +87,9 @@ public class DeliveryManager {
 						   final @Nullable Integer maximumDeliveryQueueSize) {
 
 		this.executorService = executorService;
-		this.maximumDeliveryQueueSize =
-				maximumDeliveryQueueSize == null ?
-						DeliveryManagerConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE :
-						maximumDeliveryQueueSize;
+		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize == null ?
+				DeliveryManagerConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE :
+				maximumDeliveryQueueSize;
 	}
 
 	/**
@@ -105,17 +100,19 @@ public class DeliveryManager {
 	public void addController(String endpointUrl) {
 
 		if (controllers.containsKey(endpointUrl)) {
+			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", endpointUrl);
 			return;
 		}
 
+		log.debug("Adding controller endpoint {} to the set of controllers.", endpointUrl);
 		final Controller endpoint = WSNServiceHelper.getControllerService(
 				endpointUrl,
 				executorService
 		);
 
-		final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<Message>();
-		final BlockingQueue<String> notificationQueue = new LinkedBlockingQueue<String>();
-		final BlockingQueue<RequestStatus> statusQueue = new LinkedBlockingQueue<RequestStatus>();
+		final Deque<Message> messageQueue = new LinkedList<Message>();
+		final Deque<String> notificationQueue = new LinkedList<String>();
+		final Deque<RequestStatus> statusQueue = new LinkedList<RequestStatus>();
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
@@ -123,7 +120,8 @@ public class DeliveryManager {
 				endpoint,
 				messageQueue,
 				statusQueue,
-				notificationQueue
+				notificationQueue,
+				maximumDeliveryQueueSize
 		);
 
 		executorService.submit(deliveryWorker);
@@ -138,25 +136,29 @@ public class DeliveryManager {
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param controllerEndpointUrl the endpoint URL of a {@link Controller} Web Service instance
+	 * @param endpointUrl the endpoint URL of a {@link Controller} Web Service instance
 	 */
-	public void removeController(String controllerEndpointUrl) {
+	public void removeController(String endpointUrl) {
 
-		final DeliveryWorker deliveryWorker = controllers.get(controllerEndpointUrl);
+		final DeliveryWorker deliveryWorker = controllers.get(endpointUrl);
 
 		if (deliveryWorker != null) {
 
+			log.debug("Removing controller endpoint {} from the set of controllers.", endpointUrl);
 			deliveryWorker.stopDelivery();
 
 			ImmutableMap.Builder<String, DeliveryWorker> controllerEndpointsBuilder = ImmutableMap.builder();
 
 			for (Map.Entry<String, DeliveryWorker> entry : controllers.entrySet()) {
-				if (!entry.getKey().equals(controllerEndpointUrl)) {
+				if (!entry.getKey().equals(endpointUrl)) {
 					controllerEndpointsBuilder.put(entry.getKey(), entry.getValue());
 				}
 			}
 
 			controllers = controllerEndpointsBuilder.build();
+
+		} else {
+			log.debug("Not removing controller endpoint {} as it was not in the set of controllers.", endpointUrl);
 		}
 
 	}
@@ -193,8 +195,7 @@ public class DeliveryManager {
 	}
 
 	/**
-	 * Forwards the list of notifications to the {@link DeliveryWorker} instances that every connected controller
-	 * has.
+	 * Forwards the list of notifications to the {@link DeliveryWorker} instances that every connected controller has.
 	 *
 	 * @param notifications a list of notifications to be forwarded to all currently registered controllers
 	 */
@@ -205,8 +206,7 @@ public class DeliveryManager {
 	}
 
 	/**
-	 * Forwards the list of notifications to the {@link DeliveryWorker} instances that every connected controller
-	 * has.
+	 * Forwards the list of notifications to the {@link DeliveryWorker} instances that every connected controller has.
 	 *
 	 * @param notifications a list of notifications to be forwarded to all currently registered controllers
 	 */
@@ -217,8 +217,7 @@ public class DeliveryManager {
 	}
 
 	/**
-	 * Forwards the list of statuses to the {@link DeliveryWorker} instances that every connected controller
-	 * has.
+	 * Forwards the list of statuses to the {@link DeliveryWorker} instances that every connected controller has.
 	 *
 	 * @param statuses a list of statuses to be forwarded to all currently registered controllers
 	 */
@@ -229,8 +228,7 @@ public class DeliveryManager {
 	}
 
 	/**
-	 * Forwards the list of statuses to the {@link DeliveryWorker} instances that every connected controller
-	 * has.
+	 * Forwards the list of statuses to the {@link DeliveryWorker} instances that every connected controller has.
 	 *
 	 * @param statuses a list of statuses to be forwarded to all currently registered controllers
 	 */
