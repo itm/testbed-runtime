@@ -23,24 +23,26 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @WebService(
 		serviceName = "ControllerService",
@@ -77,11 +79,16 @@ public class FederatorController implements Controller {
 
 	private Endpoint controllerEndpoint;
 
-	private ControllerHelper controllerHelper;
+	private DeliveryManager deliveryManager;
+
+	private ExecutorService deliveryManagerExecutorService;
 
 	public FederatorController(String controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.controllerHelper = new ControllerHelper();
+		this.deliveryManagerExecutorService = Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat("DeliveryManager %d").build()
+		);
+		this.deliveryManager = new DeliveryManager(deliveryManagerExecutorService);
 	}
 
 	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
@@ -132,6 +139,9 @@ public class FederatorController implements Controller {
 	 */
 	public void stop() throws Exception {
 
+		deliveryManager.experimentEnded();
+		ExecutorUtils.shutdown(deliveryManagerExecutorService, 1, TimeUnit.MINUTES);
+
 		if (controllerEndpoint != null) {
 			controllerEndpoint.stop();
 			log.info("Stopped federator controller at {}", controllerEndpointUrl);
@@ -141,15 +151,15 @@ public class FederatorController implements Controller {
 	}
 
 	public void addController(String controllerEndpointUrl) {
-		controllerHelper.addController(controllerEndpointUrl);
+		deliveryManager.addController(controllerEndpointUrl);
 	}
 
 	public void removeController(String controllerEndpointUrl) {
-		controllerHelper.removeController(controllerEndpointUrl);
+		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
 	private void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
-		controllerHelper.receive(msg);
+		deliveryManager.receive(msg);
 	}
 
 	/**
@@ -185,7 +195,7 @@ public class FederatorController implements Controller {
 	 */
 	private void changeIdAndDispatch(String newRequestId, RequestStatus status) {
 		status.setRequestId(newRequestId);
-		controllerHelper.receiveStatus(status);
+		deliveryManager.receiveStatus(status);
 	}
 
 	private void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
@@ -223,12 +233,12 @@ public class FederatorController implements Controller {
 
 	@Override
 	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> notificationList) {
-		controllerHelper.receiveNotification(notificationList);
+		deliveryManager.receiveNotification(notificationList);
 	}
 
 	@Override
 	public void experimentEnded() {
-		controllerHelper.experimentEnded();
+		deliveryManager.experimentEnded();
 	}
 
 	String getControllerEndpointUrl() {
