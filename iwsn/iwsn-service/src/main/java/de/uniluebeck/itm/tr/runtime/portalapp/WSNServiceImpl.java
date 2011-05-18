@@ -432,7 +432,9 @@ public class WSNServiceImpl implements WSNService {
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
-		NetworkUtils.testConnectivity(controllerEndpointUrl);
+		if (!"NONE".equals(controllerEndpointUrl)) {
+			NetworkUtils.checkConnectivity(controllerEndpointUrl);
+		}
 		deliveryManager.addController(controllerEndpointUrl);
 	}
 

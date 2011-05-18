@@ -61,7 +61,6 @@ import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -220,11 +219,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 */
 	private DeliveryManager deliveryManager;
 
-	/**
-	 * Used for the {@link SessionManagementServiceImpl#deliveryManager}.
-	 */
-	private ExecutorService deliveryManagerExecutorService;
-
 	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
 		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = config.getWebservice();
@@ -314,8 +308,18 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
-		if (!"NONE".equals(controller)) {
-			NetworkUtils.checkConnectivity(controller);
+		// check if controller endpoint URL is a valid URL and connectivity is given
+		// (i.e. endpoint is not behind a NAT or firewalled)
+		try {
+
+			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
+			if (!"NONE".equals(controller)) {
+				new URL(controller);
+				NetworkUtils.checkConnectivity(controller);
+			}
+
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
 		}
 
 		// extract the one and only relevant secretReservationKey
@@ -385,21 +389,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			log.info("Information: No Reservation-System found! All existing nodes will be used.");
 		}
 
-		// check if controller endpoint URL is a valid URL and connectivity is given
-		// (i.e. endpoint is not behind a NAT or firewalled)
-		try {
-
-			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
-			if (!"NONE".equals(controller)) {
-				new URL(controller);
-				NetworkUtils.checkConnectivity(controller);
-			}
-
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-
-
 		URL wsnInstanceEndpointUrl;
 		try {
 			wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
@@ -432,7 +421,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
 		}
 
-		wsnServiceHandleInstance.getWsnService().addController(controller);
+		if (!"NONE".equals(controller)) {
+			wsnServiceHandleInstance.getWsnService().addController(controller);
+		}
 
 		return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 
