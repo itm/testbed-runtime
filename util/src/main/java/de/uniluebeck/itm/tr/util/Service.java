@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.common;
+package de.uniluebeck.itm.tr.util;
 
 /**
  * A simple service abstraction. Defines the lifecycle (started, stopped) of a service and

@@ -178,7 +178,7 @@ class DeliveryWorker implements Runnable {
 			// wait for new work to arrive if queues are empty
 			lock.lock();
 			try {
-				if (deliveryQueuesEmpty()) {
+				if (!experimentEnded && !stopDelivery && deliveryQueuesEmpty()) {
 					workAvailable.await();
 				}
 			} catch (InterruptedException e) {

@@ -29,7 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.gtr.connection.ConnectionService;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;

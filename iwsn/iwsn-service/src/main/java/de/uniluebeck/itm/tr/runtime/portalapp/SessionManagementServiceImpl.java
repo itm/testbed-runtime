@@ -23,11 +23,10 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
@@ -63,7 +62,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -250,10 +248,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
 
-		this.deliveryManagerExecutorService = Executors.newCachedThreadPool(
-				new ThreadFactoryBuilder().setNameFormat("DeliveryManager %d").build()
-		);
-		this.deliveryManager = new DeliveryManager(deliveryManagerExecutorService);
+		this.deliveryManager = new DeliveryManager();
 
 	}
 
@@ -279,6 +274,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	@Override
 	public void stop() {
+
+		synchronized (wsnInstances) {
+
+			// copy key set to not cause ConcurrentModificationExceptions
+			final Set<String> secretReservationKeys = new HashSet<String>(wsnInstances.keySet());
+
+			for (String secretReservationKey : secretReservationKeys) {
+				try {
+					freeInternal(secretReservationKey);
+				} catch (ExperimentNotRunningException_Exception e) {
+					log.error("ExperimentNotRunningException while shutting down all WSN instances: " + e, e);
+				}
+			}
+		}
 
 		if (protobufControllerServer != null) {
 			protobufControllerServer.stop();
@@ -376,31 +385,42 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			log.info("Information: No Reservation-System found! All existing nodes will be used.");
 		}
 
+		// check if controller endpoint URL is a valid URL and connectivity is given
+		// (i.e. endpoint is not behind a NAT or firewalled)
 		try {
 
-			URL wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-			URL controllerEndpointUrl = null;
+			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
 			if (!"NONE".equals(controller)) {
-				controllerEndpointUrl = new URL(controller);
+				new URL(controller);
+				NetworkUtils.checkConnectivity(controller);
 			}
-
-			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
-					secretReservationKey,
-					testbedRuntime,
-					config.urnPrefix,
-					wsnInstanceEndpointUrl,
-					controllerEndpointUrl,
-					config.wiseMLFilename,
-					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufDeliveryManager(deliveryManagerExecutorService, config.maximumDeliveryQueueSize),
-					protobufControllerServer
-			);
 
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 
+
+		URL wsnInstanceEndpointUrl;
 		try {
+			wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+
+		wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
+				secretReservationKey,
+				testbedRuntime,
+				config.urnPrefix,
+				wsnInstanceEndpointUrl,
+				config.wiseMLFilename,
+				reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+				new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
+				protobufControllerServer
+		);
+
+		// start the WSN instance
+		try {
+
 			wsnServiceHandleInstance.start();
 
 		} catch (Exception e) {
@@ -411,6 +431,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		synchronized (wsnInstances) {
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
 		}
+
+		wsnServiceHandleInstance.getWsnService().addController(controller);
 
 		return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 
@@ -484,6 +506,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		log.debug("SessionManagementServiceImpl.free({})", secretReservationKey);
 
+		freeInternal(secretReservationKey);
+
+	}
+
+	private void freeInternal(final String secretReservationKey) throws ExperimentNotRunningException_Exception {
+
 		synchronized (wsnInstances) {
 
 			// search for the existing instance
@@ -491,6 +519,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 			// stop it if it is existing (it may have been freed before or its lifetime may have been reached)
 			if (wsnServiceHandleInstance != null) {
+
 				try {
 					wsnServiceHandleInstance.stop();
 				} catch (Exception e) {
@@ -509,7 +538,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			}
 
 		}
-
 	}
 
 	@Override

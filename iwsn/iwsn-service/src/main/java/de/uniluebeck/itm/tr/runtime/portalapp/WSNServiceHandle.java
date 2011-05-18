@@ -28,12 +28,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import de.uniluebeck.itm.tr.util.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.common.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
@@ -52,10 +52,9 @@ public class WSNServiceHandle implements Service {
 											  TestbedRuntime testbedRuntime,
 											  String urnPrefix,
 											  URL wsnServiceEndpointURL,
-											  URL controllerServiceEndpointURL,
 											  String wiseMLFilename,
 											  String[] reservedNodes,
-											  ProtobufDeliveryManager protobufControllerHelper,
+											  ProtobufDeliveryManager protobufDeliveryManager,
 											  ProtobufControllerServer protobufControllerServer) {
 
 			// De-serialize original WiseML and strip out all nodes that are not part of this reservation
@@ -74,12 +73,12 @@ public class WSNServiceHandle implements Service {
 			final WSNApp wsnApp = WSNAppFactory.create(testbedRuntime, reservedNodes);
 
 			final WSNServiceImpl wsnService = new WSNServiceImpl(
-					urnPrefix, wsnServiceEndpointURL, controllerServiceEndpointURL, wiseML,
-					reservedNodes, protobufControllerHelper, wsnApp
+					urnPrefix, wsnServiceEndpointURL, wiseML,
+					reservedNodes, protobufDeliveryManager, wsnApp
 			);
 
 			return new WSNServiceHandle(secretReservationKey, wsnServiceEndpointURL, wsnService, wsnApp,
-					protobufControllerServer, protobufControllerHelper
+					protobufControllerServer, protobufDeliveryManager
 			);
 		}
 

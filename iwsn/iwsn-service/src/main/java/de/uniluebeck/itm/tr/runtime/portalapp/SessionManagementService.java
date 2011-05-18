@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.sm.SessionManagement;
 
 

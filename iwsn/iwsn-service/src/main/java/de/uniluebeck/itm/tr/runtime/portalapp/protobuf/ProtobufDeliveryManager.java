@@ -38,9 +38,8 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 		}
 	};
 
-	public ProtobufDeliveryManager(final ExecutorService executorService,
-								   final @Nullable Integer maximumDeliveryQueueSize) {
-		super(executorService, maximumDeliveryQueueSize);
+	public ProtobufDeliveryManager(final @Nullable Integer maximumDeliveryQueueSize) {
+		super(maximumDeliveryQueueSize);
 	}
 
 	@Override

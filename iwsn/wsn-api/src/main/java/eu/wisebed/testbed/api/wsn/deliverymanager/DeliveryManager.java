@@ -25,7 +25,9 @@ package eu.wisebed.testbed.api.wsn.deliverymanager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.internal.Nullable;
+import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
@@ -36,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -45,7 +49,7 @@ import java.util.concurrent.ExecutorService;
  * list of recipients. Between every try there's a pause of {@link DeliveryManagerConstants#RETRY_TIMEOUT} in time unit
  * {@link DeliveryManagerConstants#RETRY_TIME_UNIT}.
  */
-public class DeliveryManager {
+public class DeliveryManager implements Service {
 
 	/**
 	 * The logger instance for this class.
@@ -66,27 +70,29 @@ public class DeliveryManager {
 	/**
 	 * Used to deliver messages and request status messages in parallel.
 	 */
-	private final ExecutorService executorService;
+	private ExecutorService executorService;
 
 	/**
-	 * @param executorService the {@link ExecutorService} instance that will be used to call the Controller endpoints on
-	 *                        message delivery
+	 * A flag to indicate if this service is running.
+	 *
+	 * @see eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager#start()
+	 * @see eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager#stop()
 	 */
-	public DeliveryManager(final ExecutorService executorService) {
-		this(executorService, DeliveryManagerConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE);
+	private volatile boolean running = false;
+
+	/**
+	 * Constructs a new {@link DeliveryManager} instance.
+	 */
+	public DeliveryManager() {
+		this(null);
 	}
 
 	/**
 	 * Constructs a new {@link DeliveryManager} instance.
 	 *
-	 * @param executorService		  the {@link ExecutorService} instance that will be used to call the Controller
-	 *                                 endpoints on message delivery
 	 * @param maximumDeliveryQueueSize the maximum size of the message delivery queue after which messages are dropped
 	 */
-	public DeliveryManager(final ExecutorService executorService,
-						   final @Nullable Integer maximumDeliveryQueueSize) {
-
-		this.executorService = executorService;
+	public DeliveryManager(final @Nullable Integer maximumDeliveryQueueSize) {
 		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize == null ?
 				DeliveryManagerConstants.DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE :
 				maximumDeliveryQueueSize;
@@ -167,8 +173,10 @@ public class DeliveryManager {
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
 	public void experimentEnded() {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.experimentEnded();
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.experimentEnded();
+			}
 		}
 	}
 
@@ -178,8 +186,10 @@ public class DeliveryManager {
 	 * @param messages the list of messages to be delivered
 	 */
 	public void receive(final Message... messages) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receive(messages);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receive(messages);
+			}
 		}
 	}
 
@@ -189,8 +199,10 @@ public class DeliveryManager {
 	 * @param messages the list of messages to be delivered
 	 */
 	public void receive(List<Message> messages) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receive(messages);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receive(messages);
+			}
 		}
 	}
 
@@ -200,8 +212,10 @@ public class DeliveryManager {
 	 * @param notifications a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final String... notifications) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receiveNotification(notifications);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receiveNotification(notifications);
+			}
 		}
 	}
 
@@ -211,8 +225,10 @@ public class DeliveryManager {
 	 * @param notifications a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final List<String> notifications) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receiveNotification(notifications);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receiveNotification(notifications);
+			}
 		}
 	}
 
@@ -222,8 +238,10 @@ public class DeliveryManager {
 	 * @param statuses a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(final RequestStatus... statuses) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receiveStatus(statuses);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receiveStatus(statuses);
+			}
 		}
 	}
 
@@ -233,8 +251,10 @@ public class DeliveryManager {
 	 * @param statuses a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(List<RequestStatus> statuses) {
-		for (DeliveryWorker deliveryWorker : controllers.values()) {
-			deliveryWorker.receiveStatus(statuses);
+		if (running) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.receiveStatus(statuses);
+			}
 		}
 	}
 
@@ -249,18 +269,20 @@ public class DeliveryManager {
 	 */
 	public void receiveFailureStatusMessages(List<String> nodeUrns, String requestId, Exception e, int statusValue) {
 
-		RequestStatus requestStatus = new RequestStatus();
-		requestStatus.setRequestId(requestId);
+		if (running) {
+			RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(requestId);
 
-		for (String nodeId : nodeUrns) {
-			Status status = new Status();
-			status.setNodeId(nodeId);
-			status.setValue(statusValue);
-			status.setMsg(e.getMessage());
-			requestStatus.getStatus().add(status);
+			for (String nodeId : nodeUrns) {
+				Status status = new Status();
+				status.setNodeId(nodeId);
+				status.setValue(statusValue);
+				status.setMsg(e.getMessage());
+				requestStatus.getStatus().add(status);
+			}
+
+			receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
 		}
-
-		receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
 	}
 
 	/**
@@ -274,22 +296,72 @@ public class DeliveryManager {
 	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
 												   final String requestId) {
 
-		RequestStatus requestStatus = new RequestStatus();
-		requestStatus.setRequestId(requestId);
+		if (running) {
 
-		for (String nodeUrn : nodeUrns) {
+			RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(requestId);
 
-			Status status = new Status();
-			status.setMsg(msg);
-			status.setNodeId(nodeUrn);
-			status.setValue(-1);
+			for (String nodeUrn : nodeUrns) {
 
-			requestStatus.getStatus().add(status);
+				Status status = new Status();
+				status.setMsg(msg);
+				status.setNodeId(nodeUrn);
+				status.setValue(-1);
 
+				requestStatus.getStatus().add(status);
+
+			}
+
+			receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
 		}
-
-		receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
-
 	}
 
+	@Override
+	public void start() throws Exception {
+		if (!running) {
+			log.debug("Starting DeliveryManager...");
+			executorService = Executors.newCachedThreadPool(
+					new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
+			);
+			running = true;
+		}
+	}
+
+	@Override
+	public void stop() {
+		if (running) {
+			log.debug("Stopping DeliveryManager (asynchronously).");
+			new Thread("DeliveryManager-ShutdownThread") {
+				@Override
+				public void run() {
+
+					for (DeliveryWorker deliveryWorker : controllers.values()) {
+						deliveryWorker.experimentEnded();
+					}
+
+					// try gently to shut down executor which will succeed if no messages are to be delivered anymore
+					executorService.shutdown();
+
+					// wait until all messages have been delivered or could not be delivered
+					while (!executorService.isTerminated()) {
+
+						try {
+
+							executorService.awaitTermination(1, TimeUnit.SECONDS);
+							log.debug("Still waiting for termination of message delivery jobs...");
+
+						} catch (InterruptedException e) {
+							log.error("InterruptedException while shutting down ExecutorService: " + e, e);
+						}
+					}
+
+					log.debug("DeliveryManager stopped!");
+				}
+			}.start();
+			experimentEnded();
+			running = false;
+		} else {
+			log.debug("Not stopping DeliveryManager as it is not running.");
+		}
+	}
 }

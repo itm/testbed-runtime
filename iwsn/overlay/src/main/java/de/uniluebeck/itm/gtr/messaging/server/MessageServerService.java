@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.server;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 
 
 /**
@@ -37,7 +37,7 @@ public interface MessageServerService extends Service {
 	 * Creates a {@link de.uniluebeck.itm.gtr.connection.ServerConnection} of type {@code type} with the address {@code
 	 * address} and starts to listen for incoming messages on the {@link de.uniluebeck.itm.gtr.connection.ServerConnection}s
 	 * {@link java.io.InputStream} instance. The connection will be established immediately or after {@link
-	 * de.uniluebeck.itm.gtr.common.Service#start()} was invoked on this service.
+	 * de.uniluebeck.itm.tr.util.Service#start()} was invoked on this service.
 	 *
 	 * @param type	the type of the {@link de.uniluebeck.itm.gtr.connection.ServerConnection} instance
 	 * @param address the address of the {@link de.uniluebeck.itm.gtr.connection.ServerConnection} instance

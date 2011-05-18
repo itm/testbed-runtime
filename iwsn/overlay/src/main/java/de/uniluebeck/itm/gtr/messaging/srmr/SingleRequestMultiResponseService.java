@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.srmr;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 
 import java.util.concurrent.TimeUnit;

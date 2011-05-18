@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.gtr.messaging.event;
 
 import de.uniluebeck.itm.tr.util.AbstractListenable;
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 
 

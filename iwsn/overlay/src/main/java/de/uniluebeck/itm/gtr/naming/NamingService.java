@@ -25,7 +25,7 @@ package de.uniluebeck.itm.gtr.naming;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 
 
 /**

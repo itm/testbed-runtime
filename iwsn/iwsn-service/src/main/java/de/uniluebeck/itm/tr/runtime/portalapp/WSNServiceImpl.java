@@ -355,9 +355,8 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private final ImmutableSet<String> reservedNodes;
 
-	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final URL controllerEndpointUrl,
-						  final Wiseml wiseML, final String[] reservedNodes,
-						  final DeliveryManager deliveryManager, final WSNApp wsnApp) {
+	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final Wiseml wiseML,
+						  final String[] reservedNodes, final DeliveryManager deliveryManager, final WSNApp wsnApp) {
 
 		checkNotNull(urnPrefix);
 		checkNotNull(wsnInstanceEndpointUrl);
@@ -372,10 +371,6 @@ public class WSNServiceImpl implements WSNService {
 		executorService = Executors.newSingleThreadScheduledExecutor(
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
-
-		if (controllerEndpointUrl != null) {
-			addController(controllerEndpointUrl.toString());
-		}
 
 		this.preconditions = new WSNPreconditions();
 		this.preconditions.addServedUrnPrefixes(urnPrefix);
@@ -403,6 +398,8 @@ public class WSNServiceImpl implements WSNService {
 
 		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
 
+		deliveryManager.start();
+
 		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
 	}
 
@@ -413,6 +410,7 @@ public class WSNServiceImpl implements WSNService {
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 		deliveryManager.experimentEnded();
+		deliveryManager.stop();
 
 		if (wsnInstanceEndpoint != null) {
 			wsnInstanceEndpoint.stop();

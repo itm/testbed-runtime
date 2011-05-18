@@ -23,8 +23,6 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
@@ -40,8 +38,6 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @WebService(
@@ -81,14 +77,9 @@ public class FederatorController implements Controller {
 
 	private DeliveryManager deliveryManager;
 
-	private ExecutorService deliveryManagerExecutorService;
-
 	public FederatorController(String controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.deliveryManagerExecutorService = Executors.newCachedThreadPool(
-				new ThreadFactoryBuilder().setNameFormat("DeliveryManager %d").build()
-		);
-		this.deliveryManager = new DeliveryManager(deliveryManagerExecutorService);
+		this.deliveryManager = new DeliveryManager();
 	}
 
 	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
@@ -128,6 +119,7 @@ public class FederatorController implements Controller {
 		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
 
 		controllerEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
+		deliveryManager.start();
 
 		log.debug("Successfully started federator controller on {}!", bindAllInterfacesUrl);
 	}
@@ -140,7 +132,7 @@ public class FederatorController implements Controller {
 	public void stop() throws Exception {
 
 		deliveryManager.experimentEnded();
-		ExecutorUtils.shutdown(deliveryManagerExecutorService, 1, TimeUnit.MINUTES);
+		deliveryManager.stop();
 
 		if (controllerEndpoint != null) {
 			controllerEndpoint.stop();

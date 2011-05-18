@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.gtr.connection.Connection;
 import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
 import de.uniluebeck.itm.gtr.connection.ConnectionTypeUnavailableException;
