@@ -330,6 +330,12 @@ class DeliveryWorker implements Runnable {
 	 */
 	public void experimentEnded() {
 		this.experimentEnded = true;
+		lock.lock();
+		try {
+			workAvailable.signalAll();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public void receive(final Message... messages) {
@@ -356,7 +362,7 @@ class DeliveryWorker implements Runnable {
 				enqueueDropNotificationIfNotificationRateAllows(messagesDropped);
 			}
 
-			workAvailable.signal();
+			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
@@ -366,7 +372,7 @@ class DeliveryWorker implements Runnable {
 		lock.lock();
 		try {
 			Collections.addAll(notificationQueue, notifications);
-			workAvailable.signal();
+			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
@@ -376,7 +382,7 @@ class DeliveryWorker implements Runnable {
 		lock.lock();
 		try {
 			notificationQueue.addAll(notifications);
-			workAvailable.signal();
+			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
@@ -386,7 +392,7 @@ class DeliveryWorker implements Runnable {
 		lock.lock();
 		try {
 			Collections.addAll(statusQueue, statuses);
-			workAvailable.signal();
+			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
@@ -396,7 +402,7 @@ class DeliveryWorker implements Runnable {
 		lock.lock();
 		try {
 			statusQueue.addAll(statuses);
-			workAvailable.signal();
+			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
