@@ -17,3 +17,8 @@ What does this directory contain?
   script as daemon to the default runlevel, running 'remove' will remove the daemon.
 
   The program are always started in non-interactive daemon mode, logging to the logs/ directory.
+
+Quickstart
+
+  Please customize the configuration files conf/tr.iwsn-testbed.xml and conf/tr.iwsn-wiseml.xml
+  according to your needs.

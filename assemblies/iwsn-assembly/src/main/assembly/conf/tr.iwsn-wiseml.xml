@@ -23,37 +23,19 @@
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
 	<setup>
 		<description>The WSN testbed of the University of Lübeck, Germany</description>
-		<defaults>
-			<node>
-				<nodeType>mock</nodeType>
-				<capability>
-					<name>temperature</name>
-					<datatype>decimal</datatype>
-					<unit>kelvin</unit>
-					<default>273</default>
-				</capability>
-				<capability>
-					<name>light</name>
-					<datatype>integer</datatype>
-					<unit>lux</unit>
-					<default>0</default>
-				</capability>
-			</node>
-		</defaults>
 		<node id="urn:local:0x0001" >
 			<nodeType>mock</nodeType>
 		</node>
-		<node id="urn:local:0x0002" >
-			<nodeType>mock</nodeType>
+		<!-- Uncomment and edit one or more of the following corresponding to the settings in tr.iwsn-testbed.xml
+		<node id="urn:local:0x1234" >
+			<nodeType>isense</nodeType>
 		</node>
-		<node id="urn:local:0x0003" >
-			<nodeType>mock</nodeType>
+		<node id="urn:local:0x2345" >
+			<nodeType>telosb</nodeType>
 		</node>
-		<node id="urn:local:0x0004" >
-			<nodeType>mock</nodeType>
+		<node id="urn:local:0x3456" >
+			<nodeType>pacemate</nodeType>
 		</node>
-		<node id="urn:local:0x0005" >
-			<nodeType>mock</nodeType>
-		</node>
+		-->
 	</setup>
 </wiseml>

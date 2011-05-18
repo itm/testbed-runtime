@@ -28,10 +28,11 @@
 		<!-- Place every urn of sensor nodes as name here -->
 		<names>
 			<nodename name="urn:local:0x0001" description=""/>
-			<nodename name="urn:local:0x0002" description=""/>
-			<nodename name="urn:local:0x0003" description=""/>
-			<nodename name="urn:local:0x0004" description=""/>
-			<nodename name="urn:local:0x0005" description=""/>
+			<!-- Uncomment and edit one or more of the following lines corresponding to the connected devices (see below)
+			<nodename name="urn:local:0x1234" description=""/>
+			<nodename name="urn:local:0x2345" description=""/>
+			<nodename name="urn:local:0x3456" description=""/>
+			-->
 		</names>
 
 		<applications>
@@ -58,34 +59,33 @@
 					<serialinterface>urn:local:0x0001,2,SECONDS</serialinterface>
 				</wsn:wsnDevice>
 			</application>
+			<!-- Uncomment and edit this to use a locally connected iSense (JN513XR1, JN513X) device with MAC address 0x1234
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:local:0x0002</urn>
-					<type>mock</type>
-					<serialinterface>urn:local:0x0002,2,SECONDS</serialinterface>
+					<urn>urn:local:0x1234</urn>
+					<type>isense</type>
+					<serialinterface>/dev/ttyUSB0</serialinterface>
 				</wsn:wsnDevice>
 			</application>
+			-->
+			<!-- Uncomment and edit this to use a locally connected Telos B device with MAC address 0x2345
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:local:0x0003</urn>
-					<type>mock</type>
-					<serialinterface>urn:local:0x0003,2,SECONDS</serialinterface>
+					<urn>urn:local:0x2345</urn>
+					<type>telosb</type>
+					<serialinterface>/dev/ttyUSB1</serialinterface>
 				</wsn:wsnDevice>
 			</application>
+			-->
+			<!-- Uncomment and edit this to use a locally connected Pacemate device with MAC address 0x3456
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:local:0x0004</urn>
-					<type>mock</type>
-					<serialinterface>urn:local:0x0004,2,SECONDS</serialinterface>
+					<urn>urn:local:0x3456</urn>
+					<type>pacemate</type>
+					<serialinterface>/dev/ttyUSB2</serialinterface>
 				</wsn:wsnDevice>
 			</application>
-			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
-				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:local:0x0005</urn>
-					<type>mock</type>
-					<serialinterface>urn:local:0x0005,2,SECONDS</serialinterface>
-				</wsn:wsnDevice>
-			</application>
+			-->
 
 		</applications>
 	</nodes>

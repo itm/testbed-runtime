@@ -83,6 +83,9 @@
 			<includes>
 				<include>bin/*</include>
 			</includes>
+			<excludes>
+				<exclude>bin/README-IWSN</exclude>
+			</excludes>
 			<fileMode>0750</fileMode>
 		</fileSet>
 		<fileSet>
