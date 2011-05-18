@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

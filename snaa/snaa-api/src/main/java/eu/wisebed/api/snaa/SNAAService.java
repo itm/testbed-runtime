@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
@@ -22,9 +22,9 @@ public class SNAAService extends Service
     public SNAAService(URL wsdlLocation) {
         super(wsdlLocation, new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService"));
     }
-	
+
     /**
-     * 
+     *
      * @return
      *     returns SNAA
      */
@@ -34,7 +34,7 @@ public class SNAAService extends Service
     }
 
     /**
-     * 
+     *
      * @param features
      *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
      * @return

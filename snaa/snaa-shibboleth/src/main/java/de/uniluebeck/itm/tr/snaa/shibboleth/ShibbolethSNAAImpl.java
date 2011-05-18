@@ -27,7 +27,7 @@ import com.google.inject.Injector;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import java.util.*;
 
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort",
+@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
 		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class ShibbolethSNAAImpl implements SNAA {
 

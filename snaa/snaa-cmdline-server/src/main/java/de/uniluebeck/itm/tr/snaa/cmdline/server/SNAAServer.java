@@ -42,7 +42,7 @@ import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

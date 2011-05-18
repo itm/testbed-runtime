@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import java.util.List;
 import javax.jws.WebMethod;
@@ -28,14 +28,14 @@ public interface SNAA {
      * 
      * @param authenticationData
      * @return
-     *     returns java.util.List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>
+     *     returns java.util.List<eu.wisebed.api.snaa.SecretAuthenticationKey>
      * @throws SNAAExceptionException
      * @throws AuthenticationExceptionException
      */
     @WebMethod
     @WebResult(name = "secretAuthenticationKey", targetNamespace = "")
-    @RequestWrapper(localName = "authenticate", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.testbed.api.snaa.v1.Authenticate")
-    @ResponseWrapper(localName = "authenticateResponse", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.testbed.api.snaa.v1.AuthenticateResponse")
+    @RequestWrapper(localName = "authenticate", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.api.snaa.Authenticate")
+    @ResponseWrapper(localName = "authenticateResponse", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.api.snaa.AuthenticateResponse")
     public List<SecretAuthenticationKey> authenticate(
         @WebParam(name = "authenticationData", targetNamespace = "")
         List<AuthenticationTriple> authenticationData)
@@ -52,8 +52,8 @@ public interface SNAA {
      */
     @WebMethod
     @WebResult(name = "authorization", targetNamespace = "")
-    @RequestWrapper(localName = "isAuthorized", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.testbed.api.snaa.v1.IsAuthorized")
-    @ResponseWrapper(localName = "isAuthorizedResponse", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.testbed.api.snaa.v1.IsAuthorizedResponse")
+    @RequestWrapper(localName = "isAuthorized", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.api.snaa.IsAuthorized")
+    @ResponseWrapper(localName = "isAuthorizedResponse", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/", className = "eu.wisebed.api.snaa.IsAuthorizedResponse")
     public boolean isAuthorized(
         @WebParam(name = "authenticationData", targetNamespace = "")
         List<SecretAuthenticationKey> authenticationData,

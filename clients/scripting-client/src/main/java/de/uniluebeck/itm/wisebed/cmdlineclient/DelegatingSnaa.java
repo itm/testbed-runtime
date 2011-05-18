@@ -25,12 +25,12 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import java.util.List;
 
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
 public class DelegatingSnaa implements SNAA {
 	private SNAA delegate;

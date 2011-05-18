@@ -30,8 +30,8 @@ import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.testbed.api.rs.v1.*;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationTriple;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -59,8 +59,8 @@ public class FederatorInmemoryTest {
     private List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> rsSecretAuthenticationKeyList =
             new LinkedList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
 
-    private List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
-            new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+    private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
+            new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
 
     private GregorianCalendar gregorianCalendarFrom = null;
 
@@ -214,7 +214,7 @@ public class FederatorInmemoryTest {
         }
 
         //creating SecretAuthenticationKey
-        for (eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey snaaKey : snaaSecretAuthenticationKeyList) {
+        for (eu.wisebed.api.snaa.SecretAuthenticationKey snaaKey : snaaSecretAuthenticationKeyList) {
             eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey rsKey =
                     new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
             rsKey.setUsername(snaaKey.getUsername());

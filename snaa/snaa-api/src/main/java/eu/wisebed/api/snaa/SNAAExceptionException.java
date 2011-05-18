@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import javax.xml.ws.WebFault;
 
@@ -45,7 +45,7 @@ public class SNAAExceptionException
     /**
      * 
      * @return
-     *     returns fault bean: eu.wisebed.testbed.api.snaa.v1.SNAAException
+     *     returns fault bean: eu.wisebed.api.snaa.SNAAException
      */
     public SNAAException getFaultInfo() {
         return faultInfo;

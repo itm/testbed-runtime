@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import javax.xml.ws.WebFault;
 
@@ -45,7 +45,7 @@ public class AuthenticationExceptionException
     /**
      * 
      * @return
-     *     returns fault bean: eu.wisebed.testbed.api.snaa.v1.AuthenticationException
+     *     returns fault bean: eu.wisebed.api.snaa.AuthenticationException
      */
     public AuthenticationException getFaultInfo() {
         return faultInfo;

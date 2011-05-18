@@ -24,16 +24,14 @@
 package eu.wisebed.testbed.api.snaa.helpers;
 
 import de.uniluebeck.itm.tr.util.FileUtils;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SNAAService;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAService;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,12 +46,12 @@ public class SNAAServiceHelper {
 	 * Returns the port to the SNAA API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.snaa.v1.SNAA} instance that is
+	 * @return a {@link eu.wisebed.api.snaa.SNAA} instance that is
 	 *         connected to the Web Service endpoint
 	 */
 	public static SNAA getSNAAService(String endpointUrl) {
 
-		InputStream resourceStream = SNAAServiceHelper.class.getClassLoader().getResourceAsStream("SNAA.wsdl");
+		InputStream resourceStream = SNAAServiceHelper.class.getClassLoader().getResourceAsStream("SNAAService.wsdl");
 
 		tmpFileSNAALock.lock();
 		try {

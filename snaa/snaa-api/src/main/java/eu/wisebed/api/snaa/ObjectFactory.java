@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.snaa.v1;
+package eu.wisebed.api.snaa;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 /**
  * This object contains factory methods for each 
  * Java content interface and Java element interface 
- * generated in the eu.wisebed.testbed.api.snaa.v1 package. 
+ * generated in the eu.wisebed.api.snaa package. 
  * <p>An ObjectFactory allows you to programatically 
  * construct new instances of the Java representation 
  * for XML content. The Java representation of XML 
@@ -32,42 +32,10 @@ public class ObjectFactory {
     private final static QName _IsAuthorizedResponse_QNAME = new QName("http://testbed.wisebed.eu/api/snaa/v1/", "isAuthorizedResponse");
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: eu.wisebed.testbed.api.snaa.v1
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: eu.wisebed.api.snaa
      * 
      */
     public ObjectFactory() {
-    }
-
-    /**
-     * Create an instance of {@link IsAuthorizedResponse }
-     * 
-     */
-    public IsAuthorizedResponse createIsAuthorizedResponse() {
-        return new IsAuthorizedResponse();
-    }
-
-    /**
-     * Create an instance of {@link Authenticate }
-     * 
-     */
-    public Authenticate createAuthenticate() {
-        return new Authenticate();
-    }
-
-    /**
-     * Create an instance of {@link SNAAException }
-     * 
-     */
-    public SNAAException createSNAAException() {
-        return new SNAAException();
-    }
-
-    /**
-     * Create an instance of {@link AuthenticateResponse }
-     * 
-     */
-    public AuthenticateResponse createAuthenticateResponse() {
-        return new AuthenticateResponse();
     }
 
     /**
@@ -79,19 +47,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SecretAuthenticationKey }
+     * Create an instance of {@link SNAAException }
      * 
      */
-    public SecretAuthenticationKey createSecretAuthenticationKey() {
-        return new SecretAuthenticationKey();
-    }
-
-    /**
-     * Create an instance of {@link AuthenticationTriple }
-     * 
-     */
-    public AuthenticationTriple createAuthenticationTriple() {
-        return new AuthenticationTriple();
+    public SNAAException createSNAAException() {
+        return new SNAAException();
     }
 
     /**
@@ -103,11 +63,51 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Authenticate }
+     * 
+     */
+    public Authenticate createAuthenticate() {
+        return new Authenticate();
+    }
+
+    /**
+     * Create an instance of {@link SecretAuthenticationKey }
+     * 
+     */
+    public SecretAuthenticationKey createSecretAuthenticationKey() {
+        return new SecretAuthenticationKey();
+    }
+
+    /**
      * Create an instance of {@link IsAuthorized }
      * 
      */
     public IsAuthorized createIsAuthorized() {
         return new IsAuthorized();
+    }
+
+    /**
+     * Create an instance of {@link AuthenticateResponse }
+     * 
+     */
+    public AuthenticateResponse createAuthenticateResponse() {
+        return new AuthenticateResponse();
+    }
+
+    /**
+     * Create an instance of {@link IsAuthorizedResponse }
+     * 
+     */
+    public IsAuthorizedResponse createIsAuthorizedResponse() {
+        return new IsAuthorizedResponse();
+    }
+
+    /**
+     * Create an instance of {@link AuthenticationTriple }
+     * 
+     */
+    public AuthenticationTriple createAuthenticationTriple() {
+        return new AuthenticationTriple();
     }
 
     /**

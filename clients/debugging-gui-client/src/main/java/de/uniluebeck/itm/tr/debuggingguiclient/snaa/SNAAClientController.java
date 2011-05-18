@@ -38,10 +38,10 @@ import org.slf4j.LoggerFactory;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientView;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
 
 public class SNAAClientController {

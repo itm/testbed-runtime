@@ -23,7 +23,7 @@
 
 package eu.wisebed.testbed.api.snaa.helpers;
 
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

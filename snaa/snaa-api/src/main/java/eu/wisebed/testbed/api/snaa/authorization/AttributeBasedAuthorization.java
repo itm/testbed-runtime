@@ -24,8 +24,8 @@
 package eu.wisebed.testbed.api.snaa.authorization;
 
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.SNAAExceptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

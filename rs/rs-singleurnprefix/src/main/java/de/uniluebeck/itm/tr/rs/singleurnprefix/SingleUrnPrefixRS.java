@@ -62,10 +62,10 @@ import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
 import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAExceptionException;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 @WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
@@ -457,14 +457,14 @@ public class SingleUrnPrefixRS implements RS {
         log.debug("Checking authorization for key: " + key + " and action: " + action);
         boolean authorized;
 
-        eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey k =
-                new eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey();
+        eu.wisebed.api.snaa.SecretAuthenticationKey k =
+                new eu.wisebed.api.snaa.SecretAuthenticationKey();
         k.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
         k.setUrnPrefix(key.getUrnPrefix());
         k.setUsername(key.getUsername());
 
-        List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> l =
-                new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+        List<eu.wisebed.api.snaa.SecretAuthenticationKey> l =
+                new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
         l.add(k);
 
         // Invoke isAuthorized
