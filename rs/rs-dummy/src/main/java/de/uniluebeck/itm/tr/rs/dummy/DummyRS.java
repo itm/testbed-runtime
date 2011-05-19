@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.dummy;
 
-import eu.wisebed.testbed.api.rs.v1.*;
+import eu.wisebed.api.rs.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "urn:RSService")
+@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService", targetNamespace = "urn:RSService")
 public class DummyRS implements RS {
 
 	private Random r = new SecureRandom();

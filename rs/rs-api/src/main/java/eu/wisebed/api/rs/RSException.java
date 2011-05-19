@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -7,12 +7,12 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ReservervationConflictException complex type.
+ * <p>Java class for RSException complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ReservervationConflictException">
+ * &lt;complexType name="RSException">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -26,10 +26,10 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ReservervationConflictException", propOrder = {
+@XmlType(name = "RSException", propOrder = {
     "message"
 })
-public class ReservervationConflictException {
+public class RSException {
 
     protected String message;
 

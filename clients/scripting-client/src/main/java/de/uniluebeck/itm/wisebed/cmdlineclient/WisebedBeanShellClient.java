@@ -56,7 +56,7 @@ public class WisebedBeanShellClient {
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
-		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.v1.*;");
+		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
 	}
 
 

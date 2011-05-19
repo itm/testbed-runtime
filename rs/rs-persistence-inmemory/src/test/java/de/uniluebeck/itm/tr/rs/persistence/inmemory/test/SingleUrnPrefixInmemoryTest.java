@@ -30,7 +30,7 @@ import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.util.PropertiesUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.rs.v1.*;
+import eu.wisebed.api.rs.*;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;

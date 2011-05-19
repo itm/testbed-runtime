@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import java.util.ArrayList;
 import java.util.List;

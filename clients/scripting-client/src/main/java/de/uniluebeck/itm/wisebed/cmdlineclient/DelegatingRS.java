@@ -28,16 +28,16 @@ import java.util.List;
 import javax.jws.WebParam;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import eu.wisebed.testbed.api.rs.v1.AuthorizationExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.GetReservations;
-import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationConflictExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
-import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.SecretAuthenticationKey;
+import eu.wisebed.api.rs.SecretReservationKey;
 
 public class DelegatingRS implements RS {
 

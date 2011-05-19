@@ -41,10 +41,10 @@ import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
@@ -551,20 +551,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	}
 
-	private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(
+	private List<eu.wisebed.api.rs.SecretReservationKey> convert(
 			List<SecretReservationKey> secretReservationKey) {
 
-		List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> retList =
-				new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretReservationKey>(secretReservationKey.size());
+		List<eu.wisebed.api.rs.SecretReservationKey> retList =
+				new ArrayList<eu.wisebed.api.rs.SecretReservationKey>(secretReservationKey.size());
 		for (SecretReservationKey reservationKey : secretReservationKey) {
 			retList.add(convert(reservationKey));
 		}
 		return retList;
 	}
 
-	private eu.wisebed.testbed.api.rs.v1.SecretReservationKey convert(SecretReservationKey reservationKey) {
-		eu.wisebed.testbed.api.rs.v1.SecretReservationKey retSRK =
-				new eu.wisebed.testbed.api.rs.v1.SecretReservationKey();
+	private eu.wisebed.api.rs.SecretReservationKey convert(SecretReservationKey reservationKey) {
+		eu.wisebed.api.rs.SecretReservationKey retSRK =
+				new eu.wisebed.api.rs.SecretReservationKey();
 		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
 		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
 		return retSRK;

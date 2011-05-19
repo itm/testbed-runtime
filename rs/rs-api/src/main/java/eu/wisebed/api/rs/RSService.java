@@ -1,11 +1,14 @@
-package eu.wisebed.testbed.api.rs.v1;
 
+package eu.wisebed.api.rs;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
-import java.net.URL;
 
 
 /**

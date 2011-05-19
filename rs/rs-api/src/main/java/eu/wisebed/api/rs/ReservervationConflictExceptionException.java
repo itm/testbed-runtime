@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import javax.xml.ws.WebFault;
 
@@ -45,7 +45,7 @@ public class ReservervationConflictExceptionException
     /**
      * 
      * @return
-     *     returns fault bean: eu.wisebed.testbed.api.rs.v1.ReservervationConflictException
+     *     returns fault bean: eu.wisebed.api.rs.ReservervationConflictException
      */
     public ReservervationConflictException getFaultInfo() {
         return faultInfo;

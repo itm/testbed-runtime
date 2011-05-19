@@ -5,8 +5,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
 
 import eu.wisebed.api.snaa.SNAA;
 import eu.wisebed.api.snaa.AuthenticationTriple;

@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,16 +10,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for getReservationsResponse complex type.
+ * <p>Java class for getReservation complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="getReservationsResponse">
+ * &lt;complexType name="getReservation">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="reservations" type="{urn:RSService}publicReservationData" maxOccurs="unbounded"/>
+ *         &lt;element name="secretReservationKey" type="{urn:RSService}secretReservationKey" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -29,41 +29,41 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "getReservationsResponse", propOrder = {
-    "reservations"
+@XmlType(name = "getReservation", propOrder = {
+    "secretReservationKey"
 })
-public class GetReservationsResponse {
+public class GetReservation {
 
     @XmlElement(required = true)
-    protected List<PublicReservationData> reservations;
+    protected List<SecretReservationKey> secretReservationKey;
 
     /**
-     * Gets the value of the reservations property.
+     * Gets the value of the secretReservationKey property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the reservations property.
+     * This is why there is not a <CODE>set</CODE> method for the secretReservationKey property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getReservations().add(newItem);
+     *    getSecretReservationKey().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link PublicReservationData }
+     * {@link SecretReservationKey }
      * 
      * 
      */
-    public List<PublicReservationData> getReservations() {
-        if (reservations == null) {
-            reservations = new ArrayList<PublicReservationData>();
+    public List<SecretReservationKey> getSecretReservationKey() {
+        if (secretReservationKey == null) {
+            secretReservationKey = new ArrayList<SecretReservationKey>();
         }
-        return this.reservations;
+        return this.secretReservationKey;
     }
 
 }

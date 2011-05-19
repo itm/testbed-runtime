@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.api.rs.RSExceptionException;
 import org.junit.Before;
 
 public class RSPersistenceInMemoryTest extends RSPersistenceTest {

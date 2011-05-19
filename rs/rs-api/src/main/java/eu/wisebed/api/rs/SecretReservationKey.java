@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,17 +8,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for secretAuthenticationKey complex type.
+ * <p>Java class for secretReservationKey complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="secretAuthenticationKey">
+ * &lt;complexType name="secretReservationKey">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="username" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="secretAuthenticationKey" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="secretReservationKey" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="urnPrefix" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -29,66 +28,39 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "secretAuthenticationKey", propOrder = {
-    "username",
-    "secretAuthenticationKey",
+@XmlType(name = "secretReservationKey", propOrder = {
+    "secretReservationKey",
     "urnPrefix"
 })
-public class SecretAuthenticationKey {
+public class SecretReservationKey {
 
     @XmlElement(required = true)
-    protected String username;
-    @XmlElement(required = true)
-    protected String secretAuthenticationKey;
+    protected String secretReservationKey;
     @XmlElement(required = true)
     protected String urnPrefix;
 
     /**
-     * Gets the value of the username property.
+     * Gets the value of the secretReservationKey property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getUsername() {
-        return username;
+    public String getSecretReservationKey() {
+        return secretReservationKey;
     }
 
     /**
-     * Sets the value of the username property.
+     * Sets the value of the secretReservationKey property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setUsername(String value) {
-        this.username = value;
-    }
-
-    /**
-     * Gets the value of the secretAuthenticationKey property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSecretAuthenticationKey() {
-        return secretAuthenticationKey;
-    }
-
-    /**
-     * Sets the value of the secretAuthenticationKey property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSecretAuthenticationKey(String value) {
-        this.secretAuthenticationKey = value;
+    public void setSecretReservationKey(String value) {
+        this.secretReservationKey = value;
     }
 
     /**

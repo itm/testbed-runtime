@@ -33,7 +33,7 @@ import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.api.rs.RSExceptionException;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

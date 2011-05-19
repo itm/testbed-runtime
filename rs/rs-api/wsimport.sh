@@ -1,2 +1,2 @@
 #!/bin/bash
-wsimport -p eu.wisebed.testbed.api.rs.v1 -s src/main/java/ -keep -wsdllocation REPLACE_WITH_ACTUAL_URL -Xnocompile src/main/resources/RS.wsdl
+wsimport -b src/main/resources/RSService.xjb -b src/main/resources/RSTypes.xjb -s src/main/java/ -keep -wsdllocation REPLACE_WITH_ACTUAL_URL -Xnocompile src/main/resources/RSService.wsdl

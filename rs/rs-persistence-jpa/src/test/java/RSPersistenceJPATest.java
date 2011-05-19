@@ -24,7 +24,7 @@
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.api.rs.RSExceptionException;
 import org.junit.Before;
 
 import java.util.*;

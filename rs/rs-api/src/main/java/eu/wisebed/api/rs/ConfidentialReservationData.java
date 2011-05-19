@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +10,18 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for makeReservationResponse complex type.
+ * <p>Java class for confidentialReservationData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="makeReservationResponse">
+ * &lt;complexType name="confidentialReservationData">
  *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *     &lt;extension base="{urn:RSService}publicReservationData">
  *       &lt;sequence>
- *         &lt;element name="secretReservationKey" type="{urn:RSService}secretReservationKey" maxOccurs="unbounded"/>
+ *         &lt;element name="data" type="{urn:RSService}data" maxOccurs="unbounded"/>
  *       &lt;/sequence>
- *     &lt;/restriction>
+ *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
@@ -29,41 +29,43 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "makeReservationResponse", propOrder = {
-    "secretReservationKey"
+@XmlType(name = "confidentialReservationData", propOrder = {
+    "data"
 })
-public class MakeReservationResponse {
+public class ConfidentialReservationData
+    extends PublicReservationData
+{
 
     @XmlElement(required = true)
-    protected List<SecretReservationKey> secretReservationKey;
+    protected List<Data> data;
 
     /**
-     * Gets the value of the secretReservationKey property.
+     * Gets the value of the data property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the secretReservationKey property.
+     * This is why there is not a <CODE>set</CODE> method for the data property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getSecretReservationKey().add(newItem);
+     *    getData().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link SecretReservationKey }
+     * {@link Data }
      * 
      * 
      */
-    public List<SecretReservationKey> getSecretReservationKey() {
-        if (secretReservationKey == null) {
-            secretReservationKey = new ArrayList<SecretReservationKey>();
+    public List<Data> getData() {
+        if (data == null) {
+            data = new ArrayList<Data>();
         }
-        return this.secretReservationKey;
+        return this.data;
     }
 
 }

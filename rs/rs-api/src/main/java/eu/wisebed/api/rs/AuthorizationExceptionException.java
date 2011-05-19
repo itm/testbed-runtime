@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import javax.xml.ws.WebFault;
 
@@ -10,8 +10,8 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.1
  * 
  */
-@WebFault(name = "RSFault", targetNamespace = "urn:RSService")
-public class RSExceptionException
+@WebFault(name = "AuthorizationFault", targetNamespace = "urn:RSService")
+public class AuthorizationExceptionException
     extends Exception
 {
 
@@ -19,14 +19,14 @@ public class RSExceptionException
      * Java type that goes as soapenv:Fault detail element.
      * 
      */
-    private RSException faultInfo;
+    private AuthorizationException faultInfo;
 
     /**
      * 
      * @param message
      * @param faultInfo
      */
-    public RSExceptionException(String message, RSException faultInfo) {
+    public AuthorizationExceptionException(String message, AuthorizationException faultInfo) {
         super(message);
         this.faultInfo = faultInfo;
     }
@@ -37,7 +37,7 @@ public class RSExceptionException
      * @param faultInfo
      * @param cause
      */
-    public RSExceptionException(String message, RSException faultInfo, Throwable cause) {
+    public AuthorizationExceptionException(String message, AuthorizationException faultInfo, Throwable cause) {
         super(message, cause);
         this.faultInfo = faultInfo;
     }
@@ -45,9 +45,9 @@ public class RSExceptionException
     /**
      * 
      * @return
-     *     returns fault bean: eu.wisebed.testbed.api.rs.v1.RSException
+     *     returns fault bean: eu.wisebed.api.rs.AuthorizationException
      */
-    public RSException getFaultInfo() {
+    public AuthorizationException getFaultInfo() {
         return faultInfo;
     }
 

@@ -1,5 +1,5 @@
 
-package eu.wisebed.testbed.api.rs.v1;
+package eu.wisebed.api.rs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +10,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for deleteReservation complex type.
+ * <p>Java class for makeReservation complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="deleteReservation">
+ * &lt;complexType name="makeReservation">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="authenticationData" type="{urn:RSService}secretAuthenticationKey" maxOccurs="unbounded"/>
- *         &lt;element name="secretReservationKey" type="{urn:RSService}secretReservationKey" maxOccurs="unbounded"/>
+ *         &lt;element name="reservation" type="{urn:RSService}confidentialReservationData"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -30,16 +30,16 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "deleteReservation", propOrder = {
+@XmlType(name = "makeReservation", propOrder = {
     "authenticationData",
-    "secretReservationKey"
+    "reservation"
 })
-public class DeleteReservation {
+public class MakeReservation {
 
     @XmlElement(required = true)
     protected List<SecretAuthenticationKey> authenticationData;
     @XmlElement(required = true)
-    protected List<SecretReservationKey> secretReservationKey;
+    protected ConfidentialReservationData reservation;
 
     /**
      * Gets the value of the authenticationData property.
@@ -71,32 +71,27 @@ public class DeleteReservation {
     }
 
     /**
-     * Gets the value of the secretReservationKey property.
+     * Gets the value of the reservation property.
      * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the secretReservationKey property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSecretReservationKey().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SecretReservationKey }
-     * 
-     * 
+     * @return
+     *     possible object is
+     *     {@link ConfidentialReservationData }
+     *     
      */
-    public List<SecretReservationKey> getSecretReservationKey() {
-        if (secretReservationKey == null) {
-            secretReservationKey = new ArrayList<SecretReservationKey>();
-        }
-        return this.secretReservationKey;
+    public ConfidentialReservationData getReservation() {
+        return reservation;
+    }
+
+    /**
+     * Sets the value of the reservation property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ConfidentialReservationData }
+     *     
+     */
+    public void setReservation(ConfidentialReservationData value) {
+        this.reservation = value;
     }
 
 }

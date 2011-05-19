@@ -56,9 +56,9 @@ import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.ProgramMetaData;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.Data;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.SecretReservationKey;
 import eu.wisebed.api.snaa.AuthenticationTriple;
 import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
@@ -208,14 +208,14 @@ public class BeanShellHelper {
 		return reservations;
 	}
 
-	public static List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs(
+	public static List<eu.wisebed.api.rs.SecretAuthenticationKey> copySnaaToRs(
 			List<SecretAuthenticationKey> snaaKeys) {
-		List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> secretAuthKeys =
-				new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
+		List<eu.wisebed.api.rs.SecretAuthenticationKey> secretAuthKeys =
+				new ArrayList<eu.wisebed.api.rs.SecretAuthenticationKey>();
 
 		for (SecretAuthenticationKey snaaKey : snaaKeys) {
-			eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey key =
-					new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
+			eu.wisebed.api.rs.SecretAuthenticationKey key =
+					new eu.wisebed.api.rs.SecretAuthenticationKey();
 			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
 			key.setUrnPrefix(snaaKey.getUrnPrefix());
 			key.setUsername(snaaKey.getUsername());

@@ -38,7 +38,7 @@ import com.google.gdata.util.ServiceException;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.testbed.api.rs.v1.*;
+import eu.wisebed.api.rs.*;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
