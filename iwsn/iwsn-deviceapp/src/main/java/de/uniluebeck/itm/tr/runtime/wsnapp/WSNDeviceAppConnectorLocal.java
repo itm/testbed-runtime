@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import de.uniluebeck.itm.deviceobserver.impl.DeviceObserverImpl;
+import de.uniluebeck.itm.deviceobserver.impl.WSNDeviceAppConnectorLocalDeviceEventListenerImpl;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
@@ -551,6 +553,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private iSenseDevice device;
 
+	private final DeviceObserverImpl deviceObserver;
+
 	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 									  final String nodeSerialInterface, final Integer timeoutNodeAPI,
 									  final Integer maximumMessageRate, final SchedulerService schedulerService,
@@ -574,12 +578,16 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		this.timeoutReset = timeoutReset == null ? 3000 : timeoutReset;
 		this.timeoutFlash = timeoutFlash == null ? 90000 : timeoutFlash;
 
+		this.deviceObserver = new DeviceObserverImpl();
+		this.deviceObserver.addListener(new WSNDeviceAppConnectorLocalDeviceEventListenerImpl());
 	}
 
 	@Override
 	public void destroyVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.destroyVirtualLink()", nodeUrn);
+
+		checkDeviceObserverConnectivity();
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -603,6 +611,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private void callCallback(final Future<NodeApiCallResult> future, final WSNDeviceAppConnector.Callback listener) {
 		try {
+
+			checkDeviceObserverConnectivity();
 
 			NodeApiCallResult result = future.get();
 
@@ -629,6 +639,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void disableNode(final WSNDeviceAppConnector.Callback listener) {
 
+		checkDeviceObserverConnectivity();
+
 		log.debug("{} => WSNDeviceAppConnectorLocal.disableNode()", nodeUrn);
 
 		switch (state.getState()) {
@@ -652,6 +664,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void disablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		checkDeviceObserverConnectivity();
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.disablePhysicalLink()", nodeUrn);
 
@@ -677,6 +691,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void enableNode(final WSNDeviceAppConnector.Callback listener) {
 
+		checkDeviceObserverConnectivity();
+
 		log.debug("{} => WSNDeviceAppConnectorLocal.enableNode()", nodeUrn);
 
 		switch (state.getState()) {
@@ -700,6 +716,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	@Override
 	public void enablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
+
+		checkDeviceObserverConnectivity();
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.enablePhysicalLink()", nodeUrn);
 
@@ -727,6 +745,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 							 final WSNDeviceAppConnector.FlashProgramCallback listener) {
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.executeFlashPrograms()", nodeUrn);
+
+		checkDeviceObserverConnectivity();
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
@@ -819,6 +839,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.isNodeAlive()", nodeUrn);
 
+		checkDeviceObserverConnectivity();
+
 		// to the best of our knowledge, a node is alive if we're connected to it
 		boolean connected = device != null && device.isConnected();
 		if (connected) {
@@ -832,6 +854,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void resetNode(final WSNDeviceAppConnector.Callback listener) {
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.resetNode()", nodeUrn);
+
+		checkDeviceObserverConnectivity();
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed resetting node. Reason: Device is not connected.";
@@ -893,6 +917,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void sendMessage(final byte[] messageBytes, final WSNDeviceAppConnector.Callback listener) {
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.sendMessage()", nodeUrn);
+
+		checkDeviceObserverConnectivity();
 
 		switch (state.getState()) {
 
@@ -969,6 +995,8 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppConnectorLocal.setVirtualLink()", nodeUrn);
 
+		checkDeviceObserverConnectivity();
+
 		switch (state.getState()) {
 			case DISCONNECTED:
 				listener.failure((byte) -1, "Node is not connected.".getBytes());
@@ -992,6 +1020,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void start() throws Exception {
 		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
 		nodeApi.start();
+		deviceObserver.start();
 	}
 
 	@Override
@@ -1004,6 +1033,11 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 			device.shutdown();
 		}
+		deviceObserver.stop();
+	}
 
+	private void checkDeviceObserverConnectivity() {
+		//checks connectivity of local device through deviceObserver
+		deviceObserver.checkConnectivity(nodeUSBChipID);
 	}
 }

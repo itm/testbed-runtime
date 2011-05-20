@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                  *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,8 +9,8 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
- *   promote products derived from this software without specific prior written permission.                           *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
+ *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
@@ -21,46 +21,48 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.util;
+import de.uniluebeck.itm.deviceobserver.impl.MockDeviceEventListenerImpl;
+import de.uniluebeck.itm.deviceobserver.impl.MockDeviceObserverImpl;
+import de.uniluebeck.itm.tr.util.Logging;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.apache.log4j.*;
+import static junit.framework.Assert.assertEquals;
 
+public class DeviceObserverTest {
+	private MockDeviceObserverImpl deviceObserver;
 
-public class Logging {
-
-	public static void setLoggingDefaults() {
-
-		// configure logging defaults
-		Appender appender = new ConsoleAppender(
-				new PatternLayout("%-23d{yyyy-MM-dd HH:mm:ss,SSS} | %-25.25t | %-25.25c{1} | %-5p | %m%n")
-		);
-
-		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
-		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
-		Logger coaLogger = Logger.getLogger("com.coalesenses");
-
-		if (!itmLogger.getAllAppenders().hasMoreElements()) {
-			itmLogger.addAppender(appender);
-			itmLogger.setLevel(Level.DEBUG);
-		}
-
-		if (!wisebedLogger.getAllAppenders().hasMoreElements()) {
-			wisebedLogger.addAppender(appender);
-			wisebedLogger.setLevel(Level.DEBUG);
-		}
-
-		if (!coaLogger.getAllAppenders().hasMoreElements()) {
-			coaLogger.addAppender(appender);
-			coaLogger.setLevel(Level.INFO);
-		}
+	@Before
+	public void setUp() {
+		Logging.setLoggingDefaults();
+		deviceObserver = new MockDeviceObserverImpl();
+		deviceObserver.addListener(new MockDeviceEventListenerImpl());
 	}
 
-
-	public static void setDebugLoggingDefaults() {
-		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-20.20c{3} | %-5p | %m%n");
-		final Appender appender = new ConsoleAppender(patternLayout);
-		Logger.getRootLogger().removeAllAppenders();
-		Logger.getRootLogger().addAppender(appender);
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+	@Test
+	public void testEventListenerSizeForValidInput() {
+		//test for valid input
+		//add 3 mock devices
+		deviceObserver.setCsvDevices(CsvDeviceTestOutput.pacemate);
+		//test for 3 eventlisteners
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 3);
+		//check for removed devices
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 3);
+		//remove devices
+		deviceObserver.setCsvDevices(new String[]{});
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 0);
+		//check if all devices successfully removed
 	}
+
+	@Test
+	public void testDeviceObserverForNotConnectableDevice(){
+		//test for not valid input for not connectable device
+		deviceObserver.setCsvDevices(CsvDeviceTestOutput.notConnectableDevice);
+		deviceObserver.run();
+		assertEquals(deviceObserver.getEventListenerInstances().size(), 0);
+	}
+
 }
