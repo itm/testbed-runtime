@@ -4,18 +4,10 @@ import de.uniluebeck.itm.deviceobserver.exception.DeviceNotDisconnectableExcepti
 import de.uniluebeck.itm.deviceobserver.impl.MockDeviceEventListenerImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 
-/**
- * Created by IntelliJ IDEA.
- * User: nrohwedder
- * Date: 04.05.11
- * Time: 15:17
- * To change this template use File | Settings | File Templates.
- */
+
 public class DeviceEventListenerTest {
 
 	private DeviceEventListener deviceEventListener;

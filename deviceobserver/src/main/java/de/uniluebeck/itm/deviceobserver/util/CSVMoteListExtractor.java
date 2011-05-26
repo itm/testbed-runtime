@@ -34,18 +34,20 @@ import java.util.StringTokenizer;
 
 /**
  * This class is a Helper-Class to extract csv from the os-specific motelist-script
- *
  */
 public class CSVMoteListExtractor {
+
 	private final static String motelist_win32_exe = "motelist-win32.exe";
+
 	private final static String motelist_linux = "motelist-linux";
+
 	private final static String motelist_macos = "motelist-macos";
 
 	private static File tmpFile;
+
 	private final static Logger logger = LoggerFactory.getLogger(CSVMoteListExtractor.class);
 
 	/**
-	 *
 	 * @return Filename of Motelist-script dependent on your os
 	 */
 	private static String getMotelistScriptFromOS() {
@@ -63,8 +65,9 @@ public class CSVMoteListExtractor {
 	}
 
 	/**
-	 * Main-Method to be called from outside to retrieve the current connected devices
-	 * Starts a process on the motelist-script returning the devices
+	 * Main-Method to be called from outside to retrieve the current connected devices Starts a process on the
+	 * motelist-script returning the devices
+	 *
 	 * @return String-array of csv-strings for all connected devices;
 	 */
 	public static String[] getDeviceListAsCSV() {
@@ -72,7 +75,7 @@ public class CSVMoteListExtractor {
 		ProcessBuilder pb = null;
 		try {
 			copyScriptToTmpFile();
-			//creating processbuilder on the motelist-script
+			//creating ProcessBuilder on the motelist-script
 			pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
 			Process p = pb.start();
 
@@ -97,12 +100,14 @@ public class CSVMoteListExtractor {
 
 	/**
 	 * helper-method to copy motelist-script to a tmp-file
+	 *
 	 * @return the motelist-script as an executable tmp-file
 	 */
 	private static File copyScriptToTmpFile() {
 		if (tmpFile == null || !tmpFile.exists()) {
 			try {
-				InputStream from = CSVMoteListExtractor.class.getClassLoader().getResourceAsStream(getMotelistScriptFromOS());
+				InputStream from =
+						CSVMoteListExtractor.class.getClassLoader().getResourceAsStream(getMotelistScriptFromOS());
 				FileOutputStream to = null;
 				try {
 					tmpFile = File.createTempFile("motelist", "");
