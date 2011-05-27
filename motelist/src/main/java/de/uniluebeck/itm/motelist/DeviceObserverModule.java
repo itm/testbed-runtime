@@ -23,11 +23,14 @@
 
 package de.uniluebeck.itm.motelist;
 
-import com.google.common.collect.ImmutableList;
-import de.uniluebeck.itm.tr.util.Listenable;
+import com.google.inject.Binder;
+import com.google.inject.Module;
 
-public interface DeviceObserver extends Runnable, Listenable<DeviceObserverListener> {
+public class DeviceObserverModule implements Module {
 
-	ImmutableList<DeviceEvent> getEvents();
-
+	@Override
+	public void configure(final Binder binder) {
+		binder.bind(DeviceObserverCsvProvider.class).to(DeviceObserverCsvProviderImpl.class);
+		binder.bind(DeviceObserver.class).to(DeviceObserverImpl.class);
+	}
 }

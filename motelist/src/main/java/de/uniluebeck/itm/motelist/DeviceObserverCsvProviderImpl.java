@@ -23,11 +23,68 @@
 
 package de.uniluebeck.itm.motelist;
 
-import com.google.common.collect.ImmutableList;
-import de.uniluebeck.itm.tr.util.Listenable;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface DeviceObserver extends Runnable, Listenable<DeviceObserverListener> {
+import java.io.File;
+import java.io.IOException;
 
-	ImmutableList<DeviceEvent> getEvents();
+public class DeviceObserverCsvProviderImpl implements DeviceObserverCsvProvider {
+
+	private static final Logger log = LoggerFactory.getLogger(DeviceObserverCsvProvider.class);
+
+	@Override
+	public String getMoteCsv() {
+		if (SystemUtils.IS_OS_LINUX) {
+			return getCsv("motelist-linux");
+		} else if (SystemUtils.IS_OS_MAC_OSX) {
+			return getCsv("motelist-macosx");
+		} else if (SystemUtils.IS_OS_WINDOWS_XP) {
+			return getCsv("motelist-windowsxp.exe");
+		}
+		throw new RuntimeException(
+				"OS " + SystemUtils.OS_NAME + " " + SystemUtils.OS_VERSION +
+						"(" + SystemUtils.OS_ARCH + ") is currently not supported!"
+		);
+	}
+
+	private String getCsv(final String scriptName) {
+
+		File tmpFile = copyScriptToTmpFile(scriptName);
+
+		try {
+
+			ProcessBuilder pb = new ProcessBuilder(tmpFile.getAbsolutePath(), "-c");
+			Process p = pb.start();
+			final String csv = new String(ByteStreams.toByteArray(p.getInputStream()));
+			if (!tmpFile.delete()) {
+				tmpFile.deleteOnExit();
+			}
+			return csv;
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private File copyScriptToTmpFile(final String scriptName) {
+
+		try {
+
+			final byte[] scriptBytes = ByteStreams.toByteArray(getClass().getClassLoader().getResourceAsStream(scriptName));
+			File to = File.createTempFile("motelist", "");
+			Files.copy(ByteStreams.newInputStreamSupplier(scriptBytes), to);
+			to.setExecutable(true);
+			return to;
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 
 }

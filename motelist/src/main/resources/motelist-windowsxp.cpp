@@ -340,78 +340,125 @@ ListDevice getDevices()
   RegKey usb6001( HKEY_LOCAL_MACHINE, ccs+"Enum\\USB\\Vid_0403&Pid_6001" );
 
   VecString fdev = ftdibus.getSubkeyNames();
-  for( VecString::const_iterator i=fdev.begin(); i!=fdev.end(); i++ )
+  for( VecString::const_iterator iterator=fdev.begin(); iterator!=fdev.end(); iterator++ )
   {
-    if( i->substr(0,18) == String("VID_0403+PID_6001+") )
+    
+    if( iterator->substr(0,18) == String("VID_0403+PID_6001+") )
     {
+      
       Device d;
-      d.id = i->substr(18,8);
-        
+      d.id = iterator->substr(18,8);
+      
       // long version for iSense
-      if (strcmp(d.id.substr(0,2).c_str(), "XB") != 0)
-         d.id = i->substr(18,16);
-      
-      //printf("getDevice %s ",d.id.c_str());
-        
-      
+      bool is_isense = false;
+      bool is_telosb = false;
+      bool is_crossbow = strcmp(d.id.substr(0,2).c_str(), "XB") == 0;
+      bool is_xbee = strcmp(d.id.substr(0,1).c_str(), "A") == 0;
 
+      if ( !is_crossbow && !is_xbee )
+      {
+        d.id = iterator->substr(18,16);
+      }
+      
+      //printf("deviceId=%s ", d.id.c_str());
+      
+      // search for port in FTDIBUS
       try
       {
-	RegKey devkey = ftdibus[*i];
-	VecString devsub = devkey.getSubkeyNames();
+	RegKey devkey = ftdibus[*iterator];
+        VecString devsub = devkey.getSubkeyNames();
 	d.comm = devkey[devsub[0]+"\\Device Parameters"]("PortName").data;
+	//printf("comm=%s\n", d.comm.c_str());
       }
-      catch( std::runtime_error e ) { d.comm = "no_comm"; }
+      catch( std::runtime_error e )
+      {
+        d.comm = "no_comm";
+      }
 
-      try { d.info = usb6001[d.id]("LocationInformation").data; 
-             if (strcmp(d.info.c_str(), "USB <-> Serial") == 0)
-                 d.info = "Coalesenses iSense";}
-      catch( std::runtime_error e ) { d.info = "no_info";}
-      
-      //String a = "0";
-            
-      //try { RegKey aa = usb6001[d.id+"\\Control"];a = "1";}
-      //catch( std::runtime_error e ) { a = "2"; }
+      // read out device type 
+      try 
+      { 
+        
+        d.info = usb6001[d.id]("LocationInformation").data; 
+        
+	is_isense = strcmp(d.info.c_str(), "USB <-> Serial") == 0;
+        is_telosb = strcmp(d.info.c_str(), "Crossbow Telos Rev.B") == 0;
+        is_xbee = strcmp(d.info.c_str(), "FT232R USB UART") == 0;
 
-      //printf("   control %s\n", a.c_str());
-
-      try { d.refcount = getRefCount( dclass, usb6001[d.id] ); }
-      catch( std::runtime_error e ) { }
+        if (is_isense)
+        {
+          d.info = "isense";
+        } else if (is_telosb)
+        {
+          d.info = "telosb";
+	} else if (is_xbee)
+	{
+          d.info = "xbee";
+        }
+	
+      }
+      catch( std::runtime_error e ) {
+        d.info = "no_info";
+      }
 
       String::size_type ncomm = d.comm.find_first_of("0123456789");
       if( ncomm != String::npos )
+      {
         d.sortnum = atoi( d.comm.substr(ncomm).c_str() );
+      }
 
+      //d.refcount = 1;
+      try
+      {
+        d.refcount = getRefCount( dclass, usb6001[d.id] );
+      }
+      catch( std::runtime_error e ) { }
+      
       devs.push_back(d);
     }
   }
   
   RegKey pacemate( HKEY_LOCAL_MACHINE, ccs+"Enum\\USB\\Vid_10c4&Pid_ea60" );
   VecString pdev = pacemate.getSubkeyNames();
-  for( VecString::const_iterator i=pdev.begin(); i!=pdev.end(); i++ )
+  for( VecString::const_iterator iterator=pdev.begin(); iterator!=pdev.end(); iterator++ )
   {
       Device d;
-      RegKey pacemateKey = pacemate[*i];
+      RegKey pacemateKey = pacemate[*iterator];
       
-      d.id = i->substr(0,4);
+      d.id = iterator->substr(0,4);
       
-      try { d.comm = pacemate[d.id+"\\Device Parameters"]("PortName").data; }
-      catch( std::runtime_error e ) { d.comm = "no_comm";}
+      try {
+        d.comm = pacemate[d.id+"\\Device Parameters"]("PortName").data;
+      }
+      catch( std::runtime_error e )
+      {
+        d.comm = "no_comm";
+      }
       
-      try { d.info = pacemateKey("LocationInformation").data; }
-      catch( std::runtime_error e ) { d.comm = "no_info";}
+      try
+      {
+        d.info = pacemateKey("LocationInformation").data;
+      }
+      catch( std::runtime_error e )
+      {
+        d.comm = "no_info"; 
+      }
       
       if (strcmp(d.info.c_str(), "Pacemate") == 0)
-                 d.info = "ITM Pacemate";
+      {
+        d.info = "pacemate";
+      }
       
       d.refcount = 0;
       
-      try{ RegKey aa = pacemate[d.id+"\\Control"];d.refcount = 1;}
-      catch( std::runtime_error e ) { }
-      
-      //printf("pacemate %s   %s  %i\n", i->c_str(), d.info.c_str(),d.refcount);
+      try
+      {
+        d.refcount = getRefCount( dclass, pacemate[d.id] );
+      }
+      catch( std::runtime_error e ) {}
       
       devs.push_back(d);
+      
   }
 
   return devs;
@@ -441,8 +488,7 @@ void printDevices( const ListDevice& devs )
 {
   for( ListDevice::const_iterator i=devs.begin(); i!=devs.end(); i++ )
   {
-    cout << i->id << "," << i->comm << ","
-	 << i->refcount << "," << i->info << endl;
+    cout << i->id << "," << i->comm << ","<< i->info << endl;
   }
 }
 
@@ -494,7 +540,7 @@ int main( VecString args )
   devs.sort();
 
   if( devs.empty() )
-    { cout << "No devices found." << endl; return 2; }
+    { cout << endl; return 2; }
   else if( compact )
     printDevices( devs );
   else

@@ -214,7 +214,6 @@ sub print_motelist {
 
   #  If none were found, quit
   if( @devs == 0 ) {
-    print "No devices found.\n";
     return;
   }
 
@@ -235,16 +234,31 @@ EOF
 
   #  Print the usb information
   for my $dev (sort { cmp_usbdev($a,$b) } @devs) {
-      
-      if ($dev->{InfoProduct} eq "USB <-> Serial"){
-        $dev->{InfoProduct} = "iSense";
-        $dev->{InfoManufacturer} = "Coalesenses";}
-        
-      if ($dev->{InfoProduct} eq "Pacemate"){
-        $dev->{InfoManufacturer} = "ITM";}  
-      
-    my $desc = join( " ", $dev->{InfoManufacturer}||"", $dev->{InfoProduct}||"" ) || " (none)";
-    my @output = ( $dev->{InfoSerial}||" (none)", $dev->{SerialDevName}, $desc );
+
+    if ($dev->{InfoProduct} eq "Crossbow Telos Rev.B") {
+      $dev->{InfoProduct} = "telosb";
+      $dev->{InfoManufacturer} = "";
+    }
+
+    if ($dev->{InfoProduct} eq "USB <-> Serial"){
+      $dev->{InfoProduct} = "isense";
+      $dev->{InfoManufacturer} = "";
+    }
+
+    if ($dev->{InfoProduct} eq "Pacemate"){
+      $dev->{InfoProduct} = "pacemate";
+      $dev->{InfoManufacturer} = "";
+    }
+
+    if ($dev->{InfoProduct} eq "FT232R USB UART"){
+      $dev->{InfoProduct} = "xbee";
+      $dev->{InfoManufacturer} = "";
+    }
+
+    #my $desc = join(" ", $dev->{InfoManufacturer} || "", $dev->{InfoProduct} || "");
+    my $desc = $dev->{InfoProduct};
+	#my $desc = join(" ", $dev->{InfoManufacturer}||"", $dev->{InfoProduct}||"" ) || " (none)";
+    my @output = ( $dev->{InfoSerial}||"", $dev->{SerialDevName}, $desc );
     @output = ( $dev->{UsbBusNum}, $dev->{UsbDevNum}, $dev->{UsbPath}, @output ) if $Opt{usb};
     if( $Opt{compact} ) {
       print join(",",@output) . "\n";

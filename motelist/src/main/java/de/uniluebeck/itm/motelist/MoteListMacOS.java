@@ -75,6 +75,6 @@ class MoteListMacOS extends AbstractMoteList {
 
 	@Override
 	public String getScriptName() {
-		return "motelist-macos";
+		return "motelist-macosx";
 	}
 }

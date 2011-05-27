@@ -23,11 +23,41 @@
 
 package de.uniluebeck.itm.motelist;
 
-import com.google.common.collect.ImmutableList;
-import de.uniluebeck.itm.tr.util.Listenable;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Guice;
+import de.uniluebeck.itm.tr.util.Logging;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface DeviceObserver extends Runnable, Listenable<DeviceObserverListener> {
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
-	ImmutableList<DeviceEvent> getEvents();
+public class DeviceObserverMain {
+
+	private static final Logger log = LoggerFactory.getLogger(DeviceObserverMain.class);
+
+	public static void main(String[] args) {
+
+		Logging.setLoggingDefaults();
+
+		final DeviceObserver deviceObserver = Guice
+				.createInjector(new DeviceObserverModule())
+				.getInstance(DeviceObserver.class);
+
+		deviceObserver.addListener(new DeviceObserverListener() {
+			@Override
+			public void deviceEvent(final DeviceEvent event) {
+				log.info("{}", event);
+			}
+		}
+		);
+
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("DeviceObserver %d").build();
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, threadFactory);
+		scheduler.scheduleAtFixedRate(deviceObserver, 0, 1, TimeUnit.SECONDS);
+
+	}
 
 }

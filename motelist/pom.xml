@@ -90,46 +90,16 @@
 		<plugins>
 			<plugin>
 				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
-				<version>1.4.5</version>
+				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
+				<version>1.4.10</version>
 				<executions>
 					<execution>
 						<configuration>
-							<mainClass>de.uniluebeck.itm.motelist.MoteListCLI</mainClass>
-							<onejarVersion>0.97-RC10</onejarVersion>
-							<binlibs>
-								<fileSet>
-									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux32
-									</directory>
-									<includes>
-										<include>librxtxParallel.so</include>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux64
-									</directory>
-									<includes>
-										<include>librxtxSerial.so</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/macosx
-									</directory>
-									<includes>
-										<include>librxtxSerial.jnilib</include>
-									</includes>
-								</fileSet>
-								<fileSet>
-									<directory>
-										${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/windows32
-									</directory>
-									<includes>
-										<include>rxtxParallel.dll</include>
-										<include>rxtxSerial.dll</include>
-									</includes>
-								</fileSet>
-							</binlibs>
+							<mainClass>de.uniluebeck.itm.motelist.DeviceObserverMain</mainClass>
+							<onejarVersion>0.98-RC2</onejarVersion>
+							<attachToBuild>true</attachToBuild>
+							<classifier>onejar</classifier>
+							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
 						</configuration>
 						<goals>
 							<goal>one-jar</goal>

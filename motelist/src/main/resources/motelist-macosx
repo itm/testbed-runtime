@@ -50,7 +50,6 @@ sub print_motelist {
 
   #  If none were found, quit
   if( @devs == 0 ) {
-    print "No devices found.\n";
     return;
   }
 
@@ -64,7 +63,15 @@ EOF
 
   #  Print the usb information
   for my $dev (@devs) {
-    my $desc = "(none)";
+    my $desc = "";
+    my $firstLetterSerial = substr($dev->{"InfoSerial"},0,1);
+    if ($firstLetterSerial eq "A") {
+      $desc = "xbee";
+    } elsif ($firstLetterSerial eq "X") {
+      $desc = "telosb";
+    } else {
+      $desc = "isense";
+    }
     my @output = ( $dev->{"InfoSerial"}, $dev->{"SerialDevName"}, $desc );
     if( $Opt{compact} ) {
       print join(",",@output) . "\n";

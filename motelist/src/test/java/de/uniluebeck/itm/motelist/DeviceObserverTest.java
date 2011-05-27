@@ -10,17 +10,21 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceObserverTest {
 
 	private DeviceObserver deviceObserver;
 
-	private MoteCsvProvider moteCsvProvider;
+	@Mock
+	private DeviceObserverCsvProvider deviceObserverCsvProvider;
 
 	private final String device1Csv = "01234,/dev/ttyUSB0,isense";
 
@@ -56,11 +60,10 @@ public class DeviceObserverTest {
 
 	@Before
 	public void setUp() {
-		moteCsvProvider = mock(MoteCsvProvider.class);
 		final Injector injector = Guice.createInjector(new Module() {
 			@Override
 			public void configure(final Binder binder) {
-				binder.bind(MoteCsvProvider.class).toInstance(moteCsvProvider);
+				binder.bind(DeviceObserverCsvProvider.class).toInstance(deviceObserverCsvProvider);
 				binder.bind(DeviceObserver.class).to(DeviceObserverImpl.class);
 			}
 		}
@@ -71,7 +74,7 @@ public class DeviceObserverTest {
 	@Test
 	public void noDeviceFoundNoDeviceAttached() {
 		setObserverStateForCsvRows();
-		assertEquals(0, deviceObserver.getMoteEvents().size());
+		assertEquals(0, deviceObserver.getEvents().size());
 	}
 
 	@Test
@@ -168,19 +171,19 @@ public class DeviceObserverTest {
 
 	private ImmutableList<DeviceEvent> getObserverEventsForCsvRows(final String... csvRows) {
 		setCsvProviderState(csvRows);
-		return deviceObserver.getMoteEvents();
+		return deviceObserver.getEvents();
 	}
 
 	private void setObserverStateForCsvRows(final String... csvRows) {
 		setCsvProviderState(csvRows);
-		deviceObserver.getMoteEvents();
+		deviceObserver.getEvents();
 	}
 
 	private void setCsvProviderState(final String... csvRows) {
 		if (csvRows.length == 0) {
-			when(moteCsvProvider.getMoteCsv()).thenReturn("");
+			when(deviceObserverCsvProvider.getMoteCsv()).thenReturn("");
 		} else {
-			when(moteCsvProvider.getMoteCsv()).thenReturn(Joiner.on("\n").join(csvRows));
+			when(deviceObserverCsvProvider.getMoteCsv()).thenReturn(Joiner.on("\n").join(csvRows));
 		}
 	}
 
