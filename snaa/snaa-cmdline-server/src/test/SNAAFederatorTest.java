@@ -30,10 +30,10 @@ import java.util.*;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
 import org.junit.Before;
 import org.junit.Test;
 

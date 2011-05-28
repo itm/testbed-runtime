@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.snaa.federator;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -37,7 +37,7 @@ import java.util.concurrent.*;
 
 import static eu.wisebed.testbed.api.snaa.helpers.Helper.createSNAAException;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort",
+@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
 		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class FederatorSNAA implements SNAA {
 

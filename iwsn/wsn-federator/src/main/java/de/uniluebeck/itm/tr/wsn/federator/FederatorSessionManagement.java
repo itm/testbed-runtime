@@ -23,35 +23,8 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
@@ -67,6 +40,16 @@ import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+import java.util.*;
+import java.util.concurrent.*;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -276,20 +259,6 @@ public class FederatorSessionManagement implements SessionManagement {
 		String wsnEndpointUrl = endpointUrlBase + secureIdGenerator.getNextId() + "/wsn";
 		String controllerEndpointUrl = endpointUrlBase + secureIdGenerator.getNextId() + "/controller";
 
-		FederatorWSN federatorWSN = new FederatorWSN(wsnEndpointUrl, controllerEndpointUrl);
-
-		try {
-
-			federatorWSN.start();
-
-			// add controller to set of upstream controllers so that output is
-			// sent upwards
-			federatorWSN.addController(controller);
-
-		} catch (Exception e) {
-			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
-		}
-
 		// delegate calls to the relevant federated Session Management API
 		// endpoints (fork)
 
@@ -309,6 +278,9 @@ public class FederatorSessionManagement implements SessionManagement {
 			futures.add(executorService.submit(getInstanceCallable));
 		}
 
+		ImmutableMap.Builder<String, ImmutableSet<String>> federatedEndpointUrlsToUrnPrefixesMapBuilder =
+				ImmutableMap.builder();
+
 		// collect call results (join)
 		for (Future<GetInstanceCallable.Result> future : futures) {
 			try {
@@ -316,20 +288,34 @@ public class FederatorSessionManagement implements SessionManagement {
 				GetInstanceCallable.Result result = future.get();
 
 				Set<String> federatedUrnPrefixSet = convertToUrnPrefixSet(result.secretReservationKey);
-				federatorWSN.addFederatedWSNEndpoint(result.federatedWSNInstanceEndpointUrl, federatedUrnPrefixSet);
+				federatedEndpointUrlsToUrnPrefixesMapBuilder.put(
+						result.federatedWSNInstanceEndpointUrl,
+						ImmutableSet.copyOf(federatedUrnPrefixSet)
+				);
 
-			} catch (InterruptedException e) {
-
-				// if one delegate call fails also fail
-				log.error("" + e, e);
-				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
-
-			} catch (ExecutionException e) {
+			} catch (Exception e) {
 
 				// if one delegate call fails also fail
 				log.error("" + e, e);
 				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
+
 			}
+		}
+
+		FederatorWSN federatorWSN = new FederatorWSN(wsnEndpointUrl, controllerEndpointUrl,
+				federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
+		);
+
+		try {
+
+			federatorWSN.start();
+
+			// add controller to set of upstream controllers so that output is
+			// sent upwards
+			federatorWSN.addController(controller);
+
+		} catch (Exception e) {
+			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 		}
 
 		instanceCache.put(wsnInstanceHash, federatorWSN);
@@ -355,11 +341,11 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	/**
-	 * Checks for a given list of {@link SecretReservationKey} instances which federated
-	 * Session Management endpoints are responsible for which set of URN prefixes.
+	 * Checks for a given list of {@link SecretReservationKey} instances which federated Session Management endpoints are
+	 * responsible for which set of URN prefixes.
 	 *
-	 * @param secretReservationKeys the list of {@link SecretReservationKey} instances as
-	 *                              passed in as parameter e.g. to {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
+	 * @param secretReservationKeys the list of {@link SecretReservationKey} instances as passed in as parameter e.g. to
+	 *                              {@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
 	 *							  String)}
 	 *
 	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they

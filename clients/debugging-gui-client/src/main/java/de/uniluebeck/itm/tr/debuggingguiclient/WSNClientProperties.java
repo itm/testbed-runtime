@@ -62,9 +62,6 @@ public class WSNClientProperties {
 
 	public static final String WSN_SERVICE_ENDPOINTURL = "wsn.service.endpointurl";
 
-    public static final String LOGCONTROLLER_STORE_ENDPOINTURL =
-            "logcontroller.store.endpointurl";
-
 	public static String readList(final Properties properties, final String propertyPrefix, final String defaultValue) {
 		StringBuilder builder = new StringBuilder();
         boolean found = false;

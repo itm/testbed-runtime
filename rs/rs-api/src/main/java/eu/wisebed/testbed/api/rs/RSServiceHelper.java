@@ -24,16 +24,14 @@
 package eu.wisebed.testbed.api.rs;
 
 import de.uniluebeck.itm.tr.util.FileUtils;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSService;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSService;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,12 +47,12 @@ public class RSServiceHelper {
 	 * Returns the port to the RS API.
 	 *
 	 * @param endpointUrl the endpoint URL to connect to
-	 * @return a {@link eu.wisebed.testbed.api.rs.v1.RS} instance that is
+	 * @return a {@link eu.wisebed.api.rs.RS} instance that is
 	 *         connected to the Web Service endpoint
 	 */
 	public static RS getRSService(String endpointUrl) {
 
-		InputStream resourceStream = RSServiceHelper.class.getClassLoader().getResourceAsStream("RS.wsdl");
+		InputStream resourceStream = RSServiceHelper.class.getClassLoader().getResourceAsStream("RSService.wsdl");
 
 		tmpFileRSLock.lock();
 		try {

@@ -46,29 +46,29 @@ import com.google.common.collect.Lists;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.testbed.api.rs.v1.AuthorizationException;
-import eu.wisebed.testbed.api.rs.v1.AuthorizationExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.Data;
-import eu.wisebed.testbed.api.rs.v1.GetReservations;
-import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSException;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationConflictException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationConflictExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
-import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.api.rs.AuthorizationException;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.SecretAuthenticationKey;
+import eu.wisebed.api.rs.SecretReservationKey;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationExceptionException;
-import eu.wisebed.testbed.api.snaa.v1.SNAA;
-import eu.wisebed.testbed.api.snaa.v1.SNAAExceptionException;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAExceptionException;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
+@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
         targetNamespace = "urn:RSService")
 public class SingleUrnPrefixRS implements RS {
 
@@ -457,14 +457,14 @@ public class SingleUrnPrefixRS implements RS {
         log.debug("Checking authorization for key: " + key + " and action: " + action);
         boolean authorized;
 
-        eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey k =
-                new eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey();
+        eu.wisebed.api.snaa.SecretAuthenticationKey k =
+                new eu.wisebed.api.snaa.SecretAuthenticationKey();
         k.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
         k.setUrnPrefix(key.getUrnPrefix());
         k.setUsername(key.getUsername());
 
-        List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> l =
-                new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+        List<eu.wisebed.api.snaa.SecretAuthenticationKey> l =
+                new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
         l.add(k);
 
         // Invoke isAuthorized

@@ -28,8 +28,8 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr</artifactId>
-		<version>0.6.2-SNAPSHOT</version>
+		<artifactId>tr.clients</artifactId>
+		<version>0.7.1-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 

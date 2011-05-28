@@ -25,14 +25,15 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
@@ -40,15 +41,15 @@ import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.controllerhelper.ControllerHelper;
+import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +217,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
-	private ControllerHelper controllerHelper;
+	private DeliveryManager deliveryManager;
 
 	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
@@ -240,7 +241,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.preconditions.addKnownNodeUrns(nodeUrnsServedArray);
 
 		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
-		this.controllerHelper = new ControllerHelper();
+
+		this.deliveryManager = new DeliveryManager();
+
 	}
 
 	@Override
@@ -265,6 +268,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	@Override
 	public void stop() {
+
+		synchronized (wsnInstances) {
+
+			// copy key set to not cause ConcurrentModificationExceptions
+			final Set<String> secretReservationKeys = new HashSet<String>(wsnInstances.keySet());
+
+			for (String secretReservationKey : secretReservationKeys) {
+				try {
+					freeInternal(secretReservationKey);
+				} catch (ExperimentNotRunningException_Exception e) {
+					log.error("ExperimentNotRunningException while shutting down all WSN instances: " + e, e);
+				}
+			}
+		}
 
 		if (protobufControllerServer != null) {
 			protobufControllerServer.stop();
@@ -291,8 +308,18 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
 
-		if (!"NONE".equals(controller)) {
-			ControllerHelper.checkConnectivity(controller);
+		// check if controller endpoint URL is a valid URL and connectivity is given
+		// (i.e. endpoint is not behind a NAT or firewalled)
+		try {
+
+			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
+			if (!"NONE".equals(controller)) {
+				new URL(controller);
+				NetworkUtils.checkConnectivity(controller);
+			}
+
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
 		}
 
 		// extract the one and only relevant secretReservationKey
@@ -362,31 +389,27 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			log.info("Information: No Reservation-System found! All existing nodes will be used.");
 		}
 
+		URL wsnInstanceEndpointUrl;
 		try {
-
-			URL wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-			URL controllerEndpointUrl = null;
-			if (!"NONE".equals(controller)) {
-				controllerEndpointUrl = new URL(controller);
-			}
-
-			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
-					secretReservationKey,
-					testbedRuntime,
-					config.urnPrefix,
-					wsnInstanceEndpointUrl,
-					controllerEndpointUrl,
-					config.wiseMLFilename,
-					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufControllerHelper(config.maximumDeliveryQueueSize),
-					protobufControllerServer
-			);
-
+			wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 
+		wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
+				secretReservationKey,
+				testbedRuntime,
+				config.urnPrefix,
+				wsnInstanceEndpointUrl,
+				config.wiseMLFilename,
+				reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+				new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
+				protobufControllerServer
+		);
+
+		// start the WSN instance
 		try {
+
 			wsnServiceHandleInstance.start();
 
 		} catch (Exception e) {
@@ -396,6 +419,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		synchronized (wsnInstances) {
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
+		}
+
+		if (!"NONE".equals(controller)) {
+			wsnServiceHandleInstance.getWsnService().addController(controller);
 		}
 
 		return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
@@ -430,27 +457,27 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
-		this.controllerHelper.addController(controllerEndpointUrl);
+		this.deliveryManager.addController(controllerEndpointUrl);
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
 			wsnApp.areNodesAlive(new HashSet<String>(nodes), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					controllerHelper.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-					controllerHelper.removeController(controllerEndpointUrl);
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					deliveryManager.removeController(controllerEndpointUrl);
 				}
 
 				@Override
 				public void failure(Exception e) {
-					controllerHelper.receiveFailureStatusMessages(nodes, requestId, e, -1);
-					controllerHelper.removeController(controllerEndpointUrl);
+					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
+					deliveryManager.removeController(controllerEndpointUrl);
 				}
 			}
 			);
 		} catch (UnknownNodeUrnsException e) {
-			controllerHelper.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-			controllerHelper.removeController(controllerEndpointUrl);
+			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			deliveryManager.removeController(controllerEndpointUrl);
 		}
 
 		return requestId;
@@ -470,6 +497,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		log.debug("SessionManagementServiceImpl.free({})", secretReservationKey);
 
+		freeInternal(secretReservationKey);
+
+	}
+
+	private void freeInternal(final String secretReservationKey) throws ExperimentNotRunningException_Exception {
+
 		synchronized (wsnInstances) {
 
 			// search for the existing instance
@@ -477,6 +510,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 			// stop it if it is existing (it may have been freed before or its lifetime may have been reached)
 			if (wsnServiceHandleInstance != null) {
+
 				try {
 					wsnServiceHandleInstance.stop();
 				} catch (Exception e) {
@@ -495,7 +529,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			}
 
 		}
-
 	}
 
 	@Override
@@ -518,20 +551,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	}
 
-	private List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> convert(
+	private List<eu.wisebed.api.rs.SecretReservationKey> convert(
 			List<SecretReservationKey> secretReservationKey) {
 
-		List<eu.wisebed.testbed.api.rs.v1.SecretReservationKey> retList =
-				new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretReservationKey>(secretReservationKey.size());
+		List<eu.wisebed.api.rs.SecretReservationKey> retList =
+				new ArrayList<eu.wisebed.api.rs.SecretReservationKey>(secretReservationKey.size());
 		for (SecretReservationKey reservationKey : secretReservationKey) {
 			retList.add(convert(reservationKey));
 		}
 		return retList;
 	}
 
-	private eu.wisebed.testbed.api.rs.v1.SecretReservationKey convert(SecretReservationKey reservationKey) {
-		eu.wisebed.testbed.api.rs.v1.SecretReservationKey retSRK =
-				new eu.wisebed.testbed.api.rs.v1.SecretReservationKey();
+	private eu.wisebed.api.rs.SecretReservationKey convert(SecretReservationKey reservationKey) {
+		eu.wisebed.api.rs.SecretReservationKey retSRK =
+				new eu.wisebed.api.rs.SecretReservationKey();
 		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
 		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
 		return retSRK;

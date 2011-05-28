@@ -56,17 +56,18 @@ import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.ProgramMetaData;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.Data;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
-import eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
 public class BeanShellHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(BeanShellHelper.class);
 
-	public static Program readProgram(String pathname, String name, final String other, final String platform,
+	@SuppressWarnings("unused")
+	public static Program readProgram(String pathName, String name, final String other, final String platform,
 									  final String version) throws Exception {
 
 		final ProgramMetaData programMetaData = new ProgramMetaData();
@@ -76,7 +77,7 @@ public class BeanShellHelper {
 		programMetaData.setVersion(version);
 
 		Program program = new Program();
-		File programFile = new File(pathname);
+		File programFile = new File(pathName);
 
 		FileInputStream fis = new FileInputStream(programFile);
 		BufferedInputStream bis = new BufferedInputStream(fis);
@@ -93,19 +94,20 @@ public class BeanShellHelper {
 
 	}
 
-	public ConfidentialReservationData createReservationData(Date from, int duration, TimeUnit durationUnit,
-															 String urnPrefix, String username, String... nodeUrns) {
+	@SuppressWarnings("unused")
+	public static ConfidentialReservationData createReservationData(Date from, int duration, TimeUnit durationUnit,
+															 String urnPrefix, String userName, String... nodeUrns) {
 		return generateConfidentialReservationData(
 				Lists.newArrayList(nodeUrns),
 				from,
 				duration,
 				durationUnit,
 				urnPrefix,
-				username
+				userName
 		);
 	}
 
-	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
+	public static ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
 																		   int duration, TimeUnit durationUnit,
 																		   List<String> urnPrefixes,
 																		   List<String> userNames) {
@@ -113,7 +115,7 @@ public class BeanShellHelper {
 
 		Preconditions.checkArgument(
 				urnPrefixes.size() == userNames.size(),
-				"The list of URN prefixes must have the same length as the list of usernames and the list of passwords"
+				"The list of URN prefixes must have the same length as the list of user names and the list of passwords"
 		);
 		Preconditions.checkArgument(urnPrefixes.size() > 0, "At least the credentials of one testbed must be given.");
 
@@ -166,7 +168,7 @@ public class BeanShellHelper {
 		}
 	}
 
-	public ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
+	public static ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
 																		   int duration, TimeUnit durationUnit,
 																		   String urnPrefix, String userName) {
 		return generateConfidentialReservationData(
@@ -179,20 +181,22 @@ public class BeanShellHelper {
 		);
 	}
 
-	public List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String username,
+	@SuppressWarnings("unused")
+	public static List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String userName,
 																		String secretAuthenticationKey) {
 		List<SecretAuthenticationKey> secretAuthKeys = new ArrayList<SecretAuthenticationKey>();
 
 		SecretAuthenticationKey key = new SecretAuthenticationKey();
 		key.setSecretAuthenticationKey(secretAuthenticationKey);
 		key.setUrnPrefix(urnPrefix);
-		key.setUsername(username);
+		key.setUsername(userName);
 
 		secretAuthKeys.add(key);
 		return secretAuthKeys;
 	}
 
-	public List<SecretReservationKey> generateFakeReservationKeys(String urnPrefix, String secretReservationKey) {
+	@SuppressWarnings("unused")
+	public static List<SecretReservationKey> generateFakeReservationKeys(String urnPrefix, String secretReservationKey) {
 		List<SecretReservationKey> reservations = new ArrayList<SecretReservationKey>();
 
 		SecretReservationKey key = new SecretReservationKey();
@@ -204,14 +208,14 @@ public class BeanShellHelper {
 		return reservations;
 	}
 
-	public List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> copySnaaToRs(
+	public static List<eu.wisebed.api.rs.SecretAuthenticationKey> copySnaaToRs(
 			List<SecretAuthenticationKey> snaaKeys) {
-		List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> secretAuthKeys =
-				new ArrayList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
+		List<eu.wisebed.api.rs.SecretAuthenticationKey> secretAuthKeys =
+				new ArrayList<eu.wisebed.api.rs.SecretAuthenticationKey>();
 
 		for (SecretAuthenticationKey snaaKey : snaaKeys) {
-			eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey key =
-					new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
+			eu.wisebed.api.rs.SecretAuthenticationKey key =
+					new eu.wisebed.api.rs.SecretAuthenticationKey();
 			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
 			key.setUrnPrefix(snaaKey.getUrnPrefix());
 			key.setUsername(snaaKey.getUsername());
@@ -222,7 +226,7 @@ public class BeanShellHelper {
 		return secretAuthKeys;
 	}
 
-	public List<eu.wisebed.api.sm.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
+	public static List<eu.wisebed.api.sm.SecretReservationKey> copyRsToWsn(List<SecretReservationKey> keys) {
 		List<eu.wisebed.api.sm.SecretReservationKey> newKeys =
 				new ArrayList<eu.wisebed.api.sm.SecretReservationKey>();
 
@@ -237,7 +241,8 @@ public class BeanShellHelper {
 		return newKeys;
 	}
 
-	public List<eu.wisebed.api.sm.SecretReservationKey> parseSecretReservationKeys(String str) {
+	@SuppressWarnings("unused")
+	public static List<eu.wisebed.api.sm.SecretReservationKey> parseSecretReservationKeys(String str) {
 		String[] pairs = str.split(";");
 		List<eu.wisebed.api.sm.SecretReservationKey> keys = Lists.newArrayList();
 		for (String pair : pairs) {
@@ -251,7 +256,8 @@ public class BeanShellHelper {
 		return keys;
 	}
 
-	public String toString(Message msg, boolean legacyFormat) {
+	@SuppressWarnings("unused")
+	public static String toString(Message msg, boolean legacyFormat) {
 
 		if (!legacyFormat) {
 			return toString(msg);
@@ -274,7 +280,7 @@ public class BeanShellHelper {
 		return b.toString();
 	}
 
-	public String toString(Message msg) {
+	public static String toString(Message msg) {
 		StringBuilder b = new StringBuilder();
 		b.append("Source [");
 		b.append(msg.getSourceNodeId());
@@ -293,7 +299,8 @@ public class BeanShellHelper {
 		return b.toString();
 	}
 
-	public String toString(RequestStatus requestStatus) {
+	@SuppressWarnings("unused")
+	public static String toString(RequestStatus requestStatus) {
 		StringBuilder b = new StringBuilder();
 		b.append("RequestStatus [requestId=");
 		b.append(requestStatus.getRequestId());
@@ -312,7 +319,8 @@ public class BeanShellHelper {
 		return b.toString();
 	}
 
-	public String toString(List<SecretReservationKey> secretReservationKeys) {
+	@SuppressWarnings("unused")
+	public static String toString(List<SecretReservationKey> secretReservationKeys) {
 		StringBuilder b = new StringBuilder();
 		for (Iterator<SecretReservationKey> secretReservationKeyIterator = secretReservationKeys.iterator();
 			 secretReservationKeyIterator.hasNext();) {
@@ -330,22 +338,23 @@ public class BeanShellHelper {
 		return b.toString();
 	}
 
-	public String toString(Object object) {
+	public static String toString(Object object) {
 		return object.toString();
 	}
 
+	@SuppressWarnings("unused")
 	public static Vector<String> getExternalHostIps() {
 		HashSet<String> ips = new HashSet<String>();
 		Vector<String> external = new Vector<String>();
 
 		try {
 			InetAddress i;
-			NetworkInterface iface = null;
+			NetworkInterface networkInterface;
 
-			for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
-				iface = (NetworkInterface) ifaces.nextElement();
-				for (Enumeration ifaceips = iface.getInetAddresses(); ifaceips.hasMoreElements();) {
-					i = (InetAddress) ifaceips.nextElement();
+			for (Enumeration networkInterfaces = NetworkInterface.getNetworkInterfaces(); networkInterfaces.hasMoreElements();) {
+				networkInterface = (NetworkInterface) networkInterfaces.nextElement();
+				for (Enumeration addresses = networkInterface.getInetAddresses(); addresses.hasMoreElements();) {
+					i = (InetAddress) addresses.nextElement();
 					if (i instanceof Inet4Address) {
 						ips.add(i.getHostAddress());
 					}
@@ -358,11 +367,11 @@ public class BeanShellHelper {
 			try {
 				log.debug("Trying different lookup scheme");
 
-				InetAddress li = InetAddress.getLocalHost();
-				String strli = li.getHostName();
-				InetAddress ia[] = InetAddress.getAllByName(strli);
-				for (int i = 0; i < ia.length; i++) {
-					ips.add(ia[i].getHostAddress());
+				InetAddress inetAddress = InetAddress.getLocalHost();
+				String inetAddressHostName = inetAddress.getHostName();
+				InetAddress[] inetAddresses = InetAddress.getAllByName(inetAddressHostName);
+				for (InetAddress address : inetAddresses) {
+					ips.add(address.getHostAddress());
 				}
 			} catch (Throwable t2) {
 				log.error("Also unable to retrieve external ips: " + t2, t2);
@@ -381,57 +390,61 @@ public class BeanShellHelper {
 	}
 
 	/**
-	 * 127.0.0.0   - 127.255.255.255 (localhost) 10.0.0.0    - 10.255.255.255  (10/8 prefix) 172.16.0.0  - 172.31.255.255
-	 * (172.16/12 prefix) 192.168.0.0 - 192.168.255.255 (192.168/16 prefix)
+	 * Checks if the given IP address is an external (i.e. non-internal) IP address. Internal IP addresses lie within
+	 * the following ranges:
 	 *
-	 * @param ip
+	 * <ul>
+	 *     <li>127.0.0.0 - 127.255.255.255 (localhost)</li>
+	 *     <li>10.0.0.0 - 10.255.255.255  (10/8 prefix)</li>
+	 *     <li>172.16.0.0 - 172.31.255.255 (172.16/12 prefix)</li>
+	 * 	   <li>192.168.0.0 - 192.168.255.255 (192.168/16 prefix)</li>
+	 * </ul>
 	 *
-	 * @return
+	 * @param ip the IP address to check
+	 *
+	 * @return {@code true} if the given IP address is not private, {@code} false otherwise
 	 */
 	public static boolean isExternalIp(String ip) {
-		boolean external = true;
 
 		if (ip == null) {
-			external = false;
+			return false;
 		} else if (ip.startsWith("127.")) {
-			external = false;
+			return false;
 		} else if (ip.startsWith("10.")) {
-			external = false;
+			return false;
 		} else if (ip.startsWith("192.168.")) {
-			external = false;
+			return false;
 		}
 
 		for (int i = 16; i <= 31; ++i) {
 			if (ip.startsWith("172." + i + ".")) {
-				external = false;
+				return false;
 			}
 		}
 
-		log.debug("IP " + ip + " is an " + (external ? "external" : "internal") + " address");
-		return external;
+		return true;
 	}
 
 	/**
-	 * Get a List with all give node ids for use in a bean shell scrip
+	 * Get a List with all given node ids for use in a bean shell script
 	 *
-	 * @param nodes
+	 * @param nodes a list or node URNs
 	 *
 	 * @return List with nodes
 	 */
+	@SuppressWarnings("unused")
 	public static List<String> getNodeList(String... nodes) {
-
-		List<String> nodeUrns = Lists.newArrayList(nodes);
-
-		return nodeUrns;
+		return Lists.newArrayList(nodes);
 	}
 
 	/**
-	 * Generate a binary message to be send to a node with timestamop = now and src node id = 0xffff
+	 * Generate a binary message to be send to a node with timestamp = now and src node id = 0xffff
 	 *
 	 * @param data Payload of the binary message
 	 *
 	 * @return the binary message
 	 */
+	@SuppressWarnings("unused")
 	public static Message buildBinaryMessage(byte[] data) {
 		Message msg = new Message();
 		msg.setBinaryData(data);
@@ -449,11 +462,12 @@ public class BeanShellHelper {
 		return msg;
 	}
 
-	public List<AuthenticationTriple> createAuthData(final String urnPrefix, final String username,
+	@SuppressWarnings("unused")
+	public static List<AuthenticationTriple> createAuthData(final String urnPrefix, final String userName,
 													 final String password) {
 		ArrayList<AuthenticationTriple> list = Lists.newArrayList();
 		AuthenticationTriple authenticationTriple = new AuthenticationTriple();
-		authenticationTriple.setUsername(username);
+		authenticationTriple.setUsername(userName);
 		authenticationTriple.setPassword(password);
 		authenticationTriple.setUrnPrefix(urnPrefix);
 		return list;

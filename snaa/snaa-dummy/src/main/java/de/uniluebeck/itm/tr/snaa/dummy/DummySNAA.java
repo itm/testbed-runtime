@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.dummy;
 
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
-		endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA",
+		endpointInterface = "eu.wisebed.api.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
 		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"

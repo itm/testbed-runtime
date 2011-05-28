@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.tr.util.Listenable;
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 
 

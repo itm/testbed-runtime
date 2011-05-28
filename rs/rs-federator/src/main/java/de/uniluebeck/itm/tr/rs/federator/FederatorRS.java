@@ -27,7 +27,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.*;
+import eu.wisebed.api.rs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.rs.v1.RS", portName = "RSPort", serviceName = "RSService",
+@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
         targetNamespace = "urn:RSService")
 public class FederatorRS implements RS {
 

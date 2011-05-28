@@ -29,7 +29,7 @@
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
         <artifactId>tr</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.7.1-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -41,13 +41,11 @@
     <modules>
         <module>iwsn-cmdline</module>
         <module>iwsn-csv2config</module>
+        <module>iwsn-deviceapp</module>
         <module>iwsn-service</module>
-        <module>logcontroller</module>
-        <module>messagestore-api</module>
         <module>overlay</module>
         <module>overlay-socketconnector</module>
 		<module>overlay-stats</module>
-        <module>iwsn-deviceapp</module>
         <module>wsn-api</module>
         <module>wsn-device-drivers</module>
 		<module>wsn-device-utils</module>

@@ -23,34 +23,11 @@
 
 package de.uniluebeck.itm.tr.debuggingguiclient;
 
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.FileReader;
-import java.util.Properties;
-
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Preconditions;
-
 import de.uniluebeck.itm.tr.debuggingguiclient.controller.ControllerClientController;
 import de.uniluebeck.itm.tr.debuggingguiclient.controller.ControllerClientView;
 import de.uniluebeck.itm.tr.debuggingguiclient.controller.ControllerServiceController;
 import de.uniluebeck.itm.tr.debuggingguiclient.controller.ControllerServiceView;
-import de.uniluebeck.itm.tr.debuggingguiclient.logcontroller.MessageStoreClientController;
-import de.uniluebeck.itm.tr.debuggingguiclient.logcontroller.MessageStoreClientView;
 import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientController;
 import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientView;
 import de.uniluebeck.itm.tr.debuggingguiclient.sessionmanagement.SessionManagementClientController;
@@ -61,6 +38,19 @@ import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNClientController;
 import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNClientView;
 import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNServiceController;
 import de.uniluebeck.itm.tr.debuggingguiclient.wsn.WSNServiceView;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.FileReader;
+import java.util.Properties;
 
 public class WSNGui {
 
@@ -117,19 +107,13 @@ public class WSNGui {
             wsnServiceScrollPane.setPreferredSize(preferredSize);
             new WSNServiceController(wsnServiceView, properties);
 
-            MessageStoreClientView messageStoreView = new MessageStoreClientView();
-            JScrollPane messageStoreScrollPane = new JScrollPane(messageStoreView);
-            messageStoreScrollPane.setPreferredSize(preferredSize);
-            new MessageStoreClientController(messageStoreView, properties);
-
-            tabs.addTab("SNAA client", snaaClientScrollPane);
-            tabs.addTab("RS client", rsClientScrollPane);
-            tabs.addTab("Controller client", controllerClientScrollPane);
+            tabs.addTab("SNAA Client", snaaClientScrollPane);
+            tabs.addTab("RS Client", rsClientScrollPane);
+            tabs.addTab("Controller Client", controllerClientScrollPane);
             tabs.addTab("Controller Service Dummy", controllerServiceScrollPane);
-            tabs.addTab("Session Management client", sessionManagementScrollPane);
-            tabs.addTab("WSN client", wsnClientScrollPane);
+            tabs.addTab("SM Client", sessionManagementScrollPane);
+            tabs.addTab("WSN Client", wsnClientScrollPane);
             tabs.addTab("WSN Service Dummy", wsnServiceScrollPane);
-            tabs.addTab("Logcontroller Messagestore", messageStoreScrollPane);
 
         }
 
@@ -163,7 +147,7 @@ public class WSNGui {
         // create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("f", "file", true, "A property file containing values to override autodetected field values (optional)");
+        options.addOption("f", "file", true, "A property file containing values to override auto-detected field values (optional)");
 
         CommandLine line;
         Properties properties = new Properties();

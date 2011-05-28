@@ -2,13 +2,13 @@
 //import javax.xml.datatype.XMLGregorianCalendar;
 //
 //import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
-//import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+//import eu.wisebed.api.rs.RSExceptionException;
 //import org.joda.time.DateTime;
 //import org.joda.time.Interval;
 //
-//import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-//import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
-//import eu.wisebed.testbed.api.rs.v1.User;
+//import eu.wisebed.api.rs.ConfidentialReservationData;
+//import eu.wisebed.api.rs.SecretReservationKey;
+//import eu.wisebed.api.rs.User;
 //
 //public class Test {
 //	private GCalRSPersistence gcal;

@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.gtr.routing;
 
 import com.google.common.collect.ImmutableMap;
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 
 /**
  * A simple service that provides a routing table that allows to get the name of the next hop on

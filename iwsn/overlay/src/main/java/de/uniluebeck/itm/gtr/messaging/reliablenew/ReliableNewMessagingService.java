@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.reliablenew;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 
 
 public interface ReliableNewMessagingService extends Service {

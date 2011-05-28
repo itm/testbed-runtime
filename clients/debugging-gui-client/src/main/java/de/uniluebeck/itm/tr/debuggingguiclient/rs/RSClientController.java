@@ -48,13 +48,13 @@ import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import de.uniluebeck.itm.tr.debuggingguiclient.sessionmanagement.SessionManagementClientView;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.Data;
-import eu.wisebed.testbed.api.rs.v1.GetReservations;
-import eu.wisebed.testbed.api.rs.v1.PublicReservationData;
-import eu.wisebed.testbed.api.rs.v1.RS;
-import eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.SecretAuthenticationKey;
+import eu.wisebed.api.rs.SecretReservationKey;
 
 
 public class RSClientController {

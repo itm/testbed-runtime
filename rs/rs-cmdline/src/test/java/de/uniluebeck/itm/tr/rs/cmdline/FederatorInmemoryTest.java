@@ -29,9 +29,9 @@ import de.uniluebeck.itm.tr.rs.persistence.Comparison;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.testbed.api.rs.v1.*;
-import eu.wisebed.testbed.api.snaa.v1.Action;
-import eu.wisebed.testbed.api.snaa.v1.AuthenticationTriple;
+import eu.wisebed.api.rs.*;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthenticationTriple;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -56,11 +56,11 @@ public class FederatorInmemoryTest {
 
     private FederatorSNAA snaaFederator = null;
 
-    private List<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey> rsSecretAuthenticationKeyList =
-            new LinkedList<eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey>();
+    private List<eu.wisebed.api.rs.SecretAuthenticationKey> rsSecretAuthenticationKeyList =
+            new LinkedList<eu.wisebed.api.rs.SecretAuthenticationKey>();
 
-    private List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
-            new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+    private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
+            new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
 
     private GregorianCalendar gregorianCalendarFrom = null;
 
@@ -214,9 +214,9 @@ public class FederatorInmemoryTest {
         }
 
         //creating SecretAuthenticationKey
-        for (eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey snaaKey : snaaSecretAuthenticationKeyList) {
-            eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey rsKey =
-                    new eu.wisebed.testbed.api.rs.v1.SecretAuthenticationKey();
+        for (eu.wisebed.api.snaa.SecretAuthenticationKey snaaKey : snaaSecretAuthenticationKeyList) {
+            eu.wisebed.api.rs.SecretAuthenticationKey rsKey =
+                    new eu.wisebed.api.rs.SecretAuthenticationKey();
             rsKey.setUsername(snaaKey.getUsername());
             rsKey.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
             rsKey.setUrnPrefix(snaaKey.getUrnPrefix());

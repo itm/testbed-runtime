@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.rs.persistence.gcal.test;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
+import eu.wisebed.api.rs.RSExceptionException;
 import org.junit.Before;
 import org.junit.Test;
 

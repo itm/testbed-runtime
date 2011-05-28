@@ -1,12 +1,12 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.List;
 
-@WebService(endpointInterface = "eu.wisebed.testbed.api.snaa.v1.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class MockShibbolethSNAAImpl implements SNAA {
 
     @Override

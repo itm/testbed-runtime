@@ -24,7 +24,7 @@
 //package de.uniluebeck.itm.tr.rs.persistence.test;
 //
 //import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-//import eu.wisebed.testbed.api.rs.v1.*;
+//import eu.wisebed.api.rs.*;
 //import org.joda.time.Interval;
 //import org.junit.Before;
 //import org.junit.Test;

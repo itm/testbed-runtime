@@ -28,8 +28,8 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr.iwsn</artifactId>
-		<version>0.6.2-SNAPSHOT</version>
+		<artifactId>tr.clients</artifactId>
+		<version>0.7.1-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
@@ -42,10 +42,6 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.messagestore-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>

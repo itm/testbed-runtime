@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.connection;
 
-import de.uniluebeck.itm.gtr.common.Service;
+import de.uniluebeck.itm.tr.util.Service;
 
 import java.io.IOException;
 

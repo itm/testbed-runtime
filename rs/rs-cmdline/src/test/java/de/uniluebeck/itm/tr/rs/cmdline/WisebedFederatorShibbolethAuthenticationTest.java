@@ -30,7 +30,7 @@ import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
-import eu.wisebed.testbed.api.snaa.v1.*;
+import eu.wisebed.api.snaa.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,8 +51,8 @@ public class WisebedFederatorShibbolethAuthenticationTest {
 
     private static Map<String, String> snaaEndpointPropertiesMapWisebed1 = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed3;
 
-    private List<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
-            new LinkedList<eu.wisebed.testbed.api.snaa.v1.SecretAuthenticationKey>();
+    private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
+            new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
 
     private static class SNAAPrefixe {
         private static class Shib1{

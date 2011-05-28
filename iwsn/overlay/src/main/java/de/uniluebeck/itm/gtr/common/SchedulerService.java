@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.gtr.common;
 
+import de.uniluebeck.itm.tr.util.Service;
+
 import java.util.concurrent.ScheduledExecutorService;
 
 

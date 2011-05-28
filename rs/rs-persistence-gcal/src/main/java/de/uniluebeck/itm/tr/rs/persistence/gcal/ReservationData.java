@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
+import eu.wisebed.api.rs.ConfidentialReservationData;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

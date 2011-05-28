@@ -23,8 +23,8 @@
 //
 //package de.uniluebeck.itm.tr.rs.persistence.test;
 //
-//import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-//import eu.wisebed.testbed.api.rs.v1.User;
+//import eu.wisebed.api.rs.ConfidentialReservationData;
+//import eu.wisebed.api.rs.User;
 //
 //import javax.xml.datatype.DatatypeConfigurationException;
 //import javax.xml.datatype.DatatypeFactory;

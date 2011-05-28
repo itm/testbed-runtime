@@ -23,10 +23,10 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
-import eu.wisebed.testbed.api.rs.v1.ConfidentialReservationData;
-import eu.wisebed.testbed.api.rs.v1.RSExceptionException;
-import eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException;
-import eu.wisebed.testbed.api.rs.v1.SecretReservationKey;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.SecretReservationKey;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public interface RSPersistence {
 	 * @param secretReservationKey
 	 * @return
 	 * @throws RSExceptionException
-	 * @throws eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException
+	 * @throws eu.wisebed.api.rs.ReservervationNotFoundExceptionException
 	 *
 	 */
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
@@ -61,7 +61,7 @@ public interface RSPersistence {
 
 	/**
 	 * @param secretReservationKey
-	 * @throws eu.wisebed.testbed.api.rs.v1.ReservervationNotFoundExceptionException
+	 * @throws eu.wisebed.api.rs.ReservervationNotFoundExceptionException
 	 *
 	 * @throws RSExceptionException
 	 */
