@@ -87,4 +87,39 @@ public class SecretReservationKey {
         this.urnPrefix = value;
     }
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final SecretReservationKey that = (SecretReservationKey) o;
+
+		if (!secretReservationKey.equals(that.secretReservationKey)) {
+			return false;
+		}
+		if (!urnPrefix.equals(that.urnPrefix)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = secretReservationKey.hashCode();
+		result = 31 * result + urnPrefix.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "SecretReservationKey{" +
+				"secretReservationKey='" + secretReservationKey + '\'' +
+				", urnPrefix='" + urnPrefix + '\'' +
+				'}';
+	}
 }

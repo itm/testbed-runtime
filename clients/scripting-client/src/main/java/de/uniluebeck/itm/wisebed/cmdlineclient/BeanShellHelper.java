@@ -23,6 +23,25 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SecretAuthenticationKey;
+import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.ProgramMetaData;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -30,37 +49,8 @@ import java.io.FileInputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
-import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.ProgramMetaData;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.rs.SecretReservationKey;
-import eu.wisebed.api.snaa.AuthenticationTriple;
-import eu.wisebed.api.snaa.SecretAuthenticationKey;
 
 public class BeanShellHelper {
 
@@ -96,7 +86,8 @@ public class BeanShellHelper {
 
 	@SuppressWarnings("unused")
 	public static ConfidentialReservationData createReservationData(Date from, int duration, TimeUnit durationUnit,
-															 String urnPrefix, String userName, String... nodeUrns) {
+																	String urnPrefix, String userName,
+																	String... nodeUrns) {
 		return generateConfidentialReservationData(
 				Lists.newArrayList(nodeUrns),
 				from,
@@ -108,9 +99,9 @@ public class BeanShellHelper {
 	}
 
 	public static ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
-																		   int duration, TimeUnit durationUnit,
-																		   List<String> urnPrefixes,
-																		   List<String> userNames) {
+																				  int duration, TimeUnit durationUnit,
+																				  List<String> urnPrefixes,
+																				  List<String> userNames) {
 
 
 		Preconditions.checkArgument(
@@ -169,8 +160,8 @@ public class BeanShellHelper {
 	}
 
 	public static ConfidentialReservationData generateConfidentialReservationData(List<String> nodeURNs, Date from,
-																		   int duration, TimeUnit durationUnit,
-																		   String urnPrefix, String userName) {
+																				  int duration, TimeUnit durationUnit,
+																				  String urnPrefix, String userName) {
 		return generateConfidentialReservationData(
 				nodeURNs,
 				from,
@@ -183,7 +174,7 @@ public class BeanShellHelper {
 
 	@SuppressWarnings("unused")
 	public static List<SecretAuthenticationKey> generateFakeSNAAAuthentication(String urnPrefix, String userName,
-																		String secretAuthenticationKey) {
+																			   String secretAuthenticationKey) {
 		List<SecretAuthenticationKey> secretAuthKeys = new ArrayList<SecretAuthenticationKey>();
 
 		SecretAuthenticationKey key = new SecretAuthenticationKey();
@@ -196,7 +187,8 @@ public class BeanShellHelper {
 	}
 
 	@SuppressWarnings("unused")
-	public static List<SecretReservationKey> generateFakeReservationKeys(String urnPrefix, String secretReservationKey) {
+	public static List<SecretReservationKey> generateFakeReservationKeys(String urnPrefix,
+																		 String secretReservationKey) {
 		List<SecretReservationKey> reservations = new ArrayList<SecretReservationKey>();
 
 		SecretReservationKey key = new SecretReservationKey();
@@ -208,14 +200,36 @@ public class BeanShellHelper {
 		return reservations;
 	}
 
-	public static List<eu.wisebed.api.rs.SecretAuthenticationKey> copySnaaToRs(
-			List<SecretAuthenticationKey> snaaKeys) {
+	@SuppressWarnings("unused")
+	public static List<eu.wisebed.api.rs.SecretAuthenticationKey> copySnaaToRs(List<SecretAuthenticationKey> snaaKeys) {
+
 		List<eu.wisebed.api.rs.SecretAuthenticationKey> secretAuthKeys =
-				new ArrayList<eu.wisebed.api.rs.SecretAuthenticationKey>();
+				Lists.newArrayListWithCapacity(snaaKeys.size());
 
 		for (SecretAuthenticationKey snaaKey : snaaKeys) {
-			eu.wisebed.api.rs.SecretAuthenticationKey key =
-					new eu.wisebed.api.rs.SecretAuthenticationKey();
+
+			eu.wisebed.api.rs.SecretAuthenticationKey key = new eu.wisebed.api.rs.SecretAuthenticationKey();
+
+			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
+			key.setUrnPrefix(snaaKey.getUrnPrefix());
+			key.setUsername(snaaKey.getUsername());
+
+			secretAuthKeys.add(key);
+		}
+
+		return secretAuthKeys;
+	}
+
+	@SuppressWarnings("unused")
+	public static List<eu.wisebed.api.snaa.SecretAuthenticationKey> copyRsToSnaa(
+			List<eu.wisebed.api.rs.SecretAuthenticationKey> snaaKeys) {
+
+		List<SecretAuthenticationKey> secretAuthKeys = Lists.newArrayListWithCapacity(snaaKeys.size());
+
+		for (eu.wisebed.api.rs.SecretAuthenticationKey snaaKey : snaaKeys) {
+
+			SecretAuthenticationKey key = new SecretAuthenticationKey();
+
 			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
 			key.setUrnPrefix(snaaKey.getUrnPrefix());
 			key.setUsername(snaaKey.getUsername());
@@ -268,7 +282,7 @@ public class BeanShellHelper {
 		b.append(msg.getSourceNodeId());
 		b.append("], ");
 		b.append("Text [");
-		b.append(new String(msg.getBinaryData(), 2, msg.getBinaryData().length-2));
+		b.append(new String(msg.getBinaryData(), 2, msg.getBinaryData().length - 2));
 		b.append("], ");
 		b.append("Level [");
 		b.append(msg.getBinaryData()[1] == 0x00 ? "DEBUG" : "FATAL");
@@ -323,7 +337,7 @@ public class BeanShellHelper {
 	public static String toString(List<SecretReservationKey> secretReservationKeys) {
 		StringBuilder b = new StringBuilder();
 		for (Iterator<SecretReservationKey> secretReservationKeyIterator = secretReservationKeys.iterator();
-			 secretReservationKeyIterator.hasNext();) {
+			 secretReservationKeyIterator.hasNext(); ) {
 
 			SecretReservationKey secretReservationKey = secretReservationKeyIterator.next();
 
@@ -351,9 +365,10 @@ public class BeanShellHelper {
 			InetAddress i;
 			NetworkInterface networkInterface;
 
-			for (Enumeration networkInterfaces = NetworkInterface.getNetworkInterfaces(); networkInterfaces.hasMoreElements();) {
+			for (Enumeration networkInterfaces = NetworkInterface.getNetworkInterfaces();
+				 networkInterfaces.hasMoreElements(); ) {
 				networkInterface = (NetworkInterface) networkInterfaces.nextElement();
-				for (Enumeration addresses = networkInterface.getInetAddresses(); addresses.hasMoreElements();) {
+				for (Enumeration addresses = networkInterface.getInetAddresses(); addresses.hasMoreElements(); ) {
 					i = (InetAddress) addresses.nextElement();
 					if (i instanceof Inet4Address) {
 						ips.add(i.getHostAddress());
@@ -390,14 +405,11 @@ public class BeanShellHelper {
 	}
 
 	/**
-	 * Checks if the given IP address is an external (i.e. non-internal) IP address. Internal IP addresses lie within
-	 * the following ranges:
-	 *
-	 * <ul>
-	 *     <li>127.0.0.0 - 127.255.255.255 (localhost)</li>
-	 *     <li>10.0.0.0 - 10.255.255.255  (10/8 prefix)</li>
-	 *     <li>172.16.0.0 - 172.31.255.255 (172.16/12 prefix)</li>
-	 * 	   <li>192.168.0.0 - 192.168.255.255 (192.168/16 prefix)</li>
+	 * Checks if the given IP address is an external (i.e. non-internal) IP address. Internal IP addresses lie within the
+	 * following ranges:
+	 * <p/>
+	 * <ul> <li>127.0.0.0 - 127.255.255.255 (localhost)</li> <li>10.0.0.0 - 10.255.255.255  (10/8 prefix)</li>
+	 * <li>172.16.0.0 - 172.31.255.255 (172.16/12 prefix)</li> <li>192.168.0.0 - 192.168.255.255 (192.168/16 prefix)</li>
 	 * </ul>
 	 *
 	 * @param ip the IP address to check
@@ -464,7 +476,7 @@ public class BeanShellHelper {
 
 	@SuppressWarnings("unused")
 	public static List<AuthenticationTriple> createAuthData(final String urnPrefix, final String userName,
-													 final String password) {
+															final String password) {
 		ArrayList<AuthenticationTriple> list = Lists.newArrayList();
 		AuthenticationTriple authenticationTriple = new AuthenticationTriple();
 		authenticationTriple.setUsername(userName);
