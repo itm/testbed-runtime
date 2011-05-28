@@ -24,10 +24,13 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.common.SchedulerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class WSNDeviceAppConnectorFactory {
 
+	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnectorFactory.class);
 
 	public static WSNDeviceAppConnector create(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 											   final String nodeSerialInterface, final Integer timeoutNodeAPI,
@@ -36,19 +39,47 @@ public class WSNDeviceAppConnectorFactory {
 											   final Integer timeoutReset,
 											   final Integer timeoutFlash) {
 
-		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType) || "mock".equals(nodeType)) {
+		// TODO remove this temporary driver switch as soon as the new drivers can replace the old ones
 
-			return new WSNDeviceAppConnectorLocal(
-					nodeUrn,
-					nodeType,
-					nodeUSBChipID,
-					nodeSerialInterface,
-					timeoutNodeAPI,
-					maximumMessageRate,
-					schedulerService,
-					timeoutReset,
-					timeoutFlash
-			);
+		boolean isLocal = "isense".equals(nodeType) ||
+				"telosb".equals(nodeType) ||
+				"pacemate".equals(nodeType) ||
+				"mock".equals(nodeType);
+
+		if (isLocal) {
+
+			boolean newDrivers = System.getProperties().containsKey("testbed.newdrivers");
+
+			if (newDrivers) {
+
+				log.debug("{} => Using new drivers", nodeUrn);
+				return new WSNDeviceAppConnectorLocalNew(
+					    nodeUrn,
+						nodeType,
+						nodeUSBChipID,
+						nodeSerialInterface,
+						timeoutNodeAPI,
+						maximumMessageRate,
+						schedulerService,
+						timeoutReset,
+						timeoutFlash
+				);
+
+			} else {
+
+				log.debug("{} => Using old drivers", nodeUrn);
+				return new WSNDeviceAppConnectorLocal(
+						nodeUrn,
+						nodeType,
+						nodeUSBChipID,
+						nodeSerialInterface,
+						timeoutNodeAPI,
+						maximumMessageRate,
+						schedulerService,
+						timeoutReset,
+						timeoutFlash
+				);
+			}
 
 		} else if ("isense-motap".equals(nodeType)) {
 

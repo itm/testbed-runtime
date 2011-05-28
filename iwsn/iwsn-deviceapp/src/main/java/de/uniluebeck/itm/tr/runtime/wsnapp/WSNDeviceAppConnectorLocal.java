@@ -465,21 +465,27 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
 
-			boolean isWiselibUpstream = p.getType() == MESSAGE_TYPE_WISELIB_UPSTREAM;
-			boolean isByteTextOrVLink =
-					(p.getContent()[0] & 0xFF) == NODE_OUTPUT_BYTE ||
-							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_TEXT ||
-							(p.getContent()[0] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
+			// convert to plain bytes
+			byte[] bytes = new byte[1 + p.getContent().length];
+			bytes[0] = (byte) (0xFF & p.getType());
+			System.arraycopy(p.getContent(), 0, bytes, 1, p.getContent().length);
+
+			boolean isWiselibUpstream = bytes[0] == MESSAGE_TYPE_WISELIB_UPSTREAM;
+			boolean isByteTextOrVLink = (bytes[1] & 0xFF) == NODE_OUTPUT_BYTE ||
+					(bytes[1] & 0xFF) == NODE_OUTPUT_TEXT ||
+					(bytes[1] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
 
 			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
 			if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()))) {
+
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
 				}
+
 			} else {
 				for (NodeOutputListener listener : listeners) {
-					listener.receivedPacket(p);
+					listener.receivedPacket(bytes);
 				}
 			}
 

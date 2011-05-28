@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr.iwsn</artifactId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.7.1-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
@@ -50,6 +50,21 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-device-drivers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.jennic</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.pacemate</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>rsc.drivers.telosb</artifactId>
+			<version>0.1</version>
 		</dependency>
 
 		<dependency>
