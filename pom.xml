@@ -42,13 +42,12 @@
 		<module>snaa/</module>
 
 		<module>shibboauth</module>
-		<module>deviceobserver</module>
 		<module>util</module>
-		<module>motelist</module>
 		<module>node-api</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
-		<module>motap</module>
+		<!--<module>motap</mod
+		ule>-->
 
 	</modules>
 
@@ -230,17 +229,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.motelist</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.scripting-client</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.deviceobserver</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -248,6 +237,12 @@
 				<artifactId>tr.wsn-federator</artifactId>
 				<classifier>onejar</classifier>
 				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
+				<artifactId>wsn-device-utils</artifactId>
+				<version>0.3-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
