@@ -257,6 +257,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		sessionManagementEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
+		deliveryManager.start();
+
 		log.info("Started Session Management service  on {}", bindAllInterfacesUrl);
 
 		if (config.protobufinterface != null) {
@@ -285,6 +287,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		if (protobufControllerServer != null) {
 			protobufControllerServer.stop();
+		}
+
+		if (deliveryManager != null) {
+			deliveryManager.stop();
 		}
 
 		if (sessionManagementEndpoint != null) {
