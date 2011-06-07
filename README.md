@@ -11,9 +11,7 @@ testbed infrastructure. It implements the APIs defined by the european research 
 Documentation and Issue Tracking
 --------------------------------
 
-All documentation and issue tracking is currently to be found on our [project trac][tr-trac]
-installation. Please report bugs there. To get write access to trac please contact
-Daniel Bimschas (bimschas -at- itm.uni-luebeck.de).
+The issue tracker can be found on our [github project home][tr-github-issues]. Please report bugs there, you only need a valid github account to do so. The documentation is currently being moved from our [project trac][tr-trac] to the [github Wiki pages][tr-github-wiki].
 
 Mailing List
 ------------
@@ -45,3 +43,5 @@ maintained by the Institute of Telematics, University of Luebeck, Germany.
 [maven]:http://maven.apache.org/
 [tr-trac]:https://www.itm.uni-luebeck.de/projects/testbed-runtime/
 [tr-mailinglist]:http://www.itm.uni-luebeck.de/pipermail/testbed-runtime-users/
+[tr-github-issues]:http://github.com/itm/testbed-runtime/issues
+[tr-github-wiki]:http://github.com/itm/testbed-runtime/wiki
