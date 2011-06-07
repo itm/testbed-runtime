@@ -1,0 +1,113 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	<id>assembly</id>
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+	<dependencySets>
+		<dependencySet>
+			<useProjectArtifact>false</useProjectArtifact>
+			<outputDirectory>/lib</outputDirectory>
+			<includes>
+				<include>de.uniluebeck.itm:tr.wsn-federator</include>
+				<include>de.uniluebeck.itm:tr.rs-cmdline</include>
+				<include>de.uniluebeck.itm:tr.snaa-cmdline-server</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
+	<fileSets>
+		
+		<!-- pack conf/ files and filter them -->
+		<fileSet>
+			<directory>../iwsn-federator-assembly/src/main/assembly/conf/</directory>
+			<outputDirectory>conf/</outputDirectory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>../rs-federator-assembly/src/main/assembly/conf/</directory>
+			<outputDirectory>conf/</outputDirectory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>../snaa-federator-assembly/src/main/assembly/conf/</directory>
+			<outputDirectory>conf/</outputDirectory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<!-- pack bin files and make them executable -->
+		<fileSet>
+			<directory>../iwsn-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/*</include>
+			</includes>
+			<excludes>
+				<exclude>bin/README-IWSN</exclude>
+			</excludes>
+			<fileMode>0750</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>../rs-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/*</include>
+			</includes>
+			<fileMode>0750</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>../snaa-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/*</include>
+			</includes>
+			<fileMode>0750</fileMode>
+		</fileSet>
+
+		<!-- pack everything else except conf/ and bin/ -->
+		<fileSet>
+			<directory>../iwsn-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<excludes>
+				<exclude>conf/*</exclude>
+				<exclude>bin/*</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>../rs-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<excludes>
+				<exclude>conf/*</exclude>
+				<exclude>bin/*</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>../snaa-federator-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<excludes>
+				<exclude>conf/*</exclude>
+				<exclude>bin/*</exclude>
+			</excludes>
+		</fileSet>
+		
+	</fileSets>
+
+</assembly>

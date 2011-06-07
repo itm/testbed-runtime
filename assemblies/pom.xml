@@ -43,6 +43,7 @@
 		<module>experimentation-scripts</module>
 		<module>iwsn-assembly</module>
 		<module>iwsn-federator-assembly</module>
+		<module>federator-assembly</module>
 		<module>rs-assembly</module>
 		<module>rs-federator-assembly</module>
 		<module>snaa-assembly</module>

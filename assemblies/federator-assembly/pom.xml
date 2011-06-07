@@ -24,20 +24,32 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>tr</artifactId>
-        <groupId>de.uniluebeck.itm</groupId>
-        <version>0.7.1-SNAPSHOT</version>
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.7.1-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
-    </parent>
+	</parent>
 
-    <artifactId>tr.snaa-federator-assembly</artifactId>
+	<artifactId>tr.federator-assembly</artifactId>
 	<packaging>pom</packaging>
-	<name>TR :: SNAA Federator Assembly</name>
-
+	<name>TR :: Federator Assembly</name>
+	
 	<dependencies>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-federator</artifactId>
+			<classifier>onejar</classifier>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-cmdline</artifactId>
+			<classifier>onejar</classifier>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-cmdline-server</artifactId>
