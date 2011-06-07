@@ -25,7 +25,7 @@ The user and developer mailing list address is [testbed-runtime-users@itm.uni-lu
 Binary Downloads
 ----------------
 
-Please see the projects [trac][tr-trac] (wiki and ticket system) for binary downloads.
+Please see the projects [github Wiki][tr-github-wiki] (wiki and ticket system) for binary downloads.
 
 Building
 --------
