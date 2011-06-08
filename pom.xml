@@ -53,6 +53,7 @@
 	<dependencyManagement>
 		<dependencies>
 
+			<!-- project module dependencies -->
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence</artifactId>
@@ -242,13 +243,8 @@
 				<classifier>onejar</classifier>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.8.1</version>
-				<scope>test</scope>
-			</dependency>
 
+			<!-- 3rd party libraries -->
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
@@ -409,17 +405,23 @@
 				<artifactId>netty</artifactId>
 				<version>3.2.3.Final</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.beanshell</groupId>
 				<artifactId>bsh</artifactId>
 				<version>2.0b4</version>
 			</dependency>
-
 			<dependency>
 				<groupId>jtidy</groupId>
 				<artifactId>jtidy</artifactId>
 				<version>4aug2000r7-dev</version>
+			</dependency>
+
+			<!-- unit testing dependencies -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
 			</dependency>
 
 		</dependencies>
