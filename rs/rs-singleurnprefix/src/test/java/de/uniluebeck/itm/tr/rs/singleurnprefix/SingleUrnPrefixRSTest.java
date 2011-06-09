@@ -126,7 +126,8 @@ public class SingleUrnPrefixRSTest {
 			// this should be thrown
 		}
 
-		verify(snaa).isAuthorized(saksSnaa, Actions.DELETE_RESERVATION);
+		// TODO https://github.com/itm/testbed-runtime/issues/47
+		//verify(snaa).isAuthorized(saksSnaa, Actions.DELETE_RESERVATION);
 		verify(persistence).getReservation(srk);
 
 		verify(persistence, never()).deleteReservation(srk);
@@ -151,7 +152,8 @@ public class SingleUrnPrefixRSTest {
 
 		rs.deleteReservation(saks, srks);
 
-		verify(snaa).isAuthorized(saksSnaa, Actions.DELETE_RESERVATION);
+		// TODO https://github.com/itm/testbed-runtime/issues/47
+		//verify(snaa).isAuthorized(saksSnaa, Actions.DELETE_RESERVATION);
 
 		verify(persistence).getReservation(srk);
 		verify(persistence).deleteReservation(srk);
