@@ -171,7 +171,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 			connection.connect(nodeSerialInterface);
 
-			if (connection.isConnected()) {
+			if (!connection.isConnected()) {
 				log.warn("{} => Could not connect to {} device at {}.",
 						new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 				);
@@ -221,9 +221,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 			// Wait until the connection is made successfully.
 			deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
-
-			// attach as listener to device output
-//			device.addListener(messagePacketListener);
 
 		}
 	};
