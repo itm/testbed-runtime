@@ -47,7 +47,6 @@
 		<module>util</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
-		<!--<module>motap</module>-->
 
 	</modules>
 
