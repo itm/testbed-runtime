@@ -26,7 +26,7 @@
     <parent>
         <artifactId>tr</artifactId>
         <groupId>de.uniluebeck.itm</groupId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.7.0.2</version>
 		<relativePath>../../</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
