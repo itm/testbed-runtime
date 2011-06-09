@@ -23,47 +23,56 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.motelist.MoteList;
-import de.uniluebeck.itm.motelist.MoteListFactory;
-import de.uniluebeck.itm.motelist.MoteType;
-import de.uniluebeck.itm.rsc.drivers.core.Connection;
-import de.uniluebeck.itm.rsc.drivers.core.Device;
-import de.uniluebeck.itm.rsc.drivers.core.MessagePacket;
-import de.uniluebeck.itm.rsc.drivers.core.MessagePacketListener;
-import de.uniluebeck.itm.rsc.drivers.core.async.*;
-import de.uniluebeck.itm.rsc.drivers.core.async.thread.PausableExecutorOperationQueue;
-import de.uniluebeck.itm.rsc.drivers.core.event.MessageEvent;
-import de.uniluebeck.itm.rsc.drivers.core.exception.ProgramChipMismatchException;
-import de.uniluebeck.itm.rsc.drivers.core.mockdevice.MockConnection;
-import de.uniluebeck.itm.rsc.drivers.core.mockdevice.MockDevice;
-import de.uniluebeck.itm.rsc.drivers.core.operation.Operation;
-import de.uniluebeck.itm.rsc.drivers.core.operation.ProgramOperation;
-import de.uniluebeck.itm.rsc.drivers.core.serialport.SerialPortConnection;
-import de.uniluebeck.itm.rsc.drivers.jennic.JennicDevice;
-import de.uniluebeck.itm.rsc.drivers.jennic.JennicSerialPortConnection;
-import de.uniluebeck.itm.rsc.drivers.pacemate.PacemateDevice;
-import de.uniluebeck.itm.rsc.drivers.pacemate.PacemateSerialPortConnection;
-import de.uniluebeck.itm.rsc.drivers.telosb.TelosbDevice;
-import de.uniluebeck.itm.rsc.drivers.telosb.TelosbSerialPortConnection;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
+import de.uniluebeck.itm.wsn.deviceutils.macreader.DeviceMacReferenceMap;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
+import de.uniluebeck.itm.wsn.drivers.core.Connection;
+import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
+import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
+import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
+import de.uniluebeck.itm.wsn.drivers.core.async.OperationHandle;
+import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
+import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableExecutorOperationQueue;
+import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
+import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
+import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
+import de.uniluebeck.itm.wsn.drivers.factories.ConnectionFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.ConnectionFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceAsyncFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.iostream.IOStreamAddress;
+import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
+import org.jboss.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 
-public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
+public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
+
+	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
 	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
@@ -77,11 +86,13 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 
 	private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
-	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
-
 	private static final int DEFAULT_NODE_API_TIMEOUT = 1000;
 
 	private static final int DEFAULT_MAXIMUM_MESSAGE_RATE = Integer.MAX_VALUE;
+
+	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
+
+	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
 	private final String nodeType;
 
@@ -105,154 +116,183 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 
 	private final RateLimiter maximumMessageRateLimiter;
 
+	private Channel deviceChannel;
+
+	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
+
+	private int packetsDroppedSinceLastNotification = 0;
+
+	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
+
 	private final Runnable connectRunnable = new Runnable() {
 
 
 		@Override
 		public void run() {
 
-			if (nodeSerialInterface == null || "".equals(nodeSerialInterface)) {
+			if (nodeSerialInterfaceUnknown()) {
 
-				Long macAddress = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
-				MoteList moteList;
 
-				log.debug("{} => Using motelist module to detect serial port for {} device.", nodeUrn, nodeType);
+				final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
+				final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
+				final MacAddress nodeMacAddress = new MacAddress(macAsLong);
+				deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
 
-				try {
-					Map<String, String> telosBReferenceToMACMap = null;
-					if ("telosb".equals(nodeType) && nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
-						telosBReferenceToMACMap = new HashMap<String, String>() {{
-							put(nodeUSBChipID, StringUtils.getUrnSuffix(nodeUrn));
-						}};
-					}
-					moteList = MoteListFactory.create(telosBReferenceToMACMap);
-				} catch (Exception e) {
-					log.error(
-							"{} => Failed to load the motelist module to detect the serial port. Reason: {}. Not trying to reconnect to device.",
-							nodeUrn,
-							e.getMessage()
-					);
-					return;
-				}
-
-				try {
-					nodeSerialInterface = moteList.getMotePort(MoteType.fromString(nodeType.toLowerCase()), macAddress);
-				} catch (Exception e) {
-					log.warn("{} => Exception while detecting serial interface: {}", nodeUrn, e);
-				}
-
-				if (nodeSerialInterface == null) {
-					log.warn("{} => No serial interface could be detected for {} node. Retrying in 30 seconds.",
-							nodeUrn, nodeType
-					);
-					schedulerService.schedule(this, 30, TimeUnit.SECONDS);
-					return;
-				} else {
-					log.debug("{} => Found {} node on serial port {}.",
-							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
-					);
-				}
-
-			}
-
-			Connection tmpConnection;
-			Device tmpDevice;
-
-			if ("isense".equals(nodeType)) {
-				tmpConnection = new JennicSerialPortConnection();
-				tmpDevice = new JennicDevice((SerialPortConnection) tmpConnection);
-
-			} else if ("pacemate".equals(nodeType)) {
-				tmpConnection = new PacemateSerialPortConnection();
-				tmpDevice = new PacemateDevice((SerialPortConnection) tmpConnection);
-
-			} else if ("telosb".equals(nodeType)) {
-				tmpConnection = new TelosbSerialPortConnection();
-				tmpDevice = new TelosbDevice((SerialPortConnection) tmpConnection);
-
-			} else if ("mock".equals(nodeType)) {
-				tmpConnection = new MockConnection();
-				tmpDevice = new MockDevice((MockConnection) tmpConnection);
-
-			} else {
-				throw new RuntimeException("Unsupported device type \"" + nodeType + "\"!");
-			}
-
-			try {
-				tmpConnection.connect(nodeSerialInterface);
-			} catch (Exception e) {
-				log.warn("{} => Connection to {} device on serial port {} failed. Reason: {}. Retrying in 30 seconds.",
-						new Object[]{
-								nodeUrn, nodeType, nodeSerialInterface, e.getMessage()
-						}
+				log.info("{} => Searching for port of {} device with MAC address {}.",
+						new Object[]{nodeUrn, nodeType, nodeMacAddress}
 				);
-				schedulerService.schedule(this, 30, TimeUnit.SECONDS);
+
+				DeviceObserver deviceObserver = Guice.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
+						.getInstance(DeviceObserver.class);
+
+				final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
+
+				for (DeviceEvent event : events) {
+					if (event.getDeviceInfo().getMacAddress().equals(nodeMacAddress)) {
+						log.info("{} => Found {} device with MAC address {} at port {}",
+								new Object[]{nodeUrn, nodeType, nodeMacAddress, nodeSerialInterface}
+						);
+						nodeSerialInterface = event.getDeviceInfo().getPort();
+						break;
+					}
+				}
+
+				if (nodeSerialInterfaceUnknown()) {
+					log.warn("{} => Could not find port for {} device with MAC address {}",
+							new Object[]{nodeUrn, nodeType, nodeMacAddress}
+					);
+					return;
+				}
+
+			}
+
+			final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
+			final Connection connection = connectionFactory.create(nodeType);
+
+			connection.connect(nodeSerialInterface);
+
+			if (!connection.isConnected()) {
+				log.warn("{} => Could not connect to {} device at {}.",
+						new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+				);
 				return;
 			}
 
-			log.debug("{} => Successfully connected to {} node on serial port {}",
+			log.info("{} => Successfully connected to {} node on serial port {}",
 					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 			);
 
-			deviceConnection = tmpConnection;
+			final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
+
+			deviceConnection = connection;
 			deviceOperationQueue = new PausableExecutorOperationQueue();
-			device = new QueuedDeviceAsync(deviceOperationQueue, tmpDevice);
+			device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
 
-			// attach as listener to device output
-			device.addListener(messagePacketListener);
+			final InputStream inputStream = device.getInputStream();
+			final OutputStream outputStream = device.getOutputStream();
+
+			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(schedulerService));
+			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+				@Override
+				public ChannelPipeline getPipeline() throws Exception {
+					DefaultChannelPipeline pipeline = new DefaultChannelPipeline();
+					pipeline.addLast("frameDecoder", new DleStxEtxFramingDecoder());
+					pipeline.addLast("frameEncoder", new DleStxEtxFramingEncoder());
+					pipeline.addLast("dataReceiver", new SimpleChannelHandler() {
+						@Override
+						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+								throws Exception {
+
+							if (e.getMessage() instanceof ChannelBuffer) {
+								onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
+							} else {
+								sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+							}
+						}
+					}
+					);
+					return pipeline;
+				}
+			}
+			);
+
+			// Make a new connection.
+			ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
+
+			// Wait until the connection is made successfully.
+			deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
 
 		}
 	};
 
-	private MessagePacketListener messagePacketListener = new MessagePacketListener() {
-		@Override
-		public void onMessagePacketReceived(final MessageEvent<MessagePacket> event) {
+	private boolean nodeSerialInterfaceUnknown() {
+		return nodeSerialInterface == null || "".equals(nodeSerialInterface);
+	}
 
-			MessagePacket p = event.getMessage();
+	private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
 
-			//if reaching maximum-message-rate do not send more then 1 message
-			if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
-				int dismissedCount = maximumMessageRateLimiter.dismissedCount();
-				if (dismissedCount >= 1) {
-					sendPacketsDroppedWarningIfNotificationRateAllows(dismissedCount);
-				}
-				return;
+		//if reaching maximum-message-rate do not send more then 1 message
+		if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
+			int dismissedCount = maximumMessageRateLimiter.dismissedCount();
+			if (dismissedCount >= 1) {
+				sendPacketsDroppedWarningIfNotificationRateAllows(dismissedCount);
 			}
-
-			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
-
-			// convert to plain bytes
-			byte[] bytes = new byte[1 + p.getContent().length];
-			bytes[0] = (byte) (0xFF & p.getType());
-			System.arraycopy(p.getContent(), 0, bytes, 1, p.getContent().length);
-
-			boolean isWiselibUpstream = bytes[0] == MESSAGE_TYPE_WISELIB_UPSTREAM;
-			boolean isByteTextOrVLink = (bytes[1] & 0xFF) == NODE_OUTPUT_BYTE ||
-					(bytes[1] & 0xFF) == NODE_OUTPUT_TEXT ||
-					(bytes[1] & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
-
-			boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
-
-			if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(ByteBuffer.wrap(p.getContent()))) {
-
-				if (log.isDebugEnabled()) {
-					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}", nodeUrn, p);
-				}
-
-			} else {
-				for (NodeOutputListener listener : listeners) {
-					listener.receivedPacket(bytes);
-				}
-			}
-
+			return;
 		}
-	};
 
-	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
+		if (log.isTraceEnabled()) {
+			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
+					nodeUrn,
+					StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+			);
+		}
 
-	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
+		boolean isWiselibUpstream =
+				(buffer.getByte(0) & 0xFF) == MESSAGE_TYPE_WISELIB_UPSTREAM;
 
-	private int packetsDroppedSinceLastNotification = 0;
+		boolean isByteTextOrVLink = buffer.readableBytes() > 0 &&
+				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
+				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
+				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
+
+		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
+
+		if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(buffer.toByteBuffer())) {
+
+			if (log.isDebugEnabled()) {
+				log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
+						nodeUrn,
+						StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+				);
+			}
+
+		} else {
+
+			// convert buffer to plain byte-array
+			byte[] bytes = new byte[buffer.readableBytes()];
+			buffer.getBytes(0, bytes);
+
+			for (NodeOutputListener listener : listeners) {
+				listener.receivedPacket(bytes);
+			}
+		}
+	}
+
+	private void sendPipelineMisconfigurationIfNotificationRateAllows(final Class<?> receivedType) {
+
+		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
+
+			String notification =
+					"The pipeline seems to be misconfigured. A message of type " + receivedType.getCanonicalName() +
+					" was received. Only " + ChannelBuffer.class.getCanonicalName() + " instances are allowed!";
+
+			for (NodeOutputListener listener : listeners) {
+				listener.receiveNotification(notification);
+			}
+
+			pipelineMisconfigurationTimeDiff.touch();
+		}
+	}
 
 	private void sendPacketsDroppedWarningIfNotificationRateAllows(int packetsDropped) {
 
@@ -289,11 +329,11 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 					);
 				}
 
-				OperationHandle<Void> handle = device.send(
-						new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()),
-						1000,
-						new AsyncAdapter<Void>()
-				);
+				byte[] bytes = new byte[packet.array().length + 1];
+				bytes[0] = MESSAGE_TYPE_WISELIB_DOWNSTREAM;
+				packet.get(bytes, 1, packet.array().length);
+
+				OperationHandle<Void> handle = device.send(bytes, 1000, new AsyncAdapter<Void>());
 				handle.get();
 
 			} catch (Exception e) {
@@ -310,10 +350,10 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 
 	private DeviceAsync device;
 
-	public WSNDeviceAppConnectorLocalNew(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-										 final String nodeSerialInterface, final Integer timeoutNodeAPI,
-										 final Integer maximumMessageRate, final SchedulerService schedulerService,
-										 final Integer timeoutReset, final Integer timeoutFlash) {
+	public WSNDeviceAppConnectorImpl(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
+									 final String nodeSerialInterface, final Integer timeoutNodeAPI,
+									 final Integer maximumMessageRate, final SchedulerService schedulerService,
+									 final Integer timeoutReset, final Integer timeoutFlash) {
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
@@ -342,7 +382,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.destroyVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -386,7 +426,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void disableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.disableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -405,7 +445,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void disablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.disablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -424,7 +464,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void enableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.enableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -442,7 +482,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void enablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.enablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -470,7 +510,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	public void flashProgram(final WSNAppMessages.Program program,
 							 final FlashProgramCallback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.executeFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", nodeUrn);
 
 		if (isConnected()) {
 
@@ -550,7 +590,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.isNodeAlive()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", nodeUrn);
 
 		// to the best of our knowledge, a node is alive if we're connected to it
 		if (isConnected()) {
@@ -563,7 +603,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void resetNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.resetNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", nodeUrn);
 
 		if (isConnected()) {
 
@@ -606,7 +646,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	@Override
 	public void sendMessage(final byte[] messageBytes, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.sendMessage()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", nodeUrn);
 
 		if (isConnected()) {
 
@@ -644,11 +684,7 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 						+ "message.", nodeUrn
 				);
 
-				int packetType = messageBytes[0] & 0xFF;
-				byte[] packetBytes = new byte[messageBytes.length - 1];
-				System.arraycopy(messageBytes, 0, packetBytes, 0, packetBytes.length);
-
-				device.send(new MessagePacket(packetType, packetBytes), 1000, new AsyncAdapter<Void>() {
+				device.send(messageBytes, 1000, new AsyncAdapter<Void>() {
 					@Override
 					public void onSuccess(final Void result) {
 						listener.success(null);
@@ -679,13 +715,15 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 	}
 
 	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
-		return messageBytes.length > 1 && messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM && messageBytes[1] == VIRTUAL_LINK_MESSAGE;
+		return messageBytes.length > 1 &&
+				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
+				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
 	}
 
 	@Override
 	public void setVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.setVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", nodeUrn);
 
 		if (isConnected()) {
 			schedulerService.execute(new Runnable() {
@@ -712,9 +750,14 @@ public class WSNDeviceAppConnectorLocalNew extends AbstractListenable<WSNDeviceA
 		nodeApi.stop();
 
 		if (device != null) {
-			device.removeListener(messagePacketListener);
+			deviceChannel.close();
+			deviceChannel.getCloseFuture().awaitUninterruptibly();
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
-			deviceConnection.shutdown(true);
+			try {
+				deviceConnection.close();
+			} catch (IOException e) {
+				log.warn("IOException while closing DeviceConnection: {}", e);
+			}
 		}
 
 	}

@@ -25,8 +25,6 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.tr.util.Service;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
-
 
 public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
 

@@ -35,7 +35,14 @@ public class Action {
     @XmlElement(required = true)
     protected String action;
 
-    /**
+	public Action() {
+	}
+
+	public Action(final String action) {
+		this.action = action;
+	}
+
+	/**
      * Gets the value of the action property.
      * 
      * @return
@@ -59,4 +66,33 @@ public class Action {
         this.action = value;
     }
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final Action action1 = (Action) o;
+
+		if (!action.equals(action1.action)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return action.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "Action{" +
+				"action='" + action + '\'' +
+				'}';
+	}
 }

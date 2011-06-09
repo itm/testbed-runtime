@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
+public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
 
 	enum State {
@@ -123,7 +123,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationCanceled(final Operation op) {
 
-			log.debug("{} => WSNDeviceAppConnectorLocal.FlashProgramListener.operationCancelled({})", nodeUrn, op);
+			log.debug("{} => WSNDeviceAppConnectorOld.FlashProgramListener.operationCancelled({})", nodeUrn, op);
 
 			if (op == Operation.PROGRAM) {
 
@@ -151,7 +151,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationDone(final Operation op, final Object result) {
 
-			log.debug("{} => WSNDeviceAppConnectorLocal.FlashProgramListener.operationDone({})", nodeUrn, op);
+			log.debug("{} => WSNDeviceAppConnectorOld.FlashProgramListener.operationDone({})", nodeUrn, op);
 
 			if (op == Operation.PROGRAM) {
 
@@ -243,7 +243,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		@Override
 		public void operationCanceled(final Operation op) {
 
-			log.debug("{} => WSNDeviceAppConnectorLocal.ResetListener.operationCanceled({})", nodeUrn, op);
+			log.debug("{} => WSNDeviceAppConnectorOld.ResetListener.operationCanceled({})", nodeUrn, op);
 
 			if (op == Operation.RESET) {
 
@@ -271,7 +271,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		public void operationDone(final Operation op, final Object result) {
 
 			if (log.isDebugEnabled()) {
-				log.debug("{} => WSNDeviceAppConnectorLocal.ResetListener.operationDone({}, {})",
+				log.debug("{} => WSNDeviceAppConnectorOld.ResetListener.operationDone({}, {})",
 						new Object[]{nodeUrn, op, result}
 				);
 			}
@@ -461,7 +461,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 				return;
 			}
 
-			log.trace("{} => WSNDeviceAppConnectorLocal.receivePacket: {}", nodeUrn, p);
+			log.trace("{} => WSNDeviceAppConnectorOld.receivePacket: {}", nodeUrn, p);
 
 			// convert to plain bytes
 			byte[] bytes = new byte[1 + p.getContent().length];
@@ -557,10 +557,10 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 
 	private iSenseDevice device;
 
-	public WSNDeviceAppConnectorLocal(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-									  final String nodeSerialInterface, final Integer timeoutNodeAPI,
-									  final Integer maximumMessageRate, final SchedulerService schedulerService,
-									  final Integer timeoutReset, final Integer timeoutFlash) {
+	public WSNDeviceAppConnectorOld(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
+									final String nodeSerialInterface, final Integer timeoutNodeAPI,
+									final Integer maximumMessageRate, final SchedulerService schedulerService,
+									final Integer timeoutReset, final Integer timeoutFlash) {
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
@@ -579,13 +579,12 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 		);
 		this.timeoutReset = timeoutReset == null ? 3000 : timeoutReset;
 		this.timeoutFlash = timeoutFlash == null ? 90000 : timeoutFlash;
-
 	}
 
 	@Override
 	public void destroyVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.destroyVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.destroyVirtualLink()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -635,7 +634,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void disableNode(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.disableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.disableNode()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -659,7 +658,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void disablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.disablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.disablePhysicalLink()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -683,7 +682,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void enableNode(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.enableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.enableNode()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -707,7 +706,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void enablePhysicalLink(final long nodeB, final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.enablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.enablePhysicalLink()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -732,7 +731,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	public void flashProgram(final WSNAppMessages.Program program,
 							 final WSNDeviceAppConnector.FlashProgramCallback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.executeFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.executeFlashPrograms()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
@@ -823,7 +822,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.isNodeAlive()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.isNodeAlive()", nodeUrn);
 
 		// to the best of our knowledge, a node is alive if we're connected to it
 		boolean connected = device != null && device.isConnected();
@@ -837,7 +836,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void resetNode(final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.resetNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.resetNode()", nodeUrn);
 
 		if (state.getState() == State.DISCONNECTED || !device.isConnected()) {
 			String msg = "Failed resetting node. Reason: Device is not connected.";
@@ -898,7 +897,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void sendMessage(final byte[] messageBytes, final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.sendMessage()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.sendMessage()", nodeUrn);
 
 		switch (state.getState()) {
 
@@ -973,7 +972,7 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 	@Override
 	public void setVirtualLink(final long targetNode, final WSNDeviceAppConnector.Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorLocal.setVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorOld.setVirtualLink()", nodeUrn);
 
 		switch (state.getState()) {
 			case DISCONNECTED:
@@ -1010,6 +1009,6 @@ public class WSNDeviceAppConnectorLocal extends AbstractListenable<WSNDeviceAppC
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 			device.shutdown();
 		}
-
 	}
+
 }

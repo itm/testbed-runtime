@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -39,6 +40,7 @@
 
 	<dependencies>
 
+		<!-- intra-project dependencies -->
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.overlay</artifactId>
@@ -55,28 +57,27 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.motelist</artifactId>
 		</dependency>
+
+		<!-- other itm projects dependencies -->
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>rsc.drivers.jennic</artifactId>
-			<version>0.1</version>
+			<artifactId>wsn-device-drivers-factories</artifactId>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>rsc.drivers.pacemate</artifactId>
-			<version>0.1</version>
+			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
+			<artifactId>wsn-device-utils</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>rsc.drivers.telosb</artifactId>
-			<version>0.1</version>
+			<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+			<artifactId>netty-iostream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>dlestxetx</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
+		<!-- 3rd party libraries -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
@@ -90,12 +91,15 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jgrapht</groupId>
-			<artifactId>jgrapht-jdk1.6</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+		</dependency>
+
+		<!-- unit testing dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
