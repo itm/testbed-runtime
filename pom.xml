@@ -42,8 +42,9 @@
 		<module>snaa/</module>
 
 		<module>shibboauth</module>
-		<module>util</module>
+		<module>motelist</module>
 		<module>node-api</module>
+		<module>util</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
 		<!--<module>motap</module>-->
@@ -238,6 +239,11 @@
 				<classifier>onejar</classifier>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.motelist</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- other itm projects -->
 			<dependency>
@@ -247,23 +253,18 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>rsc.drivers.core</artifactId>
-				<version>0.2</version>
+				<artifactId>wsn-device-drivers-factories</artifactId>
+				<version>0.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>rsc.drivers.pacemate</artifactId>
-				<version>0.2</version>
+				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+				<artifactId>netty-iostream</artifactId>
+				<version>0.1</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>rsc.drivers.jennic</artifactId>
-				<version>0.2</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>rsc.drivers.telosb</artifactId>
-				<version>0.2</version>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>dlestxetx</artifactId>
+				<version>1.0-SNAPSHOT</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->

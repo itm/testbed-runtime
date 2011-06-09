@@ -22,65 +22,30 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
-		<artifactId>tr.iwsn</artifactId>
+		<artifactId>tr</artifactId>
 		<version>0.7.1-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.iwsn-deviceapp</artifactId>
+	<artifactId>tr.motelist</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: iWSN Device App</name>
+	<name>TR :: Motelist Utility</name>
 
 	<dependencies>
-
-		<!-- intra-project dependencies -->
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.overlay</artifactId>
+			<groupId>org.rxtx</groupId>
+			<artifactId>rxtx</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.node-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-device-drivers</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.motelist</artifactId>
-		</dependency>
-
-		<!-- other itm projects dependencies -->
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>wsn-device-drivers-factories</artifactId>
-			<version>0.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
-			<artifactId>wsn-device-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty-iostream</groupId>
-			<artifactId>netty-iostream</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>dlestxetx</artifactId>
-		</dependency>
-
-		<!-- 3rd party libraries -->
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -94,14 +59,63 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
-		<!-- unit testing dependencies -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-device-drivers</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.util</artifactId>
+		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.dstovall</groupId>
+				<artifactId>onejar-maven-plugin-rc8fix2</artifactId>
+				<version>1.4.5</version>
+				<executions>
+					<execution>
+						<configuration>
+							<mainClass>de.uniluebeck.itm.motelist.MoteListCLI</mainClass>
+							<onejarVersion>0.97-RC10</onejarVersion>
+							<binlibs>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux32</directory>
+									<includes>
+										<include>librxtxParallel.so</include>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/linux64</directory>
+									<includes>
+										<include>librxtxSerial.so</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/macosx</directory>
+									<includes>
+										<include>librxtxSerial.jnilib</include>
+									</includes>
+								</fileSet>
+								<fileSet>
+									<directory>${project.basedir}/../iwsn/wsn-device-drivers/src/main/resources/windows32</directory>
+									<includes>
+										<include>rxtxParallel.dll</include>
+										<include>rxtxSerial.dll</include>
+									</includes>
+								</fileSet>
+							</binlibs>
+						</configuration>
+						<goals>
+							<goal>one-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

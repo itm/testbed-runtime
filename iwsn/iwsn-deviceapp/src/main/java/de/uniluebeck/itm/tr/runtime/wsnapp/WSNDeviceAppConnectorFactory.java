@@ -39,61 +39,38 @@ public class WSNDeviceAppConnectorFactory {
 											   final Integer timeoutReset,
 											   final Integer timeoutFlash) {
 
-		// TODO remove this temporary driver switch as soon as the new drivers can replace the old ones
+		boolean newDrivers = !System.getProperties().containsKey("testbed.olddrivers");
 
-		boolean isLocal = "isense".equals(nodeType) ||
-				"telosb".equals(nodeType) ||
-				"pacemate".equals(nodeType) ||
-				"mock".equals(nodeType);
+		if (newDrivers) {
 
-		if (isLocal) {
-
-			boolean newDrivers = System.getProperties().containsKey("testbed.newdrivers");
-
-			if (newDrivers) {
-
-				log.debug("{} => Using new drivers", nodeUrn);
-				return new WSNDeviceAppConnectorLocalNew(
-					    nodeUrn,
-						nodeType,
-						nodeUSBChipID,
-						nodeSerialInterface,
-						timeoutNodeAPI,
-						maximumMessageRate,
-						schedulerService,
-						timeoutReset,
-						timeoutFlash
-				);
-
-			} else {
-
-				log.debug("{} => Using old drivers", nodeUrn);
-				return new WSNDeviceAppConnectorLocal(
-						nodeUrn,
-						nodeType,
-						nodeUSBChipID,
-						nodeSerialInterface,
-						timeoutNodeAPI,
-						maximumMessageRate,
-						schedulerService,
-						timeoutReset,
-						timeoutFlash
-				);
-			}
-
-		} else if ("isense-motap".equals(nodeType)) {
-
-			return new WSNDeviceAppConnectorRemote(
+			log.debug("{} => Using new drivers", nodeUrn);
+			return new WSNDeviceAppConnectorImpl(
 					nodeUrn,
 					nodeType,
+					nodeUSBChipID,
+					nodeSerialInterface,
 					timeoutNodeAPI,
+					maximumMessageRate,
 					schedulerService,
 					timeoutReset,
 					timeoutFlash
 			);
 
+		} else {
+
+			log.debug("{} => Using old drivers", nodeUrn);
+			return new WSNDeviceAppConnectorOld(
+					nodeUrn,
+					nodeType,
+					nodeUSBChipID,
+					nodeSerialInterface,
+					timeoutNodeAPI,
+					maximumMessageRate,
+					schedulerService,
+					timeoutReset,
+					timeoutFlash
+			);
 		}
 
-		throw new RuntimeException("Unknown device type!");
 	}
 }
