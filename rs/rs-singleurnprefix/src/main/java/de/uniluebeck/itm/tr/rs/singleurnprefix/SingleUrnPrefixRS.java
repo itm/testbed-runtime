@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.rs.singleurnprefix;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -60,15 +61,11 @@ public class SingleUrnPrefixRS implements RS {
 	private SNAA snaa;
 
 	@Inject
+	@Nullable
 	private SessionManagement sessionManagement;
 
 	@Inject
 	private RSPersistence persistence;
-
-	public SingleUrnPrefixRS() {
-		log.debug("New instance serving prefix: " + urnPrefix);
-		log.debug("SNAA endpoint: " + snaa);
-	}
 
 	@WebResult(name = "secretReservationKey")
 	@Override

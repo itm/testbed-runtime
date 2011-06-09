@@ -24,6 +24,11 @@
 package de.uniluebeck.itm.tr.rs.cmdline;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
@@ -33,7 +38,12 @@ import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -52,10 +62,6 @@ public class RSServer {
 
 	private static final Logger log = Logger.getLogger(RSServer.class);
 
-	/**
-	 * @param args
-	 * @throws Exception
-	 */
 	public static void main(String[] args) throws Exception {
 
 		String propertyFile = null;
@@ -120,7 +126,7 @@ public class RSServer {
 			if ("dummy".equals(type)) {
 
 				urnprefix = props.getProperty(rs + ".urnprefix", "urn:default:" + rs);
-				startDummyRS(path, urnprefix);
+				startDummyRS(path);
 
 			} else if ("singleurnprefix".equals(type)) {
 
@@ -154,17 +160,41 @@ public class RSServer {
 
 	}
 
-	private static void startSingleUrnPrefixRS(String path, String urnprefix, Properties props, String propsPrefix)
+	private static void startSingleUrnPrefixRS(final String path, final String urnPrefix, final Properties props, final String propsPrefix)
 			throws Exception {
 
-		String snaaEndpointUrl = props.getProperty(propsPrefix + ".snaaendpointurl",
+		final String snaaEndpointUrl = props.getProperty(
+				propsPrefix + ".snaaendpointurl",
 				"http://localhost:8080/snaa/dummy1"
 		);
-		String sessionManagementEndpointUrl = props.getProperty(propsPrefix + ".sessionmanagementendpointurl");
+		final String sessionManagementEndpointUrl = props.getProperty(propsPrefix + ".sessionmanagementendpointurl");
 
-		RSPersistence persistence = createRSPersistence(props, propsPrefix + ".persistence");
+		final RSPersistence persistence = createRSPersistence(props, propsPrefix + ".persistence");
 
-		SingleUrnPrefixRS rs = new SingleUrnPrefixRS(urnprefix, snaaEndpointUrl, sessionManagementEndpointUrl, persistence);
+		final Injector injector = Guice.createInjector(new Module() {
+			@Override
+			public void configure(final Binder binder) {
+
+				binder.bind(String.class)
+						.annotatedWith(Names.named("SingleUrnPrefixRS.urnPrefix"))
+						.toInstance(urnPrefix);
+
+				binder.bind(SNAA.class)
+						.toInstance(SNAAServiceHelper.getSNAAService(snaaEndpointUrl));
+
+				binder.bind(SessionManagement.class)
+						.toInstance(WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
+
+				binder.bind(RSPersistence.class)
+						.toInstance(persistence);
+
+				binder.bind(RS.class)
+						.to(SingleUrnPrefixRS.class);
+			}
+		}
+		);
+
+		RS rs = injector.getInstance(RS.class);
 
 		HttpContext context = server.createContext(path);
 		Endpoint endpoint = Endpoint.create(rs);
@@ -192,7 +222,7 @@ public class RSServer {
 		throw new IllegalArgumentException("Persistence type " + persistenceType + " unknown!");
 	}
 
-	private static void startDummyRS(String path, String prefix) {
+	private static void startDummyRS(String path) {
 
 		DummyRS rs = new DummyRS();
 
