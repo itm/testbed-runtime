@@ -37,14 +37,14 @@ import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.wsn.Constants;
 import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
 import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
@@ -471,13 +471,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-					deliveryManager.removeController(controllerEndpointUrl);
 				}
 
 				@Override
 				public void failure(Exception e) {
 					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
-					deliveryManager.removeController(controllerEndpointUrl);
 				}
 			}
 			);
@@ -485,6 +483,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 			deliveryManager.removeController(controllerEndpointUrl);
 		}
+
+		testbedRuntime.getSchedulerService().schedule(
+				new Runnable() {
+					@Override
+					public void run() {
+						deliveryManager.removeController(controllerEndpointUrl);
+					}
+				}, 10, TimeUnit.SECONDS
+		);
 
 		return requestId;
 
