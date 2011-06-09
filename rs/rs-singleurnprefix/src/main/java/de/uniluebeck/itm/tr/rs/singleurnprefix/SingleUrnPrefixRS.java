@@ -153,14 +153,15 @@ public class SingleUrnPrefixRS implements RS {
 		checkNotNull(authenticationData, "Parameter authenticationData is null!");
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
-		checkArgumentValidAuthentication(authenticationData);
 		checkArgumentValidReservation(secretReservationKeys);
 
-		try {
-			checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
-		} catch (AuthorizationExceptionException e) {
-			throwRSExceptionException(e);
-		}
+		// TODO check authentication (https://github.com/itm/testbed-runtime/issues/47)
+		//checkArgumentValidAuthentication(authenticationData);
+		//try {
+		//	checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
+		//} catch (AuthorizationExceptionException e) {
+		//	throwRSExceptionException(e);
+		//}
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
 		ConfidentialReservationData reservationToDelete = persistence.getReservation(secretReservationKeyToDelete);

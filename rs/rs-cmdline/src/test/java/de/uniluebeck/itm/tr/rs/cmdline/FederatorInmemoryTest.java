@@ -449,8 +449,7 @@ public class FederatorInmemoryTest {
                 rsFederator.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
                 fail("Should have raised an ReservervationNotFoundExceptionException");
             }
-            catch (ReservervationNotFoundExceptionException e) {
-                ;
+            catch (ReservervationNotFoundExceptionException expected) {
             }
         }
     }

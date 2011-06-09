@@ -29,6 +29,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
@@ -182,8 +183,15 @@ public class RSServer {
 				binder.bind(SNAA.class)
 						.toInstance(SNAAServiceHelper.getSNAAService(snaaEndpointUrl));
 
-				binder.bind(SessionManagement.class)
-						.toInstance(WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
+				if (sessionManagementEndpointUrl == null) {
+
+					binder.bind(SessionManagement.class)
+							.toProvider(Providers.<SessionManagement>of(null));
+				} else {
+
+					binder.bind(SessionManagement.class)
+							.toInstance(WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
+				}
 
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
