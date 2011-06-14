@@ -35,12 +35,12 @@ import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
 import de.uniluebeck.itm.wsn.deviceutils.macreader.DeviceMacReferenceMap;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.drivers.core.Connection;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
-import de.uniluebeck.itm.wsn.drivers.core.async.OperationHandle;
 import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableExecutorOperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -52,6 +52,7 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceAsyncFactoryImpl;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.iostream.IOStreamAddress;
 import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
@@ -130,97 +131,113 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		@Override
 		public void run() {
 
-			if (nodeSerialInterfaceUnknown()) {
+			try {
+				if (nodeSerialInterfaceUnknown()) {
 
 
-				final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
-				final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
-				final MacAddress nodeMacAddress = new MacAddress(macAsLong);
-				deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
+					final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
+					final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
+					final MacAddress nodeMacAddress = new MacAddress(macAsLong);
 
-				log.info("{} => Searching for port of {} device with MAC address {}.",
-						new Object[]{nodeUrn, nodeType, nodeMacAddress}
-				);
-
-				DeviceObserver deviceObserver = Guice.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
-						.getInstance(DeviceObserver.class);
-
-				final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
-
-				for (DeviceEvent event : events) {
-					if (event.getDeviceInfo().getMacAddress().equals(nodeMacAddress)) {
-						log.info("{} => Found {} device with MAC address {} at port {}",
-								new Object[]{nodeUrn, nodeType, nodeMacAddress, nodeSerialInterface}
-						);
-						nodeSerialInterface = event.getDeviceInfo().getPort();
-						break;
+					if (nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
+						deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
 					}
+
+					log.info("{} => Searching for port of {} device with MAC address {}.",
+							new Object[]{nodeUrn, nodeType, nodeMacAddress}
+					);
+
+					DeviceObserver deviceObserver = Guice.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
+							.getInstance(DeviceObserver.class);
+
+					final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
+
+					for (DeviceEvent event : events) {
+						final DeviceInfo deviceInfo = event.getDeviceInfo();
+						if (nodeMacAddress.equals(deviceInfo.getMacAddress())) {
+							log.info("{} => Found {} device with MAC address {} at port {}",
+									new Object[]{nodeUrn, nodeType, deviceInfo.getMacAddress(), deviceInfo.getPort()}
+							);
+							nodeSerialInterface = deviceInfo.getPort();
+							break;
+						}
+					}
+
+					if (nodeSerialInterfaceUnknown()) {
+						log.warn("{} => Could not find port for {} device with MAC address {}",
+								new Object[]{nodeUrn, nodeType, nodeMacAddress}
+						);
+						return;
+					}
+
 				}
 
-				if (nodeSerialInterfaceUnknown()) {
-					log.warn("{} => Could not find port for {} device with MAC address {}",
-							new Object[]{nodeUrn, nodeType, nodeMacAddress}
+				final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
+				final Connection connection = connectionFactory.create(nodeType);
+
+				try {
+					connection.connect(nodeSerialInterface);
+				} catch (Exception e) {
+					log.warn("{} => Could not connect to {} device at {}.",
+							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 					);
 					return;
 				}
 
-			}
+				if (!connection.isConnected()) {
+					log.warn("{} => Could not connect to {} device at {}.",
+							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+					);
+					return;
+				}
 
-			final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
-			final Connection connection = connectionFactory.create(nodeType);
-
-			connection.connect(nodeSerialInterface);
-
-			if (!connection.isConnected()) {
-				log.warn("{} => Could not connect to {} device at {}.",
+				log.info("{} => Successfully connected to {} node on serial port {}",
 						new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 				);
-				return;
-			}
 
-			log.info("{} => Successfully connected to {} node on serial port {}",
-					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
-			);
+				final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
 
-			final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
+				deviceConnection = connection;
+				deviceOperationQueue = new PausableExecutorOperationQueue();
+				device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
 
-			deviceConnection = connection;
-			deviceOperationQueue = new PausableExecutorOperationQueue();
-			device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
+				final InputStream inputStream = device.getInputStream();
+				final OutputStream outputStream = device.getOutputStream();
 
-			final InputStream inputStream = device.getInputStream();
-			final OutputStream outputStream = device.getOutputStream();
+				final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(schedulerService));
+				bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+					@Override
+					public ChannelPipeline getPipeline() throws Exception {
+						DefaultChannelPipeline pipeline = new DefaultChannelPipeline();
+						pipeline.addLast("frameDecoder", new DleStxEtxFramingDecoder());
+						pipeline.addLast("frameEncoder", new DleStxEtxFramingEncoder());
+						pipeline.addLast("dataReceiver", new SimpleChannelHandler() {
+							@Override
+							public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+									throws Exception {
 
-			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(schedulerService));
-			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-				@Override
-				public ChannelPipeline getPipeline() throws Exception {
-					DefaultChannelPipeline pipeline = new DefaultChannelPipeline();
-					pipeline.addLast("frameDecoder", new DleStxEtxFramingDecoder());
-					pipeline.addLast("frameEncoder", new DleStxEtxFramingEncoder());
-					pipeline.addLast("dataReceiver", new SimpleChannelHandler() {
-						@Override
-						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-								throws Exception {
-
-							if (e.getMessage() instanceof ChannelBuffer) {
-								onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
-							} else {
-								sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+								if (e.getMessage() instanceof ChannelBuffer) {
+									onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
+								} else {
+									sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+								}
 							}
 						}
+						);
+						return pipeline;
 					}
-					);
-					return pipeline;
 				}
+				);
+
+				// Make a new connection.
+				ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
+
+				// Wait until the connection is made successfully.
+				deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
+			} catch (Exception e) {
+				log.error("" + e, e);
+				throw new RuntimeException(e);
 			}
-			);
-
-			// Make a new connection.
-			ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
-
-			// Wait until the connection is made successfully.
-			deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
 
 		}
 	};
@@ -284,7 +301,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 			String notification =
 					"The pipeline seems to be misconfigured. A message of type " + receivedType.getCanonicalName() +
-					" was received. Only " + ChannelBuffer.class.getCanonicalName() + " instances are allowed!";
+							" was received. Only " + ChannelBuffer.class.getCanonicalName() + " instances are allowed!";
 
 			for (NodeOutputListener listener : listeners) {
 				listener.receiveNotification(notification);
@@ -329,12 +346,10 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					);
 				}
 
-				byte[] bytes = new byte[packet.array().length + 1];
-				bytes[0] = MESSAGE_TYPE_WISELIB_DOWNSTREAM;
-				packet.get(bytes, 1, packet.array().length);
+				final ChannelBuffer buffer = ChannelBuffers.buffer(packet.array().length + 1);
+				ChannelBuffers.wrappedBuffer(new byte[]{MESSAGE_TYPE_WISELIB_DOWNSTREAM}, packet.array());
 
-				OperationHandle<Void> handle = device.send(bytes, 1000, new AsyncAdapter<Void>());
-				handle.get();
+				deviceChannel.write(buffer).awaitUninterruptibly();
 
 			} catch (Exception e) {
 				log.error("" + e, e);
@@ -684,24 +699,27 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 						+ "message.", nodeUrn
 				);
 
-				device.send(messageBytes, 1000, new AsyncAdapter<Void>() {
-					@Override
-					public void onSuccess(final Void result) {
-						listener.success(null);
-					}
+				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
 
+				deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
 					@Override
-					public void onFailure(final Throwable throwable) {
-						String msg = "Failed sending message. Reason: " + throwable;
-						log.warn("{} => sendMessage(): {}", nodeUrn, msg);
-						listener.failure((byte) -2, msg.getBytes());
-					}
+					public void operationComplete(final ChannelFuture future) throws Exception {
+						if (future.isSuccess()) {
 
-					@Override
-					public void onCancel() {
-						String msg = "Sending message was canceled.";
-						log.warn("{} => sendMessage(): {}", nodeUrn, msg);
-						listener.failure((byte) -3, msg.getBytes());
+							listener.success(null);
+
+						} else if (future.isCancelled()) {
+
+							String msg = "Sending message was canceled.";
+							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
+							listener.failure((byte) -3, msg.getBytes());
+
+						} else {
+
+							String msg = "Failed sending message. Reason: " + future.getCause();
+							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
+							listener.failure((byte) -2, msg.getBytes());
+						}
 					}
 				}
 				);
@@ -712,12 +730,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			listener.failure((byte) -1, "Node is not connected.".getBytes());
 		}
 
-	}
-
-	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
-		return messageBytes.length > 1 &&
-				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
-				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
 	}
 
 	@Override
@@ -760,5 +772,11 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			}
 		}
 
+	}
+
+	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
+		return messageBytes.length > 1 &&
+				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
+				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
 	}
 }

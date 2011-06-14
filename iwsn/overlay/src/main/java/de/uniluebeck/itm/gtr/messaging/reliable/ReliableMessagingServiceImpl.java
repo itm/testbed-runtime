@@ -294,7 +294,7 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	@Override
 	public void start() throws Exception {
 
-		log.debug("ReliableMessagingServiceImpl.start");
+		log.debug("Starting overlay reliable messaging service...");
 		scheduler = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("ReliableMessagingService-Thread %d").build());
 		messageEventService.addListener(messageEventListener);
 
@@ -303,7 +303,7 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	@Override
 	public void stop() {
 
-		log.debug("ReliableMessagingServiceImpl.stop");
+		log.debug("Stopping overlay reliable messaging service...");
 
 		messageEventService.removeListener(messageEventListener);
 

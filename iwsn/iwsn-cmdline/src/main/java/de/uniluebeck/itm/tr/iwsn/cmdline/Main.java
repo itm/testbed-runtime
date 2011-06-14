@@ -110,7 +110,7 @@ public class Main {
         Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeIds);
 
         // start the testbed runtime
-        log.debug("Starting testbed runtime");
+        log.debug("Starting iWSN services...");
 
         final TestbedRuntime runtime = listTuple.getFirst();
         runtime.startServices();

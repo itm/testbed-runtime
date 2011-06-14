@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.util;
 
 import org.apache.log4j.*;
+import org.apache.log4j.spi.LoggerRepository;
 
 
 public class Logging {
@@ -38,6 +39,8 @@ public class Logging {
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
 		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
 		Logger coaLogger = Logger.getLogger("com.coalesenses");
+		Logger deviceUtilsLogger = Logger.getLogger("de.uniluebeck.itm.wsn.deviceutils");
+		Logger deviceDriversLogger = Logger.getLogger("de.uniluebeck.itm.wsn.drivers");
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
@@ -52,6 +55,16 @@ public class Logging {
 		if (!coaLogger.getAllAppenders().hasMoreElements()) {
 			coaLogger.addAppender(appender);
 			coaLogger.setLevel(Level.INFO);
+		}
+
+		if (!deviceUtilsLogger.getAllAppenders().hasMoreElements()) {
+			deviceUtilsLogger.addAppender(appender);
+			deviceUtilsLogger.setLevel(Level.INFO);
+		}
+
+		if (!deviceDriversLogger.getAllAppenders().hasMoreElements()) {
+			deviceDriversLogger.addAppender(appender);
+			deviceDriversLogger.setLevel(Level.INFO);
 		}
 	}
 

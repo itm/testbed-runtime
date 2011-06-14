@@ -116,7 +116,7 @@ class ReliableMessagingServiceImpl2 implements ReliableMessagingService {
 	@Override
 	public void start() throws Exception {
 
-		log.debug("ReliableMessagingServiceImpl.start");
+		log.debug("Starting overlay reliable messaging service...");
 		messageEventService.addListener(messageEventListener);
 		asynchronousCache.setListener(asynchronousCacheListener);
 
@@ -125,7 +125,7 @@ class ReliableMessagingServiceImpl2 implements ReliableMessagingService {
 	@Override
 	public void stop() {
 
-		log.debug("ReliableMessagingServiceImpl.stop");
+		log.debug("Stopping overlay reliable messaging service...");
 		messageEventService.removeListener(messageEventListener);
 
 	}

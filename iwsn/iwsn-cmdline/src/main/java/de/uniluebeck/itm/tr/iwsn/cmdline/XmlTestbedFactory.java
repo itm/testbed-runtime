@@ -90,7 +90,6 @@ public class XmlTestbedFactory {
 
                 if (nodeId.equals(node.getId())) {
 
-                    log.debug("Creating testbed instance for node ID {}", nodeId);
                     testbedRuntime = createTestbedRuntime(node);
                     configureServerConnections(testbedRuntime, node.getServerconnections());
                     configureClientConnections(testbedRuntime, node, testbed);
@@ -100,7 +99,7 @@ public class XmlTestbedFactory {
             }
         }
 
-		checkNotNull(testbedRuntime, "No configuration for one of the node IDs %s found!", Arrays.toString(nodeIds));
+		checkNotNull(testbedRuntime, "No configuration for one of the overlay node \"%s\" found!", Arrays.toString(nodeIds));
 
 		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(testbedRuntime, testbedApplications);
 	}
@@ -147,7 +146,7 @@ public class XmlTestbedFactory {
 
 	private void configureClientConnections(TestbedRuntime testbedRuntime, Node node, Testbed testbed) {
 
-		log.debug("Filling routing and naming tables for node ID {}", node.getId());
+		log.debug("Filling routing and naming tables for overlay node \"{}\"", node.getId());
 
 		SimpleDirectedGraph<Node, Triple<Node, Node, ClientConnection>> graph = constructNodeGraph(testbed);
 		BellmanFordShortestPath<Node, Triple<Node, Node, ClientConnection>> path =

@@ -104,7 +104,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 					logDebug("connect(): serialPort==null");
 				}
 			} catch (PortInUseException piue) {
-				logDebug("Port already in use. Connection will be removed. ");
+				logDebug("Port {} already in use. Connection will be removed.", serialPortName);
 				if (serialPort != null) {
 					serialPort.close();
 				}
@@ -114,7 +114,7 @@ public class PacemateDevice extends iSenseDeviceImpl implements SerialPortEventL
 				if (serialPort != null) {
 					serialPort.close();
 				}
-				logDebug("Port does not exist. Connection will be removed. " + e, e);
+				logDebug("Port {} does not exist. Connection will be removed.", serialPortName);
 				return false;
 			}
 			return true;
