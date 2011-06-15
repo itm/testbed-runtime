@@ -43,6 +43,7 @@ import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
 import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableExecutorOperationQueue;
+import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableSingleThreadExecutor;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
 import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
@@ -64,10 +65,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 
 public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
@@ -127,120 +125,147 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	private final Runnable connectRunnable = new Runnable() {
 
-
 		@Override
 		public void run() {
 
 			try {
 				if (nodeSerialInterfaceUnknown()) {
 
-
-					final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
-					final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
-					final MacAddress nodeMacAddress = new MacAddress(macAsLong);
-
-					if (nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
-						deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
-					}
-
-					log.info("{} => Searching for port of {} device with MAC address {}.",
-							new Object[]{nodeUrn, nodeType, nodeMacAddress}
-					);
-
-					DeviceObserver deviceObserver = Guice.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
-							.getInstance(DeviceObserver.class);
-
-					final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
-
-					for (DeviceEvent event : events) {
-						final DeviceInfo deviceInfo = event.getDeviceInfo();
-						if (nodeMacAddress.equals(deviceInfo.getMacAddress())) {
-							log.info("{} => Found {} device with MAC address {} at port {}",
-									new Object[]{nodeUrn, nodeType, deviceInfo.getMacAddress(), deviceInfo.getPort()}
-							);
-							nodeSerialInterface = deviceInfo.getPort();
-							break;
-						}
-					}
+					tryToDetectNodeSerialInterface();
 
 					if (nodeSerialInterfaceUnknown()) {
-						log.warn("{} => Could not find port for {} device with MAC address {}",
-								new Object[]{nodeUrn, nodeType, nodeMacAddress}
-						);
+						log.warn("{} => Could not find port for {} device.", nodeUrn, nodeType);
 						return;
 					}
 
 				}
 
-				final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
-				final Connection connection = connectionFactory.create(nodeType);
+				connect();
 
-				try {
-					connection.connect(nodeSerialInterface);
-				} catch (Exception e) {
-					log.warn("{} => Could not connect to {} device at {}.",
-							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
-					);
-					return;
+			} catch (Exception e) {
+				device = null;
+				if (deviceChannel != null) {
+					deviceChannel.close().awaitUninterruptibly();
 				}
-
-				if (!connection.isConnected()) {
-					log.warn("{} => Could not connect to {} device at {}.",
-							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
-					);
-					return;
-				}
-
-				log.info("{} => Successfully connected to {} node on serial port {}",
-						new Object[]{nodeUrn, nodeType, nodeSerialInterface}
-				);
-
-				final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
-
-				deviceConnection = connection;
-				deviceOperationQueue = new PausableExecutorOperationQueue();
-				device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
-
-				final InputStream inputStream = device.getInputStream();
-				final OutputStream outputStream = device.getOutputStream();
-
-				final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(schedulerService));
-				bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-					@Override
-					public ChannelPipeline getPipeline() throws Exception {
-						DefaultChannelPipeline pipeline = new DefaultChannelPipeline();
-						pipeline.addLast("frameDecoder", new DleStxEtxFramingDecoder());
-						pipeline.addLast("frameEncoder", new DleStxEtxFramingEncoder());
-						pipeline.addLast("dataReceiver", new SimpleChannelHandler() {
-							@Override
-							public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-									throws Exception {
-
-								if (e.getMessage() instanceof ChannelBuffer) {
-									onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
-								} else {
-									sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
-								}
-							}
-						}
-						);
-						return pipeline;
+				deviceChannel = null;
+				if (deviceConnection != null) {
+					try {
+						deviceConnection.close();
+					} catch (IOException e1) {
+						throw new RuntimeException(e1);
 					}
 				}
-				);
-
-				// Make a new connection.
-				ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
-
-				// Wait until the connection is made successfully.
-				deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
-			} catch (Exception e) {
+				deviceConnection = null;
+				if (deviceOperationQueue != null) {
+					deviceOperationQueue.shutdown(true);
+				}
+				deviceOperationQueue = null;
 				log.error("" + e, e);
 				throw new RuntimeException(e);
 			}
 
 		}
 	};
+
+	private ExecutorService executorService;
+
+	private void connect() throws Exception {
+
+		final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
+		final Connection connection = connectionFactory.create(nodeType);
+
+		try {
+			connection.connect(nodeSerialInterface);
+		} catch (Exception e) {
+			log.warn("{} => Could not connect to {} device at {}.",
+					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+			);
+			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
+		}
+
+		if (!connection.isConnected()) {
+			log.warn("{} => Could not connect to {} device at {}.",
+					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+			);
+			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
+		}
+
+		log.info("{} => Successfully connected to {} node on serial port {}",
+				new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+		);
+
+		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
+
+		deviceConnection = connection;
+		deviceOperationQueue = new PausableExecutorOperationQueue(new PausableSingleThreadExecutor(nodeUrn));
+		device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
+
+		final InputStream inputStream = device.getInputStream();
+		final OutputStream outputStream = device.getOutputStream();
+
+		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
+		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+			@Override
+			public ChannelPipeline getPipeline() throws Exception {
+				DefaultChannelPipeline pipeline = new DefaultChannelPipeline();
+				pipeline.addLast("frameDecoder", new DleStxEtxFramingDecoder());
+				pipeline.addLast("frameEncoder", new DleStxEtxFramingEncoder());
+				pipeline.addLast("dataReceiver", new SimpleChannelHandler() {
+					@Override
+					public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+							throws Exception {
+
+						if (e.getMessage() instanceof ChannelBuffer) {
+							onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
+						} else {
+							sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+						}
+					}
+				}
+				);
+				return pipeline;
+			}
+		}
+		);
+
+		// Make a new connection.
+		ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
+
+		// Wait until the connection is made successfully.
+		deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
+	}
+
+	private void tryToDetectNodeSerialInterface() {
+
+		final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
+		final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
+		final MacAddress nodeMacAddress = new MacAddress(macAsLong);
+
+		if (nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
+			deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
+		}
+
+		log.info("{} => Searching for port of {} device with MAC address {}.",
+				new Object[]{nodeUrn, nodeType, nodeMacAddress}
+		);
+
+		DeviceObserver deviceObserver = Guice
+				.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
+				.getInstance(DeviceObserver.class);
+
+		final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
+
+		for (DeviceEvent event : events) {
+			final DeviceInfo deviceInfo = event.getDeviceInfo();
+			if (nodeMacAddress.equals(deviceInfo.getMacAddress())) {
+				log.info("{} => Found {} device with MAC address {} at port {}",
+						new Object[]{nodeUrn, nodeType, deviceInfo.getMacAddress(), deviceInfo.getPort()}
+				);
+				nodeSerialInterface = deviceInfo.getPort();
+				break;
+			}
+		}
+	}
 
 	private boolean nodeSerialInterfaceUnknown() {
 		return nodeSerialInterface == null || "".equals(nodeSerialInterface);
@@ -752,6 +777,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	@Override
 	public void start() throws Exception {
+		executorService = Executors.newCachedThreadPool();
 		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
 		nodeApi.start();
 	}
@@ -770,6 +796,14 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			} catch (IOException e) {
 				log.warn("IOException while closing DeviceConnection: {}", e);
 			}
+		}
+
+		if (deviceOperationQueue != null) {
+			deviceOperationQueue.shutdown(true);
+		}
+
+		if (executorService != null) {
+			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 		}
 
 	}
