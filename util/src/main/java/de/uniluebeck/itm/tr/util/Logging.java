@@ -64,7 +64,7 @@ public class Logging {
 
 		if (!deviceDriversLogger.getAllAppenders().hasMoreElements()) {
 			deviceDriversLogger.addAppender(appender);
-			deviceDriversLogger.setLevel(Level.TRACE);
+			deviceDriversLogger.setLevel(Level.ERROR);
 		}
 	}
 
