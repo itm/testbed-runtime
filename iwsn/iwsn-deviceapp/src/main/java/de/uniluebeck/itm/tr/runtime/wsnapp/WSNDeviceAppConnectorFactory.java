@@ -27,6 +27,9 @@ import de.uniluebeck.itm.gtr.common.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 
 public class WSNDeviceAppConnectorFactory {
 
@@ -51,9 +54,9 @@ public class WSNDeviceAppConnectorFactory {
 					nodeSerialInterface,
 					timeoutNodeAPI,
 					maximumMessageRate,
-					schedulerService,
 					timeoutReset,
-					timeoutFlash
+					timeoutFlash,
+					schedulerService
 			);
 
 		} else {

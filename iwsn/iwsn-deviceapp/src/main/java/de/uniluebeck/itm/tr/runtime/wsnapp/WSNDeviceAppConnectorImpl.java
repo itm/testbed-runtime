@@ -43,7 +43,6 @@ import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
 import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableExecutorOperationQueue;
-import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableSingleThreadExecutor;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
 import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
@@ -197,8 +196,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
 
 		deviceConnection = connection;
-		deviceOperationQueue = new PausableExecutorOperationQueue(new PausableSingleThreadExecutor(nodeUrn));
-		device = deviceFactory.create(nodeType, connection, deviceOperationQueue);
+		deviceOperationQueue = new PausableExecutorOperationQueue();
+		device = deviceFactory.create(executorService, nodeType, connection, deviceOperationQueue);
 
 		final InputStream inputStream = device.getInputStream();
 		final OutputStream outputStream = device.getOutputStream();
@@ -299,14 +298,30 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
-		if (isWiselibReply && nodeApiDeviceAdapter.receiveFromNode(buffer.toByteBuffer())) {
+		if (isWiselibReply) {
 
-			if (log.isDebugEnabled()) {
-				log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
-						nodeUrn,
-						StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
-				);
+			final ByteBuffer packetWithoutISenseMessageType = ByteBuffer.allocate(buffer.readableBytes() - 1);
+			System.arraycopy(buffer.array(), 1, packetWithoutISenseMessageType.array(), 0, buffer.readableBytes() - 1);
+
+			if (nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType)) {
+
+				if (log.isDebugEnabled()) {
+					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
+							nodeUrn,
+							StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+					);
+				}
+			} else {
+
+				if (log.isWarnEnabled()) {
+					log.warn(
+							"{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
+							nodeUrn,
+							StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+					);
+				}
 			}
+
 
 		} else {
 
@@ -371,8 +386,10 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					);
 				}
 
-				final ChannelBuffer buffer = ChannelBuffers.buffer(packet.array().length + 1);
-				ChannelBuffers.wrappedBuffer(new byte[]{MESSAGE_TYPE_WISELIB_DOWNSTREAM}, packet.array());
+				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(
+						new byte[]{MESSAGE_TYPE_WISELIB_DOWNSTREAM},
+						packet.array()
+				);
 
 				deviceChannel.write(buffer).awaitUninterruptibly();
 
@@ -392,8 +409,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	public WSNDeviceAppConnectorImpl(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 									 final String nodeSerialInterface, final Integer timeoutNodeAPI,
-									 final Integer maximumMessageRate, final SchedulerService schedulerService,
-									 final Integer timeoutReset, final Integer timeoutFlash) {
+									 final Integer maximumMessageRate, final Integer timeoutReset,
+									 final Integer timeoutFlash, final SchedulerService schedulerService) {
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
@@ -425,7 +442,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
@@ -469,7 +486,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getNodeControl().disableNode(), listener);
@@ -488,7 +505,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
@@ -507,7 +524,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getNodeControl().enableNode(), listener);
@@ -525,7 +542,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
@@ -705,7 +722,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 				System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
 
-				schedulerService.execute(new Runnable() {
+				executorService.execute(new Runnable() {
 					@Override
 					public void run() {
 						callCallback(
@@ -763,7 +780,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", nodeUrn);
 
 		if (isConnected()) {
-			schedulerService.execute(new Runnable() {
+			executorService.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
@@ -778,7 +795,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	@Override
 	public void start() throws Exception {
 		executorService = Executors.newCachedThreadPool();
-		schedulerService.schedule(connectRunnable, 0, TimeUnit.MILLISECONDS);
+		schedulerService.execute(connectRunnable);
 		nodeApi.start();
 	}
 
@@ -788,13 +805,28 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		nodeApi.stop();
 
 		if (device != null) {
-			deviceChannel.close();
-			deviceChannel.getCloseFuture().awaitUninterruptibly();
+
 			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
+
+			try {
+
+				deviceChannel.close();
+				deviceChannel.getCloseFuture().awaitUninterruptibly();
+
+			} catch (Exception e) {
+				log.warn("Exception while closing DeviceConnection: {}", e);
+			}
+
 			try {
 				deviceConnection.close();
-			} catch (IOException e) {
-				log.warn("IOException while closing DeviceConnection: {}", e);
+			} catch (Exception e) {
+				log.warn("Exception while closing DeviceConnection: {}", e);
+			}
+
+			try {
+				device.close();
+			} catch (Exception e) {
+				log.warn("IOException while closing Device: {}", e);
 			}
 		}
 
@@ -803,7 +835,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		}
 
 		if (executorService != null) {
-			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
 		}
 
 	}

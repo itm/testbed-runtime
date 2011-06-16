@@ -42,6 +42,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 
 class WSNDeviceAppImpl implements WSNDeviceApp {
@@ -107,6 +108,20 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	 */
 	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
+	private final String nodeSerialInterface;
+
+	private final Integer timeoutNodeAPI;
+
+	private final String nodeUSBChipID;
+
+	private final Integer maximumMessageRate;
+
+	private final Integer timeoutReset;
+
+	private final Integer timeoutFlash;
+
+	private final String nodeType;
+
 	/**
 	 * Executes registering and un-registering for sensor node outputs.
 	 *
@@ -139,24 +154,19 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		this.testbedRuntime = testbedRuntime;
 		this.nodeUrn = nodeUrn;
+		this.nodeType = nodeType;
+		this.nodeSerialInterface = nodeSerialInterface;
+		this.nodeUSBChipID = nodeUSBChipID;
+		this.timeoutNodeAPI = timeoutNodeAPI;
+		this.timeoutReset = timeoutReset;
+		this.timeoutFlash = timeoutFlash;
+		this.maximumMessageRate = maximumMessageRate;
 
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
 			log.error(nodeUrn + " => " + e, e);
 		}
-
-		this.connector = WSNDeviceAppConnectorFactory.create(
-				nodeUrn,
-				nodeType,
-				nodeUSBChipID,
-				nodeSerialInterface,
-				timeoutNodeAPI,
-				maximumMessageRate,
-				testbedRuntime.getSchedulerService(),
-				timeoutReset,
-				timeoutFlash
-		);
 
 	}
 
@@ -573,6 +583,17 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		log.debug("{} => WSNDeviceAppImpl.start()", nodeUrn);
 
 		// connect to device
+		connector = WSNDeviceAppConnectorFactory.create(
+				nodeUrn,
+				nodeType,
+				nodeUSBChipID,
+				nodeSerialInterface,
+				timeoutNodeAPI,
+				maximumMessageRate,
+				testbedRuntime.getSchedulerService(),
+				timeoutReset,
+				timeoutFlash
+		);
 		connector.start();
 		connector.addListener(nodeOutputListener);
 
