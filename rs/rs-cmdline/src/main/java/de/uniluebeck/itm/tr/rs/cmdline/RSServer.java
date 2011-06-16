@@ -24,10 +24,7 @@
 package de.uniluebeck.itm.tr.rs.cmdline;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.sun.net.httpserver.HttpContext;
@@ -38,6 +35,7 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
@@ -195,6 +193,10 @@ public class RSServer {
 
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
+
+				binder.bind(List.class)
+						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+						.toProvider(ServedNodeUrnsProvider.class);
 
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixRS.class);

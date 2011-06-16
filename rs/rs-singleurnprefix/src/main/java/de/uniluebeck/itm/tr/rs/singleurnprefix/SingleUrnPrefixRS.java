@@ -26,13 +26,13 @@ package de.uniluebeck.itm.tr.rs.singleurnprefix;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.rs.*;
 import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.snaa.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -46,6 +46,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.transform;
 
 @WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
 		targetNamespace = "urn:RSService")
@@ -61,11 +63,12 @@ public class SingleUrnPrefixRS implements RS {
 	private SNAA snaa;
 
 	@Inject
-	@Nullable
-	private SessionManagement sessionManagement;
+	private RSPersistence persistence;
 
 	@Inject
-	private RSPersistence persistence;
+	@Nullable
+	@Named("SingleUrnPrefixRS.servedNodeUrns")
+	private Provider<String[]> servedNodeUrns;
 
 	@WebResult(name = "secretReservationKey")
 	@Override
@@ -227,7 +230,8 @@ public class SingleUrnPrefixRS implements RS {
 		return persistence.getReservations(i);
 	}
 
-	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData) throws RSExceptionException {
+	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
+			throws RSExceptionException {
 
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
@@ -329,35 +333,33 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description
 		// and check if the individual node urns of the reservation are existing
-		if (sessionManagement != null) {
+		if (servedNodeUrns != null) {
+
+			String[] networkNodes;
+			try {
+				networkNodes = servedNodeUrns.get();
+			} catch (Exception e) {
+				throw createRSExceptionException(e.getMessage());
+			}
 
 			List<String> unservedNodes = new LinkedList<String>();
-			try {
 
-				List<String> networkNodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
+			boolean contained;
+			for (String nodeUrn : nodeUrns) {
 
-				boolean contained;
-				for (String nodeUrn : nodeUrns) {
+				contained = false;
 
-					contained = false;
-
-					for (String networkNode : networkNodes) {
-						if (networkNode.equalsIgnoreCase(nodeUrn)) {
-							contained = true;
-						}
-					}
-
-					if (!contained) {
-						unservedNodes.add(nodeUrn);
+				for (String networkNode : networkNodes) {
+					if (networkNode.equalsIgnoreCase(nodeUrn)) {
+						contained = true;
 					}
 				}
 
-			} catch (Exception e) {
-				log.warn(
-						"Could not contact session management endpoint {}! Skipping validity check of nodes to be reserved.",
-						sessionManagement
-				);
+				if (!contained) {
+					unservedNodes.add(nodeUrn);
+				}
 			}
+
 
 			if (unservedNodes.size() > 0) {
 				throw createRSExceptionException("The node URNs " + Arrays
@@ -403,7 +405,7 @@ public class SingleUrnPrefixRS implements RS {
 			throws RSExceptionException {
 
 		String msg = null;
-		SecretReservationKey srk = null;
+		SecretReservationKey srk;
 
 		// Check if reservation data has been supplied
 		if (secretReservationKeys == null || secretReservationKeys.size() != 1) {
@@ -426,11 +428,12 @@ public class SingleUrnPrefixRS implements RS {
 
 	private void checkNodesAvailable(PublicReservationData reservation)
 			throws ReservervationConflictExceptionException, RSExceptionException {
-		List<String> requested = reservation.getNodeURNs();
+
+		List<String> requested = transform(reservation.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE);
 		Set<String> reserved = new HashSet<String>();
 
 		for (PublicReservationData res : getReservations(reservation.getFrom(), reservation.getTo())) {
-			reserved.addAll(res.getNodeURNs());
+			reserved.addAll(transform(res.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE));
 		}
 
 		Set<String> intersection = new HashSet<String>(reserved);
