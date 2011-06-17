@@ -40,8 +40,6 @@ public class AsynchronousJob {
 
 	private final Messages.Msg message;
 
-	private final int maxRetries;
-
 	private final long timeout;
 
 	private final TimeUnit timeUnit;
@@ -50,48 +48,23 @@ public class AsynchronousJob {
 
 	private boolean done = false;
 
-	private int retries = 0;
-
 	public AsynchronousJob(final UnreliableMessagingService unreliableMessagingService, final Messages.Msg message,
-						   final int maxRetries, final long timeout, final TimeUnit timeUnit,
+						   final long timeout, final TimeUnit timeUnit,
 						   final ReliableMessagingService.AsyncCallback callback) {
 
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.message = message;
-		this.maxRetries = maxRetries;
 		this.timeout = timeout;
 		this.timeUnit = timeUnit;
 		this.callback = callback;
 	}
 
-	public Tuple<Long, TimeUnit> sendOrTimeout() {
+	public void send() {
 
 		// lock to be sure that a callback is invoked for both success and failure in parallel
 		lock.lock();
 		try {
-
-			// if we're not done it means that the callback wasn't informed of either the reply or a timeout
-			if (!done) {
-
-				if (retries < maxRetries) {
-
-					// we can try one more time to send the message to the recipient
-					retries++;
-					unreliableMessagingService.sendAsync(message);
-					return new Tuple<Long, TimeUnit>(timeout, timeUnit);
-
-				} else {
-
-					// send the message of enough and there was no reply until now, so pass the callback an exception
-					callback.failure(new ReliableMessagingTimeoutException());
-					done = true;
-				}
-
-			}
-
-			// we won't send the message again so return null to not reschedule
-			return null;
-
+			unreliableMessagingService.sendAsync(message);
 		} finally {
 			lock.unlock();
 		}
@@ -107,6 +80,22 @@ public class AsynchronousJob {
 			if (!done) {
 
 				callback.success(reply.getPayload().toByteArray());
+				done = true;
+			}
+
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void timedOut() {
+
+		lock.lock();
+		try {
+
+			// send the message of enough and there was no reply until now, so pass the callback an exception
+			if (!done) {
+				callback.failure(new ReliableMessagingTimeoutException());
 				done = true;
 			}
 
