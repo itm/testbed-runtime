@@ -60,7 +60,6 @@ import org.jboss.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -142,23 +141,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				connect();
 
 			} catch (Exception e) {
-				device = null;
-				if (deviceChannel != null) {
-					deviceChannel.close().awaitUninterruptibly();
-				}
-				deviceChannel = null;
-				if (deviceConnection != null) {
-					try {
-						deviceConnection.close();
-					} catch (IOException e1) {
-						throw new RuntimeException(e1);
-					}
-				}
-				deviceConnection = null;
-				if (deviceOperationQueue != null) {
-					deviceOperationQueue.shutdown(true);
-				}
-				deviceOperationQueue = null;
 				log.error("" + e, e);
 				throw new RuntimeException(e);
 			}
@@ -195,8 +177,13 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
 
+		shutdownDeviceConnection();
 		deviceConnection = connection;
+
+		shutdownDeviceOperationQueue();
 		deviceOperationQueue = new PausableExecutorOperationQueue();
+
+		shutdownDevice();
 		device = deviceFactory.create(executorService, nodeType, connection, deviceOperationQueue);
 
 		final InputStream inputStream = device.getInputStream();
@@ -231,7 +218,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
 
 		// Wait until the connection is made successfully.
-		deviceChannel = connectFuture.awaitUninterruptibly().getChannel();
+		shutdownDeviceChannel();
+		deviceChannel = connectFuture.await().getChannel();
 	}
 
 	private void tryToDetectNodeSerialInterface() {
@@ -804,40 +792,64 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		nodeApi.stop();
 
-		if (device != null) {
+		log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 
-			log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
+		shutdownDeviceChannel();
+		shutdownDeviceConnection();
+		shutdownDevice();
+		shutdownDeviceOperationQueue();
+
+		if (executorService != null) {
+			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
+		}
+
+	}
+
+	private void shutdownDeviceOperationQueue() {
+		if (deviceOperationQueue != null) {
+			deviceOperationQueue.shutdown(true);
+		}
+	}
+
+	private void shutdownDeviceChannel() {
+
+		if (deviceChannel != null && deviceChannel.isConnected()) {
 
 			try {
 
 				deviceChannel.close();
-				deviceChannel.getCloseFuture().awaitUninterruptibly();
+				/* TODO https://issues.jboss.org/browse/NETTY-411
+				if (!deviceChannel.getCloseFuture().isDone()) {
+					deviceChannel.getCloseFuture().await();
+				}*/
 
 			} catch (Exception e) {
 				log.warn("Exception while closing DeviceConnection: {}", e);
 			}
+		}
+	}
 
-			try {
-				deviceConnection.close();
-			} catch (Exception e) {
-				log.warn("Exception while closing DeviceConnection: {}", e);
-			}
+	private void shutdownDevice() {
 
+		if (device != null) {
 			try {
 				device.close();
 			} catch (Exception e) {
 				log.warn("IOException while closing Device: {}", e);
 			}
 		}
+	}
 
-		if (deviceOperationQueue != null) {
-			deviceOperationQueue.shutdown(true);
+	private void shutdownDeviceConnection() {
+
+		if (deviceConnection != null && deviceConnection.isConnected()) {
+
+			try {
+				deviceConnection.close();
+			} catch (Exception e) {
+				log.warn("Exception while closing DeviceConnection: {}", e);
+			}
 		}
-
-		if (executorService != null) {
-			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
-		}
-
 	}
 
 	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
