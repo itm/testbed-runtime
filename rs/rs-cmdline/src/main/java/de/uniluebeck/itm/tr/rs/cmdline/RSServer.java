@@ -194,7 +194,7 @@ public class RSServer {
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
 
-				binder.bind(List.class)
+				binder.bind(String[].class)
 						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
 						.toProvider(ServedNodeUrnsProvider.class);
 

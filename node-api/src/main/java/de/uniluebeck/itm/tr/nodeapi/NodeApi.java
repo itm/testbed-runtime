@@ -105,24 +105,23 @@ public class NodeApi {
 					deviceAdapter.sendToNode(currentJob.buffer);
 
 					log.debug("Waiting for node to answer to job with request ID {}", currentJob.requestId);
-					Thread.sleep(100);
-					boolean noTimeout = currentJobDone.await(defaultTimeout, defaultTimeUnit);
+					boolean timeout = !currentJobDone.await(defaultTimeout, defaultTimeUnit);
 					log.debug("Job with request ID {} done (timeout={}, success={}).",
 							new Object[]{
 									currentJob.requestId,
-									!noTimeout,
+									!timeout,
 									currentJobResult != null && currentJobResult.isSuccessful()
 							}
 					);
 
-					if (noTimeout) {
-						currentJob.future.set(currentJobResult);
-					} else {
+					if (timeout) {
 						currentJob.future.setException(new TimeoutException());
+					} else {
+						currentJob.future.set(currentJobResult);
 					}
 
 				} catch (InterruptedException e) {
-					log.debug("Interrupted while waiting for job to be done."
+					log.trace("Interrupted while waiting for job to be done."
 							+ " This is propably OK as it should only happen during shutdown."
 					);
 				} finally {
@@ -233,7 +232,7 @@ public class NodeApi {
 				currentJobDone.signal();
 
 			} else if (log.isDebugEnabled()) {
-				log.debug("Received message for unknown requestId: {}", StringUtils.toHexString(packetBytes));
+				log.debug("Received message for unknown requestId: {}", requestId);
 			}
 
 		} finally {
