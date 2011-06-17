@@ -93,6 +93,7 @@ public class DataInternal implements Serializable {
 		return "DataInternal{" +
 				"urnPrefix='" + urnPrefix + '\'' +
 				", username='" + username + '\'' +
+				", secretReservationKey='" + secretReservationKey + '\'' +
 				'}';
 	}
 

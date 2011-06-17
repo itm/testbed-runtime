@@ -44,7 +44,17 @@ public class PublicReservationDataInternal implements Serializable {
 
     private String userData;
 
-	public long getId() {
+    public PublicReservationDataInternal() {
+    }
+
+    public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeURNs) {
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+        this.userData = userData;
+        this.nodeURNs = nodeURNs;
+    }
+
+    public long getId() {
 		return id;
 	}
 
@@ -103,6 +113,7 @@ public class PublicReservationDataInternal implements Serializable {
 				"id=" + id +
 				", fromDate=" + fromDate +
 				", toDate=" + toDate +
+				", userData=" + userData +
 				", nodeURNs=" + nodeURNs +
 				'}';
 	}
