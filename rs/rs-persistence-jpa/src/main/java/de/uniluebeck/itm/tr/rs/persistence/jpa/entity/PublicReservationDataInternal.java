@@ -42,6 +42,7 @@ public class PublicReservationDataInternal implements Serializable {
 	@Column(nullable = false)
 	protected long toDate;
 
+    private String userData;
 
 	public long getId() {
 		return id;
@@ -88,7 +89,15 @@ public class PublicReservationDataInternal implements Serializable {
 		this.toDate = value;
 	}
 
-	@Override
+    public String getUserData() {
+        return userData;
+    }
+
+    public void setUserData(String userData) {
+        this.userData = userData;
+    }
+
+    @Override
 	public String toString() {
 		return "PublicReservationDataInternal{" +
 				"id=" + id +
