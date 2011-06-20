@@ -35,7 +35,11 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 	@OneToMany(cascade = javax.persistence.CascadeType.ALL)
 	protected List<DataInternal> data;
 
-	public List<DataInternal> getData() {
+    public ConfidentialReservationDataInternal() {
+        super();
+    }
+
+    public List<DataInternal> getData() {
 		if (data == null) {
 			data = new LinkedList<DataInternal>();
 		}

@@ -24,10 +24,16 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.common.SchedulerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 
 public class WSNDeviceAppConnectorFactory {
 
+	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnectorFactory.class);
 
 	public static WSNDeviceAppConnector create(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 											   final String nodeSerialInterface, final Integer timeoutNodeAPI,
@@ -36,9 +42,27 @@ public class WSNDeviceAppConnectorFactory {
 											   final Integer timeoutReset,
 											   final Integer timeoutFlash) {
 
-		if ("isense".equals(nodeType) || "telosb".equals(nodeType) || "pacemate".equals(nodeType) || "mock".equals(nodeType)) {
+		boolean newDrivers = !System.getProperties().containsKey("testbed.olddrivers");
 
-			return new WSNDeviceAppConnectorLocal(
+		if (newDrivers) {
+
+			log.debug("{} => Using new drivers", nodeUrn);
+			return new WSNDeviceAppConnectorImpl(
+					nodeUrn,
+					nodeType,
+					nodeUSBChipID,
+					nodeSerialInterface,
+					timeoutNodeAPI,
+					maximumMessageRate,
+					timeoutReset,
+					timeoutFlash,
+					schedulerService
+			);
+
+		} else {
+
+			log.debug("{} => Using old drivers", nodeUrn);
+			return new WSNDeviceAppConnectorOld(
 					nodeUrn,
 					nodeType,
 					nodeUSBChipID,
@@ -49,20 +73,7 @@ public class WSNDeviceAppConnectorFactory {
 					timeoutReset,
 					timeoutFlash
 			);
-
-		} else if ("isense-motap".equals(nodeType)) {
-
-			return new WSNDeviceAppConnectorRemote(
-					nodeUrn,
-					nodeType,
-					timeoutNodeAPI,
-					schedulerService,
-					timeoutReset,
-					timeoutFlash
-			);
-
 		}
 
-		throw new RuntimeException("Unknown device type!");
 	}
 }

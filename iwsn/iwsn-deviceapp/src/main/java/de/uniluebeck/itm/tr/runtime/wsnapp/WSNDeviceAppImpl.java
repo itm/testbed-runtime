@@ -33,7 +33,6 @@ import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseListener;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.MessagePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +42,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 
 class WSNDeviceAppImpl implements WSNDeviceApp {
@@ -108,6 +108,20 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	 */
 	private final Set<String> nodeMessageListeners = new HashSet<String>();
 
+	private final String nodeSerialInterface;
+
+	private final Integer timeoutNodeAPI;
+
+	private final String nodeUSBChipID;
+
+	private final Integer maximumMessageRate;
+
+	private final Integer timeoutReset;
+
+	private final Integer timeoutFlash;
+
+	private final String nodeType;
+
 	/**
 	 * Executes registering and un-registering for sensor node outputs.
 	 *
@@ -140,24 +154,19 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		this.testbedRuntime = testbedRuntime;
 		this.nodeUrn = nodeUrn;
+		this.nodeType = nodeType;
+		this.nodeSerialInterface = nodeSerialInterface;
+		this.nodeUSBChipID = nodeUSBChipID;
+		this.timeoutNodeAPI = timeoutNodeAPI;
+		this.timeoutReset = timeoutReset;
+		this.timeoutFlash = timeoutFlash;
+		this.maximumMessageRate = maximumMessageRate;
 
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
 		} catch (DatatypeConfigurationException e) {
 			log.error(nodeUrn + " => " + e, e);
 		}
-
-		this.connector = WSNDeviceAppConnectorFactory.create(
-				nodeUrn,
-				nodeType,
-				nodeUSBChipID,
-				nodeSerialInterface,
-				timeoutNodeAPI,
-                maximumMessageRate,
-				testbedRuntime.getSchedulerService(),
-				timeoutReset,
-				timeoutFlash
-		);
 
 	}
 
@@ -470,10 +479,14 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	WSNDeviceAppConnector.NodeOutputListener nodeOutputListener = new WSNDeviceAppConnector.NodeOutputListener() {
 		@Override
-		public void receivedPacket(final MessagePacket p) {
+		public void receivedPacket(final byte[] bytes) {
 
 			if (log.isDebugEnabled() && nodeMessageListeners.size() == 0) {
-				log.debug("{} => Received packet but no message listeners registered! Packet: {}", nodeUrn, p);
+				log.debug(
+						"{} => Received packet but no message listeners registered! Packet: {}",
+						nodeUrn,
+						StringUtils.toHexString(bytes)
+				);
 				return;
 			}
 
@@ -483,7 +496,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
 					.setSourceNodeId(nodeUrn)
 					.setTimestamp(now.toXMLFormat())
-					.setBinaryData(ByteString.copyFrom(p.getByteArray()));
+					.setBinaryData(ByteString.copyFrom(bytes));
 
 			WSNAppMessages.Message message = messageBuilder.build();
 
@@ -519,11 +532,12 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 			for (String nodeMessageListener : nodeMessageListeners) {
 
 				if (log.isDebugEnabled()) {
-					log.debug("{} => Delivering notification to {}: {}", new String[] {
+					log.debug("{} => Delivering notification to {}: {}", new String[]{
 							nodeUrn,
 							nodeMessageListener,
 							notification
-					});
+					}
+					);
 				}
 
 				testbedRuntime.getUnreliableMessagingService().sendAsync(
@@ -569,6 +583,17 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		log.debug("{} => WSNDeviceAppImpl.start()", nodeUrn);
 
 		// connect to device
+		connector = WSNDeviceAppConnectorFactory.create(
+				nodeUrn,
+				nodeType,
+				nodeUSBChipID,
+				nodeSerialInterface,
+				timeoutNodeAPI,
+				maximumMessageRate,
+				testbedRuntime.getSchedulerService(),
+				timeoutReset,
+				timeoutFlash
+		);
 		connector.start();
 		connector.addListener(nodeOutputListener);
 

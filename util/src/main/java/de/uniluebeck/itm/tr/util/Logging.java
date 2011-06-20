@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.util;
 
 import org.apache.log4j.*;
+import org.apache.log4j.spi.LoggerRepository;
 
 
 public class Logging {
@@ -31,11 +32,15 @@ public class Logging {
 	public static void setLoggingDefaults() {
 
 		// configure logging defaults
-		Appender appender = new ConsoleAppender(new PatternLayout("%-23d{yyyy-MM-dd HH:mm:ss,SSS} | %-25.25t | %-25.25C{1} | %-5p | %m%n"));
+		Appender appender = new ConsoleAppender(
+				new PatternLayout("%-23d{yyyy-MM-dd HH:mm:ss,SSS} | %-25.25t | %-25.25c{1} | %-5p | %m%n")
+		);
 
 		Logger itmLogger = Logger.getLogger("de.uniluebeck.itm");
 		Logger wisebedLogger = Logger.getLogger("eu.wisebed");
-        Logger coaLogger = Logger.getLogger("com.coalesenses");
+		Logger coaLogger = Logger.getLogger("com.coalesenses");
+		Logger deviceUtilsLogger = Logger.getLogger("de.uniluebeck.itm.wsn.deviceutils");
+		Logger deviceDriversLogger = Logger.getLogger("de.uniluebeck.itm.wsn.drivers");
 
 		if (!itmLogger.getAllAppenders().hasMoreElements()) {
 			itmLogger.addAppender(appender);
@@ -47,18 +52,28 @@ public class Logging {
 			wisebedLogger.setLevel(Level.DEBUG);
 		}
 
-        if (!coaLogger.getAllAppenders().hasMoreElements()) {
+		if (!coaLogger.getAllAppenders().hasMoreElements()) {
 			coaLogger.addAppender(appender);
 			coaLogger.setLevel(Level.INFO);
+		}
+
+		if (!deviceUtilsLogger.getAllAppenders().hasMoreElements()) {
+			deviceUtilsLogger.addAppender(appender);
+			deviceUtilsLogger.setLevel(Level.INFO);
+		}
+
+		if (!deviceDriversLogger.getAllAppenders().hasMoreElements()) {
+			deviceDriversLogger.addAppender(appender);
+			deviceDriversLogger.setLevel(Level.ERROR);
 		}
 	}
 
 
-        public static void setDebugLoggingDefaults() {
-		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-20.20C{3} | %-5p | %m%n");
-                final Appender appender = new ConsoleAppender(patternLayout);
-                Logger.getRootLogger().removeAllAppenders();
-                Logger.getRootLogger().addAppender(appender);
-                Logger.getRootLogger().setLevel(Level.DEBUG);
+	public static void setDebugLoggingDefaults() {
+		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-20.20c{3} | %-5p | %m%n");
+		final Appender appender = new ConsoleAppender(patternLayout);
+		Logger.getRootLogger().removeAllAppenders();
+		Logger.getRootLogger().addAppender(appender);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
 }

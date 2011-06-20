@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -41,18 +42,18 @@
 		<module>snaa/</module>
 
 		<module>shibboauth</module>
-		<module>util</module>
 		<module>motelist</module>
 		<module>node-api</module>
+		<module>util</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
-		<module>motap</module>
 
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 
+			<!-- project module dependencies -->
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence</artifactId>
@@ -228,11 +229,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.motelist</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.scripting-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -243,12 +239,34 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.8.1</version>
-				<scope>test</scope>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.motelist</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 
+			<!-- other itm projects -->
+			<dependency>
+				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
+				<artifactId>wsn-device-utils</artifactId>
+				<version>0.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>wsn-device-drivers-factories</artifactId>
+				<version>0.3.4</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+				<artifactId>netty-iostream</artifactId>
+				<version>0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>dlestxetx</artifactId>
+				<version>0.9</version>
+			</dependency>
+
+			<!-- 3rd party libraries -->
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
@@ -327,7 +345,7 @@
 			<dependency>
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
-				<version>2.3</version>
+				<version>2.5</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -409,17 +427,34 @@
 				<artifactId>netty</artifactId>
 				<version>3.2.3.Final</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.beanshell</groupId>
 				<artifactId>bsh</artifactId>
 				<version>2.0b4</version>
 			</dependency>
-
 			<dependency>
 				<groupId>jtidy</groupId>
 				<artifactId>jtidy</artifactId>
 				<version>4aug2000r7-dev</version>
+			</dependency>
+			<dependency>
+				<groupId>apache-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.0</version>
+			</dependency>
+
+			<!-- unit testing dependencies -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.8.1</version>
+				<scope>test</scope>
 			</dependency>
 
 		</dependencies>

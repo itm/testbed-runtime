@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.util;
 
+import com.google.common.base.Function;
+
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,6 +36,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StringUtils {
+
+	public static final Function<String, String> STRING_TO_LOWER_CASE = new Function<String, String>() {
+		@Override
+		public String apply(final String input) {
+			return input.toLowerCase();
+		}
+	};
+
+	public static final Function<String, String> STRING_TO_UPPER_CASE = new Function<String, String>() {
+		@Override
+		public String apply(final String input) {
+			return input.toUpperCase();
+		}
+	};
 
 	/**
 	 * Replaces the non-printable ASCII characters with readable counterparts in square brackets, e.g. \0x00 -> [NUL].

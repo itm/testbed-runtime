@@ -23,6 +23,12 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory.test;
 
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
@@ -31,6 +37,11 @@ import de.uniluebeck.itm.tr.util.PropertiesUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.rs.*;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +61,7 @@ public class SingleUrnPrefixInmemoryTest {
 
     private RSPersistence rsPersistence;
 
-    private SingleUrnPrefixRS rs;
+    private RS rs;
 
     private Map<Integer, ConfidentialReservationData> reservationDataMap =
             new HashMap<Integer, ConfidentialReservationData>();
@@ -200,8 +211,26 @@ public class SingleUrnPrefixInmemoryTest {
     public void setUp() throws Exception {
 
         rsPersistence = new InMemoryRSPersistence();
-        String snaaEndpointUrl = "http://localhost:" + snaaPort + "/snaa/dummy1";
-        rs = new SingleUrnPrefixRS(TESTBED_PREFIX, snaaEndpointUrl, null, rsPersistence);
+        final String snaaEndpointUrl = "http://localhost:" + snaaPort + "/snaa/dummy1";
+
+		final Injector injector = Guice.createInjector(new Module() {
+			@Override
+			public void configure(final Binder binder) {
+
+				binder.bind(String.class)
+						.annotatedWith(Names.named("SingleUrnPrefixRS.urnPrefix"))
+						.toInstance(TESTBED_PREFIX);
+
+				binder.bind(SNAA.class).toInstance(SNAAServiceHelper.getSNAAService(snaaEndpointUrl));
+				binder.bind(SessionManagement.class).toProvider(Providers.<SessionManagement>of(null));
+				binder.bind(RSPersistence.class).toInstance(rsPersistence);
+
+				binder.bind(RS.class).to(SingleUrnPrefixRS.class);
+			}
+		}
+		);
+
+		rs = injector.getInstance(RS.class);
 
         // create SecretAuthenticationKey for use with dummy SNAA (no pwd check)
         secretAuthenticationKeyList = new LinkedList<SecretAuthenticationKey>();
@@ -331,7 +360,7 @@ public class SingleUrnPrefixInmemoryTest {
         for (int i = 0; i < reservationDataMap.size(); i++) {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
-            rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+            rs.deleteReservation(secretAuthenticationKeyList, tempKeyList);
         }
     }
 
@@ -340,7 +369,7 @@ public class SingleUrnPrefixInmemoryTest {
             List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
             tempKeyList.add(reservationKeyMap.get(i));
             try {
-                rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), tempKeyList);
+                rs.deleteReservation(secretAuthenticationKeyList, tempKeyList);
                 fail("Should have raised an ReservervationNotFoundExceptionException");
             }
             catch (ReservervationNotFoundExceptionException expected) {
