@@ -185,18 +185,25 @@ public class RSServer {
 
 					binder.bind(SessionManagement.class)
 							.toProvider(Providers.<SessionManagement>of(null));
+
+					binder.bind(String[].class)
+						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+						.toProvider(Providers.<String[]>of(null));
+
 				} else {
 
 					binder.bind(SessionManagement.class)
 							.toInstance(WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
+
+					binder.bind(String[].class)
+						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+						.toProvider(ServedNodeUrnsProvider.class);
 				}
+
+
 
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
-
-				binder.bind(String[].class)
-						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
-						.toProvider(ServedNodeUrnsProvider.class);
 
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixRS.class);
