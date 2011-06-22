@@ -181,8 +181,8 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		from.setTimeZone(this.localTimeZone);
 
 		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERYNAME);
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, new Long(from.getTimeInMillis()));
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, new Long(to.getTimeInMillis()));
+		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, from.getTimeInMillis());
+		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, to.getTimeInMillis());
 
 		try {
 			return TypeConverter.convertConfidentialReservationData((List<ReservationDataInternal>) query
