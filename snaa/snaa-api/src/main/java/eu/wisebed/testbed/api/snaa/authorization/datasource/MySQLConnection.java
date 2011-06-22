@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                  *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,7 +9,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -21,37 +21,35 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.util;
+package eu.wisebed.testbed.api.snaa.authorization.datasource;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Random;
+import java.sql.*;
 
+public class MySQLConnection {
 
-public class SecureIdGenerator {
+    Connection connection = null;
 
-	private Random random = new SecureRandom();
+    public MySQLConnection(String url, String user, String passwd) throws ClassNotFoundException, SQLException {
+        Class.forName( "com.mysql.jdbc.Driver" );
+        connection = DriverManager.getConnection(url, user, passwd);
+    }
 
-	public String getNextId() {
-		try {
+    public ResultSet getQuery(String s) throws SQLException {
+        Statement statement = connection.createStatement();
+        return statement.executeQuery(s);
+    }
 
-			StringBuilder builder = new StringBuilder();
+    //returns integer-value for query
+    //if result is empty a NullPointerException is thrown
+    public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
+        ResultSet rs = getQuery(query);
+        while (rs.next()){
+            return rs.getInt(column);
+        }
+        throw new NullPointerException("Warning: Result of query: " + query + " is empty");
+    }
 
-			for (int i = 0; i < 1; i++) {
-				MessageDigest m = MessageDigest.getInstance("MD5");
-				byte[] data = Long.valueOf(random.nextLong()).toString().getBytes();
-				m.update(data, 0, data.length);
-				BigInteger t = new BigInteger(1, m.digest());
-				builder.append(String.format("%1$032X", t));
-			}
-
-			return builder.toString();
-
-		} catch (NoSuchAlgorithmException nsae) {
-			throw new RuntimeException("NoSuchAlgorithmException while trying to generate an MD5 hash!", nsae);
-		}
-	}
-
+    public void disconnect() throws SQLException {
+        connection.close();
+    }
 }

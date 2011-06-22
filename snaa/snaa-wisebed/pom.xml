@@ -38,6 +38,7 @@
 	<name>TR :: SNAA WISEBED (federator and backend)</name>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-api</artifactId>
@@ -50,10 +51,12 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-shibboleth</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.util</artifactId>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
 		</dependency>
+
 	</dependencies>
 
 </project>

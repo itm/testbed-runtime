@@ -40,10 +40,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-        <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.snaa-api</artifactId>
         </dependency>
@@ -51,12 +47,16 @@
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.shibboauth</artifactId>
         </dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
+
         <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.util</artifactId>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

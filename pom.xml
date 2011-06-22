@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -43,7 +44,6 @@
 		<module>shibboauth</module>
 		<module>motelist</module>
 		<module>node-api</module>
-		<module>util</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
 
@@ -208,11 +208,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.util</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence-gcal</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -245,6 +240,11 @@
 
 			<!-- other itm projects -->
 			<dependency>
+				<groupId>de.uniluebeck.itm.itmutils</groupId>
+				<artifactId>itmutils</artifactId>
+				<version>0.1</version>
+			</dependency>
+			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
 				<version>0.3.1</version>
@@ -262,6 +262,16 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>dlestxetx</artifactId>
+				<version>0.9</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>protocol-collection</artifactId>
+				<version>0.9</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>channel-flange</artifactId>
 				<version>0.9</version>
 			</dependency>
 

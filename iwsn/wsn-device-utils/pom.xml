@@ -43,9 +43,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wsn-device-drivers</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.util</artifactId>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
 		</dependency>
 
 		<dependency>
@@ -60,7 +61,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
