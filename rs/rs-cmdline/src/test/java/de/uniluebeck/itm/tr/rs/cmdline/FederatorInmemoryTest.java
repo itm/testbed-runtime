@@ -272,6 +272,7 @@ public class FederatorInmemoryTest {
     public void test()
             throws ReservervationConflictExceptionException, RSExceptionException, AuthorizationExceptionException,
 			ReservervationNotFoundExceptionException, DatatypeConfigurationException {
+
         makeReservation();
         getReservationBeforeDeletion();
         getReservations();

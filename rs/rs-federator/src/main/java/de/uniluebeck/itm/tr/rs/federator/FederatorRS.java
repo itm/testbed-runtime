@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.rs.federator;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.api.rs.*;
@@ -36,6 +37,8 @@ import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 import java.util.concurrent.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 
 @WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
@@ -130,8 +133,7 @@ public class FederatorRS implements RS {
         // TODO fix check
         // assertAuthenticationForReservation(reservationMap, authenticationMap);
 
-        Map<Future<List<SecretReservationKey>>, MakeReservationCallable> futures =
-                new HashMap<Future<List<SecretReservationKey>>, MakeReservationCallable>();
+        Map<Future<List<SecretReservationKey>>, MakeReservationCallable> futures = Maps.newHashMap();
 
         // fork the parallel execution of reservations on federated services
         for (Map.Entry<String, ConfidentialReservationData> entry : reservationMap.entrySet()) {
@@ -145,9 +147,9 @@ public class FederatorRS implements RS {
 
         // join the parallel execution and check if one or more of the jobs failed
         boolean failed = false;
-        Map<MakeReservationCallable, List<SecretReservationKey>> succeeded =
-                new HashMap<MakeReservationCallable, List<SecretReservationKey>>();
-        List<String> failMessages = new LinkedList<String>();
+
+        Map<MakeReservationCallable, List<SecretReservationKey>> succeeded = Maps.newHashMap();
+        List<String> failMessages = newArrayList();
 
         for (Future<List<SecretReservationKey>> future : futures.keySet()) {
             try {
@@ -173,7 +175,7 @@ public class FederatorRS implements RS {
         }
 
         // return secret reservation keys (all jobs successful)
-        List<SecretReservationKey> res = new LinkedList<SecretReservationKey>();
+        List<SecretReservationKey> res = newArrayList();
         for (List<SecretReservationKey> secretReservationKeyList : succeeded.values()) {
             res.addAll(secretReservationKeyList);
         }

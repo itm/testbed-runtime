@@ -46,24 +46,19 @@ public class SynchronousJob {
 
 	private final Messages.Msg message;
 
-	private final int maxSendCount;
-
 	private final long timeout;
 
 	private final TimeUnit timeUnit;
 
 	private Messages.Msg reply = null;
 
-	private int sendCount = 0;
-
 	public SynchronousJob(final UnreliableMessagingService unreliableMessagingService, final Messages.Msg message,
-						  final int maxSendCount, final long resendTimeout, final TimeUnit resendTimeUnit) {
+						  final long timeout, final TimeUnit timeUnit) {
 
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.message = message;
-		this.maxSendCount = maxSendCount;
-		this.timeout = resendTimeout;
-		this.timeUnit = resendTimeUnit;
+		this.timeout = timeout;
+		this.timeUnit = timeUnit;
 	}
 
 	public Messages.Msg run() throws ReliableMessagingTimeoutException {
@@ -72,11 +67,8 @@ public class SynchronousJob {
 
 		try {
 
-			while (reply == null && sendCount < maxSendCount) {
-				unreliableMessagingService.sendAsync(message);
-				sendCount++;
-				receivedReply.await(timeout, timeUnit);
-			}
+			unreliableMessagingService.sendAsync(message);
+			receivedReply.await(timeout, timeUnit);
 
 			if (reply == null) {
 				throw new ReliableMessagingTimeoutException("No reply was received in time!");

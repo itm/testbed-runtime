@@ -30,7 +30,7 @@ public class ReliableMessagingModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ReliableMessagingService.class).to(ReliableMessagingServiceImpl2.class);
+		bind(ReliableMessagingService.class).to(ReliableMessagingServiceImpl.class);
 	}
 
 }
