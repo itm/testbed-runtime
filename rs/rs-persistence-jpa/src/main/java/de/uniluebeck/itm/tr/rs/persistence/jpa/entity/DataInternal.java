@@ -41,6 +41,7 @@ public class DataInternal implements Serializable {
 	@Column
 	protected String username;
 
+    @Column
     private String secretReservationKey;
 
 	// @ManyToOne

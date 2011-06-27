@@ -24,29 +24,95 @@
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
 import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.SecretReservationKey;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
-import java.util.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class RSPersistenceJPATest extends RSPersistenceTest {
-	private final static TimeZone localTimeZone = TimeZone.getTimeZone("GMT");
-	private static final Map<String, String> properties = new HashMap<String, String>() {{
-		//Configure Apache
-		put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
-		put("hibernate.connection.url", "jdbc:derby:target/default;create=true");
-		put("hibernate.dialect", "org.hibernate.dialect.DerbyDialect");
-		//Configure Hibernate
-		put("hibernate.ddl-generation.output-mode", "database");
-		put("hibernate.hbm2ddl.auto", "create");
-		put("hibernate.archive.autodetection", "class, hbm");
-	}};
+    private final static TimeZone localTimeZone = TimeZone.getTimeZone("GMT");
+    private static final Map<String, String> properties = new HashMap<String, String>() {{
+        //Configure Apache
+        put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
+        put("hibernate.connection.url", "jdbc:derby:target/default;create=true");
+        put("hibernate.dialect", "org.hibernate.dialect.DerbyDialect");
+        //Configure Hibernate
+        put("hibernate.ddl-generation.output-mode", "database");
+        put("hibernate.hbm2ddl.auto", "create");
+        put("hibernate.archive.autodetection", "class, hbm");
+    }};
 
-	@Before
-	public void setUp() throws RSExceptionException {
-		super.setUp();
+    private RSPersistence reservationRepository;
 
-		RSPersistence persistence = RSPersistenceJPAFactory.createInstance(properties, localTimeZone);
-		super.setPersistence(persistence);
-	}
+    @Before
+    public void setUp() throws RSExceptionException {
+        super.setUp();
+
+        reservationRepository = RSPersistenceJPAFactory.createInstance(properties, localTimeZone);
+        super.setPersistence(reservationRepository);
+    }
+
+    @After
+    public void tearDown() {
+        reservationRepository = null;
+    }
+
+    @Test
+    public void testGetReservations() throws Exception {
+        final ConfidentialReservationData confidentialReservationData
+                = createConfidentialReservationData();
+
+        final SecretReservationKey secretReservationKey
+                = reservationRepository.addReservation(confidentialReservationData, "urn:smartsantander:testbed:");
+
+        final ConfidentialReservationData result
+                = reservationRepository.getReservation(secretReservationKey);
+
+        assertNotNull(result);
+        assertNotNull(result.getUserData());
+        assertEquals(result.getUserData(), confidentialReservationData.getUserData());
+        assertNotNull(result.getData().get(0));
+
+        final String resultReservationKey = result.getData().get(0).getSecretReservationKey();
+
+        assertNotNull(resultReservationKey);
+        assertFalse(resultReservationKey.isEmpty());
+        assertEquals(resultReservationKey, confidentialReservationData.getData().get(0).getSecretReservationKey());
+
+        System.out.println(resultReservationKey);
+    }
+
+    private ConfidentialReservationData createConfidentialReservationData() throws DatatypeConfigurationException {
+        final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
+        confidentialReservationData.setUserData("test-user");
+
+        final XMLGregorianCalendar xmlGregorianCalendar
+                = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2011, 6, 25, 0);
+        confidentialReservationData.setFrom(xmlGregorianCalendar);
+        xmlGregorianCalendar.add(
+                DatatypeFactory.newInstance().newDuration(1000 * 60 * 30)); // 30 minutes
+        confidentialReservationData.setTo(xmlGregorianCalendar);
+
+        Data data = new Data();
+        data.setSecretReservationKey("SECRET12345");
+        data.setUrnPrefix("urn:smartsantander:testbed:");
+        data.setUsername("test-user");
+        confidentialReservationData.getData().add(data);
+
+        return confidentialReservationData;
+    }
 }
