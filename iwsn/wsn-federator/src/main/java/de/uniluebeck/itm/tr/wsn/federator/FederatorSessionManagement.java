@@ -25,8 +25,6 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
@@ -45,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.util.*;
@@ -497,10 +494,11 @@ public class FederatorSessionManagement implements SessionManagement {
 		@Override
 		public void run() {
 			try {
-				log
-						.debug("Freeing WSN instance on {} for keys {}", sessionManagementEndpointUrl,
-								secretReservationKeys
-						);
+				log.debug(
+						"Freeing WSN instance on {} for keys {}",
+						sessionManagementEndpointUrl,
+						secretReservationKeys
+				);
 				WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl).free(secretReservationKeys);
 			} catch (ExperimentNotRunningException_Exception e) {
 				log.warn("" + e, e);
@@ -513,40 +511,20 @@ public class FederatorSessionManagement implements SessionManagement {
 	@Override
 	public String getNetwork() {
 
-		List<String> networkStrings = new ArrayList<String>();
+		final BiMap<String, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
+		final Set<String> endpointUrls = sessionManagementEndpointUrlPrefixSet.keySet();
 
-		// fork getNetwork() calls to federated testbeds
-		Collection<String> federatedSMs = sessionManagementEndpointUrlPrefixSet.keySet();
-		List<Future<String>> futures = new ArrayList<Future<String>>(federatedSMs.size());
-		for (final String smEndpointUrl : federatedSMs) {
-			futures.add(executorService.submit(new Callable<String>() {
+		for (final String endpointUrl : endpointUrls) {
+			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					return WSNServiceHelper.getSessionManagementService(smEndpointUrl).getNetwork();
+					return WSNServiceHelper.getSessionManagementService(endpointUrl).getNetwork();
 				}
 			}
-			)
 			);
 		}
 
-		// join getNetwork() calls
-		for (Future<String> future : futures) {
-			try {
-				networkStrings.add(future.get());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		// Merger configuration (default)
-		MergerConfiguration config = new MergerConfiguration();
-
-		// return merged network definitions
-		try {
-			return WiseMLMergerHelper.mergeFromStrings(config, networkStrings);
-		} catch (XMLStreamException e) {
-			throw new RuntimeException(e);
-		}
+		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
 
 	}
 

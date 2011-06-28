@@ -26,8 +26,6 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.*;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
@@ -42,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 import java.util.concurrent.*;
@@ -327,49 +324,20 @@ public class FederatorWSN implements WSN {
 	@Override
 	public String getNetwork() {
 
-		List<String> networkStrings = new ArrayList<String>();
+		final BiMap<String, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
+		final Set<String> endpointUrls = federationManager.getEndpointUrls();
 
-		// fork getNetwork() calls to federated testbeds
-		ImmutableSet<String> endpointUrls = federationManager.getEndpointUrls();
-
-		log.debug("Invoking getNetwork() on {}", endpointUrls);
-
-		List<Tuple<String, Future<String>>> futures = Lists.newArrayList();
-
-		for (final String federatedEndpointUrl : endpointUrls) {
-			Future<String> future = executorService.submit(new Callable<String>() {
+		for (final String endpointUrl : endpointUrls) {
+			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					WSN federatedEndpoint = federationManager.getEndpointByEndpointUrl(federatedEndpointUrl);
-					return federatedEndpoint.getNetwork();
+					return federationManager.getEndpointByEndpointUrl(endpointUrl).getNetwork();
 				}
 			}
 			);
-			futures.add(new Tuple<String, Future<String>>(federatedEndpointUrl, future));
 		}
 
-		// join getNetwork() calls
-		for (Tuple<String, Future<String>> future : futures) {
-			try {
-				networkStrings.add(future.getSecond().get());
-			} catch (Exception e) {
-				log.error(
-						"Error calling getNetwork() on federated WSN endpoint {}. "
-								+ "Ignoring this endpoint on merging WiseML documents. Reason: {}",
-						future.getFirst(), e
-				);
-			}
-		}
-
-		// Merger configuration (default)
-		MergerConfiguration config = new MergerConfiguration();
-
-		// return merged network definitions
-		try {
-			return WiseMLMergerHelper.mergeFromStrings(config, networkStrings);
-		} catch (XMLStreamException e) {
-			throw new RuntimeException(e);
-		}
+		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
 	}
 
 	@Override

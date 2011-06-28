@@ -51,6 +51,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wiseml-merger</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wiseml</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
