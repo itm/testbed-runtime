@@ -28,11 +28,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.*;
+import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
@@ -59,6 +62,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
 @WebService(
 		serviceName = "WSNService",
@@ -573,8 +577,22 @@ public class WSNServiceImpl implements WSNService {
 
 	@Override
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-		// TODO implement
-		return Lists.newArrayList();
+
+		HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
+		try {
+			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		final List<ChannelHandlerDescription> channelHandlerDescriptions = newArrayList();
+
+		for (HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription : handlerFactoryRegistry
+				.getChannelHandlerDescriptions()) {
+			channelHandlerDescriptions.add(convert(handlerDescription));
+		}
+
+		return channelHandlerDescriptions;
 	}
 
 	@Override
@@ -898,6 +916,21 @@ public class WSNServiceImpl implements WSNService {
 	public List<String> getFilters() {
 		log.debug("WSNServiceImpl.getFilters");
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
+	}
+
+	private ChannelHandlerDescription convert(
+			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
+
+		ChannelHandlerDescription target = new ChannelHandlerDescription();
+		target.setDescription(handlerDescription.getDescription());
+		target.setName(handlerDescription.getName());
+		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
+			final KeyValuePair keyValuePair = new KeyValuePair();
+			keyValuePair.setKey(entry.getKey());
+			keyValuePair.setValue(entry.getValue());
+			target.getConfigurationOptions().add(keyValuePair);
+		}
+		return target;
 	}
 
 }

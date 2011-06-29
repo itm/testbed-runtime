@@ -595,9 +595,9 @@ class WSNAppImpl implements WSNApp {
 
 	}
 
-	private WSNAppMessages.SetChannelPipeline.Builder convert(
+	private WSNAppMessages.SetChannelPipelineRequest.Builder convert(
 			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		WSNAppMessages.SetChannelPipeline.Builder argumentBuilder = WSNAppMessages.SetChannelPipeline.newBuilder();
+		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder = WSNAppMessages.SetChannelPipelineRequest.newBuilder();
 
 		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
 			argumentBuilder.addChannelHandlerConfigurations(convert(channelHandlerConfiguration));
@@ -605,10 +605,10 @@ class WSNAppImpl implements WSNApp {
 		return argumentBuilder;
 	}
 
-	private WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.Builder convert(
+	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder convert(
 			final ChannelHandlerConfiguration channelHandlerConfiguration) {
-		final WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.Builder configurationBuilder =
-				WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration
+		final WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder configurationBuilder =
+				WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration
 						.newBuilder()
 						.setName(channelHandlerConfiguration.getName());
 
@@ -618,10 +618,10 @@ class WSNAppImpl implements WSNApp {
 		return configurationBuilder;
 	}
 
-	private WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.KeyValuePair.Builder convert(
+	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.Builder convert(
 			final KeyValuePair keyValuePair) {
 
-		return WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.KeyValuePair
+		return WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair
 				.newBuilder()
 				.setKey(keyValuePair.getKey())
 				.setValue(keyValuePair.getValue());
