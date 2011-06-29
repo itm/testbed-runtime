@@ -45,10 +45,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wiseml-merger</artifactId>
 		</dependency>
 		<dependency>
@@ -72,10 +68,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>

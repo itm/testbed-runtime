@@ -47,16 +47,16 @@
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.rs-singleurnprefix</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.uniluebeck.itm</groupId>
+            <artifactId>tr.rs-api</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -84,6 +84,14 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>

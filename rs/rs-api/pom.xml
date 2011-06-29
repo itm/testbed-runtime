@@ -39,8 +39,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-api</artifactId>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
 		</dependency>
 	</dependencies>
 

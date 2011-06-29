@@ -53,8 +53,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -46,6 +46,7 @@ import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.Endpoint;
 import java.io.FileReader;
@@ -59,7 +60,7 @@ public class RSServer {
 
 	private static HttpServer server;
 
-	private static final Logger log = Logger.getLogger(RSServer.class);
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(RSServer.class);
 
 	public static void main(String[] args) throws Exception {
 
@@ -91,7 +92,7 @@ public class RSServer {
 			}
 
 		} catch (Exception e) {
-			log.fatal("Invalid command line: " + e, e);
+			log.error("Invalid command line: " + e, e);
 			usage(options);
 		}
 

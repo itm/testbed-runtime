@@ -43,20 +43,39 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-persistence</artifactId>
 		</dependency>
-		<!--<dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-			<classifier>tests</classifier>
-		</dependency>-->
+			<artifactId>tr.snaa-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
 		</dependency>
 
 		<dependency>
@@ -69,20 +88,10 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<scope>test</scope>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-singleurnprefix</artifactId>
-		</dependency>
-		<dependency>
-			<scope>test</scope>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-cmdline-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
 		</dependency>
 
 	</dependencies>

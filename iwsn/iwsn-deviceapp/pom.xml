@@ -43,6 +43,10 @@
 		<!-- intra-project dependencies -->
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.overlay</artifactId>
 		</dependency>
 		<dependency>
@@ -60,8 +64,16 @@
 
 		<!-- other itm projects dependencies -->
 		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>wsn-device-drivers-factories</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>wsn-device-drivers-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
@@ -74,6 +86,14 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>protocol-collection</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>factory</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>dlestxetx</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
@@ -90,19 +110,16 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
-		<!-- unit testing dependencies -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -39,27 +39,14 @@
 
 	<dependencies>
 
-        <dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-api</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>org.jboss.netty</groupId>
-            <artifactId>netty</artifactId>
-        </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.rxtx</groupId>
@@ -72,10 +59,6 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-ext-jdk16</artifactId>
 		</dependency>
 
 	</dependencies>

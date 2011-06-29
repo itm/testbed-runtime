@@ -36,10 +36,14 @@
 
 	<artifactId>tr.iwsn-service</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: iWSN Web Service</name>
+	<name>TR :: iWSN Service</name>
 
 	<dependencies>
 
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.overlay</artifactId>
@@ -61,32 +65,46 @@
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>protocol-collection</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>factory</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
 
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>factory</artifactId>
 		</dependency>
-
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<groupId>jtidy</groupId>
+			<artifactId>jtidy</artifactId>
 		</dependency>
 
 	</dependencies>

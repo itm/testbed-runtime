@@ -33,14 +33,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
-			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
