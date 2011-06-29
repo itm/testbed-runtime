@@ -37,6 +37,8 @@ import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.common.KeyValuePair;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,152 +48,6 @@ import java.util.concurrent.TimeUnit;
 
 
 class WSNAppImpl implements WSNApp {
-
-	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
-
-	private static final int MSG_VALIDITY = 5000;
-
-	private String localNodeName;
-
-	private TestbedRuntime testbedRuntime;
-
-	private Set<String> reservedNodes;
-
-	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
-
-	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
-		this.testbedRuntime = testbedRuntime;
-		this.reservedNodes = Sets.newHashSet(reservedNodes);
-		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
-	}
-
-	@Override
-	public String getName() {
-		return WSNApp.class.getSimpleName();
-	}
-
-	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
-		@Override
-		public void run() {
-			registerNodeMessageReceiver(false);
-		}
-	};
-
-	private void registerNodeMessageReceiver(boolean register) {
-
-		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(localNodeName)
-				.setOperation(register ?
-						WSNAppMessages.ListenerManagement.Operation.REGISTER :
-						WSNAppMessages.ListenerManagement.Operation.UNREGISTER
-				)
-				.build();
-
-		for (String destinationNodeName : reservedNodes) {
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
-					);
-		}
-
-	}
-
-	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
-		@Override
-		public void run() {
-			registerNodeMessageReceiver(true);
-		}
-	};
-
-	private MessageEventListener messageEventListener = new MessageEventAdapter() {
-		@Override
-		public void messageReceived(Messages.Msg msg) {
-
-			boolean fromReservedNode = reservedNodes.contains(msg.getFrom());
-
-			if (fromReservedNode) {
-
-				boolean isMessage = WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType());
-				boolean isNotification = WSNApp.MSG_TYPE_LISTENER_NOTIFICATION.equals(msg.getMsgType());
-
-				if (isMessage) {
-					deliverMessage(msg);
-				} else if (isNotification) {
-					deliverNotification(msg);
-				}
-			}
-
-		}
-
-		private void deliverMessage(final Messages.Msg msg) {
-
-			try {
-
-				WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
-						.mergeFrom(msg.getPayload())
-						.build();
-
-				if (log.isDebugEnabled()) {
-					String output = WSNAppMessageTools.toString(message, true);
-					output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
-					log.debug("{}", output);
-				}
-
-				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-					receiver.receive(message);
-				}
-
-			} catch (InvalidProtocolBufferException e) {
-				log.error("" + e, e);
-			}
-		}
-
-		private void deliverNotification(final Messages.Msg msg) {
-
-			try {
-
-				WSNAppMessages.Notification notification = WSNAppMessages.Notification.newBuilder()
-						.mergeFrom(msg.getPayload())
-						.build();
-
-				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-					receiver.receiveNotification(notification);
-				}
-
-			} catch (InvalidProtocolBufferException e) {
-				log.error("" + e, e);
-			}
-
-		}
-	};
-
-
-	@Override
-	public void start() throws Exception {
-
-		// start listening to sensor node output messages
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
-
-		// periodically register at the node counterpart as listener to receive output from the nodes
-		registerNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
-				.scheduleWithFixedDelay(registerNodeMessageReceiverRunnable, 5, 30, TimeUnit.SECONDS);
-
-	}
-
-	@Override
-	public void stop() {
-
-		log.debug("Stopping WSNApp...");
-
-		// stop sending 'register'-messages to node counterpart
-		registerNodeMessageReceiverFuture.cancel(false);
-
-		// unregister with all nodes once
-		testbedRuntime.getSchedulerService().execute(unregisterNodeMessageReceiverRunnable);
-
-		// stop listening for messages from the nodes
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
-	}
 
 	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
 
@@ -259,6 +115,137 @@ class WSNAppImpl implements WSNApp {
 
 	}
 
+	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
+
+	private static final int MSG_VALIDITY = 5000;
+
+	private String localNodeName;
+
+	private TestbedRuntime testbedRuntime;
+
+	private Set<String> reservedNodes;
+
+	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
+
+	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
+			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
+
+	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
+		@Override
+		public void run() {
+			registerNodeMessageReceiver(false);
+		}
+	};
+
+	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
+		@Override
+		public void run() {
+			registerNodeMessageReceiver(true);
+		}
+	};
+
+	private MessageEventListener messageEventListener = new MessageEventAdapter() {
+
+		@Override
+		public void messageReceived(Messages.Msg msg) {
+
+			boolean fromReservedNode = reservedNodes.contains(msg.getFrom());
+
+			if (fromReservedNode) {
+
+				boolean isMessage = WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(msg.getMsgType());
+				boolean isNotification = WSNApp.MSG_TYPE_LISTENER_NOTIFICATION.equals(msg.getMsgType());
+
+				if (isMessage) {
+					deliverMessage(msg);
+				} else if (isNotification) {
+					deliverNotification(msg);
+				}
+			}
+
+		}
+
+		private void deliverMessage(final Messages.Msg msg) {
+
+			try {
+
+				WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
+						.mergeFrom(msg.getPayload())
+						.build();
+
+				if (log.isDebugEnabled()) {
+					String output = WSNAppMessageTools.toString(message, true);
+					output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
+					log.debug("{}", output);
+				}
+
+				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+					receiver.receive(message);
+				}
+
+			} catch (InvalidProtocolBufferException e) {
+				log.error("" + e, e);
+			}
+		}
+
+		private void deliverNotification(final Messages.Msg msg) {
+
+			try {
+
+				WSNAppMessages.Notification notification = WSNAppMessages.Notification.newBuilder()
+						.mergeFrom(msg.getPayload())
+						.build();
+
+				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+					receiver.receiveNotification(notification);
+				}
+
+			} catch (InvalidProtocolBufferException e) {
+				log.error("" + e, e);
+			}
+
+		}
+	};
+
+	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
+		this.testbedRuntime = testbedRuntime;
+		this.reservedNodes = Sets.newHashSet(reservedNodes);
+		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
+	}
+
+
+	@Override
+	public String getName() {
+		return WSNApp.class.getSimpleName();
+	}
+
+	@Override
+	public void start() throws Exception {
+
+		// start listening to sensor node output messages
+		testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+		// periodically register at the node counterpart as listener to receive output from the nodes
+		registerNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
+				.scheduleWithFixedDelay(registerNodeMessageReceiverRunnable, 5, 30, TimeUnit.SECONDS);
+
+	}
+
+	@Override
+	public void stop() {
+
+		log.debug("Stopping WSNApp...");
+
+		// stop sending 'register'-messages to node counterpart
+		registerNodeMessageReceiverFuture.cancel(false);
+
+		// unregister with all nodes once
+		testbedRuntime.getSchedulerService().execute(unregisterNodeMessageReceiverRunnable);
+
+		// stop listening for messages from the nodes
+		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+	}
+
 	@Override
 	public void send(final Set<String> nodeUrns, final WSNAppMessages.Message message, final Callback callback)
 			throws UnknownNodeUrnsException {
@@ -296,27 +283,32 @@ class WSNAppImpl implements WSNApp {
 		}
 	}
 
-	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
+	@Override
+	public void setChannelPipeline(final Set<String> nodeUrns,
+								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+								   final Callback callback) throws UnknownNodeUrnsException {
 
-		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
-		ImmutableSet<String> remoteNodeNames = testbedRuntime.getRoutingTableService().getEntries().keySet();
-		Set<String> unknownNodeUrns = null;
+		assertNodeUrnsKnown(nodeUrns);
+
+		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setArguments(convert(channelHandlerConfigurations).build().toByteString())
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+
+		final byte[] bytes = operationInvocation.build().toByteArray();
 
 		for (String nodeUrn : nodeUrns) {
-			if (!remoteNodeNames.contains(nodeUrn) && !localNodeNames.contains(nodeUrn)) {
-				if (unknownNodeUrns == null) {
-					unknownNodeUrns = new HashSet<String>();
-				}
-				unknownNodeUrns.add(nodeUrn);
+
+			try {
+				testbedRuntime.getReliableMessagingService().sendAsync(
+						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						System.currentTimeMillis() + MSG_VALIDITY,
+						new RequestStatusCallback(callback, nodeUrn)
+				);
+			} catch (UnknownNameException e) {
+				callback.failure(e);
 			}
 		}
-
-		if (unknownNodeUrns != null) {
-
-			String msg = "Ignoring request as the following node URNs are unknown: " + Joiner.on(", ").join(unknownNodeUrns);
-			throw new UnknownNodeUrnsException(unknownNodeUrns, msg);
-		}
-
 	}
 
 	@Override
@@ -441,9 +433,6 @@ class WSNAppImpl implements WSNApp {
 		}
 
 	}
-
-	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
-			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
 
 	@Override
 	public void addNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
@@ -603,6 +592,81 @@ class WSNAppImpl implements WSNApp {
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, nodeUrnA)
 		);
+
+	}
+
+	private WSNAppMessages.SetChannelPipeline.Builder convert(
+			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		WSNAppMessages.SetChannelPipeline.Builder argumentBuilder = WSNAppMessages.SetChannelPipeline.newBuilder();
+
+		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
+			argumentBuilder.addChannelHandlerConfigurations(convert(channelHandlerConfiguration));
+		}
+		return argumentBuilder;
+	}
+
+	private WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.Builder convert(
+			final ChannelHandlerConfiguration channelHandlerConfiguration) {
+		final WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.Builder configurationBuilder =
+				WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration
+						.newBuilder()
+						.setName(channelHandlerConfiguration.getName());
+
+		for (KeyValuePair keyValuePair : channelHandlerConfiguration.getConfiguration()) {
+			configurationBuilder.addConfiguration(convert(keyValuePair));
+		}
+		return configurationBuilder;
+	}
+
+	private WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.KeyValuePair.Builder convert(
+			final KeyValuePair keyValuePair) {
+
+		return WSNAppMessages.SetChannelPipeline.ChannelHandlerConfiguration.KeyValuePair
+				.newBuilder()
+				.setKey(keyValuePair.getKey())
+				.setValue(keyValuePair.getValue());
+	}
+
+	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
+
+		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
+		ImmutableSet<String> remoteNodeNames = testbedRuntime.getRoutingTableService().getEntries().keySet();
+		Set<String> unknownNodeUrns = null;
+
+		for (String nodeUrn : nodeUrns) {
+			if (!remoteNodeNames.contains(nodeUrn) && !localNodeNames.contains(nodeUrn)) {
+				if (unknownNodeUrns == null) {
+					unknownNodeUrns = new HashSet<String>();
+				}
+				unknownNodeUrns.add(nodeUrn);
+			}
+		}
+
+		if (unknownNodeUrns != null) {
+
+			String msg =
+					"Ignoring request as the following node URNs are unknown: " + Joiner.on(", ").join(unknownNodeUrns);
+			throw new UnknownNodeUrnsException(unknownNodeUrns, msg);
+		}
+
+	}
+
+	private void registerNodeMessageReceiver(boolean register) {
+
+		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
+				.setNodeName(localNodeName)
+				.setOperation(register ?
+						WSNAppMessages.ListenerManagement.Operation.REGISTER :
+						WSNAppMessages.ListenerManagement.Operation.UNREGISTER
+				)
+				.build();
+
+		for (String destinationNodeName : reservedNodes) {
+			testbedRuntime.getUnreliableMessagingService()
+					.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
+					);
+		}
 
 	}
 }

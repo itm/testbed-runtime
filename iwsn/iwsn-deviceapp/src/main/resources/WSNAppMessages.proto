@@ -109,7 +109,22 @@ message EnablePhysicalLink {
 	required string nodeB = 2;
 }
 
+// === setChannelPipeline ===
+message SetChannelPipelineRequest {
 
+	message ChannelHandlerConfiguration {
+
+		message KeyValuePair {
+			required string key = 1;
+			required string value = 2;
+		}
+
+        required string name = 1;
+        repeated KeyValuePair configuration = 2;
+	}
+
+    repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
+}
 
 // ==== operation invocation ====
 message OperationInvocation {
@@ -126,6 +141,7 @@ message OperationInvocation {
          ENABLE_NODE = 7;
          DISABLE_PHYSICAL_LINK = 8;
          ENABLE_PHYSICAL_LINK = 9;
+         SET_CHANNEL_PIPELINE = 10;
 
     }
 

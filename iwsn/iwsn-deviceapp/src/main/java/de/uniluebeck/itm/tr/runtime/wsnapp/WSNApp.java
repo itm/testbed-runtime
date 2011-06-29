@@ -25,154 +25,61 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.tr.util.Service;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 
-/**
- *
- */
 public interface WSNApp extends Service, TestbedApplication {
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_LISTENER_MESSAGE = WSNApp.class.getCanonicalName() + "/LISTENER_MESSAGE";
 
-	/**
-	 *
-	 */
-	public static final String MSG_TYPE_LISTENER_NOTIFICATION = WSNApp.class.getCanonicalName() + "/LISTENER_NOTIFICATION";
+	public static final String MSG_TYPE_LISTENER_NOTIFICATION =
+			WSNApp.class.getCanonicalName() + "/LISTENER_NOTIFICATION";
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_REQUEST =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_REQUEST";
 
-	/**
-	 *
-	 */
 	public static final String MSG_TYPE_OPERATION_INVOCATION_RESPONSE =
 			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_RESPONSE";
 
-	/**
-	 *
-	 */
-	public static final String MSG_TYPE_OPERATION_INVOCATION_ACK =
-			WSNApp.class.getCanonicalName() + "/OPERATION_INVOCATION_ACK";
-
-	/**
-	 *
-	 */
 	public static interface Callback {
 
-		/**
-		 *
-		 * @param requestStatus
-		 */
 		void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus);
 
-		/**
-		 *
-		 * @param e
-		 */
 		void failure(Exception e);
-
 	}
 
-	/**
-	 *
-	 * @param nodeUrns
-	 * @param message
-	 * @param callback
-	 */
-	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback) throws UnknownNodeUrnsException;
-
-	/**
-	 *
-	 * @param nodeUrns
-	 * @param callback
-	 */
-	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
-
-	/**
-	 *
-	 * @param programs
-	 * @param callback
-	 */
-	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
-
-
-	/**
-	 *
-	 * @param nodeUrns
-	 * @param callback
-	 */
-	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
-
-	/**
-	 *
-	 * @param receiver
-	 */
 	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
-	/**
-	 *
-	 * @param receiver
-	 */
-	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
+	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	/**
-	 *
-	 * @param sourceNodeUrn
-	 * @param targetNodeUrn
-	 * @param callback
-	 */
-	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
+	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
+			throws UnknownNodeUrnsException;
 
-	/**
-	 *
-	 * @param sourceNodeUrn
-	 * @param targetNodeUrn
-	 * @param callback
-	 */
-	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
-
-	/**
-	 *
-	 * @param nodeUrn
-	 * @param callback
-	 */
 	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
-	/**
-	 *
-	 * @param nodeUrn
-	 * @param callback
-	 */
+	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
+
 	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
-	/**
-	 *
-	 * @param nodeUrnA
-	 * @param nodeUrnB
-	 * @param callback
-	 */
 	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
-	/**
-	 *
-	 * @param nodeUrnA
-	 * @param nodeUrnB
-	 * @param callback
-	 */
-	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
+	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
+
+	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
+
+	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
+
+	void send(Set<String> nodeUrns, WSNAppMessages.Message message, Callback callback) throws UnknownNodeUrnsException;
+
+	void setChannelPipeline(Set<String> nodeUrn, List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+							Callback callback) throws UnknownNodeUrnsException;
+
+	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 }

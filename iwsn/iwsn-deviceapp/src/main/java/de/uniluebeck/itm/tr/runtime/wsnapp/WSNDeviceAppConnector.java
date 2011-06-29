@@ -23,43 +23,56 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.tr.util.Service;
+import de.uniluebeck.itm.tr.util.Tuple;
+
+import java.util.List;
 
 public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
 
 	public static interface NodeOutputListener {
+
 		void receivedPacket(byte[] bytes);
+
 		void receiveNotification(String notification);
 	}
 
 	public static interface Callback {
+
 		void success(byte[] replyPayload);
+
 		void failure(byte responseType, byte[] replyPayload);
+
 		void timeout();
 	}
 
 	public static interface FlashProgramCallback extends Callback {
+
 		void progress(float percentage);
 	}
 
-	void enablePhysicalLink(long nodeB, Callback listener);
-
-	void disablePhysicalLink(long nodeB, Callback listener);
-
 	void enableNode(Callback listener);
 
-	void disableNode(Callback listener);
+	void enablePhysicalLink(long nodeB, Callback listener);
 
 	void destroyVirtualLink(long targetNode, Callback listener);
 
-	void setVirtualLink(long targetNode, Callback listener);
+	void disableNode(Callback listener);
 
-	void sendMessage(byte[] binaryMessage, Callback listener);
+	void disablePhysicalLink(long nodeB, Callback listener);
 
-	void resetNode(Callback listener);
+	void flashProgram(WSNAppMessages.Program program, FlashProgramCallback listener);
 
 	void isNodeAlive(Callback listener);
 
-	void flashProgram(WSNAppMessages.Program program, FlashProgramCallback listener);
+	void resetNode(Callback listener);
+
+	void sendMessage(byte[] binaryMessage, Callback listener);
+
+	void setVirtualLink(long targetNode, Callback listener);
+
+	void setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
+							Callback callback);
 }

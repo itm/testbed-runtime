@@ -257,22 +257,22 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
 				<artifactId>netty-iostream</artifactId>
-				<version>0.2</version>
+				<version>0.3-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>dlestxetx</artifactId>
-				<version>0.9</version>
+				<version>1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>protocol-collection</artifactId>
-				<version>0.9</version>
+				<version>1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>channel-flange</artifactId>
-				<version>0.9</version>
+				<version>1.1</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->

@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.motelist.MoteList;
 import de.uniluebeck.itm.motelist.MoteListFactory;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -784,16 +786,16 @@ public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppCon
 
 		// this task should only execute if the flashListener was not called through the device driver
 		ScheduledFuture<?> flashTimeoutRunnable = schedulerService.schedule(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					device.cancelOperation(Operation.WRITE_FLASH);
-				} catch (Exception e) {
-					log.warn("" + e, e);
-				}
-				state.setState(State.READY);
-			}
-		}, timeoutFlash, TimeUnit.MILLISECONDS
+					@Override
+					public void run() {
+						try {
+							device.cancelOperation(Operation.WRITE_FLASH);
+						} catch (Exception e) {
+							log.warn("" + e, e);
+						}
+						state.setState(State.READY);
+					}
+				}, timeoutFlash, TimeUnit.MILLISECONDS
 		);
 		// end bugfix
 
@@ -857,16 +859,16 @@ public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppCon
 		resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
 
 		ScheduledFuture<?> resetTimeoutRunnableFuture = schedulerService.schedule(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					device.cancelOperation(Operation.RESET);
-				} catch (Exception e) {
-					log.warn("" + e, e);
-				}
-				state.setState(State.READY);
-			}
-		}, timeoutReset, TimeUnit.MILLISECONDS
+					@Override
+					public void run() {
+						try {
+							device.cancelOperation(Operation.RESET);
+						} catch (Exception e) {
+							log.warn("" + e, e);
+						}
+						state.setState(State.READY);
+					}
+				}, timeoutReset, TimeUnit.MILLISECONDS
 		);
 
 		ResetListener resetListener = new ResetListener(listener, resetCount, resetTimeoutRunnableFuture);
@@ -991,6 +993,14 @@ public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppCon
 				listener.failure((byte) -1, "Node is currently being reprogrammed/reset. Try again later.".getBytes());
 				break;
 		}
+	}
+
+	@Override
+	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
+								   final Callback callback) {
+		callback.failure((byte) -1, ("Setting the channel pipeline is not supported by the old driver architecture "
+				+ "which is currently in use in this testbed.").getBytes()
+		);
 	}
 
 	@Override
