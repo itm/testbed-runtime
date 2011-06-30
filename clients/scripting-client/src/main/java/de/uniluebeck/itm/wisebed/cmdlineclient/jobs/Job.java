@@ -64,15 +64,16 @@ public class Job {
 	public enum JobType {
 
 		areNodesAlive,
-		resetNodes,
-		send,
-		flashPrograms,
-		setVirtualLink,
 		destroyVirtualLink,
 		disableNode,
-		enableNode,
 		disablePhysicalLink,
-		enablePhysicalLink
+		enableNode,
+		enablePhysicalLink,
+		flashPrograms,
+		resetNodes,
+		send,
+		setChannelPipeline,
+		setVirtualLink,
 
 	}
 
@@ -124,6 +125,8 @@ public class Job {
 			return value == 1;
 		} else if (jobType == JobType.enablePhysicalLink) {
 			return value == 1;
+		} else if (jobType == JobType.setChannelPipeline) {
+			return value == 1;
 		}
 
 		return false;
@@ -150,6 +153,8 @@ public class Job {
 		} else if (jobType == JobType.disablePhysicalLink) {
 			return value < 1;
 		} else if (jobType == JobType.enablePhysicalLink) {
+			return value < 1;
+		} else if (jobType == JobType.setChannelPipeline) {
 			return value < 1;
 		}
 

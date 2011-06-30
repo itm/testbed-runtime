@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class WisebedBeanShellClient {
+public class WisebedBeanShellLauncher {
 
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(WisebedBeanShellClient.class);
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(WisebedBeanShellLauncher.class);
 
 	private static List<String> importsForBeanShell = new ArrayList<String>();
 
@@ -146,7 +146,7 @@ public class WisebedBeanShellClient {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(120, WisebedBeanShellClient.class.getCanonicalName(), null, options, null);
+		formatter.printHelp(120, WisebedBeanShellLauncher.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

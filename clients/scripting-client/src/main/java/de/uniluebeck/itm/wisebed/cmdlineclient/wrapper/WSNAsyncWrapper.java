@@ -1,25 +1,20 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import com.google.common.util.concurrent.ValueFuture;
-
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.AsyncJobObserver;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResultListener;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
 
 
 public class WSNAsyncWrapper {
@@ -97,6 +92,22 @@ public class WSNAsyncWrapper {
 	public Future<JobResult> send(List<String> nodeIds, Message message, int timeout, TimeUnit timeUnit) {
 		ValueFuture<JobResult> future = ValueFuture.create();
 		Job job = new Job("send", wsn.send(nodeIds, message), nodeIds, Job.JobType.send);
+		job.addListener(new FutureJobResultListener(future));
+		jobs.submit(job, timeout, timeUnit);
+		return future;
+	}
+
+	public Future<JobResult> setChannelPipeline(final List<String> nodes,
+												final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+												int timeout, TimeUnit timeUnit) {
+
+		final ValueFuture<JobResult> future = ValueFuture.create();
+		final Job job = new Job(
+				"setChannelPipeline",
+				wsn.setChannelPipeline(nodes, channelHandlerConfigurations),
+				nodes,
+				Job.JobType.setChannelPipeline
+		);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
 		return future;
