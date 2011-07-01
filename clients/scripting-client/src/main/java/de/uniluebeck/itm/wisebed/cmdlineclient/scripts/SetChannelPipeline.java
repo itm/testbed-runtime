@@ -27,19 +27,9 @@ public class SetChannelPipeline {
 
 		final String sessionManagementEndpointUrl = "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
 		final String urnPrefix = "urn:wisebed:uzl-staging:";
-		final String username = "bimschas@wisebed1.itm.uni-luebeck.de";
-		final String password = "defG4321";
-
 		final String secretReservationKey = "DE59F780301790570EA1FA21B4CE8B47";
 
 		final WisebedClient client = new WisebedClient(sessionManagementEndpointUrl);
-
-		/*log.info("Authenticating...");
-		final List<AuthenticationKey> authenticationKeys =
-				client.authenticate(new AuthenticationCredentials(urnPrefix, username, password)).get(); */
-
-		/*log.info("Fetching reservation(s)...");
-		final List<ReservationKey> reservationKeys = client.fetchReservations(authenticationKeys).get(); */
 
 		final ReservationKey reservationKey = new ReservationKey(secretReservationKey, urnPrefix);
 		final WSNAsyncWrapper wsn = client.connectToExperiment(reservationKey).get();

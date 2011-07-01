@@ -4,6 +4,7 @@ import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.wisebed.cmdlineclient.ReservationKey;
 import de.uniluebeck.itm.wisebed.cmdlineclient.WisebedClient;
+import de.uniluebeck.itm.wisebed.cmdlineclient.WisebedProtobufClient;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
@@ -24,10 +25,12 @@ public class SetChannelPipelineProtobuf {
 		Logging.setLoggingDefaults();
 
 		final String sessionManagementEndpointUrl = "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
+		final String protobufHost = "wisebed-staging.itm.uni-luebeck.de";
+		final int protobufPort = 8885;
 		final String urnPrefix = "urn:wisebed:uzl-staging:";
-		final String secretReservationKey = "DE59F780301790570EA1FA21B4CE8B47";
+		final String secretReservationKey = "3B968BC51FB850FAB960C27A4B4E81A4";
 
-		final WisebedClient client = new WisebedClient(sessionManagementEndpointUrl);
+		final WisebedProtobufClient client = new WisebedProtobufClient(sessionManagementEndpointUrl, protobufHost, protobufPort);
 
 		final ReservationKey reservationKey = new ReservationKey(secretReservationKey, urnPrefix);
 		final WSNAsyncWrapper wsn = client.connectToExperiment(reservationKey).get();
