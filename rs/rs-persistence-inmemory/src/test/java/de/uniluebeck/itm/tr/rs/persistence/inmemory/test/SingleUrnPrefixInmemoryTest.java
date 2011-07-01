@@ -32,14 +32,11 @@ import com.google.inject.util.Providers;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
-import de.uniluebeck.itm.tr.util.PropertiesUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.rs.*;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
 import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.SNAA;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -52,11 +49,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.net.BindException;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

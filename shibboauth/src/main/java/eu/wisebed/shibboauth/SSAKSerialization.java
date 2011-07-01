@@ -26,7 +26,9 @@ package eu.wisebed.shibboauth;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +48,7 @@ public class SSAKSerialization {
     private static String _shibSession_ = "_shibsession_";
     private static String _idp_session = "_idp_session";
 
-    private static final Logger log = Logger.getLogger(SSAKSerialization.class);
+    private static final Logger log = LoggerFactory.getLogger(SSAKSerialization.class);
 
     private static Map<String, String> cookieListToMap(List<Cookie> cookies) throws CookieNotFoundException {
         Cookie shibSessionCookie = null;

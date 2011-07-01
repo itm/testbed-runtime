@@ -28,7 +28,6 @@ import de.uniluebeck.itm.wsn.devicedrivers.exceptions.FileLoadException;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.BinFileDataBlock;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.IDeviceBinFile;
-import org.jboss.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

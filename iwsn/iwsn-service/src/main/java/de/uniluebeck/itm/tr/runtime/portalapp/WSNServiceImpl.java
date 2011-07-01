@@ -508,7 +508,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					deliveryManager.receiveFailureStatusMessages(nodes, requestId, e, -1);
 				}
 			}
 			);

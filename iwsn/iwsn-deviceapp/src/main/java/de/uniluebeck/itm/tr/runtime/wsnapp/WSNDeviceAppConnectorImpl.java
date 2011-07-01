@@ -47,7 +47,7 @@ import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
 import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
-import de.uniluebeck.itm.wsn.drivers.core.async.thread.PausableExecutorOperationQueue;
+import de.uniluebeck.itm.wsn.drivers.core.async.ExecutorServiceOperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
 import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
@@ -195,6 +195,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	private DeviceAsync device;
 
+	private ScheduledExecutorService scheduledExecutorService;
+
 	public WSNDeviceAppConnectorImpl(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 									 final String nodeSerialInterface, final Integer timeoutNodeAPI,
 									 final Integer maximumMessageRate, final Integer timeoutReset,
@@ -228,6 +230,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	@Override
 	public void start() throws Exception {
+		scheduledExecutorService = Executors.newScheduledThreadPool(1);
 		executorService = Executors.newCachedThreadPool();
 		schedulerService.execute(connectRunnable);
 		nodeApi.start();
@@ -243,12 +246,14 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		shutdownDeviceChannel();
 		shutdownDeviceConnection();
 		shutdownDevice();
-		shutdownDeviceOperationQueue();
 
 		if (executorService != null) {
 			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
 		}
 
+		if (scheduledExecutorService != null) {
+			ExecutorUtils.shutdown(scheduledExecutorService, 1, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override
@@ -570,7 +575,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	private void connect() throws Exception {
 
 		shutdownDeviceConnection();
-		shutdownDeviceOperationQueue();
 		shutdownDevice();
 
 		tryToConnect();
@@ -629,8 +633,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
 
 		deviceConnection = connection;
-		deviceOperationQueue = new PausableExecutorOperationQueue();
-		device = deviceFactory.create(executorService, nodeType, connection, deviceOperationQueue);
+		deviceOperationQueue = new ExecutorServiceOperationQueue();
+		device = deviceFactory.create(scheduledExecutorService, nodeType, connection, deviceOperationQueue);
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
 		final ChannelFuture connectFuture = bootstrap.connect(
@@ -831,12 +835,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			);
 		} else {
 			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-	}
-
-	private void shutdownDeviceOperationQueue() {
-		if (deviceOperationQueue != null) {
-			deviceOperationQueue.shutdown(true);
 		}
 	}
 

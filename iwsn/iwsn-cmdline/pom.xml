@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -42,6 +43,22 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.overlay</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-deviceapp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-service</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.overlay-socketconnector</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.overlay-stats</artifactId>
 		</dependency>
 
 		<dependency>
@@ -112,7 +129,8 @@
 									<os>mac os x</os>
 									<arch>x86_64</arch>
 									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
+										</directory>
 										<includes>
 											<include>librxtxSerial.jnilib</include>
 										</includes>
@@ -123,7 +141,8 @@
 									<os>windows</os>
 									<arch>x86</arch>
 									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32</directory>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
+										</directory>
 										<includes>
 											<include>rxtxParallel.dll</include>
 											<include>rxtxSerial.dll</include>
@@ -134,11 +153,12 @@
 									<os>windows</os>
 									<arch>x86_64</arch>
 									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64</directory>
+										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
+										</directory>
 										<includes>
 											<include>rxtxSerial.dll</include>
 										</includes>
-									</fileSet>                                    
+									</fileSet>
 								</binlib>
 								<!-- linux -->
 								<binlib>
