@@ -28,7 +28,7 @@ public class SetChannelPipelineProtobuf {
 		final String protobufHost = "wisebed-staging.itm.uni-luebeck.de";
 		final int protobufPort = 8885;
 		final String urnPrefix = "urn:wisebed:uzl-staging:";
-		final String secretReservationKey = "3B968BC51FB850FAB960C27A4B4E81A4";
+		final String secretReservationKey = "F668A2CCBFE85858001A461DEF118E4C";
 
 		final WisebedProtobufClient client = new WisebedProtobufClient(sessionManagementEndpointUrl, protobufHost, protobufPort);
 
@@ -38,9 +38,9 @@ public class SetChannelPipelineProtobuf {
 		final List<String> nodeUrns = WiseMLHelper.getNodeUrns(wsn.getNetwork().get());
 
 		final ChannelHandlerConfiguration dleStxEtxDecoder = new ChannelHandlerConfiguration();
-		dleStxEtxDecoder.setName("dle-stx-etx-decoder");
+		dleStxEtxDecoder.setName("dlestxetx-framing-decoder");
 		final ChannelHandlerConfiguration dleStxEtxEncoder = new ChannelHandlerConfiguration();
-		dleStxEtxEncoder.setName("dle-stx-etx-encoder");
+		dleStxEtxEncoder.setName("dlestxetx-framing-encoder");
 
 		final JobResult jobResult = wsn.setChannelPipeline(
 				nodeUrns,

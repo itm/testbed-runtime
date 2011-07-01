@@ -801,8 +801,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		List<Tuple<String, ChannelHandler>> channelHandlers = newArrayList();
 
-		ProtocolCollection.registerProtocols(handlerFactoryRegistry);
-
 		int layer = 0;
 		for (Tuple<String, Multimap<String, String>> channelHandlerConfiguration : channelHandlerConfigurations) {
 
