@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.List;
 
 import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 
 
@@ -154,4 +156,12 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesKnown(nodeA, nodeB);
 	}
 
+	public void checkSetChannelPipelineArguments(final List<String> nodes,
+												 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+
+		checkNotNull(nodes);
+		checkNotNull(channelHandlerConfigurations);
+
+		commonPreconditions.checkNodesKnown(nodes);
+	}
 }

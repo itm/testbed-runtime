@@ -484,11 +484,39 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
-									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		// TODO implement
-		throw new RuntimeException("Not yet implemented!");
+	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "")
+									 final List<String> nodes,
+									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "")
+									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+
+		preconditions.checkSetChannelPipelineArguments(nodes, channelHandlerConfigurations);
+
+		log.debug("WSNServiceImpl.setChannelPipeline({}, {})", nodes, channelHandlerConfigurations);
+
+		final String requestId = secureIdGenerator.getNextId();
+		final long start = System.currentTimeMillis();
+
+		try {
+			wsnApp.setChannelPipeline(new HashSet<String>(nodes), channelHandlerConfigurations, new WSNApp.Callback() {
+
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					long end = System.currentTimeMillis();
+					log.debug("Received reply after {} ms.", (end - start));
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(final Exception e) {
+					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+				}
+			}
+			);
+		} catch (UnknownNodeUrnsException e) {
+			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+		}
+
+		return requestId;
 	}
 
 	@Override
