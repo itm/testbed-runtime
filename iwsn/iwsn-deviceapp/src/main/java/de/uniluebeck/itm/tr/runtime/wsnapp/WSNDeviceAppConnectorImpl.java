@@ -487,7 +487,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	}
 
 	@Override
-	public void sendMessage(final byte[] messageBytes, final Callback listener) {
+	public void sendMessage(final byte[] messageBytes, final Callback callback) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", nodeUrn);
 
@@ -515,7 +515,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 								nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
 										payload
 								),
-								listener
+								callback
 						);
 					}
 				}
@@ -534,19 +534,19 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					public void operationComplete(final ChannelFuture future) throws Exception {
 						if (future.isSuccess()) {
 
-							listener.success(null);
+							callback.success(null);
 
 						} else if (future.isCancelled()) {
 
 							String msg = "Sending message was canceled.";
 							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
-							listener.failure((byte) -3, msg.getBytes());
+							callback.failure((byte) -3, msg.getBytes());
 
 						} else {
 
 							String msg = "Failed sending message. Reason: " + future.getCause();
 							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
-							listener.failure((byte) -2, msg.getBytes());
+							callback.failure((byte) -2, msg.getBytes());
 						}
 					}
 				}
@@ -555,7 +555,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			}
 
 		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
+			callback.failure((byte) -1, "Node is not connected.".getBytes());
 		}
 
 	}
@@ -564,11 +564,18 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
 								   final Callback callback) {
 
-		try {
-			updateHandlerStack(createChannelHandlers(channelHandlerConfigurations));
-		} catch (Exception e) {
-			callback.failure((byte) -1, ("Exception while setting the channel pipeline: " + e.getMessage()).getBytes());
-			updateHandlerStack(createDefaultChannelHandlers());
+		if (isConnected()) {
+
+			try {
+				updateHandlerStack(createChannelHandlers(channelHandlerConfigurations));
+				callback.success(null);
+			} catch (Exception e) {
+				callback.failure((byte) -1, ("Exception while setting the channel pipeline: " + e.getMessage()).getBytes());
+				updateHandlerStack(createDefaultChannelHandlers());
+			}
+
+		} else {
+			callback.failure((byte) -1, "Node is not connected.".getBytes());
 		}
 	}
 
