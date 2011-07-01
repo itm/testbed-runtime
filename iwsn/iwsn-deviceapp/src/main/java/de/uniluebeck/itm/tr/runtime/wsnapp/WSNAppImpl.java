@@ -36,18 +36,28 @@ import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
+import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticast;
+import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
+import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedUnicast;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Sets.newHashSet;
 
-class WSNAppImpl implements WSNApp {
+
+class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, FilterPipeline.UpstreamOutputListener {
 
 	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
 
@@ -127,6 +137,8 @@ class WSNAppImpl implements WSNApp {
 
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
+	private FilterPipeline filterPipeline;
+
 	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
 			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
 
@@ -179,9 +191,14 @@ class WSNAppImpl implements WSNApp {
 					log.debug("{}", output);
 				}
 
-				for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-					receiver.receive(message);
-				}
+				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getBinaryData().toByteArray());
+
+				final Map<String, Object> userContext = new HashMap<String, Object>();
+				userContext.put("timestamp", message.getTimestamp());
+
+				final WisebedMulticastAddress sourceAddress =
+						new WisebedMulticastAddress(newHashSet(message.getSourceNodeId()), userContext);
+				filterPipeline.sendUpstream(buffer, sourceAddress);
 
 			} catch (InvalidProtocolBufferException e) {
 				log.error("" + e, e);
@@ -208,11 +225,104 @@ class WSNAppImpl implements WSNApp {
 	};
 
 	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
+
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
+
+		this.filterPipeline = new FilterPipelineImpl();
+		this.filterPipeline.addListener((FilterPipeline.DownstreamOutputListener) this);
+		this.filterPipeline.addListener((FilterPipeline.UpstreamOutputListener) this);
 	}
 
+	@Override
+	public void receiveDownstreamOutput(final ChannelBuffer channelBuffer, final SocketAddress socketAddress) {
+
+		Set<String> nodeUrns;
+		String timestamp;
+		Callback callback;
+		if (socketAddress instanceof WisebedMulticastAddress) {
+			nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
+			timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+			callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
+		} else {
+			throw new RuntimeException(
+					"Expected type " + WisebedUnicast.class.getName() + " or " + WisebedMulticast.class
+							.getName() + "but got " + socketAddress.getClass().getName() + "!"
+			);
+		}
+
+		for (String nodeUrn : nodeUrns) {
+
+			WSNAppMessages.Message message = WSNAppMessages.Message
+					.newBuilder()
+					.setBinaryData(ByteString.copyFrom(
+							channelBuffer.array(),
+							channelBuffer.readerIndex(),
+							channelBuffer.readableBytes()
+					)
+					)
+					.setSourceNodeId(nodeUrn)
+					.setTimestamp(timestamp)
+					.build();
+
+			WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
+					.newBuilder()
+					.setArguments(message.toByteString())
+					.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
+					.build();
+
+			try {
+
+				// TODO use "reliable" RCP here
+				testbedRuntime.getUnreliableMessagingService().sendAsync(
+						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+						operationInvocation.toByteArray(), 1,
+						System.currentTimeMillis() + MSG_VALIDITY
+				);
+
+				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+						WSNAppMessages.RequestStatus.Status.newBuilder()
+								.setNodeId(nodeUrn)
+								.setValue(1);
+
+				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+						.setStatus(statusBuilder)
+						.build();
+
+				callback.receivedRequestStatus(requestStatus);
+
+			} catch (UnknownNameException e) {
+
+				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+						WSNAppMessages.RequestStatus.Status.newBuilder()
+								.setNodeId(nodeUrn)
+								.setMsg("Unknown node URN \"" + nodeUrn + "\"")
+								.setValue(-1);
+
+				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+						.setStatus(statusBuilder)
+						.build();
+
+				callback.receivedRequestStatus(requestStatus);
+			}
+		}
+
+	}
+
+	@Override
+	public void receiveUpstreamOutput(final ChannelBuffer channelBuffer, final SocketAddress socketAddress) {
+
+		byte[] bytes = new byte[channelBuffer.readableBytes()];
+		channelBuffer.readBytes(bytes);
+
+		String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
+		String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+
+		for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+			receiver.receive(bytes, sourceNodeId, timestamp);
+		}
+	}
 
 	@Override
 	public String getName() {
@@ -247,40 +357,19 @@ class WSNAppImpl implements WSNApp {
 	}
 
 	@Override
-	public void send(final Set<String> nodeUrns, final WSNAppMessages.Message message, final Callback callback)
-			throws UnknownNodeUrnsException {
+	public void send(final Set<String> nodeUrns, final byte[] bytes, final String sourceNodeId, final String timestamp,
+					 final Callback callback) throws UnknownNodeUrnsException {
 
 		assertNodeUrnsKnown(nodeUrns);
 
-		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
-				.newBuilder()
-				.setArguments(message.toByteString())
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND);
+		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(bytes);
 
-		byte[] bytes = builder.build().toByteArray();
+		final HashMap<String, Object> userContext = new HashMap<String, Object>();
+		userContext.put("timestamp", timestamp);
+		userContext.put("callback", callback);
 
-		for (String nodeUrn : nodeUrns) {
-			try {
-				testbedRuntime.getUnreliableMessagingService().sendAsync(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY
-				);
-
-				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-						WSNAppMessages.RequestStatus.Status.newBuilder()
-								.setNodeId(nodeUrn)
-								.setValue(1);
-
-				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
-						.setStatus(statusBuilder)
-						.build();
-
-				callback.receivedRequestStatus(requestStatus);
-
-			} catch (UnknownNameException e) {
-				callback.failure(e);
-			}
-		}
+		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(nodeUrns, userContext);
+		filterPipeline.sendDownstream(buffer, targetAddress);
 	}
 
 	@Override
@@ -597,7 +686,8 @@ class WSNAppImpl implements WSNApp {
 
 	private WSNAppMessages.SetChannelPipelineRequest.Builder convert(
 			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder = WSNAppMessages.SetChannelPipelineRequest.newBuilder();
+		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder =
+				WSNAppMessages.SetChannelPipelineRequest.newBuilder();
 
 		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
 			argumentBuilder.addChannelHandlerConfigurations(convert(channelHandlerConfiguration));

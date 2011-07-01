@@ -89,6 +89,14 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>netty-handlerstack</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>wisebed</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
 		<dependency>

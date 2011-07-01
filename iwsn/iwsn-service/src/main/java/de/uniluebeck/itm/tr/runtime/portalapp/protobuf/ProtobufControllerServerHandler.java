@@ -1,33 +1,23 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import java.net.SocketAddress;
-import java.util.HashSet;
-import java.util.List;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.DefaultChannelFuture;
-import org.jboss.netty.channel.DownstreamMessageEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.sm.SecretReservationKey;
+import org.jboss.netty.channel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.SocketAddress;
+import java.util.HashSet;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandler {
 
@@ -99,40 +89,40 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 		final WisebedProtocol.Message message = envelope.getMessage();
 
 
-		final WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.newBuilder()
-				.setTimestamp(message.getTimestamp())
-				.setSourceNodeId(message.getNodeBinary().getSourceNodeUrn())
-				.setBinaryData(message.getNodeBinary().getData())
-				.build();
-
 		final HashSet<String> nodeUrns = Sets.newHashSet(message.getNodeBinary().getDestinationNodeUrnsList());
 
 		try {
-			log.debug("Sending message {} to nodeUrns {}", wsnAppMessage, nodeUrns);
-			wsnServiceHandle.getWsnApp().send(
-					nodeUrns,
-					wsnAppMessage,
-					new WSNApp.Callback() {
-						@Override
-						public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-							if (requestStatus.getStatus().getValue() != 1) {
-								String text = requestStatus.getStatus().getNodeId() + ": " +
-										"\"" + requestStatus.getStatus().getMsg() + "\"" +
-										" (value=" + requestStatus.getStatus().getValue() + ")";
-								log.warn(text);
-								sendBackendMessage(ctx, e.getRemoteAddress(), text);
-							}
-						}
 
-						@Override
-						public void failure(final Exception exception) {
-							String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception
-									.getMessage();
-							log.error(text);
-							sendBackendMessage(ctx, e.getRemoteAddress(), text);
-						}
+			final byte[] bytes = message.getNodeBinary().getData().toByteArray();
+			final String sourceNodeUrn = message.getNodeBinary().getSourceNodeUrn();
+			final String timestamp = message.getTimestamp();
+
+			if (log.isDebugEnabled()) {
+				log.debug("Sending message {} to nodeUrns {}", StringUtils.toHexString(bytes), nodeUrns);
+			}
+
+			final WSNApp.Callback callback = new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					if (requestStatus.getStatus().getValue() != 1) {
+						String text = requestStatus.getStatus().getNodeId() + ": " +
+								"\"" + requestStatus.getStatus().getMsg() + "\"" +
+								" (value=" + requestStatus.getStatus().getValue() + ")";
+						log.warn(text);
+						sendBackendMessage(ctx, e.getRemoteAddress(), text);
 					}
-			);
+				}
+
+				@Override
+				public void failure(final Exception exception) {
+					String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception
+							.getMessage();
+					log.error(text);
+					sendBackendMessage(ctx, e.getRemoteAddress(), text);
+				}
+			};
+			wsnServiceHandle.getWsnApp().send(nodeUrns, bytes, sourceNodeUrn, timestamp, callback);
+
 		} catch (UnknownNodeUrnsException exception) {
 			String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception.getMessage();
 			log.error(text);

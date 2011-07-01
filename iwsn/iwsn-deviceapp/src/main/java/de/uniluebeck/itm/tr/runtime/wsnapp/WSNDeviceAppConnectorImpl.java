@@ -615,10 +615,14 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	private void tryToConnect() throws Exception {
 
 		final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
-		final Connection connection = connectionFactory.create(nodeType);
+		deviceConnection = connectionFactory.create(nodeType);
+
+		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
+		deviceOperationQueue = new ExecutorServiceOperationQueue();
+		device = deviceFactory.create(scheduledExecutorService, nodeType, deviceConnection, deviceOperationQueue);
 
 		try {
-			connection.connect(nodeSerialInterface);
+			deviceConnection.connect(nodeSerialInterface);
 		} catch (Exception e) {
 			log.warn("{} => Could not connect to {} device at {}.",
 					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
@@ -626,7 +630,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
 		}
 
-		if (!connection.isConnected()) {
+		if (!deviceConnection.isConnected()) {
 			log.warn("{} => Could not connect to {} device at {}.",
 					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 			);
@@ -636,12 +640,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.info("{} => Successfully connected to {} node on serial port {}",
 				new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 		);
-
-		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
-
-		deviceConnection = connection;
-		deviceOperationQueue = new ExecutorServiceOperationQueue();
-		device = deviceFactory.create(scheduledExecutorService, nodeType, connection, deviceOperationQueue);
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
 		final ChannelFuture connectFuture = bootstrap.connect(

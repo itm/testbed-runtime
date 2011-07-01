@@ -102,40 +102,38 @@ public class WSNServiceImpl implements WSNService {
 		}
 
 		@Override
-		public void receive(WSNAppMessages.Message wsnMessage) {
+		public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
 
 			/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
 			 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
 			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
 			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
 
-			if (!reservedNodes.contains(wsnMessage.getSourceNodeId())) {
-				log.warn("Received message from unreserved node \"{}\".", wsnMessage.getSourceNodeId());
+			if (!reservedNodes.contains(sourceNodeId)) {
+				log.warn("Received message from unreserved node \"{}\".", sourceNodeId);
 				return;
 			}
 
 			// check if message is a virtual link message
-			boolean isVirtualLinkMessage = wsnMessage.getBinaryData().byteAt(0) == MESSAGE_TYPE_PLOT &&
-					wsnMessage.getBinaryData().byteAt(1) == NODE_OUTPUT_VIRTUAL_LINK;
+			boolean isVirtualLinkMessage = bytes.length > 1 && bytes[0] == MESSAGE_TYPE_PLOT &&
+					bytes[1] == NODE_OUTPUT_VIRTUAL_LINK;
 
 			if (!isVirtualLinkMessage) {
-				deliverNonVirtualLinkMessageToControllers(wsnMessage);
+				deliverNonVirtualLinkMessageToControllers(bytes, sourceNodeId, timestamp);
 			} else {
-				deliverVirtualLinkMessage(wsnMessage);
+				deliverVirtualLinkMessage(bytes, sourceNodeId, timestamp);
 			}
 		}
 
-		private void deliverVirtualLinkMessage(final WSNAppMessages.Message wsnMessage) {
+		private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeId, final String timestamp) {
 
-			byte[] binaryData = wsnMessage.getBinaryData().toByteArray();
-
-			long destinationNode = readDestinationNodeURN(binaryData);
-			Map<String, WSN> recipients =
-					determineVirtualLinkMessageRecipients(wsnMessage.getSourceNodeId(), destinationNode);
+			long destinationNode = readDestinationNodeURN(bytes);
+			Map<String, WSN> recipients = determineVirtualLinkMessageRecipients(sourceNodeId, destinationNode);
 
 			if (recipients.size() > 0) {
 
-				Message outboundVirtualLinkMessage = constructOutboundVirtualLinkMessage(wsnMessage, binaryData);
+				Message outboundVirtualLinkMessage =
+						constructOutboundVirtualLinkMessage(bytes, sourceNodeId, timestamp);
 
 				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
 
@@ -144,7 +142,7 @@ public class WSNServiceImpl implements WSNService {
 
 					executorService.execute(
 							new DeliverVirtualLinkMessageRunnable(
-									wsnMessage.getSourceNodeId(),
+									sourceNodeId,
 									targetNode,
 									recipientEndpointProxy,
 									outboundVirtualLinkMessage
@@ -154,8 +152,8 @@ public class WSNServiceImpl implements WSNService {
 			}
 		}
 
-		private Message constructOutboundVirtualLinkMessage(final WSNAppMessages.Message wsnMessage,
-															final byte[] binaryData) {
+		private Message constructOutboundVirtualLinkMessage(final byte[] bytes, final String sourceNodeId,
+															final String timestamp) {
 
 			// byte 0: ISense Packet Type
 			// byte 1: Node API Command Type
@@ -167,9 +165,9 @@ public class WSNServiceImpl implements WSNService {
 			// byte 13-13+Payload Length: Payload
 
 			Message outboundVirtualLinkMessage = new Message();
-			outboundVirtualLinkMessage.setSourceNodeId(wsnMessage.getSourceNodeId());
+			outboundVirtualLinkMessage.setSourceNodeId(sourceNodeId);
 			outboundVirtualLinkMessage.setTimestamp(
-					datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp())
+					datatypeFactory.newXMLGregorianCalendar(timestamp)
 			);
 
 			// construct message that is actually sent to the destination node URN
@@ -178,7 +176,7 @@ public class WSNServiceImpl implements WSNService {
 			header.writeByte(WISELIB_VIRTUAL_LINK_MESSAGE);
 			header.writeByte(0); // request id according to Node API
 
-			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(binaryData, 2, binaryData.length - 2);
+			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(bytes, 2, bytes.length - 2);
 			ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
 
 			byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
@@ -226,14 +224,15 @@ public class WSNServiceImpl implements WSNService {
 			return buffer.getLong(5);
 		}
 
-		private void deliverNonVirtualLinkMessageToControllers(final WSNAppMessages.Message wsnMessage) {
+		private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes, final String sourceNodeId,
+															   final String timestamp) {
 
-			XMLGregorianCalendar timestamp = datatypeFactory.newXMLGregorianCalendar(wsnMessage.getTimestamp());
+			XMLGregorianCalendar xmlTimestamp = datatypeFactory.newXMLGregorianCalendar(timestamp);
 
 			Message message = new Message();
-			message.setSourceNodeId(wsnMessage.getSourceNodeId());
-			message.setTimestamp(timestamp);
-			message.setBinaryData(wsnMessage.getBinaryData().toByteArray());
+			message.setSourceNodeId(sourceNodeId);
+			message.setTimestamp(xmlTimestamp);
+			message.setBinaryData(bytes);
 
 			deliveryManager.receive(message);
 		}
@@ -461,7 +460,9 @@ public class WSNServiceImpl implements WSNService {
 		final long start = System.currentTimeMillis();
 
 		try {
-			wsnApp.send(new HashSet<String>(nodeIds), TypeConverter.convert(message), new WSNApp.Callback() {
+			wsnApp.send(new HashSet<String>(nodeIds), message.getBinaryData(), message.getSourceNodeId(),
+					message.getTimestamp().toXMLFormat(), new WSNApp.Callback() {
+
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					long end = System.currentTimeMillis();

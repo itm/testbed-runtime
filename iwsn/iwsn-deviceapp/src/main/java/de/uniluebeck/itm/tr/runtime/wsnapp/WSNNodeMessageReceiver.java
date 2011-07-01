@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 public interface WSNNodeMessageReceiver {
 
-	void receive(WSNAppMessages.Message message);
+	void receive(byte[] bytes, String sourceNodeId, String timestamp);
 
 	void receiveNotification(WSNAppMessages.Notification notification);
 
