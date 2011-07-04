@@ -9,4 +9,4 @@ then
 	exit 1
 fi
 
-java -Dtestbed.secretreservationkeys=$2 -Dtestbed.message=$3 -Dtestbed.nodeurns=$4 -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/send.java -v
+java -Dtestbed.secretreservationkeys=$2 -Dtestbed.message=$3 -Dtestbed.nodeurns=$4 -jar $BASEDIR/../lib/tr.scripting-client-0.6.2-SNAPSHOT-onejar.jar -p $1 -f $BASEDIR/../scripts/send.java -v
