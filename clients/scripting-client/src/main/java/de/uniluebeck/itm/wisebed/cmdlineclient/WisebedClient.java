@@ -39,7 +39,7 @@ public class WisebedClient extends WisebedClientBase {
 	private static final Logger log = LoggerFactory.getLogger(WisebedClient.class);
 
 	@WebService(name = "Controller", targetNamespace = "urn:ControllerService")
-	private static class WisebedController implements Controller {
+	public static class WisebedController implements Controller {
 
 		private WSNAsyncWrapper wsn;
 

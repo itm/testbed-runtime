@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.scripts;
 
+import com.google.common.collect.Lists;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.wisebed.cmdlineclient.AuthenticationCredentials;
@@ -12,6 +13,7 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,23 +29,37 @@ public class SetChannelPipeline {
 
 		final String sessionManagementEndpointUrl = "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
 		final String urnPrefix = "urn:wisebed:uzl-staging:";
-		final String secretReservationKey = "DE59F780301790570EA1FA21B4CE8B47";
+		final String secretReservationKey = "7870521F5A9FBAB43157E426A3E01C7B";
 
 		final WisebedClient client = new WisebedClient(sessionManagementEndpointUrl);
 
 		final ReservationKey reservationKey = new ReservationKey(secretReservationKey, urnPrefix);
 		final WSNAsyncWrapper wsn = client.connectToExperiment(reservationKey).get();
 
-		final List<String> nodeUrns = WiseMLHelper.getNodeUrns(wsn.getNetwork().get());
 
 		final ChannelHandlerConfiguration dleStxEtxDecoder = new ChannelHandlerConfiguration();
-		dleStxEtxDecoder.setName("dle-stx-etx-decoder");
+		dleStxEtxDecoder.setName("dlestxetx-framing-decoder");
 		final ChannelHandlerConfiguration dleStxEtxEncoder = new ChannelHandlerConfiguration();
-		dleStxEtxEncoder.setName("dle-stx-etx-encoder");
+		dleStxEtxEncoder.setName("dlestxetx-framing-encoder");
+
+		/*final List<String> nodeUrns = WiseMLHelper.getNodeUrns(wsn.getNetwork().get());*/
+		final List<String> nodeUrns = newArrayList();
+
+
+		/*final ArrayList<ChannelHandlerConfiguration> channelHandlerConfigurations = newArrayList(
+				dleStxEtxDecoder,
+				dleStxEtxEncoder
+		);*/
+
+		/*final ChannelHandlerConfiguration discardConfiguration = new ChannelHandlerConfiguration();
+		discardConfiguration.setName("discard");
+		final ArrayList<ChannelHandlerConfiguration> channelHandlerConfigurations = newArrayList(discardConfiguration);*/
+
+		final List<ChannelHandlerConfiguration> channelHandlerConfigurations = Lists.newArrayList();
 
 		final JobResult jobResult = wsn.setChannelPipeline(
 				nodeUrns,
-				newArrayList(dleStxEtxDecoder, dleStxEtxEncoder),
+				channelHandlerConfigurations,
 				10,
 				TimeUnit.SECONDS
 		).get();

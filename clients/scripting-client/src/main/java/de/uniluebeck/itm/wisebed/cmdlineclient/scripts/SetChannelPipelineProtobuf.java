@@ -24,11 +24,11 @@ public class SetChannelPipelineProtobuf {
 
 		Logging.setLoggingDefaults();
 
-		final String sessionManagementEndpointUrl = "http://wisebed-staging.itm.uni-luebeck.de:8888/sessions";
+		final String sessionManagementEndpointUrl = "http://localhost:8888/sessions";
+		final String urnPrefix = "urn:local:";
+		final String secretReservationKey = "7D53B46EB14E0013B336962629E952AA";
 		final String protobufHost = "wisebed-staging.itm.uni-luebeck.de";
 		final int protobufPort = 8885;
-		final String urnPrefix = "urn:wisebed:uzl-staging:";
-		final String secretReservationKey = "F668A2CCBFE85858001A461DEF118E4C";
 
 		final WisebedProtobufClient client = new WisebedProtobufClient(sessionManagementEndpointUrl, protobufHost, protobufPort);
 
