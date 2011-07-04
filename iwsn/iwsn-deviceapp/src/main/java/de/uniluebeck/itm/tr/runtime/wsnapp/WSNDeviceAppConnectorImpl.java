@@ -27,9 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.inject.Guice;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
+import de.uniluebeck.itm.netty.handlerstack.*;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
@@ -46,8 +44,8 @@ import de.uniluebeck.itm.wsn.drivers.core.Connection;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
-import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.async.ExecutorServiceOperationQueue;
+import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
 import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
@@ -68,8 +66,10 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.logging.Filter;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 
 public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
@@ -128,8 +128,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
 	private ExecutorService executorService;
-
-	private HandlerStack handlerStack;
 
 	private final Runnable connectRunnable = new Runnable() {
 
@@ -196,6 +194,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	private DeviceAsync device;
 
 	private ScheduledExecutorService scheduledExecutorService;
+
+	private FilterPipeline filterPipeline = new FilterPipelineImpl();
 
 	public WSNDeviceAppConnectorImpl(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 									 final String nodeSerialInterface, final Integer timeoutNodeAPI,
@@ -567,11 +567,13 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		if (isConnected()) {
 
 			try {
-				updateHandlerStack(createChannelHandlers(channelHandlerConfigurations));
+				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(channelHandlerConfigurations));
 				callback.success(null);
 			} catch (Exception e) {
-				callback.failure((byte) -1, ("Exception while setting the channel pipeline: " + e.getMessage()).getBytes());
-				updateHandlerStack(createDefaultChannelHandlers());
+				callback.failure((byte) -1,
+						("Exception while setting the channel pipeline: " + e.getMessage()).getBytes()
+				);
+				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 			}
 
 		} else {
@@ -585,31 +587,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		shutdownDevice();
 
 		tryToConnect();
-		setUpHandlerStack();
-	}
-
-	private void setUpHandlerStack() {
-
-		ChannelFlange flange = new ChannelFlange();
-		flange.setRightChannel(deviceChannel);
-
-		handlerStack = new HandlerStack();
-		handlerStack.setLeftHandler(new SimpleChannelHandler() {
-			@Override
-			public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-					throws Exception {
-
-				if (e.getMessage() instanceof ChannelBuffer) {
-					onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
-				} else {
-					sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
-				}
-			}
-		}
-		);
-		handlerStack.setRightHandler(flange.getLeftHandler());
-
-		updateHandlerStack(createDefaultChannelHandlers());
 	}
 
 	private void tryToConnect() throws Exception {
@@ -642,6 +619,32 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		);
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
+		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+			@Override
+			public ChannelPipeline getPipeline() throws Exception {
+				final ChannelPipeline pipeline = pipeline();
+
+				pipeline.addLast("filterHandler", new FilterHandler(filterPipeline));
+				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
+
+				final SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
+					@Override
+					public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+							throws Exception {
+
+						if (e.getMessage() instanceof ChannelBuffer) {
+							onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
+						} else {
+							sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+						}
+					}
+				};
+				pipeline.addLast("forwardingHandler", forwardingHandler);
+
+				return pipeline;
+			}
+		}
+		);
 		final ChannelFuture connectFuture = bootstrap.connect(
 				new IOStreamAddress(
 						device.getInputStream(),
@@ -649,11 +652,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				)
 		);
 		deviceChannel = connectFuture.await().getChannel();
-	}
-
-	private void updateHandlerStack(final List<Tuple<String, ChannelHandler>> channelHandlers) {
-		handlerStack.setHandlerStack(channelHandlers);
-		handlerStack.performSetup();
 	}
 
 	private void tryToDetectNodeSerialInterface() {
@@ -799,28 +797,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				new Tuple<String, ChannelHandler>("frameDecoder", new DleStxEtxFramingDecoder()),
 				new Tuple<String, ChannelHandler>("frameEncoder", new DleStxEtxFramingEncoder())
 		);
-	}
-
-	private List<Tuple<String, ChannelHandler>> createChannelHandlers(
-			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations) throws Exception {
-
-		List<Tuple<String, ChannelHandler>> channelHandlers = newArrayList();
-
-		int layer = 0;
-		for (Tuple<String, Multimap<String, String>> channelHandlerConfiguration : channelHandlerConfigurations) {
-
-			final String factoryName = channelHandlerConfiguration.getFirst();
-			final List<Tuple<String, ChannelHandler>> list = handlerFactoryRegistry.create(
-					layer + "-" + factoryName,
-					factoryName,
-					channelHandlerConfiguration.getSecond()
-			);
-
-			channelHandlers.addAll(list);
-			layer++;
-		}
-
-		return channelHandlers;
 	}
 
 	@Override

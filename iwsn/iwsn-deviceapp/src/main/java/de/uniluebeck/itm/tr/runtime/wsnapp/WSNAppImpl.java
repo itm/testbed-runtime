@@ -24,7 +24,9 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -38,10 +40,11 @@ import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
-import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticast;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
-import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedUnicast;
 import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -54,6 +57,7 @@ import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
 
@@ -138,6 +142,8 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
 	private FilterPipeline filterPipeline;
+
+	private HandlerFactoryRegistry handlerFactoryRegistry;
 
 	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
 			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
@@ -233,6 +239,9 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		this.filterPipeline = new FilterPipelineImpl();
 		this.filterPipeline.addListener((FilterPipeline.DownstreamOutputListener) this);
 		this.filterPipeline.addListener((FilterPipeline.UpstreamOutputListener) this);
+
+		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
+		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
 	}
 
 	@Override
@@ -247,8 +256,8 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
 		} else {
 			throw new RuntimeException(
-					"Expected type " + WisebedUnicast.class.getName() + " or " + WisebedMulticast.class
-							.getName() + "but got " + socketAddress.getClass().getName() + "!"
+					"Expected type " + WisebedMulticastAddress.class.getName() + "but got " + socketAddress.getClass()
+							.getName() + "!"
 			);
 		}
 
@@ -377,25 +386,47 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
 								   final Callback callback) throws UnknownNodeUrnsException {
 
-		assertNodeUrnsKnown(nodeUrns);
+		boolean filterLocallyAtPortal = nodeUrns.isEmpty();
 
-		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
-				.newBuilder()
-				.setArguments(convert(channelHandlerConfigurations).build().toByteString())
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
-
-		final byte[] bytes = operationInvocation.build().toByteArray();
-
-		for (String nodeUrn : nodeUrns) {
+		if (filterLocallyAtPortal) {
 
 			try {
-				testbedRuntime.getReliableMessagingService().sendAsync(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY,
-						new RequestStatusCallback(callback, nodeUrn)
-				);
-			} catch (UnknownNameException e) {
+
+				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(convert(channelHandlerConfigurations)));
+				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+						.newBuilder()
+						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
+						.build();
+				callback.receivedRequestStatus(requestStatus);
+
+			} catch (Exception e) {
+				log.warn("Exception while setting channel pipeline on portal host: " + e, e);
+				filterPipeline.setChannelPipeline(null);
 				callback.failure(e);
+			}
+
+		} else {
+
+			assertNodeUrnsKnown(nodeUrns);
+
+			WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+					.newBuilder()
+					.setArguments(convertToProtobuf(channelHandlerConfigurations).build().toByteString())
+					.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+
+			final byte[] bytes = operationInvocation.build().toByteArray();
+
+			for (String nodeUrn : nodeUrns) {
+
+				try {
+					testbedRuntime.getReliableMessagingService().sendAsync(
+							localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+							System.currentTimeMillis() + MSG_VALIDITY,
+							new RequestStatusCallback(callback, nodeUrn)
+					);
+				} catch (UnknownNameException e) {
+					callback.failure(e);
+				}
 			}
 		}
 	}
@@ -684,18 +715,42 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 	}
 
-	private WSNAppMessages.SetChannelPipelineRequest.Builder convert(
+	private List<Tuple<String, Multimap<String, String>>> convert(final List<ChannelHandlerConfiguration> in) {
+
+		List<Tuple<String, Multimap<String, String>>> out = newArrayList();
+		for (ChannelHandlerConfiguration configuration : in) {
+			out.add(convert(configuration));
+		}
+		return out;
+	}
+
+	private Tuple<String, Multimap<String, String>> convert(final ChannelHandlerConfiguration configuration) {
+		return new Tuple<String, Multimap<String, String>>(
+				configuration.getName(),
+				convert(configuration.getConfiguration())
+		);
+	}
+
+	private Multimap<String, String> convert(final List<KeyValuePair> configuration) {
+		Multimap<String, String> out = HashMultimap.create();
+		for (KeyValuePair keyValuePair : configuration) {
+			out.put(keyValuePair.getKey(), keyValuePair.getValue());
+		}
+		return out;
+	}
+
+	private WSNAppMessages.SetChannelPipelineRequest.Builder convertToProtobuf(
 			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder =
 				WSNAppMessages.SetChannelPipelineRequest.newBuilder();
 
 		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
-			argumentBuilder.addChannelHandlerConfigurations(convert(channelHandlerConfiguration));
+			argumentBuilder.addChannelHandlerConfigurations(convertToProtobuf(channelHandlerConfiguration));
 		}
 		return argumentBuilder;
 	}
 
-	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder convert(
+	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder convertToProtobuf(
 			final ChannelHandlerConfiguration channelHandlerConfiguration) {
 		final WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder configurationBuilder =
 				WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration
@@ -703,12 +758,12 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 						.setName(channelHandlerConfiguration.getName());
 
 		for (KeyValuePair keyValuePair : channelHandlerConfiguration.getConfiguration()) {
-			configurationBuilder.addConfiguration(convert(keyValuePair));
+			configurationBuilder.addConfiguration(convertToProtobuf(keyValuePair));
 		}
 		return configurationBuilder;
 	}
 
-	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.Builder convert(
+	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.Builder convertToProtobuf(
 			final KeyValuePair keyValuePair) {
 
 		return WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair
