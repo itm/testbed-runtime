@@ -70,7 +70,11 @@ public abstract class WisebedClientBase {
 		return future;
 	}
 
-	public abstract Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList);
+	public Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList) {
+		return connectToExperiment(TypeConverter.convertReservationKeysToSM(reservationKeyList));
+	}
+
+	public abstract Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList);
 
 	/*public Future<List<ReservationKey>> fetchReservations(final AuthenticationKey... authenticationKeys) {
 		rs.getConfidentialReservations(TypeConverter.convertAuthenticationKeysToRS(authenticationKeys));

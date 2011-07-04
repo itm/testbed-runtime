@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import static de.uniluebeck.itm.wisebed.cmdlineclient.TypeConverter.convertReservationKeysToSM;
-
 public class WisebedProtobufClient extends WisebedClientBase {
 
 	private static final Logger log = LoggerFactory.getLogger(WisebedProtobufClient.class);
@@ -37,8 +35,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 	}
 
 	@Override
-	public Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList) {
-
+	public Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList) {
 		final ValueFuture<WSNAsyncWrapper> future = ValueFuture.create();
 
 		Runnable connectRunnable = new Runnable() {
@@ -46,11 +43,9 @@ public class WisebedProtobufClient extends WisebedClientBase {
 			@Override
 			public void run() {
 
-				final List<SecretReservationKey> secretReservationKeys = convertReservationKeysToSM(reservationKeyList);
-
 				String wsnEndpointURL = null;
 				try {
-					wsnEndpointURL = sessionManagement.getInstance(secretReservationKeys, "NONE");
+					wsnEndpointURL = sessionManagement.getInstance(secretReservationKeyList, "NONE");
 				} catch (Exception e) {
 					future.setException(e);
 				}
@@ -60,7 +55,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 				final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 				protobufControllerClient = ProtobufControllerClient.create(
-						protobufHost, protobufPort, secretReservationKeys
+						protobufHost, protobufPort, secretReservationKeyList
 				);
 				protobufControllerClient.addListener(new ProtobufControllerClientListener() {
 
@@ -85,9 +80,9 @@ public class WisebedProtobufClient extends WisebedClientBase {
 					}
 
 					@Override
-					public void receiveNotification(final List<String> msgs) {
-						for (int i = 0; i < msgs.size(); i++) {
-							log.info(msgs.get(i));
+					public void receiveNotification(final List<String> messages) {
+						for (String message : messages) {
+							log.info(message);
 						}
 					}
 
@@ -106,6 +101,5 @@ public class WisebedProtobufClient extends WisebedClientBase {
 		executor.execute(connectRunnable);
 
 		return future;
-
 	}
 }

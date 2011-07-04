@@ -131,7 +131,7 @@ public class WisebedBeanShellLauncher {
 		}
 	}
 
-	private static void parseAndSetProperties(final String propertiesFileName) throws IOException {
+	public static void parseAndSetProperties(final String propertiesFileName) throws IOException {
 		File propertiesFile = new File(propertiesFileName);
 		if (!propertiesFile.exists() || !propertiesFile.canRead() || !propertiesFile.isFile()) {
 			log.error("Properties file is either not existing, not a file or not readable!");

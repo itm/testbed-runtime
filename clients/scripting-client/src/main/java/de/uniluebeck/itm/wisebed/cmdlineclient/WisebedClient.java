@@ -1,21 +1,13 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import com.google.common.util.concurrent.ValueFuture;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
-import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.snaa.SecretAuthenticationKey;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +17,10 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 public class WisebedClient extends WisebedClientBase {
 
@@ -66,9 +54,9 @@ public class WisebedClient extends WisebedClientBase {
 		@Oneway
 		@RequestWrapper(localName = "receiveNotification", targetNamespace = "urn:ControllerService",
 				className = "eu.wisebed.api.controller.ReceiveNotification")
-		public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") List<String> msgs) {
-			for (String msg : msgs) {
-				log.info("{}", msg);
+		public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") List<String> messages) {
+			for (String message : messages) {
+				log.info("{}", message);
 			}
 		}
 
@@ -98,7 +86,7 @@ public class WisebedClient extends WisebedClientBase {
 	}
 
 	@Override
-	public Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList) {
+	public Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList) {
 
 		final ValueFuture<WSNAsyncWrapper> future = ValueFuture.create();
 
@@ -107,9 +95,6 @@ public class WisebedClient extends WisebedClientBase {
 				try {
 
 					log.info("Connecting to experiment...");
-
-					final List<SecretReservationKey> secretReservationKeyList =
-							TypeConverter.convertReservationKeysToSM(reservationKeyList);
 
 					final Tuple<String, WisebedClient.WisebedController> controllerData = startController().get();
 					final String controllerEndpointUrl = controllerData.getFirst();

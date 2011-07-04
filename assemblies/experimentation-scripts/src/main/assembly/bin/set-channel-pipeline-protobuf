@@ -12,6 +12,7 @@ java \
  -Dtestbed.secretreservationkeys=$2 \
  -Dtestbed.configfile=$3 \
  -Dtestbed.nodeurns=$4 \
+ -Dtestbed.useprotobuf=true \
  -Done-jar.main.class=de.uniluebeck.itm.wisebed.cmdlineclient.scripts.SetChannelPipeline \
  -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
  $1
