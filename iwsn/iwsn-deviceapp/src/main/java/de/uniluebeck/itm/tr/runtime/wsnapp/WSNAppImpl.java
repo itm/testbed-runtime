@@ -392,7 +392,8 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 			try {
 
-				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(convert(channelHandlerConfigurations)));
+				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(
+						convertCHCList(channelHandlerConfigurations)));
 				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 						.newBuilder()
 						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
@@ -715,23 +716,23 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 	}
 
-	private List<Tuple<String, Multimap<String, String>>> convert(final List<ChannelHandlerConfiguration> in) {
+	private List<Tuple<String, Multimap<String, String>>> convertCHCList(final List<ChannelHandlerConfiguration> in) {
 
 		List<Tuple<String, Multimap<String, String>>> out = newArrayList();
 		for (ChannelHandlerConfiguration configuration : in) {
-			out.add(convert(configuration));
+			out.add(convertCHC(configuration));
 		}
 		return out;
 	}
 
-	private Tuple<String, Multimap<String, String>> convert(final ChannelHandlerConfiguration configuration) {
+	private Tuple<String, Multimap<String, String>> convertCHC(final ChannelHandlerConfiguration configuration) {
 		return new Tuple<String, Multimap<String, String>>(
 				configuration.getName(),
-				convert(configuration.getConfiguration())
+				convertKeyValuePair(configuration.getConfiguration())
 		);
 	}
 
-	private Multimap<String, String> convert(final List<KeyValuePair> configuration) {
+	private Multimap<String, String> convertKeyValuePair(final List<KeyValuePair> configuration) {
 		Multimap<String, String> out = HashMultimap.create();
 		for (KeyValuePair keyValuePair : configuration) {
 			out.put(keyValuePair.getKey(), keyValuePair.getValue());
