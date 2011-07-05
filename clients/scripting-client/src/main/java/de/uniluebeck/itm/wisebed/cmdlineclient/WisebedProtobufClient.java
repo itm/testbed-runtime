@@ -72,11 +72,12 @@ public class WisebedProtobufClient extends WisebedClientBase {
 					@Override
 					public void experimentEnded() {
 						log.info("Experiment ended");
+						controllerManager.experimentEnded();
 					}
 
 					@Override
 					public void receive(final List<Message> msg) {
-						// nothing to do
+						controllerManager.receive(msg);
 					}
 
 					@Override
@@ -84,11 +85,13 @@ public class WisebedProtobufClient extends WisebedClientBase {
 						for (String message : messages) {
 							log.info(message);
 						}
+						controllerManager.receiveNotification(messages);
 					}
 
 					@Override
 					public void receiveStatus(final List<RequestStatus> requestStatuses) {
 						wsn.receive(requestStatuses);
+						controllerManager.receiveStatus(requestStatuses);
 					}
 				}
 				);

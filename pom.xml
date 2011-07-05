@@ -520,6 +520,13 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+		</extensions>
 	</build>
 
 	<pluginRepositories>
@@ -591,12 +598,12 @@
 		<repository>
 			<id>itm-maven-repository-releases</id>
 			<name>ITM UzL Maven releases repository</name>
-			<url>scp://itm01.itm.uni-luebeck.de/www/itm/projects/maven/releases</url>
+			<url>scpexe://itm01.itm.uni-luebeck.de/www/itm/projects/maven/releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>itm-maven-repository-snapshots</id>
 			<name>ITM UzL Maven snapshots repository</name>
-			<url>scp://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
+			<url>scpexe://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 

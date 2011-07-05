@@ -1,11 +1,16 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import com.google.common.util.concurrent.ValueFuture;
+
+import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
 import eu.wisebed.api.common.KeyValuePair;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
@@ -26,62 +31,101 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class WisebedClientBase {
 
-	protected final SessionManagement sessionManagement;
+    protected static class ControllerManager extends AbstractListenable<Controller> implements Controller {
+        @Override
+        public void experimentEnded() {
+            for (Controller controller : listeners) {
+                controller.experimentEnded();
+            }
+        }
+        @Override
+        public void receive(List<Message> msg) {
+            for (Controller controller : listeners) {
+                controller.receive(msg);
+            }
+        }
+        @Override
+        public void receiveNotification(List<String> msg) {
+            for (Controller controller : listeners) {
+                controller.receiveNotification(msg);
+            }
+        }
+        @Override
+        public void receiveStatus(List<RequestStatus> status) {
+            for (Controller controller : listeners) {
+                controller.receiveStatus(status);
+            }
+        }
+    }
+    
+    protected ControllerManager controllerManager = new ControllerManager();
 
-	protected final SNAA snaa;
+    protected final SessionManagement sessionManagement;
 
-	protected final RS rs;
+    protected final SNAA snaa;
 
-	protected ExecutorService executor;
+    protected final RS rs;
 
-	public WisebedClientBase(final String sessionManagementEndpointUrl) {
+    protected ExecutorService executor;
 
-		executor = Executors.newCachedThreadPool();
-		sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl);
+    public WisebedClientBase(final String sessionManagementEndpointUrl) {
 
-		final Holder<String> rsEndpointUrl = new Holder<String>();
-		final Holder<String> snaaEndpointUrl = new Holder<String>();
-		final Holder<List<KeyValuePair>> options = new Holder<List<KeyValuePair>>();
+        executor = Executors.newCachedThreadPool();
+        sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointUrl);
 
-		sessionManagement.getConfiguration(rsEndpointUrl, snaaEndpointUrl, options);
-		rs = RSServiceHelper.getRSService(rsEndpointUrl.value);
-		snaa = SNAAServiceHelper.getSNAAService(snaaEndpointUrl.value);
-	}
+        final Holder<String> rsEndpointUrl = new Holder<String>();
+        final Holder<String> snaaEndpointUrl = new Holder<String>();
+        final Holder<List<KeyValuePair>> options = new Holder<List<KeyValuePair>>();
 
-	public Future<List<AuthenticationKey>> authenticate(
-			final AuthenticationCredentials... authenticationCredentialsList) {
+        sessionManagement.getConfiguration(rsEndpointUrl, snaaEndpointUrl, options);
+        rs = RSServiceHelper.getRSService(rsEndpointUrl.value);
+        snaa = SNAAServiceHelper.getSNAAService(snaaEndpointUrl.value);
+    }
 
-		final ValueFuture<List<AuthenticationKey>> future = ValueFuture.create();
-		Runnable authenticationRunnable = new Runnable() {
+    public Future<List<AuthenticationKey>> authenticate(
+            final AuthenticationCredentials... authenticationCredentialsList) {
 
-			public void run() {
-				try {
-					final List<SecretAuthenticationKey> secretAuthenticationKeyList = snaa.authenticate(
-							TypeConverter.convertCredentials(authenticationCredentialsList)
-					);
-					future.set(TypeConverter.convertAuthenticationKeys(secretAuthenticationKeyList));
-				} catch (Exception e) {
-					future.setException(e);
-				}
-			}
-		};
-		executor.execute(authenticationRunnable);
+        final ValueFuture<List<AuthenticationKey>> future = ValueFuture.create();
+        Runnable authenticationRunnable = new Runnable() {
 
-		return future;
-	}
+            public void run() {
+                try {
+                    final List<SecretAuthenticationKey> secretAuthenticationKeyList =
+                            snaa.authenticate(TypeConverter.convertCredentials(authenticationCredentialsList));
+                    future.set(TypeConverter.convertAuthenticationKeys(secretAuthenticationKeyList));
+                } catch (Exception e) {
+                    future.setException(e);
+                }
+            }
+        };
+        executor.execute(authenticationRunnable);
 
-	public Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList) {
-		return connectToExperiment(TypeConverter.convertReservationKeysToSM(reservationKeyList));
-	}
+        return future;
+    }
 
-	public abstract Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList);
+    public Future<WSNAsyncWrapper> connectToExperiment(final ReservationKey... reservationKeyList) {
+        return connectToExperiment(TypeConverter.convertReservationKeysToSM(reservationKeyList));
+    }
 
-	/*public Future<List<ReservationKey>> fetchReservations(final AuthenticationKey... authenticationKeys) {
-		rs.getConfidentialReservations(TypeConverter.convertAuthenticationKeysToRS(authenticationKeys));
+    public abstract Future<WSNAsyncWrapper> connectToExperiment(
+            final List<SecretReservationKey> secretReservationKeyList);
 
-	}*/
+    public void addController(final Controller controller) {
+        controllerManager.addListener(controller);
+    }
 
-	public void shutdown() {
-		ExecutorUtils.shutdown(executor, 3, TimeUnit.SECONDS);
-	}
+    public void removeController(final Controller controller) {
+        controllerManager.removeListener(controller);
+    }
+
+    /*
+     * public Future<List<ReservationKey>> fetchReservations(final AuthenticationKey... authenticationKeys) {
+     * rs.getConfidentialReservations(TypeConverter.convertAuthenticationKeysToRS(authenticationKeys));
+     * 
+     * }
+     */
+
+    public void shutdown() {
+        ExecutorUtils.shutdown(executor, 3, TimeUnit.SECONDS);
+    }
 }
