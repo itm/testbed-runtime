@@ -475,7 +475,7 @@ public class MessagingTests {
 					"test",
 					payload,
 					1,
-					System.currentTimeMillis() + 5000
+					System.currentTimeMillis() + 60000
 			);
 			reliableMessagingService.sendAsync(msg, callback);
 		}

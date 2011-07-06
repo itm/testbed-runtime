@@ -193,7 +193,7 @@ public class SingleRequestMultiResponseServiceImpl
 					.setFrom(requestMsg.getTo())
 					.setMsgType(SRMRS_MSGTYPE_RESPONSE)
 					.setPriority(requestMsg.getPriority())
-					.setValidUntil(System.currentTimeMillis() + 5000)
+					.setValidUntil(System.currentTimeMillis() + 60000)
 					.setPayload(responseBuilder.build().toByteString());
 
 			if (request.getReliableResponses()) {

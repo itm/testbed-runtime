@@ -128,7 +128,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
 
-	private static final int MSG_VALIDITY = 5000;
+	private static final int MSG_VALIDITY = 60000;
 
 	private String localNodeName;
 
