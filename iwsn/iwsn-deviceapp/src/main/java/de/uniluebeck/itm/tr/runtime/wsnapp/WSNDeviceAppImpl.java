@@ -210,7 +210,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 					for (String nodeMessageListener : nodeMessageListeners) {
 
 						if (log.isDebugEnabled()) {
-							log.debug("{} => Delivering node output to {}: {}", new String[]{
+							log.debug("{} => Delivering device output to overlay node {}: {}", new String[]{
 									nodeUrn,
 									nodeMessageListener,
 									WSNAppMessageTools.toString(message, false)
@@ -455,10 +455,10 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	 */
 	private void executeManagement(WSNAppMessages.ListenerManagement management) {
 		if (WSNAppMessages.ListenerManagement.Operation.REGISTER == management.getOperation()) {
-			log.debug("{} => Node {} registered for node outputs", nodeUrn, management.getNodeName());
+			log.debug("{} => Overlay node {} registered for device outputs", nodeUrn, management.getNodeName());
 			nodeMessageListeners.add(management.getNodeName());
 		} else {
-			log.debug("{} => Node {} unregistered from node outputs", nodeUrn, management.getNodeName());
+			log.debug("{} => Overlay node {} unregistered from device outputs", nodeUrn, management.getNodeName());
 			nodeMessageListeners.remove(management.getNodeName());
 		}
 	}
@@ -562,12 +562,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 	private WSNAppMessages.OperationInvocation parseOperation(Messages.Msg msg) {
 		try {
-			if (log.isDebugEnabled()) {
-				log.debug("{} => Received operation invocation, bytes: {}",
-						nodeUrn,
-						StringUtils.toHexString(msg.getPayload().toByteArray())
-				);
-			}
 			return WSNAppMessages.OperationInvocation.parseFrom(msg.getPayload());
 		} catch (InvalidProtocolBufferException e) {
 			log.warn("{} => Couldn't parse operation invocation message: {}. Ignoring...", nodeUrn, e);

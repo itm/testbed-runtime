@@ -27,7 +27,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.inject.Guice;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.netty.handlerstack.*;
+import de.uniluebeck.itm.netty.handlerstack.FilterHandler;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
@@ -66,7 +69,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.logging.Filter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.jboss.netty.channel.Channels.pipeline;
@@ -567,14 +569,30 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		if (isConnected()) {
 
 			try {
+
+				log.debug("{} => Setting channel pipeline using configuration: {}", nodeUrn,
+						channelHandlerConfigurations
+				);
 				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(channelHandlerConfigurations));
 				callback.success(null);
+
+
 			} catch (Exception e) {
-				callback.failure((byte) -1,
-						("Exception while setting the channel pipeline: " + e.getMessage()).getBytes()
+
+				log.warn("{} => {} while setting channel pipeline: {}",
+						new Object[]{nodeUrn, e.getCause().getClass().getSimpleName(), e.getCause().getMessage()}
 				);
+
+				callback.failure(
+						(byte) -1,
+						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
+				);
+
+				log.warn("{} => Resetting channel pipeline to default pipeline.", nodeUrn);
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 			}
+
+			log.debug("{} => Channel pipeline now set to: {}", nodeUrn, filterPipeline.getChannelPipeline());
 
 		} else {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
@@ -624,7 +642,66 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			public ChannelPipeline getPipeline() throws Exception {
 				final ChannelPipeline pipeline = pipeline();
 
+				if (log.isDebugEnabled()) {
+					pipeline.addLast("aboveFilterPipelineLogger", new SimpleChannelHandler() {
+						@Override
+						public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
+								throws Exception {
+							log.debug("{} => Downstream to device after FilterPipeline: {}",
+									nodeUrn,
+									StringUtils.replaceNonPrintableAsciiCharacters(
+											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+									)
+							);
+							super.writeRequested(ctx, e);
+						}
+
+						@Override
+						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+								throws Exception {
+							log.debug("{} => Upstream from device before FilterPipeline: {}",
+									nodeUrn,
+									StringUtils.replaceNonPrintableAsciiCharacters(
+											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+									)
+							);
+							super.messageReceived(ctx, e);
+						}
+					}
+					);
+				}
+
 				pipeline.addLast("filterHandler", new FilterHandler(filterPipeline));
+
+				if (log.isDebugEnabled()) {
+					pipeline.addLast("belowFilterPipelineLogger", new SimpleChannelHandler() {
+						@Override
+						public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
+								throws Exception {
+							log.debug("{} => Downstream to device before FilterPipeline: {}",
+									nodeUrn,
+									StringUtils.replaceNonPrintableAsciiCharacters(
+											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+									)
+							);
+							super.writeRequested(ctx, e);
+						}
+
+						@Override
+						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+								throws Exception {
+							log.debug("{} => Upstream from device after FilterPipeline: {}",
+									nodeUrn,
+									StringUtils.replaceNonPrintableAsciiCharacters(
+											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+									)
+							);
+							super.messageReceived(ctx, e);
+						}
+					}
+					);
+				}
+
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 
 				final SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
@@ -633,10 +710,41 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 							throws Exception {
 
 						if (e.getMessage() instanceof ChannelBuffer) {
-							onBytesReceivedFromDevice((ChannelBuffer) e.getMessage());
+
+							final ChannelBuffer message = (ChannelBuffer) e.getMessage();
+							onBytesReceivedFromDevice(message);
+
 						} else {
-							sendPipelineMisconfigurationIfNotificationRateAllows(e.getMessage().getClass());
+
+							String notification = "The pipeline seems to be wrongly configured. A message of type " +
+									e.getMessage().getClass().getCanonicalName() +
+									" was received. Only " +
+									ChannelBuffer.class.getCanonicalName() +
+									" instances are allowed!";
+
+							sendPipelineMisconfigurationIfNotificationRateAllows(notification);
 						}
+					}
+
+					@Override
+					public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
+							throws Exception {
+
+						log.warn(
+								"{} => {} in pipeline: {}",
+								new Object[]{
+										nodeUrn,
+										e.getCause().getClass().getSimpleName(),
+										e.getCause().getMessage()
+								}
+						);
+
+						String notification = "The pipeline seems to be wrongly configured. A(n) " +
+								e.getCause().getClass().getSimpleName() +
+								" was caught and contained the following message: " +
+								e.getCause().getMessage();
+
+						sendPipelineMisconfigurationIfNotificationRateAllows(notification);
 					}
 				};
 				pipeline.addLast("forwardingHandler", forwardingHandler);
@@ -755,13 +863,9 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		}
 	}
 
-	private void sendPipelineMisconfigurationIfNotificationRateAllows(final Class<?> receivedType) {
+	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
 
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-
-			String notification =
-					"The pipeline seems to be misconfigured. A message of type " + receivedType.getCanonicalName() +
-							" was received. Only " + ChannelBuffer.class.getCanonicalName() + " instances are allowed!";
 
 			for (NodeOutputListener listener : listeners) {
 				listener.receiveNotification(notification);

@@ -24,10 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -199,11 +196,13 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getBinaryData().toByteArray());
 
-				final Map<String, Object> userContext = new HashMap<String, Object>();
+				final Map<String, Object> userContext = Maps.newHashMap();
 				userContext.put("timestamp", message.getTimestamp());
 
-				final WisebedMulticastAddress sourceAddress =
-						new WisebedMulticastAddress(newHashSet(message.getSourceNodeId()), userContext);
+				final WisebedMulticastAddress sourceAddress = new WisebedMulticastAddress(
+						newHashSet(message.getSourceNodeId()),
+						userContext
+				);
 				filterPipeline.sendUpstream(buffer, sourceAddress);
 
 			} catch (InvalidProtocolBufferException e) {
