@@ -580,7 +580,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
-						new Object[]{nodeUrn, e.getCause().getClass().getSimpleName(), e.getCause().getMessage()}
+						new Object[]{nodeUrn, e.getClass().getSimpleName(), e.getMessage()}
 				);
 
 				callback.failure(
@@ -606,6 +606,102 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		tryToConnect();
 	}
+
+	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+				throws Exception {
+
+			if (e.getMessage() instanceof ChannelBuffer) {
+
+				final ChannelBuffer message = (ChannelBuffer) e.getMessage();
+				onBytesReceivedFromDevice(message);
+
+			} else {
+
+				String notification = "The pipeline seems to be wrongly configured. A message of type " +
+						e.getMessage().getClass().getCanonicalName() +
+						" was received. Only " +
+						ChannelBuffer.class.getCanonicalName() +
+						" instances are allowed!";
+
+				sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+			}
+		}
+
+		@Override
+		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
+				throws Exception {
+
+			log.warn(
+					"{} => {} in pipeline: {}",
+					new Object[]{
+							nodeUrn,
+							e.getCause().getClass().getSimpleName(),
+							e.getCause().getMessage()
+					}
+			);
+
+			String notification = "The pipeline seems to be wrongly configured. A(n) " +
+					e.getCause().getClass().getSimpleName() +
+					" was caught and contained the following message: " +
+					e.getCause().getMessage();
+
+			sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+		}
+	};
+
+	private SimpleChannelHandler aboveFilterPipelineLogger = new SimpleChannelHandler() {
+		@Override
+		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
+				throws Exception {
+			log.debug("{} => Downstream to device above FilterPipeline: {}",
+					nodeUrn,
+					StringUtils.replaceNonPrintableAsciiCharacters(
+							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+					)
+			);
+			super.writeRequested(ctx, e);
+		}
+
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+				throws Exception {
+			log.debug("{} => Upstream from device above FilterPipeline: {}",
+					nodeUrn,
+					StringUtils.replaceNonPrintableAsciiCharacters(
+							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+					)
+			);
+			super.messageReceived(ctx, e);
+		}
+	};
+
+	private SimpleChannelHandler belowFilterPipelineLogger = new SimpleChannelHandler() {
+		@Override
+		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
+				throws Exception {
+			log.debug("{} => Downstream to device below FilterPipeline: {}",
+					nodeUrn,
+					StringUtils.replaceNonPrintableAsciiCharacters(
+							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+					)
+			);
+			super.writeRequested(ctx, e);
+		}
+
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+				throws Exception {
+			log.debug("{} => Upstream from device below FilterPipeline: {}",
+					nodeUrn,
+					StringUtils.replaceNonPrintableAsciiCharacters(
+							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
+					)
+			);
+			super.messageReceived(ctx, e);
+		}
+	};
 
 	private void tryToConnect() throws Exception {
 
@@ -642,112 +738,18 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			public ChannelPipeline getPipeline() throws Exception {
 				final ChannelPipeline pipeline = pipeline();
 
-				if (log.isDebugEnabled()) {
-					pipeline.addLast("aboveFilterPipelineLogger", new SimpleChannelHandler() {
-						@Override
-						public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
-								throws Exception {
-							log.debug("{} => Downstream to device after FilterPipeline: {}",
-									nodeUrn,
-									StringUtils.replaceNonPrintableAsciiCharacters(
-											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-									)
-							);
-							super.writeRequested(ctx, e);
-						}
-
-						@Override
-						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-								throws Exception {
-							log.debug("{} => Upstream from device before FilterPipeline: {}",
-									nodeUrn,
-									StringUtils.replaceNonPrintableAsciiCharacters(
-											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-									)
-							);
-							super.messageReceived(ctx, e);
-						}
-					}
-					);
-				}
-
-				pipeline.addLast("filterHandler", new FilterHandler(filterPipeline));
+				pipeline.addFirst("forwardingHandler", forwardingHandler);
 
 				if (log.isDebugEnabled()) {
-					pipeline.addLast("belowFilterPipelineLogger", new SimpleChannelHandler() {
-						@Override
-						public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
-								throws Exception {
-							log.debug("{} => Downstream to device before FilterPipeline: {}",
-									nodeUrn,
-									StringUtils.replaceNonPrintableAsciiCharacters(
-											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-									)
-							);
-							super.writeRequested(ctx, e);
-						}
-
-						@Override
-						public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-								throws Exception {
-							log.debug("{} => Upstream from device after FilterPipeline: {}",
-									nodeUrn,
-									StringUtils.replaceNonPrintableAsciiCharacters(
-											((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-									)
-							);
-							super.messageReceived(ctx, e);
-						}
-					}
-					);
+					pipeline.addFirst("aboveFilterPipelineLogger", aboveFilterPipelineLogger);
 				}
 
+				pipeline.addFirst("filterHandler", new FilterHandler(filterPipeline));
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 
-				final SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
-					@Override
-					public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-							throws Exception {
-
-						if (e.getMessage() instanceof ChannelBuffer) {
-
-							final ChannelBuffer message = (ChannelBuffer) e.getMessage();
-							onBytesReceivedFromDevice(message);
-
-						} else {
-
-							String notification = "The pipeline seems to be wrongly configured. A message of type " +
-									e.getMessage().getClass().getCanonicalName() +
-									" was received. Only " +
-									ChannelBuffer.class.getCanonicalName() +
-									" instances are allowed!";
-
-							sendPipelineMisconfigurationIfNotificationRateAllows(notification);
-						}
-					}
-
-					@Override
-					public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
-							throws Exception {
-
-						log.warn(
-								"{} => {} in pipeline: {}",
-								new Object[]{
-										nodeUrn,
-										e.getCause().getClass().getSimpleName(),
-										e.getCause().getMessage()
-								}
-						);
-
-						String notification = "The pipeline seems to be wrongly configured. A(n) " +
-								e.getCause().getClass().getSimpleName() +
-								" was caught and contained the following message: " +
-								e.getCause().getMessage();
-
-						sendPipelineMisconfigurationIfNotificationRateAllows(notification);
-					}
-				};
-				pipeline.addLast("forwardingHandler", forwardingHandler);
+				if (log.isDebugEnabled()) {
+					pipeline.addFirst("belowFilterPipelineLogger", belowFilterPipelineLogger);
+				}
 
 				return pipeline;
 			}

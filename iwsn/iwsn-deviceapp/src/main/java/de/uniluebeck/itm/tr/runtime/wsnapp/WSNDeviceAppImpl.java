@@ -187,15 +187,6 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				@Override
 				public void receivedPacket(final byte[] bytes) {
 
-					if (log.isDebugEnabled() && nodeMessageListeners.size() == 0) {
-						log.debug(
-								"{} => Received packet but no message listeners registered! Packet: {}",
-								nodeUrn,
-								StringUtils.toHexString(bytes)
-						);
-						return;
-					}
-
 					XMLGregorianCalendar now =
 							datatypeFactory
 									.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());

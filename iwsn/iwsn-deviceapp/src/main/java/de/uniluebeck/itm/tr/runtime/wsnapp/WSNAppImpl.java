@@ -41,6 +41,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
 import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
@@ -141,6 +142,10 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	private FilterPipeline filterPipeline;
 
 	private HandlerFactoryRegistry handlerFactoryRegistry;
+
+	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
+
+	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
 	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
 			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
@@ -319,6 +324,32 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	}
 
 	@Override
+	public void downstreamExceptionCaught(final Throwable e) {
+		String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
+					e.getCause().getClass().getSimpleName() +
+					" was caught and contained the following message: " +
+					e.getCause().getMessage();
+		sendPipelineMisconfigurationIfNotificationRateAllows(notificationString);
+	}
+
+	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notificationString) {
+
+		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
+
+			final WSNAppMessages.Notification notification = WSNAppMessages.Notification
+					.newBuilder()
+					.setMessage(notificationString)
+					.build();
+
+			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+				receiver.receiveNotification(notification);
+			}
+
+			pipelineMisconfigurationTimeDiff.touch();
+		}
+	}
+
+	@Override
 	public void receiveUpstreamOutput(final ChannelBuffer channelBuffer, final SocketAddress socketAddress) {
 
 		byte[] bytes = new byte[channelBuffer.readableBytes()];
@@ -330,6 +361,11 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
 			receiver.receive(bytes, sourceNodeId, timestamp);
 		}
+	}
+
+	@Override
+	public void upstreamExceptionCaught(final Throwable e) {
+		downstreamExceptionCaught(e);
 	}
 
 	@Override
@@ -392,7 +428,9 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			try {
 
 				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(
-						convertCHCList(channelHandlerConfigurations)));
+						convertCHCList(channelHandlerConfigurations)
+				)
+				);
 				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 						.newBuilder()
 						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
