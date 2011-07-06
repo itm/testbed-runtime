@@ -209,7 +209,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.debug("{} => Delivering {} messages.", endpointUrl, messageList.size());
+		log.trace("{} => Delivering {} messages.", endpointUrl, messageList.size());
 		try {
 
 			// try to send messages to endpoint
@@ -248,7 +248,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.debug("{} => Delivering {} status messages", endpointUrl, statusList.size());
+		log.trace("{} => Delivering {} status messages", endpointUrl, statusList.size());
 		try {
 
 			endpoint.receiveStatus(statusList);
@@ -287,7 +287,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.debug("{} => Delivering {} notifications", endpointUrl, notificationList.size());
+		log.trace("{} => Delivering {} notifications", endpointUrl, notificationList.size());
 		try {
 
 			endpoint.receiveNotification(notificationList);
