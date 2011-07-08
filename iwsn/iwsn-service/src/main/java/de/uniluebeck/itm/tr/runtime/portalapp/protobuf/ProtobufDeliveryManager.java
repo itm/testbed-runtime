@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 import com.google.common.collect.Lists;
 import com.google.inject.internal.Nullable;
 import com.google.protobuf.ByteString;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.DatatypeFactoryImpl;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
@@ -16,6 +17,10 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.RuntimeErrorException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +29,16 @@ import java.util.concurrent.ExecutorService;
 public class ProtobufDeliveryManager extends DeliveryManager {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufDeliveryManager.class);
+
+	private static final DatatypeFactory datatypeFactory;
+
+	static {
+		try {
+			datatypeFactory = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
@@ -204,6 +219,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 		WisebedProtocol.Message.Builder backendMessageBuilder = WisebedProtocol.Message.newBuilder()
 				.setType(WisebedProtocol.Message.Type.BACKEND)
+				.setTimestamp(datatypeFactory.newXMLGregorianCalendar(new GregorianCalendar()).toXMLFormat())
 				.setBackend(backendBuilder);
 
 		return WisebedProtocol.Envelope.newBuilder()
