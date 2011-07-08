@@ -823,8 +823,11 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		boolean isByteTextOrVLink = buffer.readableBytes() > 0 &&
 				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
+		boolean isByteTextOrVLink = buffer.readableBytes() > 1 &&
+				((buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
 				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
 				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
+				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
