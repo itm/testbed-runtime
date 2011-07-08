@@ -54,6 +54,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+
 
 public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
@@ -545,7 +547,7 @@ public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppCon
 					log.debug(
 							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
 							nodeUrn,
-							StringUtils.toHexString(packet.array())
+							toPrintableString(packet.array(), 200)
 					);
 				}
 				device.send(new MessagePacket(MESSAGE_TYPE_WISELIB_DOWNSTREAM, packet.array()));
@@ -944,7 +946,7 @@ public class WSNDeviceAppConnectorOld extends AbstractListenable<WSNDeviceAppCon
 							log.debug(
 									"{} => Delivering non-virtual link message: {}",
 									nodeUrn,
-									StringUtils.toHexString(messageBytes)
+									toPrintableString(messageBytes, 200)
 							);
 						}
 

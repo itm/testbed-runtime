@@ -150,7 +150,7 @@ public class DeliveryManager implements Service {
 
 		if (deliveryWorker != null) {
 
-			log.debug("Removing controller endpoint {} from the set of controllers.", endpointUrl);
+			log.debug("{} => Removing controller endpoint from the set of controllers.", endpointUrl);
 			deliveryWorker.stopDelivery();
 
 			ImmutableMap.Builder<String, DeliveryWorker> controllerEndpointsBuilder = ImmutableMap.builder();
@@ -164,7 +164,7 @@ public class DeliveryManager implements Service {
 			controllers = controllerEndpointsBuilder.build();
 
 		} else {
-			log.debug("Not removing controller endpoint {} as it was not in the set of controllers.", endpointUrl);
+			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", endpointUrl);
 		}
 
 	}

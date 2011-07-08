@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+
 
 class InteractionImpl implements Interaction {
 
@@ -45,16 +47,19 @@ class InteractionImpl implements Interaction {
 	@Override
 	public Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload) {
 
-		log.trace(
-				"InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
-				new Object[]{
-						StringUtils.toHexString(RSSI),
-						StringUtils.toHexString(LQI),
-						destination,
-						source,
-						StringUtils.toHexString(payload),
-				}
-		);
+		if (log.isTraceEnabled()) {
+
+			log.trace(
+					"InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
+					new Object[]{
+							StringUtils.toHexString(RSSI),
+							StringUtils.toHexString(LQI),
+							destination,
+							source,
+							toPrintableString(payload, 200),
+					}
+			);
+		}
 
 		int requestId = nodeApi.nextRequestId();
 		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(

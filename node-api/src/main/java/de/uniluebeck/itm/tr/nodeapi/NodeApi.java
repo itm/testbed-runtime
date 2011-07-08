@@ -37,6 +37,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
 
 public class NodeApi {
@@ -98,7 +99,7 @@ public class NodeApi {
 						log.debug(
 								"Sending to node with request ID {}: {}",
 								currentJob.requestId,
-								StringUtils.toHexString(currentJob.buffer.array())
+								toPrintableString(currentJob.buffer.array(), 200)
 						);
 					}
 
@@ -181,7 +182,7 @@ public class NodeApi {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Enqueueing job to node with request ID {}: {}", requestId,
-					StringUtils.toHexString(buffer.array())
+					toPrintableString(buffer.array(), 200)
 			);
 		}
 

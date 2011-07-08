@@ -40,7 +40,6 @@ import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
@@ -57,6 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
 
 class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, FilterPipeline.UpstreamOutputListener {
@@ -194,7 +194,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 						.build();
 
 				if (log.isDebugEnabled()) {
-					String output = WSNAppMessageTools.toString(message, true);
+					String output = WSNAppMessageTools.toString(message, true, 200);
 					output = output.endsWith("\n") ? output.substring(0, output.length() - 2) : output;
 					log.debug("{}", output);
 				}
@@ -481,7 +481,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		byte[] bytes = builder.build().toByteArray();
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending checkAreNodesAlive operation invocation, bytes: {}", StringUtils.toHexString(bytes));
+			log.debug("Sending checkAreNodesAlive operation invocation, bytes: {}", toPrintableString(bytes, 200));
 		}
 
 		for (String nodeUrn : nodeUrns) {

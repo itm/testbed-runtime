@@ -34,6 +34,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
@@ -62,7 +63,6 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.iostream.IOStreamAddress;
 import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
-import org.jboss.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
@@ -170,7 +171,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					log.debug(
 							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
 							nodeUrn,
-							StringUtils.toHexString(packet.array())
+							toPrintableString(packet.array(), 200)
 					);
 				}
 
@@ -657,9 +658,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				throws Exception {
 			log.debug("{} => Downstream to device above FilterPipeline: {}",
 					nodeUrn,
-					StringUtils.replaceNonPrintableAsciiCharacters(
-							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-					)
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);
 			super.writeRequested(ctx, e);
 		}
@@ -669,9 +668,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				throws Exception {
 			log.debug("{} => Upstream from device above FilterPipeline: {}",
 					nodeUrn,
-					StringUtils.replaceNonPrintableAsciiCharacters(
-							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-					)
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);
 			super.messageReceived(ctx, e);
 		}
@@ -683,9 +680,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				throws Exception {
 			log.debug("{} => Downstream to device below FilterPipeline: {}",
 					nodeUrn,
-					StringUtils.replaceNonPrintableAsciiCharacters(
-							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-					)
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);
 			super.writeRequested(ctx, e);
 		}
@@ -695,9 +690,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				throws Exception {
 			log.debug("{} => Upstream from device below FilterPipeline: {}",
 					nodeUrn,
-					StringUtils.replaceNonPrintableAsciiCharacters(
-							((ChannelBuffer) e.getMessage()).toString(CharsetUtil.UTF_8)
-					)
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);
 			super.messageReceived(ctx, e);
 		}
@@ -814,19 +807,16 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		if (log.isTraceEnabled()) {
 			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
 					nodeUrn,
-					StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
 		}
 
 		boolean isWiselibUpstream =
 				(buffer.getByte(0) & 0xFF) == MESSAGE_TYPE_WISELIB_UPSTREAM;
 
-		boolean isByteTextOrVLink = buffer.readableBytes() > 0 &&
-				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
 		boolean isByteTextOrVLink = buffer.readableBytes() > 1 &&
 				((buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
 				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
-				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK;
 				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
@@ -841,7 +831,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
 							nodeUrn,
-							StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+							ChannelBufferTools.toPrintableString(buffer, 200)
 					);
 				}
 			} else {
@@ -850,7 +840,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					log.warn(
 							"{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
 							nodeUrn,
-							StringUtils.replaceNonPrintableAsciiCharacters(buffer.toString(CharsetUtil.UTF_8))
+							ChannelBufferTools.toPrintableString(buffer, 200)
 					);
 				}
 			}

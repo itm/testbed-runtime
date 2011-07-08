@@ -7,7 +7,6 @@ import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.sm.SecretReservationKey;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
 public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandler {
 
@@ -98,7 +98,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			final String timestamp = message.getTimestamp();
 
 			if (log.isDebugEnabled()) {
-				log.debug("Sending message {} to nodeUrns {}", StringUtils.toHexString(bytes), nodeUrns);
+				log.debug("Sending message {} to nodeUrns {}", toPrintableString(bytes, 200), nodeUrns);
 			}
 
 			final WSNApp.Callback callback = new WSNApp.Callback() {

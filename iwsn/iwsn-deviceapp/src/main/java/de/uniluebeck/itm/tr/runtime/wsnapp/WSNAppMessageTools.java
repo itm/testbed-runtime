@@ -23,27 +23,38 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.util.StringUtils;
 
 public class WSNAppMessageTools {
 
-	public static String toString(WSNAppMessages.Message message, boolean prependSourceNodeId) {
+	public static String toString(final WSNAppMessages.Message message, final boolean prependSourceNodeId,
+								  final int maxLength) {
+
 		StringBuilder builder = new StringBuilder();
+
 		if (prependSourceNodeId) {
 			builder.append(message.getSourceNodeId());
 			builder.append(" => ");
 		}
-		if (message.getBinaryData() != null) {
+
+		final ByteString binaryData = message.getBinaryData();
+
+		if (binaryData != null) {
+
+			final int offset = 0;
+			final int length = binaryData.size() < maxLength ? binaryData.size() : maxLength;
+
 			builder.append("Binary[");
 			builder.append("data=");
-			builder.append(
-					StringUtils.replaceNonPrintableAsciiCharacters(
-							new String(message.getBinaryData().toByteArray())
-					)
-			);
+			builder.append(StringUtils.replaceNonPrintableAsciiCharacters(binaryData.toByteArray(), offset, length));
 			builder.append("]");
 		}
 		return builder.toString();
+	}
+
+	public static String toString(final WSNAppMessages.Message message, final boolean prependSourceNodeId) {
+		return toString(message, prependSourceNodeId, Integer.MAX_VALUE);
 	}
 
 }

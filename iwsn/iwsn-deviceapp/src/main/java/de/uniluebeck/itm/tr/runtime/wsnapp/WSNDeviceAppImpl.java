@@ -204,7 +204,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 							log.debug("{} => Delivering device output to overlay node {}: {}", new String[]{
 									nodeUrn,
 									nodeMessageListener,
-									WSNAppMessageTools.toString(message, false)
+									WSNAppMessageTools.toString(message, false, 200)
 							}
 							);
 						}
@@ -221,10 +221,10 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				}
 
 				@Override
-				public void receiveNotification(final String notification) {
+				public void receiveNotification(final String notificationString) {
 
 					WSNAppMessages.Notification message = WSNAppMessages.Notification.newBuilder()
-							.setMessage(notification)
+							.setMessage(notificationString)
 							.build();
 
 					for (String nodeMessageListener : nodeMessageListeners) {
@@ -233,7 +233,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 							log.debug("{} => Delivering notification to {}: {}", new String[]{
 									nodeUrn,
 									nodeMessageListener,
-									notification
+									notificationString
 							}
 							);
 						}

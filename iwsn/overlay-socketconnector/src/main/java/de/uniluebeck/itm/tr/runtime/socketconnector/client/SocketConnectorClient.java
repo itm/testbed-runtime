@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
@@ -175,7 +176,12 @@ public class SocketConnectorClient {
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(message.getMsgType())) {
 
 				WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.parseFrom(message.getPayload());
-				log.info("Received sensor node binary output: \"{}\"", StringUtils.toHexString(wsnAppMessage.getBinaryData().toByteArray()));
+				if (log.isInfoEnabled()) {
+					log.info(
+							"Received device output: \"{}\"",
+							toPrintableString(wsnAppMessage.getBinaryData().toByteArray())
+					);
+				}
 
 			} else {
 				log.info("Received message: {}", StringUtils.jaxbMarshal(message));
