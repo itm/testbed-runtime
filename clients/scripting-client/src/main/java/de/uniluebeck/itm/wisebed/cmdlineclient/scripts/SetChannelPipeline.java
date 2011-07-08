@@ -68,6 +68,7 @@ public class SetChannelPipeline {
 		log.info("{}", jobResult);
 
 		client.shutdown();
+		System.exit(0);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResultListener;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
 
@@ -213,6 +214,15 @@ public class WSNAsyncWrapper {
 			}
 		}
 		);
+	}
+
+	public Future<List<ChannelHandlerDescription>> getSupportedChannelHandlers() {
+		return executor.submit(new Callable<List<ChannelHandlerDescription>>() {
+			@Override
+			public List<ChannelHandlerDescription> call() throws Exception {
+				return wsn.getSupportedChannelHandlers();
+			}
+		});
 	}
 
 	public Future<JobResult> resetNodes(List<String> nodes, int timeout, TimeUnit timeUnit) {
