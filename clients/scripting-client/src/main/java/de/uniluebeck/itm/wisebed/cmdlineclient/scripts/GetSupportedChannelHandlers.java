@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.scripts;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wisebed.cmdlineclient.WisebedBeanShellLauncher;
 import de.uniluebeck.itm.wisebed.cmdlineclient.WisebedClient;
 import de.uniluebeck.itm.wisebed.cmdlineclient.WisebedClientBase;
@@ -12,7 +11,6 @@ import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.List;
 
 import static de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper.parseSecretReservationKeys;
@@ -57,8 +55,10 @@ public class GetSupportedChannelHandlers {
 				if (chd.getConfigurationOptions().size() > 0) {
 					System.out.println();
 					for (KeyValuePair keyValuePair : chd.getConfigurationOptions()) {
-						System.out.println("\t\tkey=\"" + keyValuePair.getKey() + "\", description=\"" + chd
-								.getDescription() + "\""
+						System.out.println("\t\tkey=\"" +
+								keyValuePair.getKey() +
+								"\", description=\"" +
+								keyValuePair.getValue() + "\""
 						);
 					}
 					System.out.println("\t}");
