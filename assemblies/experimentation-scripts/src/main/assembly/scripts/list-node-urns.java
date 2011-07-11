@@ -34,4 +34,4 @@ Iterable nodeTypes = Splitter.on(",").trimResults().omitEmptyStrings().split(nod
 SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 List nodes = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork(), nodeTypes);
 
-System.out.println(Joiner.on("\n").join(nodes));
+System.out.println(Joiner.on(",").join(nodes));
