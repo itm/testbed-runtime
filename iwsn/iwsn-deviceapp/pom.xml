@@ -103,10 +103,6 @@
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>dlestxetx</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>channel-flange</artifactId>
-		</dependency>
 
 		<!-- 3rd party libraries -->
 		<dependency>

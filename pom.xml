@@ -242,57 +242,52 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.3-SNAPSHOT</version>
+				<version>0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
-				<version>0.3.2-SNAPSHOT</version>
+				<version>0.3.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-factories</artifactId>
-				<version>0.3.7-SNAPSHOT</version>
+				<version>0.3.7</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-core</artifactId>
-				<version>0.3.7-SNAPSHOT</version>
+				<version>0.3.7</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
 				<artifactId>netty-iostream</artifactId>
-				<version>0.3-SNAPSHOT</version>
+				<version>0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>dlestxetx</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>protocol-collection</artifactId>
-				<version>1.2-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>channel-flange</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>factory</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>netty-handlerstack</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>wisebed</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->
