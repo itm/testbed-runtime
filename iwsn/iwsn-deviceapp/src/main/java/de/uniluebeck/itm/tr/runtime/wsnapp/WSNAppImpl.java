@@ -33,6 +33,7 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
+import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
@@ -326,9 +327,9 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	@Override
 	public void downstreamExceptionCaught(final Throwable e) {
 		String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
-					e.getCause().getClass().getSimpleName() +
-					" was caught and contained the following message: " +
-					e.getCause().getMessage();
+				e.getCause().getClass().getSimpleName() +
+				" was caught and contained the following message: " +
+				e.getCause().getMessage();
 		sendPipelineMisconfigurationIfNotificationRateAllows(notificationString);
 	}
 
@@ -388,7 +389,10 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	@Override
 	public void stop() {
 
-		log.debug("Stopping WSNApp...");
+		log.info("Stopping WSNApp...");
+
+		setDefaultPipelineOnReservedNodes();
+		filterPipeline.setChannelPipeline(null);
 
 		// stop sending 'register'-messages to node counterpart
 		registerNodeMessageReceiverFuture.cancel(false);
@@ -398,6 +402,8 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		// stop listening for messages from the nodes
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+
+		log.info("WSNApp stopped!");
 	}
 
 	@Override
@@ -851,5 +857,39 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 					);
 		}
 
+	}
+
+	private void setDefaultPipelineOnReservedNodes() {
+
+		log.info("Setting ChannelPipeline to default configuration for all nodes...");
+
+		WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder chc =
+				WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration
+						.newBuilder()
+						.setName("dlestxetx-framing");
+
+		WSNAppMessages.SetChannelPipelineRequest.Builder scpr = WSNAppMessages.SetChannelPipelineRequest
+				.newBuilder()
+				.setChannelHandlerConfigurations(0, chc);
+
+		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setArguments(scpr.build().toByteString())
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+
+		final byte[] bytes = operationInvocation.build().toByteArray();
+
+		for (String nodeUrn : reservedNodes) {
+
+			try {
+				testbedRuntime.getReliableMessagingService().send(
+						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						System.currentTimeMillis() + MSG_VALIDITY);
+			} catch (UnknownNameException e) {
+				log.error("" + e, e);
+			} catch (ReliableMessagingTimeoutException e) {
+				log.error("" + e, e);
+			}
+		}
 	}
 }

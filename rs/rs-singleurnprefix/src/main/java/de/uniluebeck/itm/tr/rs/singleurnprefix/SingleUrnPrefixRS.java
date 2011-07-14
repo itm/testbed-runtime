@@ -45,6 +45,7 @@ import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
@@ -77,6 +78,11 @@ public class SingleUrnPrefixRS implements RS {
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "reservation") ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
+
+		checkNotNull(
+				reservation.getUserData() != null && !"".equals(reservation.getUserData()),
+				"The field userData must be set!"
+		);
 
 		checkArgumentValid(reservation);
 		checkArgumentValidAuthentication(authenticationData);

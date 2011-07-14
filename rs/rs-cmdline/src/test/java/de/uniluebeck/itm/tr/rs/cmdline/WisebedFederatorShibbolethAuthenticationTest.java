@@ -28,13 +28,11 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.rs.persistence.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import eu.wisebed.api.snaa.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -68,7 +66,6 @@ public class WisebedFederatorShibbolethAuthenticationTest {
     static {
         // start SNAA endpoint
         try {
-            //set MockInjector
             SNAAServer.setMockShibbolethInjector();
             SNAAServer.startFromProperties(getSNAAProperties());
         } catch (Exception e) {
