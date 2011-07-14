@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.scripts;
 
+import com.google.common.base.Splitter;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.wisebed.cmdlineclient.*;
@@ -38,6 +39,7 @@ public class SetChannelPipeline {
 		final String secretReservationKeys = System.getProperty("testbed.secretreservationkeys");
 		final String sessionManagementEndpointUrl = System.getProperty("testbed.sm.endpointurl");
 		final String configFileName = System.getProperty("testbed.configfile");
+		final List<String> nodeUrns = newArrayList();
 
 		final File configFile = new File(configFileName);
 
@@ -62,7 +64,19 @@ public class SetChannelPipeline {
 
 		final WSNAsyncWrapper wsn = client.connectToExperiment(parseSecretReservationKeys(secretReservationKeys)).get();
 
-		final List<String> nodeUrns = WiseMLHelper.getNodeUrns(wsn.getNetwork().get());
+		final String nodeUrnsArgument = System.getProperty("testbed.nodeurns");
+
+		if (nodeUrnsArgument != null && !"portal".equalsIgnoreCase(nodeUrnsArgument.trim())) {
+
+			final Splitter splitter = Splitter.on(",").omitEmptyStrings().trimResults();
+			for (String nodeUrn : splitter.split(nodeUrnsArgument)) {
+				nodeUrns.add(nodeUrn);
+			}
+
+		} else {
+			nodeUrns.addAll(WiseMLHelper.getNodeUrns(wsn.getNetwork().get()));
+		}
+
 
 		final JobResult jobResult = wsn.setChannelPipeline(nodeUrns, create(configFile), 10, TimeUnit.SECONDS).get();
 		log.info("{}", jobResult);
