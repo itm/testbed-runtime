@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
@@ -161,7 +162,7 @@ public abstract class RSPersistenceTest {
 
 	@Before
 	public void setUp() throws RSExceptionException {
-
+		Logging.setLoggingDefaults();
 		for (int i = 0; i < RESERVATION_COUNT; i++) {
 			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(reservationStartingTime.toGregorianCalendar());
 			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(reservationEndingTime.toGregorianCalendar());

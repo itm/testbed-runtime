@@ -32,6 +32,7 @@ import com.google.inject.util.Providers;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.rs.*;
 import eu.wisebed.api.sm.SessionManagement;
@@ -118,6 +119,8 @@ public class SingleUrnPrefixInmemoryTest {
     private static final DatatypeFactory datatypeFactory;
 
     static {
+
+		Logging.setLoggingDefaults();
 
         try {
             datatypeFactory = DatatypeFactory.newInstance();
@@ -394,7 +397,7 @@ public class SingleUrnPrefixInmemoryTest {
 
     }
 
-    private GetReservations createPeriod(DateTime from, DateTime to) throws DatatypeConfigurationException {
+	private GetReservations createPeriod(DateTime from, DateTime to) throws DatatypeConfigurationException {
         GetReservations period = new GetReservations();
         period.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
         period.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
