@@ -574,9 +574,23 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				log.debug("{} => Setting channel pipeline using configuration: {}", nodeUrn,
 						channelHandlerConfigurations
 				);
-				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(channelHandlerConfigurations));
-				callback.success(null);
 
+				final List<Tuple<String, ChannelHandler>> pipeline =
+						handlerFactoryRegistry.create(channelHandlerConfigurations);
+
+				if (log.isDebugEnabled() && pipeline.size() > 0) {
+					pipeline.add(0, new Tuple<String, ChannelHandler>(
+							"aboveFilterPipelineLogger",
+							new AboveFilterPipelineLogger(nodeUrn)
+					));
+					pipeline.add(new Tuple<String, ChannelHandler>(
+							"belowFilterPipelineLogger",
+							new BelowFilterPipelineLogger(nodeUrn)
+					));
+				}
+
+				filterPipeline.setChannelPipeline(pipeline);
+				callback.success(null);
 
 			} catch (Exception e) {
 
@@ -686,20 +700,9 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				final ChannelPipeline pipeline = pipeline();
-
 				pipeline.addFirst("forwardingHandler", forwardingHandler);
-
-				if (log.isDebugEnabled()) {
-					pipeline.addFirst("aboveFilterPipelineLogger", new AboveFilterPipelineLogger(nodeUrn));
-				}
-
 				pipeline.addFirst("filterHandler", new FilterHandler(filterPipeline));
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
-
-				if (log.isDebugEnabled()) {
-					pipeline.addFirst("belowFilterPipelineLogger", new BelowFilterPipelineLogger(nodeUrn));
-				}
-
 				return pipeline;
 			}
 		}

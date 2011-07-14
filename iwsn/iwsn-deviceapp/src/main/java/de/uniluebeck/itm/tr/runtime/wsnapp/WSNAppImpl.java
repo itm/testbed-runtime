@@ -441,17 +441,22 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 										   final Callback callback) {
 		try {
 
-			final List<Tuple<String,ChannelHandler>> channelPipeline = handlerFactoryRegistry.create(
-					convertCHCList(channelHandlerConfigurations)
-			);
-			channelPipeline.add(0, new Tuple<String, ChannelHandler>(
-					"aboveFilterPipelineLogger",
-					new AboveFilterPipelineLogger("portal")
-			));
-			channelPipeline.add(new Tuple<String, ChannelHandler>(
-					"belowFilterPipelineLogger",
-					new BelowFilterPipelineLogger("portal")
-			));
+			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations1 =
+					convertCHCList(channelHandlerConfigurations);
+
+			final List<Tuple<String,ChannelHandler>> channelPipeline =
+					handlerFactoryRegistry.create(channelHandlerConfigurations1);
+
+			if (log.isDebugEnabled() && channelHandlerConfigurations1.size() > 0) {
+				channelPipeline.add(0, new Tuple<String, ChannelHandler>(
+						"aboveFilterPipelineLogger",
+						new AboveFilterPipelineLogger("portal")
+				));
+				channelPipeline.add(new Tuple<String, ChannelHandler>(
+						"belowFilterPipelineLogger",
+						new BelowFilterPipelineLogger("portal")
+				));
+			}
 
 			filterPipeline.setChannelPipeline(channelPipeline);
 
