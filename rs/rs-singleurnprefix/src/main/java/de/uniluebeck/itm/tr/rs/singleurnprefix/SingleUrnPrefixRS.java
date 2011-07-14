@@ -223,11 +223,21 @@ public class SingleUrnPrefixRS implements RS {
 			return throwRSExceptionException(e);
 		}
 
-		Interval i = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
+		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
 				new DateTime(period.getTo().toGregorianCalendar())
 		);
 
-		return persistence.getReservations(i);
+		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
+		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
+
+		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
+			boolean sameUser = crd.getUserData().equals(key.getUsername());
+			if (sameUser) {
+				reservationsOfAuthenticatedUserInInterval.add(crd);
+			}
+		}
+
+		return reservationsOfAuthenticatedUserInInterval;
 	}
 
 	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
