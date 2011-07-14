@@ -652,50 +652,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		}
 	};
 
-	private SimpleChannelHandler aboveFilterPipelineLogger = new SimpleChannelHandler() {
-		@Override
-		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
-			log.debug("{} => Downstream to device above FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
-			super.writeRequested(ctx, e);
-		}
-
-		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
-			log.debug("{} => Upstream from device above FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
-			super.messageReceived(ctx, e);
-		}
-	};
-
-	private SimpleChannelHandler belowFilterPipelineLogger = new SimpleChannelHandler() {
-		@Override
-		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
-			log.debug("{} => Downstream to device below FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
-			super.writeRequested(ctx, e);
-		}
-
-		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
-			log.debug("{} => Upstream from device below FilterPipeline: {}",
-					nodeUrn,
-					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-			);
-			super.messageReceived(ctx, e);
-		}
-	};
-
 	private void tryToConnect() throws Exception {
 
 		final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
@@ -734,14 +690,14 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 				pipeline.addFirst("forwardingHandler", forwardingHandler);
 
 				if (log.isDebugEnabled()) {
-					pipeline.addFirst("aboveFilterPipelineLogger", aboveFilterPipelineLogger);
+					pipeline.addFirst("aboveFilterPipelineLogger", new AboveFilterPipelineLogger(nodeUrn));
 				}
 
 				pipeline.addFirst("filterHandler", new FilterHandler(filterPipeline));
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 
 				if (log.isDebugEnabled()) {
-					pipeline.addFirst("belowFilterPipelineLogger", belowFilterPipelineLogger);
+					pipeline.addFirst("belowFilterPipelineLogger", new BelowFilterPipelineLogger(nodeUrn));
 				}
 
 				return pipeline;

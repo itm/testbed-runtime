@@ -66,7 +66,9 @@ public class SetChannelPipeline {
 
 		final String nodeUrnsArgument = System.getProperty("testbed.nodeurns");
 
-		if (nodeUrnsArgument != null && !"portal".equalsIgnoreCase(nodeUrnsArgument.trim())) {
+		if (nodeUrnsArgument != null && "portal".equalsIgnoreCase(nodeUrnsArgument.trim())) {
+
+		} else if (nodeUrnsArgument != null) {
 
 			final Splitter splitter = Splitter.on(",").omitEmptyStrings().trimResults();
 			for (String nodeUrn : splitter.split(nodeUrnsArgument)) {

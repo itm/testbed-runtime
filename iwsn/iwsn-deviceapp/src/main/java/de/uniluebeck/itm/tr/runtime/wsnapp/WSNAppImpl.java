@@ -47,6 +47,7 @@ import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -430,47 +431,66 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		boolean filterLocallyAtPortal = nodeUrns.isEmpty();
 
 		if (filterLocallyAtPortal) {
+			setChannelPipelineLocally(channelHandlerConfigurations, callback);
+		} else {
+			setChannelPipelineOnGateways(nodeUrns, channelHandlerConfigurations, callback);
+		}
+	}
+
+	private void setChannelPipelineLocally(final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+										   final Callback callback) {
+		try {
+
+			final List<Tuple<String,ChannelHandler>> channelPipeline = handlerFactoryRegistry.create(
+					convertCHCList(channelHandlerConfigurations)
+			);
+			channelPipeline.add(0, new Tuple<String, ChannelHandler>(
+					"aboveFilterPipelineLogger",
+					new AboveFilterPipelineLogger("portal")
+			));
+			channelPipeline.add(new Tuple<String, ChannelHandler>(
+					"belowFilterPipelineLogger",
+					new BelowFilterPipelineLogger("portal")
+			));
+
+			filterPipeline.setChannelPipeline(channelPipeline);
+
+			final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+					.newBuilder()
+					.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
+					.build();
+
+			callback.receivedRequestStatus(requestStatus);
+
+		} catch (Exception e) {
+			log.warn("Exception while setting channel pipeline on portal host: " + e, e);
+			filterPipeline.setChannelPipeline(null);
+			callback.failure(e);
+		}
+	}
+
+	private void setChannelPipelineOnGateways(final Set<String> nodeUrns,
+											  final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+											  final Callback callback) throws UnknownNodeUrnsException {
+		assertNodeUrnsKnown(nodeUrns);
+
+		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setArguments(convertToProtobuf(channelHandlerConfigurations).build().toByteString())
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+
+		final byte[] bytes = operationInvocation.build().toByteArray();
+
+		for (String nodeUrn : nodeUrns) {
 
 			try {
-
-				filterPipeline.setChannelPipeline(handlerFactoryRegistry.create(
-						convertCHCList(channelHandlerConfigurations)
-				)
+				testbedRuntime.getReliableMessagingService().sendAsync(
+						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						System.currentTimeMillis() + MSG_VALIDITY,
+						new RequestStatusCallback(callback, nodeUrn)
 				);
-				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
-						.newBuilder()
-						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
-						.build();
-				callback.receivedRequestStatus(requestStatus);
-
-			} catch (Exception e) {
-				log.warn("Exception while setting channel pipeline on portal host: " + e, e);
-				filterPipeline.setChannelPipeline(null);
+			} catch (UnknownNameException e) {
 				callback.failure(e);
-			}
-
-		} else {
-
-			assertNodeUrnsKnown(nodeUrns);
-
-			WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
-					.newBuilder()
-					.setArguments(convertToProtobuf(channelHandlerConfigurations).build().toByteString())
-					.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
-
-			final byte[] bytes = operationInvocation.build().toByteArray();
-
-			for (String nodeUrn : nodeUrns) {
-
-				try {
-					testbedRuntime.getReliableMessagingService().sendAsync(
-							localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-							System.currentTimeMillis() + MSG_VALIDITY,
-							new RequestStatusCallback(callback, nodeUrn)
-					);
-				} catch (UnknownNameException e) {
-					callback.failure(e);
-				}
 			}
 		}
 	}
