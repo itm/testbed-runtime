@@ -870,7 +870,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		WSNAppMessages.SetChannelPipelineRequest.Builder scpr = WSNAppMessages.SetChannelPipelineRequest
 				.newBuilder()
-				.setChannelHandlerConfigurations(0, chc);
+				.addChannelHandlerConfigurations(chc);
 
 		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
