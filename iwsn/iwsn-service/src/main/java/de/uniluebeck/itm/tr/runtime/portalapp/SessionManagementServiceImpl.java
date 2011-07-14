@@ -232,8 +232,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		this.testbedRuntime = testbedRuntime;
 		this.config = new Config(config);
 
-		List<String> nodeUrnsServed =
-				WiseMLHelper.getNodeUrns(WiseMLHelper.readWiseMLFromFile(webservice.getWisemlfilename()));
+		final String serializedWiseML = WiseMLHelper.readWiseMLFromFile(webservice.getWisemlfilename());
+		if (serializedWiseML == null) {
+			throw new RuntimeException("Could not read WiseML from file " + webservice.getWisemlfilename() + ". "
+					+ "Please make sure the file exists and is readable.");
+		}
+		List<String> nodeUrnsServed = WiseMLHelper.getNodeUrns(serializedWiseML);
 		String[] nodeUrnsServedArray = nodeUrnsServed.toArray(new String[nodeUrnsServed.size()]);
 
 		this.preconditions = new SessionManagementPreconditions();

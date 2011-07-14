@@ -74,7 +74,13 @@ public class Main {
 	};
 
 	public static void main(String[] args) throws Exception {
-		final Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start = start(args);
+		Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start = null;
+		try {
+			start = start(args);
+		} catch (Exception e) {
+			log.error("Unable to start testbed runtime due to a(n) " + e, e);
+			System.exit(1);
+		}
 		Runtime.getRuntime().addShutdownHook(new ShutdownThread(start.getFirst(), start.getSecond()));
 	}
 
