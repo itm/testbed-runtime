@@ -1,4 +1,4 @@
 #!/bin/bash
 DIR=`dirname $0`
 cd "$DIR/../../"
-mvn -am -pl iwsn/runtime.cmdline clean install -DskipTests
+mvn -am -pl iwsn/iwsn-cmdline clean install -DskipTests
