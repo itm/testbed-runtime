@@ -41,16 +41,10 @@ public class WSNPreconditions {
 
 	private CommonPreconditions commonPreconditions;
 
-	public WSNPreconditions() {
+	public WSNPreconditions(Iterable<String> servedUrnPrefixes, Iterable<String> reservedNodeUrns) {
 		this.commonPreconditions = new CommonPreconditions();
-	}
-
-	public void addKnownNodeUrns(String... reservedNodeUrns) {
-		commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
-	}
-
-	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
-		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
+		this.commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
+		this.commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
 	}
 
 	public void checkAreNodesAliveArguments(Collection<String> nodes) {

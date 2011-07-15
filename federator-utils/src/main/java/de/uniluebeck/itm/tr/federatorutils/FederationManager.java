@@ -41,6 +41,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class FederationManager<V> {
 
+	public static class Entry<V> {
+
+		public final V endpoint;
+
+		public final String endpointUrl;
+
+		public final ImmutableSet<String> urnPrefixes;
+
+		public Entry(final V endpoint, final String endpointUrl, final ImmutableSet<String> urnPrefixes) {
+			this.endpoint = endpoint;
+			this.endpointUrl = endpointUrl;
+			this.urnPrefixes = urnPrefixes;
+		}
+	}
+
 	/**
 	 * The function that builds the endpoint from an endpoint URL
 	 */
@@ -49,7 +64,7 @@ public class FederationManager<V> {
 	/**
 	 * Federated endpoint URL -> Set<URN Prefixes>
 	 */
-	private final ImmutableMap<String, ImmutableSet<String>> federatedEndpointUrlsToUrnPrefixesMap;
+	private final ImmutableMap<String, ImmutableSet<String>> endpointUrlsToUrnPrefixesMap;
 
 	/**
 	 * Caches a mapping from endpoint URL to endpoint.
@@ -59,10 +74,82 @@ public class FederationManager<V> {
 	private final Lock endpointUrlToEndpointCacheLock = new ReentrantLock();
 
 	public FederationManager(final Function<String, V> endpointBuilderFunction,
-							 final ImmutableMap<String, ImmutableSet<String>> federatedEndpointUrlsToUrnPrefixesMap) {
+							 final ImmutableMap<String, ImmutableSet<String>> endpointUrlsToUrnPrefixesMap) {
 
 		this.endpointBuilderFunction = endpointBuilderFunction;
-		this.federatedEndpointUrlsToUrnPrefixesMap = federatedEndpointUrlsToUrnPrefixesMap;
+		this.endpointUrlsToUrnPrefixesMap = endpointUrlsToUrnPrefixesMap;
+	}
+
+	/**
+	 * Returns all {@link Entry} instances.
+	 *
+	 * @return all {@link Entry} instances
+	 */
+	public ImmutableSet<Entry<V>> getEntries() {
+
+		final ImmutableSet.Builder<Entry<V>> setBuilder = ImmutableSet.builder();
+
+		for (Map.Entry<String, ImmutableSet<String>> entry : endpointUrlsToUrnPrefixesMap.entrySet()) {
+
+			final String endpointUrl = entry.getKey();
+			final ImmutableSet<String> urnPrefixes = entry.getValue();
+
+			setBuilder.add(new Entry(getEndpointByEndpointUrl(endpointUrl), endpointUrl, urnPrefixes));
+		}
+
+		return setBuilder.build();
+	}
+
+	/**
+	 * Returns an {@link Entry} instance for the given endpoint URL {@code endpointUrl}.
+	 *
+	 * @param endpointUrl the endpoint URL to look for
+	 *
+	 * @return an {@link Entry} instance
+	 *
+	 * @throws IllegalArgumentException if {@code endpointUrl} is {@code null} or if the endpoint URL {@code endpointUrl}
+	 *                                  is unknown
+	 */
+	public Entry getEntryByEndpointUrl(final String endpointUrl) {
+
+		final ImmutableSet<String> urnPrefixes = endpointUrlsToUrnPrefixesMap.get(endpointUrl);
+
+		if (endpointUrl == null) {
+			throw new IllegalArgumentException("Unknown endpoint URL \"" + endpointUrl + "\"");
+		}
+
+		return new Entry(
+				getEndpointByEndpointUrl(endpointUrl),
+				endpointUrl,
+				urnPrefixes
+		);
+	}
+
+	/**
+	 * Returns an {@link Entry} instance for the given node URN {@code nodeUrn}.
+	 *
+	 * @param nodeUrn a nodes URN
+	 *
+	 * @return an {@link Entry} instance
+	 *
+	 * @throws IllegalArgumentException if {@code nodeUrn} is {@code null} or if the node URN {@code nodeUrn} is unknown
+	 */
+	public Entry getEntryByNodeUrn(final String nodeUrn) {
+		return getEntryByPrefixesMapEntry(getPrefixesMapEntryByNodeUrn(nodeUrn));
+	}
+
+	/**
+	 * Returns an {@link Entry} instance for the given URN prefix {@code urnPrefix}.
+	 *
+	 * @param urnPrefix the URN prefix
+	 *
+	 * @return an {@link Entry} instance
+	 *
+	 * @throws IllegalArgumentException if {@code urnPrefix} is {@code null} or if the URN prefix {@code urnPrefix} is
+	 *                                  unknown
+	 */
+	public Entry getEntryByUrnPrefix(final String urnPrefix) {
+		return getEntryByPrefixesMapEntry(getPrefixesMapEntryByUrnPrefix(urnPrefix));
 	}
 
 	/**
@@ -76,18 +163,7 @@ public class FederationManager<V> {
 	 *                                  nodeUrn}s URN prefix
 	 */
 	public String getEndpointUrlByNodeUrn(String nodeUrn) {
-		checkNotNull(nodeUrn);
-
-		for (Map.Entry<String, ImmutableSet<String>> prefixSetEntry : federatedEndpointUrlsToUrnPrefixesMap
-				.entrySet()) {
-			for (String urnPrefix : prefixSetEntry.getValue()) {
-				if (nodeUrn.startsWith(urnPrefix)) {
-					return prefixSetEntry.getKey();
-				}
-			}
-		}
-
-		throw new IllegalArgumentException("Unknown URN prefix for node URN \"" + nodeUrn + "\"");
+		return getPrefixesMapEntryByNodeUrn(nodeUrn).getKey();
 	}
 
 	/**
@@ -101,16 +177,7 @@ public class FederationManager<V> {
 	 *                                  nodeUrn}s URN prefix
 	 */
 	public String getEndpointUrlByUrnPrefix(String urnPrefix) {
-		checkNotNull(urnPrefix);
-
-		for (Map.Entry<String, ImmutableSet<String>> prefixSetEntry : federatedEndpointUrlsToUrnPrefixesMap
-				.entrySet()) {
-			if (prefixSetEntry.getValue().contains(urnPrefix)) {
-				return prefixSetEntry.getKey();
-			}
-		}
-
-		throw new IllegalArgumentException("Unknown URN prefix \"" + urnPrefix + "\"");
+		return getPrefixesMapEntryByUrnPrefix(urnPrefix).getKey();
 	}
 
 	/**
@@ -124,9 +191,7 @@ public class FederationManager<V> {
 	 *                                  nodeUrn}s URN prefix
 	 */
 	public V getEndpointByNodeUrn(String nodeUrn) {
-
-		String endpointUrl = getEndpointUrlByNodeUrn(nodeUrn);
-		return getEndpointFromCache(endpointUrl);
+		return getEndpointFromCache(getEndpointUrlByNodeUrn(nodeUrn));
 	}
 
 	/**
@@ -179,7 +244,7 @@ public class FederationManager<V> {
 	 * @return all federated endpoint URLs
 	 */
 	public ImmutableSet<String> getEndpointUrls() {
-		return federatedEndpointUrlsToUrnPrefixesMap.keySet();
+		return endpointUrlsToUrnPrefixesMap.keySet();
 	}
 
 	/**
@@ -201,14 +266,98 @@ public class FederationManager<V> {
 	 * @param endpointUrl the endpoint URL
 	 *
 	 * @return the set of URN prefixes served by {@code endpointUrl}
+	 *
+	 * @throws IllegalArgumentException if {@code endpointUrl} is {@code null} or if there's no known endpoint for {@code
+	 *                                  endpointUrl}
 	 */
 	public ImmutableSet<String> getUrnPrefixesByEndpointUrl(String endpointUrl) {
 		checkNotNull(endpointUrl);
-		return federatedEndpointUrlsToUrnPrefixesMap.get(endpointUrl);
+		final ImmutableSet<String> urnPrefixes = endpointUrlsToUrnPrefixesMap.get(endpointUrl);
+		if (urnPrefixes == null) {
+			throw new IllegalArgumentException("Unknown endpoint URL \"" + endpointUrl + "\"");
+		}
+		return urnPrefixes;
 	}
 
 	/**
-	 * Retries the endpoint for a given endpoint URL from the cache or creates and caches it if it's not currently in the
+	 * Returns the endpoint for the given endpoint URL {@code endpointUrl}.
+	 *
+	 * @param endpointUrl the endpoint URL
+	 *
+	 * @return the endpoint
+	 */
+	public V getEndpointByEndpointUrl(final String endpointUrl) {
+		checkNotNull(endpointUrl);
+		return getEndpointFromCache(endpointUrl);
+	}
+
+	/**
+	 * Returns all federated URN prefixes.
+	 */
+	public ImmutableSet<String> getUrnPrefixes() {
+		ImmutableSet.Builder<String> urnPrefixesBuilder = ImmutableSet.builder();
+		for (ImmutableSet<String> federatedEndpointUrnPrefixes : endpointUrlsToUrnPrefixesMap.values()) {
+			urnPrefixesBuilder.addAll(federatedEndpointUrnPrefixes);
+		}
+		return urnPrefixesBuilder.build();
+	}
+
+	/**
+	 * Returns all URN prefixes served by the testbed that serves the node URN {@code nodeUrn}.
+	 *
+	 * @param nodeUrn a node URN in the testbed
+	 *
+	 * @return all URN prefixes served by the testbed
+	 */
+	public ImmutableSet<String> getUrnPrefixesByNodeUrn(final String nodeUrn) {
+		return getPrefixesMapEntryByUrnPrefix(nodeUrn).getValue();
+	}
+
+	/**
+	 * Returns all URN prefixes served by the testbed that serves the URN prefix {@code urnPrefix}.
+	 *
+	 * @param urnPrefix a URN prefix served by the testbed
+	 *
+	 * @return all URN prefixes served by the testbed
+	 */
+	public ImmutableSet<String> getUrnPrefixesByUrnPrefix(final String urnPrefix) {
+		return getPrefixesMapEntryByUrnPrefix(urnPrefix).getValue();
+	}
+
+	private Map.Entry<String, ImmutableSet<String>> getPrefixesMapEntryByNodeUrn(final String nodeUrn) {
+		checkNotNull(nodeUrn);
+		for (Map.Entry<String, ImmutableSet<String>> entry : endpointUrlsToUrnPrefixesMap.entrySet()) {
+			final ImmutableSet<String> servedUrnPrefixes = entry.getValue();
+			for (String servedUrnPrefix : servedUrnPrefixes) {
+				if (nodeUrn.startsWith(servedUrnPrefix)) {
+					return entry;
+				}
+			}
+		}
+		throw new IllegalArgumentException("Unknown node URN \"" + nodeUrn + "\"");
+	}
+
+	private Map.Entry<String, ImmutableSet<String>> getPrefixesMapEntryByUrnPrefix(final String urnPrefix) {
+		checkNotNull(urnPrefix);
+		for (Map.Entry<String, ImmutableSet<String>> entry : endpointUrlsToUrnPrefixesMap.entrySet()) {
+			final ImmutableSet<String> servedUrnPrefixes = entry.getValue();
+			if (servedUrnPrefixes.contains(urnPrefix)) {
+				return entry;
+			}
+		}
+		throw new IllegalArgumentException("Unknown URN prefix \"" + urnPrefix + "\"");
+	}
+
+	private Entry getEntryByPrefixesMapEntry(final Map.Entry<String, ImmutableSet<String>> mapEntry) {
+		return new Entry(
+				getEndpointByEndpointUrl(mapEntry.getKey()),
+				mapEntry.getKey(),
+				mapEntry.getValue()
+		);
+	}
+
+	/**
+	 * Retrieves the endpoint for a given endpoint URL from the cache or creates and caches it if it's not currently in the
 	 * cache.
 	 *
 	 * @param endpointUrl the endpoint URL
@@ -234,17 +383,5 @@ public class FederationManager<V> {
 		} finally {
 			endpointUrlToEndpointCacheLock.unlock();
 		}
-	}
-
-	/**
-	 * Returns the endpoint for the given endpoint URL {@code endpointUrl}.
-	 *
-	 * @param endpointUrl the endpoint URL
-	 *
-	 * @return the endpoint
-	 */
-	public V getEndpointByEndpointUrl(final String endpointUrl) {
-		checkNotNull(endpointUrl);
-		return getEndpointFromCache(endpointUrl);
 	}
 }

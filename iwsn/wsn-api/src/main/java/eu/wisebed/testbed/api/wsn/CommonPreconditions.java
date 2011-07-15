@@ -23,12 +23,12 @@
 
 package eu.wisebed.testbed.api.wsn;
 
-import java.util.Collection;
-import java.util.Set;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+
+import java.util.Collection;
+import java.util.Set;
 
 
 /**
@@ -56,8 +56,40 @@ public class CommonPreconditions {
 	 *
 	 * @param knownNodeUrns the known node URNs to add
 	 */
+	public void addKnownNodeUrns(final Iterable<String> knownNodeUrns) {
+		this.knownNodeUrns = ImmutableSet
+				.<String>builder()
+				.addAll(this.knownNodeUrns)
+				.addAll(knownNodeUrns)
+				.build();
+	}
+
+	/**
+	 * Adds {@code knownNodeUrns} to the set of known nodes. All checks regarding known nodes will be run against the
+	 * resulting set of known nodes.
+	 *
+	 * @param knownNodeUrns the known node URNs to add
+	 */
 	public void addKnownNodeUrns(final String... knownNodeUrns) {
-		this.knownNodeUrns = ImmutableSet.<String>builder().addAll(this.knownNodeUrns).add(knownNodeUrns).build();
+		this.knownNodeUrns = ImmutableSet
+				.<String>builder()
+				.addAll(this.knownNodeUrns)
+				.add(knownNodeUrns)
+				.build();
+	}
+
+	/**
+	 * Adds {@code servedUrnPrefixes} to the set of served URN prefixes. All checks that test for URN prefix matches will
+	 * be run against the resulting set of served URN prefixes.
+	 *
+	 * @param servedUrnPrefixes the served URN prefixes to add
+	 */
+	public void addServedUrnPrefixes(final Iterable<String> servedUrnPrefixes) {
+		this.servedUrnPrefixes = ImmutableSet
+				.<String>builder()
+				.addAll(this.servedUrnPrefixes)
+				.addAll(servedUrnPrefixes)
+				.build();
 	}
 
 	/**
@@ -67,8 +99,11 @@ public class CommonPreconditions {
 	 * @param servedUrnPrefixes the served URN prefixes to add
 	 */
 	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
-		this.servedUrnPrefixes =
-				ImmutableSet.<String>builder().addAll(this.servedUrnPrefixes).add(servedUrnPrefixes).build();
+		this.servedUrnPrefixes = ImmutableSet
+				.<String>builder()
+				.addAll(this.servedUrnPrefixes)
+				.add(servedUrnPrefixes)
+				.build();
 	}
 
 	/**
@@ -171,5 +206,4 @@ public class CommonPreconditions {
 			);
 		}
 	}
-
 }

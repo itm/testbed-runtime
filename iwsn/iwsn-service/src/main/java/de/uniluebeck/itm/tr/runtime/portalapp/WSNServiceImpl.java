@@ -375,10 +375,7 @@ public class WSNServiceImpl implements WSNService {
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
 
-		this.preconditions = new WSNPreconditions();
-		this.preconditions.addServedUrnPrefixes(urnPrefix);
-		this.preconditions.addKnownNodeUrns(reservedNodes);
-
+		this.preconditions = new WSNPreconditions(newArrayList(urnPrefix), newArrayList(reservedNodes));
 		this.reservedNodes = ImmutableSet.copyOf(reservedNodes);
 
 	}

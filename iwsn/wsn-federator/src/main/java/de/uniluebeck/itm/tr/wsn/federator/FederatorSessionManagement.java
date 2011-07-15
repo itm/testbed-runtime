@@ -23,21 +23,19 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.UrlUtils;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
+import de.uniluebeck.itm.tr.util.*;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +43,8 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -93,7 +93,8 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * wsnInstanceHash (see {@link eu.wisebed.testbed.api.wsn.SessionManagementHelper#calculateWSNInstanceHash(java.util.List)}
 	 * ) -> Federating WSN API instance
 	 */
-	private final TimedCache<String, FederatorWSN> instanceCache = new TimedCache<String, FederatorWSN>();
+	private final TimedCache<String, Tuple<FederatorWSN, ExecutorService>> instanceCache =
+			new TimedCache<String, Tuple<FederatorWSN, ExecutorService>>();
 
 	/**
 	 * Used for generating random request IDs and URLs.
@@ -159,9 +160,8 @@ public class FederatorSessionManagement implements SessionManagement {
 	public void stop() throws Exception {
 
 		log.info("Stopping all WSN federator instances...");
-		for (FederatorWSN federatorWSN : instanceCache.values()) {
-			federatorWSN.stop();
-			log.info("Stopped WSN federator instance on {}.", federatorWSN.getWsnEndpointUrl());
+		for (String wsnInstanceHash : instanceCache.keySet()) {
+			stopFederatorWSN(wsnInstanceHash);
 		}
 		log.info("Stopped all WSN federator instances!");
 
@@ -175,6 +175,24 @@ public class FederatorSessionManagement implements SessionManagement {
 
 		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 
+	}
+
+	private void stopFederatorWSN(final String wsnInstanceHash) {
+
+		final FederatorWSN federatorWSN = instanceCache.get(wsnInstanceHash).getFirst();
+		final ExecutorService federatorWSNThreadPool = instanceCache.get(wsnInstanceHash).getSecond();
+
+		if (log.isInfoEnabled()) {
+			log.info("Stopping WSN federator at {}...", federatorWSN.getEndpointUrl());
+		}
+
+		try {
+			federatorWSN.stop();
+		} catch (Exception e) {
+			log.warn("Exception while stopping WSN federator: " + e, e);
+		}
+
+		ExecutorUtils.shutdown(federatorWSNThreadPool, 5, TimeUnit.SECONDS);
 	}
 
 	private static class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
@@ -233,21 +251,20 @@ public class FederatorSessionManagement implements SessionManagement {
 		final String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
 
 		// check if instance already exists and return it if that's the case
-		FederatorWSN existingWSNFederatorInstance = instanceCache.get(wsnInstanceHash);
+		FederatorWSN existingWSNFederatorInstance = instanceCache.get(wsnInstanceHash).getFirst();
 		if (existingWSNFederatorInstance != null) {
 
-			String msg = "Found existing federating WSN API instance for secretReservationKeys {} with "
-					+ "wsnInstanceHash {}. Returning its' sessionManagementEndpoint URL: {}";
-			log.debug(msg, new Object[]{
-					secretReservationKeys, wsnInstanceHash,
-					existingWSNFederatorInstance.getWsnEndpointUrl()
-			}
+			log.debug("Found existing WSN federator instance at {} for secret reservation keys {}",
+					new Object[]{
+							existingWSNFederatorInstance.getEndpointUrl(),
+							secretReservationKeys
+					}
 			);
 
 			log.debug("Adding controller to the set of controllers: {}", controller);
 			existingWSNFederatorInstance.addController(controller);
 
-			return existingWSNFederatorInstance.getWsnEndpointUrl();
+			return existingWSNFederatorInstance.getEndpointUrl();
 		}
 
 		// create a WSN API instance under a generated secret URL and remember
@@ -299,8 +316,38 @@ public class FederatorSessionManagement implements SessionManagement {
 			}
 		}
 
-		FederatorWSN federatorWSN = new FederatorWSN(wsnEndpointUrl, controllerEndpointUrl,
-				federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
+		final FederationManager<WSN> federatorWSNFederationManager = new FederationManager<WSN>(new Function<String, WSN>() {
+			@Override
+			public WSN apply(final String input) {
+				return WSNServiceHelper.getWSNService(input);
+			}
+		}, federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
+		);
+
+		final URL endpointUrl;
+		try {
+			endpointUrl = new URL(wsnEndpointUrl);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("" + e, e);
+		}
+
+		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(endpointUrl);
+		final ThreadFactory federatorWSNThreadFactory = new ThreadFactoryBuilder()
+				.setNameFormat("WSN Federator %d")
+				.build();
+		final ExecutorService federatorWSNThreadPool = Executors.newCachedThreadPool(federatorWSNThreadFactory);
+		final FederatorController federatorWSNController = new FederatorController(controllerEndpointUrl);
+		final WSNPreconditions federatorWSNPreconditions = new WSNPreconditions(
+				federatorWSNFederationManager.getUrnPrefixes(),
+				Lists.<String>newArrayList()
+		);
+
+		final FederatorWSN federatorWSN = new FederatorWSN(
+				federatorWSNController,
+				federatorWSNFederationManager,
+				federatorWSNWebservicePublisher,
+				federatorWSNPreconditions,
+				federatorWSNThreadPool
 		);
 
 		try {
@@ -315,11 +362,14 @@ public class FederatorSessionManagement implements SessionManagement {
 			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 		}
 
-		instanceCache.put(wsnInstanceHash, federatorWSN);
+		instanceCache.put(
+				wsnInstanceHash,
+				new Tuple<FederatorWSN, ExecutorService>(federatorWSN, federatorWSNThreadPool)
+		);
 
 		// return the instantiated WSN API instance sessionManagementEndpoint
 		// URL
-		return federatorWSN.getWsnEndpointUrl();
+		return federatorWSN.getEndpointUrl();
 	}
 
 	/**
@@ -447,21 +497,8 @@ public class FederatorSessionManagement implements SessionManagement {
 
 		// check if instance still exists and if not simply exit
 		String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
-		FederatorWSN federatorWSN = instanceCache.remove(wsnInstanceHash);
-		if (federatorWSN == null) {
-			log.warn("Trying to free a not existing instance for keys {} with a hash of {}.", secretReservationKeys,
-					wsnInstanceHash
-			);
-			return;
-		}
-
-		// free the WSN API instance created by this implementation
-		try {
-			log.debug("Stopping FederatorWSN instance on URL {}", federatorWSN.getWsnEndpointUrl());
-			federatorWSN.stop();
-		} catch (Exception e) {
-			log.error("" + e, e);
-		}
+		stopFederatorWSN(wsnInstanceHash);
+		instanceCache.remove(wsnInstanceHash);
 
 		// call free on all relevant federated Session Management API endpoints
 		// (asynchronously)
