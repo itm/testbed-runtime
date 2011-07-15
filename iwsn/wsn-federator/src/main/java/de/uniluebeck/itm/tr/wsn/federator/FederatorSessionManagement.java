@@ -30,11 +30,12 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.util.*;
 import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.sm.*;
 import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
+
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -251,8 +254,10 @@ public class FederatorSessionManagement implements SessionManagement {
 		final String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
 
 		// check if instance already exists and return it if that's the case
-		FederatorWSN existingWSNFederatorInstance = instanceCache.get(wsnInstanceHash).getFirst();
-		if (existingWSNFederatorInstance != null) {
+		final Tuple<FederatorWSN, ExecutorService> instanceCacheEntry = instanceCache.get(wsnInstanceHash);
+		if (instanceCacheEntry != null && instanceCacheEntry.getFirst() != null) {
+
+			final FederatorWSN existingWSNFederatorInstance = instanceCacheEntry.getFirst();
 
 			log.debug("Found existing WSN federator instance at {} for secret reservation keys {}",
 					new Object[]{
@@ -265,6 +270,31 @@ public class FederatorSessionManagement implements SessionManagement {
 			existingWSNFederatorInstance.addController(controller);
 
 			return existingWSNFederatorInstance.getEndpointUrl();
+		}
+
+
+		ImmutableSet<String> reservedNodeUrns;
+
+		try {
+
+			final ImmutableSet.Builder<String> reservedNodeUrnsBuilder = ImmutableSet.builder();
+			final RS rs = RSServiceHelper.getRSService(reservationEndpointUrl);
+			final List<ConfidentialReservationData> reservations =
+					rs.getReservation(copyWsnToRs(secretReservationKeys));
+
+			for (ConfidentialReservationData reservation : reservations) {
+				reservedNodeUrnsBuilder.addAll(reservation.getNodeURNs());
+			}
+
+			reservedNodeUrns = reservedNodeUrnsBuilder.build();
+
+		} catch (ReservervationNotFoundExceptionException e) {
+			final UnknownReservationIdException faultInfo = new UnknownReservationIdException();
+			faultInfo.setMessage(e.getFaultInfo().getMessage());
+			throw new UnknownReservationIdException_Exception(e.getMessage(), faultInfo, e);
+		} catch (Exception e) {
+			log.warn("An exception was thrown by the reservation system: " + e, e);
+			throw new RuntimeException("An exception was thrown by the reservation system: " + e, e);
 		}
 
 		// create a WSN API instance under a generated secret URL and remember
@@ -316,13 +346,14 @@ public class FederatorSessionManagement implements SessionManagement {
 			}
 		}
 
-		final FederationManager<WSN> federatorWSNFederationManager = new FederationManager<WSN>(new Function<String, WSN>() {
-			@Override
-			public WSN apply(final String input) {
-				return WSNServiceHelper.getWSNService(input);
-			}
-		}, federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
-		);
+		final FederationManager<WSN> federatorWSNFederationManager =
+				new FederationManager<WSN>(new Function<String, WSN>() {
+					@Override
+					public WSN apply(final String input) {
+						return WSNServiceHelper.getWSNService(input);
+					}
+				}, federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
+				);
 
 		final URL endpointUrl;
 		try {
@@ -331,15 +362,16 @@ public class FederatorSessionManagement implements SessionManagement {
 			throw new RuntimeException("" + e, e);
 		}
 
-		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(endpointUrl);
 		final ThreadFactory federatorWSNThreadFactory = new ThreadFactoryBuilder()
 				.setNameFormat("WSN Federator %d")
 				.build();
 		final ExecutorService federatorWSNThreadPool = Executors.newCachedThreadPool(federatorWSNThreadFactory);
+
+		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(endpointUrl);
 		final FederatorController federatorWSNController = new FederatorController(controllerEndpointUrl);
 		final WSNPreconditions federatorWSNPreconditions = new WSNPreconditions(
 				federatorWSNFederationManager.getUrnPrefixes(),
-				Lists.<String>newArrayList()
+				reservedNodeUrns
 		);
 
 		final FederatorWSN federatorWSN = new FederatorWSN(
@@ -349,6 +381,8 @@ public class FederatorSessionManagement implements SessionManagement {
 				federatorWSNPreconditions,
 				federatorWSNThreadPool
 		);
+
+		federatorWSNWebservicePublisher.setImplementer(federatorWSN);
 
 		try {
 
@@ -370,6 +404,21 @@ public class FederatorSessionManagement implements SessionManagement {
 		// return the instantiated WSN API instance sessionManagementEndpoint
 		// URL
 		return federatorWSN.getEndpointUrl();
+	}
+
+	private List<eu.wisebed.api.rs.SecretReservationKey> copyWsnToRs(final List<SecretReservationKey> ins) {
+		List<eu.wisebed.api.rs.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
+		for (SecretReservationKey in : ins) {
+			outs.add(convertWsnToRs(in));
+		}
+		return outs;
+	}
+
+	private eu.wisebed.api.rs.SecretReservationKey convertWsnToRs(final SecretReservationKey in) {
+		eu.wisebed.api.rs.SecretReservationKey out = new eu.wisebed.api.rs.SecretReservationKey();
+		out.setSecretReservationKey(in.getSecretReservationKey());
+		out.setUrnPrefix(in.getUrnPrefix());
+		return out;
 	}
 
 	/**
