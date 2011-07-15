@@ -13,6 +13,7 @@
 	</parent>
 
 	<artifactId>tr.federator-utils</artifactId>
+	<name>TR :: Federator Utilities</name>
 
 	<dependencies>
 
