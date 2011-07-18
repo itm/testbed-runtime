@@ -84,18 +84,24 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.1</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifest>
+							<mainClass>de.uniluebeck.itm.tr.runtime.socketconnector.client.SocketConnectorClient</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
 				<executions>
 					<execution>
-						<configuration>
-							<mainClass>
-								de.uniluebeck.itm.tr.runtime.socketconnector.client.SocketConnectorClient
-							</mainClass>
-						</configuration>
+						<id>make-assembly</id>
+						<phase>package</phase>
 						<goals>
-							<goal>one-jar</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
