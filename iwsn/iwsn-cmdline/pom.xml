@@ -91,142 +91,29 @@
 
 	<build>
 		<plugins>
-
-			<!--
-			Using self-patched version of onejar-maven-plugin to support
-			newer version of One-Jar that includes some bug fixes we need.
-			Can be removed later as soon as onejar-maven-plugin supports
-			the newer versions
-			-->
 			<plugin>
-				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.10</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifest>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.Main</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
 				<executions>
 					<execution>
+						<id>make-assembly</id>
 						<phase>package</phase>
-						<configuration>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.Main</mainClass>
-							<onejarVersion>0.98-RC2</onejarVersion>
-							<attachToBuild>true</attachToBuild>
-							<classifier>onejar</classifier>
-							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
-							<binlibs>
-								<!-- mac os x -->
-								<!--
-								<binlib>
-									<os>mac os x</os>
-									<arch>x86</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx</directory>
-										<includes>
-											<include>librxtxSerial.jnilib</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								-->
-								<binlib>
-									<os>mac os x</os>
-									<arch>x86_64</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/macosx
-										</directory>
-										<includes>
-											<include>librxtxSerial.jnilib</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								<!-- windows -->
-								<binlib>
-									<os>windows</os>
-									<arch>x86</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows32
-										</directory>
-										<includes>
-											<include>rxtxParallel.dll</include>
-											<include>rxtxSerial.dll</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								<binlib>
-									<os>windows</os>
-									<arch>x86_64</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/windows64
-										</directory>
-										<includes>
-											<include>rxtxSerial.dll</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								<!-- linux -->
-								<binlib>
-									<os>linux</os>
-									<arch>x86</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux32
-										</directory>
-										<includes>
-											<include>librxtxParallel.so</include>
-											<include>librxtxSerial.so</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								<binlib>
-									<os>linux</os>
-									<arch>x86_64</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/linux64
-										</directory>
-										<includes>
-											<include>librxtxSerial.so</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								<!-- Uncomment the following lines for armv5 and comment the other linux configurations -->
-								<!--
-								<binlib>
-									<os>linux</os>
-									<arch>x86</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv5</directory>
-										<includes>
-											<include>librxtxI2C.so</include>
-											<include>librxtxParallel.so</include>
-											<include>librxtxRaw.so</include>
-											<include>librxtxRS485.so</include>
-											<include>librxtxSerial.so</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								-->
-								<!-- Uncomment the following lines for armv7 and comment the other linux configurations -->
-								<!--
-								<binlib>
-									<os>linux</os>
-									<arch>x86</arch>
-									<fileSet>
-										<directory>${project.basedir}/../wsn-device-drivers/src/main/resources/armv7</directory>
-										<includes>
-											<include>librxtxI2C.so</include>
-											<include>librxtxParallel.so</include>
-											<include>librxtxRaw.so</include>
-											<include>librxtxRS485.so</include>
-											<include>librxtxSerial.so</include>
-										</includes>
-									</fileSet>
-								</binlib>
-								-->
-							</binlibs>
-						</configuration>
 						<goals>
-							<goal>one-jar</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
 
