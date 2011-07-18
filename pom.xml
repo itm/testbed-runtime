@@ -617,7 +617,7 @@
 	</properties>
 
 	<scm>
-		<connection>scm:git:https://itm@github.com/itm/testbed-runtime.git</connection>
+		<connection>scm:git:git@github.com:itm/testbed-runtime.git</connection>
 	</scm>
 
 </project>
