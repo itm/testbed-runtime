@@ -62,25 +62,24 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
 				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
 					<archive>
 						<manifest>
-							<addClasspath>true</addClasspath>
 							<mainClass>de.uniluebeck.itm.tr.snaa.cmdline.client.Client</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin</artifactId>
-				<version>1.4.1</version>
 				<executions>
 					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
 						<goals>
-							<goal>one-jar</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
