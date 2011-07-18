@@ -134,7 +134,10 @@ public class WisebedBeanShellLauncher {
 	public static void parseAndSetProperties(final String propertiesFileName) throws IOException {
 		File propertiesFile = new File(propertiesFileName);
 		if (!propertiesFile.exists() || !propertiesFile.canRead() || !propertiesFile.isFile()) {
-			log.error("Properties file is either not existing, not a file or not readable!");
+			log.error("Properties file \"" +
+					propertiesFile.getAbsolutePath() +
+					"\" is either not existing, not a file or not readable!"
+			);
 			System.exit(1);
 		}
 		Properties properties = new Properties();
