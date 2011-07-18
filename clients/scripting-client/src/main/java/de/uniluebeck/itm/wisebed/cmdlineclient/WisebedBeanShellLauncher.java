@@ -25,9 +25,11 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import bsh.EvalError;
 import bsh.Interpreter;
+import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -61,6 +63,8 @@ public class WisebedBeanShellLauncher {
 
 
 	public static void main(String[] args) throws IOException, EvalError {
+
+		Logging.setLoggingDefaults(Level.INFO, new PatternLayout("%-11d{HH:mm:ss,SSS} %-5p - %m%n"));
 
 		File beanShellFile = null;
 
