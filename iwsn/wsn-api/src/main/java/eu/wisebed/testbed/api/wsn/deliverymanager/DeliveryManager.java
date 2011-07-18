@@ -330,7 +330,7 @@ public class DeliveryManager implements Service {
 	@Override
 	public void stop() {
 		if (running) {
-			log.debug("Stopping DeliveryManager (asynchronously).");
+			log.debug("Stopping delivery manager (asynchronously)...");
 			new Thread("DeliveryManager-ShutdownThread") {
 				@Override
 				public void run() {
@@ -355,7 +355,7 @@ public class DeliveryManager implements Service {
 						}
 					}
 
-					log.debug("DeliveryManager stopped!");
+					log.debug("Stopped delivery manager!");
 				}
 			}.start();
 			experimentEnded();

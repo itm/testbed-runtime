@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -125,6 +126,8 @@ public class Federator {
 
 	public static void main(String[] args) throws Exception {
 
+		Logging.setLoggingDefaults();
+
 		Properties properties = null;
 
 		// create the command line parser
@@ -202,6 +205,7 @@ public class Federator {
 			public void run() {
 				try {
 					federatorSessionManagement.stop();
+					log.info("Stopped iWSN federator!");
 				} catch (Exception e) {
 					log.error("{}", e);
 				}

@@ -114,14 +114,15 @@ public class FederatorController implements Controller {
 	public void start() throws Exception {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(controllerEndpointUrl);
 
-		log.debug("Starting federator controller...");
-		log.debug("Endpoint URL: {}", controllerEndpointUrl);
-		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
+		log.debug("Starting federator controller using endpoint URL {} and binding URL {}...",
+				controllerEndpointUrl,
+				bindAllInterfacesUrl
+		);
 
 		controllerEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 		deliveryManager.start();
 
-		log.debug("Successfully started federator controller on {}!", bindAllInterfacesUrl);
+		log.debug("Started federator controller on {}!", bindAllInterfacesUrl);
 	}
 
 	/**
@@ -131,15 +132,15 @@ public class FederatorController implements Controller {
 	 */
 	public void stop() throws Exception {
 
+		log.debug("Calling experimentEnded() on connected controllers...");
 		deliveryManager.experimentEnded();
+
 		deliveryManager.stop();
 
 		if (controllerEndpoint != null) {
+			log.info("Stopping federator controller at {}...", controllerEndpointUrl);
 			controllerEndpoint.stop();
-			log.info("Stopped federator controller at {}", controllerEndpointUrl);
 		}
-
-		log.info("Stopped federator controller at {}!", controllerEndpointUrl);
 	}
 
 	public void addController(String controllerEndpointUrl) {

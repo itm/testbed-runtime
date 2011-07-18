@@ -150,30 +150,32 @@ public class FederatorSessionManagement implements SessionManagement {
 	public void start() throws Exception {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(sessionManagementEndpointUrl);
 
-		log.debug("Starting Session Management federator...");
-		log.debug("Endpoint URL: {}", sessionManagementEndpointUrl);
-		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
+		log.debug("Starting Session Management federator on endpoint URL {} and binding URL {}...",
+				sessionManagementEndpointUrl,
+				bindAllInterfacesUrl
+		);
 
 		federatorController.start();
 		sessionManagementEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
-		log.info("Successfully started Session Management federator on {}", bindAllInterfacesUrl);
+		log.info("Started Session Management federator on {}", sessionManagementEndpointUrl);
 	}
 
 	public void stop() throws Exception {
 
-		log.info("Stopping all WSN federator instances...");
+		if (log.isInfoEnabled() && instanceCache.size() > 0) {
+			log.info("Stopping all WSN federator instances...");
+		}
 		for (String wsnInstanceHash : instanceCache.keySet()) {
 			stopFederatorWSN(wsnInstanceHash);
 		}
-		log.info("Stopped all WSN federator instances!");
 
+		log.debug("Stopping Session Management federator controller...");
 		federatorController.stop();
 
-		log.info("Stopping Session Management federator instance on {}...", sessionManagementEndpointUrl);
 		if (sessionManagementEndpoint != null) {
+			log.info("Stopping Session Management federator instance on {}...", sessionManagementEndpointUrl);
 			sessionManagementEndpoint.stop();
-			log.info("Stopped Session Management federator on {}", sessionManagementEndpointUrl);
 		}
 
 		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
