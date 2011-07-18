@@ -58,21 +58,24 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.dstovall</groupId>
-				<artifactId>onejar-maven-plugin-rc8fix</artifactId>
-				<version>1.4.6</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifest>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.csv2config.CSV2Config</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
 				<executions>
 					<execution>
+						<id>make-assembly</id>
 						<phase>package</phase>
-						<configuration>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.csv2config.CSV2Config</mainClass>
-							<onejarVersion>0.98-RC2</onejarVersion>
-							<attachToBuild>true</attachToBuild>
-                            <classifier>onejar</classifier>
-							<urlFactory>com.simontuffs.onejar.JarClassLoader$OneJarURLFactory</urlFactory>
-						</configuration>
 						<goals>
-							<goal>one-jar</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
