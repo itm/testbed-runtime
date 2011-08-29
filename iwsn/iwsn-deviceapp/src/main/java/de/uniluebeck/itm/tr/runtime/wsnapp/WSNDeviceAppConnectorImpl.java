@@ -180,7 +180,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 						packet.array()
 				);
 
-				deviceChannel.write(buffer).awaitUninterruptibly();
+				deviceChannel.write(buffer);
 
 			} catch (Exception e) {
 				log.error("" + e, e);
