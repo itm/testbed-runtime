@@ -46,19 +46,22 @@ public class WisebedBeanShellLauncher {
 	private static List<String> importsForBeanShell = new ArrayList<String>();
 
 	static {
+		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
+		importsForBeanShell.add("import eu.wisebed.api.common.*;");
+		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
+		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
+		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
+
 		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.WSNServiceHelper;");
 		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.RSServiceHelper;");
 		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
+
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
-		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
-		importsForBeanShell.add("import eu.wisebed.api.common.*;");
-		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
-		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
+
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
-		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
 	}
 
 
@@ -111,7 +114,7 @@ public class WisebedBeanShellLauncher {
 
 		// Add a logger
 		org.slf4j.Logger bshLogger = LoggerFactory.getLogger("BeanShellScript");
-		log.debug("Adding logger to beanshell, use 'log' variable, api is like log4j's");
+		log.debug("Adding logger to beanshell, use 'log' variable, api is like slf4j's");
 		i.set("log", bshLogger);
 
 		// Add a helper
