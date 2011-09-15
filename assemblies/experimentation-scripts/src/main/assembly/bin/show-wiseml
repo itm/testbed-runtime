@@ -8,4 +8,7 @@ then
 	exit 1
 fi
 
-java -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/show-wiseml.java
+java \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/show-wiseml.java

@@ -8,4 +8,10 @@ then
 	exit 1
 fi
 
-java -Dtestbed.secretreservationkeys=$2 -Dtestbed.vlink.from=$3 -Dtestbed.vlink.to=$4 -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/destroy-virtual-link-protobuf.java
+java \
+ -Dtestbed.secretreservationkeys=$2 \
+ -Dtestbed.vlink.from=$3 \
+ -Dtestbed.vlink.to=$4 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/destroy-virtual-link-protobuf.java

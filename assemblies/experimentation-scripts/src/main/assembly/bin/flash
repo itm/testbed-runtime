@@ -8,4 +8,11 @@ then
 	exit 1
 fi
 
-java -Dtestbed.secretreservationkeys=$2 -Dtestbed.image=$3 -Dtestbed.nodeurns=$4 -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/flash.java -v
+java \
+ -Dtestbed.secretreservationkeys=$2 \
+ -Dtestbed.image=$3 \
+ -Dtestbed.nodeurns=$4 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/flash.java \
+ -v

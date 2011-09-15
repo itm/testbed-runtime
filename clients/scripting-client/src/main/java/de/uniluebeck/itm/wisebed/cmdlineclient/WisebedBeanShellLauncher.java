@@ -49,6 +49,7 @@ public class WisebedBeanShellLauncher {
 		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
 		importsForBeanShell.add("import eu.wisebed.api.common.*;");
 		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
+		importsForBeanShell.add("import eu.wisebed.api.snaa.*;");
 		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
 		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
 
@@ -58,10 +59,23 @@ public class WisebedBeanShellLauncher {
 
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.scripts.*");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.*");
 
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
+
+		importsForBeanShell.add("import java.util.*;");
+		importsForBeanShell.add("import java.util.concurrent.Future;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
+
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
+
+		importsForBeanShell.add("import javax.xml.datatype.DatatypeFactory;");
+		importsForBeanShell.add("import javax.xml.datatype.XMLGregorianCalendar;");
+
+		importsForBeanShell.add("import com.google.common.base.*;");
+		importsForBeanShell.add("import com.google.common.collect.*;");
 	}
 
 

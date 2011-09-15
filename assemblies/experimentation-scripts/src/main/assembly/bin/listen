@@ -8,4 +8,8 @@ then
 	exit 1
 fi
 
-java -Dtestbed.secretreservationkeys=$2 -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar -p $1 -f $BASEDIR/../scripts/listen.java
+java \
+ -Dtestbed.secretreservationkeys=$2 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/listen.java
