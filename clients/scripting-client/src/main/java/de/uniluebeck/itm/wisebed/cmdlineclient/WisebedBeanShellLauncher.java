@@ -68,6 +68,7 @@ public class WisebedBeanShellLauncher {
 		importsForBeanShell.add("import java.util.*;");
 		importsForBeanShell.add("import java.util.concurrent.Future;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
+		importsForBeanShell.add("import java.util.concurrent.TimeoutException;");
 
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
 

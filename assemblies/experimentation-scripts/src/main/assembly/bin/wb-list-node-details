@@ -12,4 +12,4 @@ java \
  -Dtestbed.nodetypes=$2 \
  -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
  -p $1 \
- -f $BASEDIR/../scripts/list-nodes.java
+ -f $BASEDIR/../scripts/wb-list-node-details.java

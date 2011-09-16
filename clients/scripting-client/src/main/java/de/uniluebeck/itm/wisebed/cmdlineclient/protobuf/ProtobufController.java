@@ -4,7 +4,7 @@ import eu.wisebed.api.controller.Controller;
 
 
 
-public interface ProtobufControllerClientListener extends Controller {
+public interface ProtobufController extends Controller {
 
 	void onConnectionClosed();
 

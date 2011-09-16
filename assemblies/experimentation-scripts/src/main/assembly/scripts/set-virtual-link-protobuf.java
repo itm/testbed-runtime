@@ -33,7 +33,7 @@
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 	ProtobufControllerClient pcc = ProtobufControllerClient.create(pccHost, pccPort, helper.parseSecretReservationKeys(secretReservationKeys));
-	pcc.addListener(new ProtobufControllerClientListener() {
+	pcc.addListener(new ProtobufController() {
 		public void receive(List msg) {
 			// nothing to do
 		}

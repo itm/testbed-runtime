@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------
 
 	ProtobufControllerClient pcc = ProtobufControllerClient.create(pccHost, pccPort, helper.parseSecretReservationKeys(secretReservationKeys));
-	pcc.addListener(new ProtobufControllerClientListener() {
+	pcc.addListener(new ProtobufController() {
 		public void receive(List msgs) {
 			for (int i=0; i<msgs.size(); i++) {
 				Message msg = (Message) msgs.get(i);

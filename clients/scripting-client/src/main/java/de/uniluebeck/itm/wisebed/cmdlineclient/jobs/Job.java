@@ -192,8 +192,8 @@ public class Job {
 
 					} else if (error) {
 
-						if (log.isInfoEnabled()) {
-							log.info("Job[{}] failed for node {} with message [{}]", new Object[]{
+						if (log.isDebugEnabled()) {
+							log.debug("Job[{}] failed for node {} with message [{}]", new Object[]{
 									description,
 									s.getNodeId(),
 									s.getMsg()

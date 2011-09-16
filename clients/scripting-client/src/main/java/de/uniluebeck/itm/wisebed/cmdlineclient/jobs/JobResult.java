@@ -23,9 +23,12 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient.jobs;
 
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.google.common.base.Joiner;
 import org.joda.time.DateTime;
 
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job.JobType;
@@ -131,6 +134,25 @@ public class JobResult {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public void printResults(final OutputStream outputStream, boolean csv) {
+
+		PrintWriter writer = new PrintWriter(outputStream);
+
+		for (Entry<String, Result> entry : results.entrySet()) {
+
+			final String nodeUrn = entry.getKey().replaceAll(";", "\\;");
+			final boolean success = entry.getValue().success;
+			final String message = entry.getValue().message.replaceAll(";","\\;");
+
+			if (csv) {
+				writer.println(nodeUrn + ";" + success + ";" + message);
+			} else {
+				writer.println(nodeUrn + " | " + success + " | " + message);
+			}
+			writer.flush();
+		}
 	}
 
 	@Override

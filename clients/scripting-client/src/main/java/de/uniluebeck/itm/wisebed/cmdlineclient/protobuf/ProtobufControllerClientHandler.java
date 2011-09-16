@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+import java.net.ConnectException;
+
 public class ProtobufControllerClientHandler extends SimpleChannelUpstreamHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtobufControllerClientHandler.class.getName());
@@ -52,8 +54,10 @@ public class ProtobufControllerClientHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-		logger.warn("Unexpected exception from downstream: {}", e);
-		e.getChannel().close();
+		if (!(e.getCause() instanceof ConnectException)) {
+			logger.warn("Unexpected exception from downstream: {}", e);
+			e.getChannel().close();
+		}
 	}
 
 }
