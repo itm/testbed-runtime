@@ -14,4 +14,4 @@ java \
  -Dtestbed.nodeurns=$4 \
  -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
  -p $1 \
- -f $BASEDIR/../scripts/reserve.java
+ -f $BASEDIR/../scripts/wb-reserve.java
