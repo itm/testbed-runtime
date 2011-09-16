@@ -91,7 +91,7 @@
 				(useProtobuf ? "NONE" : localControllerEndpointURL)
 		);
 	} catch (UnknownReservationIdException_Exception e) {
-		log.warn("There was not reservation found with the given secret reservation key. Exiting.");
+		log.warn("There was no reservation found with the given secret reservation key. Exiting.");
 		System.exit(1);
 	}
 

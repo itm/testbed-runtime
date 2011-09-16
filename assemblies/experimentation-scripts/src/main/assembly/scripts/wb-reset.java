@@ -2,10 +2,10 @@
 // Configuration
 //--------------------------------------------------------------------------
 
-	String localControllerEndpointURL   = "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
-	String secretReservationKeys        = System.getProperty("testbed.secretreservationkeys");
-	String imageToFlashPath             = System.getProperty("testbed.image");
-	String nodeUrnsToFlash              = System.getProperty("testbed.nodeurns");
+	String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8090/controller";
+	String secretReservationKeys 		= System.getProperty("testbed.secretreservationkeys");
+	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
+	String nodeUrnsToReset 				= System.getProperty("testbed.nodeurns");
 	boolean csv                         = System.getProperty("testbed.listtype") != null && "csv".equals(System.getProperty("testbed.listtype"));
 
 	String protobufHost                 = System.getProperty("testbed.protobuf.hostname");
@@ -13,17 +13,11 @@
 	Integer protobufPort                = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
 	boolean useProtobuf                 = protobufHost != null && protobufPort != null;
 
-	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
 //--------------------------------------------------------------------------
-
-	log.debug("Using the following parameters for calling getInstance(): {}, {}",
-			StringUtils.jaxbMarshal(helper.parseSecretReservationKeys(secretReservationKeys)),
-			localControllerEndpointURL
-	);
 
 	Controller controller = new Controller() {
 		public void receive(List msg) {
@@ -87,41 +81,23 @@
 	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
-	// retrieve reserved node URNs from testbed
 	List nodeURNs;
-	if (nodeUrnsToFlash != null && !"".equals(nodeUrnsToFlash)) {
-		nodeURNs = Lists.newArrayList(nodeUrnsToFlash.split(","));
+	if (nodeUrnsToReset != null && !"".equals(nodeUrnsToReset)) {
+		nodeURNs = Lists.newArrayList(nodeUrnsToReset.split(","));
 		log.debug("Selected node URNs: {}", nodeURNs);
 	} else {
 		nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
-		log.debug("Reserved node URNs: {}", nodeURNs);
+		log.debug("Retrieved node URNs: {}", nodeURNs);
 	}
 
-    log.debug("Flashing nodes...");
+	log.debug("Resetting nodes...");
 
-	List programIndices;
-	List programs;
-
-	// wb-flash isense nodes
-    programIndices = new ArrayList();
-    programs = new ArrayList();
-    for (int i=0; i<nodeURNs.size(); i++) {
-        programIndices.add(0);
-    }
-    programs.add(helper.readProgram(
-            imageToFlashPath,
-            "",
-            "",
-            "iSense",
-            "1.0"
-    ));
-
-	Future flashFuture = wsn.flashPrograms(nodeURNs, programIndices, programs, 3, TimeUnit.MINUTES);
+	Future resetFuture = wsn.resetNodes(nodeURNs, 10, TimeUnit.SECONDS);
 	try {
 
-		JobResult flashJobResult = flashFuture.get();
-		flashJobResult.printResults(System.out, csv);
-		System.exit(flashJobResult.getSuccessPercent() < 100 ? 1 : 0);
+		JobResult resetJobResult = resetFuture.get();
+		resetJobResult.printResults(System.out, csv);
+		System.exit(resetJobResult.getSuccessPercent() < 100 ? 1 : 0);
 
 	} catch (TimeoutException e) {
 		log.info("Call timed out. Exiting...");
