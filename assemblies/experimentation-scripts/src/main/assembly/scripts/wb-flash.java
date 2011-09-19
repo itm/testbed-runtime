@@ -123,7 +123,9 @@
 		flashJobResult.printResults(System.out, csv);
 		System.exit(flashJobResult.getSuccessPercent() < 100 ? 1 : 0);
 
-	} catch (TimeoutException e) {
-		log.info("Call timed out. Exiting...");
+	} catch (ExecutionException e) {
+		if (e.getCause() instanceof TimeoutException) {
+			log.info("Call timed out. Exiting...");
+		}
 		System.exit(1);
 	}

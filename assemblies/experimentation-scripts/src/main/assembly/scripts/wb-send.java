@@ -137,12 +137,13 @@
 		sendJobResult.printResults(System.out, csv);
 		System.exit(sendJobResult.getSuccessPercent() < 100 ? 1 : 0);
 
-	} catch (TimeoutException e) {
+		log.debug("Shutting down...");
+		System.exit(0);
+
+	} catch (ExecutionException e) {
 		if (e.getCause() instanceof TimeoutException) {
 			log.info("Call timed out. Exiting...");
 		}
 		System.exit(1);
 	}
-	
-	log.debug("Shutting down...");
-	System.exit(0);
+

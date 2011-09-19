@@ -2,10 +2,8 @@
 // Configuration
 //--------------------------------------------------------------------------
 
-	String localControllerEndpointURL	= "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8090/controller";
-	String secretReservationKeys 		= System.getProperty("testbed.secretreservationkeys");
-	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
-	String nodeUrnsToReset 				= System.getProperty("testbed.nodeurns");
+	String localControllerEndpointURL   = "http://" + InetAddress.getLocalHost().getCanonicalHostName() + ":8089/controller";
+	String secretReservationKeys        = System.getProperty("testbed.secretreservationkeys");
 	boolean csv                         = System.getProperty("testbed.listtype") != null && "csv".equals(System.getProperty("testbed.listtype"));
 
 	String protobufHost                 = System.getProperty("testbed.protobuf.hostname");
@@ -13,11 +11,20 @@
 	Integer protobufPort                = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
 	boolean useProtobuf                 = protobufHost != null && protobufPort != null;
 
+	String vlinkFrom                    = System.getProperty("testbed.vlink.from");
+	String vlinkTo                      = System.getProperty("testbed.vlink.to");
+
+	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
 //--------------------------------------------------------------------------
+
+	log.debug("Using the following parameters for calling getInstance(): {}, {}",
+			StringUtils.jaxbMarshal(helper.parseSecretReservationKeys(secretReservationKeys)),
+			localControllerEndpointURL
+	);
 
 	Controller controller = new Controller() {
 		public void receive(List msg) {
@@ -38,7 +45,7 @@
 	};
 
 	// try to connect via unofficial protocol buffers API if hostname and port are set in the configuration
-    if (useProtobuf) {
+	if (useProtobuf) {
 
 		ProtobufControllerClient pcc = ProtobufControllerClient.create(
 				protobufHost,
@@ -81,23 +88,20 @@
 	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
-	List nodeURNs;
-	if (nodeUrnsToReset != null && !"".equals(nodeUrnsToReset)) {
-		nodeURNs = Lists.newArrayList(nodeUrnsToReset.split(","));
-		log.debug("Selected node URNs: {}", nodeURNs);
-	} else {
-		nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
-		log.debug("Retrieved node URNs: {}", nodeURNs);
-	}
+	Future future = wsn.setVirtualLink(
+			vlinkFrom,
+			vlinkTo,
+			wsnEndpointURL,
+			Lists.newArrayList(),
+			Lists.newArrayList(),
+			5, TimeUnit.SECONDS
+	);
 
-	log.debug("Resetting nodes...");
-
-	Future resetFuture = wsn.resetNodes(nodeURNs, 10, TimeUnit.SECONDS);
 	try {
 
-		JobResult resetJobResult = resetFuture.get();
-		resetJobResult.printResults(System.out, csv);
-		System.exit(resetJobResult.getSuccessPercent() < 100 ? 1 : 0);
+		JobResult jobResult = future.get();
+		jobResult.printResults(System.out, csv);
+		System.exit(jobResult.getSuccessPercent() < 100 ? 1 : 0);
 
 	} catch (ExecutionException e) {
 		if (e.getCause() instanceof TimeoutException) {

@@ -60,7 +60,6 @@ public class WisebedBeanShellLauncher {
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*");
-		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.scripts.*");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.*");
 
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
@@ -69,6 +68,7 @@ public class WisebedBeanShellLauncher {
 		importsForBeanShell.add("import java.util.concurrent.Future;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
 		importsForBeanShell.add("import java.util.concurrent.TimeoutException;");
+		importsForBeanShell.add("import java.util.concurrent.ExecutionException;");
 
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
 
