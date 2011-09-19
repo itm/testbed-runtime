@@ -49,7 +49,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 					future.setException(e);
 				}
 
-				log.info("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
+				log.debug("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
 				final WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 				final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
@@ -70,7 +70,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 
 					@Override
 					public void experimentEnded() {
-						log.info("Experiment ended");
+						log.debug("Experiment ended");
 						controllerManager.experimentEnded();
 					}
 

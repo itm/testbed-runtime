@@ -138,7 +138,9 @@
 		System.exit(sendJobResult.getSuccessPercent() < 100 ? 1 : 0);
 
 	} catch (TimeoutException e) {
-		log.info("Call timed out. Exiting...");
+		if (e.getCause() instanceof TimeoutException) {
+			log.info("Call timed out. Exiting...");
+		}
 		System.exit(1);
 	}
 	
