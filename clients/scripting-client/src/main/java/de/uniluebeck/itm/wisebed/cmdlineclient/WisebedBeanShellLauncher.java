@@ -154,7 +154,9 @@ public class WisebedBeanShellLauncher {
 	}
 
 	public static void parseAndSetProperties(final String propertiesFileName) throws IOException {
+
 		File propertiesFile = new File(propertiesFileName);
+
 		if (!propertiesFile.exists() || !propertiesFile.canRead() || !propertiesFile.isFile()) {
 			log.error("Properties file \"" +
 					propertiesFile.getAbsolutePath() +
@@ -162,10 +164,16 @@ public class WisebedBeanShellLauncher {
 			);
 			System.exit(1);
 		}
+
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(propertiesFile));
+
 		for (Object key : properties.keySet()) {
-			System.setProperty((String) key, (String) properties.get(key));
+
+			final String propertyKey = ((String) key).trim();
+			final String propertyValue = ((String) properties.get(key)).trim();
+
+			System.setProperty(propertyKey, propertyValue);
 		}
 	}
 
