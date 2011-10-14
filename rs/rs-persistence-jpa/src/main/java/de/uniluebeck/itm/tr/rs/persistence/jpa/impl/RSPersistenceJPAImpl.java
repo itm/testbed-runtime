@@ -43,81 +43,81 @@ import java.util.TimeZone;
 
 public class RSPersistenceJPAImpl implements RSPersistence {
 
-	private static final Logger logger = LoggerFactory.getLogger(RSPersistence.class);
+	private static final Logger log = LoggerFactory.getLogger(RSPersistence.class);
 
-	private EntityManager manager;
+	private final EntityManager em;
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-	private TimeZone localTimeZone;
+
+	private final TimeZone localTimeZone;
 
 	@Inject
 	public RSPersistenceJPAImpl(@Named("properties") Map properties, TimeZone localTimeZone) {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
-		//EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
-		manager = factory.createEntityManager();
+		em = factory.createEntityManager();
 		this.localTimeZone = localTimeZone;
 	}
 
-	/**
-	 * old
-	 *
-	 * @Inject public RSPersistenceJPAImpl(@Named("persistenceUnitName") String persistenceUnitName) {
-	 * EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
-	 * manager = factory.createEntityManager();
-	 * }*
-	 */
-
-	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData, String urnPrefix)
+	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
+											   String urnPrefix)
 			throws RSExceptionException {
 
 		SecretReservationKeyInternal secretReservationKey = null;
+		String generatedSecretReservationKey = null;
 
-		// save SecretReservationKeyInternal
 		boolean created = false;
 		while (!created) {
 
+			generatedSecretReservationKey = secureIdGenerator.getNextId();
+
 			secretReservationKey = new SecretReservationKeyInternal();
-			secretReservationKey.setSecretReservationKey(secureIdGenerator.getNextId());
+			secretReservationKey.setSecretReservationKey(generatedSecretReservationKey);
 			secretReservationKey.setUrnPrefix(urnPrefix);
 
 			try {
 
-				manager.getTransaction().begin();
-				manager.persist(secretReservationKey);
-				manager.getTransaction().commit();
+				em.getTransaction().begin();
+				em.persist(secretReservationKey);
+				em.getTransaction().commit();
 
 				created = true;
 
 			} catch (RollbackException e) {
 
-				manager.clear();
+				em.clear();
 
 			} catch (Exception e) {
-				logger.error("Could not add SecretReservationKeyInternal because of: {}", e.getMessage());
-				e.printStackTrace();
+				log.error("Could not add SecretReservationKeyInternal because of: {}", e.getMessage());
 				return null;
 			}
 		}
 
-		ReservationDataInternal reservationData = new ReservationDataInternal(secretReservationKey, TypeConverter
-				.convert(confidentialReservationData, localTimeZone), urnPrefix);
+		for (Data data : confidentialReservationData.getData()) {
+			data.setSecretReservationKey(generatedSecretReservationKey);
+		}
+
+		ReservationDataInternal reservationData = new ReservationDataInternal(
+				secretReservationKey,
+				TypeConverter.convert(confidentialReservationData, localTimeZone),
+				urnPrefix
+		);
+
 		try {
 
-			// save ReservationDataInternal
-			manager.getTransaction().begin();
-			manager.persist(reservationData);
-			manager.getTransaction().commit();
+			em.getTransaction().begin();
+			em.persist(reservationData);
+			em.getTransaction().commit();
 
 			return TypeConverter.convert(secretReservationKey);
 
 		} catch (Exception e) {
 
-			manager.getTransaction().begin();
-			manager.remove(secretReservationKey);
-			manager.getTransaction().commit();
+			em.getTransaction().begin();
+			em.remove(secretReservationKey);
+			em.getTransaction().commit();
 
 			String msg = "Could not add Reservation because of: " + e.getMessage();
-			logger.error(msg);
+			log.error(msg);
 			RSException exception = new RSException();
 			exception.setMessage(msg);
 			throw new RSExceptionException(msg, exception, e);
@@ -128,15 +128,17 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws ReservervationNotFoundExceptionException, RSExceptionException {
-		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
-				.getSecretReservationKey());
+				.getSecretReservationKey()
+		);
 		ReservationDataInternal reservationData = null;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException());
+					new ReservervationNotFoundException()
+			);
 		}
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
@@ -148,20 +150,22 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
 			throws ReservervationNotFoundExceptionException, RSExceptionException {
-		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
-				.getSecretReservationKey());
+				.getSecretReservationKey()
+		);
 		ReservationDataInternal reservationData = null;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException());
+					new ReservervationNotFoundException()
+			);
 		}
 		reservationData.delete();
-		manager.getTransaction().begin();
-		manager.persist(reservationData);
-		manager.getTransaction().commit();
+		em.getTransaction().begin();
+		em.persist(reservationData);
+		em.getTransaction().commit();
 
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
@@ -180,13 +184,14 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		GregorianCalendar to = interval.getEnd().toGregorianCalendar();
 		from.setTimeZone(this.localTimeZone);
 
-		Query query = manager.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERYNAME);
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, from.getTimeInMillis());
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, to.getTimeInMillis());
 
 		try {
 			return TypeConverter.convertConfidentialReservationData((List<ReservationDataInternal>) query
-					.getResultList(), this.localTimeZone);
+					.getResultList(), this.localTimeZone
+			);
 		} catch (DatatypeConfigurationException e) {
 			throw new RSExceptionException(e.getMessage(), new RSException());
 		}
@@ -196,11 +201,13 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 
 	public void printPersistentReservationData() throws Exception {
 		System.out.println("ReservationTableEntries:\n----------");
-		for (Object entry : manager.createQuery(
-				"SELECT data FROM ReservationDataInternal data WHERE data.deleted = false").getResultList()) {
+		for (Object entry : em.createQuery(
+				"SELECT data FROM ReservationDataInternal data WHERE data.deleted = false"
+		).getResultList()) {
 			ReservationDataInternal data = (ReservationDataInternal) entry;
 			System.out.println(data.getId() + ", " + data.getSecretReservationKey() + ", "
-					+ data.getConfidentialReservationData() + ", " + data.getUrnPrefix());
+					+ data.getConfidentialReservationData() + ", " + data.getUrnPrefix()
+			);
 		}
 	}
 }
