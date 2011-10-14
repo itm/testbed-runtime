@@ -1,0 +1,21 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage $0 PROPERTIES_FILE [FROM] [UNTIL] [lines|csv]"
+	echo "Example: $0 live.properties now 2011-09-10-10-27 csv"
+	echo "If FROM and UNTIL are omitted the next reservations of one week starting from now will be displayed."
+	echo "If only FROM is given the reservations of the next week starting from FROM will be displayed."
+	echo "The current date and time can be denoted as 'now' for the parameter FROM."
+	echo "'lines' is the default output type"
+	exit 1
+fi
+
+java \
+ -Dtestbed.from=$2 \
+ -Dtestbed.until=$3 \
+ -Dtestbed.listtype=$4 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/wb-list-reservations.java

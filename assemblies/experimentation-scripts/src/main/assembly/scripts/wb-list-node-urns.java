@@ -13,6 +13,7 @@
 // Application logic
 //--------------------------------------------------------------------------
 
+	log.debug("Calling SessionManagement.getNetwork() on {}", sessionManagementEndpointURL);
 	String wiseML = sessionManagement.getNetwork();
 	List nodes = WiseMLHelper.getNodeUrns(wiseML, nodeTypes);
 
