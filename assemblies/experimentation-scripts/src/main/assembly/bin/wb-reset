@@ -1,0 +1,18 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 2 ]
+then
+	echo "Usage $0 PROPERTIES_FILE SECRET_RESERVATION_KEYS [lines|csv] [NODEURNS]"
+	echo "Example: $0 live.properties urn:wisebed:uzl1:,D2C88AEE416EDD2FD4038BC1252A8900 csv urn:wisebed:uzl1:0xf859,urn:wisebed:uzl1:0xf860"
+	echo "'lines' is the default output type"
+	exit 1
+fi
+
+java \
+ -Dtestbed.secretreservationkeys=$2 \
+ -Dtestbed.listtype=$3 \
+ -Dtestbed.nodeurns=$4 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/wb-reset.java

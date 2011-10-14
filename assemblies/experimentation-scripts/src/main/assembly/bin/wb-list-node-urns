@@ -1,0 +1,17 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage $0 PROPERTIES_FILE [csv|lines] [NODE_TYPES]"
+	echo "Example: $0 live.properties csv isense,telosb"
+	echo "'csv' is the default output type"
+	exit 1
+fi
+
+java \
+ -Dtestbed.listtype=$2 \
+ -Dtestbed.nodetypes=$3 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/wb-list-node-urns.java

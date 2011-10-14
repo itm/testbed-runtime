@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import com.google.common.util.concurrent.ValueFuture;
+import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufController;
 import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerClient;
-import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerClientListener;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 public class WisebedProtobufClient extends WisebedClientBase {
@@ -38,11 +39,9 @@ public class WisebedProtobufClient extends WisebedClientBase {
 	public Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList) {
 		final ValueFuture<WSNAsyncWrapper> future = ValueFuture.create();
 
-		Runnable connectRunnable = new Runnable() {
-
+		Callable<WSNAsyncWrapper> connectCallable = new Callable<WSNAsyncWrapper>() {
 			@Override
-			public void run() {
-
+			public WSNAsyncWrapper call() throws Exception {
 				String wsnEndpointURL = null;
 				try {
 					wsnEndpointURL = sessionManagement.getInstance(secretReservationKeyList, "NONE");
@@ -50,14 +49,14 @@ public class WisebedProtobufClient extends WisebedClientBase {
 					future.setException(e);
 				}
 
-				log.info("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
+				log.debug("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
 				final WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
 				final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 				protobufControllerClient = ProtobufControllerClient.create(
 						protobufHost, protobufPort, secretReservationKeyList
 				);
-				protobufControllerClient.addListener(new ProtobufControllerClientListener() {
+				protobufControllerClient.addListener(new ProtobufController() {
 
 					@Override
 					public void onConnectionClosed() {
@@ -71,7 +70,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 
 					@Override
 					public void experimentEnded() {
-						log.info("Experiment ended");
+						log.debug("Experiment ended");
 						controllerManager.experimentEnded();
 					}
 
@@ -95,14 +94,13 @@ public class WisebedProtobufClient extends WisebedClientBase {
 					}
 				}
 				);
+
 				protobufControllerClient.connect();
 
-				future.set(wsn);
+				return wsn;
 			}
 		};
 
-		executor.execute(connectRunnable);
-
-		return future;
+		return executor.submit(connectCallable);
 	}
 }

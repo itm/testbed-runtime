@@ -1,13 +1,12 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
+import com.google.common.collect.Lists;
+import de.uniluebeck.itm.tr.util.AbstractListenable;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.sm.SecretReservationKey;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -16,16 +15,15 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
-import eu.wisebed.api.sm.SecretReservationKey;
-
-public class ProtobufControllerClient extends AbstractListenable<ProtobufControllerClientListener> {
+public class ProtobufControllerClient extends AbstractListenable<ProtobufController> {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerClient.class);
 
@@ -68,7 +66,7 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 		workerExecutor = Executors.newCachedThreadPool();
 	}
 
-	public void connect() {
+	public void connect() throws ConnectException {
 
 		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workerExecutor));
 
@@ -85,7 +83,7 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 			throw new RuntimeException("Could not connect to " + hostname + ":" + port);
 		}
 
-		for (ProtobufControllerClientListener listener : listeners) {
+		for (ProtobufController listener : listeners) {
 			listener.onConnectionEstablished();
 		}
 
@@ -95,7 +93,7 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				log.debug("Channel was closed.");
-				for (ProtobufControllerClientListener listener : listeners) {
+				for (ProtobufController listener : listeners) {
 					listener.onConnectionClosed();
 				}
 				new Thread(new Runnable() {
@@ -129,6 +127,13 @@ public class ProtobufControllerClient extends AbstractListenable<ProtobufControl
 		log.debug("Sending secret reservation keys.");
 		ChannelFuture future = channel.write(envelope);
 		future.awaitUninterruptibly();
+		if (!future.isSuccess()) {
+			if (future.getCause() instanceof ConnectException) {
+				throw (ConnectException) future.getCause();
+			} else {
+				throw new RuntimeException(future.getCause());
+			}
+		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override

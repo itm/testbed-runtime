@@ -1,0 +1,17 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage $0 PROPERTIES_FILE [lines|csv] [NODEURNS]"
+	echo "Example: $0 live.properties urn:wisebed:uzl1:0xf859,urn:wisebed:uzl1:0xf860"
+	echo "'lines' is the default output type"
+	exit 1
+fi
+
+java \
+ -Dtestbed.listtype=$2 \
+ -Dtestbed.nodeurns=$3 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/wb-are-nodes-alive-sm.java

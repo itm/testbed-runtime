@@ -1,0 +1,15 @@
+#!/bin/bash
+BASEDIR=`dirname $0`
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage $0 PROPERTIES_FILE [NODE_TYPES]"
+	echo "Example: $0 live.properties isense,telosb"
+	exit 1
+fi
+
+java \
+ -Dtestbed.nodetypes=$2 \
+ -jar $BASEDIR/../lib/tr.scripting-client-${project.version}-onejar.jar \
+ -p $1 \
+ -f $BASEDIR/../scripts/wb-list-node-details.java

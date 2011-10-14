@@ -25,9 +25,11 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import bsh.EvalError;
 import bsh.Interpreter;
+import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -44,23 +46,43 @@ public class WisebedBeanShellLauncher {
 	private static List<String> importsForBeanShell = new ArrayList<String>();
 
 	static {
+		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
+		importsForBeanShell.add("import eu.wisebed.api.common.*;");
+		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
+		importsForBeanShell.add("import eu.wisebed.api.snaa.*;");
+		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
+		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
+
 		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.WSNServiceHelper;");
 		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.RSServiceHelper;");
 		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
+
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");
-		importsForBeanShell.add("import eu.wisebed.api.controller.*;");
-		importsForBeanShell.add("import eu.wisebed.api.common.*;");
-		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
-		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.*");
+		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.*");
+
 		importsForBeanShell.add("import de.uniluebeck.itm.tr.util.*;");
+
+		importsForBeanShell.add("import java.util.*;");
+		importsForBeanShell.add("import java.util.concurrent.Future;");
 		importsForBeanShell.add("import java.util.concurrent.TimeUnit;");
+		importsForBeanShell.add("import java.util.concurrent.TimeoutException;");
+		importsForBeanShell.add("import java.util.concurrent.ExecutionException;");
+
 		importsForBeanShell.add("import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;");
-		importsForBeanShell.add("import eu.wisebed.api.rs.*;");
+
+		importsForBeanShell.add("import javax.xml.datatype.DatatypeFactory;");
+		importsForBeanShell.add("import javax.xml.datatype.XMLGregorianCalendar;");
+
+		importsForBeanShell.add("import com.google.common.base.*;");
+		importsForBeanShell.add("import com.google.common.collect.*;");
 	}
 
 
 	public static void main(String[] args) throws IOException, EvalError {
+
+		Logging.setLoggingDefaults(Level.INFO, new PatternLayout("%-11d{HH:mm:ss,SSS} %-5p - %m%n"));
 
 		File beanShellFile = null;
 
@@ -107,7 +129,7 @@ public class WisebedBeanShellLauncher {
 
 		// Add a logger
 		org.slf4j.Logger bshLogger = LoggerFactory.getLogger("BeanShellScript");
-		log.debug("Adding logger to beanshell, use 'log' variable, api is like log4j's");
+		log.debug("Adding logger to beanshell, use 'log' variable, api is like slf4j's");
 		i.set("log", bshLogger);
 
 		// Add a helper
@@ -132,7 +154,9 @@ public class WisebedBeanShellLauncher {
 	}
 
 	public static void parseAndSetProperties(final String propertiesFileName) throws IOException {
+
 		File propertiesFile = new File(propertiesFileName);
+
 		if (!propertiesFile.exists() || !propertiesFile.canRead() || !propertiesFile.isFile()) {
 			log.error("Properties file \"" +
 					propertiesFile.getAbsolutePath() +
@@ -140,10 +164,16 @@ public class WisebedBeanShellLauncher {
 			);
 			System.exit(1);
 		}
+
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(propertiesFile));
+
 		for (Object key : properties.keySet()) {
-			System.setProperty((String) key, (String) properties.get(key));
+
+			final String propertyKey = ((String) key).trim();
+			final String propertyValue = ((String) properties.get(key)).trim();
+
+			System.setProperty(propertyKey, propertyValue);
 		}
 	}
 
