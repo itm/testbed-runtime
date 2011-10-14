@@ -23,7 +23,10 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.common.Message;
@@ -350,6 +353,17 @@ public class BeanShellHelper {
 			}
 		}
 		return b.toString();
+	}
+
+	public static String toSecretReservationKeysString(List<Data> secretReservationKeys) {
+		final Iterable<String> tbKeys = Iterables.transform(secretReservationKeys, new Function<Data, String>() {
+			@Override
+			public String apply(final Data data) {
+				return data.getUrnPrefix() + "," + data.getSecretReservationKey();
+			}
+		}
+		);
+		return Joiner.on(";").join(tbKeys);
 	}
 
 	public static String toString(Object object) {

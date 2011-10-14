@@ -77,6 +77,8 @@ public class WisebedBeanShellLauncher {
 
 		importsForBeanShell.add("import com.google.common.base.*;");
 		importsForBeanShell.add("import com.google.common.collect.*;");
+
+		importsForBeanShell.add("import org.joda.time.*");
 	}
 
 

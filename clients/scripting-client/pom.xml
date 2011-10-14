@@ -55,6 +55,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.wiseml</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
