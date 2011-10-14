@@ -27,7 +27,7 @@ public class Main {
 		Options options = new Options();
 		options.addOption("u", "user", true, "Username in the form user@idphost");
 		options.addOption("p", "pass", true, "Password");
-		options.addOption("l", "url", false, "The URL to use, defaults to " + url);
+		options.addOption("l", "url", true, "The URL to use, defaults to " + url);
 		options.addOption("q", "proxyhost", true, "The IP/hostname of the proxy to use");
 		options.addOption("w", "proxyport", true, "The portname of the proxy to use");
 		options.addOption("v", "verbose", false, "Verbose logging output");
