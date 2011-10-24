@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2010 by Dennis Pfisterer. This is free software; you can redistribute it and/or modify it under the
  * terms of the BSD License. Refer to the licence.txt file in the root of the source tree for further details.
+ * Copyright (C) 2011 by Pierre Roux: modified under same license.
  */
 package eu.wisebed.shibboauth;
 
@@ -48,6 +49,16 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
     private String username;
 
     private String password;
+
+    private String jusername;
+
+    private String jpassword;
+
+    private String relaystate;
+
+    private String samlrequest;
+    
+    private boolean shibbo2x;
 
     private String idpDomain;
 
@@ -162,20 +173,55 @@ public class ShibbolethAuthenticator implements IShibbolethAuthenticator {
             performIdpRequest(idp);
         }
 
-        // Fill in the login form
+        // Detect if Shibboeleth 2.x. If yes fill in the login form
         {
+        
             URL currentPage = new URL("" + target + req.getRequestLine().getUri());
             URL actionUrl = Helper.getActionURL(currentPage, responseHtml);
 
             // Set the form values and add existing (hidden) fields
             List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-            formparams.add(new BasicNameValuePair("username", username));
-            formparams.add(new BasicNameValuePair("password", password));
+            formparams.add(new BasicNameValuePair("RelayState", relaystate));
+            formparams.add(new BasicNameValuePair("SAMLRequest", samlrequest));
             formparams = Helper.extractFormValues(responseHtml, formparams);
+            shibbo2x=false;
+            if (Helper.getValue(formparams, "RelayState") != null && Helper.getValue(formparams, "SAMLRequest") != null) {
+            	    shibbo2x=true;
+            	    log.debug("Form action: " + actionUrl);
+            	    doPost(actionUrl.toURI(), formparams, true);
+            }
 
-            if (Helper.getValue(formparams, "username") == null || Helper.getValue(formparams, "password") == null) {
-                log.fatal("Did not get a valid login form. Aborting.");
-                throw new Exception("Did not get a valid login form. Aborting.");
+        }
+
+        // Fill in the login form
+        {
+        
+            URL currentPage = new URL("" + target + req.getRequestLine().getUri());
+            URL actionUrl = Helper.getActionURL(currentPage, responseHtml);
+
+            // Set the form values and add existing (hidden) fields
+            List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+            
+            if (shibbo2x) {
+            	    formparams.add(new BasicNameValuePair("j_username", username));
+            	    formparams.add(new BasicNameValuePair("j_password", password));
+            	    formparams = Helper.extractFormValues(responseHtml, formparams);
+            	    
+            	    if (Helper.getValue(formparams, "j_username") == null || Helper.getValue(formparams, "j_password") == null) {
+            	    	    log.fatal("Did not get a valid login form. Aborting.");
+            	    	    throw new Exception("Did not get a valid login form (2.x). Aborting.");
+            	    }
+            }
+            
+            else {
+            	    formparams.add(new BasicNameValuePair("username", username));
+            	    formparams.add(new BasicNameValuePair("password", password));
+            	    formparams = Helper.extractFormValues(responseHtml, formparams);
+            	    
+            	    if (Helper.getValue(formparams, "username") == null || Helper.getValue(formparams, "password") == null) {
+            	    	    log.fatal("Did not get a valid login form. Aborting.");
+            	    	    throw new Exception("Did not get a valid login form. Aborting.");
+            	    }
             }
 
             log.debug("Form action: " + actionUrl);
