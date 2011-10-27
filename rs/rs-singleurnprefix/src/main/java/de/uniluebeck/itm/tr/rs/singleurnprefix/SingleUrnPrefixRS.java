@@ -27,7 +27,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.internal.Nullable;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.StringUtils;
@@ -39,6 +38,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;

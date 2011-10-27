@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.motelist;
 
-import com.google.inject.internal.Nullable;
 import org.apache.commons.lang.SystemUtils;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class MoteListFactory {

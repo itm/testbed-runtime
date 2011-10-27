@@ -38,7 +38,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 
-@ChannelPipelineCoverage("all")
+@ChannelHandler.Sharable
 public class SocketServer extends SimpleChannelUpstreamHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(SocketServer.class);

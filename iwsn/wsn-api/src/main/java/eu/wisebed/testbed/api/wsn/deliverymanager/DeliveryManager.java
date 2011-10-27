@@ -26,7 +26,6 @@ package eu.wisebed.testbed.api.wsn.deliverymanager;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.internal.Nullable;
 import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
@@ -36,6 +35,7 @@ import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,6 +91,7 @@ public class DeliveryManager implements Service {
 	 * Constructs a new {@link DeliveryManager} instance.
 	 *
 	 * @param maximumDeliveryQueueSize the maximum size of the message delivery queue after which messages are dropped
+	 * or {@code null} to use the default value of {@link DeliveryManagerConstants#DEFAULT_MAXIMUM_DELIVERY_QUEUE_SIZE}.
 	 */
 	public DeliveryManager(final @Nullable Integer maximumDeliveryQueueSize) {
 		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize == null ?

@@ -1,15 +1,12 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.common.collect.Lists;
-import com.google.inject.internal.Nullable;
 import com.google.protobuf.ByteString;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.DatatypeFactoryImpl;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
 import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.ChannelGroupFutureListener;
@@ -17,13 +14,12 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.RuntimeErrorException;
+import javax.annotation.Nullable;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 
 public class ProtobufDeliveryManager extends DeliveryManager {
