@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
@@ -43,7 +43,7 @@ class LinkControlImpl implements LinkControl {
 		ByteBuffer buffer = Packets.LinkControl.newSetVirtualLinkPacket(
 				requestId, destinationNode
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -55,7 +55,7 @@ class LinkControlImpl implements LinkControl {
 		ByteBuffer buffer = Packets.LinkControl.newDestroyVirtualLinkPacket(
 				requestId, destinationNode
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -67,7 +67,7 @@ class LinkControlImpl implements LinkControl {
 		ByteBuffer buffer = Packets.LinkControl.newEnablePhysicalLinkPacket(
 				requestId, nodeB
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -79,7 +79,7 @@ class LinkControlImpl implements LinkControl {
 		ByteBuffer buffer = Packets.LinkControl.newDisablePhysicalLinkPacket(
 				requestId, nodeB
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}

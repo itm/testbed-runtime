@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.AsyncJobObserver;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.Job;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
@@ -22,9 +22,9 @@ public class WSNAsyncWrapper {
 
 	private static class FutureJobResultListener implements JobResultListener {
 
-		private ValueFuture<JobResult> future;
+		private SettableFuture<JobResult> future;
 
-		private FutureJobResultListener(final ValueFuture<JobResult> future) {
+		private FutureJobResultListener(final SettableFuture<JobResult> future) {
 			this.future = future;
 		}
 
@@ -91,7 +91,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> send(List<String> nodeIds, Message message, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("send", wsn.send(nodeIds, message), nodeIds, Job.JobType.send);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
@@ -102,7 +102,7 @@ public class WSNAsyncWrapper {
 												final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
 												int timeout, TimeUnit timeUnit) {
 
-		final ValueFuture<JobResult> future = ValueFuture.create();
+		final SettableFuture<JobResult> future = SettableFuture.create();
 		final Job job = new Job(
 				"setChannelPipeline",
 				wsn.setChannelPipeline(nodes, channelHandlerConfigurations),
@@ -125,7 +125,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> areNodesAlive(List<String> nodes, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("areNodesAlive", wsn.areNodesAlive(nodes), nodes, Job.JobType.areNodesAlive);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
@@ -138,7 +138,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> destroyVirtualLink(String sourceNode, String targetNode, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("destroyVirtualLink", wsn.destroyVirtualLink(sourceNode, targetNode), sourceNode,
 				Job.JobType.destroyVirtualLink
 		);
@@ -148,7 +148,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> disableNode(String node, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("disableNode", wsn.disableNode(node), node, Job.JobType.disableNode);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
@@ -156,7 +156,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> disablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("disablePhysicalLink", wsn.disablePhysicalLink(nodeA, nodeB), nodeA,
 				Job.JobType.disablePhysicalLink
 		);
@@ -167,7 +167,7 @@ public class WSNAsyncWrapper {
 
 	@SuppressWarnings("unused")
 	public Future<JobResult> enableNode(String node, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("enableNode", wsn.enableNode(node), node, Job.JobType.enableNode);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
@@ -175,7 +175,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> enablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("enablePhysicalLink", wsn.enablePhysicalLink(nodeA, nodeB), nodeA,
 				Job.JobType.enablePhysicalLink
 		);
@@ -187,7 +187,7 @@ public class WSNAsyncWrapper {
 	public Future<JobResult> flashPrograms(List<String> nodeIds, List<Integer> programIndices, List<Program> programs,
 										   int timeout, TimeUnit timeUnit) {
 
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("flashPrograms", wsn.flashPrograms(nodeIds, programIndices, programs), nodeIds,
 				Job.JobType.flashPrograms
 		);
@@ -226,7 +226,7 @@ public class WSNAsyncWrapper {
 	}
 
 	public Future<JobResult> resetNodes(List<String> nodes, int timeout, TimeUnit timeUnit) {
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("resetNodes", wsn.resetNodes(nodes), nodes, Job.JobType.resetNodes);
 		job.addListener(new FutureJobResultListener(future));
 		jobs.submit(job, timeout, timeUnit);
@@ -237,7 +237,7 @@ public class WSNAsyncWrapper {
 											List<String> parameters, List<String> filters, int timeout,
 											TimeUnit timeUnit) {
 
-		ValueFuture<JobResult> future = ValueFuture.create();
+		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job(
 				"setVirtualLink",
 				wsn.setVirtualLink(

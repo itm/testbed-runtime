@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
@@ -44,7 +44,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newEnableNodePacket(
 				requestId
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -56,7 +56,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newDisableNodePacket(
 				requestId
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -68,7 +68,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newResetNodePacket(
 				requestId, time
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -80,7 +80,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newSetStartTimePacket(
 				requestId, time
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -92,7 +92,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newSetVirtualIDPacket(
 				requestId, virtualNodeID
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -104,7 +104,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newGetIDPacket(
 				requestId
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -116,7 +116,7 @@ public class NodeControlImpl implements NodeControl {
 		ByteBuffer buffer = Packets.NodeControl.newAreNodesAlivePacket(
 				requestId
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}

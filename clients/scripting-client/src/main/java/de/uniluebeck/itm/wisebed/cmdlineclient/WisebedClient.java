@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
@@ -88,7 +88,7 @@ public class WisebedClient extends WisebedClientBase {
     @Override
     public Future<WSNAsyncWrapper> connectToExperiment(final List<SecretReservationKey> secretReservationKeyList) {
 
-        final ValueFuture<WSNAsyncWrapper> future = ValueFuture.create();
+        final SettableFuture<WSNAsyncWrapper> future = SettableFuture.create();
 
         Runnable connectRunnable = new Runnable() {
             public void run() {
@@ -126,7 +126,7 @@ public class WisebedClient extends WisebedClientBase {
 
     private Future<Tuple<String, WisebedClient.WisebedController>> startController() {
 
-        final ValueFuture<Tuple<String, WisebedClient.WisebedController>> future = ValueFuture.create();
+        final SettableFuture<Tuple<String, WisebedClient.WisebedController>> future = SettableFuture.create();
 
         Runnable startControllerRunnable = new Runnable() {
             public void run() {

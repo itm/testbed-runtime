@@ -25,7 +25,7 @@ package de.uniluebeck.itm.wsn.devicedrivers;
 
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.*;
 
 import java.nio.ByteBuffer;
@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 public class DeviceHelper {
 
 	public static ListenableFuture<Long> getMacAddress(iSenseDevice device) {
-		final ValueFuture<Long> future = ValueFuture.create();
+		final SettableFuture<Long> future = SettableFuture.create();
 		device.registerListener(new iSenseDeviceListener() {
 			@Override
 			public void receivePacket(final MessagePacket messagePacket) {

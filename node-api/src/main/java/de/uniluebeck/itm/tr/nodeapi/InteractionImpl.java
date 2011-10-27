@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ class InteractionImpl implements Interaction {
 		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
 				requestId, RSSI, LQI, destination, source, payload
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -77,7 +77,7 @@ class InteractionImpl implements Interaction {
 		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
 				requestId, destination, source, payload
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -89,7 +89,7 @@ class InteractionImpl implements Interaction {
 		ByteBuffer buffer = Packets.Interaction.newByteMessagePacket(
 				requestId, binaryType, payload
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
@@ -101,7 +101,7 @@ class InteractionImpl implements Interaction {
 		ByteBuffer buffer = Packets.Interaction.newFlashProgramPacket(
 				requestId, payload
 		);
-		ValueFuture<NodeApiCallResult> future = ValueFuture.create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}

@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.nodeapi;
 
-import com.google.common.util.concurrent.ValueFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +52,11 @@ public class NodeApi {
 
 		public final int requestId;
 
-		public final ValueFuture<NodeApiCallResult> future;
+		public final SettableFuture<NodeApiCallResult> future;
 
 		public final ByteBuffer buffer;
 
-		public Job(final int requestId, final ValueFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
+		public Job(final int requestId, final SettableFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
 			this.requestId = requestId;
 			this.future = future;
 			this.buffer = buffer;
@@ -178,7 +178,7 @@ public class NodeApi {
 		return lastRequestID >= 255 ? (lastRequestID = 0) : ++lastRequestID;
 	}
 
-	void sendToNode(final int requestId, final ValueFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
+	void sendToNode(final int requestId, final SettableFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Enqueueing job to node with request ID {}: {}", requestId,
