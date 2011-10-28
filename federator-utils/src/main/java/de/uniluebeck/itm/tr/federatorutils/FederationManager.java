@@ -110,6 +110,7 @@ public class FederationManager<V> {
 	 * @throws IllegalArgumentException if {@code endpointUrl} is {@code null} or if the endpoint URL {@code endpointUrl}
 	 *                                  is unknown
 	 */
+	@SuppressWarnings("unused")
 	public Entry getEntryByEndpointUrl(final String endpointUrl) {
 
 		final ImmutableSet<String> urnPrefixes = endpointUrlsToUrnPrefixesMap.get(endpointUrl);
@@ -134,6 +135,7 @@ public class FederationManager<V> {
 	 *
 	 * @throws IllegalArgumentException if {@code nodeUrn} is {@code null} or if the node URN {@code nodeUrn} is unknown
 	 */
+	@SuppressWarnings("unused")
 	public Entry getEntryByNodeUrn(final String nodeUrn) {
 		return getEntryByPrefixesMapEntry(getPrefixesMapEntryByNodeUrn(nodeUrn));
 	}
@@ -148,6 +150,7 @@ public class FederationManager<V> {
 	 * @throws IllegalArgumentException if {@code urnPrefix} is {@code null} or if the URN prefix {@code urnPrefix} is
 	 *                                  unknown
 	 */
+	@SuppressWarnings("unused")
 	public Entry getEntryByUrnPrefix(final String urnPrefix) {
 		return getEntryByPrefixesMapEntry(getPrefixesMapEntryByUrnPrefix(urnPrefix));
 	}
@@ -270,6 +273,7 @@ public class FederationManager<V> {
 	 * @throws IllegalArgumentException if {@code endpointUrl} is {@code null} or if there's no known endpoint for {@code
 	 *                                  endpointUrl}
 	 */
+	@SuppressWarnings("unused")
 	public ImmutableSet<String> getUrnPrefixesByEndpointUrl(String endpointUrl) {
 		checkNotNull(endpointUrl);
 		final ImmutableSet<String> urnPrefixes = endpointUrlsToUrnPrefixesMap.get(endpointUrl);
@@ -293,6 +297,8 @@ public class FederationManager<V> {
 
 	/**
 	 * Returns all federated URN prefixes.
+	 *
+	 * @return all federated URN prefixes
 	 */
 	public ImmutableSet<String> getUrnPrefixes() {
 		ImmutableSet.Builder<String> urnPrefixesBuilder = ImmutableSet.builder();
@@ -309,6 +315,7 @@ public class FederationManager<V> {
 	 *
 	 * @return all URN prefixes served by the testbed
 	 */
+	@SuppressWarnings("unused")
 	public ImmutableSet<String> getUrnPrefixesByNodeUrn(final String nodeUrn) {
 		return getPrefixesMapEntryByUrnPrefix(nodeUrn).getValue();
 	}
@@ -320,6 +327,7 @@ public class FederationManager<V> {
 	 *
 	 * @return all URN prefixes served by the testbed
 	 */
+	@SuppressWarnings("unused")
 	public ImmutableSet<String> getUrnPrefixesByUrnPrefix(final String urnPrefix) {
 		return getPrefixesMapEntryByUrnPrefix(urnPrefix).getValue();
 	}

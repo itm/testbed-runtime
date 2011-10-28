@@ -52,14 +52,6 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.node-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-device-drivers</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.motelist</artifactId>
-		</dependency>
 
 		<!-- other itm projects dependencies -->
 		<dependency>

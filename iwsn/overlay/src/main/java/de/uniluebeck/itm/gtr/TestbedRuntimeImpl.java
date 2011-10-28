@@ -153,7 +153,7 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 
 	@Override
 	public ImmutableSet<String> getLocalNodeNames() {
-		return ImmutableSet.of(localNodeNames);
+		return ImmutableSet.copyOf(localNodeNames);
 	}
 
 	@Override

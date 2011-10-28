@@ -27,13 +27,8 @@ import de.uniluebeck.itm.gtr.common.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-
 
 public class WSNDeviceAppConnectorFactory {
-
-	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnectorFactory.class);
 
 	public static WSNDeviceAppConnector create(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
 											   final String nodeSerialInterface, final Integer timeoutNodeAPI,
@@ -42,38 +37,16 @@ public class WSNDeviceAppConnectorFactory {
 											   final Integer timeoutReset,
 											   final Integer timeoutFlash) {
 
-		boolean newDrivers = !System.getProperties().containsKey("testbed.olddrivers");
-
-		if (newDrivers) {
-
-			log.debug("{} => Using new drivers", nodeUrn);
-			return new WSNDeviceAppConnectorImpl(
-					nodeUrn,
-					nodeType,
-					nodeUSBChipID,
-					nodeSerialInterface,
-					timeoutNodeAPI,
-					maximumMessageRate,
-					timeoutReset,
-					timeoutFlash,
-					schedulerService
-			);
-
-		} else {
-
-			log.debug("{} => Using old drivers", nodeUrn);
-			return new WSNDeviceAppConnectorOld(
-					nodeUrn,
-					nodeType,
-					nodeUSBChipID,
-					nodeSerialInterface,
-					timeoutNodeAPI,
-					maximumMessageRate,
-					schedulerService,
-					timeoutReset,
-					timeoutFlash
-			);
-		}
-
+		return new WSNDeviceAppConnectorImpl(
+				nodeUrn,
+				nodeType,
+				nodeUSBChipID,
+				nodeSerialInterface,
+				timeoutNodeAPI,
+				maximumMessageRate,
+				timeoutReset,
+				timeoutFlash,
+				schedulerService
+		);
 	}
 }

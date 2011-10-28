@@ -28,6 +28,7 @@ import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.Tuple;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
@@ -41,7 +42,7 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 
 	public static interface Callback {
 
-		void success(byte[] replyPayload);
+		void success(@Nullable byte[] replyPayload);
 
 		void failure(byte responseType, byte[] replyPayload);
 

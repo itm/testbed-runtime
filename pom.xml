@@ -41,12 +41,11 @@
 		<module>iwsn/</module>
 		<module>snaa/</module>
 
+		<module>federator-utils</module>
 		<module>shibboauth</module>
-		<module>motelist</module>
 		<module>node-api</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
-		<module>federator-utils</module>
 
 	</modules>
 
@@ -73,11 +72,6 @@
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-cmdline</artifactId>
 				<classifier>onejar</classifier>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wsn-device-drivers</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
