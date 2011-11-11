@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class SingleRequestMultiResponseServiceImpl
-		extends AbstractListenable<Triple<String, String, SingleRequestMultiResponseListener>>
+		extends ListenerManagerImpl<Triple<String, String, SingleRequestMultiResponseListener>>
 		implements SingleRequestMultiResponseService {
 
 	private TestbedRuntime testbedRuntime;

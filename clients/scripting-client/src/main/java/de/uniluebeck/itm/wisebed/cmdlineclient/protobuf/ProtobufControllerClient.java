@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.protobuf;
 
 import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ProtobufControllerClient extends AbstractListenable<ProtobufController> {
+public class ProtobufControllerClient extends ListenerManagerImpl<ProtobufController> {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerClient.class);
 

@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.event;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 
@@ -32,7 +32,7 @@ import de.uniluebeck.itm.gtr.messaging.Messages;
  * Service that allows to register as a listener to message events (received, sent, dropped), as well as to fire these
  * events.
  */
-public abstract class MessageEventService extends AbstractListenable<MessageEventListener> implements Service {
+public abstract class MessageEventService extends ListenerManagerImpl<MessageEventListener> implements Service {
 
 	/**
 	 * Asynchronously notifies listeners that the message {@code msg} was sent.
