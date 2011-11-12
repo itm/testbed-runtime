@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.connection;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +43,7 @@ import java.io.OutputStream;
  * {@link de.uniluebeck.itm.gtr.connection.ConnectionListener} instances can register themselves to be notified when the
  * Connection opens or closes.
  */
-public abstract class Connection extends AbstractListenable<ConnectionListener> {
+public abstract class Connection extends ListenerManagerImpl<ConnectionListener> {
 
 	/**
 	 * Enum type defining the direction of a {@link de.uniluebeck.itm.gtr.connection.Connection} instance. Incoming

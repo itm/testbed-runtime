@@ -123,35 +123,13 @@ public class ConnectivityTests {
 	@Before
 	public void setUp() throws Exception {
 
-		Injector gw1Injector = Guice.createInjector(
-				new CommonModule(),
-				new RoutingModule(),
-				new NamingModule(),
-				new ConnectionModule(),
-				new TestbedRuntimeModule(
-						new String[]{"gw1"},
-						SchedulerService.class,
-						RoutingTableService.class,
-						NamingService.class,
-						ConnectionService.class
-				)
-		);
+		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule());
 		gw1 = gw1Injector.getInstance(TestbedRuntime.class);
+		gw1.getLocalNodeNameManager().addLocalNodeName("gw1");
 
-		Injector gw2Injector = Guice.createInjector(
-				new CommonModule(),
-				new RoutingModule(),
-				new NamingModule(),
-				new ConnectionModule(),
-				new TestbedRuntimeModule(
-						new String[]{"gw2"},
-						SchedulerService.class,
-						RoutingTableService.class,
-						NamingService.class,
-						ConnectionService.class
-				)
-		);
+		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule());
 		gw2 = gw2Injector.getInstance(TestbedRuntime.class);
+		gw2.getLocalNodeNameManager().addLocalNodeName("gw2");
 
 		// configure topology on both nodes
 		gw1.getRoutingTableService().setNextHop("gw2", "gw2");
@@ -161,8 +139,8 @@ public class ConnectivityTests {
 		gw2.getNamingService().addEntry(new NamingEntry("gw1", new NamingInterface("tcp", "localhost:1110"), 1));
 
 		// start both nodes' stack
-		gw1.startServices();
-		gw2.startServices();
+		gw1.start();
+		gw2.start();
 
 		cs1 = gw1.getConnectionService();
 		cs2 = gw2.getConnectionService();
@@ -205,13 +183,13 @@ public class ConnectivityTests {
 	@After
 	public void tearDown() {
 
-		gw1.stopServices();
-		gw2.stopServices();
+		gw1.stop();
+		gw2.stop();
 
 	}
 
 	@Test
-	public void testConcurrentInstableConnectivity() throws Exception {
+	public void testConcurrentUnstableConnectivity() throws Exception {
 
 		// parallel threads, some opening and some closing one of the two same connections
 		int cnt = 500;

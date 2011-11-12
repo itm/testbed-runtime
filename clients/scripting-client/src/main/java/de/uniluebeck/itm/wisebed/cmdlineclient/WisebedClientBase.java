@@ -2,7 +2,7 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 
 import com.google.common.util.concurrent.SettableFuture;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.UrlUtils;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class WisebedClientBase {
 
-    protected static class ControllerManager extends AbstractListenable<Controller> implements Controller {
+    protected static class ControllerManager extends ListenerManagerImpl<Controller> implements Controller {
         @Override
         public void experimentEnded() {
             for (Controller controller : listeners) {

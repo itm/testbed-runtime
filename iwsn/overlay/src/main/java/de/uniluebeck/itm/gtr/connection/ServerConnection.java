@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.gtr.connection;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 
 import java.io.IOException;
 
@@ -33,7 +33,7 @@ import java.io.IOException;
  * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()} properly
  * so it can be used in {@link java.util.HashMap}s.
  */
-public abstract class ServerConnection extends AbstractListenable<ServerConnectionListener> {
+public abstract class ServerConnection extends ListenerManagerImpl<ServerConnectionListener> {
 
 	public abstract void bind() throws ConnectionInvalidAddressException, IOException;
 

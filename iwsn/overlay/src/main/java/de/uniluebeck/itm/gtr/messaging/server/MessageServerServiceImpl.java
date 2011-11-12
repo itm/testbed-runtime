@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uniluebeck.itm.gtr.LocalNodeNames;
+import de.uniluebeck.itm.gtr.LocalNodeNameManager;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.gtr.connection.*;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
@@ -62,8 +62,6 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 	private final UnreliableMessagingService unreliableMessagingService;
 
 	private final SchedulerService schedulerService;
-
-	private final ImmutableSet<String> localNodeNames;
 
 	private volatile boolean running;
 
@@ -110,7 +108,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			// only post event or forward if no filter dropped the message
 			if (msg != null) {
 
-				if (localNodeNames.contains(msg.getTo())) {
+				if (localNodeNameManager.getLocalNodeNames().contains(msg.getTo())) {
 
 					messageEventService.received(msg);
 
@@ -142,17 +140,19 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			new ThreadFactoryBuilder().setNameFormat("MessageServerService-MessageReaderThread %d").build()
 	);
 
+	private final LocalNodeNameManager localNodeNameManager;
+
 	@Inject
 	public MessageServerServiceImpl(MessageEventService messageEventService,
 									UnreliableMessagingService unreliableMessagingService,
 									SchedulerService schedulerService,
 									Set<ServerConnectionFactory> serverConnectionFactories,
-									@LocalNodeNames String... localNodeNames) {
+									LocalNodeNameManager localNodeNameManager) {
 
 		this.messageEventService = messageEventService;
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.schedulerService = schedulerService;
-		this.localNodeNames = ImmutableSet.copyOf(localNodeNames);
+		this.localNodeNameManager = localNodeNameManager;
 
 		// remember ServerConnectionFactory instances according to type
 		Map<String, Set<ServerConnectionFactory>> scfs = new HashMap<String, Set<ServerConnectionFactory>>();

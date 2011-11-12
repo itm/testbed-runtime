@@ -23,18 +23,35 @@
 
 package de.uniluebeck.itm.tr.iwsn.cmdline;
 
-import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.gtr.TestbedRuntimeModule;
+import de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager;
+import de.uniluebeck.itm.tr.iwsn.IWSNOverlayManager;
+import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
+import de.uniluebeck.itm.tr.util.domobserver.DOMObserverImpl;
+import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jgrapht.generate.StarGraphGenerator;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
+import java.io.File;
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileExists;
+import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileReadable;
+import static de.uniluebeck.itm.tr.util.XmlFunctions.fileToRootElementFunction;
+import static de.uniluebeck.itm.tr.util.XmlFunctions.xPathToBooleanEvaluationFunction;
 
 public class Main {
 
@@ -42,51 +59,49 @@ public class Main {
 
 	private static class ShutdownThread extends Thread {
 
-		private TestbedRuntime runtime;
+		private TestbedRuntime testbedRuntime;
 
-		private ImmutableList<TestbedApplication> testbedApplications;
+		private final IWSNOverlayManager overlayManager;
 
-		private ShutdownThread(final TestbedRuntime runtime,
-							   final ImmutableList<TestbedApplication> testbedApplications) {
+		private final IWSNApplicationManager applicationManager;
 
-			this.runtime = runtime;
-			this.testbedApplications = testbedApplications;
+		private ShutdownThread(final TestbedRuntime testbedRuntime,
+							   final IWSNOverlayManager overlayManager,
+							   final IWSNApplicationManager applicationManager) {
+
+			this.testbedRuntime = testbedRuntime;
+			this.overlayManager = overlayManager;
+			this.applicationManager = applicationManager;
 		}
 
 		@Override
 		public void run() {
-			log.info("Received shutdown signal.");
-			log.info("Stopping testbed runtime applications...");
-			for (TestbedApplication testbedApplication : testbedApplications) {
-				try {
-					testbedApplication.stop();
-				} catch (Exception e) {
-					log.warn("Caught exception when shutting down testbed runtime application " + testbedApplication
-							.getName() + ": {}", e
-					);
-				}
-			}
-			log.info("Stopped testbed runtime applications!");
-			log.info("Stopping testbed runtime...");
-			runtime.stopServices();
-			log.info("Stopped testbed runtime!");
+
+			log.info("Received shutdown signal!");
+
+			log.info("Stopping applications...");
+			applicationManager.stop();
+			log.info("Stopped applications!");
+
+			log.info("Stopping overlay...");
+			overlayManager.stop();
+			testbedRuntime.stop();
+			log.info("Stopped overlay!");
 		}
-	};
+	}
 
 	public static void main(String[] args) throws Exception {
-		Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start = null;
 		try {
-			start = start(args);
+			start(args);
 		} catch (Exception e) {
 			log.error("Unable to start testbed runtime due to a(n) " + e, e);
 			System.exit(1);
 		}
-		Runtime.getRuntime().addShutdownHook(new ShutdownThread(start.getFirst(), start.getSecond()));
 	}
 
-	public static Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> start(String[] args) throws Exception {
+	public static void start(String[] args) throws Exception {
 
-		String xmlFile = null;
+		File xmlFile = null;
 		String nodeId = null;
 
 		// create the command line parser
@@ -131,7 +146,14 @@ public class Main {
 			}
 
 			if (line.hasOption('f')) {
-				xmlFile = line.getOptionValue('f');
+
+				String xmlFileString = line.getOptionValue('f');
+
+				xmlFile = new File(xmlFileString);
+
+				checkFileExists(xmlFile);
+				checkFileReadable(xmlFile);
+
 			} else {
 				throw new Exception("Please supply -f");
 			}
@@ -145,33 +167,70 @@ public class Main {
 			usage(options);
 		}
 
-		String[] nodeIds;
-		if (nodeId == null) {
-			nodeIds = new String[]{
-					InetAddress.getLocalHost().getCanonicalHostName(), InetAddress.getLocalHost().getHostName()
-			};
-		} else {
-			nodeIds = new String[]{nodeId};
-		}
-		XmlTestbedFactory factory = new XmlTestbedFactory();
-		Tuple<TestbedRuntime, ImmutableList<TestbedApplication>> listTuple = factory.create(xmlFile, nodeIds);
+		String[] nodeIds = nodeId != null ? new String[]{nodeId} :
+				new String[]{
+						InetAddress.getLocalHost().getCanonicalHostName(),
+						InetAddress.getLocalHost().getHostName()
+				};
 
-		// start the testbed runtime
-		log.debug("Starting iWSN services...");
+		String nodeIdFoundInConfigurationFile = null;
 
-		final TestbedRuntime runtime = listTuple.getFirst();
-		runtime.startServices();
+		Node rootElement = fileToRootElementFunction().apply(xmlFile);
+		for (String id : nodeIds) {
 
-		// start the applications running "on top"
-		final ImmutableList<TestbedApplication> testbedApplications = listTuple.getSecond();
-		for (TestbedApplication testbedApplication : testbedApplications) {
-			log.debug("Starting application \"{}\"", testbedApplication.getName());
-			testbedApplication.start();
+			String xPathExpression = "boolean(//nodes[@id=\"" + id + "\"])";
+			boolean configurationTagForIdExists = xPathToBooleanEvaluationFunction().apply(
+					new Tuple<String, Node>(xPathExpression, rootElement)
+			);
+
+			if (configurationTagForIdExists) {
+				nodeIdFoundInConfigurationFile = nodeId;
+			}
 		}
 
-		log.debug("Up and running. Hooray!");
+		checkArgument(nodeIdFoundInConfigurationFile != null,
+				"No configuration for one of the overlay node \"%s\" found!", Arrays.toString(nodeIds)
+		);
 
-		return new Tuple<TestbedRuntime, ImmutableList<TestbedApplication>>(runtime, testbedApplications);
+		final String finalNodeIdFoundInConfigurationFile = nodeIdFoundInConfigurationFile;
+
+		final File finalXmlFile = xmlFile;
+		Injector injector = Guice.createInjector(
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(DOMObserver.class).to(DOMObserverImpl.class);
+						bind(new TypeLiteral<ListenerManager<DOMObserverListener>>(){})
+								.to(new TypeLiteral<ListenerManagerImpl<DOMObserverListener>>() {
+								}
+								);
+						bind(Node.class).toProvider(new CachingConvertingFileProvider<Node>(
+								finalXmlFile,
+								XmlFunctions.fileToRootElementFunction()
+						)
+						);
+						bind(String.class).annotatedWith(
+								Names.named("de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId")
+						).toInstance(finalNodeIdFoundInConfigurationFile);
+					}
+				},
+				new TestbedRuntimeModule()
+		);
+
+		TestbedRuntime testbedRuntime = injector.getInstance(TestbedRuntime.class);
+
+		log.debug("Starting overlay services...");
+		testbedRuntime.start();
+
+		log.debug("Starting overlay manager...");
+		IWSNOverlayManager overlayManager = injector.getInstance(IWSNOverlayManager.class);
+		overlayManager.start();
+
+		log.debug("Starting application manager...");
+		IWSNApplicationManager applicationManager = injector.getInstance(IWSNApplicationManager.class);
+		applicationManager.start();
+
+		Runtime.getRuntime().addShutdownHook(new ShutdownThread(testbedRuntime, overlayManager, applicationManager));
 
 	}
 

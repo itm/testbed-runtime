@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class SingleRequestMultiResponseServiceImpl
-		extends AbstractListenable<Triple<String, String, SingleRequestMultiResponseListener>>
+		extends ListenerManagerImpl<Triple<String, String, SingleRequestMultiResponseListener>>
 		implements SingleRequestMultiResponseService {
 
 	private TestbedRuntime testbedRuntime;
@@ -233,9 +233,12 @@ public class SingleRequestMultiResponseServiceImpl
 
 				if (isRequest) {
 
-					log.trace("=== Request === {} ==== {}",
-							Arrays.toString(testbedRuntime.getLocalNodeNames().toArray()), msg
-					);
+					if (log.isTraceEnabled()) {
+						log.trace("=== Request === {} ==== {}",
+								Arrays.toString(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().toArray()),
+								msg
+						);
+					}
 					// this happens on the request-receiver (server) side
 					Messages.SingleRequestMultipleResponseRequest request =
 							Messages.SingleRequestMultipleResponseRequest.newBuilder().mergeFrom(msg.getPayload())
@@ -277,9 +280,13 @@ public class SingleRequestMultiResponseServiceImpl
 
 				} else if (isResponse) {
 
-					log.trace("*** Response *** {} *** {}",
-							Arrays.toString(testbedRuntime.getLocalNodeNames().toArray()), msg
-					);
+					if (log.isTraceEnabled()) {
+
+						log.trace("*** Response *** {} *** {}",
+								Arrays.toString(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().toArray()),
+								msg
+						);
+					}
 
 					// this happens on the requester-side (client)
 					Messages.SingleRequestMultipleResponseResponse response =

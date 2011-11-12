@@ -449,7 +449,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		for (String node : reservedNodes) {
 
-			boolean isLocal = testbedRuntime.getLocalNodeNames().contains(node);
+			boolean isLocal = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().contains(node);
 			boolean isRemote = testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node);
 
 			if (!isLocal && !isRemote) {
