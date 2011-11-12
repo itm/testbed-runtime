@@ -7,6 +7,8 @@ import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
 import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
+import de.uniluebeck.itm.tr.util.Service;
+import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
 import de.uniluebeck.itm.tr.util.domobserver.DOMTuple;
 import de.uniluebeck.itm.tr.xml.Node;
@@ -23,15 +25,22 @@ import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class ConfigNodeNamesListener implements DOMObserverListener {
+public class IWSNOverlayManager implements DOMObserverListener, Service {
 
-	private static final Logger log = LoggerFactory.getLogger(ConfigNodeNamesListener.class);
+	private static final Logger log = LoggerFactory.getLogger(IWSNOverlayManager.class);
 
 	@Inject
 	private TestbedRuntime overlay;
+
+	@Inject
+	private DOMObserver domObserver;
+
+	private ScheduledFuture<?> domObserverSchedule;
 
 	@Override
 	public QName getQName() {
@@ -220,4 +229,17 @@ public class ConfigNodeNamesListener implements DOMObserverListener {
 		return unmarshaller.unmarshal(rootNode, Testbed.class).getValue();
 	}
 
+	@Override
+	public void start() throws Exception {
+		domObserver.addListener(this);
+		domObserverSchedule = overlay.getSchedulerService().scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void stop() {
+		if (domObserverSchedule != null) {
+			domObserverSchedule.cancel(false);
+		}
+		domObserver.removeListener(this);
+	}
 }

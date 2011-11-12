@@ -127,7 +127,7 @@ public class SocketConnectorApplication implements TestbedApplication {
 		ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
 
 		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(testbedRuntime.getLocalNodeNames().iterator().next())
+				.setNodeName(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next())
 				.setOperation(
 						register ? WSNAppMessages.ListenerManagement.Operation.REGISTER :
 								WSNAppMessages.ListenerManagement.Operation.UNREGISTER
@@ -136,16 +136,17 @@ public class SocketConnectorApplication implements TestbedApplication {
 		for (String destinationNodeName : map.keySet()) {
 
 			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					testbedRuntime.getLocalNodeNames().iterator().next(), destinationNodeName,
+					testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next(), destinationNodeName,
 					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, management.toByteArray(), 1,
 					System.currentTimeMillis() + 5000
 			);
 		}
 
 		// also register ourselves for all local node names
-		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNames()) {
+		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNameManager().getLocalNodeNames()) {
 			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					testbedRuntime.getLocalNodeNames().iterator().next(), currentLocalNodeName,
+					testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next(),
+					currentLocalNodeName,
 					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, management.toByteArray(), 1,
 					System.currentTimeMillis() + 5000
 			);
@@ -154,7 +155,7 @@ public class SocketConnectorApplication implements TestbedApplication {
 
 	public void sendToNode(Messages.Msg msg) {
 		// rebuild message if source node name is different to this host so that nodes can reply to it
-		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
+		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames();
 		if (!localNodeNames.contains(msg.getFrom())) {
 			String localNodeName = localNodeNames.iterator().next();
 			log.debug("SocketConnectorApplication.sendToNode(): Rewriting source address \"{}\" to \"{}\"",

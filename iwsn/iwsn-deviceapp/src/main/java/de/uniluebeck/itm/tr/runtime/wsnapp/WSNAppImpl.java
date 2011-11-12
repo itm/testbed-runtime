@@ -133,8 +133,6 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 	private static final int MSG_VALIDITY = 60000;
 
-	private String localNodeName;
-
 	private TestbedRuntime testbedRuntime;
 
 	private Set<String> reservedNodes;
@@ -240,7 +238,6 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
-		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
 
 		this.filterPipeline = new FilterPipelineImpl();
 		this.filterPipeline.addListener((FilterPipeline.DownstreamOutputListener) this);
@@ -291,7 +288,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 				// TODO use "reliable" RCP here
 				testbedRuntime.getUnreliableMessagingService().sendAsync(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+						getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
 						operationInvocation.toByteArray(), 1,
 						System.currentTimeMillis() + MSG_VALIDITY
 				);
@@ -323,6 +320,10 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			}
 		}
 
+	}
+
+	private String getLocalNodeName() {
+		return testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next();
 	}
 
 	@Override
@@ -444,18 +445,20 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations1 =
 					convertCHCList(channelHandlerConfigurations);
 
-			final List<Tuple<String,ChannelHandler>> channelPipeline =
+			final List<Tuple<String, ChannelHandler>> channelPipeline =
 					handlerFactoryRegistry.create(channelHandlerConfigurations1);
 
 			if (log.isDebugEnabled() && channelHandlerConfigurations1.size() > 0) {
 				channelPipeline.add(0, new Tuple<String, ChannelHandler>(
 						"aboveFilterPipelineLogger",
 						new AboveFilterPipelineLogger("portal")
-				));
+				)
+				);
 				channelPipeline.add(new Tuple<String, ChannelHandler>(
 						"belowFilterPipelineLogger",
 						new BelowFilterPipelineLogger("portal")
-				));
+				)
+				);
 			}
 
 			filterPipeline.setChannelPipeline(channelPipeline);
@@ -490,7 +493,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 			try {
 				testbedRuntime.getReliableMessagingService().sendAsync(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 						System.currentTimeMillis() + MSG_VALIDITY,
 						new RequestStatusCallback(callback, nodeUrn)
 				);
@@ -517,7 +520,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		for (String nodeUrn : nodeUrns) {
 			testbedRuntime.getReliableMessagingService().sendAsync(
-					localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 					System.currentTimeMillis() + MSG_VALIDITY,
 					new RequestStatusCallback(callback, nodeUrn)
 			);
@@ -546,7 +549,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 					.build();
 
 			Messages.Msg msg = MessageTools.buildMessage(
-					localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, invocation.toByteArray(), 1,
+					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, invocation.toByteArray(), 1,
 					System.currentTimeMillis() + MSG_VALIDITY
 			);
 
@@ -615,7 +618,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		for (String nodeUrn : nodeUrns) {
 			testbedRuntime.getReliableMessagingService().sendAsync(
-					localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 					System.currentTimeMillis() + MSG_VALIDITY,
 					new RequestStatusCallback(callback, nodeUrn)
 			);
@@ -656,7 +659,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		byte[] bytes = invocation.toByteArray();
 
 		testbedRuntime.getReliableMessagingService()
-				.sendAsync(localNodeName, sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+				.sendAsync(getLocalNodeName(), sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 						System.currentTimeMillis() + MSG_VALIDITY,
 						new RequestStatusCallback(callback, sourceNodeUrn)
 				);
@@ -682,7 +685,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
 				sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, sourceNodeUrn)
@@ -702,7 +705,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
 				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, nodeUrn)
@@ -722,7 +725,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
 				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, nodeUrn)
@@ -749,7 +752,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
 				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, nodeUrnA)
@@ -776,7 +779,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(localNodeName,
+		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
 				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
 				System.currentTimeMillis() + MSG_VALIDITY,
 				new RequestStatusCallback(callback, nodeUrnA)
@@ -843,7 +846,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
 
-		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNames();
+		ImmutableSet<String> localNodeNames = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames();
 		ImmutableSet<String> remoteNodeNames = testbedRuntime.getRoutingTableService().getEntries().keySet();
 		Set<String> unknownNodeUrns = null;
 
@@ -868,7 +871,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	private void registerNodeMessageReceiver(boolean register) {
 
 		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(localNodeName)
+				.setNodeName(getLocalNodeName())
 				.setOperation(register ?
 						WSNAppMessages.ListenerManagement.Operation.REGISTER :
 						WSNAppMessages.ListenerManagement.Operation.UNREGISTER
@@ -877,7 +880,7 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 		for (String destinationNodeName : reservedNodes) {
 			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(localNodeName, destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+					.sendAsync(getLocalNodeName(), destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
 							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
 					);
 		}
@@ -908,8 +911,9 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 
 			try {
 				testbedRuntime.getReliableMessagingService().send(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY);
+						getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+						System.currentTimeMillis() + MSG_VALIDITY
+				);
 			} catch (UnknownNameException e) {
 				log.error("" + e, e);
 			} catch (ReliableMessagingTimeoutException e) {

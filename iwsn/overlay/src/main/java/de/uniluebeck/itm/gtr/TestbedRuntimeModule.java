@@ -24,26 +24,39 @@
 package de.uniluebeck.itm.gtr;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
+import de.uniluebeck.itm.gtr.common.CommonModule;
+import de.uniluebeck.itm.gtr.connection.ConnectionModule;
+import de.uniluebeck.itm.gtr.messaging.event.MessageEventModule;
+import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingModule;
+import de.uniluebeck.itm.gtr.messaging.server.MessageServerModule;
+import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseModule;
+import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingModule;
+import de.uniluebeck.itm.gtr.naming.NamingModule;
+import de.uniluebeck.itm.gtr.routing.RoutingModule;
+import de.uniluebeck.itm.tr.util.ListenerManager;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 
 
 public class TestbedRuntimeModule extends AbstractModule {
 
-	private String[] localNodeNames;
-
-	private Class<?>[] serviceClasses;
-
-	public TestbedRuntimeModule(String[] localNodeNames, Class<?>... serviceClasses) {
-		this.localNodeNames = localNodeNames;
-		this.serviceClasses = serviceClasses;
-	}
-
 	@Override
 	protected void configure() {
 
-		bind(String[].class).annotatedWith(LocalNodeNames.class).toInstance(localNodeNames);
-		bind(Class[].class).annotatedWith(TestbedRuntimeServices.class).toInstance(serviceClasses);
-		bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
+		install(new CommonModule());
+		install(new ConnectionModule());
+		install(new MessageEventModule());
+		install(new MessageServerModule());
+		install(new NamingModule());
+		install(new ReliableMessagingModule());
+		install(new RoutingModule());
+		install(new UnreliableMessagingModule());
+		install(new SingleRequestMultiResponseModule());
 
+		bind(new TypeLiteral<ListenerManager<LocalNodeNameListener>>(){})
+				.to(new TypeLiteral<ListenerManagerImpl<LocalNodeNameListener>>(){});
+
+		bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
 	}
 
 }

@@ -25,29 +25,16 @@ package de.uniluebeck.itm.gtr;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uniluebeck.itm.gtr.common.CommonModule;
-import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.gtr.connection.ConnectionModule;
-import de.uniluebeck.itm.gtr.connection.ConnectionService;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
-import de.uniluebeck.itm.gtr.messaging.event.MessageEventModule;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
-import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingModule;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingTimeoutException;
-import de.uniluebeck.itm.gtr.messaging.server.MessageServerModule;
-import de.uniluebeck.itm.gtr.messaging.server.MessageServerService;
-import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingModule;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
-import de.uniluebeck.itm.gtr.naming.NamingModule;
-import de.uniluebeck.itm.gtr.naming.NamingService;
-import de.uniluebeck.itm.gtr.routing.RoutingModule;
-import de.uniluebeck.itm.gtr.routing.RoutingTableService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,40 +95,13 @@ public class MessagingTests {
 
 		log.debug("================== Setting up... ==================");
 
-		Class[] services = new Class[]{
-				SchedulerService.class,
-				ConnectionService.class,
-				MessageEventService.class,
-				MessageServerService.class,
-				NamingService.class,
-				ReliableMessagingService.class,
-				RoutingTableService.class,
-				UnreliableMessagingService.class
-		};
-
-		Injector gw1Injector = Guice.createInjector(new CommonModule(),
-				new ConnectionModule(),
-				new MessageEventModule(),
-				new MessageServerModule(),
-				new NamingModule(),
-				new ReliableMessagingModule(),
-				new RoutingModule(),
-				new UnreliableMessagingModule(),
-				new TestbedRuntimeModule(new String[]{"gw1"}, services)
-		);
+		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule());
 		gw1 = gw1Injector.getInstance(TestbedRuntime.class);
+		gw1.getLocalNodeNameManager().addLocalNodeName("gw1");
 
-		Injector gw2Injector = Guice.createInjector(new CommonModule(),
-				new ConnectionModule(),
-				new MessageEventModule(),
-				new MessageServerModule(),
-				new NamingModule(),
-				new ReliableMessagingModule(),
-				new RoutingModule(),
-				new UnreliableMessagingModule(),
-				new TestbedRuntimeModule(new String[]{"gw2"}, services)
-		);
+		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule());
 		gw2 = gw2Injector.getInstance(TestbedRuntime.class);
+		gw2.getLocalNodeNameManager().addLocalNodeName("gw2");
 
 		// configure topology on both nodes
 		gw1.getRoutingTableService().setNextHop("gw2", "gw2");
@@ -154,8 +114,8 @@ public class MessagingTests {
 		gw2.getMessageServerService().addMessageServer("tcp", "localhost:2220");
 
 		// start both nodes' services
-		gw1.startServices();
-		gw2.startServices();
+		gw1.start();
+		gw2.start();
 
 		ums1 = gw1.getUnreliableMessagingService();
 		ums2 = gw2.getUnreliableMessagingService();
@@ -196,8 +156,8 @@ public class MessagingTests {
 	@After
 	public void tearDown() {
 
-		gw1.stopServices();
-		gw2.stopServices();
+		gw1.stop();
+		gw2.stop();
 
 		executorService = null;
 		gw1 = gw2 = null;

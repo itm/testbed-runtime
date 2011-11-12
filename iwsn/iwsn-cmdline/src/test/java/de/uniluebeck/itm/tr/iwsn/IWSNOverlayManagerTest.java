@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.internal.verification.api.VerificationMode;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigNodeNamesListenerTest {
+public class IWSNOverlayManagerTest {
 
 	static {
 		Logging.setLoggingDefaults(Level.DEBUG);
@@ -41,7 +40,7 @@ public class ConfigNodeNamesListenerTest {
 	@Mock
 	private DOMObserver domObserverMock;
 
-	private ConfigNodeNamesListener listener;
+	private IWSNOverlayManager listener;
 
 	@Mock
 	private TestbedRuntime testbedRuntimeMock;
@@ -74,7 +73,7 @@ public class ConfigNodeNamesListenerTest {
 				bind(DOMObserver.class).toInstance(domObserverMock);
 			}
 		}
-		).getInstance(ConfigNodeNamesListener.class);
+		).getInstance(IWSNOverlayManager.class);
 
 		when(testbedRuntimeMock.getNamingService()).thenReturn(namingServiceMock);
 		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableService);
@@ -150,7 +149,7 @@ public class ConfigNodeNamesListenerTest {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document document =
-				dBuilder.parse(ConfigNodeNamesListenerTest.class.getClassLoader().getResourceAsStream(fileName));
+				dBuilder.parse(IWSNOverlayManagerTest.class.getClassLoader().getResourceAsStream(fileName));
 
 		XPathFactory xPathFactory = XPathFactory.newInstance();
 		XPath xPath = xPathFactory.newXPath();

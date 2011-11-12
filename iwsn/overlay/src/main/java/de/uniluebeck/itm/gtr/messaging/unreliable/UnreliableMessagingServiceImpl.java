@@ -23,12 +23,11 @@
 
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
-import de.uniluebeck.itm.gtr.LocalNodeNames;
+import de.uniluebeck.itm.gtr.LocalNodeNameManager;
 import de.uniluebeck.itm.gtr.connection.Connection;
 import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
 import de.uniluebeck.itm.gtr.connection.ConnectionService;
@@ -79,6 +78,8 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	private ConnectionService connectionService;
 
 	private RoutingTableService routingTableService;
+
+	private final LocalNodeNameManager localNodeNameManager;
 
 	private MessageEventService messageEventService;
 
@@ -236,8 +237,6 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	 */
 	private MessageCache<UnreliableMessagingCacheEntry> messageCache;
 
-	private ImmutableSet<String> localNodeNames;
-
 	public void sendAsync(Messages.Msg message) {
 
 		// assure that message priority contains a valid value
@@ -257,7 +256,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 		}
 
 		// if it's for this local node we can deliver it directly through message eventing
-		if (localNodeNames.contains(message.getTo())) {
+		if (localNodeNameManager.getLocalNodeNames().contains(message.getTo())) {
 			messageEventService.received(message);
 			return;
 		}
@@ -282,9 +281,9 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 		try {
 
-			ObjectOutputStream oout = new ObjectOutputStream(out);
-			oout.writeObject(msg);
-			oout.close();
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(out);
+			objectOutputStream.writeObject(msg);
+			objectOutputStream.close();
 
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
@@ -309,14 +308,13 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 										  MessageEventService messageEventService,
 										  @Unreliable MessageCache<UnreliableMessagingCacheEntry> messageCache,
 										  final RoutingTableService routingTableService,
-										  @LocalNodeNames String... localNodeNames) {
+										  LocalNodeNameManager localNodeNameManager) {
 
 		this.connectionService = connectionService;
 		this.messageEventService = messageEventService;
 		this.messageCache = messageCache;
 		this.routingTableService = routingTableService;
-		this.localNodeNames = ImmutableSet.copyOf(localNodeNames);
-
+		this.localNodeNameManager = localNodeNameManager;
 	}
 
 	@Override

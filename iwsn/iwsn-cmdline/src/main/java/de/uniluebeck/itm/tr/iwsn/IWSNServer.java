@@ -18,24 +18,6 @@ public class IWSNServer implements Service {
 	@Inject
 	private DOMObserver configObserver;
 
-	private DOMObserverListener nodeNamesObserver = new DOMObserverListener() {
-		@Override
-		public QName getQName() {
-			return XPathConstants.NODESET;
-		}
-
-		@Override
-		public String getXPathExpression() {
-			return "//nodes";
-		}
-
-		@Override
-		public void onDOMChanged(final DOMTuple oldAndNew) {
-			Object oldDOM = oldAndNew.getFirst();
-			Object newDOM = oldAndNew.getSecond();
-		}
-	};
-
 	@Override
 	public void start() throws Exception {
 		startObservingNodeNames();
