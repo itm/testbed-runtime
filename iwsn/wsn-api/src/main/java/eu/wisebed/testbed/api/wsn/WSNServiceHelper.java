@@ -30,6 +30,7 @@ import eu.wisebed.api.sm.*;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.api.wsn.WSNService;
 
+import javax.annotation.Nullable;
 import javax.xml.ws.BindingProvider;
 import java.io.File;
 import java.io.IOException;
@@ -189,14 +190,14 @@ public class WSNServiceHelper {
 	}
 
 	public static ExperimentNotRunningException_Exception createExperimentNotRunningException(String msg,
-																							  Exception e) {
+																							  @Nullable Exception e) {
 		ExperimentNotRunningException exception = new ExperimentNotRunningException();
 		exception.setMessage(msg);
 		return new ExperimentNotRunningException_Exception(msg, exception, e);
 	}
 
 	public static UnknownReservationIdException_Exception createUnknownReservationIdException(String msg,
-																							  String reservationId,
+																							  @Nullable String reservationId,
 																							  Exception e) {
 
 		UnknownReservationIdException exception = new UnknownReservationIdException();
