@@ -110,7 +110,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.IWSNServer</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

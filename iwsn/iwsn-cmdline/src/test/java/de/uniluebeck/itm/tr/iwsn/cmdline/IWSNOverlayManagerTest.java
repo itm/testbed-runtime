@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn;
+package de.uniluebeck.itm.tr.iwsn.cmdline;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -52,13 +52,13 @@ public class IWSNOverlayManagerTest {
 	private RoutingTableService routingTableService;
 
 	private static final String ONE_NODE_ONE_NAME_NO_APPS =
-			"de/uniluebeck/itm/tr/iwsn/config-one-node-one-name-no-apps.xml";
+			"de/uniluebeck/itm/tr/iwsn/cmdline/config-one-node-one-name-no-apps.xml";
 
 	private static final String ONE_NODE_TWO_NAMES_NO_APPS =
-			"de/uniluebeck/itm/tr/iwsn/config-one-node-two-names-no-apps.xml";
+			"de/uniluebeck/itm/tr/iwsn/cmdline/config-one-node-two-names-no-apps.xml";
 
 	private static final String TWO_NODES_ONE_NAME_NO_APPS =
-			"de/uniluebeck/itm/tr/iwsn/config-two-nodes-one-name-no-apps.xml";
+			"de/uniluebeck/itm/tr/iwsn/cmdline/config-two-nodes-one-name-no-apps.xml";
 
 	private Object newDOM;
 

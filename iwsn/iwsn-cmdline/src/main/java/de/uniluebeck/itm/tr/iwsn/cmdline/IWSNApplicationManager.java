@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn;
+package de.uniluebeck.itm.tr.iwsn.cmdline;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
@@ -38,7 +38,7 @@ import static com.google.common.collect.Sets.newHashSet;
 public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	public static final String INJECTION_CONFIGURATION_NODE_ID =
-			"de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId";
+			"de.uniluebeck.itm.tr.iwsn.cmdline.IWSNApplicationManager/configurationNodeId";
 
 	private static final Logger log = LoggerFactory.getLogger(IWSNApplicationManager.class);
 

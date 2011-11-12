@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn;
+package de.uniluebeck.itm.tr.iwsn.cmdline;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.gtr.TestbedRuntime;

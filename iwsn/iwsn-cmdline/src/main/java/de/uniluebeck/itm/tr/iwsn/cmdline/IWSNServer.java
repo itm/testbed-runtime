@@ -30,9 +30,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.TestbedRuntimeModule;
-import de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager;
-import de.uniluebeck.itm.tr.iwsn.IWSNOverlayManager;
-import de.uniluebeck.itm.tr.iwsn.IWSNShutdownRunnable;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverImpl;
@@ -53,9 +50,9 @@ import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileReadable;
 import static de.uniluebeck.itm.tr.util.XmlFunctions.fileToRootElementFunction;
 import static de.uniluebeck.itm.tr.util.XmlFunctions.xPathToBooleanEvaluationFunction;
 
-public class Main {
+public class IWSNServer {
 
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(IWSNServer.class);
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -86,7 +83,7 @@ public class Main {
 
 		Logging.setLoggingDefaults();
 
-		final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+		final org.slf4j.Logger log = LoggerFactory.getLogger(IWSNServer.class);
 
 		try {
 
@@ -210,7 +207,7 @@ public class Main {
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(120, Main.class.getCanonicalName(), null, options, null);
+		formatter.printHelp(120, IWSNServer.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 }
