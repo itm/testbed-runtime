@@ -32,6 +32,7 @@ import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager;
 import de.uniluebeck.itm.tr.iwsn.IWSNOverlayManager;
+import de.uniluebeck.itm.tr.iwsn.IWSNShutdownRunnable;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverImpl;
@@ -45,7 +46,6 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileExists;
@@ -56,39 +56,6 @@ import static de.uniluebeck.itm.tr.util.XmlFunctions.xPathToBooleanEvaluationFun
 public class Main {
 
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
-
-	private static class ShutdownThread extends Thread {
-
-		private TestbedRuntime testbedRuntime;
-
-		private final IWSNOverlayManager overlayManager;
-
-		private final IWSNApplicationManager applicationManager;
-
-		private ShutdownThread(final TestbedRuntime testbedRuntime,
-							   final IWSNOverlayManager overlayManager,
-							   final IWSNApplicationManager applicationManager) {
-
-			this.testbedRuntime = testbedRuntime;
-			this.overlayManager = overlayManager;
-			this.applicationManager = applicationManager;
-		}
-
-		@Override
-		public void run() {
-
-			log.info("Received shutdown signal!");
-
-			log.info("Stopping applications...");
-			applicationManager.stop();
-			log.info("Stopped applications!");
-
-			log.info("Stopping overlay...");
-			overlayManager.stop();
-			testbedRuntime.stop();
-			log.info("Stopped overlay!");
-		}
-	}
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -199,19 +166,26 @@ public class Main {
 				new AbstractModule() {
 					@Override
 					protected void configure() {
+
 						bind(DOMObserver.class).to(DOMObserverImpl.class);
-						bind(new TypeLiteral<ListenerManager<DOMObserverListener>>(){})
+						bind(new TypeLiteral<ListenerManager<DOMObserverListener>>() {
+						}
+						)
 								.to(new TypeLiteral<ListenerManagerImpl<DOMObserverListener>>() {
 								}
 								);
-						bind(Node.class).toProvider(new CachingConvertingFileProvider<Node>(
-								finalXmlFile,
-								XmlFunctions.fileToRootElementFunction()
-						)
-						);
-						bind(String.class).annotatedWith(
-								Names.named("de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId")
-						).toInstance(finalNodeIdFoundInConfigurationFile);
+
+						CachingConvertingFileProvider<Node> configFileProvider =
+								new CachingConvertingFileProvider<Node>(
+										finalXmlFile,
+										XmlFunctions.fileToRootElementFunction()
+								);
+						bind(Node.class)
+								.toProvider(configFileProvider);
+
+						bind(String.class)
+								.annotatedWith(Names.named(IWSNApplicationManager.INJECTION_CONFIGURATION_NODE_ID))
+								.toInstance(finalNodeIdFoundInConfigurationFile);
 					}
 				},
 				new TestbedRuntimeModule()
@@ -230,7 +204,7 @@ public class Main {
 		IWSNApplicationManager applicationManager = injector.getInstance(IWSNApplicationManager.class);
 		applicationManager.start();
 
-		Runtime.getRuntime().addShutdownHook(new ShutdownThread(testbedRuntime, overlayManager, applicationManager));
+		Runtime.getRuntime().addShutdownHook(new Thread(injector.getInstance(IWSNShutdownRunnable.class)));
 
 	}
 

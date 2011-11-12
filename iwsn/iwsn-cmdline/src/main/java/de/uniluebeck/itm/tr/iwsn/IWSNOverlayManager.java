@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -69,6 +70,20 @@ public class IWSNOverlayManager implements DOMObserverListener, Service {
 		} catch (JAXBException e) {
 			log.error("{}", e);
 		}
+	}
+
+	@Override
+	public void onDOMLoadFailure(final Throwable cause) {
+		log.warn("Unable to load changed configuration file {}. Maybe it is corrupt? Ignoring changes! Cause: ",
+				cause
+		);
+	}
+
+	@Override
+	public void onXPathEvaluationFailure(final XPathExpressionException cause) {
+		log.error("Failed to evaluate XPath expression on configuration file. Maybe it is corrupt? "
+				+ "Ignoring changes! Cause: ", cause
+		);
 	}
 
 	private void addAndRemoveOverlayNodeNames(final Testbed oldConfig, final Testbed newConfig) {

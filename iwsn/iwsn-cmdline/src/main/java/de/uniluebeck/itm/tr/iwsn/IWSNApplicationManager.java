@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.management.RuntimeErrorException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,12 +37,15 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class IWSNApplicationManager implements DOMObserverListener, Service {
 
+	public static final String INJECTION_CONFIGURATION_NODE_ID =
+			"de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId";
+
 	private static final Logger log = LoggerFactory.getLogger(IWSNApplicationManager.class);
 
 	private final Map<String, TestbedApplication> applications = newHashMap();
 
 	@Inject
-	@Named("de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId")
+	@Named(INJECTION_CONFIGURATION_NODE_ID)
 	private String configurationNodeId;
 
 	@Inject
@@ -92,6 +95,20 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	}
 
+	@Override
+	public void onDOMLoadFailure(final Throwable cause) {
+		log.warn("Unable to load changed configuration file {}. Maybe it is corrupt? Ignoring changes! Cause: ",
+				cause
+		);
+	}
+
+	@Override
+	public void onXPathEvaluationFailure(final XPathExpressionException cause) {
+		log.error("Failed to evaluate XPath expression on configuration file. Maybe it is corrupt? "
+				+ "Ignoring changes! Cause: ", cause
+		);
+	}
+
 	private void restartApplicationsIfConfigChanged(final List<Application> oldApplications,
 													final List<Application> newApplications,
 													final Set<String> applicationsToPotentiallyRestart) {
@@ -110,7 +127,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 			final boolean nameChanged = !oldApplicationName.equals(newApplicationName);
 			final boolean factoryClassChanged = !oldApplicationFactory.equals(newApplicationFactory);
-			final boolean configurationChanged = oldApplicationConfig.isEqualNode(newApplicationConfig);
+			final boolean configurationChanged = !oldApplicationConfig.isEqualNode(newApplicationConfig);
 
 			checkState(applications.containsKey(oldApplicationName));
 
@@ -203,9 +220,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 			}
 
 		} catch (Exception e) {
-			log.warn("Exception while loading application factory class {}: {}, StackTrace: {}\n",
-					new Object[]{applicationFactoryClass, e.getMessage(), getStackTraceAsString(e)}
-			);
+			log.error("Exception while starting application \"{}\"", applicationName, e);
 		}
 	}
 
