@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.tr.nodeapi;
 
 import com.google.common.util.concurrent.SettableFuture;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +47,8 @@ public class NodeApi {
 
 	private int defaultTimeout;
 
+	private final String nodeUrn;
+
 	private static class Job {
 
 		public final int requestId;
@@ -65,15 +66,15 @@ public class NodeApi {
 
 	private int lastRequestID = 0;
 
-	private Interaction interaction = new InteractionImpl(this);
+	private final Interaction interaction;
 
-	private LinkControl linkControl = new LinkControlImpl(this);
+	private final LinkControl linkControl;
 
-	private NetworkDescription networkDescription = new NetworkDescriptionImpl(this);
+	private final NetworkDescription networkDescription;
 
-	private NodeControl nodeControl = new NodeControlImpl(this);
+	private final NodeControl nodeControl;
 
-	private NodeApiDeviceAdapter deviceAdapter;
+	private final NodeApiDeviceAdapter deviceAdapter;
 
 	private final BlockingDeque<Job> jobQueue = new LinkedBlockingDeque<Job>();
 
@@ -96,19 +97,24 @@ public class NodeApi {
 
 					// execute job
 					if (log.isDebugEnabled()) {
-						log.debug(
-								"Sending to node with request ID {}: {}",
-								currentJob.requestId,
-								toPrintableString(currentJob.buffer.array(), 200)
+						log.debug("{} => Sending to node with request ID {}: {}",
+								new Object[]{
+										nodeUrn,
+										currentJob.requestId,
+										toPrintableString(currentJob.buffer.array(), 200)
+								}
 						);
 					}
 
 					deviceAdapter.sendToNode(currentJob.buffer);
 
-					log.debug("Waiting for node to answer to job with request ID {}", currentJob.requestId);
+					log.debug("{} => Waiting for node to answer to job with request ID {}", nodeUrn,
+							currentJob.requestId
+					);
 					boolean timeout = !currentJobDone.await(defaultTimeout, defaultTimeUnit);
-					log.debug("Job with request ID {} done (timeout={}, success={}).",
+					log.debug("{} => Job with request ID {} done (timeout={}, success={}).",
 							new Object[]{
+									nodeUrn,
 									currentJob.requestId,
 									!timeout,
 									currentJobResult != null && currentJobResult.isSuccessful()
@@ -122,8 +128,9 @@ public class NodeApi {
 					}
 
 				} catch (InterruptedException e) {
-					log.trace("Interrupted while waiting for job to be done."
-							+ " This is propably OK as it should only happen during shutdown."
+					log.trace("{} => Interrupted while waiting for job to be done."
+							+ " This is propably OK as it should only happen during shutdown.",
+							nodeUrn
 					);
 				} finally {
 					currentJobLock.unlock();
@@ -135,18 +142,25 @@ public class NodeApi {
 
 	private final Condition currentJobDone = currentJobLock.newCondition();
 
-	public NodeApi(NodeApiDeviceAdapter deviceAdapter, int defaultTimeout, TimeUnit defaultTimeUnit) {
+	public NodeApi(final String nodeUrn, final NodeApiDeviceAdapter deviceAdapter, final int defaultTimeout,
+				   final TimeUnit defaultTimeUnit) {
 
+		checkNotNull(nodeUrn);
 		checkNotNull(deviceAdapter);
 		checkNotNull(defaultTimeout);
 		checkNotNull(defaultTimeUnit);
 
+		this.nodeUrn = nodeUrn;
 		this.defaultTimeout = defaultTimeout;
 		this.defaultTimeUnit = defaultTimeUnit;
 
 		this.deviceAdapter = deviceAdapter;
 		this.deviceAdapter.setNodeApi(this);
 
+		this.interaction = new InteractionImpl(nodeUrn, this);
+		this.linkControl = new LinkControlImpl(nodeUrn, this);
+		this.networkDescription = new NetworkDescriptionImpl(nodeUrn, this);
+		this.nodeControl = new NodeControlImpl(nodeUrn, this);
 	}
 
 	public Interaction getInteraction() {
@@ -181,8 +195,12 @@ public class NodeApi {
 	void sendToNode(final int requestId, final SettableFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Enqueueing job to node with request ID {}: {}", requestId,
-					toPrintableString(buffer.array(), 200)
+			log.debug("{} => Enqueueing job to node with request ID {}: {}",
+					new Object[]{
+							nodeUrn,
+							requestId,
+							toPrintableString(buffer.array(), 200)
+					}
 			);
 		}
 
@@ -198,9 +216,9 @@ public class NodeApi {
 
 		boolean isNodeAPIPacket =
 				Packets.Interaction.isInteractionPacket(packet) ||
-				Packets.LinkControl.isLinkControlPacket(packet) ||
-				Packets.NetworkDescription.isNetworkDescriptionPacket(packet) ||
-				Packets.NodeControl.isNodeControlPacket(packet);
+						Packets.LinkControl.isLinkControlPacket(packet) ||
+						Packets.NetworkDescription.isNetworkDescriptionPacket(packet) ||
+						Packets.NodeControl.isNodeControlPacket(packet);
 
 		if (!isNodeAPIPacket) {
 			return false;
@@ -216,8 +234,8 @@ public class NodeApi {
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("Received from node with request ID {} and response code {}: {}",
-					new Object[]{requestId, responseCode, responsePayload}
+			log.debug("{} => Received from node with request ID {} and response code {}: {}",
+					new Object[]{nodeUrn, requestId, responseCode, responsePayload}
 			);
 		}
 
@@ -229,11 +247,11 @@ public class NodeApi {
 
 				currentJobResult = new NodeApiCallResultImpl(requestId, responseCode, responsePayload);
 
-				log.debug("Signalling that current job is done (response received).");
+				log.debug("{} => Signalling that current job is done (response received).", nodeUrn);
 				currentJobDone.signal();
 
 			} else if (log.isDebugEnabled()) {
-				log.debug("Received message for unknown requestId: {}", requestId);
+				log.debug("{} => Received message for unknown requestId: {}", nodeUrn, requestId);
 			}
 
 		} finally {
@@ -245,12 +263,12 @@ public class NodeApi {
 	}
 
 	public void start() {
-		log.debug("Starting Node API JobExecutorThread");
+		log.debug("{} => Starting Node API JobExecutorThread", nodeUrn);
 		jobExecutorThread.start();
 	}
 
 	public void stop() {
-		log.debug("Stopping Node API JobExecutorThread");
+		log.debug("{} => Stopping Node API JobExecutorThread", nodeUrn);
 		jobExecutorThread.interrupt();
 	}
 

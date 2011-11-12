@@ -30,9 +30,12 @@ import java.util.concurrent.Future;
 
 class LinkControlImpl implements LinkControl {
 
-	private NodeApi nodeApi;
+	private final String nodeUrn;
 
-	public LinkControlImpl(NodeApi nodeApi) {
+	private final NodeApi nodeApi;
+
+	public LinkControlImpl(final String nodeUrn, NodeApi nodeApi) {
+		this.nodeUrn = nodeUrn;
 		this.nodeApi = nodeApi;
 	}
 

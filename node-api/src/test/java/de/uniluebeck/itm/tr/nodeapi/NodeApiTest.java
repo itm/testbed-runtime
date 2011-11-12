@@ -65,8 +65,8 @@ public class NodeApiTest {
 
 		Logging.setLoggingDefaults();
 
-		workingNodeApi = new NodeApi(workingDeviceAdapter, 1000, TimeUnit.MILLISECONDS);
-		timeoutNodeApi = new NodeApi(timeoutDeviceAdapter, 5, TimeUnit.MILLISECONDS);
+		workingNodeApi = new NodeApi("testNode", workingDeviceAdapter, 1000, TimeUnit.MILLISECONDS);
+		timeoutNodeApi = new NodeApi("testNode", timeoutDeviceAdapter, 5, TimeUnit.MILLISECONDS);
 
 		workingNodeApi.start();
 		timeoutNodeApi.start();

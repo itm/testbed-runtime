@@ -38,9 +38,12 @@ class InteractionImpl implements Interaction {
 
 	private static final Logger log = LoggerFactory.getLogger(Interaction.class);
 
-	private NodeApi nodeApi;
+	private final String nodeUrn;
 
-	public InteractionImpl(NodeApi nodeApi) {
+	private final NodeApi nodeApi;
+
+	public InteractionImpl(final String nodeUrn, NodeApi nodeApi) {
+		this.nodeUrn = nodeUrn;
 		this.nodeApi = nodeApi;
 	}
 
@@ -50,8 +53,9 @@ class InteractionImpl implements Interaction {
 		if (log.isTraceEnabled()) {
 
 			log.trace(
-					"InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
+					"{} => InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
 					new Object[]{
+							nodeUrn,
 							StringUtils.toHexString(RSSI),
 							StringUtils.toHexString(LQI),
 							destination,

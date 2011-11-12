@@ -31,9 +31,12 @@ import java.util.concurrent.Future;
 
 public class NodeControlImpl implements NodeControl {
 
-	private NodeApi nodeApi;
+	private final String nodeUrn;
 
-	public NodeControlImpl(NodeApi nodeApi) {
+	private final NodeApi nodeApi;
+
+	public NodeControlImpl(final String nodeUrn, NodeApi nodeApi) {
+		this.nodeUrn = nodeUrn;
 		this.nodeApi = nodeApi;
 	}
 

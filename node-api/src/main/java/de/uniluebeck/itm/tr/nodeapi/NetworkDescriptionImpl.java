@@ -31,9 +31,12 @@ import java.util.concurrent.Future;
 
 public class NetworkDescriptionImpl implements NetworkDescription {
 
-	private NodeApi nodeApi;
+	private final String nodeUrn;
 
-	public NetworkDescriptionImpl(NodeApi nodeApi) {
+	private final NodeApi nodeApi;
+
+	public NetworkDescriptionImpl(final String nodeUrn, NodeApi nodeApi) {
+		this.nodeUrn = nodeUrn;
 		this.nodeApi = nodeApi;
 	}
 

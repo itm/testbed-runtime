@@ -210,6 +210,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		this.maximumMessageRateLimiter = new RateLimiterImpl(this.maximumMessageRate, 1, maximumMessageRateTimeUnit);
 
 		this.nodeApi = new NodeApi(
+				nodeUrn,
 				nodeApiDeviceAdapter,
 				(timeoutNodeAPI == null ? DEFAULT_NODE_API_TIMEOUT : timeoutNodeAPI),
 				TimeUnit.MILLISECONDS
