@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.inject.Guice;
 import de.uniluebeck.itm.gtr.common.SchedulerService;
-import de.uniluebeck.itm.netty.handlerstack.FilterHandler;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -701,7 +700,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			public ChannelPipeline getPipeline() throws Exception {
 				final ChannelPipeline pipeline = pipeline();
 				pipeline.addFirst("forwardingHandler", forwardingHandler);
-				pipeline.addFirst("filterHandler", new FilterHandler(filterPipeline));
+				pipeline.addFirst("filterHandler", filterPipeline);
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 				return pipeline;
 			}

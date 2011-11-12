@@ -36,9 +36,7 @@ import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
-import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
-import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.*;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
 import de.uniluebeck.itm.tr.util.TimeDiff;
@@ -47,7 +45,7 @@ import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +57,10 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import static org.jboss.netty.channel.Channels.future;
 
 
-class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, FilterPipeline.UpstreamOutputListener {
+class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipelineUpstreamListener {
 
 	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
 
@@ -210,7 +209,13 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 						newHashSet(message.getSourceNodeId()),
 						userContext
 				);
-				filterPipeline.sendUpstream(buffer, sourceAddress);
+
+				final UpstreamMessageEvent upstreamMessageEvent = new UpstreamMessageEvent(
+						filterPipeline.getChannel(),
+						buffer,
+						sourceAddress
+				);
+				filterPipeline.sendUpstream(upstreamMessageEvent);
 
 			} catch (InvalidProtocolBufferException e) {
 				log.error("" + e, e);
@@ -243,86 +248,91 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		this.localNodeName = testbedRuntime.getLocalNodeNames().iterator().next();
 
 		this.filterPipeline = new FilterPipelineImpl();
-		this.filterPipeline.addListener((FilterPipeline.DownstreamOutputListener) this);
-		this.filterPipeline.addListener((FilterPipeline.UpstreamOutputListener) this);
+		this.filterPipeline.addListener((FilterPipelineDownstreamListener) this);
+		this.filterPipeline.addListener((FilterPipelineUpstreamListener) this);
 
 		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
 	}
 
 	@Override
-	public void receiveDownstreamOutput(final ChannelBuffer channelBuffer, final SocketAddress socketAddress) {
+	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 
-		Set<String> nodeUrns;
-		String timestamp;
-		Callback callback;
-		if (socketAddress instanceof WisebedMulticastAddress) {
-			nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
-			timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
-			callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
-		} else {
-			throw new RuntimeException(
-					"Expected type " + WisebedMulticastAddress.class.getName() + "but got " + socketAddress.getClass()
-							.getName() + "!"
-			);
-		}
+		if (e instanceof DownstreamMessageEvent) {
 
-		for (String nodeUrn : nodeUrns) {
+			ChannelBuffer channelBuffer = (ChannelBuffer) ((DownstreamMessageEvent) e).getMessage();
+			SocketAddress socketAddress = ((DownstreamMessageEvent) e).getRemoteAddress();
 
-			WSNAppMessages.Message message = WSNAppMessages.Message
-					.newBuilder()
-					.setBinaryData(ByteString.copyFrom(
-							channelBuffer.array(),
-							channelBuffer.readerIndex(),
-							channelBuffer.readableBytes()
-					)
-					)
-					.setSourceNodeId(nodeUrn)
-					.setTimestamp(timestamp)
-					.build();
-
-			WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
-					.newBuilder()
-					.setArguments(message.toByteString())
-					.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
-					.build();
-
-			try {
-
-				// TODO use "reliable" RCP here
-				testbedRuntime.getUnreliableMessagingService().sendAsync(
-						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-						operationInvocation.toByteArray(), 1,
-						System.currentTimeMillis() + MSG_VALIDITY
+			Set<String> nodeUrns;
+			String timestamp;
+			Callback callback;
+			if (socketAddress instanceof WisebedMulticastAddress) {
+				nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
+				timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+				callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
+			} else {
+				throw new RuntimeException(
+						"Expected type " + WisebedMulticastAddress.class.getName() + "but got " + socketAddress
+								.getClass()
+								.getName() + "!"
 				);
+			}
 
-				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-						WSNAppMessages.RequestStatus.Status.newBuilder()
-								.setNodeId(nodeUrn)
-								.setValue(1);
+			for (String nodeUrn : nodeUrns) {
 
-				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
-						.setStatus(statusBuilder)
+				WSNAppMessages.Message message = WSNAppMessages.Message
+						.newBuilder()
+						.setBinaryData(ByteString.copyFrom(
+								channelBuffer.array(),
+								channelBuffer.readerIndex(),
+								channelBuffer.readableBytes()
+						)
+						)
+						.setSourceNodeId(nodeUrn)
+						.setTimestamp(timestamp)
 						.build();
 
-				callback.receivedRequestStatus(requestStatus);
-
-			} catch (UnknownNameException e) {
-
-				WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-						WSNAppMessages.RequestStatus.Status.newBuilder()
-								.setNodeId(nodeUrn)
-								.setMsg("Unknown node URN \"" + nodeUrn + "\"")
-								.setValue(-1);
-
-				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
-						.setStatus(statusBuilder)
+				WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
+						.newBuilder()
+						.setArguments(message.toByteString())
+						.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
 						.build();
 
-				callback.receivedRequestStatus(requestStatus);
+				try {
+
+					testbedRuntime.getUnreliableMessagingService().sendAsync(
+							localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+							operationInvocation.toByteArray(), 1,
+							System.currentTimeMillis() + MSG_VALIDITY
+					);
+
+					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+							WSNAppMessages.RequestStatus.Status.newBuilder()
+									.setNodeId(nodeUrn)
+									.setValue(1);
+
+					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+							.setStatus(statusBuilder)
+							.build();
+
+					callback.receivedRequestStatus(requestStatus);
+
+				} catch (UnknownNameException e1) {
+
+					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+							WSNAppMessages.RequestStatus.Status.newBuilder()
+									.setNodeId(nodeUrn)
+									.setMsg("Unknown node URN \"" + nodeUrn + "\"")
+									.setValue(-1);
+
+					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+							.setStatus(statusBuilder)
+							.build();
+
+					callback.receivedRequestStatus(requestStatus);
+				}
 			}
 		}
-
 	}
 
 	@Override
@@ -352,16 +362,22 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 	}
 
 	@Override
-	public void receiveUpstreamOutput(final ChannelBuffer channelBuffer, final SocketAddress socketAddress) {
+	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 
-		byte[] bytes = new byte[channelBuffer.readableBytes()];
-		channelBuffer.readBytes(bytes);
+		if (e instanceof UpstreamMessageEvent) {
 
-		String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
-		String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+			ChannelBuffer channelBuffer = (ChannelBuffer) ((UpstreamMessageEvent) e).getMessage();
+			SocketAddress socketAddress = ((UpstreamMessageEvent) e).getRemoteAddress();
 
-		for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
-			receiver.receive(bytes, sourceNodeId, timestamp);
+			byte[] bytes = new byte[channelBuffer.readableBytes()];
+			channelBuffer.readBytes(bytes);
+
+			String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
+			String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+
+			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+				receiver.receive(bytes, sourceNodeId, timestamp);
+			}
 		}
 	}
 
@@ -420,7 +436,14 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 		userContext.put("callback", callback);
 
 		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(nodeUrns, userContext);
-		filterPipeline.sendDownstream(buffer, targetAddress);
+
+		final DownstreamMessageEvent downstreamMessageEvent = new DownstreamMessageEvent(
+				filterPipeline.getChannel(),
+				future(filterPipeline.getChannel()),
+				buffer,
+				targetAddress
+		);
+		filterPipeline.sendDownstream(downstreamMessageEvent);
 	}
 
 	@Override
@@ -444,18 +467,20 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations1 =
 					convertCHCList(channelHandlerConfigurations);
 
-			final List<Tuple<String,ChannelHandler>> channelPipeline =
+			final List<Tuple<String, ChannelHandler>> channelPipeline =
 					handlerFactoryRegistry.create(channelHandlerConfigurations1);
 
 			if (log.isDebugEnabled() && channelHandlerConfigurations1.size() > 0) {
 				channelPipeline.add(0, new Tuple<String, ChannelHandler>(
 						"aboveFilterPipelineLogger",
 						new AboveFilterPipelineLogger("portal")
-				));
+				)
+				);
 				channelPipeline.add(new Tuple<String, ChannelHandler>(
 						"belowFilterPipelineLogger",
 						new BelowFilterPipelineLogger("portal")
-				));
+				)
+				);
 			}
 
 			filterPipeline.setChannelPipeline(channelPipeline);
@@ -893,13 +918,13 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 						.newBuilder()
 						.setName("dlestxetx-framing");
 
-		WSNAppMessages.SetChannelPipelineRequest.Builder scpr = WSNAppMessages.SetChannelPipelineRequest
+		WSNAppMessages.SetChannelPipelineRequest.Builder requestBuilder = WSNAppMessages.SetChannelPipelineRequest
 				.newBuilder()
 				.addChannelHandlerConfigurations(chc);
 
 		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
-				.setArguments(scpr.build().toByteString())
+				.setArguments(requestBuilder.build().toByteString())
 				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
 
 		final byte[] bytes = operationInvocation.build().toByteArray();
@@ -909,7 +934,8 @@ class WSNAppImpl implements WSNApp, FilterPipeline.DownstreamOutputListener, Fil
 			try {
 				testbedRuntime.getReliableMessagingService().send(
 						localNodeName, nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY);
+						System.currentTimeMillis() + MSG_VALIDITY
+				);
 			} catch (UnknownNameException e) {
 				log.error("" + e, e);
 			} catch (ReliableMessagingTimeoutException e) {
