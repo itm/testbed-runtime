@@ -74,7 +74,7 @@ import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
-public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppConnector.NodeOutputListener>
+public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppConnector.NodeOutputListener>
 		implements WSNDeviceAppConnector {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
