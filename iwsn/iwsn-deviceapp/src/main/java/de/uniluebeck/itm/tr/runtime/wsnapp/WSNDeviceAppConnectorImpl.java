@@ -43,18 +43,12 @@ import de.uniluebeck.itm.wsn.deviceutils.macreader.DeviceMacReferenceMap;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
-import de.uniluebeck.itm.wsn.drivers.core.Connection;
+import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
-import de.uniluebeck.itm.wsn.drivers.core.async.AsyncAdapter;
-import de.uniluebeck.itm.wsn.drivers.core.async.DeviceAsync;
-import de.uniluebeck.itm.wsn.drivers.core.async.ExecutorServiceOperationQueue;
-import de.uniluebeck.itm.wsn.drivers.core.async.OperationQueue;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
-import de.uniluebeck.itm.wsn.drivers.core.operation.Operation;
-import de.uniluebeck.itm.wsn.drivers.core.operation.ProgramOperation;
-import de.uniluebeck.itm.wsn.drivers.factories.ConnectionFactory;
-import de.uniluebeck.itm.wsn.drivers.factories.ConnectionFactoryImpl;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceAsyncFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallback;
+import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallbackAdapter;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -70,6 +64,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.io.Closeables.closeQuietly;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
@@ -131,12 +126,15 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	private ExecutorService executorService;
 
+	private transient boolean flashOperationRunningOrEnqueued = false;
+
 	private final Runnable connectRunnable = new Runnable() {
 
 		@Override
 		public void run() {
 
 			try {
+
 				if (nodeSerialInterfaceUnknown()) {
 
 					tryToDetectNodeSerialInterface();
@@ -148,7 +146,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 				}
 
-				connect();
+				closeQuietly(device);
+				tryToConnect();
 
 			} catch (Exception e) {
 				log.error("" + e, e);
@@ -189,11 +188,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	private String nodeUrn;
 
-	private OperationQueue deviceOperationQueue;
-
-	private Connection deviceConnection;
-
-	private DeviceAsync device;
+	private Device device;
 
 	private ScheduledExecutorService scheduledExecutorService;
 
@@ -246,8 +241,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
 
 		shutdownDeviceChannel();
-		shutdownDeviceConnection();
-		shutdownDevice();
+		closeQuietly(device);
 
 		if (executorService != null) {
 			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
@@ -359,7 +353,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		if (isConnected()) {
 
-			if (isFlashOperationRunningOrEnqueued()) {
+			if (flashOperationRunningOrEnqueued) {
 
 				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
 				log.warn("{} => flashProgram: {}", nodeUrn, msg);
@@ -367,7 +361,8 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 			} else {
 
-				device.program(program.getProgram().toByteArray(), timeoutFlash, new AsyncAdapter<Void>() {
+				flashOperationRunningOrEnqueued = true;
+				device.program(program.getProgram().toByteArray(), timeoutFlash, new OperationCallback<Void>() {
 
 					private int lastProgress = -1;
 
@@ -380,8 +375,10 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 					@Override
 					public void onCancel() {
+
 						String msg = "Flash operation was canceled.";
 						log.error("{} => flashProgram: {}", nodeUrn, msg);
+						flashOperationRunningOrEnqueued = false;
 						listener.failure((byte) -1, msg.getBytes());
 					}
 
@@ -397,6 +394,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 						}
 
 						log.warn("{} => flashProgram: {}", nodeUrn, msg);
+						flashOperationRunningOrEnqueued = false;
 						listener.failure((byte) -3, msg.getBytes());
 					}
 
@@ -417,6 +415,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 					public void onSuccess(final Void result) {
 
 						log.debug("{} => Done flashing node.", nodeUrn);
+						flashOperationRunningOrEnqueued = false;
 						listener.success(null);
 					}
 				}
@@ -452,7 +451,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 		if (isConnected()) {
 
-			device.reset(timeoutReset, new AsyncAdapter<Void>() {
+			device.reset(timeoutReset, new OperationCallbackAdapter<Void>() {
 
 				@Override
 				public void onExecute() {
@@ -613,14 +612,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		}
 	}
 
-	private void connect() throws Exception {
-
-		shutdownDeviceConnection();
-		shutdownDevice();
-
-		tryToConnect();
-	}
-
 	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
 		@Override
 		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
@@ -667,15 +658,11 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 
 	private void tryToConnect() throws Exception {
 
-		final ConnectionFactory connectionFactory = new ConnectionFactoryImpl();
-		deviceConnection = connectionFactory.create(nodeType);
-
-		final DeviceAsyncFactoryImpl deviceFactory = new DeviceAsyncFactoryImpl(new DeviceFactoryImpl());
-		deviceOperationQueue = new ExecutorServiceOperationQueue();
-		device = deviceFactory.create(scheduledExecutorService, nodeType, deviceConnection, deviceOperationQueue);
+		DeviceFactory deviceFactory = new DeviceFactoryImpl();
+		device = deviceFactory.create(scheduledExecutorService, nodeType);
 
 		try {
-			deviceConnection.connect(nodeSerialInterface);
+			device.connect(nodeSerialInterface);
 		} catch (Exception e) {
 			log.warn("{} => Could not connect to {} device at {}.",
 					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
@@ -683,7 +670,7 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
 		}
 
-		if (!deviceConnection.isConnected()) {
+		if (!device.isConnected()) {
 			log.warn("{} => Could not connect to {} device at {}.",
 					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 			);
@@ -888,29 +875,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 		}
 	}
 
-	private void shutdownDevice() {
-
-		if (device != null) {
-			try {
-				device.close();
-			} catch (Exception e) {
-				log.warn("IOException while closing Device: {}", e);
-			}
-		}
-	}
-
-	private void shutdownDeviceConnection() {
-
-		if (deviceConnection != null && deviceConnection.isConnected()) {
-
-			try {
-				deviceConnection.close();
-			} catch (Exception e) {
-				log.warn("Exception while closing DeviceConnection: {}", e);
-			}
-		}
-	}
-
 	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
 		return messageBytes.length > 1 &&
 				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
@@ -943,15 +907,6 @@ public class WSNDeviceAppConnectorImpl extends AbstractListenable<WSNDeviceAppCo
 	}
 
 	private boolean isConnected() {
-		return deviceConnection != null && deviceConnection.isConnected();
-	}
-
-	private boolean isFlashOperationRunningOrEnqueued() {
-		for (Operation<?> operation : deviceOperationQueue.getOperations()) {
-			if (operation instanceof ProgramOperation) {
-				return true;
-			}
-		}
-		return false;
+		return device != null && device.isConnected();
 	}
 }
