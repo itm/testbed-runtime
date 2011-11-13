@@ -1,11 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
 import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
@@ -25,6 +27,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -49,19 +53,17 @@ public class IWSNOverlayManager implements Service {
 		@Override
 		public void onDOMChanged(final DOMTuple oldAndNew) {
 
-			try {
+			if (scheduler != null && !scheduler.isShutdown()) {
 
-				Object oldDOM = oldAndNew.getFirst();
-				Object newDOM = oldAndNew.getSecond();
-
-				Testbed oldConfig = oldDOM == null ? null : unmarshal((org.w3c.dom.Node) oldDOM);
-				Testbed newConfig = newDOM == null ? null : unmarshal((org.w3c.dom.Node) newDOM);
-
-				addAndRemoveOverlayNodes(oldConfig, newConfig);
-				addAndRemoveOverlayNodeNames(oldConfig, newConfig);
-
-			} catch (JAXBException e) {
-				log.error("{}", e);
+				scheduler.execute(new Runnable() {
+					@Override
+					public void run() {
+						onDOMChangedInternal(oldAndNew);
+					}
+				}
+				);
+			} else {
+				onDOMChangedInternal(oldAndNew);
 			}
 		}
 
@@ -80,11 +82,30 @@ public class IWSNOverlayManager implements Service {
 		}
 	};
 
+	private void onDOMChangedInternal(final DOMTuple oldAndNew) {
+		try {
+
+			Object oldDOM = oldAndNew.getFirst();
+			Object newDOM = oldAndNew.getSecond();
+
+			Testbed oldConfig = oldDOM == null ? null : unmarshal((org.w3c.dom.Node) oldDOM);
+			Testbed newConfig = newDOM == null ? null : unmarshal((org.w3c.dom.Node) newDOM);
+
+			addAndRemoveOverlayNodes(oldConfig, newConfig);
+			addAndRemoveOverlayNodeNames(oldConfig, newConfig);
+
+		} catch (JAXBException e) {
+			log.error("{}", e);
+		}
+	}
+
 	private TestbedRuntime overlay;
 
 	private DOMObserver domObserver;
 
 	private ScheduledFuture<?> domObserverSchedule;
+
+	private ScheduledExecutorService scheduler;
 
 	IWSNOverlayManager(final TestbedRuntime overlay, final DOMObserver domObserver) {
 		this.overlay = overlay;
@@ -93,8 +114,12 @@ public class IWSNOverlayManager implements Service {
 
 	@Override
 	public void start() throws Exception {
+		scheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("OverlayManager-Thread %d").build()
+		);
 		domObserver.addListener(domObserverListener);
-		domObserverSchedule = overlay.getSchedulerService().scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
+		domObserverSchedule = scheduler.scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -103,6 +128,7 @@ public class IWSNOverlayManager implements Service {
 			domObserverSchedule.cancel(false);
 		}
 		domObserver.removeListener(domObserverListener);
+		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 	}
 
 	private void addAndRemoveOverlayNodeNames(final Testbed oldConfig, final Testbed newConfig) {

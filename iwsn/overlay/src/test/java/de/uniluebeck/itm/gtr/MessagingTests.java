@@ -35,6 +35,7 @@ import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingTimeoutExceptio
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +69,8 @@ public class MessagingTests {
 
 	private ExecutorService executorService;
 
+	private ScheduledExecutorService scheduledExecutorService;
+
 	private static class UnreliableMessageRunnable implements Runnable {
 
 		private UnreliableMessagingService messageService;
@@ -95,11 +98,17 @@ public class MessagingTests {
 
 		log.debug("================== Setting up... ==================");
 
-		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule());
+		scheduledExecutorService = Executors.newScheduledThreadPool(2);
+
+		Injector gw1Injector = Guice.createInjector(
+				new TestbedRuntimeModule(scheduledExecutorService, scheduledExecutorService, scheduledExecutorService)
+		);
 		gw1 = gw1Injector.getInstance(TestbedRuntime.class);
 		gw1.getLocalNodeNameManager().addLocalNodeName("gw1");
 
-		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule());
+		Injector gw2Injector = Guice.createInjector(
+				new TestbedRuntimeModule(scheduledExecutorService, scheduledExecutorService, scheduledExecutorService)
+		);
 		gw2 = gw2Injector.getInstance(TestbedRuntime.class);
 		gw2.getLocalNodeNameManager().addLocalNodeName("gw2");
 
@@ -164,6 +173,8 @@ public class MessagingTests {
 		mes1 = mes2 = null;
 		rms1 = null;
 		ums1 = ums2 = null;
+
+		ExecutorUtils.shutdown(scheduledExecutorService, 0, TimeUnit.SECONDS);
 
 	}
 

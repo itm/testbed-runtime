@@ -1,9 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
@@ -24,6 +26,8 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -35,14 +39,11 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class IWSNApplicationManager implements DOMObserverListener, Service {
 
-	public static final String INJECTION_CONFIGURATION_NODE_ID =
-			"de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId";
-
 	private static final Logger log = LoggerFactory.getLogger(IWSNApplicationManager.class);
 
 	private final Map<String, TestbedApplication> applications = newHashMap();
 
-	private final TestbedRuntime overlay;
+	private final TestbedRuntime testbedRuntime;
 
 	private final DOMObserver domObserver;
 
@@ -50,11 +51,13 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	private ScheduledFuture<?> domObserverSchedule;
 
-	IWSNApplicationManager(final TestbedRuntime overlay, final DOMObserver domObserver,
+	private ScheduledExecutorService scheduler;
+
+	IWSNApplicationManager(final TestbedRuntime testbedRuntime, final DOMObserver domObserver,
 						   final String configurationNodeId) {
 
 		this.domObserver = domObserver;
-		this.overlay = overlay;
+		this.testbedRuntime = testbedRuntime;
 		this.configurationNodeId = configurationNodeId;
 	}
 
@@ -71,6 +74,21 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 	@Override
 	public void onDOMChanged(final DOMTuple oldAndNew) {
 
+		if (scheduler != null && !scheduler.isShutdown()) {
+
+			scheduler.execute(new Runnable() {
+				@Override
+				public void run() {
+					onDOMChangedInternal(oldAndNew);
+				}
+			}
+			);
+		} else {
+			onDOMChangedInternal(oldAndNew);
+		}
+	}
+
+	private void onDOMChangedInternal(final DOMTuple oldAndNew) {
 		try {
 
 			Object oldDOM = oldAndNew.getFirst();
@@ -94,7 +112,6 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 		} catch (JAXBException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
@@ -210,7 +227,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 			log.debug("Creating application \"{}\"", applicationName);
 			TestbedApplication application = applicationFactory.create(
-					overlay,
+					testbedRuntime,
 					applicationName,
 					applicationConfig
 			);
@@ -246,15 +263,29 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	@Override
 	public void start() throws Exception {
+		scheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("ApplicationManager-Thread %d").build()
+		);
 		domObserver.addListener(this);
-		domObserverSchedule = overlay.getSchedulerService().scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
+		domObserverSchedule = scheduler.scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void stop() {
+		for (TestbedApplication testbedApplication : applications.values()) {
+			try {
+				testbedApplication.stop();
+			} catch (Exception e) {
+				log.warn("TestbedApplication \"{}\" threw an Exception during shutdown: {}",
+						testbedApplication.getName(), e
+				);
+			}
+		}
 		if (domObserverSchedule != null) {
 			domObserverSchedule.cancel(false);
 		}
 		domObserver.removeListener(this);
+		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 	}
 }

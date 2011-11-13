@@ -25,9 +25,6 @@ package de.uniluebeck.itm.gtr.messaging.srmr;
 
 import com.google.inject.AbstractModule;
 
-/**
- * Created by IntelliJ IDEA. User: bimschas Date: 27.04.2010 Time: 14:37:20 TODO change
- */
 public class SingleRequestMultiResponseModule extends AbstractModule {
 
 	@Override

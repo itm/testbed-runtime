@@ -25,8 +25,8 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
-import de.uniluebeck.itm.gtr.common.SchedulerService;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -90,8 +90,6 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
-	private final SchedulerService schedulerService;
-
 	private final WSNDeviceAppConfiguration configuration;
 
 	private final RateLimiter maximumMessageRateLimiter;
@@ -108,7 +106,15 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private int packetsDroppedSinceLastNotification = 0;
 
-	private ExecutorService executorService;
+	/**
+	 * Used to execute calls on the Node API as calls to it will currently block the thread executing the call.
+	 */
+	private ExecutorService nodeApiExecutor;
+
+	/**
+	 * A scheduler that is used by the device drivers to schedule operations and communications with the device.
+	 */
+	private ScheduledExecutorService deviceDriverScheduler;
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
@@ -174,18 +180,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private Device device;
 
-	private ScheduledExecutorService scheduledExecutorService;
-
 	private FilterPipeline filterPipeline = new FilterPipelineImpl();
 
 	private String detectedNodeSerialInterface;
 
-	public WSNDeviceAppConnectorImpl(final SchedulerService schedulerService,
-									 final WSNDeviceAppConfiguration configuration) {
+	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration) {
 
-		this.schedulerService = schedulerService;
 		this.configuration = configuration;
-
 
 		this.nodeApi = new NodeApi(
 				configuration.getNodeUrn(),
@@ -209,9 +210,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	@Override
 	public void start() throws Exception {
-		scheduledExecutorService = Executors.newScheduledThreadPool(1);
-		executorService = Executors.newCachedThreadPool();
-		schedulerService.execute(connectRunnable);
+		nodeApiExecutor = Executors.newCachedThreadPool();
+		deviceDriverScheduler = Executors.newScheduledThreadPool(2,
+				new ThreadFactoryBuilder()
+						.setNameFormat("[" + configuration.getNodeUrn() + "]-Thread %d")
+						.build()
+		);
+		deviceDriverScheduler.execute(connectRunnable);
 		nodeApi.start();
 	}
 
@@ -225,12 +230,12 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		shutdownDeviceChannel();
 		closeQuietly(device);
 
-		if (executorService != null) {
-			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
+		if (nodeApiExecutor != null) {
+			ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
 		}
 
-		if (scheduledExecutorService != null) {
-			ExecutorUtils.shutdown(scheduledExecutorService, 1, TimeUnit.SECONDS);
+		if (deviceDriverScheduler != null) {
+			ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
 		}
 	}
 
@@ -240,7 +245,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
@@ -259,7 +264,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getNodeControl().disableNode(), listener);
@@ -278,7 +283,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
@@ -297,7 +302,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getNodeControl().enableNode(), listener);
@@ -315,7 +320,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
@@ -492,7 +497,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
 
-				executorService.execute(new Runnable() {
+				nodeApiExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
 						callCallback(
@@ -646,7 +651,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	private void tryToConnect() throws Exception {
 
 		DeviceFactory deviceFactory = new DeviceFactoryImpl();
-		device = deviceFactory.create(scheduledExecutorService, configuration.getNodeType());
+		device = deviceFactory.create(deviceDriverScheduler, configuration.getNodeType());
 
 		String interfaceToConnectTo = detectedNodeSerialInterface != null ?
 				detectedNodeSerialInterface :
@@ -688,7 +693,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				}
 		);
 
-		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
+		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
@@ -862,7 +867,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
-			executorService.execute(new Runnable() {
+			nodeApiExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);

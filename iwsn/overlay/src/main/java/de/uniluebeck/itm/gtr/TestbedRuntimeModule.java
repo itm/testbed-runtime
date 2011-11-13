@@ -24,37 +24,61 @@
 package de.uniluebeck.itm.gtr;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.TypeLiteral;
-import de.uniluebeck.itm.gtr.common.CommonModule;
+import com.google.inject.name.Names;
 import de.uniluebeck.itm.gtr.connection.ConnectionModule;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventModule;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingModule;
-import de.uniluebeck.itm.gtr.messaging.server.MessageServerModule;
+import de.uniluebeck.itm.gtr.messaging.server.MessageServerServiceModule;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseModule;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingModule;
 import de.uniluebeck.itm.gtr.naming.NamingModule;
 import de.uniluebeck.itm.gtr.routing.RoutingModule;
-import de.uniluebeck.itm.tr.util.ListenerManager;
-import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 
 public class TestbedRuntimeModule extends AbstractModule {
 
+	private final ExecutorService asyncEventBusExecutor;
+
+	private final ScheduledExecutorService messageServerServiceScheduler;
+
+	private final ScheduledExecutorService reliableMessagingServiceScheduler;
+
+	public TestbedRuntimeModule(final ExecutorService asyncEventBusExecutor,
+								final ScheduledExecutorService messageServerServiceScheduler,
+								final ScheduledExecutorService reliableMessagingServiceScheduler) {
+
+		this.asyncEventBusExecutor = asyncEventBusExecutor;
+		this.messageServerServiceScheduler = messageServerServiceScheduler;
+		this.reliableMessagingServiceScheduler = reliableMessagingServiceScheduler;
+	}
+
 	@Override
 	protected void configure() {
 
-		install(new CommonModule());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(TestbedRuntime.INJECT_ASYNC_EVENTBUS_EXECUTOR))
+				.toInstance(asyncEventBusExecutor);
+
+		bind(ScheduledExecutorService.class)
+				.annotatedWith(Names.named(TestbedRuntime.INJECT_MESSAGE_SERVER_SCHEDULER))
+				.toInstance(messageServerServiceScheduler);
+
+		bind(ScheduledExecutorService.class)
+				.annotatedWith(Names.named(TestbedRuntime.INJECT_RELIABLE_MESSAGING_SCHEDULER))
+				.toInstance(reliableMessagingServiceScheduler);
+
 		install(new ConnectionModule());
 		install(new MessageEventModule());
-		install(new MessageServerModule());
+		install(new MessageServerServiceModule());
 		install(new NamingModule());
 		install(new ReliableMessagingModule());
 		install(new RoutingModule());
 		install(new UnreliableMessagingModule());
 		install(new SingleRequestMultiResponseModule());
-
-		bind(new TypeLiteral<ListenerManager<LocalNodeNameListener>>(){})
-				.to(new TypeLiteral<ListenerManagerImpl<LocalNodeNameListener>>(){});
+		install(new LocalNodeNameManagerModule());
 
 		bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
 	}

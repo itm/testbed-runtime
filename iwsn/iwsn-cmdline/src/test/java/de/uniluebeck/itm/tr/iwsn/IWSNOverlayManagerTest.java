@@ -73,7 +73,7 @@ public class IWSNOverlayManagerTest {
 				bind(IWSNOverlayManagerFactory.class).to(IWSNOverlayManagerFactoryImpl.class);
 			}
 		}
-		).getInstance(IWSNOverlayManagerFactory.class).create(domObserverMock);
+		).getInstance(IWSNOverlayManagerFactory.class).create(testbedRuntimeMock, domObserverMock);
 
 		when(testbedRuntimeMock.getNamingService()).thenReturn(namingServiceMock);
 		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableService);

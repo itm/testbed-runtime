@@ -1,20 +1,26 @@
 package de.uniluebeck.itm.tr.runtime.stats;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class RuntimeStatsApplication implements TestbedApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(RuntimeStatsApplication.class);
+
+	private ScheduledExecutorService scheduler;
 
 	public static class MovingAverage {
 
@@ -37,7 +43,9 @@ public class RuntimeStatsApplication implements TestbedApplication {
 		}
 
 		public double getAvg() {
-			if (window.isEmpty()) return 0;
+			if (window.isEmpty()) {
+				return 0;
+			}
 			return sum / window.size();
 		}
 
@@ -102,9 +110,15 @@ public class RuntimeStatsApplication implements TestbedApplication {
 	@Override
 	public void start() throws Exception {
 
+		if (scheduler == null) {
+			scheduler = Executors.newScheduledThreadPool(1,
+					new ThreadFactoryBuilder().setNameFormat("RuntimeStats-Thread %d").build()
+			);
+		}
+
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
 
-		calculatingScheduledFuture = testbedRuntime.getSchedulerService().scheduleAtFixedRate(new Runnable() {
+		calculatingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 
@@ -130,34 +144,40 @@ public class RuntimeStatsApplication implements TestbedApplication {
 				messagesReceivedMovingAverage300Seconds.newNum(received);
 
 			}
-		}, 1, 1, TimeUnit.SECONDS);
+		}, 1, 1, TimeUnit.SECONDS
+		);
 
-		loggingScheduledFuture = testbedRuntime.getSchedulerService().scheduleAtFixedRate(new Runnable() {
+		loggingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
-				log.debug("### Avg sent: {} {} {}", new Object[] {
+				log.debug("### Avg sent: {} {} {}", new Object[]{
 						messagesSentMovingAverage10Seconds.getAvg(),
 						messagesSentMovingAverage60Seconds.getAvg(),
 						messagesSentMovingAverage300Seconds.getAvg()
-				});
-				log.debug("### Avg dropped: {} {} {}", new Object[] {
+				}
+				);
+				log.debug("### Avg dropped: {} {} {}", new Object[]{
 						messagesDroppedMovingAverage10Seconds.getAvg(),
 						messagesDroppedMovingAverage60Seconds.getAvg(),
 						messagesDroppedMovingAverage300Seconds.getAvg()
-				});
-				log.debug("### Avg received: {} {} {}", new Object[] {
+				}
+				);
+				log.debug("### Avg received: {} {} {}", new Object[]{
 						messagesReceivedMovingAverage10Seconds.getAvg(),
 						messagesReceivedMovingAverage60Seconds.getAvg(),
 						messagesReceivedMovingAverage300Seconds.getAvg()
-				});
+				}
+				);
 			}
-		}, 10, 10, TimeUnit.SECONDS);
+		}, 10, 10, TimeUnit.SECONDS
+		);
 	}
 
 	@Override
 	public void stop() throws Exception {
 		loggingScheduledFuture.cancel(true);
 		calculatingScheduledFuture.cancel(true);
+		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 	}
 }

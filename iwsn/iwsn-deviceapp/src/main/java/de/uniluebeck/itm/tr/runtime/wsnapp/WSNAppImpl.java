@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.*;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -39,6 +40,7 @@ import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.netty.handlerstack.*;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.common.KeyValuePair;
@@ -51,6 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -148,6 +152,8 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 
 	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
 			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
+
+	private ScheduledExecutorService scheduler;
 
 	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
 		@Override
@@ -395,12 +401,21 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 	@Override
 	public void start() throws Exception {
 
+		scheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("WSNApp-Thread %d").build()
+		);
+
 		// start listening to sensor node output messages
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
 
 		// periodically register at the node counterpart as listener to receive output from the nodes
-		registerNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
-				.scheduleWithFixedDelay(registerNodeMessageReceiverRunnable, 5, 30, TimeUnit.SECONDS);
+		registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
+				registerNodeMessageReceiverRunnable,
+				0,
+				30,
+				TimeUnit.SECONDS
+		);
 
 	}
 
@@ -416,10 +431,12 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		registerNodeMessageReceiverFuture.cancel(false);
 
 		// unregister with all nodes once
-		testbedRuntime.getSchedulerService().execute(unregisterNodeMessageReceiverRunnable);
+		scheduler.execute(unregisterNodeMessageReceiverRunnable);
 
 		// stop listening for messages from the nodes
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+
+		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 
 		log.info("WSNApp stopped!");
 	}
