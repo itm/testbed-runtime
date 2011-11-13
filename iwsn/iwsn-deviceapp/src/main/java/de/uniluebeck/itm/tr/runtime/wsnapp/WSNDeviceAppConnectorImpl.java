@@ -25,6 +25,8 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
@@ -91,6 +93,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
 	private final WSNDeviceAppConfiguration configuration;
+
+	private final EventBus eventBus;
 
 	private final RateLimiter maximumMessageRateLimiter;
 
@@ -184,9 +188,10 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private String detectedNodeSerialInterface;
 
-	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration) {
+	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration, final EventBus eventBus) {
 
 		this.configuration = configuration;
+		this.eventBus = eventBus;
 
 		this.nodeApi = new NodeApi(
 				configuration.getNodeUrn(),
@@ -208,8 +213,14 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		}
 	}
 
+	@Subscribe
+	public void onDeviceObserverEvent(DeviceEvent deviceEvent) {
+		log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
+	}
+
 	@Override
 	public void start() throws Exception {
+		eventBus.register(this);
 		nodeApiExecutor = Executors.newCachedThreadPool();
 		deviceDriverScheduler = Executors.newScheduledThreadPool(2,
 				new ThreadFactoryBuilder()
@@ -222,7 +233,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	@Override
 	public void stop() {
-
+		eventBus.unregister(this);
 		nodeApi.stop();
 
 		log.debug("{} => Shutting down {} device", configuration.getNodeUrn(), configuration.getNodeType());
