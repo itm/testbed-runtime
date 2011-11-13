@@ -1,0 +1,71 @@
+package de.uniluebeck.itm.tr.runtime.wsndeviceobserver;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.gtr.application.TestbedApplication;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
+import de.uniluebeck.itm.wsn.deviceutils.ScheduledExecutorServiceModule;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserverListener;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+public class WSNDeviceObserver implements TestbedApplication, DeviceObserverListener {
+
+	private final TestbedRuntime testbedRuntime;
+
+	private final String applicationName;
+
+	private final DeviceObserver deviceObserver;
+
+	private ScheduledExecutorService scheduler;
+
+	private ScheduledFuture<?> deviceObserverSchedule;
+
+	public WSNDeviceObserver(final TestbedRuntime testbedRuntime, final String applicationName,
+							 final WSNDeviceObserverConfiguration configuration) {
+
+		this.testbedRuntime = testbedRuntime;
+		this.applicationName = applicationName;
+
+		Injector injector = Guice.createInjector(
+				new DeviceUtilsModule(configuration.getDeviceMacReferenceMap()),
+				new ScheduledExecutorServiceModule(DeviceObserver.class.getSimpleName())
+		);
+		this.deviceObserver = injector.getInstance(DeviceObserver.class);
+	}
+
+	@Override
+	public String getName() {
+		return applicationName;
+	}
+
+	@Override
+	public void start() throws Exception {
+		deviceObserver.addListener(this);
+		scheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("DeviceObserver-Thread $d").build()
+		);
+		deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void stop() throws Exception {
+		deviceObserver.removeListener(this);
+		deviceObserverSchedule.cancel(false);
+		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void deviceEvent(final DeviceEvent event) {
+		testbedRuntime.getAsyncEventBus().post(event);
+	}
+}
