@@ -86,43 +86,27 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
-	private static final int DEFAULT_NODE_API_TIMEOUT = 1000;
-
-	private static final int DEFAULT_MAXIMUM_MESSAGE_RATE = Integer.MAX_VALUE;
-
 	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
-	private final String nodeType;
-
-	private final String nodeUSBChipID;
-
-	private String nodeSerialInterface;
-
 	private final SchedulerService schedulerService;
+
+	private final WSNDeviceAppConfiguration configuration;
+
+	private final RateLimiter maximumMessageRateLimiter;
+
+	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
+
+	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
 	private int resetCount = 0;
 
 	private int flashCount = 0;
 
-	private final int timeoutReset;
-
-	private final int timeoutFlash;
-
-	private final int maximumMessageRate;
-
-	private final TimeUnit maximumMessageRateTimeUnit;
-
-	private final RateLimiter maximumMessageRateLimiter;
-
 	private Channel deviceChannel;
 
-	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
-
 	private int packetsDroppedSinceLastNotification = 0;
-
-	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
 	private ExecutorService executorService;
 
@@ -140,7 +124,9 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 					tryToDetectNodeSerialInterface();
 
 					if (nodeSerialInterfaceUnknown()) {
-						log.warn("{} => Could not find port for {} device.", nodeUrn, nodeType);
+						log.warn("{} => Could not find port for {} device.",
+								configuration.getNodeUrn(), configuration.getNodeType()
+						);
 						return;
 					}
 
@@ -168,7 +154,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				if (log.isDebugEnabled()) {
 					log.debug(
 							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
-							nodeUrn,
+							configuration.getNodeUrn(),
 							toPrintableString(packet.array(), 200)
 					);
 				}
@@ -186,44 +172,39 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		}
 	};
 
-	private String nodeUrn;
-
 	private Device device;
 
 	private ScheduledExecutorService scheduledExecutorService;
 
 	private FilterPipeline filterPipeline = new FilterPipelineImpl();
 
-	public WSNDeviceAppConnectorImpl(final String nodeUrn, final String nodeType, final String nodeUSBChipID,
-									 final String nodeSerialInterface, final Integer timeoutNodeAPI,
-									 final Integer maximumMessageRate, final Integer timeoutReset,
-									 final Integer timeoutFlash, final SchedulerService schedulerService) {
+	private String detectedNodeSerialInterface;
 
-		this.nodeUrn = nodeUrn;
-		this.nodeType = nodeType;
-		this.nodeUSBChipID = nodeUSBChipID;
-		this.nodeSerialInterface = nodeSerialInterface;
+	public WSNDeviceAppConnectorImpl(final SchedulerService schedulerService,
+									 final WSNDeviceAppConfiguration configuration) {
+
 		this.schedulerService = schedulerService;
+		this.configuration = configuration;
 
-		this.maximumMessageRate = (maximumMessageRate == null ? DEFAULT_MAXIMUM_MESSAGE_RATE : maximumMessageRate);
-		this.maximumMessageRateTimeUnit = TimeUnit.SECONDS;
-		this.maximumMessageRateLimiter = new RateLimiterImpl(this.maximumMessageRate, 1, maximumMessageRateTimeUnit);
 
 		this.nodeApi = new NodeApi(
-				nodeUrn,
+				configuration.getNodeUrn(),
 				nodeApiDeviceAdapter,
-				(timeoutNodeAPI == null ? DEFAULT_NODE_API_TIMEOUT : timeoutNodeAPI),
+				configuration.getTimeoutNodeAPI(),
 				TimeUnit.MILLISECONDS
 		);
-		this.timeoutReset = timeoutReset == null ? 3000 : timeoutReset;
-		this.timeoutFlash = timeoutFlash == null ? 90000 : timeoutFlash;
+
+		this.maximumMessageRateLimiter = new RateLimiterImpl(
+				configuration.getMaximumMessageRate(),
+				1,
+				TimeUnit.SECONDS
+		);
 
 		try {
 			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
@@ -239,7 +220,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 		nodeApi.stop();
 
-		log.debug("{} => Shutting down {} device", nodeUrn, nodeType);
+		log.debug("{} => Shutting down {} device", configuration.getNodeUrn(), configuration.getNodeType());
 
 		shutdownDeviceChannel();
 		closeQuietly(device);
@@ -256,7 +237,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -275,7 +256,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void disableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -294,7 +275,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void disablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -313,7 +294,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void enableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -331,7 +312,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void enablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -350,83 +331,84 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	public void flashProgram(final WSNAppMessages.Program program,
 							 final FlashProgramCallback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
 			if (flashOperationRunningOrEnqueued) {
 
 				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
-				log.warn("{} => flashProgram: {}", nodeUrn, msg);
+				log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
 				listener.failure((byte) -1, msg.getBytes());
 
 			} else {
 
 				flashOperationRunningOrEnqueued = true;
-				device.program(program.getProgram().toByteArray(), timeoutFlash, new OperationCallback<Void>() {
+				device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlash(),
+						new OperationCallback<Void>() {
 
-					private int lastProgress = -1;
+							private int lastProgress = -1;
 
-					@Override
-					public void onExecute() {
-						flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
-						lastProgress = 0;
-						listener.progress(0f);
-					}
+							@Override
+							public void onExecute() {
+								flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
+								lastProgress = 0;
+								listener.progress(0f);
+							}
 
-					@Override
-					public void onCancel() {
+							@Override
+							public void onCancel() {
 
-						String msg = "Flash operation was canceled.";
-						log.error("{} => flashProgram: {}", nodeUrn, msg);
-						flashOperationRunningOrEnqueued = false;
-						listener.failure((byte) -1, msg.getBytes());
-					}
+								String msg = "Flash operation was canceled.";
+								log.error("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+								flashOperationRunningOrEnqueued = false;
+								listener.failure((byte) -1, msg.getBytes());
+							}
 
-					@Override
-					public void onFailure(final Throwable throwable) {
+							@Override
+							public void onFailure(final Throwable throwable) {
 
-						String msg;
+								String msg;
 
-						if (throwable instanceof ProgramChipMismatchException) {
-							msg = "Error reading binary image: " + throwable;
-						} else {
-							msg = "Failed flashing node. Reason: " + throwable;
+								if (throwable instanceof ProgramChipMismatchException) {
+									msg = "Error reading binary image: " + throwable;
+								} else {
+									msg = "Failed flashing node. Reason: " + throwable;
+								}
+
+								log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+								flashOperationRunningOrEnqueued = false;
+								listener.failure((byte) -3, msg.getBytes());
+							}
+
+							@Override
+							public void onProgressChange(final float fraction) {
+
+								int newProgress = (int) (fraction * 100);
+
+								if (newProgress > lastProgress) {
+
+									log.debug("{} => Flashing progress: {}%.", configuration.getNodeUrn(), newProgress);
+									listener.progress(fraction);
+									lastProgress = newProgress;
+								}
+							}
+
+							@Override
+							public void onSuccess(final Void result) {
+
+								log.debug("{} => Done flashing node.", configuration.getNodeUrn());
+								flashOperationRunningOrEnqueued = false;
+								listener.success(null);
+							}
 						}
-
-						log.warn("{} => flashProgram: {}", nodeUrn, msg);
-						flashOperationRunningOrEnqueued = false;
-						listener.failure((byte) -3, msg.getBytes());
-					}
-
-					@Override
-					public void onProgressChange(final float fraction) {
-
-						int newProgress = (int) (fraction * 100);
-
-						if (newProgress > lastProgress) {
-
-							log.debug("{} => Flashing progress: {}%.", nodeUrn, newProgress);
-							listener.progress(fraction);
-							lastProgress = newProgress;
-						}
-					}
-
-					@Override
-					public void onSuccess(final Void result) {
-
-						log.debug("{} => Done flashing node.", nodeUrn);
-						flashOperationRunningOrEnqueued = false;
-						listener.success(null);
-					}
-				}
 				);
 
 			}
 
 		} else {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
-			log.warn("{} => {}", nodeUrn, msg);
+			log.warn("{} => {}", configuration.getNodeUrn(), msg);
 			listener.failure((byte) -2, msg.getBytes());
 		}
 
@@ -435,7 +417,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
 
 		// to the best of our knowledge, a node is alive if we're connected to it
 		if (isConnected()) {
@@ -448,11 +430,11 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void resetNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
-			device.reset(timeoutReset, new OperationCallbackAdapter<Void>() {
+			device.reset(configuration.getTimeoutReset(), new OperationCallbackAdapter<Void>() {
 
 				@Override
 				public void onExecute() {
@@ -461,7 +443,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				@Override
 				public void onSuccess(final Void result) {
-					log.debug("{} => Done resetting node.", nodeUrn);
+					log.debug("{} => Done resetting node.", configuration.getNodeUrn());
 					listener.success(null);
 				}
 
@@ -473,7 +455,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				@Override
 				public void onFailure(final Throwable throwable) {
 					String msg = "Failed resetting node. Reason: " + throwable;
-					log.warn("{} => resetNode(): {}", nodeUrn, msg);
+					log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
 					listener.failure((byte) -1, msg.getBytes());
 				}
 			}
@@ -482,7 +464,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		} else {
 
 			String msg = "Failed resetting node. Reason: Device is not connected.";
-			log.warn("{} => {}", nodeUrn, msg);
+			log.warn("{} => {}", configuration.getNodeUrn(), msg);
 			listener.failure((byte) 0, msg.getBytes());
 		}
 
@@ -491,13 +473,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void sendMessage(final byte[] messageBytes, final Callback callback) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
 			if (isVirtualLinkMessage(messageBytes)) {
 
-				log.debug("{} => Delivering virtual link message over node API", nodeUrn);
+				log.debug("{} => Delivering virtual link message over node API", configuration.getNodeUrn());
 
 				ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
 
@@ -526,7 +508,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			} else {
 
 				log.debug("{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link "
-						+ "message.", nodeUrn
+						+ "message.", configuration.getNodeUrn()
 				);
 
 				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
@@ -541,13 +523,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 						} else if (future.isCancelled()) {
 
 							String msg = "Sending message was canceled.";
-							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
+							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
 							callback.failure((byte) -3, msg.getBytes());
 
 						} else {
 
 							String msg = "Failed sending message. Reason: " + future.getCause();
-							log.warn("{} => sendMessage(): {}", nodeUrn, msg);
+							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
 							callback.failure((byte) -2, msg.getBytes());
 						}
 					}
@@ -570,7 +552,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 			try {
 
-				log.debug("{} => Setting channel pipeline using configuration: {}", nodeUrn,
+				log.debug("{} => Setting channel pipeline using configuration: {}", configuration.getNodeUrn(),
 						channelHandlerConfigurations
 				);
 
@@ -580,12 +562,14 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				if (log.isDebugEnabled() && pipeline.size() > 0) {
 					pipeline.add(0, new Tuple<String, ChannelHandler>(
 							"aboveFilterPipelineLogger",
-							new AboveFilterPipelineLogger(nodeUrn)
-					));
+							new AboveFilterPipelineLogger(configuration.getNodeUrn())
+					)
+					);
 					pipeline.add(new Tuple<String, ChannelHandler>(
 							"belowFilterPipelineLogger",
-							new BelowFilterPipelineLogger(nodeUrn)
-					));
+							new BelowFilterPipelineLogger(configuration.getNodeUrn())
+					)
+					);
 				}
 
 				filterPipeline.setChannelPipeline(pipeline);
@@ -594,7 +578,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
-						new Object[]{nodeUrn, e.getClass().getSimpleName(), e.getMessage()}
+						new Object[]{configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()}
 				);
 
 				callback.failure(
@@ -602,11 +586,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
 				);
 
-				log.warn("{} => Resetting channel pipeline to default pipeline.", nodeUrn);
+				log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
 				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
 			}
 
-			log.debug("{} => Channel pipeline now set to: {}", nodeUrn, filterPipeline.getChannelPipeline());
+			log.debug("{} => Channel pipeline now set to: {}",
+					configuration.getNodeUrn(), filterPipeline.getChannelPipeline()
+			);
 
 		} else {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
@@ -642,7 +628,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			log.warn(
 					"{} => {} in pipeline: {}",
 					new Object[]{
-							nodeUrn,
+							configuration.getNodeUrn(),
 							e.getCause().getClass().getSimpleName(),
 							e.getCause().getMessage()
 					}
@@ -660,26 +646,46 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	private void tryToConnect() throws Exception {
 
 		DeviceFactory deviceFactory = new DeviceFactoryImpl();
-		device = deviceFactory.create(scheduledExecutorService, nodeType);
+		device = deviceFactory.create(scheduledExecutorService, configuration.getNodeType());
+
+		String interfaceToConnectTo = detectedNodeSerialInterface != null ?
+				detectedNodeSerialInterface :
+				configuration.getNodeSerialInterface();
 
 		try {
-			device.connect(nodeSerialInterface);
+
+			device.connect(interfaceToConnectTo);
+
 		} catch (Exception e) {
 			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+					new Object[]{
+							configuration.getNodeUrn(),
+							configuration.getNodeType(),
+							interfaceToConnectTo
+					}
 			);
-			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
+			throw new Exception("Could not connect to " + configuration.getNodeType() + " at " +
+					interfaceToConnectTo
+			);
 		}
 
 		if (!device.isConnected()) {
 			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+					new Object[]{
+							configuration.getNodeUrn(),
+							configuration.getNodeType(),
+							interfaceToConnectTo
+					}
 			);
-			throw new Exception("Could not connect to " + nodeType + " at " + nodeSerialInterface);
+			throw new Exception("Could not connect to " + configuration.getNodeType() + " at " +
+					interfaceToConnectTo
+			);
 		}
 
 		log.info("{} => Successfully connected to {} node on serial port {}",
-				new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+				new Object[]{
+						configuration.getNodeUrn(), configuration.getNodeType(), interfaceToConnectTo
+				}
 		);
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
@@ -706,15 +712,15 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	private void tryToDetectNodeSerialInterface() {
 
 		final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
-		final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(nodeUrn);
+		final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(configuration.getNodeUrn());
 		final MacAddress nodeMacAddress = new MacAddress(macAsLong);
 
-		if (nodeUSBChipID != null && !"".equals(nodeUSBChipID)) {
-			deviceMacReferenceMap.put(nodeUSBChipID, nodeMacAddress);
+		if (configuration.getNodeUSBChipID() != null && !"".equals(configuration.getNodeUSBChipID())) {
+			deviceMacReferenceMap.put(configuration.getNodeUSBChipID(), nodeMacAddress);
 		}
 
 		log.info("{} => Searching for port of {} device with MAC address {}.",
-				new Object[]{nodeUrn, nodeType, nodeMacAddress}
+				new Object[]{configuration.getNodeUrn(), configuration.getNodeType(), nodeMacAddress}
 		);
 
 		DeviceObserver deviceObserver = Guice
@@ -727,16 +733,22 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			final DeviceInfo deviceInfo = event.getDeviceInfo();
 			if (nodeMacAddress.equals(deviceInfo.getMacAddress())) {
 				log.info("{} => Found {} device with MAC address {} at port {}",
-						new Object[]{nodeUrn, nodeType, deviceInfo.getMacAddress(), deviceInfo.getPort()}
+						new Object[]{
+								configuration.getNodeUrn(),
+								configuration.getNodeType(),
+								deviceInfo.getMacAddress(),
+								deviceInfo.getPort()
+						}
 				);
-				nodeSerialInterface = deviceInfo.getPort();
+				detectedNodeSerialInterface = deviceInfo.getPort();
 				break;
 			}
 		}
 	}
 
 	private boolean nodeSerialInterfaceUnknown() {
-		return nodeSerialInterface == null || "".equals(nodeSerialInterface);
+		return (configuration.getNodeSerialInterface() == null || "".equals(configuration.getNodeSerialInterface())) &&
+				(detectedNodeSerialInterface == null || "".equals(detectedNodeSerialInterface));
 	}
 
 	private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
@@ -752,7 +764,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 		if (log.isTraceEnabled()) {
 			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
-					nodeUrn,
+					configuration.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
 		}
@@ -762,8 +774,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 		boolean isByteTextOrVLink = buffer.readableBytes() > 1 &&
 				((buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
-				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
-				(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
+						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
+						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
 
@@ -776,7 +788,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
-							nodeUrn,
+							configuration.getNodeUrn(),
 							ChannelBufferTools.toPrintableString(buffer, 200)
 					);
 				}
@@ -785,7 +797,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				if (log.isWarnEnabled()) {
 					log.warn(
 							"{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
-							nodeUrn,
+							configuration.getNodeUrn(),
 							ChannelBufferTools.toPrintableString(buffer, 200)
 					);
 				}
@@ -823,10 +835,10 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		if (packetsDroppedTimeDiff.isTimeout()) {
 
 			String notification =
-					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + nodeUrn + " in the last "
-							+ packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes more packets to "
-							+ "the serial interface per second than allowed (" + maximumMessageRate + " per " +
-							maximumMessageRateTimeUnit + ").";
+					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + configuration.getNodeUrn() +
+							" in the last " + packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes "
+							+ "more packets to the serial interface per second than allowed (" +
+							configuration.getMaximumMessageRate() + " per second).";
 
 			for (NodeOutputListener listener : listeners) {
 				listener.receiveNotification(notification);
@@ -847,7 +859,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void setVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", nodeUrn);
+		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			executorService.execute(new Runnable() {
@@ -871,7 +883,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				deviceChannel.close().await();
 
 			} catch (Exception e) {
-				log.warn("Exception while closing DeviceConnection: {}", e);
+				log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
 			}
 		}
 	}
@@ -894,11 +906,11 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			}
 
 		} catch (InterruptedException e) {
-			log.error("InterruptedException while reading Node API call result.");
+			log.error("{} => InterruptedException while reading Node API call result.", configuration.getNodeUrn());
 			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
 		} catch (ExecutionException e) {
 			if (e.getCause() instanceof TimeoutException) {
-				log.debug("{} => Call to Node API timed out.", nodeUrn);
+				log.debug("{} => Call to Node API timed out.", configuration.getNodeUrn());
 				listener.timeout();
 			} else {
 				log.error("" + e, e);

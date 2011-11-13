@@ -23,17 +23,13 @@
 
 package de.uniluebeck.itm.tr.iwsn.cmdline;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.TestbedRuntimeModule;
-import de.uniluebeck.itm.tr.util.*;
-import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
-import de.uniluebeck.itm.tr.util.domobserver.DOMObserverImpl;
-import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
+import de.uniluebeck.itm.tr.iwsn.IWSN;
+import de.uniluebeck.itm.tr.iwsn.IWSNFactory;
+import de.uniluebeck.itm.tr.iwsn.IWSNModule;
+import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -55,10 +51,11 @@ public class IWSNServer {
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(IWSNServer.class);
 
 	public static void main(String[] args) throws Exception {
+		Thread.currentThread().setName("Startup-Thread");
 		try {
 			start(args);
 		} catch (Exception e) {
-			log.error("Unable to start testbed runtime due to a(n) " + e, e);
+			log.error("Unable to start testbed runtime due to: {}", e.getMessage(), e);
 			System.exit(1);
 		}
 	}
@@ -156,53 +153,19 @@ public class IWSNServer {
 				"No configuration for one of the overlay node \"%s\" found!", Arrays.toString(nodeIds)
 		);
 
-		final String finalNodeIdFoundInConfigurationFile = nodeIdFoundInConfigurationFile;
+		final Injector injector = Guice.createInjector(new IWSNModule());
+		final IWSNFactory factory = injector.getInstance(IWSNFactory.class);
+		final IWSN iwsn = factory.create(xmlFile, nodeIdFoundInConfigurationFile);
 
-		final File finalXmlFile = xmlFile;
-		Injector injector = Guice.createInjector(
-				new AbstractModule() {
-					@Override
-					protected void configure() {
+		iwsn.start();
 
-						bind(DOMObserver.class).to(DOMObserverImpl.class);
-						bind(new TypeLiteral<ListenerManager<DOMObserverListener>>() {
-						}
-						)
-								.to(new TypeLiteral<ListenerManagerImpl<DOMObserverListener>>() {
-								}
-								);
-
-						CachingConvertingFileProvider<Node> configFileProvider =
-								new CachingConvertingFileProvider<Node>(
-										finalXmlFile,
-										XmlFunctions.fileToRootElementFunction()
-								);
-						bind(Node.class)
-								.toProvider(configFileProvider);
-
-						bind(String.class)
-								.annotatedWith(Names.named(IWSNApplicationManager.INJECTION_CONFIGURATION_NODE_ID))
-								.toInstance(finalNodeIdFoundInConfigurationFile);
-					}
-				},
-				new TestbedRuntimeModule()
-		);
-
-		TestbedRuntime testbedRuntime = injector.getInstance(TestbedRuntime.class);
-
-		log.debug("Starting overlay services...");
-		testbedRuntime.start();
-
-		log.debug("Starting overlay manager...");
-		IWSNOverlayManager overlayManager = injector.getInstance(IWSNOverlayManager.class);
-		overlayManager.start();
-
-		log.debug("Starting application manager...");
-		IWSNApplicationManager applicationManager = injector.getInstance(IWSNApplicationManager.class);
-		applicationManager.start();
-
-		Runtime.getRuntime().addShutdownHook(new Thread(injector.getInstance(IWSNShutdownRunnable.class)));
-
+		Runnable shutdownRunnable = new Runnable() {
+			@Override
+			public void run() {
+				iwsn.stop();
+			}
+		};
+		Runtime.getRuntime().addShutdownHook(new Thread(shutdownRunnable, "Shutdown-Thread"));
 	}
 
 	private static void usage(Options options) {

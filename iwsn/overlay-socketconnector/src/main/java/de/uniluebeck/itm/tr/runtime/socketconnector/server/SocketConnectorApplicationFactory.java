@@ -27,18 +27,16 @@ import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.socketconnector.server.xml.Socketconnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import static com.google.common.base.Throwables.propagate;
 
-@SuppressWarnings({"UnusedDeclaration"})
+
+@SuppressWarnings("UnusedDeclaration")
 public class SocketConnectorApplicationFactory implements TestbedApplicationFactory {
-
-	private static final Logger logger = LoggerFactory.getLogger(SocketConnectorApplicationFactory.class);
 
 	public TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
 		try {
@@ -50,8 +48,7 @@ public class SocketConnectorApplicationFactory implements TestbedApplicationFact
 			return new SocketConnectorApplication(testbedRuntime, socketConnectorApp.getPort());
 
 		} catch (JAXBException e) {
-			logger.error("Error initialising socket connector", e);
-			return null;
+			throw propagate(e);
 		}
 	}
 

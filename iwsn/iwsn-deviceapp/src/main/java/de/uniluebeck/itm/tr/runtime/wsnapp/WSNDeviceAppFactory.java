@@ -23,18 +23,19 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.common.base.Preconditions;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
-import de.uniluebeck.itm.tr.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
+import static com.google.common.base.Throwables.propagate;
 
 
 public class WSNDeviceAppFactory implements TestbedApplicationFactory {
@@ -46,72 +47,34 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 		try {
 
-			JAXBContext context = JAXBContext.newInstance(WsnDevice.class);
+			JAXBContext context = JAXBContext.newInstance(WsnDevice.class.getPackage().getName());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
 
-			WsnDevice wsnDevice = (WsnDevice) unmarshaller.unmarshal((Node) configuration);
-
-			String nodeUrn, nodeType, nodeSerialInterface, nodeUSBChipID;
-			Integer timeoutNodeAPI, maximumMessageRate, timeoutReset, timeoutFlash;
+			WsnDevice wsnDevice = (WsnDevice) ((JAXBElement) unmarshaller.unmarshal((Node) configuration)).getValue();
 
 			try {
 
-				nodeUrn = wsnDevice.getUrn();
-				Preconditions.checkNotNull(nodeUrn);
-				StringUtils.assertHexOrDecLongUrnSuffix(nodeUrn);
+				WSNDeviceAppConfiguration.Builder builder = WSNDeviceAppConfiguration
+						.builder(wsnDevice.getUrn(), wsnDevice.getType())
+						.setNodeSerialInterface(wsnDevice.getSerialinterface())
+						.setMaximumMessageRate(wsnDevice.getMaximummessagerate())
+						.setNodeUSBChipID(wsnDevice.getUsbchipid());
 
-				nodeType = wsnDevice.getType();
-				Preconditions.checkNotNull(nodeType);
+				if (wsnDevice.getTimeouts() != null) {
+					builder.setTimeoutFlash(wsnDevice.getTimeouts().getFlash());
+					builder.setTimeoutNodeAPI(wsnDevice.getTimeouts().getNodeapi());
+					builder.setTimeoutReset(wsnDevice.getTimeouts().getReset());
+				}
 
-				nodeSerialInterface = wsnDevice.getSerialinterface();
-				nodeUSBChipID = wsnDevice.getUsbchipid();
-				maximumMessageRate = wsnDevice.getMaximummessagerate();
-
-				timeoutNodeAPI = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getNodeapi();
-				Preconditions.checkArgument(
-						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
-						"The timeout value for the Node API must either be omitted (null) to use the default value "
-								+ "or larger than 0 (zero). Current value: " + timeoutNodeAPI
-				);
-
-				timeoutReset = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getReset();
-				Preconditions.checkArgument(
-						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
-						"The timeout value for the reset operation must either be omitted (null) to use the default "
-								+ "value or larger than 0 (zero). Current value: " + timeoutNodeAPI
-				);
-
-				timeoutFlash = wsnDevice.getTimeouts() == null ? null : wsnDevice.getTimeouts().getFlash();
-				Preconditions.checkArgument(
-						(timeoutNodeAPI == null || timeoutNodeAPI > 0),
-						"The timeout value for the flash operation must either be omitted (null) to use the default "
-								+ "value or larger than 0 (zero). Current value: " + timeoutNodeAPI
-				);
+				return new WSNDeviceAppImpl(testbedRuntime, builder.build());
 
 			} catch (Exception e) {
-				// ignore this device as it is badly configured
-				log.error("Ignoring device. Reason: " + e.getMessage(), e);
-				throw new RuntimeException(e);
+				throw propagate(e);
 			}
 
-			return new WSNDeviceAppImpl(
-					nodeUrn,
-					nodeType,
-					nodeSerialInterface,
-					timeoutNodeAPI,
-					nodeUSBChipID,
-					maximumMessageRate,
-					testbedRuntime,
-					timeoutReset,
-					timeoutFlash
-			);
-
 		} catch (JAXBException e) {
-			log.error("Error unmarshalling WsnApplication config: " + e, e);
+			throw propagate(e);
 		}
-
-		return null;
-
 	}
 
 }

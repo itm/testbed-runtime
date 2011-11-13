@@ -1,7 +1,6 @@
-package de.uniluebeck.itm.tr.iwsn.cmdline;
+package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingInterface;
@@ -31,59 +30,79 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class IWSNOverlayManager implements DOMObserverListener, Service {
+public class IWSNOverlayManager implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(IWSNOverlayManager.class);
 
-	@Inject
+	final DOMObserverListener domObserverListener = new DOMObserverListener() {
+
+		@Override
+		public QName getQName() {
+			return XPathConstants.NODE;
+		}
+
+		@Override
+		public String getXPathExpression() {
+			return "/*";
+		}
+
+		@Override
+		public void onDOMChanged(final DOMTuple oldAndNew) {
+
+			try {
+
+				Object oldDOM = oldAndNew.getFirst();
+				Object newDOM = oldAndNew.getSecond();
+
+				Testbed oldConfig = oldDOM == null ? null : unmarshal((org.w3c.dom.Node) oldDOM);
+				Testbed newConfig = newDOM == null ? null : unmarshal((org.w3c.dom.Node) newDOM);
+
+				addAndRemoveOverlayNodes(oldConfig, newConfig);
+				addAndRemoveOverlayNodeNames(oldConfig, newConfig);
+
+			} catch (JAXBException e) {
+				log.error("{}", e);
+			}
+		}
+
+		@Override
+		public void onDOMLoadFailure(final Throwable cause) {
+			log.warn("Unable to load changed configuration file {}. Maybe it is corrupt? Ignoring changes! Cause: ",
+					cause
+			);
+		}
+
+		@Override
+		public void onXPathEvaluationFailure(final XPathExpressionException cause) {
+			log.error("Failed to evaluate XPath expression on configuration file. Maybe it is corrupt? "
+					+ "Ignoring changes! Cause: ", cause
+			);
+		}
+	};
+
 	private TestbedRuntime overlay;
 
-	@Inject
 	private DOMObserver domObserver;
 
 	private ScheduledFuture<?> domObserverSchedule;
 
-	@Override
-	public QName getQName() {
-		return XPathConstants.NODE;
+	IWSNOverlayManager(final TestbedRuntime overlay, final DOMObserver domObserver) {
+		this.overlay = overlay;
+		this.domObserver = domObserver;
 	}
 
 	@Override
-	public String getXPathExpression() {
-		return "/*";
+	public void start() throws Exception {
+		domObserver.addListener(domObserverListener);
+		domObserverSchedule = overlay.getSchedulerService().scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
 	}
 
 	@Override
-	public void onDOMChanged(final DOMTuple oldAndNew) {
-
-		try {
-
-			Object oldDOM = oldAndNew.getFirst();
-			Object newDOM = oldAndNew.getSecond();
-
-			Testbed oldConfig = oldDOM == null ? null : unmarshal((org.w3c.dom.Node) oldDOM);
-			Testbed newConfig = newDOM == null ? null : unmarshal((org.w3c.dom.Node) newDOM);
-
-			addAndRemoveOverlayNodes(oldConfig, newConfig);
-			addAndRemoveOverlayNodeNames(oldConfig, newConfig);
-
-		} catch (JAXBException e) {
-			log.error("{}", e);
+	public void stop() {
+		if (domObserverSchedule != null) {
+			domObserverSchedule.cancel(false);
 		}
-	}
-
-	@Override
-	public void onDOMLoadFailure(final Throwable cause) {
-		log.warn("Unable to load changed configuration file {}. Maybe it is corrupt? Ignoring changes! Cause: ",
-				cause
-		);
-	}
-
-	@Override
-	public void onXPathEvaluationFailure(final XPathExpressionException cause) {
-		log.error("Failed to evaluate XPath expression on configuration file. Maybe it is corrupt? "
-				+ "Ignoring changes! Cause: ", cause
-		);
+		domObserver.removeListener(domObserverListener);
 	}
 
 	private void addAndRemoveOverlayNodeNames(final Testbed oldConfig, final Testbed newConfig) {
@@ -242,19 +261,5 @@ public class IWSNOverlayManager implements DOMObserverListener, Service {
 		JAXBContext context = JAXBContext.newInstance(Testbed.class.getPackage().getName());
 		Unmarshaller unmarshaller = context.createUnmarshaller();
 		return unmarshaller.unmarshal(rootNode, Testbed.class).getValue();
-	}
-
-	@Override
-	public void start() throws Exception {
-		domObserver.addListener(this);
-		domObserverSchedule = overlay.getSchedulerService().scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
-	}
-
-	@Override
-	public void stop() {
-		if (domObserverSchedule != null) {
-			domObserverSchedule.cancel(false);
-		}
-		domObserver.removeListener(this);
 	}
 }

@@ -26,7 +26,8 @@ package de.uniluebeck.itm.gtr.application;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 
 /**
- * Interface to be implemented by applications that shall be "automatically" started by the testbed runtime command line
+ * Interface to be implemented by applications that shall be "automatically" started by the testbed runtime command
+ * line
  * client.
  */
 public interface TestbedApplicationFactory {
@@ -34,13 +35,20 @@ public interface TestbedApplicationFactory {
 	/**
 	 * Creates the {@link de.uniluebeck.itm.gtr.application.TestbedApplication} instance.
 	 *
-	 * @param testbedRuntime  the {@link de.uniluebeck.itm.gtr.TestbedRuntime} instance to be used by the application for
-	 *                        sending and receiving messages
-	 * @param applicationName the (human-readable) name of the application
-	 * @param configuration   the configuration object (application-specific)
-	 * @return an instance of {@link de.uniluebeck.itm.gtr.application.TestbedApplication} or {@code null} if the
-	 *         application could not be created
+	 * @param testbedRuntime
+	 * 		the {@link de.uniluebeck.itm.gtr.TestbedRuntime} instance to be used by the application for
+	 * 		sending and receiving messages
+	 * @param applicationName
+	 * 		the (human-readable) name of the application
+	 * @param configuration
+	 * 		the configuration object (application-specific)
+	 *
+	 * @return an instance of {@link de.uniluebeck.itm.gtr.application.TestbedApplication}
+	 *
+	 * @throws Exception
+	 * 		if the application could not be created
 	 */
-	TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration);
+	TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration)
+			throws Exception;
 
 }

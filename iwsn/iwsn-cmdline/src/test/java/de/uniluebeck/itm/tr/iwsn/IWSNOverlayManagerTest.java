@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.cmdline;
+package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -70,10 +70,10 @@ public class IWSNOverlayManagerTest {
 			@Override
 			protected void configure() {
 				bind(TestbedRuntime.class).toInstance(testbedRuntimeMock);
-				bind(DOMObserver.class).toInstance(domObserverMock);
+				bind(IWSNOverlayManagerFactory.class).to(IWSNOverlayManagerFactoryImpl.class);
 			}
 		}
-		).getInstance(IWSNOverlayManager.class);
+		).getInstance(IWSNOverlayManagerFactory.class).create(domObserverMock);
 
 		when(testbedRuntimeMock.getNamingService()).thenReturn(namingServiceMock);
 		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableService);
@@ -164,6 +164,6 @@ public class IWSNOverlayManagerTest {
 		oldDOM = newDOM;
 		newDOM = getDOMFromFile(fileName, "/*", XPathConstants.NODE);
 
-		listener.onDOMChanged(new DOMTuple(oldDOM, newDOM));
+		listener.domObserverListener.onDOMChanged(new DOMTuple(oldDOM, newDOM));
 	}
 }

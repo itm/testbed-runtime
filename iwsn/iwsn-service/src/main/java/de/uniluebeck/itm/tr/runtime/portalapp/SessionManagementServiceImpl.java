@@ -255,15 +255,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
 
-		log.debug("Starting Session Management service ...");
-		log.debug("Endpoint URL: {}", config.sessionManagementEndpointUrl.toString());
-		log.debug("Binding  URL: {}", bindAllInterfacesUrl);
+		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
+				bindAllInterfacesUrl,
+				config.sessionManagementEndpointUrl.toString()
+		);
 
 		sessionManagementEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
 		deliveryManager.start();
 
-		log.info("Started Session Management service  on {}", bindAllInterfacesUrl);
 
 		if (config.protobufinterface != null) {
 			protobufControllerServer = new ProtobufControllerServer(this, config.protobufinterface);

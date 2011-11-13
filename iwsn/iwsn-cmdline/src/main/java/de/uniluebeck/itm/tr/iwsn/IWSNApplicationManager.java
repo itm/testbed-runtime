@@ -1,8 +1,6 @@
-package de.uniluebeck.itm.tr.iwsn.cmdline;
+package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
@@ -38,23 +36,27 @@ import static com.google.common.collect.Sets.newHashSet;
 public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	public static final String INJECTION_CONFIGURATION_NODE_ID =
-			"de.uniluebeck.itm.tr.iwsn.cmdline.IWSNApplicationManager/configurationNodeId";
+			"de.uniluebeck.itm.tr.iwsn.IWSNApplicationManager/configurationNodeId";
 
 	private static final Logger log = LoggerFactory.getLogger(IWSNApplicationManager.class);
 
 	private final Map<String, TestbedApplication> applications = newHashMap();
 
-	@Inject
-	@Named(INJECTION_CONFIGURATION_NODE_ID)
-	private String configurationNodeId;
+	private final TestbedRuntime overlay;
 
-	@Inject
-	private TestbedRuntime overlay;
+	private final DOMObserver domObserver;
 
-	@Inject
-	private DOMObserver domObserver;
+	private final String configurationNodeId;
 
 	private ScheduledFuture<?> domObserverSchedule;
+
+	IWSNApplicationManager(final TestbedRuntime overlay, final DOMObserver domObserver,
+						   final String configurationNodeId) {
+
+		this.domObserver = domObserver;
+		this.overlay = overlay;
+		this.configurationNodeId = configurationNodeId;
+	}
 
 	@Override
 	public QName getQName() {
@@ -230,6 +232,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 		checkState(applications.containsKey(applicationName));
 
+		log.info("Stopping application \"{}\"", applicationName);
 		TestbedApplication testbedApplication = applications.get(applicationName);
 		try {
 			testbedApplication.stop();

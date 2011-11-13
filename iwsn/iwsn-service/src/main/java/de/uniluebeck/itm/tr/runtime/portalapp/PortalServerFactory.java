@@ -35,6 +35,8 @@ import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
+import static com.google.common.base.Throwables.propagate;
+
 
 public class PortalServerFactory implements TestbedApplicationFactory {
 
@@ -51,12 +53,10 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 			return portalServerApplication;
 
 		} catch (JAXBException e) {
-			log.error("Exception while unmarshalling PortalServerApplication configuration: " + e, e);
+			throw propagate(e);
 		} catch (Exception e) {
-			log.error("" + e, e);
+			throw propagate(e);
 		}
-
-		return null;
 	}
 
 }

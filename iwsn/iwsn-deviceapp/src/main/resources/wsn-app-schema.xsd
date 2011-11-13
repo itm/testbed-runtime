@@ -34,6 +34,11 @@
 		</xsd:all>
 	</xsd:complexType>
 
+	<xsd:complexType name="Configuration">
+		<xsd:attribute name="key" type="xsd:string"/>
+		<xsd:attribute name="value" type="xsd:string"/>
+	</xsd:complexType>
+
 	<xsd:complexType name="WsnDevice">
 		<xsd:sequence>
 			<xsd:element name="urn" type="xsd:string" />
@@ -43,6 +48,7 @@
 			<xsd:element name="usbchipid" type="xsd:string" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="maximummessagerate" type="xsd:int" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="timeouts" type="Timeouts" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="configuration" type="Configuration" minOccurs="0" maxOccurs="unbounded" />
 		</xsd:sequence>
 	</xsd:complexType>
 
