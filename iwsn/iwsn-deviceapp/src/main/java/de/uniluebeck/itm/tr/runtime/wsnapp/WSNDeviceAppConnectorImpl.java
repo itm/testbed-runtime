@@ -23,12 +23,10 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.Guice;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -40,11 +38,7 @@ import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.util.*;
-import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
-import de.uniluebeck.itm.wsn.deviceutils.macreader.DeviceMacReferenceMap;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
-import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
-import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -52,6 +46,7 @@ import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallback;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallbackAdapter;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -122,37 +117,6 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
-	private final Runnable connectRunnable = new Runnable() {
-
-		@Override
-		public void run() {
-
-			try {
-
-				if (nodeSerialInterfaceUnknown()) {
-
-					tryToDetectNodeSerialInterface();
-
-					if (nodeSerialInterfaceUnknown()) {
-						log.warn("{} => Could not find port for {} device.",
-								configuration.getNodeUrn(), configuration.getNodeType()
-						);
-						return;
-					}
-
-				}
-
-				closeQuietly(device);
-				tryToConnect();
-
-			} catch (Exception e) {
-				log.error("" + e, e);
-				throw new RuntimeException(e);
-			}
-
-		}
-	};
-
 	private HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
 
 	private NodeApi nodeApi;
@@ -186,7 +150,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private FilterPipeline filterPipeline = new FilterPipelineImpl();
 
-	private String detectedNodeSerialInterface;
+	private ScheduledFuture<?> assureConnectivityRunnableSchedule;
 
 	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration, final EventBus eventBus) {
 
@@ -215,39 +179,96 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	@Subscribe
 	public void onDeviceObserverEvent(DeviceEvent deviceEvent) {
-		log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
+
+		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
+		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
+
+		boolean eventHasSameMac = nodeMacAddress.equals(deviceEvent.getDeviceInfo().getMacAddress());
+		boolean eventHasSameUSBChipId = configuration.getNodeUSBChipID() != null &&
+				configuration.getNodeUSBChipID().equals(deviceEvent.getDeviceInfo().getReference());
+
+		if (eventHasSameMac || eventHasSameUSBChipId) {
+
+			log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
+
+			switch (deviceEvent.getType()) {
+				case ATTACHED:
+					try {
+						tryToConnect(deviceEvent.getDeviceInfo().getType(), deviceEvent.getDeviceInfo().getPort());
+					} catch (Exception e) {
+						log.warn("{}", e);
+					}
+					break;
+				case REMOVED:
+					disconnect();
+					break;
+			}
+		}
+
 	}
+
+	private final Runnable assureConnectivityRunnable = new Runnable() {
+		@Override
+		public void run() {
+
+			log.debug("Still running...");
+
+			if (isConnected()) {
+				return;
+			}
+
+			boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(configuration.getNodeType());
+			boolean hasSerialInterface = configuration.getNodeSerialInterface() != null;
+
+			if (isMockDevice || hasSerialInterface) {
+
+				try {
+					tryToConnect(configuration.getNodeType(), configuration.getNodeSerialInterface());
+				} catch (Exception e) {
+					log.warn("{}. Retrying in 30 seconds at the same serial interface.", e.getMessage());
+				}
+			}
+		}
+	};
 
 	@Override
 	public void start() throws Exception {
+
 		eventBus.register(this);
+
 		nodeApiExecutor = Executors.newCachedThreadPool();
-		deviceDriverScheduler = Executors.newScheduledThreadPool(2,
+		nodeApi.start();
+
+		deviceDriverScheduler = Executors.newScheduledThreadPool(3,
 				new ThreadFactoryBuilder()
 						.setNameFormat("[" + configuration.getNodeUrn() + "]-Thread %d")
 						.build()
 		);
-		deviceDriverScheduler.execute(connectRunnable);
-		nodeApi.start();
+
+		assureConnectivityRunnableSchedule = deviceDriverScheduler.scheduleAtFixedRate(
+				assureConnectivityRunnable, 0, 5, TimeUnit.SECONDS
+		);
 	}
 
 	@Override
 	public void stop() {
-		eventBus.unregister(this);
-		nodeApi.stop();
 
 		log.debug("{} => Shutting down {} device", configuration.getNodeUrn(), configuration.getNodeType());
 
+		assureConnectivityRunnableSchedule.cancel(false);
+
+		eventBus.unregister(this);
+
+		disconnect();
+		ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
+
+		nodeApi.stop();
+		ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
+	}
+
+	private void disconnect() {
 		shutdownDeviceChannel();
 		closeQuietly(device);
-
-		if (nodeApiExecutor != null) {
-			ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
-		}
-
-		if (deviceDriverScheduler != null) {
-			ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
-		}
 	}
 
 	@Override
@@ -659,49 +680,31 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		}
 	};
 
-	private void tryToConnect() throws Exception {
+	private void tryToConnect(String nodeType, String serialInterface) throws Exception {
 
 		DeviceFactory deviceFactory = new DeviceFactoryImpl();
-		device = deviceFactory.create(deviceDriverScheduler, configuration.getNodeType());
-
-		String interfaceToConnectTo = detectedNodeSerialInterface != null ?
-				detectedNodeSerialInterface :
-				configuration.getNodeSerialInterface();
+		device = deviceFactory.create(deviceDriverScheduler, nodeType);
 
 		try {
 
-			device.connect(interfaceToConnectTo);
+			device.connect(serialInterface);
 
 		} catch (Exception e) {
 			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{
-							configuration.getNodeUrn(),
-							configuration.getNodeType(),
-							interfaceToConnectTo
-					}
+					new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
 			);
-			throw new Exception("Could not connect to " + configuration.getNodeType() + " at " +
-					interfaceToConnectTo
-			);
+			throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
 		}
 
 		if (!device.isConnected()) {
 			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{
-							configuration.getNodeUrn(),
-							configuration.getNodeType(),
-							interfaceToConnectTo
-					}
+					new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
 			);
-			throw new Exception("Could not connect to " + configuration.getNodeType() + " at " +
-					interfaceToConnectTo
-			);
+			throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
 		}
 
 		log.info("{} => Successfully connected to {} node on serial port {}",
-				new Object[]{
-						configuration.getNodeUrn(), configuration.getNodeType(), interfaceToConnectTo
-				}
+				new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
 		);
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
@@ -723,48 +726,6 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				)
 		);
 		deviceChannel = connectFuture.await().getChannel();
-	}
-
-	private void tryToDetectNodeSerialInterface() {
-
-		final DeviceMacReferenceMap deviceMacReferenceMap = new DeviceMacReferenceMap();
-		final Long macAsLong = StringUtils.parseHexOrDecLongFromUrn(configuration.getNodeUrn());
-		final MacAddress nodeMacAddress = new MacAddress(macAsLong);
-
-		if (configuration.getNodeUSBChipID() != null && !"".equals(configuration.getNodeUSBChipID())) {
-			deviceMacReferenceMap.put(configuration.getNodeUSBChipID(), nodeMacAddress);
-		}
-
-		log.info("{} => Searching for port of {} device with MAC address {}.",
-				new Object[]{configuration.getNodeUrn(), configuration.getNodeType(), nodeMacAddress}
-		);
-
-		DeviceObserver deviceObserver = Guice
-				.createInjector(new DeviceUtilsModule(deviceMacReferenceMap))
-				.getInstance(DeviceObserver.class);
-
-		final ImmutableList<DeviceEvent> events = deviceObserver.getEvents();
-
-		for (DeviceEvent event : events) {
-			final DeviceInfo deviceInfo = event.getDeviceInfo();
-			if (nodeMacAddress.equals(deviceInfo.getMacAddress())) {
-				log.info("{} => Found {} device with MAC address {} at port {}",
-						new Object[]{
-								configuration.getNodeUrn(),
-								configuration.getNodeType(),
-								deviceInfo.getMacAddress(),
-								deviceInfo.getPort()
-						}
-				);
-				detectedNodeSerialInterface = deviceInfo.getPort();
-				break;
-			}
-		}
-	}
-
-	private boolean nodeSerialInterfaceUnknown() {
-		return (configuration.getNodeSerialInterface() == null || "".equals(configuration.getNodeSerialInterface())) &&
-				(detectedNodeSerialInterface == null || "".equals(detectedNodeSerialInterface));
 	}
 
 	private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {

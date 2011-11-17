@@ -52,7 +52,7 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
 		deviceObserver.addListener(this);
 		scheduler = Executors.newScheduledThreadPool(
 				1,
-				new ThreadFactoryBuilder().setNameFormat("DeviceObserver-Thread $d").build()
+				new ThreadFactoryBuilder().setNameFormat("DeviceObserver-Thread %d").build()
 		);
 		deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 5, TimeUnit.SECONDS);
 	}
