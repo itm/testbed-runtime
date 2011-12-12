@@ -191,6 +191,13 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 		}
 
 		for (Application application : applicationList) {
+
+			if (set.contains(application.getName())) {
+				log.warn("An application with the name \"{}\" already exists. Please make sure each application tag "
+						+ "has a unique name!", application.getName()
+				);
+			}
+
 			set.add(application.getName());
 		}
 		return set;

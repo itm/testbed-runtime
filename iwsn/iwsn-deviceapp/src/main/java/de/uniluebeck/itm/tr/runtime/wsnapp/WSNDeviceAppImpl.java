@@ -574,7 +574,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		log.debug("{} => WSNDeviceAppImpl.start()", configuration.getNodeUrn());
 
 		// connect to device
-		connector = new WSNDeviceAppConnectorImpl(configuration, testbedRuntime.getEventBus());
+		connector = new WSNDeviceAppConnectorImpl(configuration, testbedRuntime.getEventBus(), testbedRuntime.getAsyncEventBus());
 		connector.start();
 		connector.addListener(nodeOutputListener);
 

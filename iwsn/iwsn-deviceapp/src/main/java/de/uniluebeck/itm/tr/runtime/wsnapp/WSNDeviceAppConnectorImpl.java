@@ -24,9 +24,11 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.Multimap;
+import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NodeType;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -37,8 +39,10 @@ import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.nodeapi.NodeApiDeviceAdapter;
+import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.DeviceRequest;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
+import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -67,836 +71,859 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 
 public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppConnector.NodeOutputListener>
-		implements WSNDeviceAppConnector {
+        implements WSNDeviceAppConnector {
 
-	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
+    private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
-	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+    private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+    private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
 
-	private static final byte NODE_OUTPUT_TEXT = 50;
+    private static final byte NODE_OUTPUT_TEXT = 50;
 
-	private static final byte NODE_OUTPUT_BYTE = 51;
+    private static final byte NODE_OUTPUT_BYTE = 51;
 
-	private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+    private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
-	private static final byte VIRTUAL_LINK_MESSAGE = 11;
+    private static final byte VIRTUAL_LINK_MESSAGE = 11;
 
-	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
+    private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
 
-	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
+    private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
-	private final WSNDeviceAppConfiguration configuration;
+    private final WSNDeviceAppConfiguration configuration;
 
-	private final EventBus eventBus;
+    private final EventBus eventBus;
 
-	private final RateLimiter maximumMessageRateLimiter;
+    private final AsyncEventBus asyncEventBus;
 
-	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
+    private final RateLimiter maximumMessageRateLimiter;
 
-	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
+    private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
 
-	private int resetCount = 0;
+    private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
-	private int flashCount = 0;
+    private int resetCount = 0;
 
-	private Channel deviceChannel;
+    private int flashCount = 0;
 
-	private int packetsDroppedSinceLastNotification = 0;
+    private Channel deviceChannel;
 
-	/**
-	 * Used to execute calls on the Node API as calls to it will currently block the thread executing the call.
-	 */
-	private ExecutorService nodeApiExecutor;
+    private int packetsDroppedSinceLastNotification = 0;
 
-	/**
-	 * A scheduler that is used by the device drivers to schedule operations and communications with the device.
-	 */
-	private ScheduledExecutorService deviceDriverScheduler;
+    /**
+     * Used to execute calls on the Node API as calls to it will currently block the thread executing the call.
+     */
+    private ExecutorService nodeApiExecutor;
 
-	private transient boolean flashOperationRunningOrEnqueued = false;
+    /**
+     * A scheduler that is used by the device drivers to schedule operations and communications with the device.
+     */
+    private ScheduledExecutorService deviceDriverScheduler;
 
-	private HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
+    private transient boolean flashOperationRunningOrEnqueued = false;
 
-	private NodeApi nodeApi;
+    private HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
 
-	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
-		@Override
-		public void sendToNode(final ByteBuffer packet) {
-			try {
-				if (log.isDebugEnabled()) {
-					log.debug(
-							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
-							configuration.getNodeUrn(),
-							toPrintableString(packet.array(), 200)
-					);
-				}
+    private NodeApi nodeApi;
 
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(
-						new byte[]{MESSAGE_TYPE_WISELIB_DOWNSTREAM},
-						packet.array()
-				);
+    private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
+        @Override
+        public void sendToNode(final ByteBuffer packet) {
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "{} => Sending a WISELIB_DOWNSTREAM packet: {}",
+                            configuration.getNodeUrn(),
+                            toPrintableString(packet.array(), 200)
+                    );
+                }
 
-				deviceChannel.write(buffer);
+                final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(
+                        new byte[]{MESSAGE_TYPE_WISELIB_DOWNSTREAM},
+                        packet.array()
+                );
 
-			} catch (Exception e) {
-				log.error("" + e, e);
-			}
-		}
-	};
+                deviceChannel.write(buffer);
 
-	private Device device;
+            } catch (Exception e) {
+                log.error("" + e, e);
+            }
+        }
+    };
 
-	private FilterPipeline filterPipeline = new FilterPipelineImpl();
+    private Device device;
 
-	private ScheduledFuture<?> assureConnectivityRunnableSchedule;
+    private FilterPipeline filterPipeline = new FilterPipelineImpl();
 
-	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration, final EventBus eventBus) {
+    private ScheduledFuture<?> assureConnectivityRunnableSchedule;
 
-		this.configuration = configuration;
-		this.eventBus = eventBus;
+    public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration, final EventBus eventBus,
+                                     final AsyncEventBus asyncEventBus) {
 
-		this.nodeApi = new NodeApi(
-				configuration.getNodeUrn(),
-				nodeApiDeviceAdapter,
-				configuration.getTimeoutNodeAPI(),
-				TimeUnit.MILLISECONDS
-		);
+        this.configuration = configuration;
+        this.eventBus = eventBus;
+        this.asyncEventBus = asyncEventBus;
 
-		this.maximumMessageRateLimiter = new RateLimiterImpl(
-				configuration.getMaximumMessageRate(),
-				1,
-				TimeUnit.SECONDS
-		);
+        this.nodeApi = new NodeApi(
+                configuration.getNodeUrn(),
+                nodeApiDeviceAdapter,
+                configuration.getTimeoutNodeAPI(),
+                TimeUnit.MILLISECONDS
+        );
 
-		try {
-			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+        this.maximumMessageRateLimiter = new RateLimiterImpl(
+                configuration.getMaximumMessageRate(),
+                1,
+                TimeUnit.SECONDS
+        );
+
+        try {
+            ProtocolCollection.registerProtocols(handlerFactoryRegistry);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Subscribe
+    public void onDeviceObserverEvent(DeviceEvent deviceEvent) {
 
-	@Subscribe
-	public void onDeviceObserverEvent(DeviceEvent deviceEvent) {
+        String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
+        MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
 
-		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
-		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
+        boolean eventHasSameMac = nodeMacAddress.equals(deviceEvent.getDeviceInfo().getMacAddress());
+        boolean eventHasSameUSBChipId = configuration.getNodeUSBChipID() != null &&
+                configuration.getNodeUSBChipID().equals(deviceEvent.getDeviceInfo().getReference());
 
-		boolean eventHasSameMac = nodeMacAddress.equals(deviceEvent.getDeviceInfo().getMacAddress());
-		boolean eventHasSameUSBChipId = configuration.getNodeUSBChipID() != null &&
-				configuration.getNodeUSBChipID().equals(deviceEvent.getDeviceInfo().getReference());
-
-		if (eventHasSameMac || eventHasSameUSBChipId) {
-
-			log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
+        if (eventHasSameMac || eventHasSameUSBChipId) {
+
+            log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
 
-			switch (deviceEvent.getType()) {
-				case ATTACHED:
-					try {
-						tryToConnect(deviceEvent.getDeviceInfo().getType(), deviceEvent.getDeviceInfo().getPort());
-					} catch (Exception e) {
-						log.warn("{}", e);
-					}
-					break;
-				case REMOVED:
-					disconnect();
-					break;
-			}
-		}
-
-	}
-
-	private final Runnable assureConnectivityRunnable = new Runnable() {
-		@Override
-		public void run() {
-
-			log.debug("Still running...");
-
-			if (isConnected()) {
-				return;
-			}
-
-			boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(configuration.getNodeType());
-			boolean hasSerialInterface = configuration.getNodeSerialInterface() != null;
-
-			if (isMockDevice || hasSerialInterface) {
-
-				try {
-					tryToConnect(configuration.getNodeType(), configuration.getNodeSerialInterface());
-				} catch (Exception e) {
-					log.warn("{}. Retrying in 30 seconds at the same serial interface.", e.getMessage());
-				}
-			}
-		}
-	};
-
-	@Override
-	public void start() throws Exception {
-
-		eventBus.register(this);
-
-		nodeApiExecutor = Executors.newCachedThreadPool();
-		nodeApi.start();
-
-		deviceDriverScheduler = Executors.newScheduledThreadPool(3,
-				new ThreadFactoryBuilder()
-						.setNameFormat("[" + configuration.getNodeUrn() + "]-Thread %d")
-						.build()
-		);
-
-		assureConnectivityRunnableSchedule = deviceDriverScheduler.scheduleAtFixedRate(
-				assureConnectivityRunnable, 0, 5, TimeUnit.SECONDS
-		);
-	}
-
-	@Override
-	public void stop() {
-
-		log.debug("{} => Shutting down {} device", configuration.getNodeUrn(), configuration.getNodeType());
-
-		assureConnectivityRunnableSchedule.cancel(false);
-
-		eventBus.unregister(this);
-
-		disconnect();
-		ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
-
-		nodeApi.stop();
-		ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
-	}
-
-	private void disconnect() {
-		shutdownDeviceChannel();
-		closeQuietly(device);
-	}
-
-	@Override
-	public void destroyVirtualLink(final long targetNode, final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
-	}
-
-	@Override
-	public void disableNode(final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().disableNode(), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
-	}
-
-	@Override
-	public void disablePhysicalLink(final long nodeB, final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
-	}
-
-	@Override
-	public void enableNode(final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().enableNode(), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-	}
-
-	@Override
-	public void enablePhysicalLink(final long nodeB, final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-	}
-
-	@Override
-	public void flashProgram(final WSNAppMessages.Program program,
-							 final FlashProgramCallback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-
-			if (flashOperationRunningOrEnqueued) {
-
-				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
-				log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
-				listener.failure((byte) -1, msg.getBytes());
-
-			} else {
-
-				flashOperationRunningOrEnqueued = true;
-				device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlash(),
-						new OperationCallback<Void>() {
-
-							private int lastProgress = -1;
-
-							@Override
-							public void onExecute() {
-								flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
-								lastProgress = 0;
-								listener.progress(0f);
-							}
-
-							@Override
-							public void onCancel() {
-
-								String msg = "Flash operation was canceled.";
-								log.error("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
-								flashOperationRunningOrEnqueued = false;
-								listener.failure((byte) -1, msg.getBytes());
-							}
-
-							@Override
-							public void onFailure(final Throwable throwable) {
-
-								String msg;
-
-								if (throwable instanceof ProgramChipMismatchException) {
-									msg = "Error reading binary image: " + throwable;
-								} else {
-									msg = "Failed flashing node. Reason: " + throwable;
-								}
-
-								log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
-								flashOperationRunningOrEnqueued = false;
-								listener.failure((byte) -3, msg.getBytes());
-							}
-
-							@Override
-							public void onProgressChange(final float fraction) {
+            switch (deviceEvent.getType()) {
+                case ATTACHED:
+                    try {
+                        tryToConnect(deviceEvent.getDeviceInfo().getType(), deviceEvent.getDeviceInfo().getPort());
+                    } catch (Exception e) {
+                        log.warn("{}", e);
+                    }
+                    break;
+                case REMOVED:
+                    disconnect();
+                    break;
+            }
+        }
+
+    }
+
+    private final Runnable assureConnectivityRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            if (isConnected()) {
+                return;
+            }
 
-								int newProgress = (int) (fraction * 100);
+            boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(configuration.getNodeType());
+            boolean hasSerialInterface = configuration.getNodeSerialInterface() != null;
+
+            if (isMockDevice || hasSerialInterface) {
+
+                try {
+                    tryToConnect(configuration.getNodeType(), configuration.getNodeSerialInterface());
+                } catch (Exception e) {
+                    log.warn("{}. Retrying in 30 seconds at the same serial interface.", e.getMessage());
+                }
+            } else {
+
+                DeviceType deviceType = DeviceType.fromString(configuration.getNodeType());
+                MacAddress macAddress = new MacAddress(StringUtils.getUrnSuffix(configuration.getNodeUrn()));
+                String nodeUSBChipID = configuration.getNodeUSBChipID();
+
+                DeviceRequest deviceRequest = new DeviceRequest(deviceType, macAddress, nodeUSBChipID);
+
+                eventBus.post(deviceRequest);
+
+                if (deviceRequest.getResponse().getMacAddress() != null) {
+                    try {
+                        tryToConnect(deviceRequest.getResponse().getType(), deviceRequest.getResponse().getPort());
+                    } catch (Exception e) {
+                        log.warn("{}. Retrying in 30 seconds at the same serial interface.", e.getMessage());
+                    }
+                }
+            }
+        }
+    };
+
+    @Override
+    public void start() throws Exception {
+
+		log.debug("{} => Starting {} device connector...", configuration.getNodeUrn(), configuration.getNodeType());
+
+        eventBus.register(this);
+        asyncEventBus.register(this);
+
+        nodeApiExecutor = Executors.newCachedThreadPool();
+        nodeApi.start();
+
+        deviceDriverScheduler = Executors.newScheduledThreadPool(3,
+                new ThreadFactoryBuilder()
+                        .setNameFormat("[" + configuration.getNodeUrn() + "]-Thread %d")
+                        .build()
+        );
+
+        assureConnectivityRunnableSchedule = deviceDriverScheduler.scheduleAtFixedRate(
+                assureConnectivityRunnable, 0, 5, TimeUnit.SECONDS
+        );
+    }
+
+    @Override
+    public void stop() {
+
+        log.debug("{} => Shutting down {} device connector...", configuration.getNodeUrn(), configuration.getNodeType());
+
+        assureConnectivityRunnableSchedule.cancel(false);
+
+        asyncEventBus.unregister(this);
+        eventBus.unregister(this);
+
+        disconnect();
+        ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
+
+        nodeApi.stop();
+        ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
+    }
+
+    private void disconnect() {
+        shutdownDeviceChannel();
+        closeQuietly(device);
+    }
+
+    @Override
+    public void destroyVirtualLink(final long targetNode, final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+
+    }
+
+    @Override
+    public void disableNode(final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getNodeControl().disableNode(), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+
+    }
+
+    @Override
+    public void disablePhysicalLink(final long nodeB, final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+
+    }
+
+    @Override
+    public void enableNode(final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getNodeControl().enableNode(), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+    }
+
+    @Override
+    public void enablePhysicalLink(final long nodeB, final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+    }
+
+    @Override
+    public void flashProgram(final WSNAppMessages.Program program,
+                             final FlashProgramCallback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+
+            if (flashOperationRunningOrEnqueued) {
+
+                String msg = "There's a flash operation running or enqueued currently. Please try again later.";
+                log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+                listener.failure((byte) -1, msg.getBytes());
+
+            } else {
+
+                flashOperationRunningOrEnqueued = true;
+                device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlash(),
+                        new OperationCallback<Void>() {
+
+                            private int lastProgress = -1;
+
+                            @Override
+                            public void onExecute() {
+                                flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
+                                lastProgress = 0;
+                                listener.progress(0f);
+                            }
+
+                            @Override
+                            public void onCancel() {
+
+                                String msg = "Flash operation was canceled.";
+                                log.error("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+                                flashOperationRunningOrEnqueued = false;
+                                listener.failure((byte) -1, msg.getBytes());
+                            }
+
+                            @Override
+                            public void onFailure(final Throwable throwable) {
+
+                                String msg;
+
+                                if (throwable instanceof ProgramChipMismatchException) {
+                                    msg = "Error reading binary image: " + throwable;
+                                } else {
+                                    msg = "Failed flashing node. Reason: " + throwable;
+                                }
+
+                                log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+                                flashOperationRunningOrEnqueued = false;
+                                listener.failure((byte) -3, msg.getBytes());
+                            }
+
+                            @Override
+                            public void onProgressChange(final float fraction) {
 
-								if (newProgress > lastProgress) {
-
-									log.debug("{} => Flashing progress: {}%.", configuration.getNodeUrn(), newProgress);
-									listener.progress(fraction);
-									lastProgress = newProgress;
-								}
-							}
+                                int newProgress = (int) (fraction * 100);
+
+                                if (newProgress > lastProgress) {
+
+                                    log.debug("{} => Flashing progress: {}%.", configuration.getNodeUrn(), newProgress);
+                                    listener.progress(fraction);
+                                    lastProgress = newProgress;
+                                }
+                            }
+
+                            @Override
+                            public void onSuccess(final Void result) {
+
+                                log.debug("{} => Done flashing node.", configuration.getNodeUrn());
+                                flashOperationRunningOrEnqueued = false;
+                                listener.success(null);
+                            }
+                        }
+                );
+
+            }
+
+        } else {
+            String msg = "Failed flashing node. Reason: Node is not connected.";
+            log.warn("{} => {}", configuration.getNodeUrn(), msg);
+            listener.failure((byte) -2, msg.getBytes());
+        }
+
+    }
+
+    @Override
+    public void isNodeAlive(final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
+
+        // to the best of our knowledge, a node is alive if we're connected to it
+        if (isConnected()) {
+            listener.success(null);
+        } else {
+            listener.failure((byte) 0, "Device is not connected.".getBytes());
+        }
+    }
+
+    @Override
+    public void resetNode(final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+
+            device.reset(configuration.getTimeoutReset(), new OperationCallbackAdapter<Void>() {
+
+                @Override
+                public void onExecute() {
+                    resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+                }
+
+                @Override
+                public void onSuccess(final Void result) {
+                    log.debug("{} => Done resetting node.", configuration.getNodeUrn());
+                    listener.success(null);
+                }
+
+                @Override
+                public void onCancel() {
+                    listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+                }
 
-							@Override
-							public void onSuccess(final Void result) {
-
-								log.debug("{} => Done flashing node.", configuration.getNodeUrn());
-								flashOperationRunningOrEnqueued = false;
-								listener.success(null);
-							}
-						}
-				);
-
-			}
-
-		} else {
-			String msg = "Failed flashing node. Reason: Node is not connected.";
-			log.warn("{} => {}", configuration.getNodeUrn(), msg);
-			listener.failure((byte) -2, msg.getBytes());
-		}
-
-	}
-
-	@Override
-	public void isNodeAlive(final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
-
-		// to the best of our knowledge, a node is alive if we're connected to it
-		if (isConnected()) {
-			listener.success(null);
-		} else {
-			listener.failure((byte) 0, "Device is not connected.".getBytes());
-		}
-	}
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    String msg = "Failed resetting node. Reason: " + throwable;
+                    log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
+                    listener.failure((byte) -1, msg.getBytes());
+                }
+            }
+            );
 
-	@Override
-	public void resetNode(final Callback listener) {
+        } else {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-
-			device.reset(configuration.getTimeoutReset(), new OperationCallbackAdapter<Void>() {
-
-				@Override
-				public void onExecute() {
-					resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
-				}
-
-				@Override
-				public void onSuccess(final Void result) {
-					log.debug("{} => Done resetting node.", configuration.getNodeUrn());
-					listener.success(null);
-				}
-
-				@Override
-				public void onCancel() {
-					listener.failure((byte) -1, "Operation was cancelled.".getBytes());
-				}
-
-				@Override
-				public void onFailure(final Throwable throwable) {
-					String msg = "Failed resetting node. Reason: " + throwable;
-					log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
-					listener.failure((byte) -1, msg.getBytes());
-				}
-			}
-			);
-
-		} else {
-
-			String msg = "Failed resetting node. Reason: Device is not connected.";
-			log.warn("{} => {}", configuration.getNodeUrn(), msg);
-			listener.failure((byte) 0, msg.getBytes());
-		}
-
-	}
-
-	@Override
-	public void sendMessage(final byte[] messageBytes, final Callback callback) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-
-			if (isVirtualLinkMessage(messageBytes)) {
-
-				log.debug("{} => Delivering virtual link message over node API", configuration.getNodeUrn());
-
-				ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
-
-				final byte RSSI = messageBuffer.get(3);
-				final byte LQI = messageBuffer.get(4);
-				final byte payloadLength = messageBuffer.get(5);
-				final long destination = messageBuffer.getLong(6);
-				final long source = messageBuffer.getLong(14);
-				final byte[] payload = new byte[payloadLength];
-
-				System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
-
-				nodeApiExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						callCallback(
-								nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
-										payload
-								),
-								callback
-						);
-					}
-				}
-				);
-
-			} else {
-
-				log.debug("{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link "
-						+ "message.", configuration.getNodeUrn()
-				);
-
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
-
-				deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(final ChannelFuture future) throws Exception {
-						if (future.isSuccess()) {
-
-							callback.success(null);
-
-						} else if (future.isCancelled()) {
-
-							String msg = "Sending message was canceled.";
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -3, msg.getBytes());
-
-						} else {
-
-							String msg = "Failed sending message. Reason: " + future.getCause();
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -2, msg.getBytes());
-						}
-					}
-				}
-				);
-
-			}
-
-		} else {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
-	}
-
-	@Override
-	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
-								   final Callback callback) {
-
-		if (isConnected()) {
-
-			try {
-
-				log.debug("{} => Setting channel pipeline using configuration: {}", configuration.getNodeUrn(),
-						channelHandlerConfigurations
-				);
-
-				final List<Tuple<String, ChannelHandler>> pipeline =
-						handlerFactoryRegistry.create(channelHandlerConfigurations);
-
-				if (log.isDebugEnabled() && pipeline.size() > 0) {
-					pipeline.add(0, new Tuple<String, ChannelHandler>(
-							"aboveFilterPipelineLogger",
-							new AboveFilterPipelineLogger(configuration.getNodeUrn())
-					)
-					);
-					pipeline.add(new Tuple<String, ChannelHandler>(
-							"belowFilterPipelineLogger",
-							new BelowFilterPipelineLogger(configuration.getNodeUrn())
-					)
-					);
-				}
-
-				filterPipeline.setChannelPipeline(pipeline);
-				callback.success(null);
-
-			} catch (Exception e) {
-
-				log.warn("{} => {} while setting channel pipeline: {}",
-						new Object[]{configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()}
-				);
-
-				callback.failure(
-						(byte) -1,
-						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
-				);
-
-				log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
-				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
-			}
-
-			log.debug("{} => Channel pipeline now set to: {}",
-					configuration.getNodeUrn(), filterPipeline.getChannelPipeline()
-			);
-
-		} else {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-	}
-
-	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
-		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
-
-			if (e.getMessage() instanceof ChannelBuffer) {
-
-				final ChannelBuffer message = (ChannelBuffer) e.getMessage();
-				onBytesReceivedFromDevice(message);
-
-			} else {
-
-				String notification = "The pipeline seems to be wrongly configured. A message of type " +
-						e.getMessage().getClass().getCanonicalName() +
-						" was received. Only " +
-						ChannelBuffer.class.getCanonicalName() +
-						" instances are allowed!";
-
-				sendPipelineMisconfigurationIfNotificationRateAllows(notification);
-			}
-		}
-
-		@Override
-		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
-				throws Exception {
-
-			log.warn(
-					"{} => {} in pipeline: {}",
-					new Object[]{
-							configuration.getNodeUrn(),
-							e.getCause().getClass().getSimpleName(),
-							e.getCause().getMessage()
-					}
-			);
-
-			String notification = "The pipeline seems to be wrongly configured. A(n) " +
-					e.getCause().getClass().getSimpleName() +
-					" was caught and contained the following message: " +
-					e.getCause().getMessage();
-
-			sendPipelineMisconfigurationIfNotificationRateAllows(notification);
-		}
-	};
-
-	private void tryToConnect(String nodeType, String serialInterface) throws Exception {
-
-		DeviceFactory deviceFactory = new DeviceFactoryImpl();
-		device = deviceFactory.create(deviceDriverScheduler, nodeType);
-
-		try {
-
-			device.connect(serialInterface);
-
-		} catch (Exception e) {
-			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
-			);
-			throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
-		}
-
-		if (!device.isConnected()) {
-			log.warn("{} => Could not connect to {} device at {}.",
-					new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
-			);
-			throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
-		}
-
-		log.info("{} => Successfully connected to {} node on serial port {}",
-				new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
-		);
-
-		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
-			public ChannelPipeline getPipeline() throws Exception {
-				final ChannelPipeline pipeline = pipeline();
-				pipeline.addFirst("forwardingHandler", forwardingHandler);
-				pipeline.addFirst("filterHandler", filterPipeline);
-				filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
-				return pipeline;
-			}
-		}
-		);
-		final ChannelFuture connectFuture = bootstrap.connect(
-				new IOStreamAddress(
-						device.getInputStream(),
-						device.getOutputStream()
-				)
-		);
-		deviceChannel = connectFuture.await().getChannel();
-	}
-
-	private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
-
-		//if reaching maximum-message-rate do not send more then 1 message
-		if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
-			int dismissedCount = maximumMessageRateLimiter.dismissedCount();
-			if (dismissedCount >= 1) {
-				sendPacketsDroppedWarningIfNotificationRateAllows(dismissedCount);
-			}
-			return;
-		}
-
-		if (log.isTraceEnabled()) {
-			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
-					configuration.getNodeUrn(),
-					ChannelBufferTools.toPrintableString(buffer, 200)
-			);
-		}
-
-		boolean isWiselibUpstream =
-				(buffer.getByte(0) & 0xFF) == MESSAGE_TYPE_WISELIB_UPSTREAM;
-
-		boolean isByteTextOrVLink = buffer.readableBytes() > 1 &&
-				((buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
-						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
-						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
-
-		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
-
-		if (isWiselibReply) {
-
-			final ByteBuffer packetWithoutISenseMessageType = ByteBuffer.allocate(buffer.readableBytes() - 1);
-			System.arraycopy(buffer.array(), 1, packetWithoutISenseMessageType.array(), 0, buffer.readableBytes() - 1);
-
-			if (nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType)) {
-
-				if (log.isDebugEnabled()) {
-					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
-							configuration.getNodeUrn(),
-							ChannelBufferTools.toPrintableString(buffer, 200)
-					);
-				}
-			} else {
-
-				if (log.isWarnEnabled()) {
-					log.warn(
-							"{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
-							configuration.getNodeUrn(),
-							ChannelBufferTools.toPrintableString(buffer, 200)
-					);
-				}
-			}
-
-
-		} else {
-
-			// convert buffer to plain byte-array
-			byte[] bytes = new byte[buffer.readableBytes()];
-			buffer.getBytes(0, bytes);
-
-			for (NodeOutputListener listener : listeners) {
-				listener.receivedPacket(bytes);
-			}
-		}
-	}
-
-	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
-
-		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-
-			for (NodeOutputListener listener : listeners) {
-				listener.receiveNotification(notification);
-			}
-
-			pipelineMisconfigurationTimeDiff.touch();
-		}
-	}
-
-	private void sendPacketsDroppedWarningIfNotificationRateAllows(int packetsDropped) {
-
-		packetsDroppedSinceLastNotification += packetsDropped;
-
-		if (packetsDroppedTimeDiff.isTimeout()) {
-
-			String notification =
-					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + configuration.getNodeUrn() +
-							" in the last " + packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes "
-							+ "more packets to the serial interface per second than allowed (" +
-							configuration.getMaximumMessageRate() + " per second).";
-
-			for (NodeOutputListener listener : listeners) {
-				listener.receiveNotification(notification);
-			}
-
-			packetsDroppedSinceLastNotification = 0;
-			packetsDroppedTimeDiff.touch();
-		}
-	}
-
-	private List<Tuple<String, ChannelHandler>> createDefaultChannelHandlers() {
-		return newArrayList(
-				new Tuple<String, ChannelHandler>("frameDecoder", new DleStxEtxFramingDecoder()),
-				new Tuple<String, ChannelHandler>("frameEncoder", new DleStxEtxFramingEncoder())
-		);
-	}
-
-	@Override
-	public void setVirtualLink(final long targetNode, final Callback listener) {
-
-		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-	}
-
-	private void shutdownDeviceChannel() {
-
-		if (deviceChannel != null && deviceChannel.isConnected()) {
-
-			try {
-
-				deviceChannel.close().await();
-
-			} catch (Exception e) {
-				log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
-			}
-		}
-	}
-
-	private boolean isVirtualLinkMessage(final byte[] messageBytes) {
-		return messageBytes.length > 1 &&
-				messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
-				messageBytes[1] == VIRTUAL_LINK_MESSAGE;
-	}
-
-	private void callCallback(final Future<NodeApiCallResult> future, final Callback listener) {
-		try {
-
-			NodeApiCallResult result = future.get();
-
-			if (result.isSuccessful()) {
-				listener.success(result.getResponse());
-			} else {
-				listener.failure(result.getResponseType(), result.getResponse());
-			}
-
-		} catch (InterruptedException e) {
-			log.error("{} => InterruptedException while reading Node API call result.", configuration.getNodeUrn());
-			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
-		} catch (ExecutionException e) {
-			if (e.getCause() instanceof TimeoutException) {
-				log.debug("{} => Call to Node API timed out.", configuration.getNodeUrn());
-				listener.timeout();
-			} else {
-				log.error("" + e, e);
-				listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
-			}
-		}
-	}
-
-	private boolean isConnected() {
-		return device != null && device.isConnected();
-	}
+            String msg = "Failed resetting node. Reason: Device is not connected.";
+            log.warn("{} => {}", configuration.getNodeUrn(), msg);
+            listener.failure((byte) 0, msg.getBytes());
+        }
+
+    }
+
+    @Override
+    public void sendMessage(final byte[] messageBytes, final Callback callback) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+
+            if (isVirtualLinkMessage(messageBytes)) {
+
+                log.debug("{} => Delivering virtual link message over node API", configuration.getNodeUrn());
+
+                ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
+
+                final byte RSSI = messageBuffer.get(3);
+                final byte LQI = messageBuffer.get(4);
+                final byte payloadLength = messageBuffer.get(5);
+                final long destination = messageBuffer.getLong(6);
+                final long source = messageBuffer.getLong(14);
+                final byte[] payload = new byte[payloadLength];
+
+                System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
+
+                nodeApiExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callCallback(
+                                nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
+                                        payload
+                                ),
+                                callback
+                        );
+                    }
+                }
+                );
+
+            } else {
+
+                log.debug("{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link "
+                        + "message.", configuration.getNodeUrn()
+                );
+
+                final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
+
+                deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture future) throws Exception {
+                        if (future.isSuccess()) {
+
+                            callback.success(null);
+
+                        } else if (future.isCancelled()) {
+
+                            String msg = "Sending message was canceled.";
+                            log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+                            callback.failure((byte) -3, msg.getBytes());
+
+                        } else {
+
+                            String msg = "Failed sending message. Reason: " + future.getCause();
+                            log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+                            callback.failure((byte) -2, msg.getBytes());
+                        }
+                    }
+                }
+                );
+
+            }
+
+        } else {
+            callback.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+
+    }
+
+    @Override
+    public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
+                                   final Callback callback) {
+
+        if (isConnected()) {
+
+            try {
+
+                log.debug("{} => Setting channel pipeline using configuration: {}", configuration.getNodeUrn(),
+                        channelHandlerConfigurations
+                );
+
+                final List<Tuple<String, ChannelHandler>> pipeline =
+                        handlerFactoryRegistry.create(channelHandlerConfigurations);
+
+                if (log.isDebugEnabled() && pipeline.size() > 0) {
+                    pipeline.add(0, new Tuple<String, ChannelHandler>(
+                            "aboveFilterPipelineLogger",
+                            new AboveFilterPipelineLogger(configuration.getNodeUrn())
+                    )
+                    );
+                    pipeline.add(new Tuple<String, ChannelHandler>(
+                            "belowFilterPipelineLogger",
+                            new BelowFilterPipelineLogger(configuration.getNodeUrn())
+                    )
+                    );
+                }
+
+                filterPipeline.setChannelPipeline(pipeline);
+                callback.success(null);
+
+            } catch (Exception e) {
+
+                log.warn("{} => {} while setting channel pipeline: {}",
+                        new Object[]{configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()}
+                );
+
+                callback.failure(
+                        (byte) -1,
+                        ("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
+                );
+
+                log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
+                filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
+            }
+
+            log.debug("{} => Channel pipeline now set to: {}",
+                    configuration.getNodeUrn(), filterPipeline.getChannelPipeline()
+            );
+
+        } else {
+            callback.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+    }
+
+    private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
+        @Override
+        public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
+                throws Exception {
+
+            if (e.getMessage() instanceof ChannelBuffer) {
+
+                final ChannelBuffer message = (ChannelBuffer) e.getMessage();
+                onBytesReceivedFromDevice(message);
+
+            } else {
+
+                String notification = "The pipeline seems to be wrongly configured. A message of type " +
+                        e.getMessage().getClass().getCanonicalName() +
+                        " was received. Only " +
+                        ChannelBuffer.class.getCanonicalName() +
+                        " instances are allowed!";
+
+                sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+            }
+        }
+
+        @Override
+        public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
+                throws Exception {
+
+            log.warn(
+                    "{} => {} in pipeline: {}",
+                    new Object[]{
+                            configuration.getNodeUrn(),
+                            e.getCause().getClass().getSimpleName(),
+                            e.getCause().getMessage()
+                    }
+            );
+
+            String notification = "The pipeline seems to be wrongly configured. A(n) " +
+                    e.getCause().getClass().getSimpleName() +
+                    " was caught and contained the following message: " +
+                    e.getCause().getMessage();
+
+            sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+        }
+    };
+
+    private void tryToConnect(String nodeType, String serialInterface) throws Exception {
+
+        DeviceFactory deviceFactory = new DeviceFactoryImpl();
+        device = deviceFactory.create(deviceDriverScheduler, nodeType);
+
+        try {
+
+            device.connect(serialInterface);
+
+        } catch (Exception e) {
+            log.warn("{} => Could not connect to {} device at {}.",
+                    new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+            );
+            throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
+        }
+
+        if (!device.isConnected()) {
+            log.warn("{} => Could not connect to {} device at {}.",
+                    new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+            );
+            throw new Exception("Could not connect to " + nodeType + " at " + serialInterface);
+        }
+
+        log.info("{} => Successfully connected to {} node on serial port {}",
+                new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+        );
+
+        final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                final ChannelPipeline pipeline = pipeline();
+                pipeline.addFirst("forwardingHandler", forwardingHandler);
+                pipeline.addFirst("filterHandler", filterPipeline);
+                filterPipeline.setChannelPipeline(createDefaultChannelHandlers());
+                return pipeline;
+            }
+        }
+        );
+        final ChannelFuture connectFuture = bootstrap.connect(
+                new IOStreamAddress(
+                        device.getInputStream(),
+                        device.getOutputStream()
+                )
+        );
+        deviceChannel = connectFuture.await().getChannel();
+    }
+
+    private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
+
+        //if reaching maximum-message-rate do not send more then 1 message
+        if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
+            int dismissedCount = maximumMessageRateLimiter.dismissedCount();
+            if (dismissedCount >= 1) {
+                sendPacketsDroppedWarningIfNotificationRateAllows(dismissedCount);
+            }
+            return;
+        }
+
+        if (log.isTraceEnabled()) {
+            log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
+                    configuration.getNodeUrn(),
+                    ChannelBufferTools.toPrintableString(buffer, 200)
+            );
+        }
+
+        boolean isWiselibUpstream =
+                (buffer.getByte(0) & 0xFF) == MESSAGE_TYPE_WISELIB_UPSTREAM;
+
+        boolean isByteTextOrVLink = buffer.readableBytes() > 1 &&
+                ((buffer.getByte(1) & 0xFF) == NODE_OUTPUT_BYTE ||
+                        (buffer.getByte(1) & 0xFF) == NODE_OUTPUT_TEXT ||
+                        (buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
+
+        boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
+
+        if (isWiselibReply) {
+
+            final ByteBuffer packetWithoutISenseMessageType = ByteBuffer.allocate(buffer.readableBytes() - 1);
+            System.arraycopy(buffer.array(), 1, packetWithoutISenseMessageType.array(), 0, buffer.readableBytes() - 1);
+
+            if (nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType)) {
+
+                if (log.isDebugEnabled()) {
+                    log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
+                            configuration.getNodeUrn(),
+                            ChannelBufferTools.toPrintableString(buffer, 200)
+                    );
+                }
+            } else {
+
+                if (log.isWarnEnabled()) {
+                    log.warn(
+                            "{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
+                            configuration.getNodeUrn(),
+                            ChannelBufferTools.toPrintableString(buffer, 200)
+                    );
+                }
+            }
+
+
+        } else {
+
+            // convert buffer to plain byte-array
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.getBytes(0, bytes);
+
+            for (NodeOutputListener listener : listeners) {
+                listener.receivedPacket(bytes);
+            }
+        }
+    }
+
+    private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
+
+        if (pipelineMisconfigurationTimeDiff.isTimeout()) {
+
+            for (NodeOutputListener listener : listeners) {
+                listener.receiveNotification(notification);
+            }
+
+            pipelineMisconfigurationTimeDiff.touch();
+        }
+    }
+
+    private void sendPacketsDroppedWarningIfNotificationRateAllows(int packetsDropped) {
+
+        packetsDroppedSinceLastNotification += packetsDropped;
+
+        if (packetsDroppedTimeDiff.isTimeout()) {
+
+            String notification =
+                    "Dropped " + packetsDroppedSinceLastNotification + " packets of " + configuration.getNodeUrn() +
+                            " in the last " + packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes "
+                            + "more packets to the serial interface per second than allowed (" +
+                            configuration.getMaximumMessageRate() + " per second).";
+
+            for (NodeOutputListener listener : listeners) {
+                listener.receiveNotification(notification);
+            }
+
+            packetsDroppedSinceLastNotification = 0;
+            packetsDroppedTimeDiff.touch();
+        }
+    }
+
+    private List<Tuple<String, ChannelHandler>> createDefaultChannelHandlers() {
+        return newArrayList(
+                new Tuple<String, ChannelHandler>("frameDecoder", new DleStxEtxFramingDecoder()),
+                new Tuple<String, ChannelHandler>("frameEncoder", new DleStxEtxFramingEncoder())
+        );
+    }
+
+    @Override
+    public void setVirtualLink(final long targetNode, final Callback listener) {
+
+        log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
+
+        if (isConnected()) {
+            nodeApiExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
+                }
+            }
+            );
+        } else {
+            listener.failure((byte) -1, "Node is not connected.".getBytes());
+        }
+    }
+
+    private void shutdownDeviceChannel() {
+
+        if (deviceChannel != null && deviceChannel.isConnected()) {
+
+            try {
+
+                deviceChannel.close().await();
+
+            } catch (Exception e) {
+                log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
+            }
+        }
+    }
+
+    private boolean isVirtualLinkMessage(final byte[] messageBytes) {
+        return messageBytes.length > 1 &&
+                messageBytes[0] == MESSAGE_TYPE_WISELIB_DOWNSTREAM &&
+                messageBytes[1] == VIRTUAL_LINK_MESSAGE;
+    }
+
+    private void callCallback(final Future<NodeApiCallResult> future, final Callback listener) {
+        try {
+
+            NodeApiCallResult result = future.get();
+
+            if (result.isSuccessful()) {
+                listener.success(result.getResponse());
+            } else {
+                listener.failure(result.getResponseType(), result.getResponse());
+            }
+
+        } catch (InterruptedException e) {
+            log.error("{} => InterruptedException while reading Node API call result.", configuration.getNodeUrn());
+            listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof TimeoutException) {
+                log.debug("{} => Call to Node API timed out.", configuration.getNodeUrn());
+                listener.timeout();
+            } else {
+                log.error("" + e, e);
+                listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
+            }
+        }
+    }
+
+    private boolean isConnected() {
+        return device != null && device.isConnected();
+    }
 }
