@@ -390,9 +390,14 @@ public class WSNServiceImpl implements WSNService {
 		wsnInstanceEndpoint = Endpoint.create(this);
 		wsnInstanceEndpoint.setExecutor(wsnInstanceWebServiceThreadPool);
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(wsnInstanceEndpointUrl.toString());
-		log.debug("Endpoint URL: " + wsnInstanceEndpointUrl.toString());
-		log.debug("Binding  URL: " + bindAllInterfacesUrl);
+		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+				wsnInstanceEndpointUrl.toString() :
+				UrlUtils.convertHostToZeros(wsnInstanceEndpointUrl.toString());
+
+		log.info("Starting WSN API service on binding URL {} for endpoint URL {}",
+				bindAllInterfacesUrl,
+				wsnInstanceEndpointUrl.toString()
+		);
 
 		wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
 

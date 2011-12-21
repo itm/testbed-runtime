@@ -40,7 +40,8 @@ public class IWSNFactoryImpl implements IWSNFactory {
 
 		final IWSNOverlayManager overlayManager = overlayManagerFactory.create(
 				testbedRuntime,
-				domObserver
+				domObserver,
+				nodeId
 		);
 
 		final IWSNApplicationManager applicationManager = applicationManagerFactory.create(

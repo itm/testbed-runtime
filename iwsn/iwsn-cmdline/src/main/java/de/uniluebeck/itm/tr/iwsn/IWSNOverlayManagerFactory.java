@@ -5,6 +5,6 @@ import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 
 public interface IWSNOverlayManagerFactory {
 
-	IWSNOverlayManager create(final TestbedRuntime testbedRuntime, final DOMObserver domObserver);
+	IWSNOverlayManager create(final TestbedRuntime testbedRuntime, final DOMObserver domObserver, final String nodeId);
 
 }

@@ -83,8 +83,8 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
         for (DeviceInfo deviceInfo : currentState.values()) {
 
             boolean sameType = DeviceType.fromString(deviceInfo.getType()) == deviceRequest.getDeviceType();
-            boolean sameMAC = deviceInfo.getMacAddress().equals(deviceRequest.getMacAddress());
-            boolean sameReference = deviceInfo.getReference().equals(deviceRequest.getReference());
+            boolean sameMAC = deviceInfo.getMacAddress() != null && deviceInfo.getMacAddress().equals(deviceRequest.getMacAddress());
+            boolean sameReference = deviceInfo.getReference() != null && deviceInfo.getReference().equals(deviceRequest.getReference());
 
             if (sameType && (sameMAC || sameReference)) {
                 deviceRequest.setResponse(deviceInfo);

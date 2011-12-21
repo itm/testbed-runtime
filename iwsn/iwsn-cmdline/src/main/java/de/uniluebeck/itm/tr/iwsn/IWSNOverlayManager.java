@@ -25,6 +25,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -91,6 +92,7 @@ public class IWSNOverlayManager implements Service {
 			Testbed oldConfig = oldDOM == null ? null : unmarshal((org.w3c.dom.Node) oldDOM);
 			Testbed newConfig = newDOM == null ? null : unmarshal((org.w3c.dom.Node) newDOM);
 
+			addAndRemoveLocalNodeNames(oldConfig, newConfig);
 			addAndRemoveOverlayNodes(oldConfig, newConfig);
 			addAndRemoveOverlayNodeNames(oldConfig, newConfig);
 
@@ -99,17 +101,20 @@ public class IWSNOverlayManager implements Service {
 		}
 	}
 
-	private TestbedRuntime overlay;
+	private final TestbedRuntime overlay;
 
-	private DOMObserver domObserver;
+	private final DOMObserver domObserver;
+
+	private final String nodeId;
 
 	private ScheduledFuture<?> domObserverSchedule;
 
 	private ScheduledExecutorService scheduler;
 
-	IWSNOverlayManager(final TestbedRuntime overlay, final DOMObserver domObserver) {
+	IWSNOverlayManager(final TestbedRuntime overlay, final DOMObserver domObserver, final String nodeId) {
 		this.overlay = overlay;
 		this.domObserver = domObserver;
+		this.nodeId = nodeId;
 	}
 
 	@Override
@@ -131,6 +136,37 @@ public class IWSNOverlayManager implements Service {
 		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 	}
 
+	private void addAndRemoveLocalNodeNames(final Testbed oldConfig, final Testbed newConfig) {
+		
+		Set<String> oldLocalNodeNames = getLocalNodeNames(oldConfig);
+		Set<String> newLocalNodeNames = getLocalNodeNames(newConfig);
+		
+		boolean sameLocalNodeNames = oldLocalNodeNames.equals(newLocalNodeNames);
+
+		if (!sameLocalNodeNames) {
+
+			Set<String> localNodeNamesRemoved = newHashSet(Sets.difference(oldLocalNodeNames, newLocalNodeNames));
+			removeLocalNodeNames(localNodeNamesRemoved);
+
+			Set<String> localNodesNamesAdded = newHashSet(Sets.difference(newLocalNodeNames, oldLocalNodeNames));
+			addLocalNodeNames(localNodesNamesAdded);
+
+		}
+		
+	}
+
+	private void addLocalNodeNames(final Set<String> localNodesNamesAdded) {
+		for (String localNodeName : localNodesNamesAdded) {
+			overlay.getLocalNodeNameManager().addLocalNodeName(localNodeName);
+		}
+	}
+
+	private void removeLocalNodeNames(final Set<String> localNodeNamesRemoved) {
+		for (String localNodeName : localNodeNamesRemoved) {
+			overlay.getLocalNodeNameManager().removeLocalNodeName(localNodeName);
+		}
+	}
+
 	private void addAndRemoveOverlayNodeNames(final Testbed oldConfig, final Testbed newConfig) {
 
 		Set<String> oldNodeNames = getOverlayNodeNames(oldConfig);
@@ -146,6 +182,25 @@ public class IWSNOverlayManager implements Service {
 			Set<String> nodesNamesAdded = newHashSet(Sets.difference(newNodeNames, oldNodeNames));
 			addRoutingTableEntries(nodesNamesAdded);
 		}
+	}
+
+	private Set<String> getLocalNodeNames(final Testbed config) {
+
+		Set<String> set = newHashSet();
+
+		if (config == null) {
+			return set;
+		}
+
+		for (Node node : config.getNodes()) {
+			if (nodeId.equals(node.getId())) {
+				for (NodeName nodeName : node.getNames().getNodename()) {
+					set.add(nodeName.getName());
+				}
+			}
+		}
+
+		return set;
 	}
 
 	private Set<String> getOverlayNodeNames(final Testbed config) {

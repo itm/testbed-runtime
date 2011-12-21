@@ -260,7 +260,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	@Override
 	public void start() throws Exception {
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
+		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+				config.sessionManagementEndpointUrl.toString() :
+				UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
 
 		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
 				bindAllInterfacesUrl,
@@ -364,89 +366,87 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 			}
 
-		}
+			// no existing wsnInstance was found, so create new wsnInstance
 
-		// no existing wsnInstance was found, so create new wsnInstance
+			// query reservation system for reservation data if reservation system is to be used (i.e.
+			// reservationEndpointUrl is not null)
+			List<ConfidentialReservationData> confidentialReservationDataList;
+			Set<String> reservedNodes = null;
+			if (config.reservationEndpointUrl != null) {
+				// integrate reservation system
+				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
+				confidentialReservationDataList = getReservationDataFromRS(keys);
+				reservedNodes = new HashSet<String>();
 
-		// query reservation system for reservation data if reservation system is to be used (i.e.
-		// reservationEndpointUrl is not null)
-		List<ConfidentialReservationData> confidentialReservationDataList;
-		Set<String> reservedNodes = null;
-		if (config.reservationEndpointUrl != null) {
-			// integrate reservation system
-			List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
-			confidentialReservationDataList = getReservationDataFromRS(keys);
-			reservedNodes = new HashSet<String>();
+				// assure that wsnInstance creation doesn't happen before reservation time slot
+				assertReservationIntervalMet(confidentialReservationDataList);
 
-			// assure that wsnInstance creation doesn't happen before reservation time slot
-			assertReservationIntervalMet(confidentialReservationDataList);
+				// get reserved nodes
+				for (ConfidentialReservationData data : confidentialReservationDataList) {
 
-			// get reserved nodes
-			for (ConfidentialReservationData data : confidentialReservationDataList) {
-
-				// convert all node URNs to lower case so that we can do easy string-based comparisons
-				for (String nodeURN : data.getNodeURNs()) {
-					reservedNodes.add(nodeURN.toLowerCase());
+					// convert all node URNs to lower case so that we can do easy string-based comparisons
+					for (String nodeURN : data.getNodeURNs()) {
+						reservedNodes.add(nodeURN.toLowerCase());
+					}
 				}
+
+				// assure that nodes are in TestbedRuntime
+				assertNodesInTestbed(reservedNodes, testbedRuntime);
+
+				// assure that all wsn-instances will be removed after expiration time
+				for (ConfidentialReservationData data : confidentialReservationDataList) {
+
+					//Creating delay for CleanUpJob
+					long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
+
+					//stop and remove invalid instances after their expiration time
+					getScheduler().schedule(
+							new CleanUpWSNInstanceJob(keys),
+							delay,
+							TimeUnit.MILLISECONDS
+					);
+				}
+			} else {
+				log.info("Information: No Reservation-System found! All existing nodes will be used.");
 			}
 
-			// assure that nodes are in TestbedRuntime
-			assertNodesInTestbed(reservedNodes, testbedRuntime);
-
-			// assure that all wsn-instances will be removed after expiration time
-			for (ConfidentialReservationData data : confidentialReservationDataList) {
-
-				//Creating delay for CleanUpJob
-				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
-
-				//stop and remove invalid instances after their expiration time
-				getScheduler().schedule(
-						new CleanUpWSNInstanceJob(keys),
-						delay,
-						TimeUnit.MILLISECONDS
-				);
+			URL wsnInstanceEndpointUrl;
+			try {
+				wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
 			}
-		} else {
-			log.info("Information: No Reservation-System found! All existing nodes will be used.");
-		}
 
-		URL wsnInstanceEndpointUrl;
-		try {
-			wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
+					secretReservationKey,
+					testbedRuntime,
+					config.urnPrefix,
+					wsnInstanceEndpointUrl,
+					config.wiseMLFilename,
+					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+					new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
+					protobufControllerServer
+			);
 
-		wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
-				secretReservationKey,
-				testbedRuntime,
-				config.urnPrefix,
-				wsnInstanceEndpointUrl,
-				config.wiseMLFilename,
-				reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-				new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
-				protobufControllerServer
-		);
+			// start the WSN instance
+			try {
 
-		// start the WSN instance
-		try {
+				wsnServiceHandleInstance.start();
 
-			wsnServiceHandleInstance.start();
+			} catch (Exception e) {
+				log.error("Exception while creating WSN API wsnInstance: " + e, e);
+				throw new RuntimeException(e);
+			}
 
-		} catch (Exception e) {
-			log.error("Exception while creating WSN API wsnInstance: " + e, e);
-			throw new RuntimeException(e);
-		}
-
-		synchronized (wsnInstances) {
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
-		}
 
-		if (!"NONE".equals(controller)) {
-			wsnServiceHandleInstance.getWsnService().addController(controller);
-		}
+			if (!"NONE".equals(controller)) {
+				wsnServiceHandleInstance.getWsnService().addController(controller);
+			}
 
-		return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
+			return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
+
+		}
 
 	}
 

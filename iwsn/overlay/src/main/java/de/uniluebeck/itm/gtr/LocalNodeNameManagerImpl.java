@@ -15,7 +15,7 @@ class LocalNodeNameManagerImpl implements LocalNodeNameManager {
 
 	private ListenerManager<LocalNodeNameListener> listenerManager = new ListenerManagerImpl<LocalNodeNameListener>();
 
-	private ImmutableSet<String> localNodeNames;
+	private ImmutableSet<String> localNodeNames = ImmutableSet.of();
 
 	@Override
 	public void addLocalNodeName(final String localNodeName) {
