@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
 
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -8,13 +8,13 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BelowFilterPipelineLogger extends SimpleChannelHandler {
+public class BelowPipelineLogger extends SimpleChannelHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(BelowFilterPipelineLogger.class);
+	private static final Logger log = LoggerFactory.getLogger(BelowPipelineLogger.class);
 
 	private final String nodeUrn;
 
-	public BelowFilterPipelineLogger(final String nodeUrn) {
+	public BelowPipelineLogger(final String nodeUrn) {
 		this.nodeUrn = nodeUrn;
 	}
 

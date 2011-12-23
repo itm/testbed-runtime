@@ -24,7 +24,9 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -37,13 +39,16 @@ import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
-import de.uniluebeck.itm.netty.handlerstack.*;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
+import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
+import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
+import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
+import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannelSink;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -51,6 +56,8 @@ import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -58,13 +65,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.*;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.future;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 
-class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipelineUpstreamListener {
+class WSNAppImpl implements WSNApp {
 
 	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
 
@@ -142,11 +151,13 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
-	private FilterPipeline filterPipeline;
-
 	private HandlerFactoryRegistry handlerFactoryRegistry;
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
+
+	private final AbovePipelineLogger abovePipelineLogger;
+
+	private final BelowPipelineLogger belowPipelineLogger;
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
@@ -161,6 +172,10 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 			registerNodeMessageReceiver(false);
 		}
 	};
+
+	private final ChannelPipeline pipeline = pipeline();
+	
+	private final Channel channel = new EmbeddedChannel(pipeline, new EmbeddedChannelSink());
 
 	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
 		@Override
@@ -215,11 +230,11 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 				);
 
 				final UpstreamMessageEvent upstreamMessageEvent = new UpstreamMessageEvent(
-						filterPipeline.getChannel(),
+						pipeline.getChannel(),
 						buffer,
 						sourceAddress
 				);
-				filterPipeline.sendUpstream(upstreamMessageEvent);
+				pipeline.sendUpstream(upstreamMessageEvent);
 
 			} catch (InvalidProtocolBufferException e) {
 				log.error("" + e, e);
@@ -249,30 +264,52 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
-
-		this.filterPipeline = new FilterPipelineImpl();
-		this.filterPipeline.addListener((FilterPipelineDownstreamListener) this);
-		this.filterPipeline.addListener((FilterPipelineUpstreamListener) this);
-
 		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
+		abovePipelineLogger = new AbovePipelineLogger("portal");
+		belowPipelineLogger = new BelowPipelineLogger("portal");
 	}
 
-	@Override
-	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+	private String getLocalNodeName() {
+		return testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next();
+	}
 
-		if (e instanceof DownstreamMessageEvent) {
+	private final SimpleChannelDownstreamHandler filterPipelineBottomHandler = new SimpleChannelDownstreamHandler() {
 
-			ChannelBuffer channelBuffer = (ChannelBuffer) ((DownstreamMessageEvent) e).getMessage();
-			SocketAddress socketAddress = ((DownstreamMessageEvent) e).getRemoteAddress();
+		@Override
+		public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+			if (e instanceof ExceptionEvent) {
+
+				Throwable cause = ((ExceptionEvent) e).getCause();
+				String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
+						cause.getClass().getSimpleName() +
+						" was caught and contained the following message: " +
+						cause.getMessage();
+
+				sendPipelineMisconfigurationIfNotificationRateAllows(notificationString);
+
+			} else if (e instanceof MessageEvent) {
+
+				writeRequested(ctx, (MessageEvent) e);
+			}
+		}
+
+		@Override
+		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+
+			ChannelBuffer channelBuffer = (ChannelBuffer) e.getMessage();
+			SocketAddress socketAddress = e.getRemoteAddress();
 
 			Set<String> nodeUrns;
 			String timestamp;
 			Callback callback;
+
 			if (socketAddress instanceof WisebedMulticastAddress) {
+
 				nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
 				timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
 				callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
+
 			} else {
 				throw new RuntimeException(
 						"Expected type " + WisebedMulticastAddress.class.getName() + "but got " + socketAddress
@@ -336,20 +373,7 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 				}
 			}
 		}
-	}
-
-	private String getLocalNodeName() {
-		return testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next();
-	}
-
-	@Override
-	public void downstreamExceptionCaught(final Throwable e) {
-		String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
-				e.getCause().getClass().getSimpleName() +
-				" was caught and contained the following message: " +
-				e.getCause().getMessage();
-		sendPipelineMisconfigurationIfNotificationRateAllows(notificationString);
-	}
+	};
 
 	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notificationString) {
 
@@ -368,13 +392,18 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		}
 	}
 
-	@Override
-	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+	private final SimpleChannelUpstreamHandler filterPipelineTopHandler = new SimpleChannelUpstreamHandler() {
 
-		if (e instanceof UpstreamMessageEvent) {
+		@Override
+		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) throws Exception {
+			filterPipelineTopHandler.exceptionCaught(ctx, e);
+		}
 
-			ChannelBuffer channelBuffer = (ChannelBuffer) ((UpstreamMessageEvent) e).getMessage();
-			SocketAddress socketAddress = ((UpstreamMessageEvent) e).getRemoteAddress();
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+
+			ChannelBuffer channelBuffer = (ChannelBuffer) e.getMessage();
+			SocketAddress socketAddress = e.getRemoteAddress();
 
 			byte[] bytes = new byte[channelBuffer.readableBytes()];
 			channelBuffer.readBytes(bytes);
@@ -386,12 +415,7 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 				receiver.receive(bytes, sourceNodeId, timestamp);
 			}
 		}
-	}
-
-	@Override
-	public void upstreamExceptionCaught(final Throwable e) {
-		downstreamExceptionCaught(e);
-	}
+	};
 
 	@Override
 	public String getName() {
@@ -405,6 +429,8 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 				1,
 				new ThreadFactoryBuilder().setNameFormat("WSNApp-Thread %d").build()
 		);
+
+		setDefaultPipelineLocally();
 
 		// start listening to sensor node output messages
 		testbedRuntime.getMessageEventService().addListener(messageEventListener);
@@ -425,7 +451,7 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		log.info("Stopping WSNApp...");
 
 		setDefaultPipelineOnReservedNodes();
-		filterPipeline.setChannelPipeline(null);
+		setDefaultPipelineLocally();
 
 		// stop sending 'register'-messages to node counterpart
 		registerNodeMessageReceiverFuture.cancel(false);
@@ -439,6 +465,10 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 
 		log.info("WSNApp stopped!");
+	}
+
+	private void setDefaultPipelineLocally() {
+		setChannelPipelineLocally(null, null);
 	}
 
 	@Override
@@ -456,12 +486,12 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(nodeUrns, userContext);
 
 		final DownstreamMessageEvent downstreamMessageEvent = new DownstreamMessageEvent(
-				filterPipeline.getChannel(),
-				future(filterPipeline.getChannel()),
+				pipeline.getChannel(),
+				future(pipeline.getChannel()),
 				buffer,
 				targetAddress
 		);
-		filterPipeline.sendDownstream(downstreamMessageEvent);
+		pipeline.sendDownstream(downstreamMessageEvent);
 	}
 
 	@Override
@@ -478,43 +508,69 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 		}
 	}
 
-	private void setChannelPipelineLocally(final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
-										   final Callback callback) {
+	private void setChannelPipelineLocally(
+			@Nullable final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+			@Nullable final Callback callback) {
+
 		try {
 
-			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations1 =
-					convertCHCList(channelHandlerConfigurations);
+			final List<Tuple<String, ChannelHandler>> innerPipelineHandlers = channelHandlerConfigurations != null ?
+					handlerFactoryRegistry.create(convertCHCList(channelHandlerConfigurations)) :
+					null;
 
-			final List<Tuple<String, ChannelHandler>> channelPipeline =
-					handlerFactoryRegistry.create(channelHandlerConfigurations1);
+			setPipeline(pipeline, createPipelineHandlers(innerPipelineHandlers));
 
-			if (log.isDebugEnabled() && channelHandlerConfigurations1.size() > 0) {
-				channelPipeline.add(0, new Tuple<String, ChannelHandler>(
-						"aboveFilterPipelineLogger",
-						new AboveFilterPipelineLogger("portal")
-				)
-				);
-				channelPipeline.add(new Tuple<String, ChannelHandler>(
-						"belowFilterPipelineLogger",
-						new BelowFilterPipelineLogger("portal")
-				)
-				);
+			if (callback != null) {
+
+				final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+						.newBuilder()
+						.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
+						.build();
+
+				callback.receivedRequestStatus(requestStatus);
 			}
 
-			filterPipeline.setChannelPipeline(channelPipeline);
-
-			final WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
-					.newBuilder()
-					.setStatus(WSNAppMessages.RequestStatus.Status.newBuilder().setValue(1).setNodeId(""))
-					.build();
-
-			callback.receivedRequestStatus(requestStatus);
-
 		} catch (Exception e) {
+
 			log.warn("Exception while setting channel pipeline on portal host: " + e, e);
-			filterPipeline.setChannelPipeline(null);
-			callback.failure(e);
+
+			setPipeline(pipeline, createPipelineHandlers(null));
+
+			if (callback != null) {
+				callback.failure(e);
+			}
 		}
+	}
+
+	@Nonnull
+	private List<Tuple<String, ChannelHandler>> createPipelineHandlers(
+			@Nullable List<Tuple<String, ChannelHandler>> innerHandlers) {
+
+		LinkedList<Tuple<String, ChannelHandler>> handlers = newLinkedList();
+
+		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineTopHandler", filterPipelineTopHandler));
+
+		boolean doLogging = log.isDebugEnabled() && innerHandlers != null && !innerHandlers.isEmpty();
+
+		if (doLogging) {
+			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
+		}
+
+		if (innerHandlers != null) {
+			for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
+				handlers.addFirst(innerHandler);
+			}
+		}
+
+		if (doLogging) {
+			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
+		}
+
+		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineBottomHandler", filterPipelineBottomHandler)
+		);
+
+		return handlers;
+
 	}
 
 	private void setChannelPipelineOnGateways(final Set<String> nodeUrns,
@@ -825,63 +881,6 @@ class WSNAppImpl implements WSNApp, FilterPipelineDownstreamListener, FilterPipe
 				new RequestStatusCallback(callback, nodeUrnA)
 		);
 
-	}
-
-	private List<Tuple<String, Multimap<String, String>>> convertCHCList(final List<ChannelHandlerConfiguration> in) {
-
-		List<Tuple<String, Multimap<String, String>>> out = newArrayList();
-		for (ChannelHandlerConfiguration configuration : in) {
-			out.add(convertCHC(configuration));
-		}
-		return out;
-	}
-
-	private Tuple<String, Multimap<String, String>> convertCHC(final ChannelHandlerConfiguration configuration) {
-		return new Tuple<String, Multimap<String, String>>(
-				configuration.getName(),
-				convertKeyValuePair(configuration.getConfiguration())
-		);
-	}
-
-	private Multimap<String, String> convertKeyValuePair(final List<KeyValuePair> configuration) {
-		Multimap<String, String> out = HashMultimap.create();
-		for (KeyValuePair keyValuePair : configuration) {
-			out.put(keyValuePair.getKey(), keyValuePair.getValue());
-		}
-		return out;
-	}
-
-	private WSNAppMessages.SetChannelPipelineRequest.Builder convertToProtobuf(
-			final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		WSNAppMessages.SetChannelPipelineRequest.Builder argumentBuilder =
-				WSNAppMessages.SetChannelPipelineRequest.newBuilder();
-
-		for (ChannelHandlerConfiguration channelHandlerConfiguration : channelHandlerConfigurations) {
-			argumentBuilder.addChannelHandlerConfigurations(convertToProtobuf(channelHandlerConfiguration));
-		}
-		return argumentBuilder;
-	}
-
-	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder convertToProtobuf(
-			final ChannelHandlerConfiguration channelHandlerConfiguration) {
-		final WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder configurationBuilder =
-				WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration
-						.newBuilder()
-						.setName(channelHandlerConfiguration.getName());
-
-		for (KeyValuePair keyValuePair : channelHandlerConfiguration.getConfiguration()) {
-			configurationBuilder.addConfiguration(convertToProtobuf(keyValuePair));
-		}
-		return configurationBuilder;
-	}
-
-	private WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair.Builder convertToProtobuf(
-			final KeyValuePair keyValuePair) {
-
-		return WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.KeyValuePair
-				.newBuilder()
-				.setKey(keyValuePair.getKey())
-				.setValue(keyValuePair.getValue());
 	}
 
 	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
