@@ -25,7 +25,8 @@ package de.uniluebeck.itm.gtr.messaging.reliable;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uniluebeck.itm.gtr.common.SchedulerService;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
@@ -38,6 +39,7 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -53,9 +55,9 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 
 	private final TimedCache<String, AsynchronousJob> asynchronousCache;
 
-	private UnreliableMessagingService unreliableMessagingService;
+	private final UnreliableMessagingService unreliableMessagingService;
 
-	private MessageEventService messageEventService;
+	private final MessageEventService messageEventService;
 
 	private final MessageEventListener messageEventListener = new MessageEventAdapter() {
 
@@ -102,16 +104,16 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 			};
 
 	@Inject
-	public ReliableMessagingServiceImpl(UnreliableMessagingService unreliableMessagingService,
-										MessageEventService messageEventService,
-										SchedulerService schedulerService) {
+	public ReliableMessagingServiceImpl(final UnreliableMessagingService unreliableMessagingService,
+										final MessageEventService messageEventService,
+										@Named(TestbedRuntime.INJECT_RELIABLE_MESSAGING_SCHEDULER)
+										final ScheduledExecutorService scheduler) {
 
 		this.unreliableMessagingService = unreliableMessagingService;
 		this.messageEventService = messageEventService;
 
-		this.synchronousCache = new TimedCache<String, SynchronousJob>(schedulerService);
-		this.asynchronousCache = new TimedCache<String, AsynchronousJob>(schedulerService);
-
+		this.synchronousCache = new TimedCache<String, SynchronousJob>(scheduler);
+		this.asynchronousCache = new TimedCache<String, AsynchronousJob>(scheduler);
 	}
 
 	@Override
@@ -176,7 +178,8 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 
 		final long timeout = message.getValidUntil() - now;
 
-		AsynchronousJob job = new AsynchronousJob(unreliableMessagingService, message, timeout, TimeUnit.MILLISECONDS, callback);
+		AsynchronousJob job =
+				new AsynchronousJob(unreliableMessagingService, message, timeout, TimeUnit.MILLISECONDS, callback);
 		asynchronousCache.put(message.getReplyWith(), job, timeout, TimeUnit.MILLISECONDS);
 		job.send();
 

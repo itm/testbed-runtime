@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import de.uniluebeck.itm.gtr.LocalNodeNameManager;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.naming.NamingEntry;
 import de.uniluebeck.itm.gtr.naming.NamingService;
@@ -51,6 +52,9 @@ public class IWSNOverlayManagerTest {
 	@Mock
 	private RoutingTableService routingTableService;
 
+	@Mock
+	private LocalNodeNameManager localNodeNameManagerMock;
+
 	private static final String ONE_NODE_ONE_NAME_NO_APPS =
 			"de/uniluebeck/itm/tr/iwsn/cmdline/config-one-node-one-name-no-apps.xml";
 
@@ -73,10 +77,11 @@ public class IWSNOverlayManagerTest {
 				bind(IWSNOverlayManagerFactory.class).to(IWSNOverlayManagerFactoryImpl.class);
 			}
 		}
-		).getInstance(IWSNOverlayManagerFactory.class).create(domObserverMock);
+		).getInstance(IWSNOverlayManagerFactory.class).create(testbedRuntimeMock, domObserverMock, "localhost");
 
 		when(testbedRuntimeMock.getNamingService()).thenReturn(namingServiceMock);
 		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableService);
+		when(testbedRuntimeMock.getLocalNodeNameManager()).thenReturn(localNodeNameManagerMock);
 	}
 
 	@Test

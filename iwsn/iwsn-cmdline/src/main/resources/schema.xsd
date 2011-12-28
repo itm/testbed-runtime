@@ -81,7 +81,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="Application">
 		<xsd:sequence>
-			<xsd:any/>
+			<xsd:any minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 		<xsd:attribute name="name" type="xsd:string" use="required"/>
 		<xsd:attribute name="factoryclass" type="xsd:string" use="required"/>

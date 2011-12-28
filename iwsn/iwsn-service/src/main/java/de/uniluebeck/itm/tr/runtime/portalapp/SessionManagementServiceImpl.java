@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
@@ -33,6 +34,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
@@ -61,6 +63,8 @@ import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -219,6 +223,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 */
 	private DeliveryManager deliveryManager;
 
+	private ScheduledExecutorService scheduler;
+
 	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
 
 		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = config.getWebservice();
@@ -235,7 +241,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		final String serializedWiseML = WiseMLHelper.readWiseMLFromFile(webservice.getWisemlfilename());
 		if (serializedWiseML == null) {
 			throw new RuntimeException("Could not read WiseML from file " + webservice.getWisemlfilename() + ". "
-					+ "Please make sure the file exists and is readable.");
+					+ "Please make sure the file exists and is readable."
+			);
 		}
 		List<String> nodeUrnsServed = WiseMLHelper.getNodeUrns(serializedWiseML);
 		String[] nodeUrnsServedArray = nodeUrnsServed.toArray(new String[nodeUrnsServed.size()]);
@@ -253,7 +260,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	@Override
 	public void start() throws Exception {
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
+		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+				config.sessionManagementEndpointUrl.toString() :
+				UrlUtils.convertHostToZeros(config.sessionManagementEndpointUrl.toString());
 
 		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
 				bindAllInterfacesUrl,
@@ -300,6 +309,10 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		if (sessionManagementEndpoint != null) {
 			sessionManagementEndpoint.stop();
 			log.info("Stopped Session Management service on {}", config.sessionManagementEndpointUrl);
+		}
+
+		if (scheduler != null) {
+			ExecutorUtils.shutdown(scheduler, 10, TimeUnit.SECONDS);
 		}
 
 	}
@@ -353,97 +366,107 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 			}
 
-		}
+			// no existing wsnInstance was found, so create new wsnInstance
 
-		// no existing wsnInstance was found, so create new wsnInstance
+			// query reservation system for reservation data if reservation system is to be used (i.e.
+			// reservationEndpointUrl is not null)
+			List<ConfidentialReservationData> confidentialReservationDataList;
+			Set<String> reservedNodes = null;
+			if (config.reservationEndpointUrl != null) {
+				// integrate reservation system
+				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
+				confidentialReservationDataList = getReservationDataFromRS(keys);
+				reservedNodes = new HashSet<String>();
 
-		// query reservation system for reservation data if reservation system is to be used (i.e.
-		// reservationEndpointUrl is not null)
-		List<ConfidentialReservationData> confidentialReservationDataList;
-		Set<String> reservedNodes = null;
-		if (config.reservationEndpointUrl != null) {
-			// integrate reservation system
-			List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
-			confidentialReservationDataList = getReservationDataFromRS(keys);
-			reservedNodes = new HashSet<String>();
+				// assure that wsnInstance creation doesn't happen before reservation time slot
+				assertReservationIntervalMet(confidentialReservationDataList);
 
-			// assure that wsnInstance creation doesn't happen before reservation time slot
-			assertReservationIntervalMet(confidentialReservationDataList);
+				// get reserved nodes
+				for (ConfidentialReservationData data : confidentialReservationDataList) {
 
-			// get reserved nodes
-			for (ConfidentialReservationData data : confidentialReservationDataList) {
-
-				// convert all node URNs to lower case so that we can do easy string-based comparisons
-				for (String nodeURN : data.getNodeURNs()) {
-					reservedNodes.add(nodeURN.toLowerCase());
+					// convert all node URNs to lower case so that we can do easy string-based comparisons
+					for (String nodeURN : data.getNodeURNs()) {
+						reservedNodes.add(nodeURN.toLowerCase());
+					}
 				}
+
+				// assure that nodes are in TestbedRuntime
+				assertNodesInTestbed(reservedNodes, testbedRuntime);
+
+				// assure that all wsn-instances will be removed after expiration time
+				for (ConfidentialReservationData data : confidentialReservationDataList) {
+
+					//Creating delay for CleanUpJob
+					long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
+
+					//stop and remove invalid instances after their expiration time
+					getScheduler().schedule(
+							new CleanUpWSNInstanceJob(keys),
+							delay,
+							TimeUnit.MILLISECONDS
+					);
+				}
+			} else {
+				log.info("Information: No Reservation-System found! All existing nodes will be used.");
 			}
 
-			// assure that nodes are in TestbedRuntime
-			assertNodesInTestbed(reservedNodes, testbedRuntime);
-
-			// assure that all wsn-instances will be removed after expiration time
-			for (ConfidentialReservationData data : confidentialReservationDataList) {
-
-				//Creating delay for CleanUpJob
-				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
-
-				//stop and remove invalid instances after their expiration time
-				testbedRuntime.getSchedulerService().schedule(
-						new CleanUpWSNInstanceJob(keys),
-						delay,
-						TimeUnit.MILLISECONDS
-				);
+			URL wsnInstanceEndpointUrl;
+			try {
+				wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
 			}
-		} else {
-			log.info("Information: No Reservation-System found! All existing nodes will be used.");
-		}
 
-		URL wsnInstanceEndpointUrl;
-		try {
-			wsnInstanceEndpointUrl = new URL(config.wsnInstanceBaseUrl + secureIdGenerator.getNextId());
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
+					secretReservationKey,
+					testbedRuntime,
+					config.urnPrefix,
+					wsnInstanceEndpointUrl,
+					config.wiseMLFilename,
+					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+					new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
+					protobufControllerServer
+			);
 
-		wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
-				secretReservationKey,
-				testbedRuntime,
-				config.urnPrefix,
-				wsnInstanceEndpointUrl,
-				config.wiseMLFilename,
-				reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-				new ProtobufDeliveryManager(config.maximumDeliveryQueueSize),
-				protobufControllerServer
-		);
+			// start the WSN instance
+			try {
 
-		// start the WSN instance
-		try {
+				wsnServiceHandleInstance.start();
 
-			wsnServiceHandleInstance.start();
+			} catch (Exception e) {
+				log.error("Exception while creating WSN API wsnInstance: " + e, e);
+				throw new RuntimeException(e);
+			}
 
-		} catch (Exception e) {
-			log.error("Exception while creating WSN API wsnInstance: " + e, e);
-			throw new RuntimeException(e);
-		}
-
-		synchronized (wsnInstances) {
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
+
+			if (!"NONE".equals(controller)) {
+				wsnServiceHandleInstance.getWsnService().addController(controller);
+			}
+
+			return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
+
 		}
 
-		if (!"NONE".equals(controller)) {
-			wsnServiceHandleInstance.getWsnService().addController(controller);
+	}
+
+	private ScheduledExecutorService getScheduler() {
+		if (scheduler == null) {
+			scheduler = Executors.newScheduledThreadPool(
+					1,
+					new ThreadFactoryBuilder().setNameFormat("SessionManagement-Thread %d").build()
+			);
 		}
-
-		return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
-
+		return scheduler;
 	}
 
 	/**
 	 * Checks if all reserved nodes are known to {@code testbedRuntime}.
 	 *
-	 * @param reservedNodes  the set of reserved node URNs
-	 * @param testbedRuntime the testbed runtime instance
+	 * @param reservedNodes
+	 * 		the set of reserved node URNs
+	 * @param testbedRuntime
+	 * 		the testbed runtime instance
 	 */
 	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) {
 
@@ -488,7 +511,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			deliveryManager.removeController(controllerEndpointUrl);
 		}
 
-		testbedRuntime.getSchedulerService().schedule(
+		getScheduler().schedule(
 				new Runnable() {
 					@Override
 					public void run() {
@@ -591,12 +614,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * Tries to fetch the reservation data from {@link SessionManagementServiceImpl.Config#reservationEndpointUrl} and
 	 * returns the list of reservations.
 	 *
-	 * @param secretReservationKeys the list of secret reservation keys
+	 * @param secretReservationKeys
+	 * 		the list of secret reservation keys
 	 *
 	 * @return the list of reservations
 	 *
 	 * @throws UnknownReservationIdException_Exception
-	 *          if the reservation could not be found
+	 * 		if the reservation could not be found
 	 */
 	private List<ConfidentialReservationData> getReservationDataFromRS(
 			List<SecretReservationKey> secretReservationKeys) throws UnknownReservationIdException_Exception {
@@ -617,13 +641,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	/**
-	 * Checks the reservations' time intervals if they have already started or have already stopped and throws an exception
+	 * Checks the reservations' time intervals if they have already started or have already stopped and throws an
+	 * exception
 	 * if that's the case.
 	 *
-	 * @param reservations the reservations to check
+	 * @param reservations
+	 * 		the reservations to check
 	 *
 	 * @throws ExperimentNotRunningException_Exception
-	 *          if now is not inside the reservations' time interval
+	 * 		if now is not inside the reservations' time interval
 	 */
 	private void assertReservationIntervalMet(List<ConfidentialReservationData> reservations)
 			throws ExperimentNotRunningException_Exception {

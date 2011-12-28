@@ -23,7 +23,8 @@
 
 package de.uniluebeck.itm.gtr;
 
-import de.uniluebeck.itm.gtr.common.SchedulerService;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.gtr.connection.ConnectionService;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
@@ -36,6 +37,16 @@ import de.uniluebeck.itm.tr.util.Service;
 
 
 public interface TestbedRuntime extends Service {
+
+	String INJECT_RELIABLE_MESSAGING_SCHEDULER = "de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService/scheduler";
+
+	String INJECT_MESSAGE_SERVER_SCHEDULER = "de.uniluebeck.itm.gtr.messaging.server.MessageServerService/scheduler";
+
+	String INJECT_ASYNC_EVENTBUS_EXECUTOR = "de.uniluebeck.itm.gtr.TestbedRuntime/asyncEventBusExecutor";
+
+	EventBus getEventBus();
+
+	AsyncEventBus getAsyncEventBus();
 
 	ReliableMessagingService getReliableMessagingService();
 
@@ -54,7 +65,5 @@ public interface TestbedRuntime extends Service {
 	MessageServerService getMessageServerService();
 
 	SingleRequestMultiResponseService getSingleRequestMultiResponseService();
-
-	SchedulerService getSchedulerService();
 
 }

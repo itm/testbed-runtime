@@ -25,7 +25,6 @@ package de.uniluebeck.itm.gtr.messaging.reliable;
 
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
-import de.uniluebeck.itm.tr.util.Tuple;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;

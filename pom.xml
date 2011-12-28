@@ -30,7 +30,7 @@
 	<groupId>de.uniluebeck.itm</groupId>
 	<artifactId>tr</artifactId>
 	<packaging>pom</packaging>
-	<version>0.7.3-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 	<name>TR</name>
 
 	<modules>
@@ -466,14 +466,40 @@
 				<version>4aug2000r7-dev</version>
 			</dependency>
 			<dependency>
-				<groupId>apache-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.0</version>
-			</dependency>
-			<dependency>
 				<groupId>net.sf.opencsv</groupId>
 				<artifactId>opencsv</artifactId>
 				<version>2.0</version>
+			</dependency>
+
+			<!-- Servlet API -->
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+			</dependency>
+
+			<!-- Metro JAX-WS reference implementation -->
+			<dependency>
+				<groupId>org.glassfish.metro</groupId>
+				<artifactId>webservices-rt</artifactId>
+				<version>2.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.metro</groupId>
+				<artifactId>webservices-api</artifactId>
+				<version>2.1.1</version>
+			</dependency>
+
+			<!-- JAXB reference implementation -->
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>2.2.4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.bind</groupId>
+				<artifactId>jaxb-impl</artifactId>
+				<version>2.2.4</version>
 			</dependency>
 
 			<!-- unit testing dependencies -->

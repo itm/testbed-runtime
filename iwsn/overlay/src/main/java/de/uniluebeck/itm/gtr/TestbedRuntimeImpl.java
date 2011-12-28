@@ -23,10 +23,11 @@
 
 package de.uniluebeck.itm.gtr;
 
-import com.google.common.collect.Lists;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uniluebeck.itm.gtr.common.SchedulerService;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.gtr.connection.ConnectionService;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
@@ -35,11 +36,8 @@ import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseService;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
-import de.uniluebeck.itm.tr.util.Service;
 
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.concurrent.ExecutorService;
 
 
 @Singleton
@@ -47,9 +45,6 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 
 	@Inject
 	private LocalNodeNameManager localNodeNameManager;
-
-	@Inject
-	private SchedulerService schedulerService;
 
 	@Inject
 	private ConnectionService connectionService;
@@ -75,6 +70,14 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 	@Inject
 	private SingleRequestMultiResponseService singleRequestMultiResponseService;
 
+	@Inject
+	@Named(TestbedRuntime.INJECT_ASYNC_EVENTBUS_EXECUTOR)
+	private ExecutorService asyncEventBusExecutor;
+
+	private EventBus eventBus;
+
+	private AsyncEventBus asyncEventBus;
+
 	@Override
 	public void stop() {
 		singleRequestMultiResponseService.stop();
@@ -85,12 +88,10 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 		messageServerService.stop();
 		messageEventService.stop();
 		connectionService.stop();
-		schedulerService.stop();
 	}
 
 	@Override
 	public void start() throws Exception {
-		schedulerService.start();
 		connectionService.start();
 		messageEventService.start();
 		messageServerService.start();
@@ -99,6 +100,22 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 		routingTableService.start();
 		unreliableMessagingService.start();
 		singleRequestMultiResponseService.start();
+	}
+
+	@Override
+	public EventBus getEventBus() {
+		if (eventBus == null) {
+			eventBus = new EventBus();
+		}
+		return eventBus;
+	}
+
+	@Override
+	public AsyncEventBus getAsyncEventBus() {
+		if (asyncEventBus == null) {
+			asyncEventBus = new AsyncEventBus(asyncEventBusExecutor);
+		}
+		return asyncEventBus;
 	}
 
 	@Override
@@ -145,10 +162,4 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 	public SingleRequestMultiResponseService getSingleRequestMultiResponseService() {
 		return singleRequestMultiResponseService;
 	}
-
-	@Override
-	public SchedulerService getSchedulerService() {
-		return schedulerService;
-	}
-
 }

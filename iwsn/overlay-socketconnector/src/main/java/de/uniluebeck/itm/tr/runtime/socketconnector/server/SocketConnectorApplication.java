@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplication;
 import de.uniluebeck.itm.gtr.messaging.Messages;
@@ -36,6 +37,8 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -47,6 +50,8 @@ public class SocketConnectorApplication implements TestbedApplication {
 	private TestbedRuntime testbedRuntime;
 
 	private SocketServer socketServer;
+
+	private ScheduledExecutorService scheduler;
 
 	public SocketConnectorApplication(TestbedRuntime testbedRuntime, int port) {
 		this.testbedRuntime = testbedRuntime;
@@ -72,14 +77,23 @@ public class SocketConnectorApplication implements TestbedApplication {
 		if (registerNodeMessageReceiverFuture == null || registerNodeMessageReceiverFuture.isCancelled()) {
 
 			// periodically register at the node counterpart as listener to receive output from the nodes
-			registerNodeMessageReceiverFuture = testbedRuntime.getSchedulerService()
-					.scheduleWithFixedDelay(registerNodeMessageReceiverRunnable, 0, 60, TimeUnit.SECONDS);
+			registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
+					registerNodeMessageReceiverRunnable,
+					0,
+					30,
+					TimeUnit.SECONDS
+			);
 		}
 	}
 
 	public void start() throws Exception {
 
 		log.debug("SocketConnectorApplication.start()");
+
+		scheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("SocketConnector-Thread %d").build()
+		);
 
 		// start the server socket application
 		socketServer.startUp();
@@ -104,7 +118,7 @@ public class SocketConnectorApplication implements TestbedApplication {
 	public void unregisterAsNodeOutputListener() {
 		log.debug("SocketConnectorApplication.unregisterAsNodeOutputListener()");
 		registerNodeMessageReceiverFuture.cancel(true);
-		testbedRuntime.getSchedulerService().execute(unregisterNodeMessageReceiverRunnable);
+		scheduler.execute(unregisterNodeMessageReceiverRunnable);
 	}
 
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;

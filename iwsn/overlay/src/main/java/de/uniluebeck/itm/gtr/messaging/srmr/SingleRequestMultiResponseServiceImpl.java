@@ -28,11 +28,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.gtr.LocalNodeNameManager;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.gtr.messaging.event.MessageEventListener;
+import de.uniluebeck.itm.gtr.messaging.event.MessageEventService;
 import de.uniluebeck.itm.gtr.messaging.reliable.ReliableMessagingService;
+import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,22 +49,27 @@ public class SingleRequestMultiResponseServiceImpl
 		extends ListenerManagerImpl<Triple<String, String, SingleRequestMultiResponseListener>>
 		implements SingleRequestMultiResponseService {
 
-	private TestbedRuntime testbedRuntime;
+	@Inject
+	private LocalNodeNameManager localNodeNameManager;
+
+	@Inject
+	private MessageEventService messageEventService;
+
+	@Inject
+	private ReliableMessagingService reliableMessagingService;
+
+	@Inject
+	private UnreliableMessagingService unreliableMessagingService;
 
 	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	private Random random = new Random();
 
-	private static final String SRMRS_MSGTYPE_REQUEST = "SRMRS_REQUEST";
+	private static final String SRMRS_MESSAGE_TYPE_REQUEST = "SRMRS_REQUEST";
 
-	private static final String SRMRS_MSGTYPE_RESPONSE = "SRMRS_RESPONSE";
+	private static final String SRMRS_MESSAGE_TYPE_RESPONSE = "SRMRS_RESPONSE";
 
-	private static final String SRMRS_MSGTYPE_ACK = "SRMRS_ACK";
-
-	@Inject
-	public SingleRequestMultiResponseServiceImpl(TestbedRuntime testbedRuntime) {
-		this.testbedRuntime = testbedRuntime;
-	}
+	private static final String SRMRS_MESSAGE_TYPE_ACK = "SRMRS_ACK";
 
 	private TimedCache<String, Tuple<Messages.SingleRequestMultipleResponseRequest, SingleRequestMultiResponseCallback>>
 			timedCache =
@@ -86,7 +93,7 @@ public class SingleRequestMultiResponseServiceImpl
 		Messages.Msg.Builder messageBuilder = Messages.Msg.newBuilder()
 				.setTo(msg.getTo())
 				.setFrom(msg.getFrom())
-				.setMsgType(SRMRS_MSGTYPE_REQUEST)
+				.setMsgType(SRMRS_MESSAGE_TYPE_REQUEST)
 				.setPayload(request.toByteString())
 				.setPriority(msg.getPriority())
 				.setValidUntil(msg.getValidUntil());
@@ -102,7 +109,7 @@ public class SingleRequestMultiResponseServiceImpl
 		if (reliableRequest) {
 
 			messageBuilder.setReplyWith(msg.getFrom() + ":" + random.nextLong());
-			testbedRuntime.getReliableMessagingService().sendAsync(
+			reliableMessagingService.sendAsync(
 					messageBuilder.build(),
 					new ReliableMessagingService.AsyncCallbackAdapter() {
 						@Override
@@ -114,7 +121,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 		} else {
 
-			testbedRuntime.getUnreliableMessagingService().sendAsync(messageBuilder.build());
+			unreliableMessagingService.sendAsync(messageBuilder.build());
 
 		}
 
@@ -163,9 +170,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 	}
 
-	private static class ResponderImpl implements SingleRequestMultiResponseListener.Responder {
-
-		private TestbedRuntime testbedRuntime;
+	private class ResponderImpl implements SingleRequestMultiResponseListener.Responder {
 
 		private Messages.Msg requestMsg;
 
@@ -173,9 +178,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 		private Random random = new Random();
 
-		public ResponderImpl(TestbedRuntime testbedRuntime, Messages.Msg requestMsg,
-							 Messages.SingleRequestMultipleResponseRequest request) {
-			this.testbedRuntime = testbedRuntime;
+		public ResponderImpl(Messages.Msg requestMsg, Messages.SingleRequestMultipleResponseRequest request) {
 			this.requestMsg = requestMsg;
 			this.request = request;
 		}
@@ -191,7 +194,7 @@ public class SingleRequestMultiResponseServiceImpl
 			Messages.Msg.Builder messageBuilder = Messages.Msg.newBuilder()
 					.setTo(requestMsg.getFrom())
 					.setFrom(requestMsg.getTo())
-					.setMsgType(SRMRS_MSGTYPE_RESPONSE)
+					.setMsgType(SRMRS_MESSAGE_TYPE_RESPONSE)
 					.setPriority(requestMsg.getPriority())
 					.setValidUntil(System.currentTimeMillis() + 60000)
 					.setPayload(responseBuilder.build().toByteString());
@@ -201,18 +204,19 @@ public class SingleRequestMultiResponseServiceImpl
 				Messages.Msg response =
 						messageBuilder.setReplyWith(requestMsg.getTo() + ":" + random.nextLong()).build();
 
-				testbedRuntime.getReliableMessagingService()
-						.sendAsync(response, new ReliableMessagingService.AsyncCallbackAdapter() {
+				reliableMessagingService.sendAsync(
+						response,
+						new ReliableMessagingService.AsyncCallbackAdapter() {
 							@Override
 							public void failure(Exception e) {
 								log.warn("Unable to deliver response: " + e, e);
 							}
 						}
-						);
+				);
 
 			} else {
 
-				testbedRuntime.getUnreliableMessagingService().sendAsync(messageBuilder.build());
+				unreliableMessagingService.sendAsync(messageBuilder.build());
 
 			}
 
@@ -223,19 +227,20 @@ public class SingleRequestMultiResponseServiceImpl
 	private static final Logger log = LoggerFactory.getLogger(SingleRequestMultiResponseService.class);
 
 	private MessageEventListener messageEventListener = new MessageEventAdapter() {
+
 		@Override
 		public void messageReceived(Messages.Msg msg) {
 
 			try {
 
-				boolean isResponse = SRMRS_MSGTYPE_RESPONSE.equals(msg.getMsgType());
-				boolean isRequest = SRMRS_MSGTYPE_REQUEST.equals(msg.getMsgType());
+				boolean isResponse = SRMRS_MESSAGE_TYPE_RESPONSE.equals(msg.getMsgType());
+				boolean isRequest = SRMRS_MESSAGE_TYPE_REQUEST.equals(msg.getMsgType());
 
 				if (isRequest) {
 
 					if (log.isTraceEnabled()) {
 						log.trace("=== Request === {} ==== {}",
-								Arrays.toString(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().toArray()),
+								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
 								msg
 						);
 					}
@@ -249,11 +254,12 @@ public class SingleRequestMultiResponseServiceImpl
 						Messages.Msg ack = Messages.Msg.newBuilder()
 								.setFrom(msg.getTo())
 								.setTo(msg.getFrom())
-								.setMsgType(SRMRS_MSGTYPE_ACK)
+								.setMsgType(SRMRS_MESSAGE_TYPE_ACK)
 								.setReplyTo(msg.getReplyWith())
 								.setPriority(msg.getPriority())
 								.setValidUntil(System.currentTimeMillis() + 5000).build();
-						testbedRuntime.getUnreliableMessagingService().sendAsync(ack);
+
+						unreliableMessagingService.sendAsync(ack);
 					}
 
 					// check if one of our listeners is interested
@@ -270,10 +276,7 @@ public class SingleRequestMultiResponseServiceImpl
 						matchesMsgType = listener.getSecond().equals(originalMsg.getMsgType());
 
 						if (matchesMsgType && matchesNodeUrn) {
-							listener.getThird().receiveRequest(
-									originalMsg,
-									new ResponderImpl(testbedRuntime, msg, request)
-							);
+							listener.getThird().receiveRequest(originalMsg, new ResponderImpl(msg, request));
 						}
 
 					}
@@ -283,7 +286,7 @@ public class SingleRequestMultiResponseServiceImpl
 					if (log.isTraceEnabled()) {
 
 						log.trace("*** Response *** {} *** {}",
-								Arrays.toString(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().toArray()),
+								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
 								msg
 						);
 					}
@@ -304,11 +307,12 @@ public class SingleRequestMultiResponseServiceImpl
 							Messages.Msg ack = Messages.Msg.newBuilder()
 									.setFrom(msg.getTo())
 									.setTo(msg.getFrom())
-									.setMsgType(SRMRS_MSGTYPE_ACK)
+									.setMsgType(SRMRS_MESSAGE_TYPE_ACK)
 									.setReplyTo(msg.getReplyWith())
 									.setPriority(msg.getPriority())
 									.setValidUntil(System.currentTimeMillis() + 5000).build();
-							testbedRuntime.getUnreliableMessagingService().sendAsync(ack);
+
+							unreliableMessagingService.sendAsync(ack);
 						}
 
 						// notify callback of original requester
@@ -347,13 +351,13 @@ public class SingleRequestMultiResponseServiceImpl
 
 	@Override
 	public void start() throws Exception {
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
+		messageEventService.addListener(messageEventListener);
 		timedCache.setListener(timedCacheListener);
 	}
 
 	@Override
 	public void stop() {
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+		messageEventService.removeListener(messageEventListener);
 		timedCache.clear();
 		timedCache.setListener(null);
 	}

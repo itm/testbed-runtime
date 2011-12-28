@@ -21,16 +21,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr.common;
+package de.uniluebeck.itm.gtr.messaging.server;
 
 import com.google.inject.AbstractModule;
 
 
-public class CommonModule extends AbstractModule {
+public class MessageServerServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(SchedulerService.class).to(SchedulerServiceImpl.class);
+		bind(MessageServerService.class).to(MessageServerServiceImpl.class);
 	}
 
 }

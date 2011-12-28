@@ -28,8 +28,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.gtr.LocalNodeNameManager;
-import de.uniluebeck.itm.gtr.common.SchedulerService;
+import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.connection.*;
 import de.uniluebeck.itm.gtr.messaging.MessageTools;
 import de.uniluebeck.itm.gtr.messaging.Messages;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,7 +63,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 	private final UnreliableMessagingService unreliableMessagingService;
 
-	private final SchedulerService schedulerService;
+	private final ScheduledExecutorService scheduler;
 
 	private volatile boolean running;
 
@@ -143,15 +145,16 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 	private final LocalNodeNameManager localNodeNameManager;
 
 	@Inject
-	public MessageServerServiceImpl(MessageEventService messageEventService,
-									UnreliableMessagingService unreliableMessagingService,
-									SchedulerService schedulerService,
-									Set<ServerConnectionFactory> serverConnectionFactories,
-									LocalNodeNameManager localNodeNameManager) {
+	public MessageServerServiceImpl(final MessageEventService messageEventService,
+									final UnreliableMessagingService unreliableMessagingService,
+									@Named(TestbedRuntime.INJECT_MESSAGE_SERVER_SCHEDULER)
+									final ScheduledExecutorService scheduler,
+									final Set<ServerConnectionFactory> serverConnectionFactories,
+									final LocalNodeNameManager localNodeNameManager) {
 
 		this.messageEventService = messageEventService;
 		this.unreliableMessagingService = unreliableMessagingService;
-		this.schedulerService = schedulerService;
+		this.scheduler = scheduler;
 		this.localNodeNameManager = localNodeNameManager;
 
 		// remember ServerConnectionFactory instances according to type
@@ -184,9 +187,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 		for (Map.Entry<Tuple<String, String>, ServerConnection> entry : serverConnections.entrySet()) {
 			if (entry.getValue() == null || !entry.getValue().isBound()) {
-				schedulerService.submit(
-                        new EstablishServerConnectionRunnable(entry.getKey())
-                );
+				scheduler.submit(new EstablishServerConnectionRunnable(entry.getKey()));
 			}
 		}
 
@@ -367,8 +368,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		}
 
 		private void reschedule() {
-			MessageServerServiceImpl.this.schedulerService
-					.schedule(this, DEFAULT_RETRY_TIMEOUT, DEFAULT_RETRY_TIMEUNIT);
+			MessageServerServiceImpl.this.scheduler.schedule(this, DEFAULT_RETRY_TIMEOUT, DEFAULT_RETRY_TIMEUNIT);
 		}
 
 	}
@@ -384,7 +384,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		messageFilterChains.put(config, new MessageFilterChain(filters));
 
 		if (running) {
-			schedulerService.schedule(new EstablishServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
+			scheduler.schedule(new EstablishServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
 		}
 
 	}
@@ -397,7 +397,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 		checkNotNull(address);
 
 		Tuple<String, String> config = new Tuple<String, String>(type, address);
-		schedulerService.schedule(new CloseServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
+		scheduler.schedule(new CloseServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
 
 		// removal from serverConnections will happen through being notified by the connection itself
 

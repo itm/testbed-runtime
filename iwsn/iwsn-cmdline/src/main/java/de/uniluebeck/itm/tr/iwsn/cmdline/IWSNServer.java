@@ -23,11 +23,13 @@
 
 package de.uniluebeck.itm.tr.iwsn.cmdline;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.IWSN;
 import de.uniluebeck.itm.tr.iwsn.IWSNFactory;
 import de.uniluebeck.itm.tr.iwsn.IWSNModule;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.cli.*;
@@ -39,6 +41,10 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileExists;
@@ -153,9 +159,30 @@ public class IWSNServer {
 				"No configuration for one of the overlay node \"%s\" found!", Arrays.toString(nodeIds)
 		);
 
-		final Injector injector = Guice.createInjector(new IWSNModule());
-		final IWSNFactory factory = injector.getInstance(IWSNFactory.class);
-		final IWSN iwsn = factory.create(xmlFile, nodeIdFoundInConfigurationFile);
+		final ScheduledExecutorService messageServerServiceScheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("MessageServerService-Thread %d").build()
+		);
+
+		final ScheduledExecutorService reliableMessagingServiceScheduler = Executors.newScheduledThreadPool(
+				1,
+				new ThreadFactoryBuilder().setNameFormat("ReliableMessagingService-Thread %d").build()
+		);
+
+		final ExecutorService asyncEventBusExecutor = Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat("AsyncEventBus-Thread %d").build()
+		);
+
+		final Injector injector = Guice.createInjector(
+				new IWSNModule(
+						asyncEventBusExecutor,
+						messageServerServiceScheduler,
+						reliableMessagingServiceScheduler
+				)
+		);
+
+		final IWSNFactory iwsnFactory = injector.getInstance(IWSNFactory.class);
+		final IWSN iwsn = iwsnFactory.create(xmlFile, nodeIdFoundInConfigurationFile);
 
 		iwsn.start();
 
@@ -163,8 +190,11 @@ public class IWSNServer {
 			@Override
 			public void run() {
 				iwsn.stop();
+				ExecutorUtils.shutdown(asyncEventBusExecutor, 10, TimeUnit.SECONDS);
+				ExecutorUtils.shutdown(messageServerServiceScheduler, 10, TimeUnit.SECONDS);
 			}
 		};
+
 		Runtime.getRuntime().addShutdownHook(new Thread(shutdownRunnable, "Shutdown-Thread"));
 	}
 

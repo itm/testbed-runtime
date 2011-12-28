@@ -4,6 +4,6 @@ import java.io.File;
 
 public interface IWSNFactory {
 
-	IWSN create(final File xmlFile, final String nodeId);
+	IWSN create(final File configurationFile, final String nodeId);
 
 }
