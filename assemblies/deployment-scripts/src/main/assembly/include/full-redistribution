@@ -1,7 +1,0 @@
-#!/bin/bash
-
-source `dirname $0`/include/stop
-source `dirname $0`/include/distribute-assembly
-source `dirname $0`/include/set-version
-source `dirname $0`/include/distribute-config
-source `dirname $0`/include/start

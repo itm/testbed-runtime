@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo ""
-echo "Setting version to $TR_VERSION on testbed hosts..."
-pssh --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE "if [ -h /opt/tr.assembly ]; then rm /opt/tr.assembly; fi; ln -s /opt/tr.assembly-$TR_VERSION /opt/tr.assembly"
-pssh --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE "if [ -h /opt/tr.assembly ]; then rm /opt/tr.assembly; fi; ln -s /opt/tr.assembly-$TR_VERSION /opt/tr.assembly"

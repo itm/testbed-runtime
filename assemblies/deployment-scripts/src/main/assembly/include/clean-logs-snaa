@@ -1,4 +1,0 @@
-#!/bin/bash
-
-pssh --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE 'rm /opt/tr.snaa-assembly/logs/*.log || exit 0'
-pssh --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE 'rm /opt/tr.snaa-assembly/logs/*.log || exit 0'

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_GATEWAY_HOSTS_FILE 'echo ~'
-pssh --timeout=15 --user=$TESTBED_USER --hosts=$TESTBED_PORTAL_HOST_FILE 'echo ~'
