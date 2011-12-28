@@ -151,7 +151,7 @@ public class IWSNServer {
 			);
 
 			if (configurationTagForIdExists) {
-				nodeIdFoundInConfigurationFile = nodeId;
+				nodeIdFoundInConfigurationFile = id;
 			}
 		}
 
