@@ -215,11 +215,18 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 					}
 					break;
 				case REMOVED:
+					sendNotification("Device " + configuration.getNodeUrn() + " was detached from the gateway.");
 					disconnect();
 					break;
 			}
 		}
 
+	}
+
+	private void sendNotification(final String notificationMessage) {
+		for (NodeOutputListener listener : listeners) {
+			listener.receiveNotification(notificationMessage);
+		}
 	}
 
 	private final Runnable assureConnectivityRunnable = new Runnable() {
@@ -731,6 +738,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		log.info("{} => Successfully connected to {} node on serial port {}",
 				new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
 		);
+
+		sendNotification("Device " + configuration.getNodeUrn() + " was attached to the gateway.");
 
 		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
