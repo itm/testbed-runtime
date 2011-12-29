@@ -25,17 +25,22 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Maps.newHashMap;
 
 
 public class WSNDeviceAppFactory implements TestbedApplicationFactory {
@@ -43,16 +48,18 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppFactory.class);
 
 	@Override
-	public WSNDeviceApp create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
+	public WSNDeviceApp create(TestbedRuntime testbedRuntime, String applicationName, Object xmlConfig) {
 
 		try {
 
 			JAXBContext context = JAXBContext.newInstance(WsnDevice.class.getPackage().getName());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
 
-			WsnDevice wsnDevice = (WsnDevice) ((JAXBElement) unmarshaller.unmarshal((Node) configuration)).getValue();
+			WsnDevice wsnDevice = (WsnDevice) ((JAXBElement) unmarshaller.unmarshal((Node) xmlConfig)).getValue();
 
 			try {
+
+				Map<String, String> configuration = convert(wsnDevice.getConfiguration());
 
 				WSNDeviceAppConfiguration.Builder builder = WSNDeviceAppConfiguration
 						.builder(wsnDevice.getUrn(), wsnDevice.getType())
@@ -66,6 +73,10 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 					builder.setTimeoutReset(wsnDevice.getTimeouts().getReset());
 				}
 
+				if (wsnDevice.getConfiguration() != null) {
+					builder.setConfiguration(configuration);
+				}
+
 				return new WSNDeviceAppImpl(testbedRuntime, builder.build());
 
 			} catch (Exception e) {
@@ -75,6 +86,20 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 		} catch (JAXBException e) {
 			throw propagate(e);
 		}
+	}
+
+	@Nullable
+	private Map<String, String> convert(@Nullable final List<Configuration> configuration) {
+
+		if (configuration == null) {
+			return null;
+		}
+
+		Map<String, String> map = newHashMap();
+		for (Configuration configurationEntry : configuration) {
+			map.put(configurationEntry.getKey(), configurationEntry.getValue());
+		}
+		return map;
 	}
 
 }

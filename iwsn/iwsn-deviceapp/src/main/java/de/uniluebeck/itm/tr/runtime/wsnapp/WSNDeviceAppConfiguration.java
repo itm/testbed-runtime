@@ -2,6 +2,8 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import javax.annotation.Nullable;
 
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.util.StringUtils.assertHexOrDecLongUrnSuffix;
@@ -62,6 +64,12 @@ public class WSNDeviceAppConfiguration {
 		public Builder setNodeUSBChipID(@Nullable final String nodeUSBChipID) {
 			assertNotBuiltYet();
 			this.configuration.nodeUSBChipID = nodeUSBChipID;
+			return this;
+		}
+
+		public Builder setConfiguration(@Nullable final Map<String, String> configuration) {
+			assertNotBuiltYet();
+			this.configuration.deviceConfiguration = configuration;
 			return this;
 		}
 
@@ -133,14 +141,18 @@ public class WSNDeviceAppConfiguration {
 
 	private int timeoutFlash;
 
+	private Map<String, String> deviceConfiguration;
+
 	public static Builder builder(final String nodeUrn, final String nodeType) {
 		return new Builder(nodeUrn, nodeType);
 	}
 
+	@Nullable
 	public Integer getMaximumMessageRate() {
 		return maximumMessageRate;
 	}
 
+	@Nullable
 	public String getNodeSerialInterface() {
 		return nodeSerialInterface;
 	}
@@ -153,19 +165,28 @@ public class WSNDeviceAppConfiguration {
 		return nodeUrn;
 	}
 
+	@Nullable
 	public String getNodeUSBChipID() {
 		return nodeUSBChipID;
 	}
 
+	@Nullable
 	public Integer getTimeoutFlash() {
 		return timeoutFlash;
 	}
 
+	@Nullable
 	public Integer getTimeoutNodeAPI() {
 		return timeoutNodeAPI;
 	}
 
+	@Nullable
 	public Integer getTimeoutReset() {
 		return timeoutReset;
+	}
+
+	@Nullable
+	public Map<String, String> getDeviceConfiguration() {
+		return deviceConfiguration;
 	}
 }

@@ -59,9 +59,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -213,7 +215,11 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			switch (deviceEvent.getType()) {
 				case ATTACHED:
 					if (!isConnected()) {
-						tryToConnect(deviceEvent.getDeviceInfo().getType(), deviceEvent.getDeviceInfo().getPort());
+						tryToConnect(
+								deviceEvent.getDeviceInfo().getType(),
+								deviceEvent.getDeviceInfo().getPort(),
+								configuration.getDeviceConfiguration()
+						);
 					}
 					break;
 				case REMOVED:
@@ -242,13 +248,14 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			String nodeType = configuration.getNodeType();
 			String nodeSerialInterface = configuration.getNodeSerialInterface();
 			String nodeUrn = configuration.getNodeUrn();
+			Map<String, String> nodeConfiguration = configuration.getDeviceConfiguration();
 
 			boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(nodeType);
 			boolean hasSerialInterface = nodeSerialInterface != null;
 
 			if (isMockDevice || hasSerialInterface) {
 
-				if (tryToConnect(nodeType, nodeSerialInterface)) {
+				if (tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
 					log.warn("{} => Unable to connect to {} device at {}. Retrying in 30 seconds.",
 							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 					);
@@ -264,12 +271,23 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				eventBus.post(deviceRequest);
 
-				if (deviceRequest.getResponse().getMacAddress() != null) {
+				if (deviceRequest.getResponse() != null && deviceRequest.getResponse().getMacAddress() != null) {
 					try {
-						tryToConnect(deviceRequest.getResponse().getType(), deviceRequest.getResponse().getPort());
+						tryToConnect(
+								deviceRequest.getResponse().getType(),
+								deviceRequest.getResponse().getPort(),
+								configuration.getDeviceConfiguration()
+						);
 					} catch (Exception e) {
-						log.warn("{}. Retrying in 30 seconds at the same serial interface.", e.getMessage());
+						log.warn("{} => {}. Retrying in 30 seconds at the same serial interface.",
+								configuration.getNodeUrn(),
+								e.getMessage()
+						);
 					}
+				} else {
+					log.warn("{} => Could not retrieve serial interface from device observer for device. Retrying "
+							+ "again in 30 seconds.",
+							configuration.getNodeUrn());
 				}
 			}
 		}
@@ -293,7 +311,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		);
 
 		assureConnectivityRunnableSchedule = deviceDriverScheduler.scheduleAtFixedRate(
-				assureConnectivityRunnable, 0, 5, TimeUnit.SECONDS
+				assureConnectivityRunnable, 0, 30, TimeUnit.SECONDS
 		);
 	}
 
@@ -740,35 +758,36 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		}
 	};
 
-	private boolean tryToConnect(String nodeType, String serialInterface) {
+	private boolean tryToConnect(String deviceType, String deviceSerialInterface,
+								 @Nullable Map<String, String> deviceConfiguration) {
 
 		deviceLock.lock();
 
 		try {
 
 			DeviceFactory deviceFactory = new DeviceFactoryImpl();
-			device = deviceFactory.create(deviceDriverScheduler, nodeType);
+			device = deviceFactory.create(deviceDriverScheduler, deviceType, deviceConfiguration);
 
 			try {
 
-				device.connect(serialInterface);
+				device.connect(deviceSerialInterface);
 
 			} catch (Exception e) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
 				);
 				return false;
 			}
 
 			if (!device.isConnected()) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
 				);
 				return false;
 			}
 
 			log.info("{} => Successfully connected to {} device on serial port {}",
-					new Object[]{configuration.getNodeUrn(), nodeType, serialInterface}
+					new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
 			);
 
 			sendNotification("Device " + configuration.getNodeUrn() + " was attached to the gateway.");

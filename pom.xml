@@ -246,12 +246,12 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-factories</artifactId>
-				<version>1.0</version>
+				<version>1.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-core</artifactId>
-				<version>1.0</version>
+				<version>1.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>

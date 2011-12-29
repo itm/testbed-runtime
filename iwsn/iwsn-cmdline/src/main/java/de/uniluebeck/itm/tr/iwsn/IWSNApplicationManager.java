@@ -146,7 +146,10 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 			final boolean nameChanged = !oldApplicationName.equals(newApplicationName);
 			final boolean factoryClassChanged = !oldApplicationFactory.equals(newApplicationFactory);
-			final boolean configurationChanged = !oldApplicationConfig.isEqualNode(newApplicationConfig);
+			final boolean configurationChanged =
+					(oldApplicationConfig == null && newApplicationConfig != null) ||
+					(oldApplicationConfig != null && newApplicationConfig == null) ||
+					(oldApplicationConfig != null && !oldApplicationConfig.isEqualNode(newApplicationConfig));
 
 			checkState(applications.containsKey(oldApplicationName));
 
