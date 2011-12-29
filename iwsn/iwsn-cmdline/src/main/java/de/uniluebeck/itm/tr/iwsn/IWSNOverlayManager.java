@@ -9,6 +9,7 @@ import de.uniluebeck.itm.gtr.naming.NamingService;
 import de.uniluebeck.itm.gtr.routing.RoutingTableService;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Service;
+import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
 import de.uniluebeck.itm.tr.util.domobserver.DOMTuple;
@@ -19,13 +20,14 @@ import de.uniluebeck.itm.tr.xml.Testbed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -95,6 +97,7 @@ public class IWSNOverlayManager implements Service {
 			addAndRemoveLocalNodeNames(oldConfig, newConfig);
 			addAndRemoveOverlayNodes(oldConfig, newConfig);
 			addAndRemoveOverlayNodeNames(oldConfig, newConfig);
+			addAndRemoveOverlayServerConnections(oldConfig, newConfig);
 
 		} catch (JAXBException e) {
 			log.error("{}", e);
@@ -137,10 +140,10 @@ public class IWSNOverlayManager implements Service {
 	}
 
 	private void addAndRemoveLocalNodeNames(final Testbed oldConfig, final Testbed newConfig) {
-		
+
 		Set<String> oldLocalNodeNames = getLocalNodeNames(oldConfig);
 		Set<String> newLocalNodeNames = getLocalNodeNames(newConfig);
-		
+
 		boolean sameLocalNodeNames = oldLocalNodeNames.equals(newLocalNodeNames);
 
 		if (!sameLocalNodeNames) {
@@ -152,7 +155,7 @@ public class IWSNOverlayManager implements Service {
 			addLocalNodeNames(localNodesNamesAdded);
 
 		}
-		
+
 	}
 
 	private void addLocalNodeNames(final Set<String> localNodesNamesAdded) {
@@ -184,7 +187,80 @@ public class IWSNOverlayManager implements Service {
 		}
 	}
 
-	private Set<String> getLocalNodeNames(final Testbed config) {
+	private void addAndRemoveOverlayServerConnections(final Testbed oldConfig, final Testbed newConfig) {
+
+		Set<Tuple<String, String>> oldConnections = getOverlayServerConnections(oldConfig);
+		Set<Tuple<String, String>> newConnections = getOverlayServerConnections(newConfig);
+
+		boolean sameConnections = oldConnections.equals(newConnections);
+
+		if (!sameConnections) {
+
+			Set<Tuple<String, String>> connectionsRemoved = newHashSet(Sets.difference(oldConnections, newConnections));
+			removeOverlayServerConnections(connectionsRemoved);
+
+			Set<Tuple<String, String>> connectionsAdded = newHashSet(Sets.difference(newConnections, oldConnections));
+			addOverlayServerConnections(connectionsAdded);
+
+		}
+	}
+
+	private void addOverlayServerConnections(final Set<Tuple<String, String>> connectionsAdded) {
+
+		for (Tuple<String, String> connectionConfig : connectionsAdded) {
+			try {
+				overlay.getMessageServerService().addMessageServer(
+						connectionConfig.getFirst(),
+						connectionConfig.getSecond()
+				);
+			} catch (Exception e) {
+				log.error("{}", e);
+			}
+		}
+	}
+
+	private void removeOverlayServerConnections(final Set<Tuple<String, String>> connectionsRemoved) {
+
+		for (Tuple<String, String> connectionConfig : connectionsRemoved) {
+			try {
+				overlay.getMessageServerService().removeMessageServer(
+						connectionConfig.getFirst(),
+						connectionConfig.getSecond()
+				);
+			} catch (Exception e) {
+				log.error("{}", e);
+			}
+		}
+	}
+
+	@Nonnull
+	private Set<Tuple<String, String>> getOverlayServerConnections(@Nullable final Testbed config) {
+
+		Set<Tuple<String, String>> connections = newHashSet();
+
+		if (config == null) {
+			return connections;
+		}
+
+		for (Node node : config.getNodes()) {
+			if (nodeId.equals(node.getId())) {
+				if (node.getServerconnections() != null && node.getServerconnections().getServerconnection() != null) {
+					for (ServerConnection serverConnection : node.getServerconnections().getServerconnection()) {
+						connections.add(new Tuple<String, String>(
+								serverConnection.getType(),
+								serverConnection.getAddress()
+						)
+						);
+					}
+				}
+			}
+		}
+
+		return connections;
+	}
+
+	@Nonnull
+	private Set<String> getLocalNodeNames(@Nullable final Testbed config) {
 
 		Set<String> set = newHashSet();
 

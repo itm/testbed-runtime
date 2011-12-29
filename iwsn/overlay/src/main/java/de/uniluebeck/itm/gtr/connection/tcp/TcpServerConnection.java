@@ -100,7 +100,7 @@ public class TcpServerConnection extends ServerConnection {
 
                 serverSocket = new ServerSocket();
                 serverSocket.bind(socketAddress);
-                log.debug("Successfully bound server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
+                log.debug("Bound overlay server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
 
             } catch (IOException e) {
                 throw new ConnectionInvalidAddressException(getAddress(), "Failed to bind ServerSocket", e);
@@ -138,11 +138,11 @@ public class TcpServerConnection extends ServerConnection {
         try {
 
             serverSocket.close();
+			log.debug("Unbound overlay server socket from {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
 
-        } catch (IOException e) {
-            log.debug("IOException while closing server socket.", e);
-        } finally {
-            log.debug("Closing TcpServerConnection...");
+		} catch (IOException e) {
+			log.debug("IOException while closing server socket.", e);
+		} finally {
             postEvent(false);
         }
 
