@@ -338,7 +338,25 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
 			if (!"NONE".equals(controller)) {
 				new URL(controller);
-				NetworkUtils.checkConnectivity(controller);
+				try {
+					NetworkUtils.checkConnectivity(controller);
+				} catch (Exception e) {
+					throw new RuntimeException("The testbed backend system could not connect to host/port of the given "
+							+ "controller endpoint URL: \"" + controller + "\". Please make sure: \n"
+							+ " 1) your host is not behind a firewall or the firewall is configured to allow incoming connections\n"
+							+ " 2) your host is not behind a Network Address Translation (NAT) system or the NAT system is configured to forward incoming connections\n"
+							+ " 3) the domain in the endpoint URL can be resolved to an IP address and\n"
+							+ " 4) the Controller endpoint Web service is already started.\n"
+							+ "\n"
+							+ "The testbed backend system needs an implementation of the Wisebed APIs Controller "
+							+ "Web service to run on the client side. It uses this as a feedback channel to deliver "
+							+ "sensor node outputs to the client application.\n"
+							+ "\n"
+							+ "Please note: If this testbed runs the unofficial Protocol buffers based API you might "
+							+ "try to use this method to connect to the testbed as it doesn't require a feedback "
+							+ "channel but delivers the node output using the TCP connection initiated by the client."
+					);
+				}
 			}
 
 		} catch (MalformedURLException e) {
