@@ -29,8 +29,8 @@
 					if (csv) {
 						text = text.replaceAll(";", "\\;");
 					}
-					
-					System.out.print(msg.getTimestamp());
+
+					System.out.print(new org.joda.time.DateTime(msg.getTimestamp().toGregorianCalendar()));
 					System.out.print(csv ? ";" : " | ");
 					System.out.print(msg.getSourceNodeId());
 					System.out.print(csv ? ";" : " | ");
@@ -46,7 +46,12 @@
 		}
 		public void receiveNotification(List msgs) {
 			for (int i=0; i<msgs.size(); i++) {
-				System.err.println(msgs.get(i));
+				System.err.print(new org.joda.time.DateTime());
+				System.err.print(csv ? ";" : " | ");
+				System.err.print("Notification");
+				System.err.print(csv ? ";" : " | ");
+				System.err.print(msgs.get(i));
+				System.err.println();
 			}
 		}
 		public void experimentEnded() {
