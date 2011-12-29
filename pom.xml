@@ -241,7 +241,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
