@@ -9,7 +9,10 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -150,24 +153,23 @@ public class RuntimeStatsApplication implements TestbedApplication {
 		loggingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
-				log.debug("### Avg sent: {} {} {}", new Object[]{
-						messagesSentMovingAverage10Seconds.getAvg(),
-						messagesSentMovingAverage60Seconds.getAvg(),
-						messagesSentMovingAverage300Seconds.getAvg()
+				if (log.isInfoEnabled()) {
+					DecimalFormat formatter = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
+					log.info(
+							"Overlay messages in [10,60,300] seconds: sent [{},{},{}], received [{},{},{}], dropped [{},{},{}]",
+							new Object[]{
+									formatter.format(messagesSentMovingAverage10Seconds.getAvg()),
+									formatter.format(messagesSentMovingAverage60Seconds.getAvg()),
+									formatter.format(messagesSentMovingAverage300Seconds.getAvg()),
+									formatter.format(messagesReceivedMovingAverage10Seconds.getAvg()),
+									formatter.format(messagesReceivedMovingAverage60Seconds.getAvg()),
+									formatter.format(messagesReceivedMovingAverage300Seconds.getAvg()),
+									formatter.format(messagesDroppedMovingAverage10Seconds.getAvg()),
+									formatter.format(messagesDroppedMovingAverage60Seconds.getAvg()),
+									formatter.format(messagesDroppedMovingAverage300Seconds.getAvg())
+							}
+					);
 				}
-				);
-				log.debug("### Avg dropped: {} {} {}", new Object[]{
-						messagesDroppedMovingAverage10Seconds.getAvg(),
-						messagesDroppedMovingAverage60Seconds.getAvg(),
-						messagesDroppedMovingAverage300Seconds.getAvg()
-				}
-				);
-				log.debug("### Avg received: {} {} {}", new Object[]{
-						messagesReceivedMovingAverage10Seconds.getAvg(),
-						messagesReceivedMovingAverage60Seconds.getAvg(),
-						messagesReceivedMovingAverage300Seconds.getAvg()
-				}
-				);
 			}
 		}, 10, 10, TimeUnit.SECONDS
 		);
