@@ -550,7 +550,7 @@ class WSNAppImpl implements WSNApp {
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("filterPipelineTopHandler", filterPipelineTopHandler));
 
-		boolean doLogging = log.isDebugEnabled() && innerHandlers != null && !innerHandlers.isEmpty();
+		boolean doLogging = log.isTraceEnabled() && innerHandlers != null && !innerHandlers.isEmpty();
 
 		if (doLogging) {
 			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));

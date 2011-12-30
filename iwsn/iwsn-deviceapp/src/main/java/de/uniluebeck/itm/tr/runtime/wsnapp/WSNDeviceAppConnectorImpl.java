@@ -925,7 +925,9 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("forwardingHandler", forwardingHandler));
 
-		if (log.isDebugEnabled() && !innerHandlers.isEmpty()) {
+		boolean doLogging = log.isTraceEnabled() && !innerHandlers.isEmpty();
+
+		if (doLogging) {
 			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
 		}
 
@@ -933,7 +935,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 			handlers.addFirst(innerHandler);
 		}
 
-		if (log.isDebugEnabled() && !innerHandlers.isEmpty()) {
+		if (doLogging) {
 			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
 		}
 

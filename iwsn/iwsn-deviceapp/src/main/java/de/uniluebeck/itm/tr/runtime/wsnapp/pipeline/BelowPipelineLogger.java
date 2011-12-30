@@ -21,20 +21,28 @@ public class BelowPipelineLogger extends SimpleChannelHandler {
 	@Override
 	public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e)
 			throws Exception {
-		log.debug("{} => Downstream to device below FilterPipeline: {}",
-				nodeUrn,
-				ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-		);
+
+		if (log.isTraceEnabled()) {
+
+			log.trace("{} => Downstream to device below FilterPipeline: {}",
+					nodeUrn,
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
+			);
+		}
 		super.writeRequested(ctx, e);
 	}
 
 	@Override
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
 			throws Exception {
-		log.debug("{} => Upstream from device below FilterPipeline: {}",
-				nodeUrn,
-				ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
-		);
+
+		if (log.isTraceEnabled()) {
+
+			log.trace("{} => Upstream from device below FilterPipeline: {}",
+					nodeUrn,
+					ChannelBufferTools.toPrintableString((ChannelBuffer) e.getMessage(), 200)
+			);
+		}
 		super.messageReceived(ctx, e);
 	}
 }
