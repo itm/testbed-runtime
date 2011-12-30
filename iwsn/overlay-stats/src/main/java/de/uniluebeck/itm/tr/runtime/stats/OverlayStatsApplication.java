@@ -19,9 +19,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class RuntimeStatsApplication implements TestbedApplication {
+public class OverlayStatsApplication implements TestbedApplication {
 
-	private static final Logger log = LoggerFactory.getLogger(RuntimeStatsApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(OverlayStatsApplication.class);
 
 	private ScheduledExecutorService scheduler;
 
@@ -101,13 +101,13 @@ public class RuntimeStatsApplication implements TestbedApplication {
 		}
 	};
 
-	public RuntimeStatsApplication(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
+	public OverlayStatsApplication(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
 		this.testbedRuntime = testbedRuntime;
 	}
 
 	@Override
 	public String getName() {
-		return RuntimeStatsApplication.class.getSimpleName();
+		return OverlayStatsApplication.class.getSimpleName();
 	}
 
 	@Override
