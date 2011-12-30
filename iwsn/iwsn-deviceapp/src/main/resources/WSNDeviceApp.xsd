@@ -22,7 +22,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <xsd:schema targetNamespace="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml"
-			xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			xmlns="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 
 	<xsd:element name="wsnDevice" type="WsnDevice" />
 
@@ -44,10 +45,17 @@
 			<xsd:element name="urn" type="xsd:string" />
 			<xsd:element name="type" type="xsd:string" />
 			<xsd:element name="serialinterface" type="xsd:string" minOccurs="0" maxOccurs="1" />
-			<!--<xsd:element name="nodeapitimeout" type="xsd:int" minOccurs="0" maxOccurs="1" />-->
 			<xsd:element name="usbchipid" type="xsd:string" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="maximummessagerate" type="xsd:int" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="timeouts" type="Timeouts" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="defaultChannelPipeline" minOccurs="0" maxOccurs="1">
+				<xsd:complexType>
+					<xsd:choice>
+						<xsd:element name="configurationFile" type="xsd:string" />
+						<xsd:element name="configurationXml" type="xsd:anyType" />
+					</xsd:choice>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="configuration" type="Configuration" minOccurs="0" maxOccurs="unbounded" />
 		</xsd:sequence>
 	</xsd:complexType>

@@ -23,14 +23,14 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
-import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.nodeapi.NodeApi;
@@ -68,6 +68,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.io.Closeables.closeQuietly;
@@ -129,11 +130,11 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
-	private HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
+	private final HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
 
-	private NodeApi nodeApi;
+	private final NodeApi nodeApi;
 
-	private NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
+	private final NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
 		public void sendToNode(final ByteBuffer packet) {
 			try {
@@ -168,8 +169,13 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	private final BelowPipelineLogger belowPipelineLogger;
 
-	public WSNDeviceAppConnectorImpl(final WSNDeviceAppConfiguration configuration, final EventBus eventBus,
-									 final AsyncEventBus asyncEventBus) {
+	public WSNDeviceAppConnectorImpl(@Nonnull final WSNDeviceAppConfiguration configuration,
+									 @Nonnull final EventBus eventBus,
+									 @Nonnull final AsyncEventBus asyncEventBus) {
+
+		checkNotNull(configuration);
+		checkNotNull(eventBus);
+		checkNotNull(asyncEventBus);
 
 		this.configuration = configuration;
 		this.eventBus = eventBus;
@@ -287,7 +293,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				} else {
 					log.warn("{} => Could not retrieve serial interface from device observer for device. Retrying "
 							+ "again in 30 seconds.",
-							configuration.getNodeUrn());
+							configuration.getNodeUrn()
+					);
 				}
 			}
 		}
@@ -945,10 +952,32 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 	@Nonnull
 	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlers() {
-		return newArrayList(
-				new Tuple<String, ChannelHandler>("frameDecoder", new DleStxEtxFramingDecoder()),
-				new Tuple<String, ChannelHandler>("frameEncoder", new DleStxEtxFramingEncoder())
-		);
+
+		boolean defaultChannelPipelineConfigurationFileExists =
+				configuration.getDefaultChannelPipelineConfigurationFile() != null;
+
+		return defaultChannelPipelineConfigurationFileExists ?
+				createDefaultInnerPipelineHandlersFromConfigurationFile() :
+				Lists.<Tuple<String, ChannelHandler>>newArrayList();
+	}
+
+	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlersFromConfigurationFile() {
+
+		try {
+			return handlerFactoryRegistry.create(configuration.getDefaultChannelPipelineConfigurationFile());
+		} catch (Exception e) {
+			log.warn(
+					"Exception while creating default channel pipeline from configuration file ({}). "
+							+ "Using empty pipeline as default pipeline. "
+							+ "Error message: {}. Stack trace: {}",
+					new Object[]{
+							configuration.getDefaultChannelPipelineConfigurationFile(),
+							e.getMessage(),
+							Throwables.getStackTraceAsString(e)
+					}
+			);
+			return newArrayList();
+		}
 	}
 
 	@Override

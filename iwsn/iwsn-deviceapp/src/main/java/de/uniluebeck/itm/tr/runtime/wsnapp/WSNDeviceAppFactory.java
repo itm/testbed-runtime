@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.io.Files;
+import com.sun.org.apache.xerces.internal.jaxp.JAXPConstants;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
 import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration;
@@ -30,17 +32,21 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileExists;
+import static de.uniluebeck.itm.tr.util.FilePreconditions.checkFileReadable;
 
 
 public class WSNDeviceAppFactory implements TestbedApplicationFactory {
@@ -67,6 +73,43 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 						.setMaximumMessageRate(wsnDevice.getMaximummessagerate())
 						.setNodeUSBChipID(wsnDevice.getUsbchipid());
 
+				if (wsnDevice.getDefaultChannelPipeline() != null) {
+
+					String configurationFileName = wsnDevice.getDefaultChannelPipeline().getConfigurationFile();
+					Object configurationXml = wsnDevice.getDefaultChannelPipeline().getConfigurationXml();
+
+					File defaultChannelPipelineConfigurationFile = null;
+
+					if (configurationFileName != null) {
+
+						checkFileExists(configurationFileName);
+						checkFileReadable(configurationFileName);
+
+						defaultChannelPipelineConfigurationFile = new File(configurationFileName);
+
+					} else if (configurationXml != null) {
+
+						defaultChannelPipelineConfigurationFile = File.createTempFile("tr.iwsn-", "");
+						defaultChannelPipelineConfigurationFile.deleteOnExit();
+
+						Node firstChild = ((Node) configurationXml).getFirstChild();
+
+						DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+						DOMImplementationLS impl =
+								(DOMImplementationLS) registry.getDOMImplementation("LS");
+						LSSerializer writer = impl.createLSSerializer();
+						writer.writeToURI(firstChild, defaultChannelPipelineConfigurationFile.toURI().toString());
+
+					} else {
+						throw new RuntimeException("The default channel pipeline configuration for node \"" +
+								wsnDevice.getUrn() + "\" is missing either the configuration file or the xml."
+						);
+					}
+
+					builder.setDefaultChannelPipelineConfigurationFile(defaultChannelPipelineConfigurationFile);
+				}
+
+
 				if (wsnDevice.getTimeouts() != null) {
 					builder.setTimeoutFlash(wsnDevice.getTimeouts().getFlash());
 					builder.setTimeoutNodeAPI(wsnDevice.getTimeouts().getNodeapi());
@@ -83,9 +126,16 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				throw propagate(e);
 			}
 
-		} catch (JAXBException e) {
+		} catch (
+
+				JAXBException e
+
+				)
+
+		{
 			throw propagate(e);
 		}
+
 	}
 
 	@Nullable
