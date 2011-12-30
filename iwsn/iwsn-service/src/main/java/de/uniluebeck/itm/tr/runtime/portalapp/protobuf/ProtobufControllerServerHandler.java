@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
@@ -8,6 +9,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +45,17 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		log.info("client connected: {}", e);
+		log.debug("client connected: {}", e);
 		channel = e.getChannel();
 		super.channelConnected(ctx, e);
 	}
 
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		log.info("client disconnected: {}", e);
-		wsnServiceHandle.getProtobufControllerHelper().removeChannel(e.getChannel());
+		log.debug("client disconnected: {}", e);
+		if (wsnServiceHandle != null) {
+			wsnServiceHandle.getProtobufControllerHelper().removeChannel(e.getChannel());
+		}
 		protobufControllerServer.removeHandler(this);
 		channel = null;
 		super.channelDisconnected(ctx, e);
@@ -184,8 +188,12 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			try {
 				sessionManagement.getInstance(secretReservationKeys, "NONE");
 				wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
+			} catch (UnknownReservationIdException_Exception e1) {
+				log.debug("{}", e1.getMessage());
+				channel.close();
+				return;
 			} catch (Exception e1) {
-				log.warn("" + e1, e1);
+				log.debug("" + e1, e1);
 				channel.close();
 				return;
 			}
@@ -221,7 +229,10 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-		log.warn("Unexpected exception from downstream: {}", e);
+		log.warn("Unexpected exception from downstream: {}. Stacktrace: {}",
+				e.getCause().getMessage(),
+				Throwables.getStackTraceAsString(e.getCause())
+		);
 		e.getChannel().close();
 	}
 

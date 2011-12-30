@@ -115,7 +115,7 @@ public class OverlayStatsApplication implements TestbedApplication {
 
 		if (scheduler == null) {
 			scheduler = Executors.newScheduledThreadPool(1,
-					new ThreadFactoryBuilder().setNameFormat("RuntimeStats-Thread %d").build()
+					new ThreadFactoryBuilder().setNameFormat("OverlayStats-Thread %d").build()
 			);
 		}
 

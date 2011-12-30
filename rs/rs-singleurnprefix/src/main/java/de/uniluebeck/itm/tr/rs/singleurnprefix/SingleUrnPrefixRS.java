@@ -349,7 +349,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description
 		// and check if the individual node urns of the reservation are existing
-		if (servedNodeUrns.get() != null) {
+		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
 
 			String[] networkNodes;
 			try {
