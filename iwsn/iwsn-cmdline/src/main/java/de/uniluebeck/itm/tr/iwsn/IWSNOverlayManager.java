@@ -417,6 +417,9 @@ public class IWSNOverlayManager implements Service {
 
 		JAXBContext context = JAXBContext.newInstance(Testbed.class.getPackage().getName());
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		return unmarshaller.unmarshal(rootNode, Testbed.class).getValue();
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (rootNode) {
+			return unmarshaller.unmarshal(rootNode, Testbed.class).getValue();
+		}
 	}
 }

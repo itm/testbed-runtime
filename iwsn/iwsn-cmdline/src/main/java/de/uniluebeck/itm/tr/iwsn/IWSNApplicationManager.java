@@ -15,7 +15,6 @@ import de.uniluebeck.itm.tr.xml.Testbed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -33,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.getStackTraceAsString;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -63,12 +61,12 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	@Override
 	public QName getQName() {
-		return XPathConstants.NODESET;
+		return XPathConstants.NODE;
 	}
 
 	@Override
 	public String getXPathExpression() {
-		return "//nodes[@id=\"" + configurationNodeId + "\"]/applications/*";
+		return "/*";
 	}
 
 	@Override
@@ -94,8 +92,8 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 			Object oldDOM = oldAndNew.getFirst();
 			Object newDOM = oldAndNew.getSecond();
 
-			List<Application> oldApplicationList = oldDOM == null ? null : unmarshal((NodeList) oldDOM);
-			List<Application> newApplicationList = newDOM == null ? null : unmarshal((NodeList) newDOM);
+			List<Application> oldApplicationList = oldDOM == null ? null : unmarshal((Node) oldDOM);
+			List<Application> newApplicationList = newDOM == null ? null : unmarshal((Node) newDOM);
 
 			Set<String> oldApplications = getApplicationNames(oldApplicationList);
 			Set<String> newApplications = getApplicationNames(newApplicationList);
@@ -109,7 +107,8 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 			Set<String> addedApplications = newHashSet(Sets.difference(newApplications, oldApplications));
 			startApplications(newApplicationList, addedApplications);
 
-		} catch (JAXBException e) {
+		} catch (Exception e) {
+			log.error("Exception while processing runtime configuration changes: {}", getStackTraceAsString(e));
 			throw new RuntimeException(e);
 		}
 	}
@@ -148,8 +147,8 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 			final boolean factoryClassChanged = !oldApplicationFactory.equals(newApplicationFactory);
 			final boolean configurationChanged =
 					(oldApplicationConfig == null && newApplicationConfig != null) ||
-					(oldApplicationConfig != null && newApplicationConfig == null) ||
-					(oldApplicationConfig != null && !oldApplicationConfig.isEqualNode(newApplicationConfig));
+							(oldApplicationConfig != null && newApplicationConfig == null) ||
+							(oldApplicationConfig != null && !oldApplicationConfig.isEqualNode(newApplicationConfig));
 
 			checkState(applications.containsKey(oldApplicationName));
 
@@ -206,17 +205,23 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 		return set;
 	}
 
-	private List<Application> unmarshal(final NodeList nodeList) throws JAXBException {
+	private List<Application> unmarshal(final Node rootNode) throws JAXBException {
 
 		JAXBContext context = JAXBContext.newInstance(Testbed.class.getPackage().getName());
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-
-		List<Application> objects = newArrayList();
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Node item = nodeList.item(i);
-			objects.add(unmarshaller.unmarshal(item, Application.class).getValue());
+		Testbed testbed;
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (rootNode) {
+			testbed = unmarshaller.unmarshal(rootNode, Testbed.class).getValue();
 		}
-		return objects;
+
+		for (de.uniluebeck.itm.tr.xml.Node node : testbed.getNodes()) {
+			if (configurationNodeId.equals(node.getId())) {
+				return node.getApplications().getApplication();
+			}
+		}
+
+		throw new RuntimeException("No configuration found for overlay node id " + configurationNodeId + "!");
 	}
 
 	private void startApplication(Application applicationXml) {
