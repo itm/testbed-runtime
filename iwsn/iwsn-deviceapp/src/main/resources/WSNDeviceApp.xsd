@@ -32,6 +32,7 @@
 			<xsd:element name="reset" type="xsd:int" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="flash" type="xsd:int" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="nodeapi" type="xsd:int" minOccurs="0" maxOccurs="1" />
+			<xsd:element name="checkalive" type="xsd:int" minOccurs="0" maxOccurs="1" />
 		</xsd:all>
 	</xsd:complexType>
 

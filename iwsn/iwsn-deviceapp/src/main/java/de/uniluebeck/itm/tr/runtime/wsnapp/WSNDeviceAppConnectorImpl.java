@@ -184,7 +184,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		this.nodeApi = new NodeApi(
 				configuration.getNodeUrn(),
 				nodeApiDeviceAdapter,
-				configuration.getTimeoutNodeAPI(),
+				configuration.getTimeoutNodeApiMillis(),
 				TimeUnit.MILLISECONDS
 		);
 
@@ -465,7 +465,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				deviceLock.lock();
 				try {
-					device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlash(),
+					device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlashMillis(),
 							new OperationCallback<Void>() {
 
 								private int lastProgress = -1;
@@ -544,6 +544,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
+		// TODO integrate timeoutCheckAlive as soon as next wsn-device-drivers version including an isNodeAlive() method is ready
+
 		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
 
 		// to the best of our knowledge, a node is alive if we're connected to it
@@ -563,7 +565,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 			deviceLock.lock();
 			try {
-				device.reset(configuration.getTimeoutReset(), new OperationCallbackAdapter<Void>() {
+				device.reset(configuration.getTimeoutResetMillis(), new OperationCallbackAdapter<Void>() {
 
 					@Override
 					public void onExecute() {
