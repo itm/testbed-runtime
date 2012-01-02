@@ -11,10 +11,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp.xml;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Generated;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 
 /**
@@ -65,6 +62,7 @@ import javax.xml.bind.annotation.XmlType;
     "defaultChannelPipeline",
     "configuration"
 })
+@XmlRootElement
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2012-01-02T10:09:33+01:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class WsnDevice {
 

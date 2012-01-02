@@ -10,6 +10,8 @@ import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
+import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.WSNDeviceObserverFactory;
+import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.WSNDeviceObserverConfiguration;
 import de.uniluebeck.itm.tr.xml.*;
 import eu.wisebed.ns.wiseml._1.*;
 import org.apache.commons.cli.CommandLine;
@@ -85,7 +87,8 @@ public class CSV2Config {
 		boolean hasOriginY = cmdLineParameters.setupOriginY != null && !"".equals(cmdLineParameters.setupOriginY);
 		boolean hasOriginZ = cmdLineParameters.setupOriginZ != null && !"".equals(cmdLineParameters.setupOriginZ);
 		boolean hasOriginPhi = cmdLineParameters.setupOriginPhi != null && !"".equals(cmdLineParameters.setupOriginPhi);
-		boolean hasOriginTheta = cmdLineParameters.setupOriginTheta != null && !"".equals(cmdLineParameters.setupOriginTheta);
+		boolean hasOriginTheta =
+				cmdLineParameters.setupOriginTheta != null && !"".equals(cmdLineParameters.setupOriginTheta);
 
 		boolean hasOrigin = hasOriginX || hasOriginY || hasOriginZ || hasOriginPhi || hasOriginTheta;
 
@@ -308,14 +311,14 @@ public class CSV2Config {
 				0
 		);
 
-		String[] nextLine;
+		String[] currentLine;
 
 		// detect column by looking for property names in the first line
 		BiMap<Integer, String> columnMap = HashBiMap.create();
-		if ((nextLine = reader.readNext()) != null) {
+		if ((currentLine = reader.readNext()) != null) {
 
-			for (int column = 0; column < nextLine.length; column++) {
-				columnMap.put(column, nextLine[column]);
+			for (int column = 0; column < currentLine.length; column++) {
+				columnMap.put(column, currentLine[column]);
 			}
 
 			Preconditions.checkNotNull(columnMap.containsValue(HOSTNAME));
@@ -382,11 +385,12 @@ public class CSV2Config {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		BiMap<String, Integer> columns = columnMap.inverse();
 
-		while ((nextLine = reader.readNext()) != null) {
+		while ((currentLine = reader.readNext()) != null) {
 
 			// add overlay node name if not yet existing
-			String hostname = nextLine[columns.get(HOSTNAME)].toLowerCase();
-			String nodeUrn = (nextLine[columns.get(URN_TESTBED_PREFIX)] + nextLine[columns.get(NODE_ID)]).toLowerCase();
+			String hostname = currentLine[columns.get(HOSTNAME)].toLowerCase();
+			String nodeUrn =
+					(currentLine[columns.get(URN_TESTBED_PREFIX)] + currentLine[columns.get(NODE_ID)]).toLowerCase();
 
 			Node node = nodeMap.get(hostname);
 			if (node == null) {
@@ -416,33 +420,67 @@ public class CSV2Config {
 			nodeName.setName(nodeUrn);
 			nodeNames.getNodename().add(nodeName);
 
-			// add WSN application if not yet existing
-			Application application = new Application();
-			application.setName("WSNDeviceApp");
-			application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
-
 			Applications applications = node.getApplications();
 			if (applications == null) {
 				applications = new Applications();
 				node.setApplications(applications);
 			}
+
+			boolean currentLineHasNodeReference =
+					currentLine[columns.get(NODE_REFERENCE)] != null &&
+							!"".equals(currentLine[columns.get(NODE_REFERENCE)]);
+
+			if (currentLineHasNodeReference) {
+
+				Application wsnDeviceObserverApplication = null;
+
+				for (Application application : node.getApplications().getApplication()) {
+					if ("WSNDeviceObserver".equals(application.getName())) {
+						wsnDeviceObserverApplication = application;
+					}
+				}
+
+				if (wsnDeviceObserverApplication == null) {
+					wsnDeviceObserverApplication = new Application();
+					wsnDeviceObserverApplication.setName("WSNDeviceObserver");
+					wsnDeviceObserverApplication.setFactoryclass(WSNDeviceObserverFactory.class.getCanonicalName());
+					wsnDeviceObserverApplication.setAny(new WSNDeviceObserverConfiguration());
+					applications.getApplication().add(wsnDeviceObserverApplication);
+				}
+
+				WSNDeviceObserverConfiguration wsnDeviceObserverConfiguration =
+						(WSNDeviceObserverConfiguration) wsnDeviceObserverApplication.getAny();
+
+				de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Mapping mapping =
+						new de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Mapping();
+
+				mapping.setUsbchipid(currentLine[columns.get(NODE_REFERENCE)]);
+				mapping.setMac(currentLine[columns.get(NODE_ID)]);
+				wsnDeviceObserverConfiguration.getMapping().add(mapping);
+			}
+
+
+			// add WSN application if not yet existing
+			Application application = new Application();
+			application.setName("WSNDeviceApp-" + nodeUrn);
+			application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
 			applications.getApplication().add(application);
 
 			// add WSN device (current row of CSV)
 			WsnDevice wsnDevice = new WsnDevice();
-			wsnDevice.setType(nextLine[columns.get(NODE_TYPE)]);
+			wsnDevice.setType(currentLine[columns.get(NODE_TYPE)]);
 			wsnDevice.setUrn(nodeUrn);
 
 			if (cmdLineParameters.maximummessagerate != null) {
 				wsnDevice.setMaximummessagerate(cmdLineParameters.maximummessagerate);
 			}
 
-			String nodePort = nextLine[columns.get(NODE_PORT)];
+			String nodePort = currentLine[columns.get(NODE_PORT)];
 			if (nodePort != null && !"".equals(nodePort)) {
 				wsnDevice.setSerialinterface(nodePort);
 			}
 
-			String nodeReference = nextLine[columns.get(NODE_REFERENCE)];
+			String nodeReference = currentLine[columns.get(NODE_REFERENCE)];
 			if (nodeReference != null && !"".equals(nodeReference)) {
 				wsnDevice.setUsbchipid(nodeReference);
 			}
@@ -454,15 +492,33 @@ public class CSV2Config {
 		// ====== write configuration file ======
 
 		JAXBContext jc = JAXBContext.newInstance(
-				Testbed.class,
-				Portalapp.class,
-				WsnDevice.class
+
+				de.uniluebeck.itm.tr.xml.Application.class,
+				de.uniluebeck.itm.tr.xml.Applications.class,
+				de.uniluebeck.itm.tr.xml.ClientConnection.class,
+				de.uniluebeck.itm.tr.xml.ClientConnections.class,
+				de.uniluebeck.itm.tr.xml.Node.class,
+				de.uniluebeck.itm.tr.xml.NodeName.class,
+				de.uniluebeck.itm.tr.xml.ServerConnection.class,
+				de.uniluebeck.itm.tr.xml.ServerConnections.class,
+				de.uniluebeck.itm.tr.xml.Testbed.class,
+
+				de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp.class,
+				de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface.class,
+				de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService.class,
+
+				de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration.class,
+				de.uniluebeck.itm.tr.runtime.wsnapp.xml.Mapping.class,
+				de.uniluebeck.itm.tr.runtime.wsnapp.xml.Timeouts.class,
+				de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice.class,
+
+				de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Configuration.class,
+				de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Mapping.class,
+				de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.WSNDeviceObserverConfiguration.class
 		);
 		Marshaller marshaller = jc.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		FileWriter writer = new FileWriter(cmdLineParameters.outputFile.getAbsolutePath());
-		marshaller.marshal(testbed, writer);
-
+		marshaller.marshal(testbed, new FileWriter(cmdLineParameters.outputFile.getAbsolutePath()));
 	}
 
 	private void parseCmdLineParameters(String[] args) {
@@ -555,7 +611,9 @@ public class CSV2Config {
 				}
 
 				if ((hasProtobufPort && !(hasProtobufHostname || hasProtobufIp)) || (hasProtobufIp && !hasProtobufPort) || (hasProtobufHostname && !hasProtobufPort)) {
-					throw new IllegalArgumentException("If portal.protobuf.port is specified exactly one of portal.protobuf.ip and portal.protobuf.hostname must be specified too.");
+					throw new IllegalArgumentException(
+							"If portal.protobuf.port is specified exactly one of portal.protobuf.ip and portal.protobuf.hostname must be specified too."
+					);
 				}
 
 				if (properties.getProperty("setup.coordinatetype") != null) {
@@ -591,7 +649,8 @@ public class CSV2Config {
 				cmdLineParameters.useHexValues = Boolean.parseBoolean(properties.getProperty("hex", "true"));
 
 				if (properties.getProperty("maximummessagerate") != null) {
-					cmdLineParameters.maximummessagerate = Integer.parseInt(properties.getProperty("maximummessagerate"));
+					cmdLineParameters.maximummessagerate =
+							Integer.parseInt(properties.getProperty("maximummessagerate"));
 				}
 
 				cmdLineParameters.reservationSystemEndpointURL = properties.getProperty("portal.reservationsystem");

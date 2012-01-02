@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.Generated;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -41,6 +42,7 @@ import javax.xml.bind.annotation.XmlType;
     "mapping",
     "configuration"
 })
+@XmlRootElement(name = "wsnDeviceObserver")
 @Generated(value = "com.sun.tools.internal.xjc.Driver", date = "2011-11-13T05:09:13+01:00", comments = "JAXB RI vJAXB 2.1.10 in JDK 6")
 public class WSNDeviceObserverConfiguration {
 
