@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.WSNDeviceObserverFactory;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.WSNDeviceObserverConfiguration;
 import de.uniluebeck.itm.tr.xml.*;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import eu.wisebed.ns.wiseml._1.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -20,10 +21,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.*;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
 
@@ -288,7 +294,8 @@ public class CSV2Config {
 
 	private CmdLineParameters cmdLineParameters = new CmdLineParameters();
 
-	public static void main(String[] args) throws IOException, JAXBException {
+	public static void main(String[] args) throws IOException, JAXBException, SAXException,
+			ParserConfigurationException {
 
 		CSV2Config csv2Config = new CSV2Config();
 		csv2Config.configureLoggingDefaults();
@@ -300,7 +307,7 @@ public class CSV2Config {
 
 	}
 
-	private void createTRConfig() throws IOException, JAXBException {
+	private void createTRConfig() throws IOException, JAXBException, ParserConfigurationException, SAXException {
 
 		// ====== parse CSV file ======
 
@@ -466,9 +473,11 @@ public class CSV2Config {
 			application.setFactoryclass(WSNDeviceAppFactory.class.getCanonicalName());
 			applications.getApplication().add(application);
 
+			String nodeType = currentLine[columns.get(NODE_TYPE)];
+
 			// add WSN device (current row of CSV)
 			WsnDevice wsnDevice = new WsnDevice();
-			wsnDevice.setType(currentLine[columns.get(NODE_TYPE)]);
+			wsnDevice.setType(nodeType);
 			wsnDevice.setUrn(nodeUrn);
 
 			if (cmdLineParameters.maximummessagerate != null) {
@@ -483,6 +492,19 @@ public class CSV2Config {
 			String nodeReference = currentLine[columns.get(NODE_REFERENCE)];
 			if (nodeReference != null && !"".equals(nodeReference)) {
 				wsnDevice.setUsbchipid(nodeReference);
+			}
+
+			if (DeviceType.ISENSE == DeviceType.fromString(nodeType)) {
+				WsnDevice.DefaultChannelPipeline defaultChannelPipeline = new WsnDevice.DefaultChannelPipeline();
+				StringReader stringReader = new StringReader("<workaroundtag><itm-netty-handlerstack>\n"
+						+ "<handler name=\"dlestxetx-framing\" factory=\"dlestxetx-framing\" />\n"
+						+ "</itm-netty-handlerstack></workaroundtag>"
+				);
+				InputSource is = new InputSource();
+				is.setCharacterStream(stringReader);
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+				defaultChannelPipeline.setConfigurationXml(doc.getDocumentElement());
+				wsnDevice.setDefaultChannelPipeline(defaultChannelPipeline);
 			}
 
 			application.setAny(wsnDevice);

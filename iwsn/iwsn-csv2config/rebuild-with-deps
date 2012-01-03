@@ -1,4 +1,4 @@
 #!/bin/bash
 DIR=`dirname $0`
 cd "$DIR/../../"
-mvn -am -pl iwsn/csv2config clean install -DskipTests
+mvn -am -pl iwsn/iwsn-csv2config clean install -DskipTests
