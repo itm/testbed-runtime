@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.8.1</version>
+		<version>0.9-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
