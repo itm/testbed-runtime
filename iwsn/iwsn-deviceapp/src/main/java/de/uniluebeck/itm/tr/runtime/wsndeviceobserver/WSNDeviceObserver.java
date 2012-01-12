@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.runtime.wsndeviceobserver;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -16,10 +17,7 @@ import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserverListener;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class WSNDeviceObserver implements TestbedApplication, DeviceObserverListener {
 
@@ -41,7 +39,14 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
 
         Injector injector = Guice.createInjector(
                 new DeviceUtilsModule(configuration.getDeviceMacReferenceMap()),
-                new ScheduledExecutorServiceModule(DeviceObserver.class.getSimpleName())
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(ExecutorService.class).toInstance(Executors.newCachedThreadPool(
+								new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
+						));
+					}
+				}
         );
         this.deviceObserver = injector.getInstance(DeviceObserver.class);
     }

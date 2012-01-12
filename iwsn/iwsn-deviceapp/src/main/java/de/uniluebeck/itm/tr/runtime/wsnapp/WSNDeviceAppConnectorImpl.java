@@ -126,7 +126,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	/**
 	 * A scheduler that is used by the device drivers to schedule operations and communications with the device.
 	 */
-	private ScheduledExecutorService deviceDriverScheduler;
+	private ExecutorService deviceDriverExecutorService;
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
@@ -168,6 +168,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	private final AbovePipelineLogger abovePipelineLogger;
 
 	private final BelowPipelineLogger belowPipelineLogger;
+
+	private ScheduledExecutorService assureConnectivityScheduler;
 
 	public WSNDeviceAppConnectorImpl(@Nonnull final WSNDeviceAppConfiguration configuration,
 									 @Nonnull final EventBus eventBus,
@@ -311,13 +313,16 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		nodeApiExecutor = Executors.newCachedThreadPool();
 		nodeApi.start();
 
-		deviceDriverScheduler = Executors.newScheduledThreadPool(3,
-				new ThreadFactoryBuilder()
-						.setNameFormat("[" + configuration.getNodeUrn() + "]-Thread %d")
-						.build()
+		deviceDriverExecutorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+				.setNameFormat("[" + configuration.getNodeUrn() + "]-Driver %d")
+				.build()
 		);
 
-		assureConnectivityRunnableSchedule = deviceDriverScheduler.scheduleAtFixedRate(
+		assureConnectivityScheduler = Executors.newScheduledThreadPool(1,
+				new ThreadFactoryBuilder().setNameFormat("[" + configuration.getNodeUrn() + "]-Connectivity %d")
+						.build()
+		);
+		assureConnectivityRunnableSchedule = assureConnectivityScheduler.scheduleAtFixedRate(
 				assureConnectivityRunnable, 0, 30, TimeUnit.SECONDS
 		);
 	}
@@ -329,12 +334,14 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		);
 
 		assureConnectivityRunnableSchedule.cancel(false);
+		ExecutorUtils.shutdown(assureConnectivityScheduler, 1, TimeUnit.SECONDS);
 
 		asyncEventBus.unregister(this);
 		eventBus.unregister(this);
 
+
 		disconnect();
-		ExecutorUtils.shutdown(deviceDriverScheduler, 1, TimeUnit.SECONDS);
+		ExecutorUtils.shutdown(deviceDriverExecutorService, 1, TimeUnit.SECONDS);
 
 		nodeApi.stop();
 		ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
@@ -775,7 +782,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		try {
 
 			DeviceFactory deviceFactory = new DeviceFactoryImpl();
-			device = deviceFactory.create(deviceDriverScheduler, deviceType, deviceConfiguration);
+			device = deviceFactory.create(deviceDriverExecutorService, deviceType, deviceConfiguration);
 
 			try {
 
