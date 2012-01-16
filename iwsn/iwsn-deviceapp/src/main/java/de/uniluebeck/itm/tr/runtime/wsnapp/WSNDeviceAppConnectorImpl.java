@@ -263,7 +263,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 			if (isMockDevice || hasSerialInterface) {
 
-				if (tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
+				if (!tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
 					log.warn("{} => Unable to connect to {} device at {}. Retrying in 30 seconds.",
 							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
 					);
