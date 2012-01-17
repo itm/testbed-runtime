@@ -235,7 +235,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.3.4</version>
+				<version>0.3.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
