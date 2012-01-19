@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -249,8 +250,14 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 			log.info("Starting application \"{}\"", applicationName);
 			if (application != null) {
-				application.start();
-				applications.put(applicationName, application);
+				try {
+					application.start();
+					applications.put(applicationName, application);
+				} catch (Exception e) {
+					log.error("Failed to start application \"{}\"! Reason: {}. Stack trace: {}",
+							new Object[]{applicationName, e.getMessage(), Throwables.getStackTraceAsString(e)}
+					);
+				}
 			}
 
 		} catch (Exception e) {
