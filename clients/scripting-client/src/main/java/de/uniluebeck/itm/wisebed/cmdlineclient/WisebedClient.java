@@ -3,6 +3,7 @@ package de.uniluebeck.itm.wisebed.cmdlineclient;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
@@ -70,7 +71,7 @@ public class WisebedClient extends WisebedClientBase {
         }
 
         @WebMethod(exclude = true)
-        public WSNAsyncWrapper getWsn() {
+        public IWsnAsyncWrapper getWsn() {
             return wsn;
         }
 
