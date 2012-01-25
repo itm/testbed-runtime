@@ -1,17 +1,8 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import com.google.common.util.concurrent.SettableFuture;
-import de.uniluebeck.itm.tr.util.Tuple;
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper;
-import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Future;
 
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
@@ -19,9 +10,20 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.RequestWrapper;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.SettableFuture;
+
+import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.tr.util.UrlUtils;
+import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.Controller;
+import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 public class WisebedClient extends WisebedClientBase {
 
@@ -71,7 +73,7 @@ public class WisebedClient extends WisebedClientBase {
         }
 
         @WebMethod(exclude = true)
-        public IWsnAsyncWrapper getWsn() {
+        public WSNAsyncWrapper getWsn() {
             return wsn;
         }
 

@@ -19,7 +19,7 @@ public class WSNHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNHelper.class);
 
-	public static boolean disableAllPhysicalLinks(IWsnAsyncWrapper wsn, List<String> nodeURNs, int timeout,
+	public static boolean disableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeURNs, int timeout,
 												  TimeUnit timeUnit) throws TimeoutException {
 
 		try {
@@ -50,7 +50,7 @@ public class WSNHelper {
 
 	}
 
-	public static boolean enableAllPhysicalLinks(IWsnAsyncWrapper wsn, List<String> nodeUrns, int timeout,
+	public static boolean enableAllPhysicalLinks(WSNAsyncWrapper wsn, List<String> nodeUrns, int timeout,
 												 TimeUnit timeUnit) throws
 			TimeoutException {
 
@@ -83,7 +83,7 @@ public class WSNHelper {
 
 	}
 
-	public static boolean setVirtualLinks(IWsnAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
+	public static boolean setVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
 										  String remoteServiceInstance, int timeout, TimeUnit timeUnit) throws TimeoutException {
 
 		try {
@@ -119,7 +119,7 @@ public class WSNHelper {
 
 	}
 
-	public static boolean destroyVirtualLinks(IWsnAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
+	public static boolean destroyVirtualLinks(WSNAsyncWrapper wsn, Multimap<String, String> neighborhoodMap,
 											  int timeout, TimeUnit timeUnit) throws TimeoutException {
 
 		try {
