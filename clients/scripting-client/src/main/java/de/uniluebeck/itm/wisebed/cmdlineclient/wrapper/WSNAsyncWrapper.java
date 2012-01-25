@@ -68,9 +68,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		jobs.receive(requestStatus);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#addController(java.lang.String)
-	 */
 	@Override
 	public Future<Void> addController(final String controllerEndpointUrl) {
 		return executor.submit(new Callable<Void>() {
@@ -83,9 +80,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#removeController(java.lang.String)
-	 */
 	@Override
 	public Future<Void> removeController(final String controllerEndpointUrl) {
 		return executor.submit(new Callable<Void>() {
@@ -98,9 +92,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#send(java.util.List, eu.wisebed.api.common.Message, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> send(List<String> nodeIds, Message message, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -110,9 +101,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#setChannelPipeline(java.util.List, java.util.List, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> setChannelPipeline(final List<String> nodes,
 												final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
@@ -130,9 +118,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#getVersion()
-	 */
 	@Override
 	public Future<?> getVersion() {
 		return executor.submit(new Callable<String>() {
@@ -144,9 +129,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#areNodesAlive(java.util.List, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> areNodesAlive(List<String> nodes, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -156,18 +138,11 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#describeCapabilities(java.lang.String)
-	 */
 	@Override
-	@SuppressWarnings("unused")
 	public Future<String> describeCapabilities(String capability) {
 		throw new UnsupportedOperationException("Not yet implemented!");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#destroyVirtualLink(java.lang.String, java.lang.String, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> destroyVirtualLink(String sourceNode, String targetNode, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -179,9 +154,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#disableNode(java.lang.String, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> disableNode(String node, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -191,9 +163,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#disablePhysicalLink(java.lang.String, java.lang.String, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> disablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -205,11 +174,7 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#enableNode(java.lang.String, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
-	@SuppressWarnings("unused")
 	public Future<JobResult> enableNode(String node, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
 		Job job = new Job("enableNode", wsn.enableNode(node), node, Job.JobType.enableNode);
@@ -218,9 +183,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#enablePhysicalLink(java.lang.String, java.lang.String, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> enablePhysicalLink(String nodeA, String nodeB, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -232,9 +194,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#flashPrograms(java.util.List, java.util.List, java.util.List, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> flashPrograms(List<String> nodeIds, List<Integer> programIndices, List<Program> programs,
 										   int timeout, TimeUnit timeUnit) {
@@ -248,9 +207,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#getFilters()
-	 */
 	@Override
 	public Future<List<String>> getFilters() {
 		return executor.submit(new Callable<List<String>>() {
@@ -262,9 +218,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#getNetwork()
-	 */
 	@Override
 	public Future<String> getNetwork() {
 		return executor.submit(new Callable<String>() {
@@ -276,9 +229,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#getSupportedChannelHandlers()
-	 */
 	@Override
 	public Future<List<ChannelHandlerDescription>> getSupportedChannelHandlers() {
 		return executor.submit(new Callable<List<ChannelHandlerDescription>>() {
@@ -289,9 +239,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		});
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#resetNodes(java.util.List, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> resetNodes(List<String> nodes, int timeout, TimeUnit timeUnit) {
 		SettableFuture<JobResult> future = SettableFuture.create();
@@ -301,9 +248,6 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		return future;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.IWsnAsyncWrapper#setVirtualLink(java.lang.String, java.lang.String, java.lang.String, java.util.List, java.util.List, int, java.util.concurrent.TimeUnit)
-	 */
 	@Override
 	public Future<JobResult> setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance,
 											List<String> parameters, List<String> filters, int timeout,
