@@ -90,7 +90,7 @@ public class Helper {
 
 		for (AuthenticationTriple triple : authenticationData) {
 			if (!servedURNPrefixes.contains(triple.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + triple.getUrnPrefix());
+				throw createSNAAException("Not serving urn prefix \"" + triple.getUrnPrefix() + "\"");
 			}
 		}
 	}
@@ -100,7 +100,7 @@ public class Helper {
 
 		for (SecretAuthenticationKey key : authenticationData) {
 			if (!servedURNPrefixes.contains(key.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + key.getUrnPrefix());
+				throw createSNAAException("Not serving urn prefix \"" + key.getUrnPrefix() + "\"");
 			}
 		}
 	}

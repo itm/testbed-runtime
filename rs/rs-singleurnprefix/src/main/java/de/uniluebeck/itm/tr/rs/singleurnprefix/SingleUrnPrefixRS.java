@@ -260,7 +260,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
 		if (!urnPrefix.equals(sak.getUrnPrefix())) {
-			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
+			String msg = "Not serving urn prefix \"" + sak.getUrnPrefix() + "\"";
 			log.warn(msg);
 			RSException exception = new RSException();
 			exception.setMessage(msg);
@@ -430,7 +430,7 @@ public class SingleUrnPrefixRS implements RS {
 		} else {
 			srk = secretReservationKeys.get(0);
 			if (!urnPrefix.equals(srk.getUrnPrefix())) {
-				msg = "Not serving urn prefix " + srk.getUrnPrefix();
+				msg = "Not serving urn prefix \"" + srk.getUrnPrefix() + "\"";
 			}
 		}
 
