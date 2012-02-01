@@ -44,11 +44,11 @@ public class WSNAsyncWrapper implements IWsnAsyncWrapper {
 		}
 	}
 
-	private ExecutorService executor = Executors.newCachedThreadPool();
+	private final ExecutorService executor = Executors.newCachedThreadPool();
 
-	private AsyncJobObserver jobs = new AsyncJobObserver(10, TimeUnit.SECONDS);
+	private final AsyncJobObserver jobs = new AsyncJobObserver(10, TimeUnit.SECONDS);
 
-	private WSN wsn;
+	private final WSN wsn;
 
 	private WSNAsyncWrapper(final WSN wsn) {
 		this.wsn = wsn;

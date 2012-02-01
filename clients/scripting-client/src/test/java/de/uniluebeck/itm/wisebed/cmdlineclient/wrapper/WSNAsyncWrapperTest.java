@@ -13,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.jws.WebParam;
 
+import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -185,14 +186,24 @@ public class WSNAsyncWrapperTest {
 
 	@Test
 	public void testFlashPrograms() throws Exception {
-		assertSame(100, wrapper.flashPrograms(nodeURNs, new ArrayList<Integer>(), new ArrayList<Program>(), 10000,
-				TimeUnit.MILLISECONDS
-		).get().getSuccessPercent()
-		);
 
+		Future<JobResult> future = wrapper.flashPrograms(
+				nodeURNs,
+				new ArrayList<Integer>(),
+				new ArrayList<Program>(),
+				10000, TimeUnit.MILLISECONDS
+		);
+		assertSame(100, future.get().getSuccessPercent());
+	}
+
+	@Test
+	public void testFlashProgramShouldTimeoutIfNoProgressMessagesArrive() throws Exception {
 		try {
-			wrapper.flashPrograms(nodeURNs, new ArrayList<Integer>(), new ArrayList<Program>(), 50,
-					TimeUnit.MILLISECONDS
+			wrapper.flashPrograms(
+					nodeURNs,
+					new ArrayList<Integer>(),
+					new ArrayList<Program>(),
+					50, TimeUnit.MILLISECONDS
 			).get();
 		} catch (ExecutionException expected) {
 			assertTrue(expected.getCause() instanceof TimeoutException);
