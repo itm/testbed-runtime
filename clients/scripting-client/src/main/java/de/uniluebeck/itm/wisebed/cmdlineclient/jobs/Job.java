@@ -192,6 +192,7 @@ public class Job {
 
 					} else if (error) {
 
+						errorCount++;
 						if (log.isDebugEnabled()) {
 							log.debug("Job[{}] failed for node {} with message [{}]", new Object[]{
 									description,
