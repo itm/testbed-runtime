@@ -237,7 +237,7 @@ public class SingleUrnPrefixRS implements RS {
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
-			boolean sameUser = crd.getUserData().equals(key.getUsername());
+			boolean sameUser = crd.getData().get(0).getUsername().equals(key.getUsername());
 			if (sameUser) {
 				reservationsOfAuthenticatedUserInInterval.add(crd);
 			}
