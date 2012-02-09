@@ -22,6 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.List;
+import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
@@ -221,7 +222,7 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
-		ConfidentialReservationData crd = buildConfidentialReservationData(from, to, USER1_USERNAME, "urn:local:0xCBE4");
+		ConfidentialReservationData crd = buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
@@ -233,7 +234,7 @@ public class SingleUrnPrefixRSTest {
 		}
 
 		// try to reserve in lowercase
-		crd = buildConfidentialReservationData(from, to, USER1_USERNAME, "urn:local:0xcbe4");
+		crd = buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xcbe4");
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
@@ -265,8 +266,8 @@ public class SingleUrnPrefixRSTest {
 		when(snaa.isAuthorized(user2SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
-		final ConfidentialReservationData reservation1 = buildConfidentialReservationData(from, to, USER1_USERNAME, user1Node);
-		final ConfidentialReservationData reservation2 = buildConfidentialReservationData(from, to, USER2_USERNAME, user2Node);
+		final ConfidentialReservationData reservation1 = buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
+		final ConfidentialReservationData reservation2 = buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(
 				newArrayList(reservation1, reservation2)
 		);
@@ -299,14 +300,27 @@ public class SingleUrnPrefixRSTest {
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,
 																		 final String username,
+																		 final String secretReservationKey,
 																		 final String... nodeUrns) {
+		
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
+
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
-		crd.setUserData(username);
+		crd.setUserData(new Random().nextInt(Integer.MAX_VALUE) + "");
+
 		for (String nodeUrn : nodeUrns) {
 			crd.getNodeURNs().add(nodeUrn);
 		}
+
+		Data data = new Data();
+
+		data.setSecretReservationKey(secretReservationKey);
+		data.setUrnPrefix(URN_PREFIX);
+		data.setUsername(username);
+
+		crd.getData().add(data);
+
 		return crd;
 	}
 
