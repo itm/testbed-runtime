@@ -53,7 +53,8 @@ public class IWSNFactoryImpl implements IWSNFactory {
 		return new IWSNImpl(
 				testbedRuntime,
 				applicationManager,
-				overlayManager
+				overlayManager,
+				domObserver
 		);
 	}
 }

@@ -1,8 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.*;
 
 class IWSNImpl implements IWSN {
 
@@ -14,13 +19,21 @@ class IWSNImpl implements IWSN {
 
 	private final IWSNOverlayManager overlayManager;
 
+	private final DOMObserver domObserver;
+
+	private ScheduledExecutorService domObserverScheduler;
+
+	private ScheduledFuture<?> domObserverSchedule;
+
 	public IWSNImpl(final TestbedRuntime testbedRuntime,
 					final IWSNApplicationManager applicationManager,
-					final IWSNOverlayManager overlayManager) {
+					final IWSNOverlayManager overlayManager,
+					final DOMObserver domObserver) {
 
 		this.testbedRuntime = testbedRuntime;
 		this.applicationManager = applicationManager;
 		this.overlayManager = overlayManager;
+		this.domObserver = domObserver;
 	}
 
 	@Override
@@ -36,12 +49,23 @@ class IWSNImpl implements IWSN {
 
 		log.debug("Starting application manager...");
 		applicationManager.start();
+
+		log.debug("Starting DOM observer...");
+		final ThreadFactory domObserverThreadFactory = new ThreadFactoryBuilder()
+				.setNameFormat("DOMObserver-Thread %d")
+				.build();
+		domObserverScheduler = Executors.newScheduledThreadPool(1, domObserverThreadFactory);
+		domObserverSchedule = domObserverScheduler.scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void stop() {
 
 		log.info("Stopping iWSN...");
+
+		log.debug("Stopping DOM observer...");
+		domObserverSchedule.cancel(true);
+		ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
 
 		log.debug("Stopping application manager...");
 		applicationManager.stop();
