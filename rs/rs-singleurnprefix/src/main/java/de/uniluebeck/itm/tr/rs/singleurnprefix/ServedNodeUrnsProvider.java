@@ -21,6 +21,7 @@ public class ServedNodeUrnsProvider implements Provider<String[]> {
 	@Override
 	public String[] get() {
 		try {
+			log.debug("Retrieving node URNs from Session Management Service");
 			final List<String> nodeUrns = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
 			return nodeUrns.toArray(new String[nodeUrns.size()]);
 		} catch (Exception e) {

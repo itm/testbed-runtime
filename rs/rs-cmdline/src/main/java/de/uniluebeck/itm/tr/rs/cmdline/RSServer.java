@@ -186,6 +186,8 @@ public class RSServer {
 			@Override
 			public void configure(final Binder binder) {
 
+				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"", new Object[]{urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl});
+
 				binder.bind(String.class)
 						.annotatedWith(Names.named("SingleUrnPrefixRS.urnPrefix"))
 						.toInstance(urnPrefix);

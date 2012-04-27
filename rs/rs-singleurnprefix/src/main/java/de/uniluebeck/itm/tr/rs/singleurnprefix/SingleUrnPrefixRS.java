@@ -249,6 +249,8 @@ public class SingleUrnPrefixRS implements RS {
 	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
 			throws RSExceptionException {
 
+		log.debug("Checking authentication data ({})", authenticationData);
+
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
 			String msg = "No or too much authentication data supplied -> error.";
@@ -337,6 +339,8 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkNodesServed(List<String> nodeUrns) throws RSExceptionException {
+
+		log.debug("Checking if nodes are served ({})", nodeUrns);
 
 		// Check if we serve all node urns by urnPrefix
 		for (String nodeUrn : nodeUrns) {
