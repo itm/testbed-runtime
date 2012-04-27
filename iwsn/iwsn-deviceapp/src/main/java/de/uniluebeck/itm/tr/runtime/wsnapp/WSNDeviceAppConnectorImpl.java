@@ -44,8 +44,7 @@ import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
-import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallback;
-import de.uniluebeck.itm.wsn.drivers.core.operation.OperationCallbackAdapter;
+import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
@@ -473,7 +472,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				deviceLock.lock();
 				try {
 					device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlashMillis(),
-							new OperationCallback<Void>() {
+							new OperationAdapter<Void>() {
 
 								private int lastProgress = -1;
 
@@ -572,7 +571,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 			deviceLock.lock();
 			try {
-				device.reset(configuration.getTimeoutResetMillis(), new OperationCallbackAdapter<Void>() {
+				device.reset(configuration.getTimeoutResetMillis(), new OperationAdapter<Void>() {
 
 					@Override
 					public void onExecute() {

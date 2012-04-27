@@ -25,31 +25,23 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
 
     private final String applicationName;
 
-    private final DeviceObserver deviceObserver;
+	private final WSNDeviceObserverConfiguration configuration;
+
+	private DeviceObserver deviceObserver;
+
+	private ExecutorService deviceUtilsExecutor;
 
     private ScheduledExecutorService scheduler;
 
     private ScheduledFuture<?> deviceObserverSchedule;
 
-    public WSNDeviceObserver(final TestbedRuntime testbedRuntime, final String applicationName,
+	public WSNDeviceObserver(final TestbedRuntime testbedRuntime, final String applicationName,
                              final WSNDeviceObserverConfiguration configuration) {
 
         this.testbedRuntime = testbedRuntime;
         this.applicationName = applicationName;
-
-        Injector injector = Guice.createInjector(
-                new DeviceUtilsModule(configuration.getDeviceMacReferenceMap()),
-				new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(ExecutorService.class).toInstance(Executors.newCachedThreadPool(
-								new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
-						));
-					}
-				}
-        );
-        this.deviceObserver = injector.getInstance(DeviceObserver.class);
-    }
+		this.configuration = configuration;
+	}
 
     @Override
     public String getName() {
@@ -58,6 +50,16 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
 
     @Override
     public void start() throws Exception {
+
+		deviceUtilsExecutor = Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
+		);
+
+		Injector injector = Guice.createInjector(new DeviceUtilsModule(
+				deviceUtilsExecutor,
+				configuration.getDeviceMacReferenceMap())
+		);
+		deviceObserver = injector.getInstance(DeviceObserver.class);
         deviceObserver.addListener(this);
         scheduler = Executors.newScheduledThreadPool(
                 1,
@@ -73,6 +75,7 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
         deviceObserver.removeListener(this);
         deviceObserverSchedule.cancel(false);
         ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+		ExecutorUtils.shutdown(deviceUtilsExecutor, 1, TimeUnit.SECONDS);
     }
 
     @Override
