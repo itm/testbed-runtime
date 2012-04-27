@@ -227,7 +227,10 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 
 	private void startApplication(Application applicationXml) {
 
-		checkState(!applications.containsKey(applicationXml.getName()));
+		checkState(!applications.containsKey(applicationXml.getName()),
+				"Application \"%s\" seems to be running already. Are you sure the application names in the configuration file are unique?",
+				applicationXml.getName()
+		);
 
 		String applicationName = applicationXml.getName();
 		String applicationFactoryClass = applicationXml.getFactoryclass();
