@@ -116,8 +116,8 @@
 			<xsd:element name="urnprefix" 						type="xsd:string" 			minOccurs="1" maxOccurs="1" />
 			<xsd:element name="sessionmanagementendpointurl" 	type="xsd:string" 			minOccurs="1" maxOccurs="1" />
 			<xsd:element name="wsninstancebaseurl" 				type="xsd:string" 			minOccurs="1" maxOccurs="1" />
-			<xsd:element name="reservationendpointurl" 			type="xsd:string" 			minOccurs="0" maxOccurs="1" />
-			<xsd:element name="snaaendpointurl" 				type="xsd:string" 			minOccurs="0" maxOccurs="1" />
+			<xsd:element name="reservationendpointurl" 			type="xsd:string" 			minOccurs="1" maxOccurs="1" />
+			<xsd:element name="snaaendpointurl" 				type="xsd:string" 			minOccurs="1" maxOccurs="1" />
 			<xsd:element name="wisemlfilename" 					type="xsd:string" 			minOccurs="1" maxOccurs="1" />
 			<xsd:element name="maximumdeliveryqueuesize" 		type="xsd:int" 				minOccurs="0" maxOccurs="1" />
 			<xsd:element name="protobufinterface" 				type="ProtobufInterface" 	minOccurs="0" maxOccurs="1" />

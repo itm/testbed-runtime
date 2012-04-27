@@ -152,18 +152,19 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		private final String wiseMLFilename;
 
 		public Config(Portalapp config) throws MalformedURLException {
+
 			this.protobufinterface = config.getWebservice().getProtobufinterface();
 			this.maximumDeliveryQueueSize = config.getWebservice().getMaximumdeliveryqueuesize();
 			this.sessionManagementEndpointUrl = new URL(config.getWebservice().getSessionmanagementendpointurl());
-			this.reservationEndpointUrl = config.getWebservice().getReservationendpointurl() == null ? null :
-					new URL(config.getWebservice().getReservationendpointurl());
-			this.snaaEndpointUrl = config.getWebservice().getSnaaendpointurl() == null ? null :
-					new URL(config.getWebservice().getSnaaendpointurl());
+			this.reservationEndpointUrl = new URL(config.getWebservice().getReservationendpointurl());
+			this.snaaEndpointUrl = new URL(config.getWebservice().getSnaaendpointurl());
 			this.urnPrefix = config.getWebservice().getUrnprefix();
+
 			this.wsnInstanceBaseUrl = new URL(config.getWebservice().getWsninstancebaseurl().endsWith("/") ?
 					config.getWebservice().getWsninstancebaseurl() :
 					config.getWebservice().getWsninstancebaseurl() + "/"
 			);
+
 			this.wiseMLFilename = config.getWebservice().getWisemlfilename();
 		}
 	}
