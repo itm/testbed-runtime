@@ -45,12 +45,15 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 
 	private final Map<String, ConnectionFactory> connectionFactories = new HashMap<String, ConnectionFactory>();
 
-	private final Map<String, ServerConnectionFactory> serverConnectionFactories = new HashMap<String, ServerConnectionFactory>();
+	private final Map<String, ServerConnectionFactory> serverConnectionFactories =
+			new HashMap<String, ServerConnectionFactory>();
 
 	private final RoutingTableService routing;
+
 	private NamingService naming;
 
-	private final Map<Tuple<String, String>, ServerConnection> serverConnectionInstances = new HashMap<Tuple<String, String>, ServerConnection>();
+	private final Map<Tuple<String, String>, ServerConnection> serverConnectionInstances =
+			new HashMap<Tuple<String, String>, ServerConnection>();
 
 	private final Map<String, Set<Connection>> connectionInstances = new HashMap<String, Set<Connection>>();
 
@@ -73,26 +76,49 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 	}
 
 	@Override
-	public Connection getConnection(String nodeName) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
+	public Connection getConnection(String nodeName)
+			throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
+
+		log.trace("ConnectionServiceImpl.getConnection({})", nodeName);
 
 		checkNotNull(nodeName);
 		checkArgument(!"".equals(nodeName), "Parameter nodeName must not be empty");
 
 		String nextHop = routing.getNextHop(nodeName);
+		log.trace("Next hop for \"{}\": {}", nodeName, nextHop);
 
 		synchronized (connectionInstances) {
 
 			Set<Connection> nodeConnections = connectionInstances.get(nextHop);
-			return nodeConnections == null || nodeConnections.size() == 0 ?
+
+			final boolean noExistingConnection = nodeConnections == null || nodeConnections.size() == 0;
+
+			if (log.isTraceEnabled() && noExistingConnection) {
+				log.trace("No existing connection to \"{}\" yet. Creating one...", nextHop);
+			}
+
+			Connection connection = noExistingConnection ?
 					createConnection(naming.getEntries(nextHop)) :
 					nodeConnections.iterator().next();
+
+			if (!connection.isConnected()) {
+				log.trace("Existing connection is not connected. Creating new one...");
+				connection = createConnection(naming.getEntries(nextHop));
+			}
+
+			if (log.isTraceEnabled()) {
+				log.trace("Connection to \"{}\" found/created: {}", nextHop, connection);
+			}
+
+			return connection;
 		}
 	}
 
 	private Connection createConnection(SortedSet<NamingEntry> namingEntries) {
 
-		if (namingEntries == null)
+		if (namingEntries == null) {
 			return null;
+		}
 
 		for (NamingEntry namingEntry : namingEntries) {
 
@@ -136,7 +162,8 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 	}
 
 	@Override
-	public ServerConnection getServerConnection(String type, String address) throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
+	public ServerConnection getServerConnection(String type, String address)
+			throws ConnectionInvalidAddressException, ConnectionTypeUnavailableException, IOException {
 
 		synchronized (serverConnectionInstances) {
 			Tuple<String, String> typeAddressTuple = new Tuple<String, String>(type, address);
@@ -146,7 +173,8 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 
 	}
 
-	private ServerConnection createServerConnection(String type, String address) throws ConnectionInvalidAddressException {
+	private ServerConnection createServerConnection(String type, String address)
+			throws ConnectionInvalidAddressException {
 		ServerConnectionFactory serverConnectionFactory = serverConnectionFactories.get(type);
 		ServerConnection serverConnection = serverConnectionFactory.create(address);
 		serverConnectionInstances.put(new Tuple<String, String>(type, address), serverConnection);

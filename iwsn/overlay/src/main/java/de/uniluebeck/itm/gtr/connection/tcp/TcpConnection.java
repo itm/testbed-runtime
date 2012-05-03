@@ -78,10 +78,13 @@ public class TcpConnection extends Connection {
 
 	private void postEvent(boolean connected) {
 		for (ConnectionListener listener : listeners) {
-			if (connected)
+			if (connected) {
+				log.trace("Connection {} opened!", this);
 				listener.connectionOpened(this);
-			else
+			} else {
+				log.trace("Connection {} closed!", this);
 				listener.connectionClosed(this);
+			}
 		}
 	}
 

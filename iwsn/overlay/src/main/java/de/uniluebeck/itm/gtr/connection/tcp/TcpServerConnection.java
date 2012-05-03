@@ -53,14 +53,18 @@ public class TcpServerConnection extends ServerConnection {
 
                     // listeners will track the connection...
                     Socket socket = serverSocket.accept();
+					log.trace("Socket opened by remote host ({})", socket);
                     InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+					log.trace("Socket remote address: {}", remoteSocketAddress);
 
                     TcpConnection connection = new TcpConnection(
                             null,
                             Connection.Direction.IN,
-                            remoteSocketAddress.getHostName(),
+                            remoteSocketAddress.getAddress().toString(),
                             remoteSocketAddress.getPort()
                     );
+
+					log.trace("Created new connection object: {}", connection);
                     connection.setSocket(socket);
 
                     for (ServerConnectionListener listener : listeners) {
@@ -68,7 +72,7 @@ public class TcpServerConnection extends ServerConnection {
                     }
 
                 } catch (IOException e) {
-                    // ignore
+					log.debug("IOException after accepting connection initiated by remote host: {}", e);
                 }
             }
 

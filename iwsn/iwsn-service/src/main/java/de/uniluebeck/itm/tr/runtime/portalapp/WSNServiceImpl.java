@@ -633,16 +633,16 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
+	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeUrns) {
 
-		preconditions.checkResetNodesArguments(nodeIds);
+		preconditions.checkResetNodesArguments(nodeUrns);
 
-		log.debug("WSNServiceImpl.resetNodes");
+		log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
 
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
-			wsnApp.resetNodes(new HashSet<String>(nodeIds), new WSNApp.Callback() {
+			wsnApp.resetNodes(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
@@ -650,7 +650,7 @@ public class WSNServiceImpl implements WSNService {
 
 				@Override
 				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+					deliveryManager.receiveFailureStatusMessages(nodeUrns, requestId, e, -1);
 				}
 			}
 			);

@@ -42,11 +42,18 @@ public class MessageCacheImpl<T extends MessageCacheEntry> implements MessageCac
 
 	@Override
 	public void enq(MessageCacheEntry entry) {
+		if (log.isTraceEnabled()) {
+			log.trace("Enqueuing entry {}", entry);
+		}
 		queue.put((T) entry);
 	}
 
 	public T deq() throws InterruptedException {
-		return queue.take();
+		final T entry = queue.take();
+		if (log.isTraceEnabled()) {
+			log.trace("Dequeuing entry {}", entry);
+		}
+		return entry;
 	}
 
 	@Override

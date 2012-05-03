@@ -253,6 +253,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 	@Override
 	public synchronized void connectionEstablished(ServerConnection serverConnection, Connection connection) {
 
+		log.trace("MessageServerServiceImpl.connectionEstablished({}, {})", serverConnection, connection);
 		messageReaderThreadPool.execute(new MessageTools.MessageReader(serverConnection, connection, messageCallback));
 		connection.addListener(this);
 

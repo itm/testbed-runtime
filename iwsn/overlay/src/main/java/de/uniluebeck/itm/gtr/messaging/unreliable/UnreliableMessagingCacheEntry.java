@@ -35,17 +35,15 @@ class UnreliableMessagingCacheEntry implements MessageCacheEntry {
 	public long timestamp;
 
 	public UnreliableMessagingCacheEntry(Messages.Msg msg, long timestamp) {
-
 		this.msg = msg;
 		this.timestamp = timestamp;
-
 	}
 
 	@Override
 	public String toString() {
 		return "UnreliableMessagingCacheEntry{" +
 				"timestamp=" + timestamp +
+				", msg=" + msg +
 				'}';
 	}
-
 }
