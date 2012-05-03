@@ -39,6 +39,7 @@ public class MessageTools {
 
 	public static void sendMessage(Messages.Msg msg, OutputStream out) throws Exception {
 		msg.writeDelimitedTo(out);
+		out.flush();
 	}
 
 	public static Messages.Msg buildMessage(String from, String to, String app, String replyWith, String replyTo,

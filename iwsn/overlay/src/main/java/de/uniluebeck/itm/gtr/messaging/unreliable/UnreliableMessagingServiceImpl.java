@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -151,7 +153,10 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 						try {
 
+							log.trace("Writing message to connection output stream ({})", connection.getOutputStream());
 							sendMessage(msg, connection);
+							log.trace("Wrote message to connection output stream ({})", connection.getOutputStream());
+							messageCacheEntry.future.set(null);
 							messageEventService.sent(msg);
 
 						} catch (IOException e) {
@@ -166,7 +171,9 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 							connection = getConnection(msg);
 
 							if (connection == null) {
-								log.warn("No connection to {}. Dropping message {}", to);
+								String warningMsg = "No connection to " + to + ". Dropping message " + msg;
+								log.warn(warningMsg);
+								messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 								messageEventService.dropped(msg);
 								return;
 							}
@@ -174,29 +181,37 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 							try {
 
 								sendMessage(msg, connection);
+								messageCacheEntry.future.set(null);
 								messageEventService.sent(msg);
 
 							} catch (Exception e1) {
 
-								log.warn("Can't send message to {} because the attempt threw an exception: {}", to, e1);
+								String warningMsg =
+										"Can't send message to " + to + " because the attempt threw an exception: " + e1;
+								log.warn(warningMsg);
+								messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 								messageEventService.dropped(msg);
 							}
 
 						} catch (Exception e) {
 
-							log.warn("Exception while serializing message to {}. Dropping message: {}",
-									to,
-									msg
-							);
-
+							String warningMsg =
+									"Exception while serializing message to " + to + ". Dropping message: " + msg;
+							log.warn(warningMsg);
+							messageCacheEntry.future.setException(new RuntimeException(warningMsg));
+							messageEventService.dropped(msg);
 						}
 
 					} else {
-						log.warn("No connection to {}. Dropping message {}", to);
+
+						String warningMsg = "No connection to " + to + ". Dropping message " + msg;
+						log.warn(warningMsg);
+						messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 						messageEventService.dropped(msg);
 					}
 
 				} else {
+					messageCacheEntry.future.setException(new RuntimeException("Message validity timed out!"));
 					messageEventService.dropped(msg);
 				}
 
@@ -221,14 +236,14 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 				return connectionService.getConnection(msg.getTo());
 
 			} catch (ConnectionInvalidAddressException e1) {
-				log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1}
+				log.warn("Invalid address: {}. Dropping message: {}. Cause: {}",
+						new Object[]{e1.getAddress(), msg, e1}
 				);
 			} catch (ConnectionTypeUnavailableException e1) {
 				return null;
 			} catch (IOException e1) {
-				log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
-						msg.getTo(), msg, e1
-				}
+				log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}",
+						new Object[]{msg.getTo(), msg, e1}
 				);
 			}
 
@@ -274,7 +289,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	 */
 	private MessageCache<UnreliableMessagingCacheEntry> messageCache;
 
-	public void sendAsync(Messages.Msg message) {
+	public ListenableFuture<Void> sendAsync(Messages.Msg message) {
 
 		// assure that message priority contains a valid value
 		if (message.getPriority() < 0 || message.getPriority() > 2) {
@@ -296,25 +311,34 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 		// if it's for this local node we can deliver it directly through message eventing
 		if (localNodeNameManager.getLocalNodeNames().contains(message.getTo())) {
 			messageEventService.received(message);
-			return;
+			final SettableFuture<Void> future = SettableFuture.create();
+			future.set(null);
+			return future;
 		}
 
 		// check if name is known, otherwise discard
 		if (routingTableService.getNextHop(message.getTo()) == null) {
-			throw new UnknownNameException(message.getTo());
+			final SettableFuture<Void> future = SettableFuture.create();
+			future.setException(new UnknownNameException(message.getTo()));
+			return future;
 		}
 
+		final SettableFuture<Void> future = SettableFuture.create();
+
 		// otherwise put it into the message queue for asynchronous delivery
-		UnreliableMessagingCacheEntry entry = new UnreliableMessagingCacheEntry(message,
+		UnreliableMessagingCacheEntry entry = new UnreliableMessagingCacheEntry(
+				future,
+				message,
 				System.currentTimeMillis()
 		);
 
 		this.messageCache.enq(entry);
 
+		return future;
 	}
 
-	public void sendAsync(String from, String to, String msgType, Serializable msg,
-						  int priority, long validUntil) {
+	public ListenableFuture<Void> sendAsync(String from, String to, String msgType, Serializable msg,
+											int priority, long validUntil) {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -328,12 +352,13 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 			throw new IllegalArgumentException(e);
 		}
 
-		sendAsync(from, to, msgType, out.toByteArray(), priority, validUntil);
+		return sendAsync(from, to, msgType, out.toByteArray(), priority, validUntil);
 
 	}
 
 	@Override
-	public void sendAsync(String from, String to, String msgType, byte[] payload, int priority, long validUntil) {
+	public ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] payload, int priority,
+											long validUntil) {
 
 		Messages.Msg.Builder builder = Messages.Msg.newBuilder()
 				.setFrom(from)
@@ -344,7 +369,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 		builder.setPayload(ByteString.copyFrom(payload));
 
-		sendAsync(builder.build());
+		return sendAsync(builder.build());
 	}
 
 	@Inject
@@ -390,24 +415,6 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	@Override
 	public void stop() {
 		dequeuingThread.interrupt();
-	}
-
-	@Override
-	public Connection getConnection(Messages.Msg msg)
-			throws ConnectionTypeUnavailableException, IOException, ConnectionInvalidAddressException {
-		try {
-			return connectionService.getConnection(msg.getTo());
-		} catch (ConnectionInvalidAddressException e1) {
-			log.warn("Invalid address: {}. Dropping message: {}. Cause: {}", new Object[]{e1.getAddress(), msg, e1});
-		} catch (ConnectionTypeUnavailableException e1) {
-			return null;
-		} catch (IOException e1) {
-			log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}", new Object[]{
-					msg.getTo(), msg, e1
-			}
-			);
-		}
-		return null;
 	}
 
 }

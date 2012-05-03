@@ -24,9 +24,11 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -60,10 +62,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -112,11 +111,14 @@ class WSNAppImpl implements WSNApp {
 		@Override
 		public void failure(Exception exception) {
 
-			log.debug("### Failed after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation),
-					nodeUrn
-			);
+			String message = "Exception after "
+			        + (System.currentTimeMillis() - instantiation)
+					+ "ms while executing operation: "
+					+ exception.getMessage() + "\n"
+					+ Throwables.getStackTraceAsString(exception);
 
-			callbackError("Communication to node timed out", -1);
+			log.debug(message);
+			callbackError(message, -1);
 		}
 
 		private void callbackError(String msg, int code) {
@@ -131,7 +133,8 @@ class WSNAppImpl implements WSNApp {
 					.newBuilder()
 					.setStatus(statusBuilder);
 
-			log.debug("--- Received error after {} milliseconds from {}.", (System.currentTimeMillis() - instantiation),
+			log.debug("Received error after {} milliseconds from {}.",
+					(System.currentTimeMillis() - instantiation),
 					nodeUrn
 			);
 
@@ -174,7 +177,7 @@ class WSNAppImpl implements WSNApp {
 	};
 
 	private final ChannelPipeline pipeline = pipeline();
-	
+
 	private final Channel channel = new EmbeddedChannel(pipeline, new EmbeddedChannelSink());
 
 	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
@@ -340,11 +343,12 @@ class WSNAppImpl implements WSNApp {
 
 				try {
 
-					testbedRuntime.getUnreliableMessagingService().sendAsync(
-							getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-							operationInvocation.toByteArray(), 1,
-							System.currentTimeMillis() + MSG_VALIDITY
-					);
+					final ListenableFuture<Void> future =
+							testbedRuntime.getUnreliableMessagingService().sendAsync(
+									getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+									operationInvocation.toByteArray(), 1,
+									System.currentTimeMillis() + MSG_VALIDITY
+							);
 
 					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
 							WSNAppMessages.RequestStatus.Status.newBuilder()
@@ -355,7 +359,16 @@ class WSNAppImpl implements WSNApp {
 							.setStatus(statusBuilder)
 							.build();
 
-					callback.receivedRequestStatus(requestStatus);
+					try {
+
+						future.get();
+						callback.receivedRequestStatus(requestStatus);
+
+					} catch (InterruptedException e1) {
+						callback.failure(e1);
+					} catch (ExecutionException e1) {
+						callback.failure(e1);
+					}
 
 				} catch (UnknownNameException e1) {
 

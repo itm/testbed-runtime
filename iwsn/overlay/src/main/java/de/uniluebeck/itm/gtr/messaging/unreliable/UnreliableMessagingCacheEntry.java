@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
+import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.cache.MessageCacheEntry;
 
@@ -30,11 +31,14 @@ class UnreliableMessagingCacheEntry implements MessageCacheEntry {
 
 	private static final long serialVersionUID = -1920308175742074886L;
 
-	public Messages.Msg msg;
+	public final SettableFuture<Void> future;
+
+	public final Messages.Msg msg;
 
 	public long timestamp;
 
-	public UnreliableMessagingCacheEntry(Messages.Msg msg, long timestamp) {
+	public UnreliableMessagingCacheEntry(final SettableFuture<Void> future, Messages.Msg msg, long timestamp) {
+		this.future = future;
 		this.msg = msg;
 		this.timestamp = timestamp;
 	}

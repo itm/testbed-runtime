@@ -23,9 +23,11 @@
 
 package de.uniluebeck.itm.gtr.messaging.reliable;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.gtr.messaging.Messages;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnreliableMessagingService;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -58,12 +60,13 @@ public class AsynchronousJob {
 		this.callback = callback;
 	}
 
-	public void send() {
+	public void send() throws Exception {
 
 		// lock to be sure that a callback is invoked for both success and failure in parallel
 		lock.lock();
 		try {
-			unreliableMessagingService.sendAsync(message);
+			final ListenableFuture<Void> future = unreliableMessagingService.sendAsync(message);
+			future.get();
 		} finally {
 			lock.unlock();
 		}
@@ -97,6 +100,19 @@ public class AsynchronousJob {
 				callback.failure(new ReliableMessagingTimeoutException());
 				done = true;
 			}
+
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void failed(Exception reason) {
+
+		lock.lock();
+		try {
+
+			callback.failure(reason);
+			done = true;
 
 		} finally {
 			lock.unlock();

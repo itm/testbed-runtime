@@ -23,11 +23,12 @@
 
 package de.uniluebeck.itm.gtr.messaging.unreliable;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.gtr.connection.Connection;
 import de.uniluebeck.itm.gtr.connection.ConnectionInvalidAddressException;
 import de.uniluebeck.itm.gtr.connection.ConnectionTypeUnavailableException;
 import de.uniluebeck.itm.gtr.messaging.Messages;
+import de.uniluebeck.itm.tr.util.Service;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -36,34 +37,10 @@ public interface UnreliableMessagingService extends Service {
 
 	public static final long DEFAULT_MAX_VALIDITY = 60000;
 
-	/**
-	 * @param from
-	 * @param to
-	 * @param msg
-	 * @param priority
-	 * @param validUntil
-	 * @throws IllegalArgumentException if {@code priority} is not between 0 and 2
-	 */
-	void sendAsync(String from, String to, String msgType, Serializable msg, int priority, long validUntil);
+	ListenableFuture<Void> sendAsync(String from, String to, String msgType, Serializable msg, int priority,
+									 long validUntil);
 
-	/**
-	 * @param from
-	 * @param to
-	 * @param msgType
-	 * @param msg
-	 * @param priority
-	 * @param validUntil
-	 */
-	void sendAsync(String from, String to, String msgType, byte[] msg, int priority, long validUntil);
+	ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] msg, int priority, long validUntil);
 
-	/**
-	 * @param message
-	 * @throws IllegalArgumentException if {@link Messages.Msg#getPriority()} is not between 0 and 2 for instance {@code
-	 *                                  message}
-	 */
-	void sendAsync(Messages.Msg message);
-
-	public Connection getConnection(Messages.Msg msg) throws ConnectionTypeUnavailableException, IOException,
-			ConnectionInvalidAddressException;
-
+	ListenableFuture<Void> sendAsync(Messages.Msg message);
 }
