@@ -101,13 +101,16 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 					createConnection(naming.getEntries(nextHop)) :
 					nodeConnections.iterator().next();
 
-			if (!connection.isConnected()) {
-				log.trace("Existing connection is not connected. Creating new one...");
-				connection = createConnection(naming.getEntries(nextHop));
-			}
+			if (connection != null) {
 
-			if (log.isTraceEnabled()) {
+				if (!connection.isConnected()) {
+					log.trace("Existing connection is not connected. Creating new one...");
+					connection = createConnection(naming.getEntries(nextHop));
+				}
+
 				log.trace("Connection to \"{}\" found/created: {}", nextHop, connection);
+			} else {
+				log.trace("Impossible to create connection to: {}", nextHop);
 			}
 
 			return connection;
