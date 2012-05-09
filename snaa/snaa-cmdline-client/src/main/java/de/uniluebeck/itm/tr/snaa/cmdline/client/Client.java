@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.cmdline.client;
 
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.api.snaa.*;
 import org.apache.commons.cli.*;
@@ -36,6 +37,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Client {
+
+	static {
+		Logging.setLoggingDefaults();
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(Client.class);
 
 	enum Operation {
@@ -85,11 +91,13 @@ public class Client {
 
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption('v'))
+			if (line.hasOption('v')) {
 				org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
+			}
 
-			if (line.hasOption('h'))
+			if (line.hasOption('h')) {
 				printUsageAndExit(options);
+			}
 
 			url = new URL(getOptionalArgument(line, 'l', defaultSnaaUrl));
 			urnPrefix = getOptionalArgument(line, 'x', defaultUrnPrefix);
@@ -122,9 +130,11 @@ public class Client {
 				List<SecretAuthenticationKey> list = port.authenticate(authTriples);
 
 				System.out.println("Authentication suceeded, secret authentication key(s): ");
-				for (SecretAuthenticationKey sak : list)
+				for (SecretAuthenticationKey sak : list) {
 					System.out.println("\tuser[" + sak.getUsername() + "], urnprefix[" + sak.getUrnPrefix() + "], key["
-							+ sak.getSecretAuthenticationKey() + "]");
+							+ sak.getSecretAuthenticationKey() + "]"
+					);
+				}
 
 			} catch (AuthenticationExceptionException e) {
 				System.out.println("Authentication failed [" + e + "]");
@@ -164,17 +174,19 @@ public class Client {
 
 	private static String getMandatoryArgument(CommandLine line, char argument) throws Exception {
 		String tmp = getOptionalArgument(line, argument, null);
-		if (tmp != null)
+		if (tmp != null) {
 			return line.getOptionValue(argument);
+		}
 
 		throw new Exception("Please supply -" + argument);
 	}
 
 	private static String getOptionalArgument(CommandLine line, char argument, String defaultValue) throws Exception {
-		if (line.hasOption(argument))
+		if (line.hasOption(argument)) {
 			return line.getOptionValue(argument);
-		else
+		} else {
 			return defaultValue;
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package eu.wisebed.shibboauth;
 
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.tools.TimeDiff;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
@@ -13,6 +14,10 @@ import java.net.URL;
  */
 
 public class Main {
+
+	static {
+		Logging.setLoggingDefaults();
+	}
 
 	private static Logger log = Logger.getLogger(Main.class);
 
@@ -38,26 +43,32 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption('v'))
+			if (line.hasOption('v')) {
 				Logger.getRootLogger().setLevel(Level.DEBUG);
+			}
 
-			if (line.hasOption('h'))
+			if (line.hasOption('h')) {
 				usage(options);
+			}
 
-			if (line.hasOption('l'))
+			if (line.hasOption('l')) {
 				url = line.getOptionValue('l');
+			}
 
-			if (line.hasOption('q') && line.hasOption('w'))
+			if (line.hasOption('q') && line.hasOption('w')) {
 				sa.setProxy(line.getOptionValue('q'), Integer.parseInt(line.getOptionValue('w')));
+			}
 
-			if (line.hasOption("z"))
+			if (line.hasOption("z")) {
 				recheckAuth = true;
+			}
 
 			if (line.hasOption('x')) {
 				listIdps = true;
 			} else {
-				if (!line.hasOption('u') || !line.hasOption('p'))
+				if (!line.hasOption('u') || !line.hasOption('p')) {
 					throw new Exception("Please supply username/password");
+				}
 
 				if (line.hasOption('u')) {
 					String user = line.getOptionValue('u');
@@ -72,8 +83,9 @@ public class Main {
 					sa.setIdpDomain(user.substring(atIndex + 1));
 				}
 
-				if (line.hasOption('p'))
+				if (line.hasOption('p')) {
 					sa.setPassword(line.getOptionValue('p'));
+				}
 			}
 
 		} catch (Exception e) {
@@ -87,23 +99,26 @@ public class Main {
 			System.out.println("-----------------------------------------------");
 			System.out.println("Available IDPs: ");
 			System.out.println("-----------------------------------------------");
-			for (URL idp : sa.getIDPs())
+			for (URL idp : sa.getIDPs()) {
 				System.out.println("\t" + idp);
+			}
 
 		} else {
 			sa.authenticate();
 			System.err.println("Authentication " + (sa.isAuthenticated() ? "suceeded" : "failed"));
-			if (sa.isAuthenticated())
+			if (sa.isAuthenticated()) {
 				System.err.println("Secret user key: " + sa.getAuthenticationPageContent());
+			}
 
 			TimeDiff time = new TimeDiff();
 			while (recheckAuth && sa.isAuthenticated()) {
 				Thread.sleep(60 * 1000);
 				sa.checkForTimeout();
-				if (sa.isAuthenticated())
+				if (sa.isAuthenticated()) {
 					System.err.println("Still authenticated after " + time.m() + " mins.");
-				else
+				} else {
 					System.err.println("Authentication invalid after " + time.m() + " mins.");
+				}
 			}
 
 		}

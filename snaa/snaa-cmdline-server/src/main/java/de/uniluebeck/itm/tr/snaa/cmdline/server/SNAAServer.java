@@ -36,6 +36,7 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
@@ -58,6 +59,10 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("restriction")
 public class SNAAServer {
+
+	static {
+		Logging.setLoggingDefaults();
+	}
 
     private static final Logger log = LoggerFactory.getLogger(SNAAServer.class);
 

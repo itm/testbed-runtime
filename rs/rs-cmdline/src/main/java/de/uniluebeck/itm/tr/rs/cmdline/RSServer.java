@@ -44,6 +44,7 @@ import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.sm.SessionManagement;
@@ -65,6 +66,10 @@ import java.util.concurrent.Executors;
 
 @SuppressWarnings("restriction")
 public class RSServer {
+
+	static {
+		Logging.setLoggingDefaults();
+	}
 
 	private static HttpServer server;
 
