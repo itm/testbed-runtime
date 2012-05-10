@@ -74,6 +74,8 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 
 	void setVirtualLink(long targetNode, Callback listener);
 
+	void setDefaultChannelPipeline(Callback callback);
+
 	void setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
 							Callback callback);
 }

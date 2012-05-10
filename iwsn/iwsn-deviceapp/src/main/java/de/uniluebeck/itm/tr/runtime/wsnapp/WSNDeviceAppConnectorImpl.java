@@ -685,6 +685,33 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	}
 
 	@Override
+	public void setDefaultChannelPipeline(@Nullable final Callback callback) {
+
+		try {
+
+			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
+			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
+
+			log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
+
+			if (callback != null) {
+				callback.success(null);
+			}
+
+		} catch (Exception e) {
+
+			log.warn("Exception while setting default channel pipeline: {}", e);
+
+			if (callback != null) {
+				callback.failure(
+						(byte) -1,
+						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
+				);
+			}
+		}
+	}
+
+	@Override
 	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
 								   final Callback callback) {
 
@@ -701,6 +728,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigurations);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
+				log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
+
 				callback.success(null);
 
 			} catch (Exception e) {
@@ -716,13 +745,8 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
 
-				innerPipelineHandlers = createDefaultInnerPipelineHandlers();
-				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
+				setDefaultChannelPipeline(null);
 			}
-
-			log.debug("{} => Channel pipeline now set to: {}",
-					configuration.getNodeUrn(), innerPipelineHandlers
-			);
 
 		} else {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());

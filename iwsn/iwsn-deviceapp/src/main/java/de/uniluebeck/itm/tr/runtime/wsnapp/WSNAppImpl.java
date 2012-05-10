@@ -943,19 +943,9 @@ class WSNAppImpl implements WSNApp {
 
 		log.info("Setting ChannelPipeline to default configuration for all nodes...");
 
-		WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration.Builder chc =
-				WSNAppMessages.SetChannelPipelineRequest.ChannelHandlerConfiguration
-						.newBuilder()
-						.setName("dlestxetx-framing");
-
-		WSNAppMessages.SetChannelPipelineRequest.Builder requestBuilder = WSNAppMessages.SetChannelPipelineRequest
-				.newBuilder()
-				.addChannelHandlerConfigurations(chc);
-
 		WSNAppMessages.OperationInvocation.Builder operationInvocation = WSNAppMessages.OperationInvocation
 				.newBuilder()
-				.setArguments(requestBuilder.build().toByteString())
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_CHANNEL_PIPELINE);
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_DEFAULT_CHANNEL_PIPELINE);
 
 		final byte[] bytes = operationInvocation.build().toByteArray();
 
