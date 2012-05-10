@@ -37,7 +37,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.*;
 
-import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
+import static de.uniluebeck.itm.tr.snaa.common.Helper.*;
 
 @WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
 		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
@@ -55,11 +55,6 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	private ShibbolethProxy proxy;
 
-	/**
-	 * @param urnPrefixes
-	 * @param secretAuthenticationKeyUrl
-	 * @param injector
-	 */
 	public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl,
 							  IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
 		this.urnPrefixes = new HashSet<String>(urnPrefixes);
@@ -102,7 +97,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 					try {
 						sa.authenticate();
 					} catch (Exception e1) {
-						createSNAAException("Authentication failed: the authentication system has problems "
+						throw createSNAAException("Authentication failed: the authentication system has problems "
 										+ "contacting the Shibboleth server. Please try again later!");
 					}
 				}
@@ -140,7 +135,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 		boolean authorized = true;
 		String logInfo = "Done checking authorization, result: ";
-		Map<String, List<Object>> authorizeMap = null;
+		Map<String, List<Object>> authorizeMap;
 
 		// Check if we serve all URNs
 		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);

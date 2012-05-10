@@ -39,7 +39,7 @@ import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 
 
 public class ControllerClientController {
@@ -50,7 +50,7 @@ public class ControllerClientController {
 
 	private Controller getControllerService() {
 		String endpointUrl = view.getEndpointUrlTextField().getText();
-		Controller controllerPort = WSNServiceHelper.getControllerService(endpointUrl);
+		Controller controllerPort = WisebedServiceHelper.getControllerService(endpointUrl);
 		return controllerPort;
 	}
 

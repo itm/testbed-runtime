@@ -7,7 +7,7 @@
 
 	Iterable nodeTypes                  = Splitter.on(",").trimResults().omitEmptyStrings().split(nodeTypesString);
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

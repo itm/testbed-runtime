@@ -7,7 +7,7 @@
 
 	Iterable nodeTypes                  = Splitter.on(",").trimResults().omitEmptyStrings().split(System.getProperty("testbed.nodetypes"));
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

@@ -24,18 +24,16 @@
 package de.uniluebeck.itm.tr.snaa.federator;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.snaa.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.namespace.QName;
-import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 
-import static eu.wisebed.testbed.api.snaa.helpers.Helper.createSNAAException;
+import static de.uniluebeck.itm.tr.snaa.common.Helper.createSNAAException;
 
 @WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
 		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
@@ -55,9 +53,8 @@ public class FederatorSNAA implements SNAA {
 
 		@Override
 		public List<SecretAuthenticationKey> call() throws Exception {
-			SNAA federatorSNAA = SNAAServiceHelper.getSNAAService(wsEndpointUrl);
-			List<SecretAuthenticationKey> saks = federatorSNAA.authenticate(authenticationTriples);
-			return saks;
+			SNAA federatorSNAA = WisebedServiceHelper.getSNAAService(wsEndpointUrl);
+			return federatorSNAA.authenticate(authenticationTriples);
 		}
 	}
 
@@ -79,12 +76,10 @@ public class FederatorSNAA implements SNAA {
 
 		@Override
 		public Boolean call() throws Exception {
-			return SNAAServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(secretAuthenticationKeys, action);
+			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(secretAuthenticationKeys, action);
 		}
 
 	}
-
-	public static final QName SNAAServiceQName = new QName("http://testbed.wisebed.eu/api/snaa/v1/", "SNAAService");
 
 	/**
 	 * Web Service Endpoint URL -> Set<URN Prefixes>

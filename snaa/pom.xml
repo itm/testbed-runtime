@@ -39,7 +39,7 @@
     <name>TR :: SNAA</name>
 
     <modules>
-		<module>snaa-api</module>
+		<module>snaa-common</module>
 		<module>snaa-cmdline-client</module>
 		<module>snaa-cmdline-server</module>
 		<module>snaa-dummy</module>

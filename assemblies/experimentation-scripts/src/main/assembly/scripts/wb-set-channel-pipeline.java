@@ -25,7 +25,7 @@
 	Integer protobufPort                = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
 	boolean useProtobuf                 = protobufHost != null && protobufPort != null;
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

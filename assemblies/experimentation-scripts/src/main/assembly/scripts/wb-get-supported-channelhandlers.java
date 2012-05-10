@@ -6,7 +6,7 @@
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 	String secretReservationKeys        = System.getProperty("testbed.secretreservationkeys");
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
@@ -26,7 +26,7 @@
 		System.exit(1);
 	}
 
-	WSN wsn = WSNServiceHelper.getWSNService(wsnEndpointURL);
+	WSN wsn = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 
     List channelHandlerDescriptions = wsn.getSupportedChannelHandlers();
 

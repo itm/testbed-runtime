@@ -2,10 +2,10 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
-import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;

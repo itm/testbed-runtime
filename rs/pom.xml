@@ -39,7 +39,6 @@
     <name>TR :: RS</name>
 
     <modules>
-		<module>rs-api</module>
 		<module>rs-cmdline</module>
 		<module>rs-dummy</module>
 		<module>rs-federator</module>

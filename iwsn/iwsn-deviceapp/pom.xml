@@ -41,8 +41,9 @@
 
 		<!-- intra-project dependencies -->
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-api</artifactId>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
+			<version>2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>

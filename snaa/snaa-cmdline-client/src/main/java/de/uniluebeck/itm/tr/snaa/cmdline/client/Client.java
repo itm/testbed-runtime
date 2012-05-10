@@ -24,13 +24,12 @@
 package de.uniluebeck.itm.tr.snaa.cmdline.client;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.snaa.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.namespace.QName;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +59,7 @@ public class Client {
 
 	/**
 	 * @param args
+	 *
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {
@@ -78,11 +78,14 @@ public class Client {
 		options.addOption("u", "username", true, "Username");
 		options.addOption("p", "password", true, "Password");
 		options.addOption("o", "operation", true, "Operation to perform, possible values: "
-				+ Arrays.toString(Operation.values()));
+				+ Arrays.toString(Operation.values())
+		);
 		options.addOption("a", "action", true, "Action string for authorization operation, defaults to: "
-				+ defaultAction);
+				+ defaultAction
+		);
 		options.addOption("s", "secretauthkey", true, "Secret auth key for authorization option, defauls to "
-				+ defaultSecretAuthenticationKey);
+				+ defaultSecretAuthenticationKey
+		);
 		options.addOption("x", "urnprefix", true, "URN Prefix, defaults to " + defaultUrnPrefix);
 		options.addOption("v", "verbose", false, "Verbose logging output");
 		options.addOption("h", "help", false, "Help output");
@@ -112,7 +115,7 @@ public class Client {
 			printUsageAndExit(options);
 		}
 
-		SNAA port = SNAAServiceHelper.getSNAAService(url.toString());
+		SNAA port = WisebedServiceHelper.getSNAAService(url.toString());
 
 		if (operation == Operation.authenticate) {
 			AuthenticationTriple auth1 = new AuthenticationTriple();
@@ -125,7 +128,8 @@ public class Client {
 			authTriples.add(auth1);
 
 			System.out.println("Authenticating username[" + username + "], urnprefix[" + urnPrefix + "] at [" + url
-					+ "]");
+					+ "]"
+			);
 			try {
 				List<SecretAuthenticationKey> list = port.authenticate(authTriples);
 

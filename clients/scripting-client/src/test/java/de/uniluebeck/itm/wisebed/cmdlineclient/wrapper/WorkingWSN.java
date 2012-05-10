@@ -1,15 +1,6 @@
 package de.uniluebeck.itm.wisebed.cmdlineclient.wrapper;
 
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-
 import com.google.common.collect.Lists;
-
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
@@ -19,8 +10,13 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.Constants;
 
+import javax.jws.WebParam;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class WorkingWSN implements WSN {
 
@@ -34,7 +30,7 @@ public class WorkingWSN implements WSN {
 		this.controller = controller;
 	}
 
-    private Random random = new Random();
+	private Random random = new Random();
 
 	private void scheduleReply(final List<String> nodeIds, final String requestId, final int value) {
 		for (final String nodeId : nodeIds) {
@@ -83,7 +79,7 @@ public class WorkingWSN implements WSN {
 
 	@Override
 	public String getVersion() {
-		return Constants.VERSION;
+		return "2.3";
 	}
 
 	@Override

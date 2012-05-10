@@ -39,6 +39,7 @@
     <name>TR :: iWSN</name>
 
     <modules>
+		<module>iwsn-common</module>
         <module>iwsn-cmdline</module>
         <module>iwsn-csv2config</module>
         <module>iwsn-deviceapp</module>
@@ -46,7 +47,6 @@
         <module>overlay</module>
         <module>overlay-socketconnector</module>
 		<module>overlay-stats</module>
-        <module>wsn-api</module>
         <module>wsn-federator</module>
     </modules>
 

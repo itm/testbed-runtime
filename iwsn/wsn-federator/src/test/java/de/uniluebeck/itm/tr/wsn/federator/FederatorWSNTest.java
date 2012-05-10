@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
+import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,8 +56,6 @@ public class FederatorWSNTest {
 	private static final String TESTBED_1_ENDPOINT_URL = "http://localhost:1234/";
 
 	private static final String TESTBED_2_ENDPOINT_URL = "http://localhost:2345/";
-
-	private static final String TESTBED_3_ENDPOINT_URL = "http://localhost:3456/";
 
 	@Mock
 	private WSN testbed1WSN;

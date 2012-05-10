@@ -53,9 +53,7 @@ public class WisebedBeanShellLauncher {
 		importsForBeanShell.add("import eu.wisebed.api.sm.*;");
 		importsForBeanShell.add("import eu.wisebed.api.wsn.*;");
 
-		importsForBeanShell.add("import eu.wisebed.testbed.api.wsn.WSNServiceHelper;");
-		importsForBeanShell.add("import eu.wisebed.testbed.api.rs.RSServiceHelper;");
-		importsForBeanShell.add("import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;");
+		importsForBeanShell.add("import eu.wisebed.api.WisebedServiceHelper;");
 
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.*;");
 		importsForBeanShell.add("import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.*");

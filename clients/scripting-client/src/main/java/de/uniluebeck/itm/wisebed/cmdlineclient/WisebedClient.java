@@ -23,7 +23,7 @@ import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 
 public class WisebedClient extends WisebedClientBase {
 
@@ -111,7 +111,7 @@ public class WisebedClient extends WisebedClientBase {
                     log.info("Retrieved WSN endpoint at {}", wsnInstanceEndpointUrl);
 
                     final WSNAsyncWrapper wsn =
-                            WSNAsyncWrapper.of(WSNServiceHelper.getWSNService(wsnInstanceEndpointUrl));
+                            WSNAsyncWrapper.of(WisebedServiceHelper.getWSNService(wsnInstanceEndpointUrl));
 
                     controller.setWsn(wsn);
 

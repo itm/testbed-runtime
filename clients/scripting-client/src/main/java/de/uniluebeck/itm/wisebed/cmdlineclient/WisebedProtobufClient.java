@@ -8,7 +8,7 @@ import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class WisebedProtobufClient extends WisebedClientBase {
 				}
 
 				log.debug("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
-				final WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
+				final WSN wsnService = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 				final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 				protobufControllerClient = ProtobufControllerClient.create(

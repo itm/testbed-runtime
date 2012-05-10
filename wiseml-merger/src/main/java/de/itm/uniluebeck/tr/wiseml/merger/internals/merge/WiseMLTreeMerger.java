@@ -10,9 +10,13 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.parse.ParserHelper;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReaderHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class WiseMLTreeMerger implements WiseMLTreeReader {
-	
+
+	static final Logger log = LoggerFactory.getLogger(WiseMLTreeMerger.class);
+
 	private WiseMLTreeReader[] inputs;
 	protected boolean finished;
 	protected WiseMLTreeMerger parent;

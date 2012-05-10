@@ -32,12 +32,12 @@ import java.util.Properties;
 
 import javax.swing.JOptionPane;
 
+import eu.wisebed.api.WisebedServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import de.uniluebeck.itm.tr.debuggingguiclient.rs.RSClientView;
-import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthenticationTriple;
 import eu.wisebed.api.snaa.SNAA;
@@ -62,7 +62,7 @@ public class SNAAClientController {
                 Action action = new Action();
                 action.setAction(view.getActionTextField().getText());
 
-                SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
+                SNAA snaaService = WisebedServiceHelper.getSNAAService(endpointUrl);
                 boolean result = snaaService.isAuthorized(secretAuthenticationKeys, action);
                 JOptionPane.showMessageDialog(null, result);
 
@@ -104,7 +104,7 @@ public class SNAAClientController {
                 String endpointUrl = view.getEndpointUrlTextField().getText();
                 List<AuthenticationTriple> authenticationData = parseAuthenticationTriples();
 
-                SNAA snaaService = SNAAServiceHelper.getSNAAService(endpointUrl);
+                SNAA snaaService = WisebedServiceHelper.getSNAAService(endpointUrl);
                 List<SecretAuthenticationKey> keys = snaaService.authenticate(authenticationData);
 
                 StringBuilder builder = new StringBuilder();

@@ -6,9 +6,13 @@ import de.itm.uniluebeck.tr.wiseml.merger.internals.WiseMLTag;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.MergerResources;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.merge.WiseMLElementMerger;
 import de.itm.uniluebeck.tr.wiseml.merger.internals.tree.WiseMLTreeReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WiseMLMerger extends WiseMLElementMerger {
-	
+
+	private static final Logger log = LoggerFactory.getLogger(WiseMLMerger.class);
+
 	private static final int SETUP 			= 1;
 	private static final int SCENARIOS 		= 2;
 	private static final int TRACES 		= 3;
@@ -46,15 +50,17 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		//System.out.println("next: scenario list");
 		
 		WiseMLTreeReader[] reader = findSequenceReaders(WiseMLSequence.Scenario);
-		
-		if (reader == null)
-			warn("Scenario List is empty - skip this");
-		else{
+
+		if (reader == null) {
+			log.warn("Scenario List is empty - skip this");
+		} else {
 			queue.add(new ScenarioListMerger(
 					this,
 					reader,
 					null,
-					null));
+					null
+			)
+			);
 		}
 		// next state
 		state++;
@@ -66,16 +72,18 @@ public class WiseMLMerger extends WiseMLElementMerger {
 		//System.out.println("next: trace list");
 		
 		WiseMLTreeReader[] reader = findSequenceReaders(WiseMLSequence.Scenario);
-		
-		if (reader == null)
-			warn("Trace List is empty - skip this");
-		else{
+
+		if (reader == null) {
+			log.warn("Trace List is empty - skip this");
+		} else {
 			// add list merger to queue
 			queue.add(new TraceListMerger(
 					this,
 					findSequenceReaders(WiseMLSequence.Trace),
 					null,
-					null));
+					null
+			)
+			);
 		}
 		// next state
 		state++;

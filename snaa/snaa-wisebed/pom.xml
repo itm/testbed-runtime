@@ -40,9 +40,10 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-api</artifactId>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-federator</artifactId>

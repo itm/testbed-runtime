@@ -51,8 +51,8 @@
 		until							= from.plusWeeks(1);
 	}
 
-	SNAA authenticationSystem 			= SNAAServiceHelper.getSNAAService(snaaEndpointURL);
-	RS reservationSystem				= RSServiceHelper.getRSService(rsEndpointURL);
+	SNAA authenticationSystem 			= WisebedServiceHelper.getSNAAService(snaaEndpointURL);
+	RS reservationSystem				= WisebedServiceHelper.getRSService(rsEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

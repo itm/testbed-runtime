@@ -23,110 +23,27 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import de.uniluebeck.itm.tr.util.Logging;
+import org.apache.commons.cli.*;
+import org.apache.log4j.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
-import de.uniluebeck.itm.tr.util.Logging;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 
 public class Federator {
 
-	private static class FederatedTestbedConfig {
-
-		public String sessionManagementEndpointUrl;
-
-		public Set<String> urnPrefixes = new HashSet<String>();
-
-		@Override
-		public String toString() {
-			return "FederatedTestbedConfig{" +
-					"sessionManagementEndpointUrl='" + sessionManagementEndpointUrl + '\'' +
-					", urnPrefixes=" + urnPrefixes +
-					"}";
-		}
+	static {
+		Logging.setLoggingDefaults();
 	}
 
-	private static class Config {
-
-		public static Config parseConfig(Properties properties) {
-
-			Config config = new Config();
-
-			config.port = Integer.parseInt((String) properties.get("port"));
-			config.path = (String) properties.get("path");
-			checkNotNull(config.path);
-			config.sessionmanagementEndpointURL = (String) properties.get("sessionmanagement_endpoint_url");
-			config.reservationEndpointUrl = (String) properties.get("reservation_endpoint_url");
-			config.snaaEndpointUrl = (String) properties.get("snaa_endpoint_url");
-
-			String[] federates = ((String) properties.get("federates")).split(",");
-
-			for (String federate : federates) {
-				FederatedTestbedConfig federatedTestbedConfig = new FederatedTestbedConfig();
-				federatedTestbedConfig.sessionManagementEndpointUrl =
-						(String) properties.get(federate.trim() + ".sessionmanagement_endpoint_url");
-				String[] urnPrefixes =
-						((String) properties.get(federate.trim() + ".urnprefixes")).split(",");
-				for (String urnPrefix : urnPrefixes) {
-					federatedTestbedConfig.urnPrefixes.add(urnPrefix.trim());
-				}
-				config.federates.add(federatedTestbedConfig);
-			}
-
-			return config;
-
-		}
-
-		private String snaaEndpointUrl;
-
-		public int port;
-
-		public String path;
-
-		public String sessionmanagementEndpointURL;
-
-		public String reservationEndpointUrl;
-
-		public List<FederatedTestbedConfig> federates = new ArrayList<FederatedTestbedConfig>();
-
-		@Override
-		public String toString() {
-			return "Config{" +
-					"port=" + port +
-					", path='" + path + '\'' +
-					", sessionmanagementEndpointURL='" + sessionmanagementEndpointURL + '\'' +
-					", reservationEndpointUrl='" + reservationEndpointUrl + '\'' +
-					", snaaEndpointUrl='" + snaaEndpointUrl + '\'' +
-					", federates=" + federates +
-					"}";
-		}
-	}
-
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Federator.class);
+	private static final Logger log = LoggerFactory.getLogger(Federator.class);
 
 	public static void main(String[] args) throws Exception {
-
-		Logging.setLoggingDefaults();
 
 		Properties properties = null;
 
@@ -142,7 +59,7 @@ public class Federator {
 			CommandLine line = parser.parse(options, args);
 
 			if (line.hasOption('v')) {
-				Logger.getRootLogger().setLevel(Level.DEBUG);
+				org.apache.log4j.Logger.getRootLogger().setLevel(Level.DEBUG);
 			}
 
 			if (line.hasOption('h')) {
@@ -169,36 +86,12 @@ public class Federator {
 			usage(options);
 		}
 
-		Config config = Config.parseConfig(properties);
+		final FederatorWSNConfig config = FederatorWSNConfig.parse(properties);
+		final FederatorSessionManagement federatorSessionManagement = new FederatorSessionManagement(config);
 
 		log.info("Starting with config: {}", config);
-
-		BiMap<String, Set<String>> sessionManagementEndpointUrlPrefixSet = HashBiMap.create();
-		for (FederatedTestbedConfig testbedConfig : config.federates) {
-			sessionManagementEndpointUrlPrefixSet
-					.put(testbedConfig.sessionManagementEndpointUrl, testbedConfig.urnPrefixes);
-		}
-
-		String localhost = config.sessionmanagementEndpointURL;
-
-		if (localhost == null)
-			localhost = InetAddress.getLocalHost().getHostName();
-
-		String endpointUrlBase = "http://" + localhost + ":" + config.port + "/";
-		String path = config.path.startsWith("/") ? config.path : "/" + config.path;
-		String reservationEndpointUrl =
-				config.reservationEndpointUrl == null || "".equals(config.reservationEndpointUrl) ? null :
-						config.reservationEndpointUrl;
-		String snaaEndpointUrl =
-				config.snaaEndpointUrl == null || "".equals(config.snaaEndpointUrl) ? null :
-						config.snaaEndpointUrl;
-
-		final FederatorSessionManagement federatorSessionManagement =
-				new FederatorSessionManagement(sessionManagementEndpointUrlPrefixSet, endpointUrlBase, path,
-						reservationEndpointUrl, snaaEndpointUrl
-				);
-
 		federatorSessionManagement.start();
+		log.info("Started iWSN federator!");
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -210,7 +103,8 @@ public class Federator {
 					log.error("{}", e);
 				}
 			}
-		});
+		}
+		);
 
 	}
 

@@ -21,9 +21,9 @@
 	Integer duration					= Integer.parseInt(System.getProperty("testbed.duration"));
 	String nodeURNs						= System.getProperty("testbed.nodeurns");
 
-	SNAA authenticationSystem 			= SNAAServiceHelper.getSNAAService(snaaEndpointURL);
-	RS reservationSystem				= RSServiceHelper.getRSService(rsEndpointURL);
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL); 
+	SNAA authenticationSystem 			= WisebedServiceHelper.getSNAAService(snaaEndpointURL);
+	RS reservationSystem				= WisebedServiceHelper.getRSService(rsEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

@@ -4,7 +4,7 @@
 
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
 	String secretReservationKeys        = System.getProperty("testbed.secretreservationkeys");
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
@@ -24,7 +24,7 @@
 		System.exit(1);
 	}
 
-	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
+	WSN wsnService = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 	String wiseML = wsnService.getNetwork();
 
 	System.out.println(WiseMLHelper.prettyPrintWiseML(wiseML));

@@ -16,7 +16,7 @@
 	Integer protobufPort                = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
 	boolean useProtobuf                 = protobufHost != null && protobufPort != null;
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
@@ -86,7 +86,7 @@
 	}
 
 	log.debug("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
-	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
+	WSN wsnService = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 	// retrieve reserved node URNs from testbed

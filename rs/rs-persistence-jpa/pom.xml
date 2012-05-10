@@ -39,6 +39,11 @@
 
     <dependencies>
 
+		<dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
+		</dependency>
+
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.rs-persistence</artifactId>
@@ -46,10 +51,6 @@
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.rs-singleurnprefix</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.rs-api</artifactId>
         </dependency>
 
 		<dependency>

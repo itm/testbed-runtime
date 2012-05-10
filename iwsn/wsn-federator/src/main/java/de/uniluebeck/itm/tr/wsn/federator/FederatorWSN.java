@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.collect.*;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
+import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
@@ -33,8 +34,6 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.WSNPreconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +52,9 @@ import static com.google.common.collect.Sets.newTreeSet;
 
 @WebService(
 		serviceName = "WSNService",
-		targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
+		targetNamespace = "urn:WSNService",
 		portName = "WSNPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
+		endpointInterface = "eu.wisebed.api.wsn.WSN"
 )
 public class FederatorWSN implements WSN {
 
@@ -89,7 +88,8 @@ public class FederatorWSN implements WSN {
 	/**
 	 * Starts the WSN Web Service and internal Controller Web Service endpoint.
 	 *
-	 * @throws Exception on failure
+	 * @throws Exception
+	 * 		on failure
 	 */
 	public void start() throws Exception {
 		federatorController.start();
@@ -99,7 +99,8 @@ public class FederatorWSN implements WSN {
 	/**
 	 * Stops the WSN Web Service and internal Controller Web Service endpoint.
 	 *
-	 * @throws Exception on failure
+	 * @throws Exception
+	 * 		on failure
 	 */
 	public void stop() throws Exception {
 		webservicePublisher.stop();
@@ -119,8 +120,10 @@ public class FederatorWSN implements WSN {
 	public void addController(
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
 
-		log.debug("Adding controller endpoint URL {}", controllerEndpointUrl);
-		federatorController.addController(controllerEndpointUrl);
+		if (!"NONE".equals(controllerEndpointUrl)) {
+			log.debug("Adding controller endpoint URL {}", controllerEndpointUrl);
+			federatorController.addController(controllerEndpointUrl);
+		}
 	}
 
 	@Override
@@ -154,7 +157,7 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public String getVersion() {
-		return Constants.VERSION;
+		return "2.3";
 	}
 
 	@Override
@@ -569,15 +572,16 @@ public class FederatorWSN implements WSN {
 		return newArrayList(commonHandlers);
 	}
 
-	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR = new Comparator<ChannelHandlerDescription>() {
-		@Override
-		public int compare(final ChannelHandlerDescription o1, final ChannelHandlerDescription o2) {
-			return FederatorWSN.equals(o1, o2) ? 0 : -1;
-		}
-	};
+	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR =
+			new Comparator<ChannelHandlerDescription>() {
+				@Override
+				public int compare(final ChannelHandlerDescription o1, final ChannelHandlerDescription o2) {
+					return FederatorWSN.equals(o1, o2) ? 0 : -1;
+				}
+			};
 
 	private static boolean equals(final ChannelHandlerDescription outerChannelHandler,
-						   final ChannelHandlerDescription innerChannelHandler) {
+								  final ChannelHandlerDescription innerChannelHandler) {
 
 		if (!outerChannelHandler.getName().equals(innerChannelHandler.getName())) {
 			return false;

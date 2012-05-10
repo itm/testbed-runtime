@@ -26,6 +26,8 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
@@ -38,6 +40,7 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
@@ -46,12 +49,6 @@ import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.SessionManagementHelper;
-import eu.wisebed.testbed.api.wsn.SessionManagementPreconditions;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,12 +65,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 
 @WebService(
 		serviceName = "SessionManagementService",
-		targetNamespace = Constants.NAMESPACE_SESSION_MANAGEMENT_SERVICE,
+		targetNamespace = "urn:SessionManagementService",
 		portName = "SessionManagementPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_SESSION_MANAGEMENT_SERVICE
+		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
 )
 public class SessionManagementServiceImpl implements SessionManagementService {
 
@@ -584,7 +582,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				);
 
 			} else {
-				throw SessionManagementHelper.createExperimentNotRunningException(secretReservationKey);
+				throw createExperimentNotRunningException(secretReservationKey);
 			}
 
 		}
@@ -645,16 +643,16 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			List<SecretReservationKey> secretReservationKeys) throws UnknownReservationIdException_Exception {
 
 		try {
-			RS rsService = RSServiceHelper.getRSService(config.reservationEndpointUrl.toString());
+			RS rsService = WisebedServiceHelper.getRSService(config.reservationEndpointUrl.toString());
 			return rsService.getReservation(convert(secretReservationKeys));
 
 		} catch (RSExceptionException e) {
 			String msg = "Generic exception occurred in the federated reservation system.";
 			log.warn(msg + ": " + e, e);
-			throw WSNServiceHelper.createUnknownReservationIdException(msg, null, e);
+			throw WisebedServiceHelper.createUnknownReservationIdException(msg, null, e);
 		} catch (ReservervationNotFoundExceptionException e) {
 			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
-			throw WSNServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
+			throw WisebedServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
 		}
 
 	}
@@ -679,17 +677,19 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			DateTime to = new DateTime(reservation.getTo().toGregorianCalendar());
 
 			if (from.isAfterNow()) {
-				throw WSNServiceHelper.createExperimentNotRunningException("Reservation time interval for node URNs " +
-						Arrays.toString(reservation.getNodeURNs().toArray())
-						+ " lies in the future.", null
-				);
+				throw WisebedServiceHelper
+						.createExperimentNotRunningException("Reservation time interval for node URNs " +
+								Arrays.toString(reservation.getNodeURNs().toArray())
+								+ " lies in the future.", null
+						);
 			}
 
 			if (to.isBeforeNow()) {
-				throw WSNServiceHelper.createExperimentNotRunningException("Reservation time interval for node URNs " +
-						Arrays.toString(reservation.getNodeURNs().toArray())
-						+ " lies in the past.", null
-				);
+				throw WisebedServiceHelper
+						.createExperimentNotRunningException("Reservation time interval for node URNs " +
+								Arrays.toString(reservation.getNodeURNs().toArray())
+								+ " lies in the past.", null
+						);
 			}
 
 		}

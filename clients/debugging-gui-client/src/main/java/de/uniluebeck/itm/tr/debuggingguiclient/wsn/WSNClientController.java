@@ -40,7 +40,7 @@ import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.FlashPrograms;
 import eu.wisebed.api.wsn.Send;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 
 
 public class WSNClientController {
@@ -52,7 +52,7 @@ public class WSNClientController {
 	private Properties properties;
 
 	private WSN getWSNService() {
-        return WSNServiceHelper.getWSNService(view.getEndpointUrlTextField().getText());
+        return WisebedServiceHelper.getWSNService(view.getEndpointUrlTextField().getText());
     }
 
     private ActionListener buttonActionListener = new ActionListener() {

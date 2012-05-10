@@ -15,7 +15,7 @@
 	String vlinkTo                      = System.getProperty("testbed.vlink.to");
 
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
@@ -85,7 +85,7 @@
 	}
 
 	log.debug("Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
-	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
+	WSN wsnService = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 	final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
 	Future future = wsn.setVirtualLink(

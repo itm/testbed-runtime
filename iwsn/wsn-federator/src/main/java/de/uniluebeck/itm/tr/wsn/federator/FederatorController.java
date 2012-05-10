@@ -23,13 +23,12 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.testbed.api.wsn.Constants;
-import eu.wisebed.testbed.api.wsn.deliverymanager.DeliveryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +41,9 @@ import java.util.concurrent.TimeUnit;
 
 @WebService(
 		serviceName = "ControllerService",
-		targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+		targetNamespace = "urn:ControllerService",
 		portName = "ControllerPort",
-		endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+		endpointInterface = "eu.wisebed.api.controller.Controller"
 )
 public class FederatorController implements Controller {
 
@@ -112,17 +111,13 @@ public class FederatorController implements Controller {
 	 * @throws Exception on failure
 	 */
 	public void start() throws Exception {
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(controllerEndpointUrl);
 
-		log.debug("Starting federator controller using endpoint URL {} and binding URL {}...",
-				controllerEndpointUrl,
-				bindAllInterfacesUrl
-		);
+		log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
 
-		controllerEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
+		controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
 		deliveryManager.start();
 
-		log.debug("Started federator controller on {}!", bindAllInterfacesUrl);
+		log.debug("Started federator controller on {}!", controllerEndpointUrl);
 	}
 
 	/**

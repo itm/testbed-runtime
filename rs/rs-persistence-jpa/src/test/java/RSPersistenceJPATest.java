@@ -21,9 +21,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAFactory;
+import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.snaa.persistence.RSPersistenceTest;
+import de.uniluebeck.itm.tr.snaa.persistence.jpa.RSPersistenceJPAFactory;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.Data;
 import eu.wisebed.api.rs.RSExceptionException;

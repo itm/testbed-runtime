@@ -41,7 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static eu.wisebed.testbed.api.snaa.helpers.Helper.*;
+import static de.uniluebeck.itm.tr.snaa.common.Helper.*;
 
 @WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class JAASSNAA implements SNAA {
@@ -73,8 +73,6 @@ public class JAASSNAA implements SNAA {
 		}
 
 	}
-
-	;
 
 	/**
 	 * SecretAuthenticationKey -> Username

@@ -38,13 +38,12 @@ import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.testbed.api.wsn.Constants;
 
 @WebService(
         serviceName = "ControllerService",
-        targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE,
+        targetNamespace = "urn:ControllerService",
         portName = "ControllerPort",
-        endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE
+        endpointInterface = "eu.wisebed.api.controller.Controller"
 )
 public class ControllerServiceImpl implements Controller {
 

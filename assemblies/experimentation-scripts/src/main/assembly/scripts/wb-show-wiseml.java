@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------
 
 	String sessionManagementEndpointURL	= System.getProperty("testbed.sm.endpointurl");
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic

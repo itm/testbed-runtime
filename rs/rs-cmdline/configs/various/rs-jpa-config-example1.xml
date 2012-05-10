@@ -34,11 +34,11 @@
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
 		<!-- Configure the persisted entities  -->
-		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal</class>
-		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal</class>
-		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.PublicReservationDataInternal</class>
-		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal</class>
-		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal</class>
+		<class>de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.ReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.ConfidentialReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.PublicReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.SecretReservationKeyInternal</class>
+		<class>de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.DataInternal</class>
 
 		<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 		<!-- Hibernate Configuration -->

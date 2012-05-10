@@ -39,10 +39,14 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>tr.snaa-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-common</artifactId>
+		</dependency>
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.shibboauth</artifactId>

@@ -8,7 +8,7 @@
 
 	Iterable nodeTypes                  = Splitter.on(",").trimResults().omitEmptyStrings().split(System.getProperty("testbed.nodetypes"));
 
-	SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
+	SessionManagement sessionManagement = WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
 //--------------------------------------------------------------------------
 // Application logic
@@ -26,7 +26,7 @@
 		System.exit(1);
 	}
 
-	WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
+	WSN wsnService = WisebedServiceHelper.getWSNService(wsnEndpointURL);
 	String wiseML = wsnService.getNetwork();
 
 	List nodes = WiseMLHelper.getNodeUrns(wiseML, nodeTypes);

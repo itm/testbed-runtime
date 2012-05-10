@@ -27,9 +27,12 @@ import de.itm.uniluebeck.tr.wiseml.merger.structures.Coordinate;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.LinkProperties;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.NodeProperties;
 import de.itm.uniluebeck.tr.wiseml.merger.structures.TimeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SetupMerger extends WiseMLElementMerger {
-	
+
+	private static final Logger log = LoggerFactory.getLogger(SetupMerger.class);
 	
 	private static final int PROPERTIES = 1;
 	private static final int DEFAULTS = 2;
@@ -256,7 +259,7 @@ public class SetupMerger extends WiseMLElementMerger {
 				switch (configuration.getDescriptionResolution()) {
 				case ResolveSilently: break;
 				case ResolveWithWarning: 
-					warn("descriptions not equal, resolving");
+					log.warn("descriptions not equal, resolving");
 					break;
 				case ThrowException: 
 					exception("descriptions not equal", null);
@@ -297,7 +300,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			switch (configuration.getCoordinateTypeResolution()) {
 			case ResolveSilently: break;
 			case ResolveWithWarning:
-				warn("coordinate types not equal, resolving (not recommended!)");
+				log.warn("coordinate types not equal, resolving (not recommended!)");
 				break;
 			case ThrowException:
 				exception("coordinate types not equal", null);
@@ -329,7 +332,7 @@ public class SetupMerger extends WiseMLElementMerger {
 			switch (configuration.getInterpolationResolution()) {
 			case ResolveSilently: break;
 			case ResolveWithWarning:
-				warn("interpolations not equal, resolving");
+				log.warn("interpolations not equal, resolving");
 				break;
 			case ThrowException:
 				exception("interpolations not equal", null);
@@ -386,7 +389,7 @@ public class SetupMerger extends WiseMLElementMerger {
 				switch (configuration.getTimeInfoDurationResolution()) {
 				case ResolveSilently: break;
 				case ResolveWithWarning:
-					warn("timeinfo definitions not equal, resolving");
+					log.warn("timeinfo definitions not equal, resolving");
 					break;
 				case ThrowException:
 					exception("timeinfo definition not equal", null);
@@ -408,7 +411,7 @@ public class SetupMerger extends WiseMLElementMerger {
 				switch (configuration.getTimeInfoUnitResolution()) {
 				case ResolveSilently: break;
 				case ResolveWithWarning:
-					warn("timeinfo units not equal, resolving");
+					log.warn("timeinfo units not equal, resolving");
 					break;
 				case ThrowException:
 					exception("timeinfo units not equal", null);
@@ -516,7 +519,7 @@ public class SetupMerger extends WiseMLElementMerger {
 				switch (configuration.getOriginResolution()) {
 				case ResolveSilently: break;
 				case ResolveWithWarning:
-					warn("Resolving origin conflict using this strategy: " + 
+					log.warn("Resolving origin conflict using this strategy: " +
 							configuration.getOriginOutput());
 					break;
 				case ThrowException:

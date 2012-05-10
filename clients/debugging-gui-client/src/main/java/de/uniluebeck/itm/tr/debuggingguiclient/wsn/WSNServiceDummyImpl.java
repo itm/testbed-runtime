@@ -42,14 +42,13 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.Constants;
 
 
 @WebService(
         serviceName = "WSNService",
-        targetNamespace = Constants.NAMESPACE_WSN_SERVICE,
+        targetNamespace = "urn:WSNService",
         portName = "WSNPort",
-        endpointInterface = Constants.ENDPOINT_INTERFACE_WSN_SERVICE
+        endpointInterface = "eu.wisebed.api.wsn.WSN"
 )
 public class WSNServiceDummyImpl implements WSN {
 

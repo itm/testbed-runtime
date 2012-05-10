@@ -23,24 +23,27 @@
 
 package de.uniluebeck.itm.wisebed.cmdlineclient;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.Executors;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-
-import org.apache.log4j.Logger;
-
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.testbed.api.wsn.Constants;
+import org.apache.log4j.Logger;
 
-@WebService(serviceName = "ControllerService", targetNamespace = Constants.NAMESPACE_CONTROLLER_SERVICE, portName = "ControllerPort", endpointInterface = Constants.ENDPOINT_INTERFACE_CONTROLLER_SERVICE)
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.Executors;
+
+@WebService(
+		serviceName = "ControllerService",
+		targetNamespace = "urn:ControllerService",
+		portName = "ControllerPort",
+		endpointInterface = "eu.wisebed.api.controller.Controller"
+)
 public class DelegatingController implements Controller {
+
 	private static final Logger log = Logger.getLogger(DelegatingController.class);
 
 	private Controller controller;
@@ -49,6 +52,7 @@ public class DelegatingController implements Controller {
 		this.controller = controller;
 	}
 
+	@SuppressWarnings("unused")
 	public void publish(String endpointUrl) throws MalformedURLException {
 		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl);
 

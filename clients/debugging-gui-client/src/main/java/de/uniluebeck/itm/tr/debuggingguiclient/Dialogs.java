@@ -63,6 +63,7 @@ import javax.swing.table.TableColumn;
 import javax.xml.bind.JAXBContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import eu.wisebed.api.WisebedServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,6 @@ import eu.wisebed.api.wsn.ProgramMetaData;
 import eu.wisebed.api.wsn.Send;
 import eu.wisebed.ns.wiseml._1.Setup;
 import eu.wisebed.ns.wiseml._1.Wiseml;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 
 
 public class Dialogs {
@@ -297,7 +297,7 @@ public class Dialogs {
                     try {
 
                         String endpointUrl = sessionManagementEndpointURLTextField.getText();
-                        SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                        SessionManagement smService = WisebedServiceHelper.getSessionManagementService(endpointUrl);
                         setTableData(smService.getNetwork());
 
                     } catch (Exception e1) {
@@ -749,7 +749,7 @@ public class Dialogs {
 
             // sourceNodeId: String
             // timestamp: XMLGregorianCalendar
-            // textmessage: TextMessage
+            // textMessage: TextMessage
             // binaryMessage: BinaryMessage
 
             GridBagConstraints c;
@@ -832,7 +832,6 @@ public class Dialogs {
             c.gridx = 1;
             c.gridy = 0;
             byteArrayTextArea = new FieldHelper.ByteArrayJTextArea();
-            Dimension preferredSize1 = byteArrayTextArea.getPreferredSize();
             byteArrayTextArea.setPreferredSize(new Dimension(400, 200));
             add(byteArrayTextArea, c);
 

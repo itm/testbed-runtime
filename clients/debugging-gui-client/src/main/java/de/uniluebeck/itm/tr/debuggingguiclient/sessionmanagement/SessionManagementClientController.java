@@ -41,7 +41,7 @@ import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 
 public class SessionManagementClientController {
 
@@ -66,7 +66,7 @@ public class SessionManagementClientController {
 
             try {
 
-                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                SessionManagement smService = WisebedServiceHelper.getSessionManagementService(endpointUrl);
                 String instanceUrl = smService.getInstance(srkList, controllerEndpointUrl);
 
                 view.getGetInstanceResultTextField().setText(instanceUrl);
@@ -88,7 +88,7 @@ public class SessionManagementClientController {
             String endpointUrl = view.getEndpointUrlTextField().getText();
             try {
 
-                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                SessionManagement smService = WisebedServiceHelper.getSessionManagementService(endpointUrl);
                 Dialogs.showTextDialog(smService.getNetwork(), true);
 
             } catch (Exception e1) {
@@ -118,7 +118,7 @@ public class SessionManagementClientController {
             String secretReservationKeysString = view.getSecretReservationKeysTextArea().getText();
             try {
 
-                SessionManagement smService = WSNServiceHelper.getSessionManagementService(endpointUrl);
+                SessionManagement smService = WisebedServiceHelper.getSessionManagementService(endpointUrl);
                 List<SecretReservationKey> srkList = parseSecretReservationKeyList(secretReservationKeysString);
                 smService.free(srkList);
                 view.getGetInstanceResultTextField().setText("");

@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import de.uniluebeck.itm.tr.debuggingguiclient.Dialogs;
 import de.uniluebeck.itm.tr.debuggingguiclient.WSNClientProperties;
 import de.uniluebeck.itm.tr.debuggingguiclient.sessionmanagement.SessionManagementClientView;
-import eu.wisebed.testbed.api.rs.RSServiceHelper;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.Data;
 import eu.wisebed.api.rs.GetReservations;
@@ -72,7 +72,7 @@ public class RSClientController {
 			try {
 
 				String endpointUrl = view.getEndpointUrlTextField().getText();
-				RS rsService = RSServiceHelper.getRSService(endpointUrl);
+				RS rsService = WisebedServiceHelper.getRSService(endpointUrl);
 				List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
 				ConfidentialReservationData reservation = parseConfidentialReservationData();
 				List<SecretReservationKey> secretReservationKeyList =
@@ -104,7 +104,7 @@ public class RSClientController {
 
 				DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
 				String endpointUrl = view.getEndpointUrlTextField().getText();
-				RS rsService = RSServiceHelper.getRSService(endpointUrl);
+				RS rsService = WisebedServiceHelper.getRSService(endpointUrl);
 				List<PublicReservationData> reservations = rsService.getReservations(parseFrom(), parseUntil());
 
 				String[] columns = new String[]{"From", "Until", "Node-URNs", "UserData"};
@@ -202,7 +202,7 @@ public class RSClientController {
 			try {
 
 				String endpointUrl = view.getEndpointUrlTextField().getText();
-				RS rsService = RSServiceHelper.getRSService(endpointUrl);
+				RS rsService = WisebedServiceHelper.getRSService(endpointUrl);
 				List<SecretAuthenticationKey> authenticationData = parseAuthenticationData();
 
 				List<ConfidentialReservationData> reservations =
