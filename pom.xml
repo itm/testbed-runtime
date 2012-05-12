@@ -232,7 +232,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.3.5</version>
+				<version>0.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
@@ -252,27 +252,17 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
 				<artifactId>netty-iostream</artifactId>
-				<version>0.4</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>dlestxetx</artifactId>
-				<version>1.3</version>
+				<version>0.5-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>protocol-collection</artifactId>
-				<version>1.3</version>
+				<version>1.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>factory</artifactId>
-				<version>1.3</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>filterpipeline</artifactId>
-				<version>1.3</version>
+				<version>1.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>

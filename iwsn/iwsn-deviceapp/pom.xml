@@ -81,19 +81,11 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>filterpipeline</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>wisebed</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>factory</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>dlestxetx</artifactId>
 		</dependency>
 
 		<!-- 3rd party libraries -->

@@ -43,7 +43,6 @@ import de.uniluebeck.itm.gtr.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.gtr.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
-import de.uniluebeck.itm.netty.handlerstack.wisebed.WisebedMulticastAddress;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
