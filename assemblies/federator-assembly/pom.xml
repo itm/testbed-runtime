@@ -40,7 +40,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wsn-federator</artifactId>
+			<artifactId>tr.iwsn-federator</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>

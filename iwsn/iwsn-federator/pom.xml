@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.wsn-federator</artifactId>
+	<artifactId>tr.iwsn-federator</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: WSN Federator</name>
+	<name>TR :: iWSN Federator</name>
 
 	<dependencies>
 

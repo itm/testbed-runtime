@@ -43,11 +43,11 @@
         <module>iwsn-cmdline</module>
         <module>iwsn-csv2config</module>
         <module>iwsn-deviceapp</module>
+        <module>iwsn-federator</module>
         <module>iwsn-service</module>
         <module>overlay</module>
         <module>overlay-socketconnector</module>
 		<module>overlay-stats</module>
-        <module>wsn-federator</module>
     </modules>
 
 </project>
