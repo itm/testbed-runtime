@@ -38,8 +38,8 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 		void receivedPacket(byte[] bytes);
 
 		void receiveNotification(String notification);
-	}
 
+	}
 	public static interface Callback {
 
 		void success(@Nullable byte[] replyPayload);
@@ -47,13 +47,13 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 		void failure(byte responseType, byte[] replyPayload);
 
 		void timeout();
-	}
 
+	}
 	public static interface FlashProgramCallback extends Callback {
 
 		void progress(float percentage);
-	}
 
+	}
 	void enableNode(Callback listener);
 
 	void enablePhysicalLink(long nodeB, Callback listener);
@@ -67,6 +67,8 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 	void flashProgram(WSNAppMessages.Program program, FlashProgramCallback listener);
 
 	void isNodeAlive(Callback listener);
+
+	void isNodeAliveSm(Callback callback);
 
 	void resetNode(Callback listener);
 

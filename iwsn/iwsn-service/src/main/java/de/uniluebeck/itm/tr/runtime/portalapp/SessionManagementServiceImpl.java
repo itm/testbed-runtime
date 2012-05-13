@@ -511,7 +511,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		final String requestId = secureIdGenerator.getNextId();
 
 		try {
-			wsnApp.areNodesAlive(new HashSet<String>(nodes), new WSNApp.Callback() {
+			wsnApp.areNodesAliveSm(new HashSet<String>(nodes), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));

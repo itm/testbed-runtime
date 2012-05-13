@@ -550,11 +550,55 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
-		// TODO integrate timeoutCheckAlive as soon as next wsn-device-drivers version including an isNodeAlive() method is ready
-
 		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
 
-		// to the best of our knowledge, a node is alive if we're connected to it
+		if (isConnected()) {
+
+			deviceLock.lock();
+			try {
+				device.isNodeAlive(configuration.getTimeoutCheckAliveMillis(), new OperationAdapter<Boolean>() {
+
+					@Override
+					public void onExecute() {
+						resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+					}
+
+					@Override
+					public void onSuccess(final Boolean result) {
+						log.debug("{} => Done checking node alive (result={}).", configuration.getNodeUrn(), result);
+						listener.success(null);
+					}
+
+					@Override
+					public void onCancel() {
+						listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+					}
+
+					@Override
+					public void onFailure(final Throwable throwable) {
+						String msg = "Failed checking if node is alive. Reason: " + throwable;
+						log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
+						listener.failure((byte) -1, msg.getBytes());
+					}
+				}
+				);
+			} finally {
+				deviceLock.unlock();
+			}
+
+		} else {
+
+			String msg = "Failed checking if node is alive. Reason: Device is not connected.";
+			log.warn("{} => {}", configuration.getNodeUrn(), msg);
+			listener.failure((byte) 0, msg.getBytes());
+		}
+	}
+
+	@Override
+	public void isNodeAliveSm(final Callback listener) {
+
+		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAliveSm()", configuration.getNodeUrn());
+
 		if (isConnected()) {
 			listener.success(null);
 		} else {
@@ -805,7 +849,12 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 		try {
 
 			DeviceFactory deviceFactory = new DeviceFactoryImpl();
-			device = deviceFactory.create(deviceDriverExecutorService, deviceType, deviceConfiguration);
+			try {
+				device = deviceFactory.create(deviceDriverExecutorService, deviceType, deviceConfiguration);
+			} catch (Exception e) {
+				log.error("{}", e);
+				throw new RuntimeException(e);
+			}
 
 			try {
 

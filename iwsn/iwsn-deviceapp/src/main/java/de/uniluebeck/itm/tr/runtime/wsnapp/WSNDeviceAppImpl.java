@@ -282,6 +282,13 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				connector.isNodeAlive(callback);
 				break;
 
+			case ARE_NODES_ALIVE_SM:
+				log.trace("{} => WSNDeviceAppImpl.executeOperation --> checkAreNodesAliveSm()",
+						configuration.getNodeUrn()
+				);
+				connector.isNodeAliveSm(callback);
+				break;
+
 			case DESTROY_VIRTUAL_LINK:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> destroyVirtualLink()",
 						configuration.getNodeUrn()

@@ -633,6 +633,30 @@ class WSNAppImpl implements WSNApp {
 					new RequestStatusCallback(callback, nodeUrn)
 			);
 		}
+	}
+
+	@Override
+	public void areNodesAliveSm(final Set<String> nodeUrns, final Callback callback) throws UnknownNodeUrnsException {
+
+		assertNodeUrnsKnown(nodeUrns);
+
+		WSNAppMessages.OperationInvocation.Builder builder = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.ARE_NODES_ALIVE_SM);
+
+		byte[] bytes = builder.build().toByteArray();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Sending checkAreNodesAliveSm operation invocation, bytes: {}", toPrintableString(bytes, 200));
+		}
+
+		for (String nodeUrn : nodeUrns) {
+			testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
+					System.currentTimeMillis() + MSG_VALIDITY,
+					new RequestStatusCallback(callback, nodeUrn)
+			);
+		}
 
 	}
 

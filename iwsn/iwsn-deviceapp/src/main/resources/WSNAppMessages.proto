@@ -143,6 +143,7 @@ message OperationInvocation {
          ENABLE_PHYSICAL_LINK         = 9;
          SET_CHANNEL_PIPELINE         = 10;
          SET_DEFAULT_CHANNEL_PIPELINE = 11;
+         ARE_NODES_ALIVE_SM           = 12;
 
     }
 

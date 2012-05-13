@@ -58,6 +58,8 @@ public interface WSNApp extends Service, TestbedApplication {
 
 	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
+	void areNodesAliveSm(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
+
 	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnsException;
 
