@@ -23,6 +23,9 @@
 
 package de.uniluebeck.itm.tr.iwsn.cmdline;
 
+import com.google.classpath.ClassPath;
+import com.google.classpath.ClassPathFactory;
+import com.google.classpath.RegExpResourceFilter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -39,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -57,6 +61,7 @@ public class IWSNServer {
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(IWSNServer.class);
 
 	public static void main(String[] args) throws Exception {
+
 		Thread.currentThread().setName("Startup-Thread");
 		try {
 			start(args);

@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.federatorutils;
 
 import de.uniluebeck.itm.tr.util.Service;
-import de.uniluebeck.itm.tr.util.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +36,11 @@ public class WebservicePublisher<T> implements Service {
 
 		checkState(implementer != null, "Implementer must be set before calling start()!");
 
-		String bindAllInterfacesUrl = UrlUtils.convertHostToZeros(endpointUrl.toString());
-
 		if (log.isInfoEnabled()) {
-			log.info("Started {} endpoint using endpoint URL {} and binding URL {}.",
-					new Object[]{
-							implementer.getClass().getSimpleName(),
-							endpointUrl.toString(),
-							bindAllInterfacesUrl
-					}
-			);
+			log.info("Started {} endpoint using endpoint URL {}", implementer.getClass().getSimpleName(), endpointUrl);
 		}
 
-		endpoint = Endpoint.publish(bindAllInterfacesUrl, implementer);
+		endpoint = Endpoint.publish(endpointUrl.toString(), implementer);
 	}
 
 	@Override

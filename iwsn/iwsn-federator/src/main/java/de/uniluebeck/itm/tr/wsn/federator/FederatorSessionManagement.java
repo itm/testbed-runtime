@@ -50,6 +50,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
@@ -619,15 +620,19 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	private String createRandomControllerEndpointUrl() {
-		String smEndpointUrl = config.getFederatorSmEndpointURL().toString();
-		smEndpointUrl += (smEndpointUrl.endsWith("/") ? "" : "/");
-		return smEndpointUrl + secureIdGenerator.getNextId() + "/controller";
+		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
+		return federatorSmEndpointURL.getScheme() + "://" +
+				federatorSmEndpointURL.getHost() + ":" +
+				federatorSmEndpointURL.getPort() + "/" +
+				secureIdGenerator.getNextId() + "/controller";
 	}
 
 	private String createRandomWsnEndpointUrl() {
-		String smEndpointUrl = config.getFederatorSmEndpointURL().toString();
-		smEndpointUrl += (smEndpointUrl.endsWith("/") ? "" : "/");
-		return smEndpointUrl + secureIdGenerator.getNextId() + "/wsn";
+		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
+		return federatorSmEndpointURL.getScheme() + "://" +
+				federatorSmEndpointURL.getHost() + ":" +
+				federatorSmEndpointURL.getPort() + "/" +
+				secureIdGenerator.getNextId() + "/wsn";
 	}
 
 }
