@@ -36,7 +36,6 @@
 	<modules>
 
 		<module>assemblies/</module>
-		<module>clients/</module>
 		<module>rs/</module>
 		<module>iwsn/</module>
 		<module>snaa/</module>
