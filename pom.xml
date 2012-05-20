@@ -41,7 +41,6 @@
 		<module>snaa/</module>
 
 		<module>federator-utils</module>
-		<module>shibboauth</module>
 		<module>node-api</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
@@ -172,11 +171,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.debugging-gui-client</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.shibboauth</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
