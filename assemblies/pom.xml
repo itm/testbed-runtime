@@ -40,7 +40,6 @@
 
     <modules>
 		<module>assembly</module>
-		<module>experimentation-scripts</module>
 		<module>iwsn-assembly</module>
 		<module>iwsn-federator-assembly</module>
 		<module>federator-assembly</module>
