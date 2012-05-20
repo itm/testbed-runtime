@@ -3,8 +3,7 @@ package de.itm.uniluebeck.tr.wiseml;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import eu.wisebed.ns.wiseml._1.*;
-import eu.wisebed.ns.wiseml._1.Setup.Node;
+import eu.wisebed.wiseml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,19 +20,19 @@ public class WiseMLHelper {
 	 */
 	private static final Logger log = LoggerFactory.getLogger(WiseMLHelper.class);
 
-	public static Function<Node, String> FUNCTION_NODE_TO_STRING = new Function<Node, String>() {
+	public static Function<Setup.Node, String> FUNCTION_NODE_TO_STRING = new Function<Setup.Node, String>() {
 		@Override
-		public String apply(final Node node) {
+		public String apply(final Setup.Node node) {
 			return WiseMLHelper.toString(node);
 		}
 	};
 
-	public static Function<List<Node>, List<String>> FUNCTION_NODE_LIST_TO_STRING_LIST =
-			new Function<List<Node>, List<String>>() {
+	public static Function<List<Setup.Node>, List<String>> FUNCTION_NODE_LIST_TO_STRING_LIST =
+			new Function<List<Setup.Node>, List<String>>() {
 				@Override
-				public List<String> apply(final List<Node> nodes) {
+				public List<String> apply(final List<Setup.Node> nodes) {
 					List<String> strings = Lists.newArrayListWithCapacity(nodes.size());
-					for (Node node : nodes) {
+					for (Setup.Node node : nodes) {
 						strings.add(FUNCTION_NODE_TO_STRING.apply(node));
 					}
 					return strings;
@@ -57,15 +56,15 @@ public class WiseMLHelper {
 	}
 
 	/**
-	 * Parses the serialized WiseML document and returns the {@link Node} instance with URN {@code nodeID}.
+	 * Parses the serialized WiseML document and returns the {@link Setup.Node} instance with URN {@code nodeID}.
 	 *
 	 * @param serializedWiseML the serialized WiseML document
 	 * @param nodeID		   the URN of the node to return
 	 *
-	 * @return the {@link Node} instance with URN {@code nodeID}
+	 * @return the {@link Setup.Node} instance with URN {@code nodeID}
 	 */
 	@SuppressWarnings("unused")
-	public static Node getNode(final String serializedWiseML, final String nodeID) {
+	public static Setup.Node getNode(final String serializedWiseML, final String nodeID) {
 		Wiseml wiseml = deserialize(serializedWiseML);
 
 		for (Setup.Node node : wiseml.getSetup().getNode()) {
@@ -82,10 +81,10 @@ public class WiseMLHelper {
 	 *
 	 * @param wiseml a serialized WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final Wiseml wiseml) {
+	public static List<Setup.Node> getNodes(final Wiseml wiseml) {
 		return getNodes(wiseml, (String[]) null);
 	}
 
@@ -95,10 +94,10 @@ public class WiseMLHelper {
 	 *
 	 * @param serializedWiseML a serialized WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final String serializedWiseML) {
+	public static List<Setup.Node> getNodes(final String serializedWiseML) {
 		return getNodes(serializedWiseML, (String[]) null);
 	}
 
@@ -110,10 +109,10 @@ public class WiseMLHelper {
 	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
 	 *                         contained in the WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final String serializedWiseML, final Iterable<String> types) {
+	public static List<Setup.Node> getNodes(final String serializedWiseML, final Iterable<String> types) {
 		List<String> typesList = Lists.newArrayList(types);
 		String[] typesArray = typesList.toArray(new String[typesList.size()]);
 		return getNodes(deserialize(serializedWiseML), typesArray);
@@ -127,10 +126,10 @@ public class WiseMLHelper {
 	 * @param types			node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes
 	 *                         contained in the WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final String serializedWiseML, final String... types) {
+	public static List<Setup.Node> getNodes(final String serializedWiseML, final String... types) {
 		return getNodes(deserialize(serializedWiseML), types);
 	}
 
@@ -141,10 +140,10 @@ public class WiseMLHelper {
 	 * @param types  node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes contained
 	 *               in the WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final Wiseml wiseml, final Iterable<String> types) {
+	public static List<Setup.Node> getNodes(final Wiseml wiseml, final Iterable<String> types) {
 		List<String> typesList = Lists.newArrayList(types);
 		String[] typesArray = typesList.toArray(new String[typesList.size()]);
 		return getNodes(wiseml, typesArray);
@@ -157,15 +156,15 @@ public class WiseMLHelper {
 	 * @param types  node types to include, e.g. "isense", "telosb" will include all iSense and all TelosB nodes contained
 	 *               in the WiseML document
 	 *
-	 * @return a List of {@link Node} instances
+	 * @return a List of {@link Setup.Node} instances
 	 */
 	@SuppressWarnings("unused")
-	public static List<Node> getNodes(final Wiseml wiseml, final String... types) {
+	public static List<Setup.Node> getNodes(final Wiseml wiseml, final String... types) {
 
 		List<String> nodeTypes = types == null ? null : Lists.newArrayList(types);
-		List<Node> nodes = Lists.newArrayList();
+		List<Setup.Node> nodes = Lists.newArrayList();
 
-		for (Node node : wiseml.getSetup().getNode()) {
+		for (Setup.Node node : wiseml.getSetup().getNode()) {
 			if (types == null || types.length == 0) {
 				nodes.add(node);
 			} else {
@@ -226,7 +225,7 @@ public class WiseMLHelper {
 
 		List<String> nodeUrns = new LinkedList<String>();
 
-		for (Node node : getNodes(serializedWiseML, types)) {
+		for (Setup.Node node : getNodes(serializedWiseML, types)) {
 			nodeUrns.add(node.getId());
 		}
 
@@ -304,12 +303,12 @@ public class WiseMLHelper {
 	/**
 	 * Returns a String representation of {@code node}.
 	 *
-	 * @param node the {@link Node} instance
+	 * @param node the {@link Setup.Node} instance
 	 *
 	 * @return a String representation of {@code node}
 	 */
 	@SuppressWarnings("unused")
-	public static String toString(Node node) {
+	public static String toString(Setup.Node node) {
 		return "Node{" +
 				"id='" + node.getId() + '\'' +
 				", capability=" + toString(node.getCapability()) +
@@ -357,7 +356,7 @@ public class WiseMLHelper {
 	/**
 	 * Returns a String representation of {@code unit}.
 	 *
-	 * @param unit the {@link Units} instance
+	 * @param unit the {@link eu.wisebed.wiseml.Units} instance
 	 *
 	 * @return a String representation of {@code unit}
 	 */
@@ -371,7 +370,7 @@ public class WiseMLHelper {
 	/**
 	 * Returns a String representation of {@code datatype}.
 	 *
-	 * @param datatype the {@link Dtypes} instance
+	 * @param datatype the {@link eu.wisebed.wiseml.Dtypes} instance
 	 *
 	 * @return a String representation of {@code datatype}
 	 */

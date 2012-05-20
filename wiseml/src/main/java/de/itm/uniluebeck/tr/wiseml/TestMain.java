@@ -23,8 +23,8 @@
 
 package de.itm.uniluebeck.tr.wiseml;
 
-import eu.wisebed.ns.wiseml._1.Data;
-import eu.wisebed.ns.wiseml._1.Trace;
+import eu.wisebed.wiseml.Data;
+import eu.wisebed.wiseml.Trace;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;

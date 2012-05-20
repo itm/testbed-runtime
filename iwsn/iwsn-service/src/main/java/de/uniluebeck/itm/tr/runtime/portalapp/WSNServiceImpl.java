@@ -43,7 +43,7 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.wiseml.Wiseml;
 import eu.wisebed.api.WisebedServiceHelper;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;

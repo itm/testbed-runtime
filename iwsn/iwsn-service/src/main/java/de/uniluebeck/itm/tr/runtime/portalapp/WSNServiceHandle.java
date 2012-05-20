@@ -39,8 +39,8 @@ import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.ns.wiseml._1.Setup;
-import eu.wisebed.ns.wiseml._1.Wiseml;
+import eu.wisebed.wiseml.Setup;
+import eu.wisebed.wiseml.Wiseml;
 
 public class WSNServiceHandle implements Service {
 

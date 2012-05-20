@@ -14,7 +14,7 @@ import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.WSNDeviceObserverFactory;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.WSNDeviceObserverConfiguration;
 import de.uniluebeck.itm.tr.xml.*;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
-import eu.wisebed.ns.wiseml._1.*;
+import eu.wisebed.wiseml.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
