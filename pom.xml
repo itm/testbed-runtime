@@ -41,7 +41,6 @@
 		<module>snaa/</module>
 
 		<module>federator-utils</module>
-		<module>node-api</module>
 		<module>wiseml</module>
 		<module>wiseml-merger</module>
 
