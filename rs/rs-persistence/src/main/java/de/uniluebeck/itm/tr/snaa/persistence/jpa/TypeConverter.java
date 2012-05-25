@@ -48,7 +48,8 @@ public class TypeConverter {
 		return external;
 	}
 
-	public static ConfidentialReservationDataInternal convert(ConfidentialReservationData external, TimeZone localTimeZone) {
+	public static ConfidentialReservationDataInternal convert(ConfidentialReservationData external,
+															  TimeZone localTimeZone) {
 
 		ConfidentialReservationDataInternal internal = new ConfidentialReservationDataInternal();
 
@@ -71,7 +72,7 @@ public class TypeConverter {
 		toGregorianCalendar.setTimeZone(localTimeZone);
 		internal.setToDate(toGregorianCalendar.getTimeInMillis());
 
-        internal.setUserData(external.getUserData());
+		internal.setUserData(external.getUserData());
 
 		return internal;
 	}
@@ -88,13 +89,14 @@ public class TypeConverter {
 		return new DataInternal(external.getUrnPrefix(), external.getUsername(), external.getSecretReservationKey());
 	}
 
-	public static ConfidentialReservationData convert(ConfidentialReservationDataInternal internal, TimeZone localTimeZone) throws DatatypeConfigurationException {
+	public static ConfidentialReservationData convert(ConfidentialReservationDataInternal internal,
+													  TimeZone localTimeZone) throws DatatypeConfigurationException {
 		ConfidentialReservationData external = new ConfidentialReservationData();
 		external.setFrom(convert(internal.getFromDate(), localTimeZone));
 		external.getNodeURNs().addAll(internal.getNodeURNs());
 		external.setTo(convert(internal.getToDate(), localTimeZone));
 		external.getData().addAll(convertInternalToExternal(internal.getData()));
-        external.setUserData(internal.getUserData());
+		external.setUserData(internal.getUserData());
 		return external;
 	}
 
@@ -110,18 +112,21 @@ public class TypeConverter {
 		Data external = new Data();
 		external.setUrnPrefix(internal.getUrnPrefix());
 		external.setUsername(internal.getUsername());
-        external.setSecretReservationKey(internal.getSecretReservationKey());
+		external.setSecretReservationKey(internal.getSecretReservationKey());
 		return external;
 	}
 
-	private static XMLGregorianCalendar convert(long dateInMillis, TimeZone localTimeZone) throws DatatypeConfigurationException {
+	private static XMLGregorianCalendar convert(long dateInMillis, TimeZone localTimeZone)
+			throws DatatypeConfigurationException {
 		GregorianCalendar fromGregorianCalendar = new GregorianCalendar(localTimeZone);
 		fromGregorianCalendar.setTimeInMillis(dateInMillis);
 		return DatatypeFactory.newInstance().newXMLGregorianCalendar(fromGregorianCalendar);
 	}
 
-	public static List<ConfidentialReservationData> convertConfidentialReservationData(List<ReservationDataInternal> internalList, TimeZone localTimeZone) throws DatatypeConfigurationException {
-		List<ConfidentialReservationData> externalList = new ArrayList<ConfidentialReservationData>(internalList.size());
+	public static List<ConfidentialReservationData> convertConfidentialReservationData(
+			List<ReservationDataInternal> internalList, TimeZone localTimeZone) throws DatatypeConfigurationException {
+		List<ConfidentialReservationData> externalList =
+				new ArrayList<ConfidentialReservationData>(internalList.size());
 		for (ReservationDataInternal internal : internalList) {
 			externalList.add(convert(internal.getConfidentialReservationData(), localTimeZone));
 		}

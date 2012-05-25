@@ -41,8 +41,8 @@ public class DataInternal implements Serializable {
 	@Column
 	protected String username;
 
-    @Column
-    private String secretReservationKey;
+	@Column
+	private String secretReservationKey;
 
 	// @ManyToOne
 	// @JoinColumn(name="confidentialReservationData_id", nullable=false)
@@ -54,7 +54,7 @@ public class DataInternal implements Serializable {
 	public DataInternal(String urnPrefix, String username, String secretReservationKey) {
 		this.urnPrefix = urnPrefix;
 		this.username = username;
-        this.secretReservationKey = secretReservationKey;
+		this.secretReservationKey = secretReservationKey;
 	}
 
 	public String getUrnPrefix() {
@@ -73,23 +73,23 @@ public class DataInternal implements Serializable {
 		this.username = username;
 	}
 
-    public long getId() {
-        return id;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public String getSecretReservationKey() {
-        return secretReservationKey;
-    }
+	public String getSecretReservationKey() {
+		return secretReservationKey;
+	}
 
-    public void setSecretReservationKey(String secretReservationKey) {
-        this.secretReservationKey = secretReservationKey;
-    }
+	public void setSecretReservationKey(String secretReservationKey) {
+		this.secretReservationKey = secretReservationKey;
+	}
 
-    @Override
+	@Override
 	public String toString() {
 		return "DataInternal{" +
 				"urnPrefix='" + urnPrefix + '\'' +

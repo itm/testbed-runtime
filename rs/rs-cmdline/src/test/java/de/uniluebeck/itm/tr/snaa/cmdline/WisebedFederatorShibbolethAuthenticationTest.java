@@ -43,11 +43,41 @@ import static org.junit.Assert.assertTrue;
 
 public class WisebedFederatorShibbolethAuthenticationTest {
 
+	public static final Map<String, String> snaaEndpointPropertiesMapWisebed1 = new HashMap<String, String>() {{
+		put("config.port", "8070");
+		put("config.snaas", "shib1, shib2, fed1, wisebedfed1");
+
+		put("shib1.type", "shibboleth");
+		put("shib1.urnprefix", "urn:wisebed1:shib1");
+		put("shib1.path", "/snaa/shib1");
+		put("shib1.authorization_class", "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization");
+
+		put("shib2.type", "shibboleth");
+		put("shib2.urnprefix", "urn:wisebed1:shib2");
+		put("shib2.path", "/snaa/shib2");
+		put("shib2.authorization_class", "eu.wisebed.testbed.api.snaa.authorization.AlwaysDenyAuthorization");
+
+		put("fed1.type", "federator");
+		put("fed1.path", "/snaa/fed1");
+		put("fed1.federates", "shib1, shib2");
+		put("fed1.shib1.urnprefixes", "urn:wisebed1:shib1");
+		put("fed1.shib1.endpointurl", "http://localhost:8080/snaa/shib1");
+		put("fed1.shib2.urnprefixes", "urn:wisebed1:shib2");
+		put("fed1.shib2.endpointurl", "http://localhost:8080/snaa/shib2");
+
+		put("wisebedfed1.type", "wisebed-federator");
+		put("wisebedfed1.path", "/snaa/wisebedfed1");
+		put("wisebedfed1.secret_user_key_url", "https://gridlab23.unibe.ch/portal/SNA/secretUserKey");
+		put("wisebedfed1.federates", "shib1");
+		put("wisebedfed1.shib1.urnprefixes", "urn:wisebed1:shib1");
+		put("wisebedfed1.shib1.endpointurl", "http://localhost:8080/snaa/shib1");
+		put("wisebedfed1.shib2.urnprefixes", "urn:wisebed1:shib2");
+		put("wisebedfed1.shib2.endpointurl", "http://localhost:8080/snaa/shib2");
+	}};
+
     private Map<String, Set<String>> snaaPrefixSet = null;
 
     private WisebedSnaaFederator snaaFederator = null;
-
-    private static Map<String, String> snaaEndpointPropertiesMapWisebed1 = EndpointPropertiesTestMap.SNAAPropertiesMapWisebed3;
 
     private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
             new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();

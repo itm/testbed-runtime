@@ -42,19 +42,19 @@ public class PublicReservationDataInternal implements Serializable {
 	@Column(nullable = false)
 	protected long toDate;
 
-    private String userData;
+	private String userData;
 
-    public PublicReservationDataInternal() {
-    }
+	public PublicReservationDataInternal() {
+	}
 
-    public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeURNs) {
-        this.fromDate = fromDate;
-        this.toDate = toDate;
-        this.userData = userData;
-        this.nodeURNs = nodeURNs;
-    }
+	public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeURNs) {
+		this.fromDate = fromDate;
+		this.toDate = toDate;
+		this.userData = userData;
+		this.nodeURNs = nodeURNs;
+	}
 
-    public long getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -99,15 +99,15 @@ public class PublicReservationDataInternal implements Serializable {
 		this.toDate = value;
 	}
 
-    public String getUserData() {
-        return userData;
-    }
+	public String getUserData() {
+		return userData;
+	}
 
-    public void setUserData(String userData) {
-        this.userData = userData;
-    }
+	public void setUserData(String userData) {
+		this.userData = userData;
+	}
 
-    @Override
+	@Override
 	public String toString() {
 		return "PublicReservationDataInternal{" +
 				"id=" + id +

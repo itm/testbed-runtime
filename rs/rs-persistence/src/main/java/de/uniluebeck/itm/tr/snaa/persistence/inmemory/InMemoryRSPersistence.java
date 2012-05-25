@@ -27,8 +27,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.rs.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -40,21 +40,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by:
- * User: bimschas
- * Date: 11.03.2010
- * Time: 10:24:37
- */
 public class InMemoryRSPersistence implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(InMemoryRSPersistence.class);
 
 	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("InMemoryRSPersistence-Thread %d").build());
+	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1,
+			new ThreadFactoryBuilder().setNameFormat("InMemoryRSPersistence-Thread %d").build()
+	);
 
-	private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations = new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
+	private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations =
+			new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
 
 	private Runnable housekeeper = new Runnable() {
 
@@ -62,7 +59,8 @@ public class InMemoryRSPersistence implements RSPersistence {
 		public void run() {
 			//log.debug("Doing housekeeping. Checking for invalidated sessions (current " + reservations.size() + ")");
 
-			for (Iterator<Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData>> iterator = reservations.entrySet().iterator(); iterator.hasNext();) {
+			for (Iterator<Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData>> iterator =
+						 reservations.entrySet().iterator(); iterator.hasNext(); ) {
 				Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData> entry = iterator.next();
 
 				if (entry.getValue().getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
@@ -94,7 +92,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 		reservations.put(secretReservationKeyWrapper, reservationData);
 
 		return secretReservationKey;
-		
+
 	}
 
 	@Override
@@ -107,8 +105,9 @@ public class InMemoryRSPersistence implements RSPersistence {
 					new DateTime(r.getFrom().toGregorianCalendar()),
 					new DateTime(r.getTo().toGregorianCalendar())
 			);
-			if (reserved.overlaps(interval))
+			if (reserved.overlaps(interval)) {
 				res.add(r);
+			}
 
 		}
 
@@ -122,6 +121,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 	 * be used e.g. inside a {@link java.util.HashMap}.
 	 */
 	private static class SecretReservationKeyWrapper {
+
 		public SecretReservationKey secretReservationKey;
 
 		private SecretReservationKeyWrapper(SecretReservationKey secretReservationKey) {
@@ -130,23 +130,31 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (getClass() != obj.getClass())
+			}
+			if (getClass() != obj.getClass()) {
 				return false;
+			}
 			SecretReservationKeyWrapper other = (SecretReservationKeyWrapper) obj;
 			if (secretReservationKey.getSecretReservationKey() == null) {
-				if (other.secretReservationKey.getSecretReservationKey() != null)
+				if (other.secretReservationKey.getSecretReservationKey() != null) {
 					return false;
-			} else if (!secretReservationKey.getSecretReservationKey().equals(other.secretReservationKey.getSecretReservationKey()))
+				}
+			} else if (!secretReservationKey.getSecretReservationKey()
+					.equals(other.secretReservationKey.getSecretReservationKey())) {
 				return false;
+			}
 			if (secretReservationKey.getUrnPrefix() == null) {
-				if (other.secretReservationKey.getUrnPrefix() != null)
+				if (other.secretReservationKey.getUrnPrefix() != null) {
 					return false;
-			} else if (!secretReservationKey.getUrnPrefix().equals(other.secretReservationKey.getUrnPrefix()))
+				}
+			} else if (!secretReservationKey.getUrnPrefix().equals(other.secretReservationKey.getUrnPrefix())) {
 				return false;
+			}
 			return true;
 		}
 
@@ -154,8 +162,10 @@ public class InMemoryRSPersistence implements RSPersistence {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((secretReservationKey.getSecretReservationKey() == null) ? 0 : secretReservationKey.getSecretReservationKey().hashCode());
-			result = prime * result + ((secretReservationKey.getUrnPrefix() == null) ? 0 : secretReservationKey.getUrnPrefix().hashCode());
+			result = prime * result + ((secretReservationKey.getSecretReservationKey() == null) ? 0 :
+					secretReservationKey.getSecretReservationKey().hashCode());
+			result = prime * result + ((secretReservationKey.getUrnPrefix() == null) ? 0 :
+					secretReservationKey.getUrnPrefix().hashCode());
 			return result;
 		}
 	}
@@ -167,8 +177,11 @@ public class InMemoryRSPersistence implements RSPersistence {
 		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
-		} else
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
+		} else {
+			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+					new ReservervationNotFoundException()
+			);
+		}
 	}
 
 	@Override
@@ -178,8 +191,11 @@ public class InMemoryRSPersistence implements RSPersistence {
 		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
-		} else
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"), new ReservervationNotFoundException());
+		} else {
+			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+					new ReservervationNotFoundException()
+			);
+		}
 	}
 
 	@Override

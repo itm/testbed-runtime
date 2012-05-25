@@ -31,40 +31,15 @@ import org.joda.time.Interval;
 
 import java.util.List;
 
-/**
- *
- */
 public interface RSPersistence {
 
-	/**
-	 * @param reservationData
-	 * @return
-	 */
 	SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) throws Exception;
 
-	/**
-	 * @param interval
-	 * @return
-	 * @throws RSExceptionException Important: Intervals are inclusive of the start instant and exclusive of the end
-	 */
 	List<ConfidentialReservationData> getReservations(Interval interval) throws RSExceptionException;
 
-	/**
-	 * @param secretReservationKey
-	 * @return
-	 * @throws RSExceptionException
-	 * @throws eu.wisebed.api.rs.ReservervationNotFoundExceptionException
-	 *
-	 */
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
 			ReservervationNotFoundExceptionException, RSExceptionException;
 
-	/**
-	 * @param secretReservationKey
-	 * @throws eu.wisebed.api.rs.ReservervationNotFoundExceptionException
-	 *
-	 * @throws RSExceptionException
-	 */
 	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
 			ReservervationNotFoundExceptionException, RSExceptionException;
 }

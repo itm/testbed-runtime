@@ -47,13 +47,18 @@ import java.io.Serializable;
 public class ReservationDataInternal implements Serializable {
 
 	public static class QGetByReservationKey {
+
 		public static final String QUERYNAME = "getReservationDataBySecretReservationKey";
+
 		public static final String P_SECRETRESERVATIONKEY = "secretReservationKey";
 	}
 
 	public static class QGetByInterval {
+
 		public static final String QUERYNAME = "getReservationDataByInterval";
+
 		public static final String P_FROM = "from";
+
 		public static final String P_TO = "to";
 	}
 
@@ -77,7 +82,8 @@ public class ReservationDataInternal implements Serializable {
 	public ReservationDataInternal() {
 	}
 
-	public ReservationDataInternal(SecretReservationKeyInternal secretReservationKey, ConfidentialReservationDataInternal confidentialReservationData, String urnPrefix) {
+	public ReservationDataInternal(SecretReservationKeyInternal secretReservationKey,
+								   ConfidentialReservationDataInternal confidentialReservationData, String urnPrefix) {
 		this.secretReservationKey = secretReservationKey;
 		this.confidentialReservationData = confidentialReservationData;
 		this.urnPrefix = urnPrefix;

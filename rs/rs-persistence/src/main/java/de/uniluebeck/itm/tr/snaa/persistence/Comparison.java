@@ -40,17 +40,29 @@ public class Comparison {
 	private static int preComparison(Object actualObject, Object compareObject) {
 		int status = 0;
 		//if primitive and not equal
-		if ((status = compareIfPrimitive(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfPrimitive(actualObject, compareObject)) != 0) {
+			return status;
+		}
 		//if String
-		if ((status = compareIfString(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfString(actualObject, compareObject)) != 0) {
+			return status;
+		}
 		//if list
-		if ((status = compareIfList(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfList(actualObject, compareObject)) != 0) {
+			return status;
+		}
 		//if array
-		if ((status = compareIfArray(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfArray(actualObject, compareObject)) != 0) {
+			return status;
+		}
 		//if set
-		if ((status = compareIfSet(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfSet(actualObject, compareObject)) != 0) {
+			return status;
+		}
 		//if map
-		if ((status = compareIfMap(actualObject, compareObject)) != 0) return status;
+		if ((status = compareIfMap(actualObject, compareObject)) != 0) {
+			return status;
+		}
 
 		return status;
 	}
@@ -73,13 +85,17 @@ public class Comparison {
 			declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
 			while (true) {
 				clazz = clazz.getSuperclass();
-				if (clazz.equals(Object.class)) break;
+				if (clazz.equals(Object.class)) {
+					break;
+				}
 				declaredMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
 			}
 			//getting getters and compare
 			for (Method method : declaredMethods) {
 				//getting getters
-				if (!method.getName().startsWith("get")) continue;
+				if (!method.getName().startsWith("get")) {
+					continue;
+				}
 
 				Object invokedActualObject = null;
 				Object invokedCompareObject = null;
@@ -88,27 +104,30 @@ public class Comparison {
 				try {
 					invokedActualObject = method.invoke(object);
 					invokedCompareObject = method.invoke(objectMap.get(object));
-				}
-				catch (InvocationTargetException e) {
+				} catch (InvocationTargetException e) {
 					continue;
-				}
-				catch (IllegalArgumentException e) {
+				} catch (IllegalArgumentException e) {
 					continue;
-				}
-				catch (IllegalAccessException e) {
+				} catch (IllegalAccessException e) {
 					continue;
 				}
 
 				//start comparison
 				//check if null
-				if (compareIfNull(invokedActualObject, invokedCompareObject)) continue;
+				if (compareIfNull(invokedActualObject, invokedCompareObject)) {
+					continue;
+				}
 				//preComparison
 				status = preComparison(invokedActualObject, invokedCompareObject);
-				if (status == -1) return status;
+				if (status == -1) {
+					return status;
+				}
 
 				tempMap.put(invokedActualObject, invokedCompareObject);
 			}
-			if (tempMap.isEmpty()) return status;
+			if (tempMap.isEmpty()) {
+				return status;
+			}
 
 			objectMap = tempMap;
 			tempMap = new HashMap<Object, Object>();
@@ -118,13 +137,17 @@ public class Comparison {
 	}
 
 	private static boolean compareIfNull(Object actualObject, Object compareObject) {
-		if (actualObject == null && compareObject == null) return true;
+		if (actualObject == null && compareObject == null) {
+			return true;
+		}
 		return false;
 	}
 
 	private static int compareIfPrimitive(Object actualObject, Object compareObject) {
 		if (actualObject.getClass().isPrimitive()) {
-			if (actualObject == compareObject) return 1;
+			if (actualObject == compareObject) {
+				return 1;
+			}
 			return -1;
 		}
 		return 0;
@@ -132,7 +155,9 @@ public class Comparison {
 
 	private static int compareIfString(Object actualObject, Object compareObject) {
 		if (actualObject instanceof String) {
-			if (actualObject.equals(compareObject)) return 1;
+			if (actualObject.equals(compareObject)) {
+				return 1;
+			}
 			return -1;
 		}
 		return 0;
@@ -143,7 +168,9 @@ public class Comparison {
 			Object[] actualObjectAsArray = (Object[]) actualObject;
 			Object[] compareObjectAsArray = (Object[]) compareObject;
 
-			if (actualObjectAsArray.length != compareObjectAsArray.length) return -1;
+			if (actualObjectAsArray.length != compareObjectAsArray.length) {
+				return -1;
+			}
 
 			for (int i = 0; i < actualObjectAsArray.length; i++) {
 				return compare(actualObjectAsArray[i], compareObjectAsArray[i]);
@@ -177,10 +204,14 @@ public class Comparison {
 			Map actualObjectAsMap = (Map) actualObject;
 			Map compareObjectAsMap = (Map) compareObject;
 
-			if (actualObjectAsMap.size() != compareObjectAsMap.size()) return -1;
+			if (actualObjectAsMap.size() != compareObjectAsMap.size()) {
+				return -1;
+			}
 
 			//preComparison keys
-			if (compareIfSet(actualObjectAsMap.keySet(), compareObjectAsMap.keySet()) == -1) return -1;
+			if (compareIfSet(actualObjectAsMap.keySet(), compareObjectAsMap.keySet()) == -1) {
+				return -1;
+			}
 			//preComparison values
 			return (compareIfArray(actualObjectAsMap.values().toArray(), compareObjectAsMap.values().toArray()));
 		}

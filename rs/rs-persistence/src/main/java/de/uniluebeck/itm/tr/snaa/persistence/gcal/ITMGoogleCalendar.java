@@ -58,6 +58,7 @@ public class ITMGoogleCalendar {
 	private String EVENT_FEED_URL_SUFFIX = "/private/full";
 
 	private String userName = "testbed-runtime-unittests@itm.uni-luebeck.de";
+
 	private String userPassword = "testbed-runtime-unittests123";
 
 	// The URL for the metafeed of the specified user.
@@ -96,8 +97,10 @@ public class ITMGoogleCalendar {
 	/**
 	 * Prints a list of all the user's calendars.
 	 *
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server
 	 */
 	public void printUserCalendars() throws IOException, ServiceException {
 		// Send the request and receive the response:
@@ -114,19 +117,26 @@ public class ITMGoogleCalendar {
 	/**
 	 * Prints the titles of all experiments on the calendar
 	 *
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
 	public void printAllReservations() throws ServiceException, IOException {
 		// Send the request and receive the response:
 		CalendarEventFeed resultFeed = myService.getFeed(eventFeedUrl,
-				CalendarEventFeed.class);
+				CalendarEventFeed.class
+		);
 
 		System.out.println("All events on your calendar:");
 		System.out.println();
 		for (int i = 0; i < resultFeed.getEntries().size(); i++) {
 			CalendarEventEntry entry = resultFeed.getEntries().get(i);
-			System.out.println("\t" + entry.getTitle().getPlainText() + " " + entry.getPlainTextContent() + " " + entry.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime().toUiString());
+			System.out.println(
+					"\t" + entry.getTitle().getPlainText() + " " + entry.getPlainTextContent() + " " + entry.getTimes()
+							.get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime()
+							.toUiString()
+			);
 		}
 		System.out.println();
 	}
@@ -135,8 +145,11 @@ public class ITMGoogleCalendar {
 	 * Returns a List of all experiments
 	 *
 	 * @return List of experiments
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
 	public CalendarEventFeed getAllReservation() throws ServiceException, IOException {
 		// Send the request and receive the response:
@@ -146,7 +159,11 @@ public class ITMGoogleCalendar {
 		System.out.println();
 		for (int i = 0; i < resultFeed.getEntries().size(); i++) {
 			CalendarEventEntry entry = resultFeed.getEntries().get(i);
-			System.out.println("\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime().toUiString());
+			System.out.println(
+					"\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry
+							.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime()
+							.toUiString()
+			);
 		}
 		System.out.println();
 		return resultFeed;
@@ -155,10 +172,15 @@ public class ITMGoogleCalendar {
 	/**
 	 * Returns a list of all experiments matching the query.
 	 *
-	 * @param query The text for which to query.
+	 * @param query
+	 * 		The text for which to query.
+	 *
 	 * @return List of experiments
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
 	public CalendarEventFeed getReservationsbyTitle(String query) throws ServiceException, IOException {
 		Query myQuery = new Query(eventFeedUrl);
@@ -170,7 +192,11 @@ public class ITMGoogleCalendar {
 		System.out.println();
 		for (int i = 0; i < resultFeed.getEntries().size(); i++) {
 			CalendarEventEntry entry = resultFeed.getEntries().get(i);
-			System.out.println("\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime().toUiString());
+			System.out.println(
+					"\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry
+							.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime()
+							.toUiString()
+			);
 		}
 		System.out.println();
 		return resultFeed;
@@ -179,13 +205,20 @@ public class ITMGoogleCalendar {
 	/**
 	 * Returns a list of all experiments in a specified date/time range.
 	 *
-	 * @param startTime Start time (inclusive) of events to print.
-	 * @param endTime   End time (exclusive) of events to print.
+	 * @param startTime
+	 * 		Start time (inclusive) of events to print.
+	 * @param endTime
+	 * 		End time (exclusive) of events to print.
+	 *
 	 * @return List of experiments
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
-	public CalendarEventFeed getReservationsbyDateRange(DateTime startTime, DateTime endTime) throws ServiceException, IOException {
+	public CalendarEventFeed getReservationsbyDateRange(DateTime startTime, DateTime endTime)
+			throws ServiceException, IOException {
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 		myQuery.setMinimumStartTime(startTime);
 		myQuery.setMaximumStartTime(endTime);
@@ -197,7 +230,11 @@ public class ITMGoogleCalendar {
 		System.out.println();
 		for (int i = 0; i < resultFeed.getEntries().size(); i++) {
 			CalendarEventEntry entry = resultFeed.getEntries().get(i);
-			System.out.println("\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime().toUiString());
+			System.out.println(
+					"\t" + entry.getTitle().getPlainText() + " {" + entry.getPlainTextContent() + "} " + entry
+							.getTimes().get(0).getStartTime().toUiString() + " " + entry.getTimes().get(0).getEndTime()
+							.toUiString()
+			);
 		}
 		System.out.println();
 		return resultFeed;
@@ -212,15 +249,24 @@ public class ITMGoogleCalendar {
 	/**
 	 * Creates a new Experiment Entry in the Main calendar
 	 *
-	 * @param eventTitle Title of the event to create.
-	 * @param nodeList   Text content of the event - List of reserved nodes.
-	 * @param startTime  Start of the Experiment
-	 * @param endTime	End of the Experiment
+	 * @param eventTitle
+	 * 		Title of the event to create.
+	 * @param nodeList
+	 * 		Text content of the event - List of reserved nodes.
+	 * @param startTime
+	 * 		Start of the Experiment
+	 * @param endTime
+	 * 		End of the Experiment
+	 *
 	 * @return The newly-created CalendarEventEntry.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
-	public CalendarEventEntry createReservation(String eventTitle, String nodeList, DateTime startTime, DateTime endTime) throws ServiceException, IOException {
+	public CalendarEventEntry createReservation(String eventTitle, String nodeList, DateTime startTime,
+												DateTime endTime) throws ServiceException, IOException {
 		CalendarEventEntry myEntry = new CalendarEventEntry();
 
 		myEntry.setTitle(new PlainTextConstruct(eventTitle));
@@ -242,13 +288,20 @@ public class ITMGoogleCalendar {
 	/**
 	 * Updates the title of an existing calendar event.
 	 *
-	 * @param entry	The event to update.
-	 * @param newTitle The new title for this event.
+	 * @param entry
+	 * 		The event to update.
+	 * @param newTitle
+	 * 		The new title for this event.
+	 *
 	 * @return The updated CalendarEventEntry object.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
-	public CalendarEventEntry updateTitle(CalendarEventEntry entry, String newTitle) throws ServiceException, IOException {
+	public CalendarEventEntry updateTitle(CalendarEventEntry entry, String newTitle)
+			throws ServiceException, IOException {
 		entry.setTitle(new PlainTextConstruct(newTitle));
 		return entry.update();
 	}
@@ -256,13 +309,20 @@ public class ITMGoogleCalendar {
 	/**
 	 * Updates the title of an existing calendar event.
 	 *
-	 * @param entry	The event to update.
-	 * @param newTitle The new title for this event.
+	 * @param entry
+	 * 		The event to update.
+	 * @param newTitle
+	 * 		The new title for this event.
+	 *
 	 * @return The updated CalendarEventEntry object.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
-	public CalendarEventEntry updateListofNodes(CalendarEventEntry entry, String newTitle) throws ServiceException, IOException {
+	public CalendarEventEntry updateListofNodes(CalendarEventEntry entry, String newTitle)
+			throws ServiceException, IOException {
 		entry.setTitle(new PlainTextConstruct(newTitle));
 		return entry.update();
 	}
@@ -270,9 +330,13 @@ public class ITMGoogleCalendar {
 	/**
 	 * Deletes the event.
 	 *
-	 * @param event The event to delete.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 * @param event
+	 * 		The event to delete.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
 	public void deleteReservation(CalendarEventEntry event) throws ServiceException, IOException {
 		event.delete();
@@ -281,14 +345,22 @@ public class ITMGoogleCalendar {
 	/**
 	 * Adds a reminder to a calendar event.
 	 *
-	 * @param entry	  The event to update.
-	 * @param numMinutes Reminder time, in minutes.
-	 * @param methodType Method of notification (e.g. email, alert, sms).
+	 * @param entry
+	 * 		The event to update.
+	 * @param numMinutes
+	 * 		Reminder time, in minutes.
+	 * @param methodType
+	 * 		Method of notification (e.g. email, alert, sms).
+	 *
 	 * @return The updated EventEntry object.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
-	public CalendarEventEntry addReminder(CalendarEventEntry entry, int numMinutes, Method methodType) throws ServiceException, IOException {
+	public CalendarEventEntry addReminder(CalendarEventEntry entry, int numMinutes, Method methodType)
+			throws ServiceException, IOException {
 		Reminder reminder = new Reminder();
 		reminder.setMinutes(numMinutes);
 		reminder.setMethod(methodType);
@@ -304,9 +376,13 @@ public class ITMGoogleCalendar {
 	 * returned from the server that contain valid edit links (for optimistic
 	 * concurrency to work).
 	 *
-	 * @param eventsToDelete A list of CalendarEventEntry objects to delete.
-	 * @throws ServiceException If the service is unable to handle the request.
-	 * @throws IOException	  Error communicating with the server.
+	 * @param eventsToDelete
+	 * 		A list of CalendarEventEntry objects to delete.
+	 *
+	 * @throws ServiceException
+	 * 		If the service is unable to handle the request.
+	 * @throws IOException
+	 * 		Error communicating with the server.
 	 */
 	public void deleteReservation(List<CalendarEventEntry> eventsToDelete) throws ServiceException, IOException {
 
@@ -337,7 +413,8 @@ public class ITMGoogleCalendar {
 				isSuccess = false;
 				BatchStatus status = BatchUtils.getBatchStatus(entry);
 				System.out.println("\n" + batchId + " failed (" + status.getReason()
-						+ ") " + status.getContent());
+						+ ") " + status.getContent()
+				);
 			}
 		}
 		if (isSuccess) {

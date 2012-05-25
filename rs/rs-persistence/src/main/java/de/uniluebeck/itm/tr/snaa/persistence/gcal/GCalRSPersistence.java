@@ -264,8 +264,9 @@ public class GCalRSPersistence implements RSPersistence {
 
 					reservation = convert(entry).getReservation();
 					Interval reservedInterval = new Interval(
-										new org.joda.time.DateTime(reservation.getFrom().toGregorianCalendar()),
-										new org.joda.time.DateTime(reservation.getTo().toGregorianCalendar()));
+							new org.joda.time.DateTime(reservation.getFrom().toGregorianCalendar()),
+							new org.joda.time.DateTime(reservation.getTo().toGregorianCalendar())
+					);
 					if (reservedInterval.overlaps(interval)) {
 						reservations.add(reservation);
 					}

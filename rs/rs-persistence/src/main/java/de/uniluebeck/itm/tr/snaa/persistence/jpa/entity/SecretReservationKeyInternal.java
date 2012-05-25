@@ -39,6 +39,7 @@ public class SecretReservationKeyInternal implements Serializable {
 
 	@Column(unique = true, nullable = false)
 	protected String secretReservationKey;
+
 	@Column
 	protected String urnPrefix;
 
@@ -69,23 +70,30 @@ public class SecretReservationKeyInternal implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		SecretReservationKeyInternal other = (SecretReservationKeyInternal) obj;
 		if (secretReservationKey == null) {
-			if (other.secretReservationKey != null)
+			if (other.secretReservationKey != null) {
 				return false;
-		} else if (!secretReservationKey.equals(other.secretReservationKey))
+			}
+		} else if (!secretReservationKey.equals(other.secretReservationKey)) {
 			return false;
+		}
 		if (urnPrefix == null) {
-			if (other.urnPrefix != null)
+			if (other.urnPrefix != null) {
 				return false;
-		} else if (!urnPrefix.equals(other.urnPrefix))
+			}
+		} else if (!urnPrefix.equals(other.urnPrefix)) {
 			return false;
+		}
 		return true;
 	}
 
