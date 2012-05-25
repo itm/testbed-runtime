@@ -45,7 +45,6 @@ import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
@@ -249,8 +248,6 @@ public class SingleUrnPrefixRS implements RS {
 	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
 			throws RSExceptionException {
 
-		log.debug("Checking authentication data ({})", authenticationData);
-
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
 			String msg = "No or too much authentication data supplied -> error.";
@@ -262,7 +259,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
 		if (!urnPrefix.equals(sak.getUrnPrefix())) {
-			String msg = "Not serving urn prefix \"" + sak.getUrnPrefix() + "\"";
+			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
 			RSException exception = new RSException();
 			exception.setMessage(msg);
@@ -339,8 +336,6 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkNodesServed(List<String> nodeUrns) throws RSExceptionException {
-
-		log.debug("Checking if nodes are served ({})", nodeUrns);
 
 		// Check if we serve all node urns by urnPrefix
 		for (String nodeUrn : nodeUrns) {
@@ -434,7 +429,7 @@ public class SingleUrnPrefixRS implements RS {
 		} else {
 			srk = secretReservationKeys.get(0);
 			if (!urnPrefix.equals(srk.getUrnPrefix())) {
-				msg = "Not serving urn prefix \"" + srk.getUrnPrefix() + "\"";
+				msg = "Not serving urn prefix " + srk.getUrnPrefix();
 			}
 		}
 

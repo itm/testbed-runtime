@@ -221,8 +221,7 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
-		ConfidentialReservationData crd =
-				buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
+		ConfidentialReservationData crd = buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
@@ -268,10 +267,8 @@ public class SingleUrnPrefixRSTest {
 		when(snaa.isAuthorized(user2SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
-		final ConfidentialReservationData reservation1 =
-				buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
-		final ConfidentialReservationData reservation2 =
-				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
+		final ConfidentialReservationData reservation1 = buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
+		final ConfidentialReservationData reservation2 = buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(
 				newArrayList(reservation1, reservation2)
 		);
@@ -306,7 +303,6 @@ public class SingleUrnPrefixRSTest {
 																		 final String username,
 																		 final String secretReservationKey,
 																		 final String... nodeUrns) {
-
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
