@@ -44,8 +44,6 @@
 		<module>rs-federator</module>
 		<module>rs-singleurnprefix</module>
 		<module>rs-persistence</module>
-		<module>rs-persistence-inmemory</module>
-		<module>rs-persistence-jpa</module>
     </modules>
 
 </project>

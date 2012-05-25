@@ -78,11 +78,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-persistence-inmemory</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.wiseml</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -174,11 +169,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-persistence-jpa</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.overlay-socketconnector</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -246,6 +236,11 @@
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-assistedinject</artifactId>
 				<version>3.0</version>
 			</dependency>
 			<dependency>
@@ -386,7 +381,7 @@
 			<dependency>
 				<groupId>org.apache.derby</groupId>
 				<artifactId>derby</artifactId>
-				<version>10.4.2.0</version>
+				<version>10.8.2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>mysql</groupId>

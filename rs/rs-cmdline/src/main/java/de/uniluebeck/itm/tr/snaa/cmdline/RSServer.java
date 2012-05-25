@@ -44,15 +44,15 @@ import de.uniluebeck.itm.tr.snaa.federator.FederatorRS;
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.snaa.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.snaa.persistence.inmemory.InMemoryRSPersistence;
-import de.uniluebeck.itm.tr.snaa.persistence.jpa.RSPersistenceJPAFactory;
+import de.uniluebeck.itm.tr.snaa.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.snaa.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.snaa.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.WisebedServiceHelper;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -193,7 +193,9 @@ public class RSServer {
 			@Override
 			public void configure(final Binder binder) {
 
-				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"", new Object[]{urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl});
+				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"",
+						new Object[]{urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl}
+				);
 
 				final ExecutorService executorService =
 						MoreExecutors.getExitingExecutorService((ThreadPoolExecutor) Executors.newCachedThreadPool());
@@ -344,6 +346,7 @@ public class RSServer {
 
 	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix)
 			throws IOException, RSExceptionException {
+
 		Map<String, String> properties = new HashMap<String, String>();
 		for (Object key : props.keySet()) {
 			if (!((String) key).startsWith(propsPrefix + "." + "properties")) {
@@ -355,12 +358,13 @@ public class RSServer {
 		}
 
 		//set Database-Persistence-TimeZone if defined in config file, if not set default to GMT)
-		TimeZone persistenceTimeZone = TimeZone.getTimeZone("GMT");
+		TimeZone localTimeZone = TimeZone.getTimeZone("GMT");
 		if (props.getProperty(propsPrefix + ".timezone") != null) {
-			persistenceTimeZone = TimeZone.getTimeZone(props.getProperty(propsPrefix + ".timezone"));
+			localTimeZone = TimeZone.getTimeZone(props.getProperty(propsPrefix + ".timezone"));
 		}
 
-		return RSPersistenceJPAFactory.createInstance(properties, persistenceTimeZone);
+		final Injector injector = Guice.createInjector(new RSPersistenceJPAModule(localTimeZone, properties));
+		return injector.getInstance(RSPersistence.class);
 	}
 
 }

@@ -21,24 +21,22 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.persistence.jpa;
+package de.uniluebeck.itm.tr.snaa.persistence.gcal;
 
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.snaa.persistence.jpa.impl.RSPersistenceJPAImpl;
+import de.uniluebeck.itm.tr.snaa.persistence.RSPersistenceTest;
+import eu.wisebed.api.rs.RSExceptionException;
+import org.junit.Before;
 
-import java.util.Map;
-import java.util.TimeZone;
+public class GCalRSPersistenceTest extends RSPersistenceTest {
 
-/**
- * Created by IntelliJ IDEA.
- * DataInternal: nr
- * Date: 09.04.2010
- * Time: 16:28:09
- */
-public class RSPersistenceJPAFactory {
-
-	public static RSPersistence createInstance(Map properties, TimeZone localTimeZone) {
-		return new RSPersistenceJPAImpl(properties, localTimeZone);
+	@Before
+	public void setUp() throws RSExceptionException {
+		super.setUp();
+		RSPersistence persistence = new GCalRSPersistence(
+				"testbed-runtime-unittests@itm.uni-luebeck.de",
+				"testbed-runtime-unittests123"
+		);
+		super.setPersistence(persistence);
 	}
-
 }

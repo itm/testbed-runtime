@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 
 public abstract class RSPersistenceTest {
 
-	private RSPersistence persistence;
+	protected RSPersistence persistence;
 
 	private Map<Integer, ConfidentialReservationData> reservationDataMap =
 			new HashMap<Integer, ConfidentialReservationData>();

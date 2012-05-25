@@ -21,10 +21,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.persistence.jpa.impl;
+package de.uniluebeck.itm.tr.snaa.persistence.jpa;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.SecretReservationKeyInternal;
@@ -34,14 +33,16 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.RollbackException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
-public class RSPersistenceJPAImpl implements RSPersistence {
+public class RSPersistenceJPA implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(RSPersistence.class);
 
@@ -52,9 +53,8 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPAImpl(@Named("properties") Map properties, TimeZone localTimeZone) {
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default", properties);
-		em = factory.createEntityManager();
+	public RSPersistenceJPA(final EntityManager em, final TimeZone localTimeZone) {
+		this.em = em;
 		this.localTimeZone = localTimeZone;
 	}
 
@@ -132,7 +132,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
 		);
-		ReservationDataInternal reservationData = null;
+		ReservationDataInternal reservationData;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
@@ -154,7 +154,7 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
 		);
-		ReservationDataInternal reservationData = null;
+		ReservationDataInternal reservationData;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
@@ -196,8 +196,6 @@ public class RSPersistenceJPAImpl implements RSPersistence {
 			throw new RSExceptionException(e.getMessage(), new RSException());
 		}
 	}
-
-	// temp
 
 	public void printPersistentReservationData() throws Exception {
 		System.out.println("ReservationTableEntries:\n----------");

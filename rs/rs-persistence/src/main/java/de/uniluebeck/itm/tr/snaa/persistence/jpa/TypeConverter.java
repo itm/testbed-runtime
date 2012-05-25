@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.persistence.jpa.impl;
+package de.uniluebeck.itm.tr.snaa.persistence.jpa;
 
 import de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.ConfidentialReservationDataInternal;
 import de.uniluebeck.itm.tr.snaa.persistence.jpa.entity.DataInternal;
@@ -39,12 +39,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Created by IntelliJ IDEA.
- * User: bimschas
- * Date: 16.04.2010
- * Time: 19:19:46
- */
 public class TypeConverter {
 
 	public static SecretReservationKey convert(SecretReservationKeyInternal internal) {

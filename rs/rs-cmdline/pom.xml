@@ -62,14 +62,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence-inmemory</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-wisebed</artifactId>
 		</dependency>
 		<dependency>

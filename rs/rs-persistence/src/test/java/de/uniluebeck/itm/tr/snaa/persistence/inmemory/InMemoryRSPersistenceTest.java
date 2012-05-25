@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.persistence.inmemory.test;
+package de.uniluebeck.itm.tr.snaa.persistence.inmemory;
 
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistenceTest;
@@ -29,7 +29,7 @@ import de.uniluebeck.itm.tr.snaa.persistence.inmemory.InMemoryRSPersistence;
 import eu.wisebed.api.rs.RSExceptionException;
 import org.junit.Before;
 
-public class RSPersistenceInMemoryTest extends RSPersistenceTest {
+public class InMemoryRSPersistenceTest extends RSPersistenceTest {
 
 	@Before
 	public void setUp() throws RSExceptionException {
