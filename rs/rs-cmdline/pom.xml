@@ -66,10 +66,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-persistence-gcal</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-persistence-jpa</artifactId>
 		</dependency>
 		<dependency>

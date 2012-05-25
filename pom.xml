@@ -174,11 +174,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-persistence-gcal</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-persistence-jpa</artifactId>
 				<version>${project.version}</version>
 			</dependency>

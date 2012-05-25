@@ -52,6 +52,18 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-calendar</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google</groupId>
+			<artifactId>gdata-core</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
