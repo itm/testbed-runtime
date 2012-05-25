@@ -36,7 +36,7 @@
 
 	<artifactId>tr.rs-persistence</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: RS Persistence Interface</name>
+	<name>TR :: RS Persistence</name>
 
 	<dependencies>
 

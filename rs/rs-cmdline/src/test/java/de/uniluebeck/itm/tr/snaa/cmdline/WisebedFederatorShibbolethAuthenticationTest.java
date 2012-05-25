@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.snaa.cmdline;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uniluebeck.itm.tr.snaa.persistence.EndpointPropertiesTestMap;
 import de.uniluebeck.itm.tr.snaa.cmdline.server.SNAAServer;
 import de.uniluebeck.itm.tr.snaa.shibboleth.MockShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
@@ -75,117 +74,126 @@ public class WisebedFederatorShibbolethAuthenticationTest {
 		put("wisebedfed1.shib2.endpointurl", "http://localhost:8080/snaa/shib2");
 	}};
 
-    private Map<String, Set<String>> snaaPrefixSet = null;
+	private Map<String, Set<String>> snaaPrefixSet = null;
 
-    private WisebedSnaaFederator snaaFederator = null;
+	private WisebedSnaaFederator snaaFederator = null;
 
-    private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
-            new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
+	private List<eu.wisebed.api.snaa.SecretAuthenticationKey> snaaSecretAuthenticationKeyList =
+			new LinkedList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
 
-    private static class SNAAPrefixe {
-        private static class Shib1{
-            private static String host = "http://localhost:8070/snaa/shib1";
-            private static String urn = "urn:wisebed1:shib1";
-        }
-        private static class Shib2{
-            private static String host = "http://localhost:8070/snaa/shib2";
-            private static String urn = "urn:wisebed1:shib2";
-        }
-    }
+	private static class SNAAPrefixe {
 
-    static {
-        // start SNAA endpoint
-        try {
-            SNAAServer.setMockShibbolethInjector();
-            SNAAServer.startFromProperties(getSNAAProperties());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+		private static class Shib1 {
 
-    }
+			private static String host = "http://localhost:8070/snaa/shib1";
 
-    /**
-     * Returns the configuration for the SNAA endpoint.
-     *
-     * @return a {@link java.util.Properties} instance containing the configuration of the dummy SNAA endpoint.
-     */
-    private static Properties getSNAAProperties() {
-        Properties props = new Properties();
-        for (Object key : snaaEndpointPropertiesMapWisebed1.keySet()) {
-            props.setProperty((String) key, snaaEndpointPropertiesMapWisebed1.get(key));
-        }
-        return props;
-    }
+			private static String urn = "urn:wisebed1:shib1";
+		}
 
-    @Before
-    public void setUp() throws Exception {
-        Injector injector = Guice.createInjector(new MockShibbolethSNAAModule());
+		private static class Shib2 {
 
-        Set<String> testbed1 = new HashSet<String>();
-        testbed1.add(SNAAPrefixe.Shib1.urn);
-        Set<String> testbed2 = new HashSet<String>();
-        testbed2.add(SNAAPrefixe.Shib2.urn);
+			private static String host = "http://localhost:8070/snaa/shib2";
 
-        snaaPrefixSet = new HashMap<String, Set<String>>();
-        snaaPrefixSet.put(SNAAPrefixe.Shib1.host, testbed1);
-        snaaPrefixSet.put(SNAAPrefixe.Shib2.host, testbed2);
-        snaaFederator = new WisebedSnaaFederator(snaaPrefixSet, "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector, null);
+			private static String urn = "urn:wisebed1:shib2";
+		}
+	}
 
-        //creating SNAA-Authentication-Data
-        List<AuthenticationTriple> snaaAuthenticationDataShib1 = createAuthenticationData(SNAAPrefixe.Shib1.urn);
-        List<AuthenticationTriple> snaaAuthenticationDataShib2 = createAuthenticationData(SNAAPrefixe.Shib2.urn);
+	static {
+		// start SNAA endpoint
+		try {
+			SNAAServer.setMockShibbolethInjector();
+			SNAAServer.startFromProperties(getSNAAProperties());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
-        snaaSecretAuthenticationKeyList.addAll(snaaFederator.authenticate(snaaAuthenticationDataShib1));
-        snaaSecretAuthenticationKeyList.addAll(snaaFederator.authenticate(snaaAuthenticationDataShib2));
-    }
+	}
 
-    private LinkedList<AuthenticationTriple> createAuthenticationData(String prefix) {
-        AuthenticationTriple snaaAuthenticationTriple = new AuthenticationTriple();
-        snaaAuthenticationTriple.setUsername("test@wisebed1.itm.uni-luebeck.de");
-        snaaAuthenticationTriple.setPassword("abcdef");
-        snaaAuthenticationTriple.setUrnPrefix(prefix);
-        LinkedList<AuthenticationTriple> snaaAuthenticationData = new LinkedList<AuthenticationTriple>();
-        snaaAuthenticationData.add(snaaAuthenticationTriple);
-        return snaaAuthenticationData;
-    }
+	/**
+	 * Returns the configuration for the SNAA endpoint.
+	 *
+	 * @return a {@link java.util.Properties} instance containing the configuration of the dummy SNAA endpoint.
+	 */
+	private static Properties getSNAAProperties() {
+		Properties props = new Properties();
+		for (Object key : snaaEndpointPropertiesMapWisebed1.keySet()) {
+			props.setProperty((String) key, snaaEndpointPropertiesMapWisebed1.get(key));
+		}
+		return props;
+	}
 
-    @Test
-    public void checkDecentralizedValidAuthorization() throws MalformedURLException, AuthenticationExceptionException, SNAAExceptionException {
-        SNAA port = getPort(SNAAPrefixe.Shib1.host);
+	@Before
+	public void setUp() throws Exception {
+		Injector injector = Guice.createInjector(new MockShibbolethSNAAModule());
 
-        Action action = new Action();
-        action.setAction("testAction");
+		Set<String> testbed1 = new HashSet<String>();
+		testbed1.add(SNAAPrefixe.Shib1.urn);
+		Set<String> testbed2 = new HashSet<String>();
+		testbed2.add(SNAAPrefixe.Shib2.urn);
 
-        for (String urn : snaaPrefixSet.get(SNAAPrefixe.Shib1.host)) {
-            assertTrue(port.isAuthorized(getSecretAuthenticationKeyFromAuthenticationKeyList(urn), action));
-        }
-    }
+		snaaPrefixSet = new HashMap<String, Set<String>>();
+		snaaPrefixSet.put(SNAAPrefixe.Shib1.host, testbed1);
+		snaaPrefixSet.put(SNAAPrefixe.Shib2.host, testbed2);
+		snaaFederator = new WisebedSnaaFederator(snaaPrefixSet,
+				"https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php", injector, null
+		);
 
-    @Test
-    public void checkDecentralizedNonValidAuthorization() throws MalformedURLException, SNAAExceptionException {
-        SNAA port = getPort(SNAAPrefixe.Shib2.host);
+		//creating SNAA-Authentication-Data
+		List<AuthenticationTriple> snaaAuthenticationDataShib1 = createAuthenticationData(SNAAPrefixe.Shib1.urn);
+		List<AuthenticationTriple> snaaAuthenticationDataShib2 = createAuthenticationData(SNAAPrefixe.Shib2.urn);
 
-        Action action = new Action();
-        action.setAction("testAction");
+		snaaSecretAuthenticationKeyList.addAll(snaaFederator.authenticate(snaaAuthenticationDataShib1));
+		snaaSecretAuthenticationKeyList.addAll(snaaFederator.authenticate(snaaAuthenticationDataShib2));
+	}
 
-        for (String urn : snaaPrefixSet.get(SNAAPrefixe.Shib2.host)) {
-            assertFalse(port.isAuthorized(getSecretAuthenticationKeyFromAuthenticationKeyList(urn), action));
-        }
-    }
+	private LinkedList<AuthenticationTriple> createAuthenticationData(String prefix) {
+		AuthenticationTriple snaaAuthenticationTriple = new AuthenticationTriple();
+		snaaAuthenticationTriple.setUsername("test@wisebed1.itm.uni-luebeck.de");
+		snaaAuthenticationTriple.setPassword("abcdef");
+		snaaAuthenticationTriple.setUrnPrefix(prefix);
+		LinkedList<AuthenticationTriple> snaaAuthenticationData = new LinkedList<AuthenticationTriple>();
+		snaaAuthenticationData.add(snaaAuthenticationTriple);
+		return snaaAuthenticationData;
+	}
 
-    private SNAA getPort(String key) throws MalformedURLException {
-        URL url = new URL(key);
-        SNAAService service = new SNAAService(url);
-        return service.getPort(SNAA.class);
-    }
+	@Test
+	public void checkDecentralizedValidAuthorization()
+			throws MalformedURLException, AuthenticationExceptionException, SNAAExceptionException {
+		SNAA port = getPort(SNAAPrefixe.Shib1.host);
 
-    private List<SecretAuthenticationKey> getSecretAuthenticationKeyFromAuthenticationKeyList(String urn) {
-        List<SecretAuthenticationKey> keyList = new LinkedList<SecretAuthenticationKey>();
-        for (SecretAuthenticationKey key : snaaSecretAuthenticationKeyList) {
-            if (key.getUrnPrefix().equals(urn)) {
-                keyList.add(key);
-            }
-        }
-        return keyList;
-    }
+		Action action = new Action();
+		action.setAction("testAction");
+
+		for (String urn : snaaPrefixSet.get(SNAAPrefixe.Shib1.host)) {
+			assertTrue(port.isAuthorized(getSecretAuthenticationKeyFromAuthenticationKeyList(urn), action));
+		}
+	}
+
+	@Test
+	public void checkDecentralizedNonValidAuthorization() throws MalformedURLException, SNAAExceptionException {
+		SNAA port = getPort(SNAAPrefixe.Shib2.host);
+
+		Action action = new Action();
+		action.setAction("testAction");
+
+		for (String urn : snaaPrefixSet.get(SNAAPrefixe.Shib2.host)) {
+			assertFalse(port.isAuthorized(getSecretAuthenticationKeyFromAuthenticationKeyList(urn), action));
+		}
+	}
+
+	private SNAA getPort(String key) throws MalformedURLException {
+		URL url = new URL(key);
+		SNAAService service = new SNAAService(url);
+		return service.getPort(SNAA.class);
+	}
+
+	private List<SecretAuthenticationKey> getSecretAuthenticationKeyFromAuthenticationKeyList(String urn) {
+		List<SecretAuthenticationKey> keyList = new LinkedList<SecretAuthenticationKey>();
+		for (SecretAuthenticationKey key : snaaSecretAuthenticationKeyList) {
+			if (key.getUrnPrefix().equals(urn)) {
+				keyList.add(key);
+			}
+		}
+		return keyList;
+	}
 }
