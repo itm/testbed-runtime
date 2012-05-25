@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.*;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.snaa.persistence.RSPersistence;
-import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
 import eu.wisebed.api.rs.*;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.snaa.Actions;
@@ -133,8 +132,8 @@ public class SingleUrnPrefixRSTest {
 		user2Sak.setUsername(USER2_USERNAME);
 		user2Saks = Lists.newArrayList(user2Sak);
 
-		user1SaksSnaa = BeanShellHelper.copyRsToSnaa(user1Saks);
-		user2SaksSnaa = BeanShellHelper.copyRsToSnaa(user2Saks);
+		user1SaksSnaa = copyRsToSnaa(user1Saks);
+		user2SaksSnaa = copyRsToSnaa(user2Saks);
 
 		user1Srk = new SecretReservationKey();
 		user1Srk.setSecretReservationKey(USER1_SECRET_RESERVATION_KEY);
@@ -222,7 +221,8 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
-		ConfidentialReservationData crd = buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
+		ConfidentialReservationData crd =
+				buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
@@ -248,10 +248,12 @@ public class SingleUrnPrefixRSTest {
 	}
 
 	/**
-	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated user
+	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
+	 * user
 	 * when {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.rs.GetReservations)} is called.
 	 *
-	 * @throws Exception if anything goes wrong
+	 * @throws Exception
+	 * 		if anything goes wrong
 	 */
 	@Test
 	public void testOnlyConfidentialReservationsOfAuthenticatedUserReturned() throws Exception {
@@ -266,8 +268,10 @@ public class SingleUrnPrefixRSTest {
 		when(snaa.isAuthorized(user2SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
-		final ConfidentialReservationData reservation1 = buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
-		final ConfidentialReservationData reservation2 = buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
+		final ConfidentialReservationData reservation1 =
+				buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
+		final ConfidentialReservationData reservation2 =
+				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(
 				newArrayList(reservation1, reservation2)
 		);
@@ -302,7 +306,7 @@ public class SingleUrnPrefixRSTest {
 																		 final String username,
 																		 final String secretReservationKey,
 																		 final String... nodeUrns) {
-		
+
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
@@ -322,6 +326,26 @@ public class SingleUrnPrefixRSTest {
 		crd.getData().add(data);
 
 		return crd;
+	}
+
+	private static List<eu.wisebed.api.snaa.SecretAuthenticationKey> copyRsToSnaa(
+			List<eu.wisebed.api.rs.SecretAuthenticationKey> snaaKeys) {
+
+		List<eu.wisebed.api.snaa.SecretAuthenticationKey> secretAuthKeys =
+				Lists.newArrayListWithCapacity(snaaKeys.size());
+
+		for (eu.wisebed.api.rs.SecretAuthenticationKey snaaKey : snaaKeys) {
+
+			eu.wisebed.api.snaa.SecretAuthenticationKey key = new eu.wisebed.api.snaa.SecretAuthenticationKey();
+
+			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
+			key.setUrnPrefix(snaaKey.getUrnPrefix());
+			key.setUsername(snaaKey.getUsername());
+
+			secretAuthKeys.add(key);
+		}
+
+		return secretAuthKeys;
 	}
 
 }
