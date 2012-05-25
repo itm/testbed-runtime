@@ -567,7 +567,7 @@
 		</repository>
 		<repository>
 			<id>itm-maven-repository-releases</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
+			<url>http://maven.itm.uni-luebeck.de/content/repositories/releases/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -577,7 +577,7 @@
 		</repository>
 		<repository>
 			<id>itm-maven-repository-snapshots</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/snapshots/</url>
+			<url>http://maven.itm.uni-luebeck.de/content/repositories/snapshots/</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -631,12 +631,12 @@
 		<repository>
 			<id>itm-maven-repository-releases</id>
 			<name>ITM UzL Maven releases repository</name>
-			<url>scpexe://itm01.itm.uni-luebeck.de/www/itm/projects/maven/releases</url>
+			<url>http://maven.itm.uni-luebeck.de/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>itm-maven-repository-snapshots</id>
 			<name>ITM UzL Maven snapshots repository</name>
-			<url>scpexe://itm01.itm.uni-luebeck.de/www/itm/projects/maven/snapshots</url>
+			<url>http://maven.itm.uni-luebeck.de/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
