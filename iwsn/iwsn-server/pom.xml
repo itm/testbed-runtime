@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.iwsn-cmdline</artifactId>
+	<artifactId>tr.iwsn-server</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: iWSN Commandline Executable</name>
+	<name>TR :: iWSN Server</name>
 
 	<dependencies>
 

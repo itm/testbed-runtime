@@ -40,7 +40,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-cmdline</artifactId>
+			<artifactId>tr.iwsn-server</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>

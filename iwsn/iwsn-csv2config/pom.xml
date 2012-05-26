@@ -25,7 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-cmdline</artifactId>
+			<artifactId>tr.iwsn-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
