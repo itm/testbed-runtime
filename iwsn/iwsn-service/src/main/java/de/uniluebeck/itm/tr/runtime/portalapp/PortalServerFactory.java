@@ -40,8 +40,6 @@ import static com.google.common.base.Throwables.propagate;
 
 public class PortalServerFactory implements TestbedApplicationFactory {
 
-	private static final Logger log = LoggerFactory.getLogger(PortalServerFactory.class);
-
 	@Override
 	public TestbedApplication create(TestbedRuntime testbedRuntime, String applicationName, Object configuration) {
 
@@ -49,8 +47,7 @@ public class PortalServerFactory implements TestbedApplicationFactory {
 
 			JAXBContext context = JAXBContext.newInstance(Portalapp.class);
 			Portalapp config = (Portalapp) context.createUnmarshaller().unmarshal((Node) configuration);
-			PortalServerApplication portalServerApplication = new PortalServerApplication(testbedRuntime, config);
-			return portalServerApplication;
+			return new PortalServerApplication(testbedRuntime, config);
 
 		} catch (JAXBException e) {
 			throw propagate(e);
