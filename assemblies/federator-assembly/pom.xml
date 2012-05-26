@@ -46,7 +46,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.rs-cmdline</artifactId>
+			<artifactId>tr.rs-server</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>
