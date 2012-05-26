@@ -53,18 +53,6 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.federator-utils</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-wisebed</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-federator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-shibboleth</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>

@@ -39,14 +39,7 @@
     <name>TR :: SNAA</name>
 
     <modules>
-		<module>snaa-common</module>
-		<module>snaa-cmdline-client</module>
 		<module>snaa-cmdline-server</module>
-		<module>snaa-dummy</module>
-		<module>snaa-federator</module>
-		<module>snaa-shibboleth</module>
-		<module>snaa-jaaslogin</module>
-		<module>snaa-wisebed</module>
     </modules>
 
 </project>
