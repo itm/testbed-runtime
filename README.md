@@ -33,6 +33,11 @@ Building
 Testbed Runtime is based on the [Apache Maven][maven] build system. Clone the project and
 simply run 'mvn install' (or 'mvn clean install' to be on the safe side) for building.
 
+When building with Maven, normally only the "standard modules" are built in order to keep build
+times low. If you want to build the distributables ("assemblies") please pass ```-P assemblies```
+to Maven when executing the build, e.g. ```mvn -P assemblies clean install```. The assemblies are
+automatically built when doing a release using ```mvn release:prepare && mvn release:perform```. 
+
 License
 -------
 
