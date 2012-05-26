@@ -148,6 +148,24 @@ public class WSNDeviceAppConfiguration {
 			return this;
 		}
 
+		public Builder setDefaultImage(@Nullable final File defaultImage) {
+
+			final boolean nullOrReadableFile = defaultImage == null ||
+					(defaultImage.exists() && defaultImage.isFile() && defaultImage.canRead());
+
+			checkArgument(nullOrReadableFile,
+					"The default image for " + this.configuration.nodeUrn +
+							" (\"" + (defaultImage != null ? defaultImage.getAbsolutePath() : "") + "\") "
+							+ "either does not exists, is not a file or is not readable!"
+			);
+
+			assertNotBuiltYet();
+
+			this.configuration.defaultImage = defaultImage;
+
+			return this;
+		}
+
 		public WSNDeviceAppConfiguration build() {
 			assertNotBuiltYet();
 			built = true;
@@ -161,8 +179,10 @@ public class WSNDeviceAppConfiguration {
 		}
 	}
 
+	@Nullable
 	private File defaultChannelPipelineConfigurationFile;
 
+	@Nullable
 	private Map<String, String> deviceConfiguration;
 
 	private String nodeUrn;
@@ -182,6 +202,9 @@ public class WSNDeviceAppConfiguration {
 	private int timeoutFlashMillis = DEFAULT_TIMEOUT_FLASH_MILLIS;
 
 	private int timeoutCheckAliveMillis = DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS;
+
+	@Nullable
+	private File defaultImage;
 
 	public static Builder builder(final String nodeUrn, final String nodeType) {
 		return new Builder(nodeUrn, nodeType);
@@ -231,5 +254,10 @@ public class WSNDeviceAppConfiguration {
 	@Nullable
 	public File getDefaultChannelPipelineConfigurationFile() {
 		return defaultChannelPipelineConfigurationFile;
+	}
+
+	@Nullable
+	public File getDefaultImage() {
+		return defaultImage;
 	}
 }

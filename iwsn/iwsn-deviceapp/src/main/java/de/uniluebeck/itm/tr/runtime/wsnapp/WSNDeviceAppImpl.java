@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.Files;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.gtr.TestbedRuntime;
@@ -42,6 +43,7 @@ import javax.annotation.Nullable;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
@@ -149,16 +151,21 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				WSNAppMessages.OperationInvocation invocation =
 						WSNAppMessages.OperationInvocation.newBuilder().mergeFrom(msg.getPayload()).build();
 
-				if (WSNAppMessages.OperationInvocation.Operation.FLASH_PROGRAMS == invocation.getOperation()) {
-					executeFlashPrograms(invocation, responder);
+				switch (invocation.getOperation()) {
+					case FLASH_PROGRAMS:
+						WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
+						executeFlashPrograms(program.getProgram().toByteArray(), responder);
+						break;
+					case FLASH_DEFAULT_IMAGE:
+						executeFlashDefaultImage(responder);
+						break;
 				}
 
 			} catch (InvalidProtocolBufferException e) {
-				log.warn("{} => Error while parsing operation invocation. Ignoring...: {}",
+				log.error("{} => Error while parsing operation invocation. Ignoring...: {}",
 						configuration.getNodeUrn(), e
 				);
 			}
-
 		}
 	};
 
@@ -524,48 +531,59 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		connector.sendMessage(messageBytes, callback);
 	}
 
-	public void executeFlashPrograms(final WSNAppMessages.OperationInvocation invocation,
-									 final SingleRequestMultiResponseListener.Responder responder) {
+	public void executeFlashDefaultImage(final SingleRequestMultiResponseListener.Responder responder) {
+
+		log.debug("{} => WSNDeviceAppImpl.executeFlashDefaultImage()", configuration.getNodeUrn());
 
 		try {
 
-			WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
-			connector.flashProgram(program, new WSNDeviceAppConnector.FlashProgramCallback() {
-				@Override
-				public void progress(final float percentage) {
-					log.debug("{} => WSNDeviceApp.flashProgram.progress({})", configuration.getNodeUrn(), percentage);
-					responder.sendResponse(buildRequestStatus((int) (percentage * 100), null));
-				}
-
-				@Override
-				public void success(final byte[] replyPayload) {
-					log.debug("{} => WSNDeviceAppImpl.flashProgram.success()", configuration.getNodeUrn());
-					responder.sendResponse(
-							buildRequestStatus(100, replyPayload == null ? null : new String(replyPayload))
-					);
-				}
-
-				@Override
-				public void failure(final byte responseType, final byte[] replyPayload) {
-					log.debug("{} => WSNDeviceAppImpl.failedFlashPrograms()", configuration.getNodeUrn());
-					responder.sendResponse(buildRequestStatus(responseType, new String(replyPayload)));
-				}
-
-				@Override
-				public void timeout() {
-					log.debug("{} => WSNDeviceAppImpl.timeout()", configuration.getNodeUrn());
-					responder.sendResponse(buildRequestStatus(-1, "Flashing node timed out"));
-				}
+			if (configuration.getDefaultImage() != null) {
+				final byte[] binaryImage = Files.toByteArray(configuration.getDefaultImage());
+				executeFlashPrograms(binaryImage, responder);
+			} else {
+				responder.sendResponse(buildRequestStatus(100, null));
 			}
-			);
 
-		} catch (InvalidProtocolBufferException e) {
-			log.warn("{} => Couldn't parse program for flash operation: {}. Ignoring...",
-					configuration.getNodeUrn(), e
-			);
+		} catch (IOException e) {
+			log.error("{} => Exception while reading default image: {}", configuration.getNodeUrn(), e);
+			throw new RuntimeException(e);
 		}
 
+	}
 
+	public void executeFlashPrograms(final byte[] binaryImage,
+									 final SingleRequestMultiResponseListener.Responder responder) {
+
+		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", configuration.getNodeUrn());
+
+		connector.flashProgram(binaryImage, new WSNDeviceAppConnector.FlashProgramCallback() {
+			@Override
+			public void progress(final float percentage) {
+				log.debug("{} => WSNDeviceApp.flashProgram.progress({})", configuration.getNodeUrn(), percentage);
+				responder.sendResponse(buildRequestStatus((int) (percentage * 100), null));
+			}
+
+			@Override
+			public void success(final byte[] replyPayload) {
+				log.debug("{} => WSNDeviceAppImpl.flashProgram.success()", configuration.getNodeUrn());
+				responder.sendResponse(
+						buildRequestStatus(100, replyPayload == null ? null : new String(replyPayload))
+				);
+			}
+
+			@Override
+			public void failure(final byte responseType, final byte[] replyPayload) {
+				log.debug("{} => WSNDeviceAppImpl.failedFlashPrograms()", configuration.getNodeUrn());
+				responder.sendResponse(buildRequestStatus(responseType, new String(replyPayload)));
+			}
+
+			@Override
+			public void timeout() {
+				log.debug("{} => WSNDeviceAppImpl.timeout()", configuration.getNodeUrn());
+				responder.sendResponse(buildRequestStatus(-1, "Flashing node timed out"));
+			}
+		}
+		);
 	}
 
 	private WSNAppMessages.OperationInvocation parseOperation(Messages.Msg msg) {
@@ -592,7 +610,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 		log.debug("{} => WSNDeviceAppImpl.start()", configuration.getNodeUrn());
 
 		// connect to device
-		connector = new WSNDeviceAppConnectorImpl(configuration, testbedRuntime.getEventBus(), testbedRuntime.getAsyncEventBus());
+		connector = new WSNDeviceAppConnectorImpl(configuration, testbedRuntime.getEventBus(),
+				testbedRuntime.getAsyncEventBus()
+		);
 		connector.start();
 		connector.addListener(nodeOutputListener);
 

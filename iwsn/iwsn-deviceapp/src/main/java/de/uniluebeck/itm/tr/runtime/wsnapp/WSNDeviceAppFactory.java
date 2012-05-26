@@ -125,6 +125,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 			builder.setDefaultChannelPipelineConfigurationFile(defaultChannelPipelineConfigurationFile);
 		}
 
+		builder.setDefaultImage(wsnDevice.getDefaultImage() != null ? new File(wsnDevice.getDefaultImage()) : null);
 
 		if (wsnDevice.getTimeouts() != null) {
 			builder.setTimeoutCheckAliveMillis(wsnDevice.getTimeouts().getCheckalive());

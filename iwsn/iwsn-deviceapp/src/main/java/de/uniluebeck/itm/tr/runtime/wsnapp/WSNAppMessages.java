@@ -4849,6 +4849,7 @@ public final class WSNAppMessages {
       SET_CHANNEL_PIPELINE(10, 10),
       SET_DEFAULT_CHANNEL_PIPELINE(11, 11),
       ARE_NODES_ALIVE_SM(12, 12),
+      FLASH_DEFAULT_IMAGE(13, 13),
       ;
       
       
@@ -4869,6 +4870,7 @@ public final class WSNAppMessages {
           case 10: return SET_CHANNEL_PIPELINE;
           case 11: return SET_DEFAULT_CHANNEL_PIPELINE;
           case 12: return ARE_NODES_ALIVE_SM;
+          case 13: return FLASH_DEFAULT_IMAGE;
           default: return null;
         }
       }
@@ -4899,7 +4901,7 @@ public final class WSNAppMessages {
       }
       
       private static final Operation[] VALUES = {
-        SEND, ARE_NODES_ALIVE, FLASH_PROGRAMS, RESET_NODES, SET_VIRTUAL_LINK, DESTROY_VIRTUAL_LINK, DISABLE_NODE, ENABLE_NODE, DISABLE_PHYSICAL_LINK, ENABLE_PHYSICAL_LINK, SET_CHANNEL_PIPELINE, SET_DEFAULT_CHANNEL_PIPELINE, ARE_NODES_ALIVE_SM, 
+        SEND, ARE_NODES_ALIVE, FLASH_PROGRAMS, RESET_NODES, SET_VIRTUAL_LINK, DESTROY_VIRTUAL_LINK, DISABLE_NODE, ENABLE_NODE, DISABLE_PHYSICAL_LINK, ENABLE_PHYSICAL_LINK, SET_CHANNEL_PIPELINE, SET_DEFAULT_CHANNEL_PIPELINE, ARE_NODES_ALIVE_SM, FLASH_DEFAULT_IMAGE, 
       };
       public static Operation valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -5349,17 +5351,18 @@ public final class WSNAppMessages {
       "me.wsnapp.SetChannelPipelineRequest.Chan",
       "nelHandlerConfiguration.KeyValuePair\032*\n\014" +
       "KeyValuePair\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t" +
-      "\"\255\003\n\023OperationInvocation\022U\n\toperation\030\001 " +
+      "\"\306\003\n\023OperationInvocation\022U\n\toperation\030\001 " +
       "\002(\0162B.de.uniluebeck.itm.tr.runtime.wsnap" +
       "p.OperationInvocation.Operation\022\021\n\targum" +
-      "ents\030\002 \001(\014\"\253\002\n\tOperation\022\010\n\004SEND\020\000\022\023\n\017AR" +
+      "ents\030\002 \001(\014\"\304\002\n\tOperation\022\010\n\004SEND\020\000\022\023\n\017AR" +
       "E_NODES_ALIVE\020\001\022\022\n\016FLASH_PROGRAMS\020\002\022\017\n\013R" +
       "ESET_NODES\020\003\022\024\n\020SET_VIRTUAL_LINK\020\004\022\030\n\024DE" +
       "STROY_VIRTUAL_LINK\020\005\022\020\n\014DISABLE_NODE\020\006\022\017" +
       "\n\013ENABLE_NODE\020\007\022\031\n\025DISABLE_PHYSICAL_LINK",
       "\020\010\022\030\n\024ENABLE_PHYSICAL_LINK\020\t\022\030\n\024SET_CHAN" +
       "NEL_PIPELINE\020\n\022 \n\034SET_DEFAULT_CHANNEL_PI" +
-      "PELINE\020\013\022\026\n\022ARE_NODES_ALIVE_SM\020\014B\002P\000"
+      "PELINE\020\013\022\026\n\022ARE_NODES_ALIVE_SM\020\014\022\027\n\023FLAS" +
+      "H_DEFAULT_IMAGE\020\rB\002P\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

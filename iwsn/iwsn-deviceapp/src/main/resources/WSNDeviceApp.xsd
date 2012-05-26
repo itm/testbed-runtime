@@ -58,6 +58,7 @@
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="configuration" type="Configuration" minOccurs="0" maxOccurs="unbounded" />
+			<xsd:element name="defaultImage" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 	</xsd:complexType>
 

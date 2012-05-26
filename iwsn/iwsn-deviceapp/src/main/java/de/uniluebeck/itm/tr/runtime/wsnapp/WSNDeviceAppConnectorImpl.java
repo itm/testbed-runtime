@@ -452,7 +452,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 	}
 
 	@Override
-	public void flashProgram(final WSNAppMessages.Program program,
+	public void flashProgram(final byte[] binaryImage,
 							 final FlashProgramCallback listener) {
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
@@ -471,7 +471,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 
 				deviceLock.lock();
 				try {
-					device.program(program.getProgram().toByteArray(), configuration.getTimeoutFlashMillis(),
+					device.program(binaryImage, configuration.getTimeoutFlashMillis(),
 							new OperationAdapter<Void>() {
 
 								private int lastProgress = -1;
@@ -700,6 +700,7 @@ public class WSNDeviceAppConnectorImpl extends ListenerManagerImpl<WSNDeviceAppC
 				deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
 					@Override
 					public void operationComplete(final ChannelFuture future) throws Exception {
+
 						if (future.isSuccess()) {
 
 							callback.success(null);

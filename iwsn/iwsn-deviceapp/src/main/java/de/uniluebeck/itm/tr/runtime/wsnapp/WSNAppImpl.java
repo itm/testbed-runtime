@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -63,6 +64,7 @@ import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.*;
@@ -111,7 +113,7 @@ class WSNAppImpl implements WSNApp {
 		public void failure(Exception exception) {
 
 			String message = "Exception after "
-			        + (System.currentTimeMillis() - instantiation)
+					+ (System.currentTimeMillis() - instantiation)
 					+ "ms while executing operation: "
 					+ exception.getMessage() + "\n"
 					+ Throwables.getStackTraceAsString(exception);
@@ -167,6 +169,8 @@ class WSNAppImpl implements WSNApp {
 			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
 
 	private ScheduledExecutorService scheduler;
+
+	private ExecutorService executor;
 
 	private Runnable unregisterNodeMessageReceiverRunnable = new Runnable() {
 		@Override
@@ -437,10 +441,15 @@ class WSNAppImpl implements WSNApp {
 	@Override
 	public void start() throws Exception {
 
-		scheduler = Executors.newScheduledThreadPool(
-				1,
-				new ThreadFactoryBuilder().setNameFormat("WSNApp-Thread %d").build()
-		);
+		final ThreadFactory schedulerThreadFactory = new ThreadFactoryBuilder()
+				.setNameFormat("WSNApp-Thread %d")
+				.build();
+		scheduler = Executors.newScheduledThreadPool(1, schedulerThreadFactory);
+
+		final ThreadFactory executorThreadFactory = new ThreadFactoryBuilder()
+				.setNameFormat("WSNApp-Executor-Thread %d")
+				.build();
+		executor = Executors.newCachedThreadPool(executorThreadFactory);
 
 		setDefaultPipelineLocally();
 
@@ -464,16 +473,22 @@ class WSNAppImpl implements WSNApp {
 
 		setDefaultPipelineOnReservedNodes();
 		setDefaultPipelineLocally();
+		flashDefaultImageToReservedNodes();
 
 		// stop sending 'register'-messages to node counterpart
 		registerNodeMessageReceiverFuture.cancel(false);
 
 		// unregister with all nodes once
-		scheduler.execute(unregisterNodeMessageReceiverRunnable);
+		try {
+			executor.submit(unregisterNodeMessageReceiverRunnable).get();
+		} catch (Exception e) {
+			log.error("Exception while un-registering as node message receiver during shutdown: {}", e);
+		}
 
 		// stop listening for messages from the nodes
 		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 
+		ExecutorUtils.shutdown(executor, 1, TimeUnit.SECONDS);
 		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 
 		log.info("WSNApp stopped!");
@@ -960,6 +975,96 @@ class WSNAppImpl implements WSNApp {
 					);
 		}
 
+	}
+
+	private void flashDefaultImageToReservedNodes() {
+
+		log.info("Flashing default image to reserved nodes...");
+
+		// fork for all nodes
+		List<ListenableFuture<Boolean>> futures = newArrayList();
+		for (String reservedNode : reservedNodes) {
+			futures.add(flashDefaultImageTo(reservedNode));
+		}
+
+		// join results to become synchronous
+		for (ListenableFuture<Boolean> future : futures) {
+			try {
+				future.get();
+			} catch (Exception e) {
+				log.error("{}", e);
+			}
+		}
+	}
+
+	private ListenableFuture<Boolean> flashDefaultImageTo(final String reservedNode) {
+
+		final SettableFuture<Boolean> future = SettableFuture.create();
+
+		final WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
+				.newBuilder()
+				.setOperation(WSNAppMessages.OperationInvocation.Operation.FLASH_DEFAULT_IMAGE)
+				.build();
+
+		final Messages.Msg msg = MessageTools.buildMessage(
+				getLocalNodeName(),
+				reservedNode,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				operationInvocation.toByteArray(), 1,
+				System.currentTimeMillis() + MSG_VALIDITY
+		);
+
+		final SingleRequestMultiResponseCallback callback = new SingleRequestMultiResponseCallback() {
+
+			@Override
+			public boolean receive(byte[] response) {
+
+				try {
+
+					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+							.newBuilder()
+							.mergeFrom(ByteString.copyFrom(response))
+							.build();
+
+					final int value = requestStatus.getStatus().getValue();
+					final boolean done = value < 0 || value >= 100;
+					final boolean error = value < 0;
+
+					if (done) {
+						if (error) {
+							final String errorMsg = "Flashing node " + reservedNode +
+									" failed. Reason: " + requestStatus.getStatus().getMsg();
+							future.setException(new Exception(errorMsg));
+						} else {
+							future.set(true);
+						}
+					}
+
+					return done;
+
+				} catch (InvalidProtocolBufferException e) {
+					log.error("Exception while parsing incoming request status: " + e, e);
+					return false;
+				}
+
+			}
+
+			@Override
+			public void timeout() {
+				future.setException(new TimeoutException());
+			}
+
+			@Override
+			public void failure(Exception exception) {
+				future.setException(exception);
+			}
+		};
+
+		testbedRuntime
+				.getSingleRequestMultiResponseService()
+				.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, callback);
+
+		return future;
 	}
 
 	private void setDefaultPipelineOnReservedNodes() {
