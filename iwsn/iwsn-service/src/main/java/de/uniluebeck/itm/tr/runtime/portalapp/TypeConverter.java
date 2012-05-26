@@ -1,18 +1,16 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.protobuf.ByteString;
-
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.controller.Status;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.ProgramMetaData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.
@@ -31,16 +29,8 @@ class TypeConverter {
 		return retRequestStatus;
 	}
 
-	static WSNAppMessages.Message convert(Message message) {
-		return WSNAppMessages.Message.newBuilder()
-				.setBinaryData(ByteString.copyFrom(message.getBinaryData()))
-				.setSourceNodeId(message.getSourceNodeId())
-				.setTimestamp(message.getTimestamp().toString())
-				.build();
-	}
-
 	static Map<String, WSNAppMessages.Program> convert(List<String> nodeIds, List<Integer> programIndices,
-														List<Program> programs) {
+													   List<Program> programs) {
 
 		Map<String, WSNAppMessages.Program> programsMap = new HashMap<String, WSNAppMessages.Program>();
 
