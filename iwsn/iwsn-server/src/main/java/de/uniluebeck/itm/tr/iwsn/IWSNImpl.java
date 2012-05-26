@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import org.slf4j.Logger;

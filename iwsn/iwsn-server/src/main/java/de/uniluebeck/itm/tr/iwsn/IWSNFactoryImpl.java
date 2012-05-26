@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.CachingConvertingFileProvider;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverFactory;

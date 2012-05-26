@@ -1,11 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.naming.NamingEntry;
-import de.uniluebeck.itm.gtr.naming.NamingInterface;
-import de.uniluebeck.itm.gtr.naming.NamingService;
-import de.uniluebeck.itm.gtr.routing.RoutingTableService;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
+import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
+import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingService;
+import de.uniluebeck.itm.tr.iwsn.overlay.routing.RoutingTableService;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;

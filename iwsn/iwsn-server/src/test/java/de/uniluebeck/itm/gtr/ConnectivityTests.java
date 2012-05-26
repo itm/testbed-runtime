@@ -25,11 +25,13 @@ package de.uniluebeck.itm.gtr;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uniluebeck.itm.gtr.connection.*;
-import de.uniluebeck.itm.gtr.messaging.MessageTools;
-import de.uniluebeck.itm.gtr.messaging.Messages;
-import de.uniluebeck.itm.gtr.naming.NamingEntry;
-import de.uniluebeck.itm.gtr.naming.NamingInterface;
+import de.uniluebeck.itm.tr.iwsn.overlay.connection.*;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
+import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
+import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.junit.After;
 import org.junit.Before;

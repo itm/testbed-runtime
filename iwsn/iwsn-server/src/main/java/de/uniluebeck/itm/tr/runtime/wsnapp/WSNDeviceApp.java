@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 
 
 public interface WSNDeviceApp extends TestbedApplication {

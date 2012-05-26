@@ -23,7 +23,7 @@
  **********************************************************************************************************************/
 package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
-import de.uniluebeck.itm.gtr.messaging.Messages;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;

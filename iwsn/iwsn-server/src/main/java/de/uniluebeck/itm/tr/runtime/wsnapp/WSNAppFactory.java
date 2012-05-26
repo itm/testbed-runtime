@@ -1,9 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 
 public class WSNAppFactory {
 

@@ -23,8 +23,8 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
 

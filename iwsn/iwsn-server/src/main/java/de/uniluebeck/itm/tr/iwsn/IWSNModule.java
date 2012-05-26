@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.inject.AbstractModule;
-import de.uniluebeck.itm.gtr.TestbedRuntimeModule;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverModule;
 
 import java.util.concurrent.ExecutorService;

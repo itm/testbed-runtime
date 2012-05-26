@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 
-import de.uniluebeck.itm.gtr.messaging.Messages;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;

@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.wsndeviceobserver;
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Configuration;
 import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.config.Mapping;
 import de.uniluebeck.itm.wsn.deviceutils.macreader.DeviceMacReferenceMap;

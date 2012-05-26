@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.socketconnector.client;
 
 import com.google.protobuf.ByteString;
-import de.uniluebeck.itm.gtr.messaging.Messages;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Logging;

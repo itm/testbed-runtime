@@ -26,13 +26,11 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import org.w3c.dom.Node;
 
-import de.uniluebeck.itm.gtr.TestbedRuntime;
-import de.uniluebeck.itm.gtr.application.TestbedApplication;
-import de.uniluebeck.itm.gtr.application.TestbedApplicationFactory;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
+import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 
 import static com.google.common.base.Throwables.propagate;
