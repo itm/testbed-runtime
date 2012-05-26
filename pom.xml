@@ -102,11 +102,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.overlay</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -114,21 +109,6 @@
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-server</artifactId>
 				<classifier>onejar</classifier>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.iwsn-service</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.overlay-stats</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.iwsn-deviceapp</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -164,11 +144,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.snaa-jaaslogin</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.overlay-socketconnector</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

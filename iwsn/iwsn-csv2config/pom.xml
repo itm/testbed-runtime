@@ -17,14 +17,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-deviceapp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-service</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-server</artifactId>
 		</dependency>
 		<dependency>

@@ -40,24 +40,41 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>wiseml</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.overlay</artifactId>
+			<artifactId>tr.wiseml</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-deviceapp</artifactId>
+			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-service</artifactId>
+			<artifactId>wsn-device-drivers-factories</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.overlay-socketconnector</artifactId>
+			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
+			<artifactId>wsn-device-utils</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.overlay-stats</artifactId>
+			<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+			<artifactId>netty-iostream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>protocol-collection</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>factory</artifactId>
 		</dependency>
 
 		<dependency>
@@ -80,6 +97,22 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-multibindings</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
 		</dependency>
 
 		<dependency>
