@@ -365,7 +365,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				throw new RuntimeException(e);
 			}
 
-			wsnServiceHandleInstance = WSNServiceHandle.Factory.create(
+			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
 					secretReservationKey,
 					testbedRuntime,
 					config.getUrnPrefix(),
