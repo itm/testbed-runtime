@@ -10,7 +10,7 @@
 			<useProjectArtifact>false</useProjectArtifact>
 			<outputDirectory>/lib</outputDirectory>
 			<includes>
-				<include>de.uniluebeck.itm:tr.snaa-cmdline-server</include>
+				<include>de.uniluebeck.itm:tr.snaa-server</include>
            	</includes>
 		</dependencySet>
 	</dependencySets>

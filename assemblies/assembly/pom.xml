@@ -52,7 +52,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-cmdline-server</artifactId>
+			<artifactId>tr.snaa-server</artifactId>
 			<classifier>onejar</classifier>
 			<version>${project.version}</version>
 		</dependency>

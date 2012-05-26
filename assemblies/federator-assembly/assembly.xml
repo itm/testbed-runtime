@@ -12,7 +12,7 @@
 			<includes>
 				<include>de.uniluebeck.itm:tr.iwsn-federator</include>
 				<include>de.uniluebeck.itm:tr.rs-server</include>
-				<include>de.uniluebeck.itm:tr.snaa-cmdline-server</include>
+				<include>de.uniluebeck.itm:tr.snaa-server</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>

@@ -36,8 +36,8 @@
 
 		<module>assemblies/</module>
 		<module>iwsn/</module>
-		<module>rs-server/</module>
-		<module>snaa/</module>
+		<module>rs-server</module>
+		<module>snaa-server</module>
 
 		<module>federator-utils</module>
 		<module>wiseml</module>
@@ -83,7 +83,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.snaa-cmdline-server</artifactId>
+				<artifactId>tr.snaa-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

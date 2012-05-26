@@ -138,11 +138,6 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-cmdline-server</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 
