@@ -35,7 +35,10 @@
 	<modules>
 
 		<module>assemblies/</module>
-		<module>iwsn/</module>
+		<module>iwsn-common</module>
+        <module>iwsn-csv2config</module>
+        <module>iwsn-federator</module>
+        <module>iwsn-server</module>
 		<module>rs-server</module>
 		<module>snaa-server</module>
 
