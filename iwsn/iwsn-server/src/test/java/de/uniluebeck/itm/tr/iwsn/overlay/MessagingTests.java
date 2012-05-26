@@ -21,13 +21,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.gtr;
+package de.uniluebeck.itm.tr.iwsn.overlay;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
-import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventService;
@@ -36,7 +35,6 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingTim
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
-import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import org.junit.After;
 import org.junit.Before;
