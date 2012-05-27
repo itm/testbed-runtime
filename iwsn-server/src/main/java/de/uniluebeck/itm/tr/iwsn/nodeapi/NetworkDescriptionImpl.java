@@ -21,27 +21,47 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
+import com.google.common.util.concurrent.SettableFuture;
+
+import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
 
-public interface NetworkDescription {
+public class NetworkDescriptionImpl implements NetworkDescription {
 
-	/**
-	 * Request this Node for a special property value
-	 *
-	 * @param property request the property specified by this value
-	 *
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> getPropertyValue(byte property);
+	private final String nodeUrn;
 
-	/**
-	 * Request a Neighborhoodlist from this node
-	 *
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> getNeighborhood();
+	private final NodeApi nodeApi;
+
+	public NetworkDescriptionImpl(final String nodeUrn, NodeApi nodeApi) {
+		this.nodeUrn = nodeUrn;
+		this.nodeApi = nodeApi;
+	}
+
+	@Override
+	public Future<NodeApiCallResult> getPropertyValue(byte property) {
+
+		int requestId = nodeApi.nextRequestId();
+		ByteBuffer buffer = Packets.NetworkDescription.newGetPropertyValuePacket(
+				requestId, property
+		);
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
+	}
+
+	@Override
+	public Future<NodeApiCallResult> getNeighborhood() {
+
+		int requestId = nodeApi.nextRequestId();
+		ByteBuffer buffer = Packets.NetworkDescription.newGetNeighborhoodPacket(
+				requestId
+		);
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
+		nodeApi.sendToNode(requestId, future, buffer);
+		return future;
+	}
 
 }

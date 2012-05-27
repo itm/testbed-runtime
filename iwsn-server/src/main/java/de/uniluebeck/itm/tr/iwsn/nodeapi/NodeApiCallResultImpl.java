@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

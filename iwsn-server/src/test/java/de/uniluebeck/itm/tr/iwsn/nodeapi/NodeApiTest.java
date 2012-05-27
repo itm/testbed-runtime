@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.Logging;

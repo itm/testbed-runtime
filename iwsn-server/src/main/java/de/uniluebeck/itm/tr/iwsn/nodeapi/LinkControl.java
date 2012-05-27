@@ -21,47 +21,49 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
 
-public class NetworkDescriptionImpl implements NetworkDescription {
+public interface LinkControl {
 
-	private final String nodeUrn;
+	/**
+	 * Set up a virtual link between the two nodes identified by the unique this node and destNode. The reserved broadcast
+	 * ID is not allowed as parameter.
+	 *
+	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> setVirtualLink(long destNode);
 
-	private final NodeApi nodeApi;
+	/**
+	 * Destroy a virtual link between this node and destNode. The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> destroyVirtualLink(long destNode);
 
-	public NetworkDescriptionImpl(final String nodeUrn, NodeApi nodeApi) {
-		this.nodeUrn = nodeUrn;
-		this.nodeApi = nodeApi;
-	}
+	/**
+	 * Enable the physical radio link between this node and nodeB (if possible). The reserved broadcast ID is not allowed
+	 * as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> enablePhysicalLink(long nodeB);
 
-	@Override
-	public Future<NodeApiCallResult> getPropertyValue(byte property) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NetworkDescription.newGetPropertyValuePacket(
-				requestId, property
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> getNeighborhood() {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NetworkDescription.newGetNeighborhoodPacket(
-				requestId
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
+	/**
+	 * Disable the physical radio link between this node and nodeB. The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> disablePhysicalLink(long nodeB);
 
 }

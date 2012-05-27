@@ -21,93 +21,107 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import com.google.common.util.concurrent.SettableFuture;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class MessageType {
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.Future;
+	public final static byte DEBUG_MESSAGE = 10;
 
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+	public final static byte VL_MESSAGE = 11;
 
+	public final static byte BYTE_MESSAGE = 12;
 
-class InteractionImpl implements Interaction {
+	public final static byte FLASH_MESSAGE = 13;
 
-	private static final Logger log = LoggerFactory.getLogger(Interaction.class);
+	public final static byte ENABLE_NODE = 20;
 
-	private final String nodeUrn;
+	public final static byte DISABLE_NODE = 21;
 
-	private final NodeApi nodeApi;
+	public final static byte RESET_NODE = 22;
 
-	public InteractionImpl(final String nodeUrn, NodeApi nodeApi) {
-		this.nodeUrn = nodeUrn;
-		this.nodeApi = nodeApi;
+	public final static byte SET_START_TIME = 23;
+
+	public final static byte SET_VIRTUAL_ID = 24;
+
+	public final static byte IS_NODE_ALIVE = 25;
+
+	public final static byte GET_ID = 26;
+
+	public final static byte SET_VIRTUAL_LINK = 30;
+
+	public final static byte DESTROY_VIRTUAL_LINK = 31;
+
+	public final static byte ENABLE_PHYSICAL_LINK = 32;
+
+	public final static byte DISABLE_PHYSICAL_LINK = 33;
+
+	public final static byte SEND_VIRTUAL_LINK_MESSAGE = 34;
+
+	public final static byte GET_PROPERTY_VALUE = 40;
+
+	public final static byte GET_NEIGHBORHOOD = 41;
+
+	public static boolean isMessageTypeLegal(byte messageType) {
+		return !toString(messageType).startsWith("Error");
 	}
 
-	@Override
-	public Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload) {
-
-		if (log.isTraceEnabled()) {
-
-			log.trace(
-					"{} => InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
-					new Object[]{
-							nodeUrn,
-							StringUtils.toHexString(RSSI),
-							StringUtils.toHexString(LQI),
-							destination,
-							source,
-							toPrintableString(payload, 200),
-					}
-			);
+	public static String toString(byte mt) {
+		switch (mt) {
+			case DEBUG_MESSAGE: {
+				return "DEBUG_MESSAGE";
+			}
+			case VL_MESSAGE: {
+				return "VL_MESSAGE";
+			}
+			case BYTE_MESSAGE: {
+				return "BYTE_MESSAGE";
+			}
+			case FLASH_MESSAGE: {
+				return "FLASH_MESSAGE";
+			}
+			case ENABLE_NODE: {
+				return "ENABLE_NODE";
+			}
+			case DISABLE_NODE: {
+				return "DISABLE_NODE";
+			}
+			case RESET_NODE: {
+				return "RESET_NODE";
+			}
+			case SET_START_TIME: {
+				return "SET_START_TIME";
+			}
+			case SET_VIRTUAL_ID: {
+				return "SET_VIRTUAL_ID";
+			}
+			case IS_NODE_ALIVE: {
+				return "IS_NODE_ALIVE";
+			}
+			case SET_VIRTUAL_LINK: {
+				return "SET_VIRTUAL_LINK";
+			}
+			case DESTROY_VIRTUAL_LINK: {
+				return "DESTROY_VIRTUAL_LINK";
+			}
+			case ENABLE_PHYSICAL_LINK: {
+				return "ENABLE_PHYSICAL_LINK";
+			}
+			case DISABLE_PHYSICAL_LINK: {
+				return "DISABLE_PHYSICAL_LINK";
+			}
+			case SEND_VIRTUAL_LINK_MESSAGE: {
+				return "SEND_VIRTUAL_LINK_MESSAGE";
+			}
+			case GET_PROPERTY_VALUE: {
+				return "GET_PROPERTY_VALUE";
+			}
+			case GET_NEIGHBORHOOD: {
+				return "GET_NEIGHBORHOOD";
+			}
+			default: {
+				return "Error " + mt + " is not a valid packet type";
+			}
 		}
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
-				requestId, RSSI, LQI, destination, source, payload
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte[] payload) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
-				requestId, destination, source, payload
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte[] payload) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.Interaction.newByteMessagePacket(
-				requestId, binaryType, payload
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> flashProgram(byte[] payload) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.Interaction.newFlashProgramPacket(
-				requestId, payload
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
 	}
 
 }

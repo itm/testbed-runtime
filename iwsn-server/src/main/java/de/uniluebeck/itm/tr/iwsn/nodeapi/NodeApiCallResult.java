@@ -1,11 +1,11 @@
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
 
 public interface NodeApiCallResult {
 
 	/**
 	 * Returns {@code true} if a reply from the sensor node with a result value of {@link
-	 * de.uniluebeck.itm.tr.nodeapi.ResponseType#COMMAND_SUCCESS} was received, {@code false} otherwise.
+	 * de.uniluebeck.itm.tr.iwsn.nodeapi.ResponseType#COMMAND_SUCCESS} was received, {@code false} otherwise.
 	 *
 	 * @return see above
 	 */

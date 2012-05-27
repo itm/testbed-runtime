@@ -21,70 +21,67 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
-class LinkControlImpl implements LinkControl {
 
-	private final String nodeUrn;
+public interface NodeControl {
 
-	private final NodeApi nodeApi;
+	/**
+	 * Enables this node. The node is reactivating the radio and start interacting with the environment.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> enableNode();
 
-	public LinkControlImpl(final String nodeUrn, NodeApi nodeApi) {
-		this.nodeUrn = nodeUrn;
-		this.nodeApi = nodeApi;
-	}
+	/**
+	 * Disable this node. The node does not longer send out messages or interact with the environment (e.g. a mobile node
+	 * or via an actuator).
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> disableNode();
 
-	@Override
-	public Future<NodeApiCallResult> setVirtualLink(long destinationNode) {
+	/**
+	 * Reset this node in time milliseconds
+	 *
+	 * @param time the time in milliseconds after which to reset the node
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> resetNode(int time);
 
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.LinkControl.newSetVirtualLinkPacket(
-				requestId, destinationNode
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
+	/**
+	 * Sets the starttime of the nodes app to in time milliseconds
+	 *
+	 * @param time the time in milliseconds after which to start
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> setStartTime(int time);
 
-	@Override
-	public Future<NodeApiCallResult> destroyVirtualLink(long destinationNode) {
+	/**
+	 * Sets a new virtualNodeID. In default virtualID == natural nodeID
+	 *
+	 * @param virtualNodeID the nodes' new virtualNodeId
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> setVirtualID(long virtualNodeID);
 
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.LinkControl.newDestroyVirtualLinkPacket(
-				requestId, destinationNode
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
+	/**
+	 * Asks the connected node for its ID. In default virtualID == natural nodeID
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> getVirtualID();
 
-	@Override
-	public Future<NodeApiCallResult> enablePhysicalLink(long nodeB) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.LinkControl.newEnablePhysicalLinkPacket(
-				requestId, nodeB
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> disablePhysicalLink(long nodeB) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.LinkControl.newDisablePhysicalLinkPacket(
-				requestId, nodeB
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
+	/**
+	 * Check if this node is alive.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	Future<NodeApiCallResult> areNodesAlive();
 
 }

@@ -21,105 +21,91 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.nodeapi;
+package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
 import com.google.common.util.concurrent.SettableFuture;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 
-public class NodeControlImpl implements NodeControl {
+
+class InteractionImpl implements Interaction {
+
+	private static final Logger log = LoggerFactory.getLogger(Interaction.class);
 
 	private final String nodeUrn;
 
 	private final NodeApi nodeApi;
 
-	public NodeControlImpl(final String nodeUrn, NodeApi nodeApi) {
+	public InteractionImpl(final String nodeUrn, NodeApi nodeApi) {
 		this.nodeUrn = nodeUrn;
 		this.nodeApi = nodeApi;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> enableNode() {
+	public Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source, byte[] payload) {
+
+		if (log.isTraceEnabled()) {
+
+			log.trace(
+					"{} => InteractionImpl.sendVirtualLinkMessage(rssi={}, lqi={}, destination={}, source={}, payload={}, callback)",
+					new Object[]{
+							nodeUrn,
+							StringUtils.toHexString(RSSI),
+							StringUtils.toHexString(LQI),
+							destination,
+							source,
+							toPrintableString(payload, 200),
+					}
+			);
+		}
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newEnableNodePacket(
-				requestId
+		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
+				requestId, RSSI, LQI, destination, source, payload
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> disableNode() {
+	public Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newDisableNodePacket(
-				requestId
+		ByteBuffer buffer = Packets.Interaction.newVirtualLinkMessagePacket(
+				requestId, destination, source, payload
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> resetNode(int time) {
+	public Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newResetNodePacket(
-				requestId, time
+		ByteBuffer buffer = Packets.Interaction.newByteMessagePacket(
+				requestId, binaryType, payload
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
 
 	@Override
-	public Future<NodeApiCallResult> setStartTime(int time) {
+	public Future<NodeApiCallResult> flashProgram(byte[] payload) {
 
 		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newSetStartTimePacket(
-				requestId, time
+		ByteBuffer buffer = Packets.Interaction.newFlashProgramPacket(
+				requestId, payload
 		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> setVirtualID(long virtualNodeID) {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newSetVirtualIDPacket(
-				requestId, virtualNodeID
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> getVirtualID() {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newGetIDPacket(
-				requestId
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
-		nodeApi.sendToNode(requestId, future, buffer);
-		return future;
-	}
-
-	@Override
-	public Future<NodeApiCallResult> areNodesAlive() {
-
-		int requestId = nodeApi.nextRequestId();
-		ByteBuffer buffer = Packets.NodeControl.newAreNodesAlivePacket(
-				requestId
-		);
-		SettableFuture<NodeApiCallResult> future = SettableFuture.<NodeApiCallResult>create();
+		SettableFuture<NodeApiCallResult> future = SettableFuture.create();
 		nodeApi.sendToNode(requestId, future, buffer);
 		return future;
 	}
