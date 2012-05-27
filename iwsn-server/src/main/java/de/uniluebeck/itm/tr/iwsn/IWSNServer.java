@@ -21,17 +21,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.iwsn.cmdline;
+package de.uniluebeck.itm.tr.iwsn;
 
-import com.google.classpath.ClassPath;
-import com.google.classpath.ClassPathFactory;
-import com.google.classpath.RegExpResourceFilter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uniluebeck.itm.tr.iwsn.IWSN;
-import de.uniluebeck.itm.tr.iwsn.IWSNFactory;
-import de.uniluebeck.itm.tr.iwsn.IWSNModule;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -42,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;

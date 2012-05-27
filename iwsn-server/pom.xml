@@ -139,7 +139,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.cmdline.IWSNServer</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.IWSNServer</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
