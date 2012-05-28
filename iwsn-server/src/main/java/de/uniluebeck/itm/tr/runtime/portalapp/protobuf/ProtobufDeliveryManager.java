@@ -87,15 +87,15 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 					log.warn("Dropped one or more messages. Informing protobuf controllers.");
 
-					WisebedProtocol.Message.Backend.Builder backendBuilder =
-							WisebedProtocol.Message.Backend.newBuilder()
+					WisebedMessages.Message.Backend.Builder backendBuilder =
+							WisebedMessages.Message.Backend.newBuilder()
 									.setText("Your experiment is generating too many messages to be delivered. "
 											+ "Therefore the backend drops messages. "
 											+ "Please make sure the message rate is lowered."
 									);
 
-					WisebedProtocol.Message backendMessage = WisebedProtocol.Message.newBuilder()
-							.setType(WisebedProtocol.Message.Type.BACKEND)
+					WisebedMessages.Message backendMessage = WisebedMessages.Message.newBuilder()
+							.setType(WisebedMessages.Message.Type.BACKEND)
 							.setBackend(backendBuilder)
 							.build();
 
@@ -178,20 +178,20 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 												   final String requestId) {
 		if (channels.size() > 0) {
 
-			WisebedProtocol.RequestStatus.Builder requestStatusBuilder = WisebedProtocol.RequestStatus.newBuilder()
+			WisebedMessages.RequestStatus.Builder requestStatusBuilder = WisebedMessages.RequestStatus.newBuilder()
 					.setRequestId(requestId);
 
 			for (String nodeUrn : nodeUrns) {
-				WisebedProtocol.RequestStatus.Status.Builder statusBuilder =
-						WisebedProtocol.RequestStatus.Status.newBuilder()
+				WisebedMessages.RequestStatus.Status.Builder statusBuilder =
+						WisebedMessages.RequestStatus.Status.newBuilder()
 								.setNodeUrn(nodeUrn)
 								.setMessage(msg)
 								.setValue(-1);
 				requestStatusBuilder.addStatus(statusBuilder);
 			}
 
-			WisebedProtocol.Envelope envelope = WisebedProtocol.Envelope.newBuilder()
-					.setBodyType(WisebedProtocol.Envelope.BodyType.REQUEST_STATUS)
+			WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
+					.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
 					.setRequestStatus(requestStatusBuilder)
 					.build();
 
@@ -208,55 +208,55 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 		channels.remove(channel);
 	}
 
-	private WisebedProtocol.Envelope convert(final String notification) {
+	private WisebedMessages.Envelope convert(final String notification) {
 
-		WisebedProtocol.Message.Backend.Builder backendBuilder = WisebedProtocol.Message.Backend.newBuilder()
+		WisebedMessages.Message.Backend.Builder backendBuilder = WisebedMessages.Message.Backend.newBuilder()
 				.setText(notification);
 
-		WisebedProtocol.Message.Builder backendMessageBuilder = WisebedProtocol.Message.newBuilder()
-				.setType(WisebedProtocol.Message.Type.BACKEND)
+		WisebedMessages.Message.Builder backendMessageBuilder = WisebedMessages.Message.newBuilder()
+				.setType(WisebedMessages.Message.Type.BACKEND)
 				.setTimestamp(datatypeFactory.newXMLGregorianCalendar(new GregorianCalendar()).toXMLFormat())
 				.setBackend(backendBuilder);
 
-		return WisebedProtocol.Envelope.newBuilder()
-				.setBodyType(WisebedProtocol.Envelope.BodyType.MESSAGE)
+		return WisebedMessages.Envelope.newBuilder()
+				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
 				.setMessage(backendMessageBuilder)
 				.build();
 	}
 
-	private WisebedProtocol.Envelope convert(Message message) {
+	private WisebedMessages.Envelope convert(Message message) {
 
-		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder()
+		WisebedMessages.Message.Builder messageBuilder = WisebedMessages.Message.newBuilder()
 				.setTimestamp(message.getTimestamp().toXMLFormat());
 
-		WisebedProtocol.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedProtocol.Message.NodeBinary.newBuilder()
+		WisebedMessages.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedMessages.Message.NodeBinary.newBuilder()
 				.setSourceNodeUrn(message.getSourceNodeId())
 				.setData(ByteString.copyFrom(message.getBinaryData()));
 
 		messageBuilder.setNodeBinary(nodeBinaryBuilder);
-		messageBuilder.setType(WisebedProtocol.Message.Type.NODE_BINARY);
+		messageBuilder.setType(WisebedMessages.Message.Type.NODE_BINARY);
 
-		return WisebedProtocol.Envelope.newBuilder()
-				.setBodyType(WisebedProtocol.Envelope.BodyType.MESSAGE)
+		return WisebedMessages.Envelope.newBuilder()
+				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
 				.setMessage(messageBuilder)
 				.build();
 	}
 
-	private WisebedProtocol.Envelope convert(RequestStatus requestStatus) {
+	private WisebedMessages.Envelope convert(RequestStatus requestStatus) {
 
-		WisebedProtocol.RequestStatus.Builder requestStatusBuilder = WisebedProtocol.RequestStatus.newBuilder()
+		WisebedMessages.RequestStatus.Builder requestStatusBuilder = WisebedMessages.RequestStatus.newBuilder()
 				.setRequestId(requestStatus.getRequestId());
 
 		for (Status status : requestStatus.getStatus()) {
-			requestStatusBuilder.addStatus(WisebedProtocol.RequestStatus.Status.newBuilder()
+			requestStatusBuilder.addStatus(WisebedMessages.RequestStatus.Status.newBuilder()
 					.setValue(status.getValue())
 					.setMessage(status.getMsg())
 					.setNodeUrn(status.getNodeId())
 			);
 		}
 
-		return WisebedProtocol.Envelope.newBuilder()
-				.setBodyType(WisebedProtocol.Envelope.BodyType.REQUEST_STATUS)
+		return WisebedMessages.Envelope.newBuilder()
+				.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
 				.setRequestStatus(requestStatusBuilder)
 				.build();
 	}

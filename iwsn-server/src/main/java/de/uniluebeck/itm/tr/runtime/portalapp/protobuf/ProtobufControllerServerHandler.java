@@ -63,7 +63,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-		WisebedProtocol.Envelope envelope = (WisebedProtocol.Envelope) e.getMessage();
+		WisebedMessages.Envelope envelope = (WisebedMessages.Envelope) e.getMessage();
 		switch (envelope.getBodyType()) {
 			case SECRET_RESERVATION_KEYS:
 				receivedSecretReservationKeys(e, envelope);
@@ -80,7 +80,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	}
 
 	private void receivedMessage(final ChannelHandlerContext ctx, final MessageEvent e,
-								 final WisebedProtocol.Envelope envelope) {
+								 final WisebedMessages.Envelope envelope) {
 
 		log.debug("ProtobufControllerServerHandler.receivedMessage({}, {}, {})", new Object[]{ctx, e, envelope});
 
@@ -90,7 +90,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			return;
 		}
 
-		final WisebedProtocol.Message message = envelope.getMessage();
+		final WisebedMessages.Message message = envelope.getMessage();
 
 
 		final HashSet<String> nodeUrns = Sets.newHashSet(message.getNodeBinary().getDestinationNodeUrnsList());
@@ -139,14 +139,14 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	private void sendBackendMessage(final ChannelHandlerContext ctx, final SocketAddress remoteAddress,
 									final String text) {
 
-		WisebedProtocol.Message.Backend.Builder backendBuilder = WisebedProtocol.Message.Backend.newBuilder()
+		WisebedMessages.Message.Backend.Builder backendBuilder = WisebedMessages.Message.Backend.newBuilder()
 				.setText(text);
-		WisebedProtocol.Message.Builder messageBuilder = WisebedProtocol.Message.newBuilder()
-				.setType(WisebedProtocol.Message.Type.BACKEND)
+		WisebedMessages.Message.Builder messageBuilder = WisebedMessages.Message.newBuilder()
+				.setType(WisebedMessages.Message.Type.BACKEND)
 				.setBackend(backendBuilder);
-		WisebedProtocol.Envelope envelope = WisebedProtocol.Envelope.newBuilder()
+		WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
 				.setMessage(messageBuilder)
-				.setBodyType(WisebedProtocol.Envelope.BodyType.MESSAGE)
+				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
 				.build();
 		DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
 		future.addListener(new ChannelFutureListener() {
@@ -164,7 +164,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	}
 
-	private void receivedSecretReservationKeys(final MessageEvent e, final WisebedProtocol.Envelope envelope) {
+	private void receivedSecretReservationKeys(final MessageEvent e, final WisebedMessages.Envelope envelope) {
 
 		if (firstMessage) {
 			firstMessage = false;
@@ -212,15 +212,15 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	}
 
-	private List<SecretReservationKey> convert(WisebedProtocol.SecretReservationKeys secretReservationKeys) {
+	private List<SecretReservationKey> convert(WisebedMessages.SecretReservationKeys secretReservationKeys) {
 		List<SecretReservationKey> retKeys = Lists.newArrayList();
-		for (WisebedProtocol.SecretReservationKeys.SecretReservationKey key : secretReservationKeys.getKeysList()) {
+		for (WisebedMessages.SecretReservationKeys.SecretReservationKey key : secretReservationKeys.getKeysList()) {
 			retKeys.add(convert(key));
 		}
 		return retKeys;
 	}
 
-	private SecretReservationKey convert(WisebedProtocol.SecretReservationKeys.SecretReservationKey key) {
+	private SecretReservationKey convert(WisebedMessages.SecretReservationKeys.SecretReservationKey key) {
 		SecretReservationKey retKey = new SecretReservationKey();
 		retKey.setUrnPrefix(key.getUrnPrefix());
 		retKey.setSecretReservationKey(key.getKey());

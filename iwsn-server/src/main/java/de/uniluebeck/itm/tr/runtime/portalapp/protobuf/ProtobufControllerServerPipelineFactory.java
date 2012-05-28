@@ -30,7 +30,7 @@ public class ProtobufControllerServerPipelineFactory implements ChannelPipelineF
 		ChannelPipeline p = pipeline();
 
 		p.addLast("frameDecoder", new ProtobufVarint32FrameDecoder());
-		p.addLast("protobufDecoder", new ProtobufDecoder(WisebedProtocol.Envelope.getDefaultInstance()));
+		p.addLast("protobufDecoder", new ProtobufDecoder(WisebedMessages.Envelope.getDefaultInstance()));
 
 		p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());
 		p.addLast("protobufEncoder", new ProtobufEncoder());
