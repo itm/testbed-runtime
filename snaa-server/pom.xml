@@ -37,6 +37,10 @@
 	<packaging>jar</packaging>
 	<name>TR :: SNAA Server</name>
 
+	<properties>
+		<shiro.version>1.2.0</shiro.version>
+	</properties>
+
 	<dependencies>
 
 		<dependency>
@@ -94,7 +98,35 @@
 			<artifactId>bcprov-ext-jdk16</artifactId>
 			<!-- needed at runtime but <scope>runtime</scope> does not work -->
 		</dependency>
-
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derbynet</artifactId>
+			<version>10.8.2.2</version>
+		</dependency>
+			<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derbyclient</artifactId>
+			<version>10.8.2.2</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
