@@ -22,6 +22,7 @@
  **********************************************************************************************************************/
 
 package shiro;
+
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -31,26 +32,40 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.derby.drda.NetworkServerControl;
+import org.apache.derby.jdbc.ClientDataSource;
+import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.apache.derby.tools.ij;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/** 
- * Creation of a test DB for Shiro JdbcRealm and basic authorization tests.
- * Creation of Derby database based on demo class {@code SimpleApp.java} of Derby project.
+import de.uniluebeck.itm.tr.snaa.shiro.TRJDBCRealm;
+
+/**
+ * Creation of a test DB for Shiro JdbcRealm and basic authorization tests. Creation of Derby database based on demo
+ * class {@code SimpleApp.java} of Derby project.
+ * 
  * @author massel
  */
 public class AuthorizationTest {
 
     private static AuthorizationTest instance;
-    private String framework  = "embedded";
-    private String driver= "org.apache.derby.jdbc.EmbeddedDriver";
-    private String protocol= "jdbc:derby:memory:";
-    private String dbName= "derbyDB";
+    private String framework = "embedded";
+    private String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+    private String protocol = "jdbc:derby:memory:";
+    private String dbName = "derbyDB";
     private Properties props = new Properties(); // connection properties
 
     @BeforeClass
@@ -58,15 +73,41 @@ public class AuthorizationTest {
         instance = new AuthorizationTest();
         instance.createDB();
     }
-    
+
     @Test
-    public void simpleSelectTest() throws SQLException{
-        Connection conn = DriverManager.getConnection(protocol + dbName ,props);
+    public void simpleSelectTest() throws SQLException {
+        Connection conn = DriverManager.getConnection(protocol + dbName, props);
         Statement s = conn.createStatement();
-        //If table does not exist or connection fails somehow, test fails due to SQL exception
+        // If table does not exist or connection fails somehow, test fails due to SQL exception
         ResultSet rs = s.executeQuery("select * from users");
-        //Assert that we have at least one user 
+        // Assert that we have at least one user
         assertTrue(rs.next());
+    }
+
+    @Test
+    public void testAuthentication() throws SQLException {
+        // Connection conn = DriverManager.getConnection(protocol + dbName ,props);
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+       
+        ds.setDatabaseName("memory:"+dbName);
+        //ds.setConnectionAttributes(protocol+dbName);
+
+        TRJDBCRealm realm = new TRJDBCRealm();
+        realm.setDataSource(ds);
+
+        DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
+
+        // Make the SecurityManager instance available to the entire application via static memory:
+        SecurityUtils.setSecurityManager(securityManager);
+
+        Subject currentUser = SecurityUtils.getSubject();
+
+        // let's login the current user so we can check against roles and permissions:
+
+        UsernamePasswordToken token = new UsernamePasswordToken("Experimenter1", "Pass1");
+        token.setRememberMe(true);
+        currentUser.login(token);
+
     }
 
     @Test
@@ -87,13 +128,12 @@ public class AuthorizationTest {
         // TODO FMA: try to create from within the SQL script and remove conn here
         Connection conn = null;
         try {
-            
+
             // providing a user name and password is optional in the embedded
             // and derby client frameworks
             // props.put("user", "user1");
             // props.put("password", "user1");
 
-            
             conn = DriverManager.getConnection(protocol + dbName + ";create=true", props);
 
             // TODO FMA: change to logging

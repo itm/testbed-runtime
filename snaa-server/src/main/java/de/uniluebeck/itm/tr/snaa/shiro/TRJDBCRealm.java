@@ -32,6 +32,13 @@ public class TRJDBCRealm extends JdbcRealm {
      */
     protected static final String DEFAULT_PERMISSIONS_QUERY = "select action_name, resourcegroup_name from permissions where role_name = ?";
     
+    
+    public TRJDBCRealm() {
+         authenticationQuery = DEFAULT_AUTHENTICATION_QUERY;
+         userRolesQuery = DEFAULT_USER_ROLES_QUERY;
+         permissionsQuery = DEFAULT_PERMISSIONS_QUERY;
+    }
+    
     @Override
     protected Set<String> getPermissions(Connection conn, String username, Collection<String> roleNames) throws SQLException {
         PreparedStatement ps = null;
