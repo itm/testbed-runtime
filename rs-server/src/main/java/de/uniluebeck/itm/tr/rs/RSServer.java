@@ -23,6 +23,32 @@
 
 package de.uniluebeck.itm.tr.rs;
 
+import static com.google.inject.matcher.Matchers.annotatedWith;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.xml.ws.Endpoint;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -34,10 +60,12 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
+
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
@@ -47,31 +75,19 @@ import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.snaa.SNAA;
-import org.apache.commons.cli.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.ws.Endpoint;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @SuppressWarnings("restriction")
 public class RSServer {
 
 	static {
-		Logging.setLoggingDefaults();
+		Logging.setDebugLoggingDefaults();
 	}
 
 	private static HttpServer server;
@@ -192,6 +208,8 @@ public class RSServer {
 		final Injector injector = Guice.createInjector(new Module() {
 			@Override
 			public void configure(final Binder binder) {
+				
+				SNAA snaaInstance = WisebedServiceHelper.getSNAAService(snaaEndpointUrl);
 
 				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"",
 						new Object[]{urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl}
@@ -211,7 +229,7 @@ public class RSServer {
 						.toInstance(urnPrefix);
 
 				binder.bind(SNAA.class)
-						.toInstance(WisebedServiceHelper.getSNAAService(snaaEndpointUrl));
+						.toInstance(snaaInstance);
 
 				if (sessionManagementEndpointUrl == null) {
 
@@ -235,9 +253,13 @@ public class RSServer {
 
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
-
+				
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixRS.class);
+
+				binder.bind(RS.class)
+						.annotatedWith(NonWS.class)
+						.to(SingleUrnPrefixTRRS.class);
 			}
 		}
 		);
