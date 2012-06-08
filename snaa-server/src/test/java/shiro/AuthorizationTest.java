@@ -52,6 +52,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.uniluebeck.itm.tr.snaa.shiro.TRJDBCRealm;
+import de.uniluebeck.itm.tr.util.Logging;
 
 /**
  * Creation of a test DB for Shiro JdbcRealm and basic authorization tests. Creation of Derby database based on demo
@@ -60,18 +61,42 @@ import de.uniluebeck.itm.tr.snaa.shiro.TRJDBCRealm;
  * @author massel
  */
 public class AuthorizationTest {
+    static {
+        Logging.setDebugLoggingDefaults();
+    }
+
+    private static final String EXPERIMENTER1_PASS = "Pass1";
+    private static final String EXPERIMENTER1 = "Experimenter1";
+    private static final UsernamePasswordToken experimenter_token = new UsernamePasswordToken(EXPERIMENTER1,
+            EXPERIMENTER1_PASS);
+
+    private static final String ADMINISTRATOR2_PASS = "Pass2";
+    private static final String ADMINISTRATOR2 = "Administrator2";
+    private static final UsernamePasswordToken administrator_token = new UsernamePasswordToken(ADMINISTRATOR2,
+            ADMINISTRATOR2_PASS);
 
     private static AuthorizationTest instance;
     private String framework = "embedded";
     private String driver = "org.apache.derby.jdbc.EmbeddedDriver";
     private String protocol = "jdbc:derby:memory:";
     private String dbName = "derbyDB";
+    private String dataSourceDbName = "memory:" + dbName;
     private Properties props = new Properties(); // connection properties
+    private EmbeddedDataSource dataSource = new EmbeddedDataSource();
+    private TRJDBCRealm realm = new TRJDBCRealm();
+    private DefaultSecurityManager securityManager;
 
     @BeforeClass
     public static void setUp() {
         instance = new AuthorizationTest();
         instance.createDB();
+        // set up Shiro classes
+        instance.dataSource.setDatabaseName(instance.dataSourceDbName);
+        instance.realm.setDataSource(instance.dataSource);
+        instance.realm.setPermissionsLookupEnabled(true);
+        instance.securityManager = new DefaultSecurityManager(instance.realm);
+        // Make the SecurityManager instance available to the entire application via static memory:
+        SecurityUtils.setSecurityManager(instance.securityManager);
     }
 
     @Test
@@ -86,35 +111,49 @@ public class AuthorizationTest {
 
     @Test
     public void testAuthentication() throws SQLException {
-        // Connection conn = DriverManager.getConnection(protocol + dbName ,props);
-        EmbeddedDataSource ds = new EmbeddedDataSource();
-       
-        ds.setDatabaseName("memory:"+dbName);
-        //ds.setConnectionAttributes(protocol+dbName);
-
-        TRJDBCRealm realm = new TRJDBCRealm();
-        realm.setDataSource(ds);
-
-        DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
-
-        // Make the SecurityManager instance available to the entire application via static memory:
-        SecurityUtils.setSecurityManager(securityManager);
 
         Subject currentUser = SecurityUtils.getSubject();
 
-        // let's login the current user so we can check against roles and permissions:
-
-        UsernamePasswordToken token = new UsernamePasswordToken("Experimenter1", "Pass1");
-        token.setRememberMe(true);
-        currentUser.login(token);
+        // login the current to check authentication
+        currentUser.login(experimenter_token);
+        currentUser.logout();
 
     }
 
     @Test
-    public void authenticationTest() {
+    public void testAuthorizationOKAdmin() throws SQLException {
+        Subject currentUser = SecurityUtils.getSubject();
 
+        // login the current to check authentication
+        currentUser.login(administrator_token);
+        // check permissions, administrator role has *:* so it is allowed for everything
+        assertTrue(currentUser.isPermittedAll("l:k:j","lk:j:x"));
+        currentUser.logout();
     }
 
+    @Test
+    public void testAuthorizationOKExperimenter() throws SQLException {
+        Subject currentUser = SecurityUtils.getSubject();
+        currentUser.login(experimenter_token);
+        // check permissions, administrator role has *:* so it is allowed for everything
+        assertTrue(currentUser.isPermittedAll("WSN_FLASH_PROGRAMS:EXPERIMENT_NODES"));
+        currentUser.logout();
+        
+    }
+
+    
+    @Test
+    public void testAuthorizationNOKExperimenter() throws SQLException {
+        Subject currentUser = SecurityUtils.getSubject();
+
+        // login the current to check authentication
+        currentUser.login(experimenter_token);
+        // check permissions, should not be allowed to flash service nodes
+        assertFalse(currentUser.isPermittedAll("WSN_FLASH_PROGRAMS:SERVICE_NODES"));
+        currentUser.logout();
+    }
+    
+    
     void createDB() {
         /* load the JDBC driver */
         loadDriver();

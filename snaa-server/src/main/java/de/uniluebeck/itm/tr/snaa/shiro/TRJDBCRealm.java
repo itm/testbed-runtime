@@ -25,7 +25,7 @@ public class TRJDBCRealm extends JdbcRealm {
     /**
      * The default query used to retrieve the roles that apply to a user.
      */
-    protected static final String DEFAULT_USER_ROLES_QUERY = "select role_name from user_roles where user_name = ?";
+    protected static final String DEFAULT_USER_ROLES_QUERY = "select role_name from users_roles where user_name = ?";
 
     /**
      * The default query used to retrieve permissions that apply to a particular role.
