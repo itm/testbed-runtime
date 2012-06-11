@@ -1,15 +1,21 @@
 package de.uniluebeck.itm.tr.rs;
 
 
-import com.google.common.collect.Lists;
-import com.google.inject.*;
-import com.google.inject.name.Names;
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import eu.wisebed.api.rs.*;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.Actions;
-import eu.wisebed.api.snaa.SNAA;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Random;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -19,15 +25,29 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import java.util.List;
-import java.util.Random;
+import com.google.common.collect.Lists;
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Provider;
+import com.google.inject.name.Names;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.SecretAuthenticationKey;
+import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.snaa.Actions;
+import eu.wisebed.api.snaa.SNAA;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SingleUrnPrefixRSTest {
@@ -115,6 +135,12 @@ public class SingleUrnPrefixRSTest {
 
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixRS.class);
+				
+				binder.bind(RS.class)
+				.annotatedWith(NonWS.class)
+				.to(SingleUrnPrefixTRRS.class);
+		
+				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa));
 			}
 		}
 		);
