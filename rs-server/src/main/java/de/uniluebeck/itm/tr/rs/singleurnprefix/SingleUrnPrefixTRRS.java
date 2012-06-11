@@ -43,11 +43,7 @@ import eu.wisebed.api.rs.ReservervationNotFoundException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.rs.SecretAuthenticationKey;
 import eu.wisebed.api.rs.SecretReservationKey;
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.Actions;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
-import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.snaa.SNAAExceptionException;
 
 /**
  * Testbed Runtime internal implementation of the interface which defines the reservation system
@@ -62,9 +58,6 @@ public class SingleUrnPrefixTRRS implements RS {
 	private String urnPrefix;
 
 	@Inject
-	private SNAA snaa;
-
-	@Inject
 	private RSPersistence persistence;
 
 	@Inject
@@ -73,6 +66,7 @@ public class SingleUrnPrefixTRRS implements RS {
 	private Provider<String[]> servedNodeUrns;
 
 	@Override
+	@AuthorizationRequired("MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
 
@@ -84,7 +78,6 @@ public class SingleUrnPrefixTRRS implements RS {
 
 		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
 
-		checkAuthorization(secretAuthenticationKey, Actions.MAKE_RESERVATION);
 		checkNodesAvailable(reservation);
 
 		return makeReservationInternal(reservation, secretAuthenticationKey);
@@ -144,6 +137,7 @@ public class SingleUrnPrefixTRRS implements RS {
 	}
 
 	@Override
+	@AuthorizationRequired("DELETE_RESERVATION")
 	public void deleteReservation(List<SecretAuthenticationKey> authenticationData, List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
@@ -194,6 +188,7 @@ public class SingleUrnPrefixTRRS implements RS {
 	}
 
 	@Override
+	@AuthorizationRequired("GET_CONFIDENTIAL_RESERVATION")
 	public List<ConfidentialReservationData> getConfidentialReservations(List<SecretAuthenticationKey> secretAuthenticationKeys,
 			GetReservations period) throws RSExceptionException {
 
@@ -204,12 +199,6 @@ public class SingleUrnPrefixTRRS implements RS {
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 
 		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
-
-		try {
-			checkAuthorization(key, Actions.GET_CONFIDENTIAL_RESERVATION);
-		} catch (Exception e) {
-			return throwRSExceptionException(e);
-		}
 
 		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()), new DateTime(period.getTo().toGregorianCalendar()));
 
@@ -247,52 +236,7 @@ public class SingleUrnPrefixTRRS implements RS {
 		}
 	}
 
-	private boolean checkAuthentication(SecretAuthenticationKey key, Action action) throws RSExceptionException, AuthorizationExceptionException,
-			AuthenticationExceptionException {
-
-		log.debug("Checking authorization for key: " + key + " and action: " + action);
-		boolean authorized;
-
-		eu.wisebed.api.snaa.SecretAuthenticationKey sak = new eu.wisebed.api.snaa.SecretAuthenticationKey();
-		sak.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
-		sak.setUrnPrefix(key.getUrnPrefix());
-		sak.setUsername(key.getUsername());
-
-		List<eu.wisebed.api.snaa.SecretAuthenticationKey> saks = Lists.newArrayList();
-		saks.add(sak);
-
-		// Invoke isAuthorized
-		try {
-
-			authorized = snaa.isAuthorized(saks, action);
-			log.debug("Authorization result: " + authorized);
-
-			if (!authorized) {
-				AuthorizationException e = new AuthorizationException();
-				String msg = "Authorization failed";
-				e.setMessage(msg);
-				log.warn(msg, e);
-				throw new AuthorizationExceptionException(msg, e);
-			}
-
-		} catch (SNAAExceptionException e) {
-			throwRSExceptionException(e);
-		}
-
-		return true;
-	}
-
-	private void checkAuthorization(final SecretAuthenticationKey secretAuthenticationKey, final Action action) throws RSExceptionException,
-			AuthorizationExceptionException {
-
-		if (snaa != null) {
-			try {
-				checkAuthentication(secretAuthenticationKey, action);
-			} catch (AuthenticationExceptionException e) {
-				throw createAuthorizationExceptionException(e);
-			}
-		}
-	}
+	
 
 	private RSExceptionException createRSExceptionException(String message) {
 		RSException exception = new RSException();

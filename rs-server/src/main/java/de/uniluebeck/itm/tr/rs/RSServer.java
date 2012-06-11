@@ -260,6 +260,8 @@ public class RSServer {
 				binder.bind(RS.class)
 						.annotatedWith(NonWS.class)
 						.to(SingleUrnPrefixTRRS.class);
+				
+				binder.bindInterceptor(Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaaInstance));
 			}
 		}
 		);

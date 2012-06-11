@@ -9,7 +9,7 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 
 /**
- * Fields, paramerters and methods annotated with this annotation
+ * Fields, parameters and methods annotated with this annotation
  * do not provide web service accessibility.
  */
 @Retention(RUNTIME)
