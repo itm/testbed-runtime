@@ -74,7 +74,7 @@ public class WSNServiceImpl implements WSNService {
 	/**
 	 * The logger for this WSN service.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
 
 	/**
 	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from sensor nodes and
