@@ -25,15 +25,23 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
@@ -53,26 +61,76 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
 
+	/**
+	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by
+	 * invoking the {@link eu.wisebed.api.controller.Controller#receive(java.util.List)} or
+	 * {@link eu.wisebed.api.controller.Controller#receiveStatus(java.util.List)} method. The
+	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least
+	 * one controller and, if more controllers are attached to the running experiment the maximum
+	 * thread pool size will be increased. By that, the number of threads for web-service calls is
+	 * bounded by the number of controller endpoints as more threads would not, in theory, increase
+	 * the throughput to the controllers.
+	 */
+	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+			new SynchronousQueue<Runnable>(), new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build());
+
+	/**
+	 * The endpoint of this WSN instance.
+	 */
+	private Endpoint wsnInstanceEndpoint;
+
 	private final WSNService delegate;
+
+	/**
+	 * The endpoint URL of this WSN service instance.
+	 */
+	private final URL wsnInstanceEndpointUrl;
 
 
 
 	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final Wiseml wiseML,
 			final String[] reservedNodes, final DeliveryManager deliveryManager, final WSNApp wsnApp) {
 
-		delegate = new InternalWSNServiceImpl(urnPrefix, wsnInstanceEndpointUrl, wiseML, reservedNodes, deliveryManager, wsnApp);
+
+		Preconditions.checkNotNull(wsnInstanceEndpointUrl);
+		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
+
+		delegate = new InternalWSNServiceImpl(urnPrefix, wiseML, reservedNodes, deliveryManager, wsnApp);
 
 	}
 
 	@Override
 	public void start() throws Exception {
+
+		WSNServiceImpl.log.info("Starting WSN service...");
+
+		wsnInstanceEndpoint = Endpoint.create(this);
+		wsnInstanceEndpoint.setExecutor(wsnInstanceWebServiceThreadPool);
+
+		final String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ? wsnInstanceEndpointUrl.toString() : UrlUtils
+				.convertHostToZeros(wsnInstanceEndpointUrl.toString());
+
+		WSNServiceImpl.log.info("Starting WSN API service on binding URL {} for endpoint URL {}", bindAllInterfacesUrl,
+				wsnInstanceEndpointUrl.toString());
+
+		wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
+
+		WSNServiceImpl.log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
+
 		delegate.start();
 	}
 
 	@Override
 	public void stop() {
 
-		delegate.stop();
+		WSNServiceImpl.log.info("Stopping WSN service...");
+
+		if (wsnInstanceEndpoint != null) {
+			wsnInstanceEndpoint.stop();
+			WSNServiceImpl.log.info("Stopped WSN service wsnInstanceEndpoint on {}", wsnInstanceEndpointUrl);
+		}
+
+		WSNServiceImpl.log.info("Stopped WSN service!");
 
 	}
 

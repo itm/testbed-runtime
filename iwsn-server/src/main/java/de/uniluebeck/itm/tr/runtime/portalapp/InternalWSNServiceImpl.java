@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,16 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Endpoint;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -66,7 +60,6 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
@@ -76,7 +69,7 @@ import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.wiseml.Wiseml;
 
-@WebService(serviceName = "WSNService", targetNamespace = "urn:WSNService", portName = "WSNPort", endpointInterface = "eu.wisebed.api.wsn.WSN")
+
 public class InternalWSNServiceImpl implements WSNService {
 
 	/**
@@ -294,19 +287,6 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	/**
-	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by
-	 * invoking the {@link eu.wisebed.api.controller.Controller#receive(java.util.List)} or
-	 * {@link eu.wisebed.api.controller.Controller#receiveStatus(java.util.List)} method. The
-	 * ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least
-	 * one controller and, if more controllers are attached to the running experiment the maximum
-	 * thread pool size will be increased. By that, the number of threads for web-service calls is
-	 * bounded by the number of controller endpoints as more threads would not, in theory, increase
-	 * the throughput to the controllers.
-	 */
-	private final ThreadPoolExecutor wsnInstanceWebServiceThreadPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-			new SynchronousQueue<Runnable>(), new ThreadFactoryBuilder().setNameFormat("WSNService-WS-Thread %d").build());
-
-	/**
 	 * Used to generate secure non-predictable secure request IDs as used request-response matching
 	 * identifier.
 	 */
@@ -318,15 +298,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	 */
 	private final WSNApp wsnApp;
 
-	/**
-	 * The endpoint URL of this WSN service instance.
-	 */
-	private final URL wsnInstanceEndpointUrl;
 
-	/**
-	 * The endpoint of this WSN instance.
-	 */
-	private Endpoint wsnInstanceEndpoint;
 
 	/**
 	 * Used for executing all parallel jobs.
@@ -355,15 +327,13 @@ public class InternalWSNServiceImpl implements WSNService {
 	 */
 	private final ImmutableSet<String> reservedNodes;
 
-	public InternalWSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final Wiseml wiseML, final String[] reservedNodes,
+	public InternalWSNServiceImpl(final String urnPrefix, final Wiseml wiseML, final String[] reservedNodes,
 			final DeliveryManager deliveryManager, final WSNApp wsnApp) {
 
 		Preconditions.checkNotNull(urnPrefix);
-		Preconditions.checkNotNull(wsnInstanceEndpointUrl);
 		Preconditions.checkNotNull(wiseML);
 		Preconditions.checkNotNull(wsnApp);
 
-		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 		this.wsnApp = wsnApp;
 		this.wiseML = wiseML;
 		this.deliveryManager = deliveryManager;
@@ -382,22 +352,10 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		InternalWSNServiceImpl.log.info("Starting WSN service...");
 
-		wsnInstanceEndpoint = Endpoint.create(this);
-		wsnInstanceEndpoint.setExecutor(wsnInstanceWebServiceThreadPool);
+		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
 
-		final String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ? wsnInstanceEndpointUrl.toString() : UrlUtils
-				.convertHostToZeros(wsnInstanceEndpointUrl.toString());
+		deliveryManager.start();
 
-				InternalWSNServiceImpl.log.info("Starting WSN API service on binding URL {} for endpoint URL {}", bindAllInterfacesUrl,
-						wsnInstanceEndpointUrl.toString());
-
-				wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
-
-				wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
-
-				deliveryManager.start();
-
-				InternalWSNServiceImpl.log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
 	}
 
 	@Override
@@ -408,11 +366,6 @@ public class InternalWSNServiceImpl implements WSNService {
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 		deliveryManager.experimentEnded();
 		deliveryManager.stop();
-
-		if (wsnInstanceEndpoint != null) {
-			wsnInstanceEndpoint.stop();
-			InternalWSNServiceImpl.log.info("Stopped WSN service wsnInstanceEndpoint on {}", wsnInstanceEndpointUrl);
-		}
 
 		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 
@@ -426,7 +379,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public void addController(@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
+	public void addController(final String controllerEndpointUrl) {
 
 		if (!"NONE".equals(controllerEndpointUrl)) {
 			NetworkUtils.checkConnectivity(controllerEndpointUrl);
@@ -435,14 +388,13 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public void removeController(@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
+	public void removeController(final String controllerEndpointUrl) {
 
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	public String send(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
-			@WebParam(name = "msg", targetNamespace = "") final Message message) {
+	public String send(final List<String> nodeIds, final Message message) {
 
 		preconditions.checkSendArguments(nodeIds, message);
 
@@ -455,18 +407,18 @@ public class InternalWSNServiceImpl implements WSNService {
 			wsnApp.send(new HashSet<String>(nodeIds), message.getBinaryData(), message.getSourceNodeId(), message.getTimestamp().toXMLFormat(),
 					new WSNApp.Callback() {
 
-						@Override
-						public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-							final long end = System.currentTimeMillis();
-							InternalWSNServiceImpl.log.debug("Received reply from device after {} ms.", (end - start));
-							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-						}
+				@Override
+				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+					final long end = System.currentTimeMillis();
+					InternalWSNServiceImpl.log.debug("Received reply from device after {} ms.", (end - start));
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+				}
 
-						@Override
-						public void failure(final Exception e) {
-							deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-						}
-					});
+				@Override
+				public void failure(final Exception e) {
+					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+				}
+			});
 		} catch (final UnknownNodeUrnsException e) {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
@@ -476,9 +428,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String setChannelPipeline(
-			@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-			@WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+	public String setChannelPipeline(final List<String> nodes, final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		preconditions.checkSetChannelPipelineArguments(nodes, channelHandlerConfigurations);
 
@@ -510,7 +460,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeIds) {
+	public String areNodesAlive(final List<String> nodeIds) {
 
 		preconditions.checkAreNodesAliveArguments(nodeIds);
 
@@ -538,9 +488,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
-			@WebParam(name = "programIndices", targetNamespace = "") final List<Integer> programIndices,
-			@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
+	public String flashPrograms(final List<String> nodeIds, final List<Integer> programIndices, final List<Program> programs) {
 
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 
@@ -609,7 +557,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodeUrns) {
+	public String resetNodes(final List<String> nodeUrns) {
 
 		preconditions.checkResetNodesArguments(nodeUrns);
 
@@ -642,11 +590,8 @@ public class InternalWSNServiceImpl implements WSNService {
 	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
 
 	@Override
-	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
-			@WebParam(name = "targetNode", targetNamespace = "") final String targetNode,
-			@WebParam(name = "remoteServiceInstance", targetNamespace = "") final String remoteServiceInstance,
-			@WebParam(name = "parameters", targetNamespace = "") final List<String> parameters,
-			@WebParam(name = "filters", targetNamespace = "") final List<String> filters) {
+	public String setVirtualLink(final String sourceNode, final String targetNode, final String remoteServiceInstance, final List<String> parameters,
+			final List<String> filters) {
 
 		preconditions.checkSetVirtualLinkArguments(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
 
@@ -755,8 +700,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
-			@WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
+	public String destroyVirtualLink(final String sourceNode, final String targetNode) {
 
 		preconditions.checkDestroyVirtualLinkArguments(sourceNode, targetNode);
 
@@ -789,7 +733,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String disableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
+	public String disableNode(final String node) {
 
 		preconditions.checkDisableNodeArguments(node);
 
@@ -819,8 +763,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
-			@WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
+	public String disablePhysicalLink(final String nodeA, final String nodeB) {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
 
@@ -851,7 +794,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String enableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
+	public String enableNode(final String node) {
 
 		preconditions.checkEnableNodeArguments(node);
 
@@ -882,8 +825,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
-			@WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
+	public String enablePhysicalLink(final String nodeA, final String nodeB) {
 
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
 
