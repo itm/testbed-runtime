@@ -70,12 +70,12 @@ import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.wiseml.Wiseml;
 
 
-public class InternalWSNServiceImpl implements WSNService {
+public class WSNServiceImplInternal implements WSNService {
 
 	/**
 	 * The logger for this WSN service.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(InternalWSNServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNServiceImplInternal.class);
 
 	/**
 	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from
@@ -98,7 +98,7 @@ public class InternalWSNServiceImpl implements WSNService {
 			try {
 				datatypeFactory = DatatypeFactory.newInstance();
 			} catch (final DatatypeConfigurationException e) {
-				InternalWSNServiceImpl.log.error("" + e, e);
+				WSNServiceImplInternal.log.error("" + e, e);
 			}
 		}
 
@@ -114,7 +114,7 @@ public class InternalWSNServiceImpl implements WSNService {
 			 */
 
 			if (!reservedNodes.contains(sourceNodeId)) {
-				InternalWSNServiceImpl.log.warn("Received message from unreserved node \"{}\".", sourceNodeId);
+				WSNServiceImplInternal.log.warn("Received message from unreserved node \"{}\".", sourceNodeId);
 				return;
 			}
 
@@ -263,7 +263,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 				tries++;
 
-				InternalWSNServiceImpl.log.debug("Delivering virtual link message to remote testbed service.");
+				WSNServiceImplInternal.log.debug("Delivering virtual link message to remote testbed service.");
 
 				try {
 
@@ -273,11 +273,11 @@ public class InternalWSNServiceImpl implements WSNService {
 
 					if (tries >= 3) {
 
-						InternalWSNServiceImpl.log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
+						WSNServiceImplInternal.log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
 						destroyVirtualLink(sourceNode, targetNode);
 
 					} else {
-						InternalWSNServiceImpl.log.warn("Error while delivering virtual link message to remote testbed service. "
+						WSNServiceImplInternal.log.warn("Error while delivering virtual link message to remote testbed service. "
 								+ "Trying again in 5 seconds.");
 						executorService.schedule(this, 5, TimeUnit.SECONDS);
 					}
@@ -317,7 +317,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	private final DeliveryManager deliveryManager;
 
 	/**
-	 * The WiseML document that is delivered when {@link InternalWSNServiceImpl#getNetwork()} is
+	 * The WiseML document that is delivered when {@link WSNServiceImplInternal#getNetwork()} is
 	 * called.
 	 */
 	private final Wiseml wiseML;
@@ -327,7 +327,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	 */
 	private final ImmutableSet<String> reservedNodes;
 
-	public InternalWSNServiceImpl(final String urnPrefix, final Wiseml wiseML, final String[] reservedNodes,
+	public WSNServiceImplInternal(final String urnPrefix, final Wiseml wiseML, final String[] reservedNodes,
 			final DeliveryManager deliveryManager, final WSNApp wsnApp) {
 
 		Preconditions.checkNotNull(urnPrefix);
@@ -350,7 +350,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	@Override
 	public void start() throws Exception {
 
-		InternalWSNServiceImpl.log.info("Starting WSN service...");
+		WSNServiceImplInternal.log.info("Starting WSN service...");
 
 		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
 
@@ -361,7 +361,7 @@ public class InternalWSNServiceImpl implements WSNService {
 	@Override
 	public void stop() {
 
-		InternalWSNServiceImpl.log.info("Stopping WSN service...");
+		WSNServiceImplInternal.log.info("Stopping WSN service...");
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 		deliveryManager.experimentEnded();
@@ -369,7 +369,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 
-		InternalWSNServiceImpl.log.info("Stopped WSN service!");
+		WSNServiceImplInternal.log.info("Stopped WSN service!");
 
 	}
 
@@ -398,7 +398,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkSendArguments(nodeIds, message);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
 
 		final String requestId = secureIdGenerator.getNextId();
 		final long start = System.currentTimeMillis();
@@ -410,7 +410,7 @@ public class InternalWSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
 					final long end = System.currentTimeMillis();
-					InternalWSNServiceImpl.log.debug("Received reply from device after {} ms.", (end - start));
+					WSNServiceImplInternal.log.debug("Received reply from device after {} ms.", (end - start));
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
@@ -432,7 +432,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkSetChannelPipelineArguments(nodes, channelHandlerConfigurations);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.setChannelPipeline({}, {})", nodes, channelHandlerConfigurations);
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.setChannelPipeline({}, {})", nodes, channelHandlerConfigurations);
 
 		final String requestId = secureIdGenerator.getNextId();
 		final long start = System.currentTimeMillis();
@@ -443,7 +443,7 @@ public class InternalWSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
 					final long end = System.currentTimeMillis();
-					InternalWSNServiceImpl.log.debug("Received reply after {} ms.", (end - start));
+					WSNServiceImplInternal.log.debug("Received reply after {} ms.", (end - start));
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
 				}
 
@@ -464,7 +464,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkAreNodesAliveArguments(nodeIds);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeIds);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -492,7 +492,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.flashPrograms");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.flashPrograms");
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -501,16 +501,16 @@ public class InternalWSNServiceImpl implements WSNService {
 				@Override
 				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
 
-					if (InternalWSNServiceImpl.log.isDebugEnabled()) {
+					if (WSNServiceImplInternal.log.isDebugEnabled()) {
 
 						final boolean hasInformation = requestStatus.hasStatus() && requestStatus.getStatus().hasValue()
 								&& requestStatus.getStatus().hasNodeId();
 
 						if (hasInformation && (requestStatus.getStatus().getValue() >= 0)) {
-							InternalWSNServiceImpl.log.debug("Flashing node {} completed {} percent.", requestStatus.getStatus().getNodeId(),
+							WSNServiceImplInternal.log.debug("Flashing node {} completed {} percent.", requestStatus.getStatus().getNodeId(),
 									requestStatus.getStatus().getValue());
 						} else if (hasInformation && (requestStatus.getStatus().getValue() < 0)) {
-							InternalWSNServiceImpl.log.warn("Failed flashing node {} ({})!", requestStatus.getStatus().getNodeId(), requestStatus
+							WSNServiceImplInternal.log.warn("Failed flashing node {} ({})!", requestStatus.getStatus().getNodeId(), requestStatus
 									.getStatus().getValue());
 						}
 					}
@@ -552,7 +552,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 	@Override
 	public String getNetwork() {
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.getNetwork");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.getNetwork");
 		return WiseMLHelper.serialize(wiseML);
 	}
 
@@ -561,7 +561,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkResetNodesArguments(nodeUrns);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -629,7 +629,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		if (!containsVirtualLink(sourceNode, targetNode)) {
 
-			InternalWSNServiceImpl.log.debug("+++ Adding virtual link from {} to {}", sourceNode, targetNode);
+			WSNServiceImplInternal.log.debug("+++ Adding virtual link from {} to {}", sourceNode, targetNode);
 
 			final WSN remoteServiceEndpoint = WisebedServiceHelper.getWSNService(remoteServiceInstance);
 
@@ -660,7 +660,7 @@ public class InternalWSNServiceImpl implements WSNService {
 			virtualLinksMap = virtualLinksMapBuilder.build();
 
 		} else {
-			InternalWSNServiceImpl.log.debug("+++ Not adding virtual link from {} to {} as it is already established", sourceNode, targetNode);
+			WSNServiceImplInternal.log.debug("+++ Not adding virtual link from {} to {} as it is already established", sourceNode, targetNode);
 		}
 
 	}
@@ -669,7 +669,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		if (containsVirtualLink(sourceNode, targetNode)) {
 
-			InternalWSNServiceImpl.log.debug("--- Removing virtual link from {} to {}", sourceNode, targetNode);
+			WSNServiceImplInternal.log.debug("--- Removing virtual link from {} to {}", sourceNode, targetNode);
 
 			final ImmutableMap.Builder<String, WSN> targetNodeMapBuilder = ImmutableMap.builder();
 			for (final Map.Entry<String, WSN> oldEntry : virtualLinksMap.get(sourceNode).entrySet()) {
@@ -737,7 +737,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkDisableNodeArguments(node);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.disableNode");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.disableNode");
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -767,7 +767,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.disablePhysicalLink");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.disablePhysicalLink");
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -798,7 +798,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkEnableNodeArguments(node);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.enableNode");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.enableNode");
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -829,7 +829,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
 
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.enablePhysicalLink");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.enablePhysicalLink");
 
 		final String requestId = secureIdGenerator.getNextId();
 
@@ -857,7 +857,7 @@ public class InternalWSNServiceImpl implements WSNService {
 
 	@Override
 	public List<String> getFilters() {
-		InternalWSNServiceImpl.log.debug("WSNServiceImpl.getFilters");
+		WSNServiceImplInternal.log.debug("WSNServiceImpl.getFilters");
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 

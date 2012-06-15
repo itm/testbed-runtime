@@ -95,7 +95,7 @@ public class WSNServiceImpl implements WSNService {
 		Preconditions.checkNotNull(wsnInstanceEndpointUrl);
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
 
-		delegate = new InternalWSNServiceImpl(urnPrefix, wiseML, reservedNodes, deliveryManager, wsnApp);
+		delegate = new WSNServiceImplInternal(urnPrefix, wiseML, reservedNodes, deliveryManager, wsnApp);
 
 	}
 
