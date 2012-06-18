@@ -38,15 +38,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
-import eu.wisebed.wiseml.Wiseml;
 
 @WebService(
 		serviceName = "WSNService",
@@ -79,23 +79,25 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private Endpoint wsnInstanceEndpoint;
 
-	private final WSNService delegate;
+	@Inject
+	@NonWS
+	private WSNService delegate;
 
 	/**
 	 * The endpoint URL of this WSN service instance.
 	 */
 	private final URL wsnInstanceEndpointUrl;
+	
+	@Inject
+	private WSNApp wsnApp;
 
 
 
-	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final Wiseml wiseML,
-			final String[] reservedNodes, final DeliveryManager deliveryManager, final WSNApp wsnApp) {
-
-
+	@Inject
+	public WSNServiceImpl(@Named("WSN_SERVICE_ENDPOINT") final URL wsnInstanceEndpointUrl) {
+		
 		Preconditions.checkNotNull(wsnInstanceEndpointUrl);
 		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
-
-		delegate = new WSNServiceImplInternal(urnPrefix, wiseML, reservedNodes, deliveryManager, wsnApp);
 
 	}
 

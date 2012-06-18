@@ -46,6 +46,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -327,7 +329,8 @@ public class WSNServiceImplInternal implements WSNService {
 	 */
 	private final ImmutableSet<String> reservedNodes;
 
-	public WSNServiceImplInternal(final String urnPrefix, final Wiseml wiseML, final String[] reservedNodes,
+	@Inject
+	public WSNServiceImplInternal(@Named("URN_PREFIX") final String urnPrefix, final Wiseml wiseML, @Named("RESERVED_NODES") final String[] reservedNodes,
 			final DeliveryManager deliveryManager, final WSNApp wsnApp) {
 
 		Preconditions.checkNotNull(urnPrefix);

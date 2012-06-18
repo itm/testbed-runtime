@@ -23,15 +23,19 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import java.net.URL;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.wsn.WSN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URL;
 
 public class WSNServiceHandle implements Service {
 
@@ -49,7 +53,8 @@ public class WSNServiceHandle implements Service {
 
 	private final ProtobufDeliveryManager protobufControllerHelper;
 
-	WSNServiceHandle(String secretReservationKey, URL wsnInstanceEndpointUrl, WSNService wsnService, WSNApp wsnApp,
+	@Inject
+	WSNServiceHandle(@Named("SECRET_RESERVATION_KEY") String secretReservationKey, @Named("WSN_SERVICE_ENDPOINT") URL wsnInstanceEndpointUrl, WSNService wsnService, WSNApp wsnApp,
 					 ProtobufControllerServer protobufControllerServer,
 					 ProtobufDeliveryManager protobufControllerHelper) {
 

@@ -23,6 +23,55 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.convertCHCList;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.convertToProtobuf;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.setPipeline;
+import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import static org.jboss.netty.channel.Channels.future;
+import static org.jboss.netty.channel.Channels.pipeline;
+
+import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.DownstreamMessageEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.UpstreamMessageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
@@ -31,8 +80,13 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
@@ -42,8 +96,6 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingSer
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnknownNameException;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
@@ -52,25 +104,6 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.net.SocketAddress;
-import java.util.*;
-import java.util.concurrent.*;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.*;
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
-import static org.jboss.netty.channel.Channels.future;
-import static org.jboss.netty.channel.Channels.pipeline;
 
 
 class WSNAppImpl implements WSNApp {
@@ -266,7 +299,8 @@ class WSNAppImpl implements WSNApp {
 		}
 	};
 
-	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
+	@Inject
+	public WSNAppImpl(final TestbedRuntime testbedRuntime, @Named("RESERVED_NODES") final String[] reservedNodes) {
 
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = Sets.newHashSet(reservedNodes);
