@@ -1,10 +1,11 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import static com.google.inject.matcher.Matchers.annotatedWith;
+
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.jar.Attributes.Name;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -12,10 +13,11 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.IWSNAuthorizationInterceptor;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
@@ -84,7 +86,7 @@ public class WSNServiceHandleFactory {
 				
 				binder.bind(Service.class).annotatedWith(Names.named("WSN_SERVICE_HANDLE")).to(WSNServiceHandle.class);
 
-
+				binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), new IWSNAuthorizationInterceptor());
 			}
 		});
 		
