@@ -79,6 +79,10 @@ public class WSNServiceImpl implements WSNService {
 	 */
 	private Endpoint wsnInstanceEndpoint;
 
+	/**
+	 * Testbed Runtime internal implementation of the WSN service.
+	 * This implementation is not necessarily bound to web services or any other RPC technology.
+	 */
 	@Inject
 	@NonWS
 	private WSNService delegate;

@@ -38,18 +38,7 @@ public class WSNServiceHandleFactory {
 										  final ProtobufDeliveryManager protobufDeliveryManager,
 										  final ProtobufControllerServer protobufControllerServer) {
 
-		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
-		final Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(wiseMLFilename));
-		List<Setup.Node> node = wiseML.getSetup().getNode();
-		Iterator<Setup.Node> nodeIterator = node.iterator();
-
-		List<String> reservedNodesList = Arrays.asList(reservedNodes);
-		while (nodeIterator.hasNext()) {
-			Setup.Node currentNode = nodeIterator.next();
-			if (!reservedNodesList.contains(currentNode.getId())) {
-				nodeIterator.remove();
-			}
-		}
+		
 
 		final Injector injector = Guice.createInjector(new Module() {
 			
@@ -71,14 +60,34 @@ public class WSNServiceHandleFactory {
 				binder.bind(String.class).annotatedWith(Names.named("URN_PREFIX")).toInstance(urnPrefix);
 				binder.bind(String.class).annotatedWith(Names.named("SECRET_RESERVATION_KEY")).toInstance(secretReservationKey);
 				binder.bind(URL.class).annotatedWith(Names.named("WSN_SERVICE_ENDPOINT")).toInstance(wsnServiceEndpointURL);
-				binder.bind(Wiseml.class).toInstance(wiseML);
+				binder.bind(Wiseml.class).toProvider(new Provider<Wiseml>() {
+					@Override
+					public Wiseml get() {
+						
+							// De-serialize original WiseML and strip out all nodes that are not part of this reservation
+							final Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(wiseMLFilename));
+							List<Setup.Node> node = wiseML.getSetup().getNode();
+							Iterator<Setup.Node> nodeIterator = node.iterator();
+
+							List<String> reservedNodesList = Arrays.asList(reservedNodes);
+							while (nodeIterator.hasNext()) {
+								Setup.Node currentNode = nodeIterator.next();
+								if (!reservedNodesList.contains(currentNode.getId())) {
+									nodeIterator.remove();
+								}
+							}
+							
+							return wiseML;
+							
+					}
+				});
+				binder.bind(String[].class).annotatedWith(Names.named("RESERVED_NODES")).toInstance(reservedNodes);
+				binder.bind(WSNApp.class).toInstance(WSNAppFactory.create(testbedRuntime, reservedNodes));
 				
 				
 				// -----------------------------------------
 				
-				binder.bind(String[].class).annotatedWith(Names.named("RESERVED_NODES")).toInstance(reservedNodes);
 				
-				binder.bind(WSNApp.class).toInstance(WSNAppFactory.create(testbedRuntime, reservedNodes));
 
 				binder.bind(WSNService.class).to(WSNServiceImpl.class);
 				
@@ -86,7 +95,7 @@ public class WSNServiceHandleFactory {
 				
 				binder.bind(Service.class).annotatedWith(Names.named("WSN_SERVICE_HANDLE")).to(WSNServiceHandle.class);
 
-				binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), new IWSNAuthorizationInterceptor());
+				binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), new IWSNAuthorizationInterceptor(null));
 			}
 		});
 		

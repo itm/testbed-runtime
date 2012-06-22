@@ -23,11 +23,49 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Binder;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.Provider;
+import com.google.inject.matcher.Matchers;
+import com.google.inject.name.Names;
+
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
+import de.uniluebeck.itm.tr.iwsn.IWSNAuthorizationInterceptor;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
@@ -38,6 +76,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
@@ -48,23 +87,9 @@ import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.wiseml.Setup;
+import eu.wisebed.wiseml.Wiseml;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -294,7 +319,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		}
 
 		// extract the one and only relevant secretReservationKey
-		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
+		final String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
 
 		log.debug("SessionManagementServiceImpl.getInstance({})", secretReservationKey);
 
@@ -319,12 +344,13 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			// query reservation system for reservation data if reservation system is to be used (i.e.
 			// reservationEndpointUrl is not null)
 			List<ConfidentialReservationData> confidentialReservationDataList;
-			Set<String> reservedNodes = null;
+			
+			final Set<String> reservedNodes = (config.getReservationEndpointUrl() != null) ? new HashSet<String>() : null;
+			
 			if (config.getReservationEndpointUrl() != null) {
 				// integrate reservation system
 				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 				confidentialReservationDataList = getReservationDataFromRS(keys);
-				reservedNodes = new HashSet<String>();
 
 				// assure that wsnInstance creation doesn't happen before reservation time slot
 				assertReservationIntervalMet(confidentialReservationDataList);
@@ -358,23 +384,112 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				log.info("Information: No Reservation-System found! All existing nodes will be used.");
 			}
 
-			URL wsnInstanceEndpointUrl;
+			final URL wsnInstanceEndpointUrl;
 			try {
 				wsnInstanceEndpointUrl = new URL(config.getWsnInstanceBaseUrl() + secureIdGenerator.getNextId());
 			} catch (MalformedURLException e) {
 				throw new RuntimeException(e);
 			}
+			
+			
+			
+			
+			
+			
+			
+			
 
-			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
-					secretReservationKey,
-					testbedRuntime,
-					config.getUrnPrefix(),
-					wsnInstanceEndpointUrl,
-					config.getWiseMLFilename(),
-					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()),
-					protobufControllerServer
-			);
+//			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
+//					secretReservationKey,
+//					testbedRuntime,
+//					config.getUrnPrefix(),
+//					wsnInstanceEndpointUrl,
+//					config.getWiseMLFilename(),
+//					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
+//					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()),
+//					protobufControllerServer
+//			);
+			
+			
+
+				
+				
+			final Injector injector = Guice.createInjector(new Module() {
+				
+
+				@Override
+				public void configure(final Binder binder) {
+					
+
+					final String[] reservedNodesArray = reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]);
+
+					binder.bind(TestbedRuntime.class).toProvider(new Provider<TestbedRuntime>() {
+						@Override
+						public TestbedRuntime get() {
+							return testbedRuntime;
+						}
+					});
+					
+					// -----------------------------------------
+					SNAA snaa = WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUrl().toString());
+					binder.bind(SNAA.class).toInstance(snaa);
+					binder.bind(ProtobufDeliveryManager.class).toInstance(new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()));
+					binder.bind(ProtobufControllerServer.class).toInstance(protobufControllerServer);
+					binder.bind(String.class).annotatedWith(Names.named("URN_PREFIX")).toInstance(config.getUrnPrefix());
+					binder.bind(String.class).annotatedWith(Names.named("SECRET_RESERVATION_KEY")).toInstance(secretReservationKey);
+					binder.bind(URL.class).annotatedWith(Names.named("WSN_SERVICE_ENDPOINT")).toInstance(wsnInstanceEndpointUrl);
+					binder.bind(String[].class).annotatedWith(Names.named("RESERVED_NODES")).toInstance(reservedNodesArray);
+					binder.bind(WSNApp.class).toInstance(WSNAppFactory.create(testbedRuntime, reservedNodesArray));
+					binder.bind(Wiseml.class).toProvider(new Provider<Wiseml>() {
+						@Override
+						public Wiseml get() {
+							
+								// De-serialize original WiseML and strip out all nodes that are not part of this reservation
+								final Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
+								List<Setup.Node> node = wiseML.getSetup().getNode();
+								Iterator<Setup.Node> nodeIterator = node.iterator();
+
+								List<String> reservedNodesList = Arrays.asList(reservedNodesArray);
+								while (nodeIterator.hasNext()) {
+									Setup.Node currentNode = nodeIterator.next();
+									if (!reservedNodesList.contains(currentNode.getId())) {
+										nodeIterator.remove();
+									}
+								}
+								
+								return wiseML;
+								
+						}
+					});
+					
+					
+					// -----------------------------------------
+					
+					
+
+					binder.bind(WSNService.class).to(WSNServiceImpl.class);
+					
+					binder.bind(WSNService.class).annotatedWith(NonWS.class).to(WSNServiceImplInternal.class);
+					
+					binder.bind(Service.class).annotatedWith(Names.named("WSN_SERVICE_HANDLE")).to(WSNServiceHandle.class);
+
+					binder.bindInterceptor(Matchers.any(), annotatedWith(de.uniluebeck.itm.tr.iwsn.AuthorizationRequired.class), new IWSNAuthorizationInterceptor(snaa));
+				}
+			});
+			
+
+			final WSNService wsnService = injector.getInstance(WSNService.class);
+			injector.injectMembers(wsnService);
+				
+				
+				
+				
+			
+
+			wsnServiceHandleInstance = (WSNServiceHandle) injector.getInstance(Key.get(Service.class, Names.named("WSN_SERVICE_HANDLE")));
+			
+			
+			
 
 			// start the WSN instance
 			try {
