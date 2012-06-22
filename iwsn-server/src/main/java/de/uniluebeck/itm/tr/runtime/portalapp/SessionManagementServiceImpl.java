@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
@@ -352,35 +353,37 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				// integrate reservation system
 				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 				confidentialReservationDataList = getReservationDataFromRS(keys);
+				
+				// since only one secret reservation key is allowed only one piece of confidential reservation data is expected 
+				checkArgument(confidentialReservationDataList.size() == 1,
+						"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
+				);
 
 				// assure that wsnInstance creation doesn't happen before reservation time slot
 				assertReservationIntervalMet(confidentialReservationDataList);
+				
+				ConfidentialReservationData data = confidentialReservationDataList.get(0);
 
-				// get reserved nodes
-				for (ConfidentialReservationData data : confidentialReservationDataList) {
-
-					// convert all node URNs to lower case so that we can do easy string-based comparisons
-					for (String nodeURN : data.getNodeURNs()) {
-						reservedNodes.add(nodeURN.toLowerCase());
-					}
+				// convert all node URNs to lower case so that we can do easy string-based comparisons
+				for (String nodeURN : data.getNodeURNs()) {
+					reservedNodes.add(nodeURN.toLowerCase());
 				}
+				
 
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes, testbedRuntime);
 
-				// assure that all wsn-instances will be removed after expiration time
-				for (ConfidentialReservationData data : confidentialReservationDataList) {
+				//Creating delay for CleanUpJob
+				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
 
-					//Creating delay for CleanUpJob
-					long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
-
-					//stop and remove invalid instances after their expiration time
-					getScheduler().schedule(
-							new CleanUpWSNInstanceJob(keys),
-							delay,
-							TimeUnit.MILLISECONDS
-					);
-				}
+				//stop and remove invalid instances after their expiration time
+				getScheduler().schedule(
+						new CleanUpWSNInstanceJob(keys),
+						delay,
+						TimeUnit.MILLISECONDS
+				);
+				
+				
 			} else {
 				log.info("Information: No Reservation-System found! All existing nodes will be used.");
 			}
