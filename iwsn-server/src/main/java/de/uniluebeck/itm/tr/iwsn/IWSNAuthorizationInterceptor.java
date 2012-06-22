@@ -1,12 +1,18 @@
 package de.uniluebeck.itm.tr.iwsn;
 
+import java.util.List;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
+import eu.wisebed.api.rs.AuthorizationException;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.snaa.SNAA;
 
 public class IWSNAuthorizationInterceptor implements MethodInterceptor{
@@ -21,16 +27,31 @@ public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 	 */
 	private SNAA snaa;
 	
+	
+	@Inject
 	public IWSNAuthorizationInterceptor(SNAA snaa) {
-		this.snaa = snaa;
+		this.setSnaa(snaa);
 	}
 	
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 		
+		if (snaa == null){
+			throw new AuthorizationExceptionException("No Ahutorization server configured", new AuthorizationException());
+		}
+		
 		log.debug("Interception successful");
 		
 		return invocation.proceed();
+	}
+
+	// ------------------------------------------------------------------------
+	/**
+	 * @param snaa the snaa to set
+	 */
+	@Inject
+	public void setSnaa(SNAA snaa) {
+		this.snaa = snaa;
 	}
 }
