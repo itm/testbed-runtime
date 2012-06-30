@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
@@ -37,14 +36,13 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNNodeMessageReceiver;
 import de.uniluebeck.itm.tr.util.*;
+import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.wiseml.Wiseml;
-import eu.wisebed.api.WisebedServiceHelper;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
@@ -56,7 +54,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Endpoint;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -108,7 +105,7 @@ public class WSNServiceImpl implements WSNService {
 			 * if the message is a virtual broadcast we'll deliver it to all destinations this node's connected to.
 			 * if the message is not a virtual link we'll deliver it to the controller of the experiment as it is. */
 
-			if (!reservedNodes.contains(sourceNodeId)) {
+			if (!config.getReservedNodes().contains(sourceNodeId)) {
 				log.warn("Received message from unreserved node \"{}\".", sourceNodeId);
 				return;
 			}
@@ -323,11 +320,6 @@ public class WSNServiceImpl implements WSNService {
 	private WSNApp wsnApp;
 
 	/**
-	 * The endpoint URL of this WSN service instance.
-	 */
-	private URL wsnInstanceEndpointUrl;
-
-	/**
 	 * The endpoint of this WSN instance.
 	 */
 	private Endpoint wsnInstanceEndpoint;
@@ -348,38 +340,29 @@ public class WSNServiceImpl implements WSNService {
 	private DeliveryManager deliveryManager;
 
 	/**
-	 * The WiseML document that is delivered when {@link WSNServiceImpl#getNetwork()} is called.
+	 * The configuration for this service.
 	 */
-	private final Wiseml wiseML;
+	private WSNServiceConfig config;
 
-	/**
-	 * The set of node URNs that are reserved and thereby associated with this {@link WSN} instance.
-	 */
-	private final ImmutableSet<String> reservedNodes;
+	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
 
-	public WSNServiceImpl(final String urnPrefix, final URL wsnInstanceEndpointUrl, final Wiseml wiseML,
-						  final String[] reservedNodes, final DeliveryManager deliveryManager, final WSNApp wsnApp) {
+	public WSNServiceImpl(final WSNServiceConfig config, final DeliveryManager deliveryManager,
+						  final WSNPreconditions preconditions, final WSNApp wsnApp) {
 
-		checkNotNull(urnPrefix);
-		checkNotNull(wsnInstanceEndpointUrl);
-		checkNotNull(wiseML);
+		checkNotNull(config);
+		checkNotNull(deliveryManager);
+		checkNotNull(preconditions);
 		checkNotNull(wsnApp);
 
-		this.wsnInstanceEndpointUrl = wsnInstanceEndpointUrl;
-		this.wsnApp = wsnApp;
-		this.wiseML = wiseML;
+		this.config = config;
 		this.deliveryManager = deliveryManager;
+		this.preconditions = preconditions;
+		this.wsnApp = wsnApp;
 
 		executorService = Executors.newSingleThreadScheduledExecutor(
 				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
 		);
-
-		this.preconditions = new WSNPreconditions(newArrayList(urnPrefix), newArrayList(reservedNodes));
-		this.reservedNodes = ImmutableSet.copyOf(reservedNodes);
-
 	}
-
-	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
 
 	@Override
 	public void start() throws Exception {
@@ -390,12 +373,13 @@ public class WSNServiceImpl implements WSNService {
 		wsnInstanceEndpoint.setExecutor(wsnInstanceWebServiceThreadPool);
 
 		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
-				wsnInstanceEndpointUrl.toString() :
-				UrlUtils.convertHostToZeros(wsnInstanceEndpointUrl.toString());
+				config.getWebserviceEndpointUrl().toString() :
+				UrlUtils.convertHostToZeros(config.getWebserviceEndpointUrl().toString());
 
-		log.info("Starting WSN API service on binding URL {} for endpoint URL {}",
+		log.info(
+				"Starting WSN API service on binding URL {} for endpoint URL {}",
 				bindAllInterfacesUrl,
-				wsnInstanceEndpointUrl.toString()
+				config.getWebserviceEndpointUrl().toString()
 		);
 
 		wsnInstanceEndpoint.publish(bindAllInterfacesUrl);
@@ -418,7 +402,7 @@ public class WSNServiceImpl implements WSNService {
 
 		if (wsnInstanceEndpoint != null) {
 			wsnInstanceEndpoint.stop();
-			log.info("Stopped WSN service wsnInstanceEndpoint on {}", wsnInstanceEndpointUrl);
+			log.info("Stopped WSN service wsnInstanceEndpoint on {}", config.getWebserviceEndpointUrl());
 		}
 
 		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
@@ -628,7 +612,7 @@ public class WSNServiceImpl implements WSNService {
 	@Override
 	public String getNetwork() {
 		log.debug("WSNServiceImpl.getNetwork");
-		return WiseMLHelper.serialize(wiseML);
+		return WiseMLHelper.serialize(config.getWiseML());
 	}
 
 	@Override
