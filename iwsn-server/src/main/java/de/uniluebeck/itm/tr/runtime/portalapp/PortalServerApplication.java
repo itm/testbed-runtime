@@ -27,6 +27,7 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
+import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
@@ -50,6 +51,9 @@ public class PortalServerApplication implements TestbedApplication {
 
 	private SessionManagementService service;
 
+	/**
+	 * SOAP Web service API
+	 */
 	private SessionManagementSoapService soapService;
 
 	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {

@@ -69,6 +69,7 @@ public class WSNServiceHandle implements Service {
 
 	@Override
 	public void stop() {
+
 		try {
 			wsnService.stop();
 		} catch (Throwable e) {
@@ -78,11 +79,13 @@ public class WSNServiceHandle implements Service {
 				log.warn("" + e, e);
 			}
 		}
+
 		try {
 			wsnApp.stop();
 		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
+
 		try {
 			protobufControllerServer.stopHandlers(secretReservationKey);
 		} catch (Throwable e) {

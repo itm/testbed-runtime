@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
@@ -28,13 +29,13 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 
 	private static final Logger log = LoggerFactory.getLogger(SessionManagementSoapService.class);
 
-	private final SessionManagement sm;
+	private final SessionManagementService sm;
 
 	private final SessionManagementServiceConfig config;
 
 	private Endpoint endpoint;
 
-	public SessionManagementSoapService(final SessionManagement sm, final SessionManagementServiceConfig config) {
+	public SessionManagementSoapService(final SessionManagementService sm, final SessionManagementServiceConfig config) {
 
 		checkNotNull(sm);
 		checkNotNull(config);
@@ -93,7 +94,17 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
 			Holder<List<KeyValuePair>> options) {
 
-		sm.getConfiguration(rsEndpointUrl, snaaEndpointUrl, options);
+		if (config.getReservationEndpointUrl() != null) {
+			rsEndpointUrl.value = config.getReservationEndpointUrl().toString();
+		} else {
+			rsEndpointUrl.value = "";
+		}
+
+		if (config.getSnaaEndpointUrl() != null) {
+			snaaEndpointUrl.value = config.getSnaaEndpointUrl().toString();
+		} else {
+			snaaEndpointUrl.value = "";
+		}
 	}
 
 	@Override
@@ -108,6 +119,6 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 
 	@Override
 	public String getNetwork() {
-		return sm.getNetwork();
+		return WiseMLHelper.prettyPrintWiseML(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
 	}
 }

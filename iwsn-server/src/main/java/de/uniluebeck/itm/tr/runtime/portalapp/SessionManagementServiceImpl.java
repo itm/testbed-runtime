@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -38,7 +37,6 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
@@ -50,7 +48,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Holder;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -104,12 +103,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private final SessionManagementPreconditions preconditions;
 
 	/**
-	 * The server that allows controllers to connect themselves via a Google Protocol Buffers message format to
-	 * experiments.
-	 */
-	private ProtobufControllerServer protobufControllerServer;
-
-	/**
 	 * Used to generate secure random IDs to append them to newly created WSN API instances.
 	 */
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
@@ -139,6 +132,11 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	private ScheduledExecutorService scheduler;
 
+	/**
+	 * Google Protocol Buffers API
+	 */
+	private ProtobufControllerServer protobufControllerServer;
+
 	public SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
 										final SessionManagementServiceConfig config,
 										final SessionManagementPreconditions preconditions,
@@ -161,12 +159,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	@Override
 	public void start() throws Exception {
 
-		deliveryManager.start();
-
 		if (config.getProtobufinterface() != null) {
 			protobufControllerServer = new ProtobufControllerServer(this, config.getProtobufinterface());
 			protobufControllerServer.start();
 		}
+
+		deliveryManager.start();
 	}
 
 	@Override
@@ -187,11 +185,19 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		}
 
 		if (protobufControllerServer != null) {
-			protobufControllerServer.stop();
+			try {
+				protobufControllerServer.stop();
+			} catch (Exception e) {
+				log.error("Exception while shutting down Session Management Protobuf service: {}", e);
+			}
 		}
 
 		if (deliveryManager != null) {
-			deliveryManager.stop();
+			try {
+				deliveryManager.stop();
+			} catch (Exception e) {
+				log.error("Exception while shutting down delivery manager: {}", e);
+			}
 		}
 
 		if (scheduler != null) {
@@ -199,7 +205,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		}
 	}
 
-	public WSNServiceHandle getWsnServiceHandle(String secretReservationKey) {
+	@Nullable
+	public WSNServiceHandle getWsnServiceHandle(@Nonnull final String secretReservationKey) {
+		checkNotNull(secretReservationKey);
 		return wsnInstances.get(secretReservationKey);
 	}
 
@@ -269,6 +277,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			List<ConfidentialReservationData> confidentialReservationDataList;
 			Set<String> reservedNodes = null;
 			if (config.getReservationEndpointUrl() != null) {
+
 				// integrate reservation system
 				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 				confidentialReservationDataList = getReservationDataFromRS(keys);
@@ -287,7 +296,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				}
 
 				// assure that nodes are in TestbedRuntime
-				assertNodesInTestbed(reservedNodes, testbedRuntime);
+				assertNodesInTestbed(reservedNodes);
 
 				// assure that all wsn-instances will be removed after expiration time
 				for (ConfidentialReservationData data : confidentialReservationDataList) {
@@ -302,8 +311,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 							TimeUnit.MILLISECONDS
 					);
 				}
+
 			} else {
-				log.info("Information: No Reservation-System found! All existing nodes will be used.");
+				log.info("Information: No reservation system found! All existing nodes will be used.");
 			}
 
 			URL wsnInstanceEndpointUrl;
@@ -368,10 +378,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 *
 	 * @param reservedNodes
 	 * 		the set of reserved node URNs
-	 * @param testbedRuntime
-	 * 		the testbed runtime instance
 	 */
-	private void assertNodesInTestbed(Set<String> reservedNodes, TestbedRuntime testbedRuntime) {
+	private void assertNodesInTestbed(Set<String> reservedNodes) {
 
 		for (String node : reservedNodes) {
 
@@ -468,25 +476,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			}
 
 		}
-	}
-
-	@Override
-	public String getNetwork() {
-		return WiseMLHelper.prettyPrintWiseML(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
-	}
-
-	@Override
-	public void getConfiguration(final Holder<String> rsEndpointUrl,
-								 final Holder<String> snaaEndpointUrl,
-								 final Holder<List<KeyValuePair>> options) {
-
-		rsEndpointUrl.value = (config.getReservationEndpointUrl() == null ?
-				"" :
-				config.getReservationEndpointUrl().toString());
-
-		snaaEndpointUrl.value = (config.getSnaaEndpointUrl() == null ?
-				"" :
-				config.getSnaaEndpointUrl().toString());
 	}
 
 	private List<eu.wisebed.api.rs.SecretReservationKey> convert(

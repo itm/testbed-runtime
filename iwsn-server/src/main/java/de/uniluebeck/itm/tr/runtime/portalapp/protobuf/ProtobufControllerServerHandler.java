@@ -1,9 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceImpl;
+import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
@@ -29,7 +28,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	private ProtobufControllerServer protobufControllerServer;
 
-	private final SessionManagementServiceImpl sessionManagement;
+	private final SessionManagementService sessionManagement;
 
 	private Channel channel;
 
@@ -38,7 +37,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	private String secretReservationKey;
 
 	public ProtobufControllerServerHandler(final ProtobufControllerServer protobufControllerServer,
-										   final SessionManagementServiceImpl sessionManagement) {
+										   final SessionManagementService sessionManagement) {
 		this.protobufControllerServer = protobufControllerServer;
 		this.sessionManagement = sessionManagement;
 	}
@@ -229,10 +228,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-		log.warn("Unexpected exception from downstream: {}. Stacktrace: {}",
-				e.getCause().getMessage(),
-				Throwables.getStackTraceAsString(e.getCause())
-		);
+		log.warn("Unexpected exception from downstream: {}", e);
 		e.getChannel().close();
 	}
 

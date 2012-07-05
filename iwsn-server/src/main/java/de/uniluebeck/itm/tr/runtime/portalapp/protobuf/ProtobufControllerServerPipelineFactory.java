@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 
+import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -16,10 +17,10 @@ public class ProtobufControllerServerPipelineFactory implements ChannelPipelineF
 
 	private ProtobufControllerServer protobufControllerServer;
 
-	private SessionManagementServiceImpl sessionManagement;
+	private SessionManagementService sessionManagement;
 
 	public ProtobufControllerServerPipelineFactory(final ProtobufControllerServer protobufControllerServer,
-												   final SessionManagementServiceImpl sessionManagement) {
+												   final SessionManagementService sessionManagement) {
 		this.protobufControllerServer = protobufControllerServer;
 		this.sessionManagement = sessionManagement;
 	}
