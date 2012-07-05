@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
@@ -8,6 +9,7 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
+import org.jboss.netty.util.internal.ExecutorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +65,8 @@ public class WSNSoapService implements WSN, Service {
 	@Override
 	public void start() throws Exception {
 
+		log.debug("Starting WSN service SOAP API...");
+
 		endpoint = Endpoint.create(this);
 		endpoint.setExecutor(wsnInstanceWebServiceThreadPool);
 
@@ -71,23 +75,27 @@ public class WSNSoapService implements WSN, Service {
 				UrlUtils.convertHostToZeros(config.getWebserviceEndpointUrl().toString());
 
 		log.info(
-				"Starting WSN API service on binding URL {} for endpoint URL {}",
+				"Starting WSN service SOAP API on binding URL {} for endpoint URL {}",
 				bindAllInterfacesUrl,
 				config.getWebserviceEndpointUrl().toString()
 		);
 
 		endpoint.publish(bindAllInterfacesUrl);
 
-		log.info("Started WSN API service wsnInstanceEndpoint on {}", bindAllInterfacesUrl);
+		log.info("Started WSN service SOAP API on {}", bindAllInterfacesUrl);
 	}
 
 	@Override
 	public void stop() {
 
+		log.info("Stopping WSN service SOAP API...");
+
 		if (endpoint != null) {
 			endpoint.stop();
-			log.info("Stopped WSN service wsnInstanceEndpoint on {}", config.getWebserviceEndpointUrl());
+			log.info("Stopped WSN service SOAP API on {}", config.getWebserviceEndpointUrl());
 		}
+
+		ExecutorUtils.shutdown(wsnInstanceWebServiceThreadPool, 10, TimeUnit.SECONDS);
 	}
 
 	@Override

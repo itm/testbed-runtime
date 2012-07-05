@@ -355,6 +355,7 @@ public class WSNServiceImpl implements WSNService {
 		log.info("Stopping WSN service...");
 
 		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
+
 		deliveryManager.experimentEnded();
 		deliveryManager.stop();
 
