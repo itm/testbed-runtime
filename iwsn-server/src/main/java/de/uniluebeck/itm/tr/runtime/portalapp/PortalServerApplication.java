@@ -30,11 +30,13 @@ import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PortalServerApplication implements TestbedApplication {
 
-	private SessionManagementService service;
+	private static final Logger log = LoggerFactory.getLogger(PortalServerApplication.class);
 
 	private final TestbedRuntime testbedRuntime;
 
@@ -45,6 +47,8 @@ public class PortalServerApplication implements TestbedApplication {
 	private final WSNApp wsnApp;
 
 	private final DeliveryManager deliveryManager;
+
+	private SessionManagementService service;
 
 	private SessionManagementSoapService soapService;
 
@@ -80,8 +84,17 @@ public class PortalServerApplication implements TestbedApplication {
 
 	@Override
 	public void stop() throws Exception {
-		if (service != null) {
+
+		try {
+			soapService.stop();
+		} catch (Exception e) {
+			log.error("Exception while shutting down Session Management SOAP web service: {}", e);
+		}
+
+		try {
 			service.stop();
+		} catch (Exception e) {
+			log.error("Exception while shutting down Session Management service: {}", e);
 		}
 	}
 }
