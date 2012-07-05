@@ -33,7 +33,6 @@ import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
@@ -156,19 +155,22 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private ScheduledExecutorService scheduler;
 
 	public SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
-										final SessionManagementServiceConfig config) throws MalformedURLException {
+										final SessionManagementServiceConfig config,
+										final SessionManagementPreconditions preconditions,
+										final WSNApp wsnApp,
+										final DeliveryManager deliveryManager) throws MalformedURLException {
 
 		checkNotNull(testbedRuntime);
 		checkNotNull(config);
+		checkNotNull(preconditions);
+		checkNotNull(wsnApp);
+		checkNotNull(deliveryManager);
 
 		this.testbedRuntime = testbedRuntime;
 		this.config = config;
-
-		this.preconditions = new SessionManagementPreconditions();
-		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
-		this.preconditions.addKnownNodeUrns(config.getNodeUrnsServed());
-		this.wsnApp = WSNAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
-		this.deliveryManager = new DeliveryManager();
+		this.preconditions = preconditions;
+		this.wsnApp = wsnApp;
+		this.deliveryManager = deliveryManager;
 	}
 
 	@Override

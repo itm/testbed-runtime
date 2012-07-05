@@ -23,9 +23,13 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 
 
 public class PortalServerApplication implements TestbedApplication {
@@ -36,9 +40,25 @@ public class PortalServerApplication implements TestbedApplication {
 
 	private final SessionManagementServiceConfig config;
 
-	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp config) {
+	private final SessionManagementPreconditions preconditions;
+
+	private final WSNApp wsnApp;
+
+	private final DeliveryManager deliveryManager;
+
+	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {
+
 		this.testbedRuntime = testbedRuntime;
-		this.config = new SessionManagementServiceConfig(config);
+
+		this.config = new SessionManagementServiceConfig(portalAppConfig);
+
+		this.preconditions = new SessionManagementPreconditions();
+		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
+		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
+
+		this.wsnApp = WSNAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
+
+		this.deliveryManager = new DeliveryManager();
 	}
 
 	@Override
@@ -49,7 +69,13 @@ public class PortalServerApplication implements TestbedApplication {
 	@Override
 	public void start() throws Exception {
 		if (sessionManagementService == null) {
-			sessionManagementService = new SessionManagementServiceImpl(testbedRuntime, config);
+			sessionManagementService = new SessionManagementServiceImpl(
+					testbedRuntime,
+					config,
+					preconditions,
+					wsnApp,
+					deliveryManager
+			);
 		}
 		sessionManagementService.start();
 	}
