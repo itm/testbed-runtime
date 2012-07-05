@@ -23,11 +23,12 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
@@ -174,14 +175,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					+ "Please make sure the file exists and is readable."
 			);
 		}
-		List<String> nodeUrnsServed = WiseMLHelper.getNodeUrns(serializedWiseML);
-		String[] nodeUrnsServedArray = nodeUrnsServed.toArray(new String[nodeUrnsServed.size()]);
+
+		final ImmutableSet<String> nodeUrnsServed = ImmutableSet.<String>builder()
+				.addAll(WiseMLHelper.getNodeUrns(serializedWiseML)).build();
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
-		this.preconditions.addKnownNodeUrns(nodeUrnsServedArray);
+		this.preconditions.addKnownNodeUrns(nodeUrnsServed);
 
-		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServedArray);
+		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServed);
 
 		this.deliveryManager = new DeliveryManager();
 
@@ -365,14 +367,21 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				throw new RuntimeException(e);
 			}
 
+			final ImmutableSet<String> reservedNodesSet = reservedNodes == null ?
+					null :
+					ImmutableSet.<String>builder().add(reservedNodes.toArray(new String[reservedNodes.size()])).build();
+
+			final ProtobufDeliveryManager protobufDeliveryManager =
+					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize());
+
 			wsnServiceHandleInstance = WSNServiceHandleFactory.create(
 					secretReservationKey,
 					testbedRuntime,
 					config.getUrnPrefix(),
 					wsnInstanceEndpointUrl,
 					config.getWiseMLFilename(),
-					reservedNodes == null ? null : reservedNodes.toArray(new String[reservedNodes.size()]),
-					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize()),
+					reservedNodesSet,
+					protobufDeliveryManager,
 					protobufControllerServer
 			);
 

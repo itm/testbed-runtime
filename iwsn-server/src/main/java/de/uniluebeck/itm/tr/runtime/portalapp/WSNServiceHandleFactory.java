@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.collect.ImmutableSet;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
@@ -10,7 +12,6 @@ import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.Wiseml;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class WSNServiceHandleFactory {
 										  String urnPrefix,
 										  URL wsnServiceEndpointURL,
 										  String wiseMLFilename,
-										  String[] reservedNodes,
+										  ImmutableSet<String> reservedNodes,
 										  ProtobufDeliveryManager protobufDeliveryManager,
 										  ProtobufControllerServer protobufControllerServer) {
 
@@ -30,24 +31,19 @@ public class WSNServiceHandleFactory {
 		List<Setup.Node> node = wiseML.getSetup().getNode();
 		Iterator<Setup.Node> nodeIterator = node.iterator();
 
-		List<String> reservedNodesList = Arrays.asList(reservedNodes);
 		while (nodeIterator.hasNext()) {
 			Setup.Node currentNode = nodeIterator.next();
-			if (!reservedNodesList.contains(currentNode.getId())) {
+			if (!reservedNodes.contains(currentNode.getId())) {
 				nodeIterator.remove();
 			}
 		}
 
+		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(urnPrefix).build();
 		final WSNApp wsnApp = WSNAppFactory.create(testbedRuntime, reservedNodes);
 
-		final WSNServiceImpl wsnService = new WSNServiceImpl(
-				urnPrefix,
-				wsnServiceEndpointURL,
-				wiseML,
-				reservedNodes,
-				protobufDeliveryManager,
-				wsnApp
-		);
+		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
+		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
+		final WSNServiceImpl wsnService = new WSNServiceImpl(config, protobufDeliveryManager, preconditions, wsnApp);
 
 		return new WSNServiceHandle(
 				secretReservationKey,

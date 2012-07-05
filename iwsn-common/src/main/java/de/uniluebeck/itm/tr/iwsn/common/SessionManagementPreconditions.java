@@ -42,11 +42,15 @@ public class SessionManagementPreconditions {
 		this.commonPreconditions = new CommonPreconditions();
 	}
 
-	public void addKnownNodeUrns(final String... knownNodeUrns) {
+	public void addKnownNodeUrns(final Iterable<String> knownNodeUrns) {
 		commonPreconditions.addKnownNodeUrns(knownNodeUrns);
 	}
 
-	public void addServedUrnPrefixes(String... servedUrnPrefixes) {
+	public void addServedUrnPrefixes(final String servedUrnPrefix) {
+		commonPreconditions.addServedUrnPrefixes(servedUrnPrefix);
+	}
+
+	public void addServedUrnPrefixes(final Iterable<String> servedUrnPrefixes) {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 	}
 

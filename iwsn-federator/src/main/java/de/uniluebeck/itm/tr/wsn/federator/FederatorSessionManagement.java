@@ -125,7 +125,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 		this.preconditions = new SessionManagementPreconditions();
 		for (Set<String> endpointPrefixSet : sessionManagementEndpointUrlPrefixSet.values()) {
-			this.preconditions.addServedUrnPrefixes(endpointPrefixSet.toArray(new String[endpointPrefixSet.size()]));
+			this.preconditions.addServedUrnPrefixes(endpointPrefixSet);
 		}
 
 		this.federatorController = new FederatorController(createRandomControllerEndpointUrl());

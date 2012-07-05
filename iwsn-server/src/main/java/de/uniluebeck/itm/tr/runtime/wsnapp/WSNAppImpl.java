@@ -151,7 +151,7 @@ class WSNAppImpl implements WSNApp {
 
 	private TestbedRuntime testbedRuntime;
 
-	private Set<String> reservedNodes;
+	private ImmutableSet<String> reservedNodes;
 
 	private ScheduledFuture<?> registerNodeMessageReceiverFuture;
 
@@ -266,10 +266,10 @@ class WSNAppImpl implements WSNApp {
 		}
 	};
 
-	public WSNAppImpl(final TestbedRuntime testbedRuntime, final String[] reservedNodes) {
+	public WSNAppImpl(final TestbedRuntime testbedRuntime, final ImmutableSet<String> reservedNodes) {
 
 		this.testbedRuntime = testbedRuntime;
-		this.reservedNodes = Sets.newHashSet(reservedNodes);
+		this.reservedNodes = reservedNodes;
 		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
 		abovePipelineLogger = new AbovePipelineLogger("portal");

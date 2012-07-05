@@ -23,18 +23,17 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import eu.wisebed.api.common.Message;
+import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.wsn.Program;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.wsn.Program;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class WSNPreconditions {
@@ -106,7 +105,9 @@ public class WSNPreconditions {
 		try {
 			new URL(remoteServiceInstance);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("The remoteServiceInstance argument (\""+remoteServiceInstance+"\") is not a valid URL!");
+			throw new IllegalArgumentException(
+					"The remoteServiceInstance argument (\"" + remoteServiceInstance + "\") is not a valid URL!"
+			);
 		}
 
 	}
