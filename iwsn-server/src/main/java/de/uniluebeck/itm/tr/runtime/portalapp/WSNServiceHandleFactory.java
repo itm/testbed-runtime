@@ -44,11 +44,13 @@ public class WSNServiceHandleFactory {
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
 		final WSNServiceImpl wsnService = new WSNServiceImpl(config, protobufDeliveryManager, preconditions, wsnApp);
+		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
 		return new WSNServiceHandle(
 				secretReservationKey,
 				wsnServiceEndpointURL,
 				wsnService,
+				wsnSoapService,
 				wsnApp,
 				protobufControllerServer,
 				protobufDeliveryManager
