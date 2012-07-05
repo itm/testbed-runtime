@@ -31,7 +31,6 @@ import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
-import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
@@ -156,37 +155,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 
 	private ScheduledExecutorService scheduler;
 
-	public SessionManagementServiceImpl(TestbedRuntime testbedRuntime, Portalapp config) throws MalformedURLException {
+	public SessionManagementServiceImpl(final TestbedRuntime testbedRuntime,
+										final SessionManagementServiceConfig config) throws MalformedURLException {
 
-		de.uniluebeck.itm.tr.runtime.portalapp.xml.WebService webservice = config.getWebservice();
-
-		checkNotNull(webservice.getUrnprefix());
-		checkNotNull(webservice.getSessionmanagementendpointurl());
-		checkNotNull(webservice.getWsninstancebaseurl());
-		checkNotNull(webservice.getWisemlfilename());
 		checkNotNull(testbedRuntime);
+		checkNotNull(config);
 
 		this.testbedRuntime = testbedRuntime;
-		this.config = new SessionManagementServiceConfig(config);
-
-		final String serializedWiseML = WiseMLHelper.readWiseMLFromFile(webservice.getWisemlfilename());
-		if (serializedWiseML == null) {
-			throw new RuntimeException("Could not read WiseML from file " + webservice.getWisemlfilename() + ". "
-					+ "Please make sure the file exists and is readable."
-			);
-		}
-
-		final ImmutableSet<String> nodeUrnsServed = ImmutableSet.<String>builder()
-				.addAll(WiseMLHelper.getNodeUrns(serializedWiseML)).build();
+		this.config = config;
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
-		this.preconditions.addKnownNodeUrns(nodeUrnsServed);
-
-		this.wsnApp = WSNAppFactory.create(testbedRuntime, nodeUrnsServed);
-
+		this.preconditions.addKnownNodeUrns(config.getNodeUrnsServed());
+		this.wsnApp = WSNAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
 		this.deliveryManager = new DeliveryManager();
-
 	}
 
 	@Override

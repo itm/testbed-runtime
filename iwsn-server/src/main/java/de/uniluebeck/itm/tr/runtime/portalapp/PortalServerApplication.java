@@ -34,11 +34,11 @@ public class PortalServerApplication implements TestbedApplication {
 
 	private final TestbedRuntime testbedRuntime;
 
-	private final Portalapp config;
+	private final SessionManagementServiceConfig config;
 
 	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp config) {
 		this.testbedRuntime = testbedRuntime;
-		this.config = config;
+		this.config = new SessionManagementServiceConfig(config);
 	}
 
 	@Override

@@ -8,7 +8,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.util.StringUtils.assertHexOrDecLongUrnSuffix;
 
-public class WSNDeviceAppConfiguration {
+public class
+		WSNDeviceAppConfiguration {
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
 
