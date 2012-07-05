@@ -37,7 +37,6 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -51,9 +50,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -65,12 +61,6 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 
-@WebService(
-		serviceName = "SessionManagementService",
-		targetNamespace = "urn:SessionManagementService",
-		portName = "SessionManagementPort",
-		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
-)
 public class SessionManagementServiceImpl implements SessionManagementService {
 
 	/**
@@ -125,11 +115,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	/**
-	 * The sessionManagementEndpoint of this Session Management service instance.
-	 */
-	private Endpoint sessionManagementEndpoint;
-
-	/**
 	 * The {@link TestbedRuntime} instance used to communicate with over the overlay
 	 */
 	private final TestbedRuntime testbedRuntime;
@@ -176,25 +161,12 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	@Override
 	public void start() throws Exception {
 
-		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
-				config.getSessionManagementEndpointUrl().toString() :
-				UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
-
-		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
-				bindAllInterfacesUrl,
-				config.getSessionManagementEndpointUrl().toString()
-		);
-
-		sessionManagementEndpoint = Endpoint.publish(bindAllInterfacesUrl, this);
-
 		deliveryManager.start();
-
 
 		if (config.getProtobufinterface() != null) {
 			protobufControllerServer = new ProtobufControllerServer(this, config.getProtobufinterface());
 			protobufControllerServer.start();
 		}
-
 	}
 
 	@Override
@@ -222,15 +194,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 			deliveryManager.stop();
 		}
 
-		if (sessionManagementEndpoint != null) {
-			sessionManagementEndpoint.stop();
-			log.info("Stopped Session Management service on {}", config.getSessionManagementEndpointUrl());
-		}
-
 		if (scheduler != null) {
 			ExecutorUtils.shutdown(scheduler, 10, TimeUnit.SECONDS);
 		}
-
 	}
 
 	public WSNServiceHandle getWsnServiceHandle(String secretReservationKey) {
@@ -238,11 +204,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	@Override
-	public String getInstance(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys,
-			@WebParam(name = "controller", targetNamespace = "")
-			String controller)
+	public String getInstance(List<SecretReservationKey> secretReservationKeys, String controller)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
@@ -423,9 +385,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-								String controllerEndpointUrl) {
+	public String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl) {
 
 		preconditions.checkAreNodesAliveArguments(nodes, controllerEndpointUrl);
 
@@ -466,9 +426,7 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	@Override
-	public void free(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeyList)
+	public void free(List<SecretReservationKey> secretReservationKeyList)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
 		preconditions.checkFreeArguments(secretReservationKeyList);
@@ -518,13 +476,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	@Override
-	public void getConfiguration(
-			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> rsEndpointUrl,
-			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> snaaEndpointUrl,
-			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<List<KeyValuePair>> options) {
+	public void getConfiguration(final Holder<String> rsEndpointUrl,
+								 final Holder<String> snaaEndpointUrl,
+								 final Holder<List<KeyValuePair>> options) {
 
 		rsEndpointUrl.value = (config.getReservationEndpointUrl() == null ?
 				"" :
@@ -533,9 +487,6 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 		snaaEndpointUrl.value = (config.getSnaaEndpointUrl() == null ?
 				"" :
 				config.getSnaaEndpointUrl().toString());
-
-		// TODO integrate options
-
 	}
 
 	private List<eu.wisebed.api.rs.SecretReservationKey> convert(

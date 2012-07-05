@@ -34,7 +34,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 
 public class PortalServerApplication implements TestbedApplication {
 
-	private SessionManagementService sessionManagementService;
+	private SessionManagementService service;
 
 	private final TestbedRuntime testbedRuntime;
 
@@ -45,6 +45,8 @@ public class PortalServerApplication implements TestbedApplication {
 	private final WSNApp wsnApp;
 
 	private final DeliveryManager deliveryManager;
+
+	private SessionManagementSoapService soapService;
 
 	public PortalServerApplication(final TestbedRuntime testbedRuntime, final Portalapp portalAppConfig) {
 
@@ -68,22 +70,18 @@ public class PortalServerApplication implements TestbedApplication {
 
 	@Override
 	public void start() throws Exception {
-		if (sessionManagementService == null) {
-			sessionManagementService = new SessionManagementServiceImpl(
-					testbedRuntime,
-					config,
-					preconditions,
-					wsnApp,
-					deliveryManager
-			);
-		}
-		sessionManagementService.start();
+
+		service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
+		service.start();
+
+		soapService = new SessionManagementSoapService(service, config);
+		soapService.start();
 	}
 
 	@Override
 	public void stop() throws Exception {
-		if (sessionManagementService != null) {
-			sessionManagementService.stop();
+		if (service != null) {
+			service.stop();
 		}
 	}
 }
