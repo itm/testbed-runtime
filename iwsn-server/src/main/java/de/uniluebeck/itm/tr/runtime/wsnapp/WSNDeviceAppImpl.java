@@ -615,7 +615,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 				testbedRuntime.getEventBus(),
 				testbedRuntime.getAsyncEventBus()
 		);
-		connector.start();
+		connector.startAndWait();
 		connector.addListener(nodeOutputListener);
 
 		// start listening to invocation messages
@@ -638,7 +638,7 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		// then disconnect from device
 		connector.removeListener(nodeOutputListener);
-		connector.stop();
+		connector.stopAndWait();
 
 	}
 

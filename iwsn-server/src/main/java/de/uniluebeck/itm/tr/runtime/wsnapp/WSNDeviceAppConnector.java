@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.Listenable;
-import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.Tuple;
 
 import javax.annotation.Nullable;
