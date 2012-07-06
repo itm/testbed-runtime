@@ -6,17 +6,12 @@ import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
-import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoder;
-import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
-import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
-import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.BenchmarkHelper.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WSNDeviceAppConnectorBenchmark {
@@ -54,73 +50,6 @@ public class WSNDeviceAppConnectorBenchmark {
 		}
 	};
 
-	private EncoderEmbedder<ChannelBuffer> encoder;
-
-	private DecoderEmbedder<ChannelBuffer> decoder;
-
-	private static class MinFunction implements Function<Iterable<Float>, Float> {
-
-		@Override
-		public Float apply(@Nullable final Iterable<Float> values) {
-
-			if (values == null) {
-				throw new RuntimeException("Null values are not allowed");
-			}
-
-			float min = Float.MAX_VALUE;
-
-			for (float value : values) {
-				if (value < min) {
-					min = value;
-				}
-			}
-
-			return min;
-		}
-	}
-
-	private static class MaxFunction implements Function<Iterable<Float>, Float> {
-
-		@Override
-		public Float apply(@Nullable final Iterable<Float> values) {
-
-			if (values == null) {
-				throw new RuntimeException("Null values are not allowed");
-			}
-
-			float max = Float.MIN_VALUE;
-
-			for (float value : values) {
-				if (value > max) {
-					max = value;
-				}
-			}
-
-			return max;
-		}
-	}
-
-	private static class MeanFunction implements Function<Iterable<Float>, Float> {
-
-		@Override
-		public Float apply(@Nullable final Iterable<Float> values) {
-
-			if (values == null) {
-				throw new RuntimeException("Null values are not allowed");
-			}
-
-			int valueCnt = 0;
-			float sum = 0f;
-
-			for (float value : values) {
-				valueCnt++;
-				sum += value;
-			}
-
-			return sum / valueCnt;
-		}
-	}
-
 	private static final String NODE_URN = "urn:local:0x1234";
 
 	@Mock
@@ -133,6 +62,8 @@ public class WSNDeviceAppConnectorBenchmark {
 	private AsyncEventBus asyncEventBus;
 
 	private WSNDeviceAppConnector connector;
+
+	private BenchmarkHelper helper;
 
 	@Before
 	public void setUp() throws Exception {
@@ -148,8 +79,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
 		connector.startAndWait();
 
-		encoder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
-		decoder = new DecoderEmbedder<ChannelBuffer>(new DleStxEtxFramingDecoder());
+		helper = new BenchmarkHelper();
 	}
 
 	@After
@@ -176,7 +106,7 @@ public class WSNDeviceAppConnectorBenchmark {
 				@Override
 				public void receivedPacket(final byte[] bytes) {
 
-					final ChannelBuffer decodedMessage = decodeMessage(ChannelBuffers.wrappedBuffer(bytes));
+					final ChannelBuffer decodedMessage = helper.decodeMessage(ChannelBuffers.wrappedBuffer(bytes));
 
 					int messageTypeReceived = decodedMessage.readByte();
 					int messageNumberReceived = decodedMessage.readInt();
@@ -195,7 +125,7 @@ public class WSNDeviceAppConnectorBenchmark {
 			connector.addListener(listener);
 
 			before = System.currentTimeMillis();
-			connector.sendMessage(toByteArray(encodeMessage(message)), NULL_CALLBACK);
+			connector.sendMessage(toByteArray(helper.encodeMessage(message)), NULL_CALLBACK);
 			future.get();
 			after = System.currentTimeMillis();
 			durations.add((float) (after - before));
@@ -203,24 +133,10 @@ public class WSNDeviceAppConnectorBenchmark {
 			connector.removeListener(listener);
 		}
 
-		System.out.println("Min: " + new MinFunction().apply(durations) + " ms");
-		System.out.println("Max: " + new MaxFunction().apply(durations) + " ms");
-		System.out.println("Mean: " + new MeanFunction().apply(durations) + " ms");
+		System.out.println("Min: " + MIN.apply(durations) + " ms");
+		System.out.println("Max: " + MAX.apply(durations) + " ms");
+		System.out.println("Mean: " + MEAN.apply(durations) + " ms");
 	}
 
-	private ChannelBuffer encodeMessage(final ChannelBuffer decodedBuffer) {
-		encoder.offer(decodedBuffer);
-		return encoder.poll();
-	}
 
-	private ChannelBuffer decodeMessage(final ChannelBuffer encodedBuffer) {
-		decoder.offer(encodedBuffer);
-		return decoder.poll();
-	}
-
-	private byte[] toByteArray(final ChannelBuffer buffer) {
-		byte[] arr = new byte[buffer.readableBytes()];
-		buffer.readBytes(arr);
-		return arr;
-	}
 }
