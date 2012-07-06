@@ -84,12 +84,12 @@ public class BenchmarkHelper {
 
 	private DecoderEmbedder<ChannelBuffer> decoder = new DecoderEmbedder<ChannelBuffer>(new DleStxEtxFramingDecoder());
 
-	public ChannelBuffer encodeMessage(final ChannelBuffer decodedBuffer) {
+	public ChannelBuffer encode(final ChannelBuffer decodedBuffer) {
 		encoder.offer(decodedBuffer);
 		return encoder.poll();
 	}
 
-	public ChannelBuffer decodeMessage(final ChannelBuffer encodedBuffer) {
+	public ChannelBuffer decode(final ChannelBuffer encodedBuffer) {
 		decoder.offer(encodedBuffer);
 		return decoder.poll();
 	}

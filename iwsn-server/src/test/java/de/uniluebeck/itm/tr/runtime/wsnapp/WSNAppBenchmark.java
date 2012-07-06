@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -9,6 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionService;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -16,13 +18,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.runtime.wsnapp.BenchmarkHelper.toByteArray;
+import static de.uniluebeck.itm.tr.runtime.wsnapp.BenchmarkHelper.*;
+import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 public class WSNAppBenchmark {
+
+	static {
+		Logging.setDebugLoggingDefaults();
+	}
 
 	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
 		@Override
@@ -53,6 +62,8 @@ public class WSNAppBenchmark {
 	private ServerConnection sc2;
 
 	private WSNDeviceAppImpl wsnDeviceApp;
+
+	private BenchmarkHelper helper;
 
 	@Before
 	public void setUp() throws Exception {
@@ -97,6 +108,8 @@ public class WSNAppBenchmark {
 
 		wsnApp.start(); // TODO refactor to use Guava Service class
 		wsnDeviceApp.start(); // TODO refactor to use Guava Service class
+
+		helper = new BenchmarkHelper();
 	}
 
 	@After
@@ -112,9 +125,53 @@ public class WSNAppBenchmark {
 	@Test
 	public void test() throws Exception {
 
-		final ChannelBuffer buffer = ChannelBuffers.buffer(4);
-		buffer.writeInt(0);
+		List<Float> durations = newLinkedList();
 
-		wsnApp.send(newHashSet("urn:local:0x7856"), toByteArray(buffer), "urn:local:0x7856", null, NULL_CALLBACK);
+		long before, after;
+		for (int i = 0; i < 100; i++) {
+
+			final int messageNumber = i;
+
+			final ChannelBuffer buffer = ChannelBuffers.buffer(4);
+			buffer.writeInt(messageNumber);
+
+			final SettableFuture<Void> future = SettableFuture.create();
+
+			final WSNNodeMessageReceiver receiver = new WSNNodeMessageReceiver() {
+				@Override
+				public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+					final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
+					if (decodedMessage.readInt() == messageNumber) {
+						future.set(null);
+					}
+				}
+
+				@Override
+				public void receiveNotification(final WSNAppMessages.Notification notification) {
+					// nothing to do
+				}
+			};
+
+			wsnApp.addNodeMessageReceiver(receiver);
+
+			before = System.currentTimeMillis();
+			wsnApp.send(
+					newHashSet("urn:local:0x7856"),
+					toByteArray(helper.encode(buffer)),
+					"urn:local:0x7856",
+					null,
+					NULL_CALLBACK
+			);
+			future.get();
+			after = System.currentTimeMillis();
+
+			durations.add((float) (after - before));
+
+			wsnApp.removeNodeMessageReceiver(receiver);
+		}
+
+		System.out.println("Min: " + MIN.apply(durations) + " ms");
+		System.out.println("Max: " + MAX.apply(durations) + " ms");
+		System.out.println("Mean: " + MEAN.apply(durations) + " ms");
 	}
 }

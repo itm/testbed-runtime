@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
@@ -106,7 +105,7 @@ public class WSNDeviceAppConnectorBenchmark {
 				@Override
 				public void receivedPacket(final byte[] bytes) {
 
-					final ChannelBuffer decodedMessage = helper.decodeMessage(ChannelBuffers.wrappedBuffer(bytes));
+					final ChannelBuffer decodedMessage = helper.decode(ChannelBuffers.wrappedBuffer(bytes));
 
 					int messageTypeReceived = decodedMessage.readByte();
 					int messageNumberReceived = decodedMessage.readInt();
@@ -125,7 +124,7 @@ public class WSNDeviceAppConnectorBenchmark {
 			connector.addListener(listener);
 
 			before = System.currentTimeMillis();
-			connector.sendMessage(toByteArray(helper.encodeMessage(message)), NULL_CALLBACK);
+			connector.sendMessage(toByteArray(helper.encode(message)), NULL_CALLBACK);
 			future.get();
 			after = System.currentTimeMillis();
 			durations.add((float) (after - before));
