@@ -40,6 +40,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.cache.MessageCache;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventService;
 import de.uniluebeck.itm.tr.iwsn.overlay.routing.RoutingTableService;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools.toString;
 
 
 @Singleton
@@ -102,6 +104,9 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 				try {
 
 					UnreliableMessagingCacheEntry messagingCacheEntry = messageCache.deq();
+					if (log.isTraceEnabled()) {
+						log.trace("Dequeued entry {}", MessageTools.toString(messagingCacheEntry.msg));
+					}
 					DispatcherRunnable dispatcherRunnable = new DispatcherRunnable(messagingCacheEntry);
 					dispatcherThreads.execute(dispatcherRunnable);
 
@@ -333,6 +338,9 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 		);
 
 		this.messageCache.enq(entry);
+		if (log.isTraceEnabled()) {
+			log.trace("Enqueued entry {}", MessageTools.toString(entry.msg));
+		}
 
 		return future;
 	}
@@ -393,17 +401,17 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 			messageEventService.addListener(new MessageEventListener() {
 				@Override
 				public void messageSent(final Messages.Msg msg) {
-					log.trace("Message sent: {}", msg);
+					log.trace("Message sent: {}", MessageTools.toString(msg));
 				}
 
 				@Override
 				public void messageDropped(final Messages.Msg msg) {
-					log.trace("Message dropped: {}", msg);
+					log.trace("Message dropped: {}", MessageTools.toString(msg));
 				}
 
 				@Override
 				public void messageReceived(final Messages.Msg msg) {
-					log.trace("Message received: {}", msg);
+					log.trace("Message received: {}", MessageTools.toString(msg));
 				}
 			}
 			);

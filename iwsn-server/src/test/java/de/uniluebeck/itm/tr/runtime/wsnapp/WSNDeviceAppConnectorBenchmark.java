@@ -87,7 +87,7 @@ public class WSNDeviceAppConnectorBenchmark {
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void testSerial() throws Exception {
 
 		List<Float> durations = newLinkedList();
 
@@ -137,5 +137,8 @@ public class WSNDeviceAppConnectorBenchmark {
 		System.out.println("Mean: " + MEAN.apply(durations) + " ms");
 	}
 
-
+	@Test
+	public void testParallel() throws Exception {
+		// TODO implement parallel version
+	}
 }

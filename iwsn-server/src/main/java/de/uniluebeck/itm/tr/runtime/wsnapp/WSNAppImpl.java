@@ -63,6 +63,8 @@ import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
@@ -165,8 +167,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
-	private List<WSNNodeMessageReceiver> wsnNodeMessageReceivers =
-			Collections.synchronizedList(new ArrayList<WSNNodeMessageReceiver>());
+	private ImmutableSet<WSNNodeMessageReceiver> wsnNodeMessageReceivers = ImmutableSet.of();
+
+	private final Lock wsnNodeMessageReceiversLock = new ReentrantLock();
 
 	private ScheduledExecutorService scheduler;
 
@@ -792,14 +795,42 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 	@Override
 	public void addNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
-		log.debug("Adding node message receiver...");
-		wsnNodeMessageReceivers.add(receiver);
+
+		wsnNodeMessageReceiversLock.lock();
+		try {
+
+			log.debug("Adding node message receiver: {}", receiver);
+
+			wsnNodeMessageReceivers = ImmutableSet.<WSNNodeMessageReceiver>builder()
+					.addAll(wsnNodeMessageReceivers)
+					.add(receiver)
+					.build();
+
+		} finally {
+			wsnNodeMessageReceiversLock.unlock();
+		}
 	}
 
 	@Override
-	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver) {
-		while (wsnNodeMessageReceivers.remove(receiver)) {
-			/* nothing to do ... */
+	public void removeNodeMessageReceiver(WSNNodeMessageReceiver receiverToRemove) {
+
+		wsnNodeMessageReceiversLock.lock();
+
+		try {
+
+			log.debug("Removing node message receiver: {}", receiverToRemove);
+
+			final ImmutableSet.Builder<WSNNodeMessageReceiver> builder = ImmutableSet.<WSNNodeMessageReceiver>builder();
+			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+				if (receiver != receiverToRemove) {
+					builder.add(receiver);
+				}
+			}
+
+			wsnNodeMessageReceivers = builder.build();
+
+		} finally {
+			wsnNodeMessageReceiversLock.unlock();
 		}
 	}
 

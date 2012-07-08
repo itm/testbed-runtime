@@ -27,6 +27,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.UninitializedMessageException;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,6 +223,27 @@ public class MessageTools {
 
 	public static Messages.Msg buildReply(Messages.Msg msg, String msgType, byte[] payload) {
 		return buildReplyBuilder(msg, msgType, payload).build();
+	}
+
+	public static String toString(final Messages.Msg msg) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append("{from=\"");
+		builder.append(msg.getFrom());
+		builder.append("\", to=\"");
+		builder.append(msg.getTo());
+		builder.append("\", type=\"");
+		builder.append("\", priority=");
+		builder.append(msg.getPriority());
+		builder.append(", validUntil=");
+		builder.append(new DateTime(msg.getValidUntil()));
+		builder.append(", payload=\"");
+		builder.append(msg.getPayload());
+		builder.append("\", replyTo=\"");
+		builder.append(msg.getReplyTo());
+		builder.append("\", replyWith=\"");
+		builder.append(msg.getReplyWith());
+		builder.append("}\"");
+		return builder.toString();
 	}
 
 }

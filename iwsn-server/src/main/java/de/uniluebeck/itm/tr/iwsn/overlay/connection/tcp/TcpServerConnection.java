@@ -73,7 +73,7 @@ public class TcpServerConnection extends ServerConnection {
 					}
 
 				} catch (IOException e) {
-					log.debug("IOException after accepting connection initiated by remote host: {}", e);
+					log.trace("IOException after accepting connection initiated by remote host: {}", e);
 				}
 			}
 

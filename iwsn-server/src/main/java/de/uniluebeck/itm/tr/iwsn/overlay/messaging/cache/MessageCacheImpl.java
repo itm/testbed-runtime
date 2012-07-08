@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.cache;
 
 
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,18 +43,11 @@ public class MessageCacheImpl<T extends MessageCacheEntry> implements MessageCac
 
 	@Override
 	public void enq(MessageCacheEntry entry) {
-		if (log.isTraceEnabled()) {
-			log.trace("Enqueuing entry {}", entry);
-		}
 		queue.put((T) entry);
 	}
 
 	public T deq() throws InterruptedException {
-		final T entry = queue.take();
-		if (log.isTraceEnabled()) {
-			log.trace("Dequeuing entry {}", entry);
-		}
-		return entry;
+		return queue.take();
 	}
 
 	@Override

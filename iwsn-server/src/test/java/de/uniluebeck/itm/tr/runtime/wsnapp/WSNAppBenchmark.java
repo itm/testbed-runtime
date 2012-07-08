@@ -6,12 +6,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
+import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.After;
@@ -21,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -41,7 +44,7 @@ public class WSNAppBenchmark {
 	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
 		@Override
 		public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-			log.debug("WSNAppBenchmark.receivedRequestStatus({})", requestStatus);
+			log.debug("WSNAppBenchmark.receivedRequestStatus()");
 		}
 
 		@Override
@@ -49,6 +52,64 @@ public class WSNAppBenchmark {
 			log.debug("WSNAppBenchmark.failure({})", e);
 		}
 	};
+
+	private static final int RUNS = 100;
+
+	private static class FutureMessageReceiver implements WSNNodeMessageReceiver {
+
+		private final BenchmarkHelper helper;
+
+		private final int messageNumber;
+
+		private final WSNAppImpl wsnApp;
+
+		private final SettableFuture<byte[]> future;
+
+		private final TimeDiff timeDiff = new TimeDiff();
+
+		private long duration = Long.MAX_VALUE;
+
+		private FutureMessageReceiver(final SettableFuture<byte[]> future, final BenchmarkHelper helper,
+									  final int messageNumber, final WSNAppImpl wsnApp) {
+			this.future = future;
+			this.helper = helper;
+			this.messageNumber = messageNumber;
+			this.wsnApp = wsnApp;
+		}
+
+		@Override
+		public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+
+			final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
+
+			if (decodedMessage.getInt(1) == messageNumber) {
+				log.debug("Received response for messageNumber {}", messageNumber);
+				duration = timeDiff.ms();
+				wsnApp.removeNodeMessageReceiver(this);
+				future.set(bytes);
+			}
+		}
+
+		@Override
+		public void receiveNotification(final WSNAppMessages.Notification notification) {
+			// nothing to do
+		}
+
+		public void start() {
+			timeDiff.touch();
+		}
+
+		public long getDuration() {
+			return duration;
+		}
+
+		@Override
+		public String toString() {
+			return "FutureMessageReceiver{" +
+					"messageNumber=" + messageNumber +
+					'}';
+		}
+	}
 
 	private static final String URN_GATEWAY = "urn:local:0x7856";
 
@@ -126,40 +187,22 @@ public class WSNAppBenchmark {
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void testSerial() throws Exception {
 
 		List<Float> durations = newLinkedList();
 
-		long before, after;
-		for (int i = 0; i < 1000; i++) {
-
-			final int messageNumber = i;
+		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 
 			final ChannelBuffer buffer = ChannelBuffers.buffer(5);
 			buffer.writeByte(10 & 0xFF);
 			buffer.writeInt(messageNumber);
 
-			final SettableFuture<Void> future = SettableFuture.create();
-
-			final WSNNodeMessageReceiver receiver = new WSNNodeMessageReceiver() {
-				@Override
-				public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
-					final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
-					log.debug("{}", StringUtils.toHexString(toByteArray(decodedMessage)));
-					if (decodedMessage.getInt(1) == messageNumber) {
-						future.set(null);
-					}
-				}
-
-				@Override
-				public void receiveNotification(final WSNAppMessages.Notification notification) {
-					// nothing to do
-				}
-			};
+			final SettableFuture<byte[]> future = SettableFuture.create();
+			final FutureMessageReceiver receiver = new FutureMessageReceiver(future, helper, messageNumber, wsnApp);
 
 			wsnApp.addNodeMessageReceiver(receiver);
 
-			before = System.nanoTime() / 1000;
+			receiver.start();
 			wsnApp.send(
 					newHashSet(URN_GATEWAY),
 					toByteArray(helper.encode(buffer)),
@@ -168,16 +211,57 @@ public class WSNAppBenchmark {
 					NULL_CALLBACK
 			);
 			future.get();
-			after = System.nanoTime() / 1000;
-
-			durations.add((float) (after - before));
+			durations.add((float) receiver.getDuration());
 
 			wsnApp.removeNodeMessageReceiver(receiver);
 		}
 
-		System.out.println("Min: " + MIN.apply(durations) + " µs");
-		System.out.println("Max: " + MAX.apply(durations) + " µs");
-		System.out.println("Mean: " + MEAN.apply(durations) + " µs");
+		System.out.println("---------- Serial execution --------");
+		System.out.println("Min:       " + MIN.apply(durations) + " ms");
+		System.out.println("Max:       " + MAX.apply(durations) + " ms");
+		System.out.println("Mean:      " + MEAN.apply(durations) + " ms");
 		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
+	}
+
+	@Test
+	public void testParallel() throws Exception {
+
+		List<Float> durations = newLinkedList();
+		Map<Integer, Tuple<SettableFuture<byte[]>, FutureMessageReceiver>> map =
+				new HashMap<Integer, Tuple<SettableFuture<byte[]>, FutureMessageReceiver>>();
+
+		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
+
+			final ChannelBuffer buffer = ChannelBuffers.buffer(5);
+			buffer.writeByte(10 & 0xFF);
+			buffer.writeInt(messageNumber);
+
+			final SettableFuture<byte[]> future = SettableFuture.create();
+			final FutureMessageReceiver receiver = new FutureMessageReceiver(future, helper, messageNumber, wsnApp);
+			map.put(messageNumber, new Tuple<SettableFuture<byte[]>, FutureMessageReceiver>(future, receiver));
+
+			wsnApp.addNodeMessageReceiver(receiver);
+
+			receiver.start();
+			wsnApp.send(
+					newHashSet(URN_GATEWAY),
+					toByteArray(helper.encode(buffer)),
+					URN_PORTAL,
+					"",
+					NULL_CALLBACK
+			);
+		}
+
+		for (Integer messageNumber : map.keySet()) {
+			map.get(messageNumber).getFirst().get();
+			durations.add((float) map.get(messageNumber).getSecond().getDuration());
+		}
+
+		System.out.println("---------- Parallel execution --------");
+		System.out.println("Min:       " + MIN.apply(durations) + " ms");
+		System.out.println("Max:       " + MAX.apply(durations) + " ms");
+		System.out.println("Mean:      " + MEAN.apply(durations) + " ms");
+		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
+
 	}
 }
