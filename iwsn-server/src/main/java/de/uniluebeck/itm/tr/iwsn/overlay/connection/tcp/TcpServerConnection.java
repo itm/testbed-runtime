@@ -28,6 +28,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressException;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionListener;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,133 +43,150 @@ import java.util.concurrent.Future;
 
 public class TcpServerConnection extends ServerConnection {
 
-    private static final Logger log = LoggerFactory.getLogger(TcpServerConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(TcpServerConnection.class);
 
-    private Runnable acceptRunnable = new Runnable() {
+	private Runnable acceptRunnable = new Runnable() {
 
-        public void run() {
+		public void run() {
 
-            while (!Thread.interrupted()) {
-                try {
+			while (!Thread.interrupted()) {
+				try {
 
-                    // listeners will track the connection...
-                    Socket socket = serverSocket.accept();
+					// listeners will track the connection...
+					Socket socket = serverSocket.accept();
 					log.trace("Socket opened by remote host ({})", socket);
-                    InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+					InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
 					log.trace("Socket remote address: {}", remoteSocketAddress);
 
-                    TcpConnection connection = new TcpConnection(
-                            null,
-                            Connection.Direction.IN,
-                            remoteSocketAddress.getAddress().toString(),
-                            remoteSocketAddress.getPort()
-                    );
+					TcpConnection connection = new TcpConnection(
+							null,
+							Connection.Direction.IN,
+							remoteSocketAddress.getAddress().toString(),
+							remoteSocketAddress.getPort()
+					);
 
 					log.trace("Created new connection object: {}", connection);
-                    connection.setSocket(socket);
+					connection.setSocket(socket);
 
-                    for (ServerConnectionListener listener : listeners) {
-                        listener.connectionEstablished(TcpServerConnection.this, connection);
-                    }
+					for (ServerConnectionListener listener : listenerManager.getListeners()) {
+						listener.connectionEstablished(TcpServerConnection.this, connection);
+					}
 
-                } catch (IOException e) {
+				} catch (IOException e) {
 					log.debug("IOException after accepting connection initiated by remote host: {}", e);
-                }
-            }
+				}
+			}
 
-        }
-    };
+		}
+	};
 
-    private final ExecutorService executor = Executors.newCachedThreadPool(
-            new ThreadFactoryBuilder().setNameFormat("TcpServerConnection-Thread %d").build()
-    );
+	private final ExecutorService executor = Executors.newCachedThreadPool(
+			new ThreadFactoryBuilder().setNameFormat("TcpServerConnection-Thread %d").build()
+	);
 
-    private ServerSocket serverSocket;
+	private final ListenerManagerImpl<ServerConnectionListener> listenerManager =
+			new ListenerManagerImpl<ServerConnectionListener>();
 
-    private InetSocketAddress socketAddress;
+	private ServerSocket serverSocket;
 
-    private Future<?> acceptThreadFuture;
+	private InetSocketAddress socketAddress;
 
-    public TcpServerConnection(String hostName, int port) {
-        this.socketAddress = new InetSocketAddress(hostName, port);
-    }
+	private Future<?> acceptThreadFuture;
 
-    public void bind() throws IOException, ConnectionInvalidAddressException {
+	public TcpServerConnection(String hostName, int port) {
+		this.socketAddress = new InetSocketAddress(hostName, port);
+	}
 
-        if (serverSocket != null && serverSocket.isBound()) {
-            return;
-        }
+	public void bind() throws IOException, ConnectionInvalidAddressException {
 
-        if (serverSocket == null) {
-            try {
+		if (serverSocket != null && serverSocket.isBound()) {
+			return;
+		}
 
-                serverSocket = new ServerSocket();
-                serverSocket.bind(socketAddress);
-                log.debug("Bound overlay server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
+		if (serverSocket == null) {
+			try {
 
-            } catch (IOException e) {
-                throw new ConnectionInvalidAddressException(getAddress(), "Failed to bind ServerSocket", e);
-            }
-        } else if (!serverSocket.isBound()) {
+				serverSocket = new ServerSocket();
+				serverSocket.bind(socketAddress);
+				log.debug("Bound overlay server socket on {}:{}.", socketAddress.getHostName(), socketAddress.getPort()
+				);
 
-            serverSocket.bind(socketAddress);
+			} catch (IOException e) {
+				throw new ConnectionInvalidAddressException(getAddress(), "Failed to bind ServerSocket", e);
+			}
+		} else if (!serverSocket.isBound()) {
 
-        }
+			serverSocket.bind(socketAddress);
 
-        acceptThreadFuture = executor.submit(acceptRunnable);
-        postEvent(true);
+		}
 
-    }
+		acceptThreadFuture = executor.submit(acceptRunnable);
+		postEvent(true);
 
-    private void postEvent(final boolean connected) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (ServerConnectionListener listener : listeners) {
-                    if (connected)
-                        listener.serverConnectionOpened(TcpServerConnection.this);
-                    else
-                        listener.serverConnectionClosed(TcpServerConnection.this);
-                }
-            }
-        });
-    }
+	}
 
-    public void unbind() {
+	private void postEvent(final boolean connected) {
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				for (ServerConnectionListener listener : listenerManager.getListeners()) {
+					if (connected) {
+						listener.serverConnectionOpened(TcpServerConnection.this);
+					} else {
+						listener.serverConnectionClosed(TcpServerConnection.this);
+					}
+				}
+			}
+		}
+		);
+	}
 
-        // acceptThread will close the socket and inform listeners about it
-        acceptThreadFuture.cancel(true);
+	public void unbind() {
 
-        try {
+		// acceptThread will close the socket and inform listeners about it
+		acceptThreadFuture.cancel(true);
 
-            serverSocket.close();
-			log.debug("Unbound overlay server socket from {}:{}.", socketAddress.getHostName(), socketAddress.getPort());
+		try {
+
+			serverSocket.close();
+			log.debug("Unbound overlay server socket from {}:{}.", socketAddress.getHostName(), socketAddress.getPort()
+			);
 
 		} catch (IOException e) {
 			log.debug("IOException while closing server socket.", e);
 		} finally {
-            postEvent(false);
-        }
+			postEvent(false);
+		}
 
-    }
+	}
 
-    public boolean isBound() {
-        return serverSocket != null && serverSocket.isBound();
-    }
+	public boolean isBound() {
+		return serverSocket != null && serverSocket.isBound();
+	}
 
-    public String getAddress() {
-        return socketAddress.getHostName() + ":" + socketAddress.getPort();
-    }
+	public String getAddress() {
+		return socketAddress.getHostName() + ":" + socketAddress.getPort();
+	}
 
-    @Override
-    public String getType() {
-        return TcpConstants.TYPE;
-    }
+	@Override
+	public String getType() {
+		return TcpConstants.TYPE;
+	}
 
-    @Override
-    public String toString() {
-        return "TcpServerConnection{" +
-                "socketAddress=" + socketAddress +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "TcpServerConnection{" +
+				"socketAddress=" + socketAddress +
+				'}';
+	}
+
+	@Override
+	public void addListener(final ServerConnectionListener listener) {
+		listenerManager.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(final ServerConnectionListener listener) {
+		listenerManager.removeListener(listener);
+	}
 }

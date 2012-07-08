@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.runtime.wsndeviceobserver;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -17,7 +18,7 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 
 import java.util.concurrent.*;
 
-public class WSNDeviceObserver implements TestbedApplication, DeviceObserverListener {
+public class WSNDeviceObserver extends AbstractService implements TestbedApplication, DeviceObserverListener {
 
     private final TestbedRuntime testbedRuntime;
 
@@ -46,35 +47,52 @@ public class WSNDeviceObserver implements TestbedApplication, DeviceObserverList
         return applicationName;
     }
 
-    @Override
-    public void start() throws Exception {
+	@Override
+	protected void doStart() {
 
-		deviceUtilsExecutor = Executors.newCachedThreadPool(
-				new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
-		);
+		try {
 
-		Injector injector = Guice.createInjector(new DeviceUtilsModule(
-				deviceUtilsExecutor,
-				configuration.getDeviceMacReferenceMap())
-		);
-		deviceObserver = injector.getInstance(DeviceObserver.class);
-        deviceObserver.addListener(this);
-        scheduler = Executors.newScheduledThreadPool(
-                1,
-                new ThreadFactoryBuilder().setNameFormat("DeviceObserver-Thread %d").build()
-        );
-        deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 5, TimeUnit.SECONDS);
-        testbedRuntime.getEventBus().register(this);
-    }
+			deviceUtilsExecutor = Executors.newCachedThreadPool(
+					new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
+			);
 
-    @Override
-    public void stop() throws Exception {
-        testbedRuntime.getEventBus().unregister(this);
-        deviceObserver.removeListener(this);
-        deviceObserverSchedule.cancel(false);
-        ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
-		ExecutorUtils.shutdown(deviceUtilsExecutor, 1, TimeUnit.SECONDS);
-    }
+			Injector injector = Guice.createInjector(new DeviceUtilsModule(
+					deviceUtilsExecutor,
+					configuration.getDeviceMacReferenceMap())
+			);
+			deviceObserver = injector.getInstance(DeviceObserver.class);
+			deviceObserver.addListener(this);
+			scheduler = Executors.newScheduledThreadPool(
+					1,
+					new ThreadFactoryBuilder().setNameFormat("DeviceObserver-Thread %d").build()
+			);
+			deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 5, TimeUnit.SECONDS);
+			testbedRuntime.getEventBus().register(this);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
+	}
+
+	@Override
+	protected void doStop() {
+
+		try {
+
+			testbedRuntime.getEventBus().unregister(this);
+			deviceObserver.removeListener(this);
+			deviceObserverSchedule.cancel(false);
+			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(deviceUtilsExecutor, 1, TimeUnit.SECONDS);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStopped();
+	}
 
     @Override
     public void deviceEvent(final DeviceEvent event) {

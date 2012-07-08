@@ -24,6 +24,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.getStackTraceAsString;
@@ -228,7 +229,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 			log.info("Starting application \"{}\"", applicationName);
 			if (application != null) {
 				try {
-					application.start();
+					application.startAndWait();
 					applications.put(applicationName, application);
 				} catch (Exception e) {
 					log.error("Failed to start application \"{}\"! Reason: {}. Stack trace: {}",
@@ -251,7 +252,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 		log.info("Stopping application \"{}\"", applicationName);
 		TestbedApplication testbedApplication = applications.get(applicationName);
 		try {
-			testbedApplication.stop();
+			testbedApplication.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while stopping application \"{}\": {}\n{}",
 					new Object[]{applicationName, e.getMessage(), getStackTraceAsString(e)}
@@ -269,7 +270,7 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 	public void stop() {
 		for (TestbedApplication testbedApplication : applications.values()) {
 			try {
-				testbedApplication.stop();
+				testbedApplication.stopAndWait();
 			} catch (Exception e) {
 				log.warn("TestbedApplication \"{}\" threw an Exception during shutdown: {}",
 						testbedApplication.getName(), e

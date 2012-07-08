@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -53,7 +54,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
 
-class WSNDeviceAppImpl implements WSNDeviceApp {
+class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 	/**
 	 * A callback that answers the result of an operation invocation to the invoking overlay node.
@@ -84,7 +85,9 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 		private void sendExecutionReply(final Messages.Msg invocationMsg, final int code, final String message) {
 			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					MessageTools.buildReply(invocationMsg, WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
+					MessageTools.buildReply(
+							invocationMsg,
+							WSNApp.MSG_TYPE_OPERATION_INVOCATION_RESPONSE,
 							buildRequestStatus(code, message)
 					)
 			);
@@ -123,10 +126,16 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 
 				try {
 
-					WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-							.mergeFrom(msg.getPayload()).build();
+					WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement
+							.newBuilder()
+							.mergeFrom(msg.getPayload())
+							.build();
 
 					executeManagement(management);
+
+					testbedRuntime.getUnreliableMessagingService().sendAsync(
+						MessageTools.buildReply(msg, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, new byte[]{})
+					);
 
 				} catch (InvalidProtocolBufferException e) {
 					log.warn("InvalidProtocolBufferException while unmarshalling listener management message: " + e, e);
@@ -605,41 +614,59 @@ class WSNDeviceAppImpl implements WSNDeviceApp {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		log.debug("{} => WSNDeviceAppImpl.start()", configuration.getNodeUrn());
+		try {
 
-		// connect to device
-		connector = new WSNDeviceAppConnectorImpl(
-				configuration,
-				testbedRuntime.getEventBus(),
-				testbedRuntime.getAsyncEventBus()
-		);
-		connector.startAndWait();
-		connector.addListener(nodeOutputListener);
+			log.debug("{} => WSNDeviceAppImpl.start()", configuration.getNodeUrn());
 
-		// start listening to invocation messages
-		testbedRuntime.getSingleRequestMultiResponseService().addListener(
-				configuration.getNodeUrn(),
-				WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-				srmrsListener
-		);
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+			// connect to device
+			connector = new WSNDeviceAppConnectorImpl(
+					configuration,
+					testbedRuntime.getEventBus(),
+					testbedRuntime.getAsyncEventBus()
+			);
+
+			connector.startAndWait();
+			connector.addListener(nodeOutputListener);
+
+			testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+			// start listening to invocation messages
+			testbedRuntime.getSingleRequestMultiResponseService().addListener(
+					configuration.getNodeUrn(),
+					WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					srmrsListener
+			);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.debug("{} => WSNDeviceAppImpl.stop()", configuration.getNodeUrn());
+		try {
 
-		// first stop listening to invocation messages
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
-		testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
+			log.debug("{} => WSNDeviceAppImpl.stop()", configuration.getNodeUrn());
 
-		// then disconnect from device
-		connector.removeListener(nodeOutputListener);
-		connector.stopAndWait();
+			// first stop listening to invocation messages
+			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+			testbedRuntime.getSingleRequestMultiResponseService().removeListener(srmrsListener);
 
+			// then disconnect from device
+			connector.removeListener(nodeOutputListener);
+			connector.stopAndWait();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStopped();
 	}
 
 	/**

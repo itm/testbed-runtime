@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -35,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PortalServerApplication implements TestbedApplication {
+public class PortalServerApplication extends AbstractService implements TestbedApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(PortalServerApplication.class);
 
@@ -77,28 +78,46 @@ public class PortalServerApplication implements TestbedApplication {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
-		service.start();
+		try {
 
-		soapService = new SessionManagementSoapService(service, config);
-		soapService.start();
+			service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
+			service.start();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		try {
+
+			soapService = new SessionManagementSoapService(service, config);
+			soapService.start();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() throws Exception {
+	protected void doStop() {
 
 		try {
 			soapService.stop();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management SOAP web service: {}", e);
+			notifyFailed(e);
 		}
 
 		try {
 			service.stop();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management service: {}", e);
+			notifyFailed(e);
 		}
+
+		notifyStopped();
 	}
 }

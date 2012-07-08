@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public interface WSNApp extends Service, TestbedApplication {
+public interface WSNApp extends TestbedApplication {
 
 	public static final String MSG_TYPE_LISTENER_MANAGEMENT = WSNApp.class.getCanonicalName() + "/LISTENER_MANAGEMENT";
 

@@ -96,7 +96,7 @@ public class BenchmarkHelper {
 
 	public static byte[] toByteArray(final ChannelBuffer buffer) {
 		byte[] arr = new byte[buffer.readableBytes()];
-		buffer.readBytes(arr);
+		buffer.getBytes(0, arr);
 		return arr;
 	}
 

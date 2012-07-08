@@ -23,12 +23,10 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.application;
 
 
-public interface TestbedApplication {
+import com.google.common.util.concurrent.Service;
+
+public interface TestbedApplication extends Service {
 
 	String getName();
-
-	void start() throws Exception;
-
-	void stop() throws Exception;
 
 }

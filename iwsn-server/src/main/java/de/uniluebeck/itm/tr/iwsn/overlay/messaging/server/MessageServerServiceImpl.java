@@ -187,7 +187,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 		for (Map.Entry<Tuple<String, String>, ServerConnection> entry : serverConnections.entrySet()) {
 			if (entry.getValue() == null || !entry.getValue().isBound()) {
-				scheduler.submit(new EstablishServerConnectionRunnable(entry.getKey()));
+				new EstablishServerConnectionRunnable(entry.getKey()).run();
 			}
 		}
 

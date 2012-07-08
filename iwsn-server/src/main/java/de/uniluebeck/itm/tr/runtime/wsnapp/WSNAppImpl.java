@@ -27,12 +27,14 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
@@ -42,8 +44,6 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingSer
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnknownNameException;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
@@ -73,7 +73,7 @@ import static org.jboss.netty.channel.Channels.future;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
-class WSNAppImpl implements WSNApp {
+class WSNAppImpl extends AbstractService implements WSNApp {
 
 	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
 
@@ -439,59 +439,76 @@ class WSNAppImpl implements WSNApp {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		final ThreadFactory schedulerThreadFactory = new ThreadFactoryBuilder()
-				.setNameFormat("WSNApp-Thread %d")
-				.build();
-		scheduler = Executors.newScheduledThreadPool(1, schedulerThreadFactory);
+		try {
 
-		final ThreadFactory executorThreadFactory = new ThreadFactoryBuilder()
-				.setNameFormat("WSNApp-Executor-Thread %d")
-				.build();
-		executor = Executors.newCachedThreadPool(executorThreadFactory);
+			final ThreadFactory schedulerThreadFactory = new ThreadFactoryBuilder()
+					.setNameFormat("WSNApp-Thread %d")
+					.build();
+			scheduler = Executors.newScheduledThreadPool(1, schedulerThreadFactory);
 
-		setDefaultPipelineLocally();
+			final ThreadFactory executorThreadFactory = new ThreadFactoryBuilder()
+					.setNameFormat("WSNApp-Executor-Thread %d")
+					.build();
+			executor = Executors.newCachedThreadPool(executorThreadFactory);
 
-		// start listening to sensor node output messages
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
+			setDefaultPipelineLocally();
 
-		// periodically register at the node counterpart as listener to receive output from the nodes
-		registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
-				registerNodeMessageReceiverRunnable,
-				0,
-				30,
-				TimeUnit.SECONDS
-		);
+			// start listening to sensor node output messages
+			testbedRuntime.getMessageEventService().addListener(messageEventListener);
 
+			// periodically register at the node counterpart as listener to receive output from the nodes
+			registerNodeMessageReceiverFuture = scheduler.scheduleWithFixedDelay(
+					registerNodeMessageReceiverRunnable,
+					30,
+					30,
+					TimeUnit.SECONDS
+			);
+
+			registerNodeMessageReceiverRunnable.run();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.info("Stopping WSNApp...");
-
-		setDefaultPipelineOnReservedNodes();
-		setDefaultPipelineLocally();
-		flashDefaultImageToReservedNodes();
-
-		// stop sending 'register'-messages to node counterpart
-		registerNodeMessageReceiverFuture.cancel(false);
-
-		// unregister with all nodes once
 		try {
-			executor.submit(unregisterNodeMessageReceiverRunnable).get();
+
+			log.info("Stopping WSNApp...");
+
+			setDefaultPipelineOnReservedNodes();
+			setDefaultPipelineLocally();
+			flashDefaultImageToReservedNodes();
+
+			// stop sending 'register'-messages to node counterpart
+			registerNodeMessageReceiverFuture.cancel(false);
+
+			// unregister with all nodes once
+			try {
+				executor.submit(unregisterNodeMessageReceiverRunnable).get();
+			} catch (Exception e) {
+				log.error("Exception while un-registering as node message receiver during shutdown: {}", e);
+			}
+
+			// stop listening for messages from the nodes
+			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+
+			ExecutorUtils.shutdown(executor, 1, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+
+			log.info("WSNApp stopped!");
+
 		} catch (Exception e) {
-			log.error("Exception while un-registering as node message receiver during shutdown: {}", e);
+			notifyFailed(e);
 		}
 
-		// stop listening for messages from the nodes
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
-
-		ExecutorUtils.shutdown(executor, 1, TimeUnit.SECONDS);
-		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
-
-		log.info("WSNApp stopped!");
+		notifyStopped();
 	}
 
 	private void setDefaultPipelineLocally() {
@@ -960,19 +977,48 @@ class WSNAppImpl implements WSNApp {
 
 	private void registerNodeMessageReceiver(boolean register) {
 
+		final WSNAppMessages.ListenerManagement.Operation operation = register ?
+				WSNAppMessages.ListenerManagement.Operation.REGISTER :
+				WSNAppMessages.ListenerManagement.Operation.UNREGISTER;
+
 		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
 				.setNodeName(getLocalNodeName())
-				.setOperation(register ?
-						WSNAppMessages.ListenerManagement.Operation.REGISTER :
-						WSNAppMessages.ListenerManagement.Operation.UNREGISTER
-				)
+				.setOperation(operation)
 				.build();
 
+		List<Future> futures = newArrayList();
 		for (String destinationNodeName : reservedNodes) {
-			testbedRuntime.getUnreliableMessagingService()
-					.sendAsync(getLocalNodeName(), destinationNodeName, WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-							management.toByteArray(), 2, System.currentTimeMillis() + MSG_VALIDITY
-					);
+
+			final SettableFuture<byte[]> future = SettableFuture.create();
+			futures.add(future);
+
+			testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					destinationNodeName,
+					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+					management.toByteArray(),
+					2,
+					System.currentTimeMillis() + MSG_VALIDITY,
+					new ReliableMessagingService.AsyncCallback() {
+						@Override
+						public void success(final byte[] reply) {
+							future.set(reply);
+						}
+
+						@Override
+						public void failure(final Exception exception) {
+							future.setException(exception);
+						}
+					}
+			);
+		}
+
+		for (Future future : futures) {
+			try {
+				future.get();
+			} catch (Exception e) {
+				log.error("Exception while registering for node outputs: {}", e);
+			}
 		}
 
 	}

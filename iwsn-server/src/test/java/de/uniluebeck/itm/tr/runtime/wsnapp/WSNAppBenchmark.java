@@ -6,18 +6,21 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionService;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,37 +32,39 @@ import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 public class WSNAppBenchmark {
 
+	private static final Logger log = LoggerFactory.getLogger(WSNAppBenchmark.class);
+
 	static {
-		Logging.setDebugLoggingDefaults();
+		Logging.setLoggingDefaults();
 	}
 
 	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
 		@Override
 		public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-			// TODO implement
+			log.debug("WSNAppBenchmark.receivedRequestStatus({})", requestStatus);
 		}
 
 		@Override
 		public void failure(final Exception e) {
-			// TODO implement
+			log.debug("WSNAppBenchmark.failure({})", e);
 		}
 	};
+
+	private static final String URN_GATEWAY = "urn:local:0x7856";
+
+	private static final String URN_PORTAL = "urn:local:portal";
+
+	private static final String TCP_PORTAL = "localhost:2222";
+
+	private static final String TCP_GATEWAY = "localhost:1111";
 
 	private WSNAppImpl wsnApp;
 
 	private ScheduledExecutorService scheduler;
 
-	private TestbedRuntime gw1;
+	private TestbedRuntime gateway;
 
-	private TestbedRuntime gw2;
-
-	private ConnectionService cs1;
-
-	private ConnectionService cs2;
-
-	private ServerConnection sc1;
-
-	private ServerConnection sc2;
+	private TestbedRuntime portal;
 
 	private WSNDeviceAppImpl wsnDeviceApp;
 
@@ -71,43 +76,41 @@ public class WSNAppBenchmark {
 		scheduler = Executors.newScheduledThreadPool(20);
 
 		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
-		gw1 = gw1Injector.getInstance(TestbedRuntime.class);
-		gw1.getLocalNodeNameManager().addLocalNodeName("gw1");
+		gateway = gw1Injector.getInstance(TestbedRuntime.class);
+		gateway.getLocalNodeNameManager().addLocalNodeName(URN_GATEWAY);
 
 		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
-		gw2 = gw2Injector.getInstance(TestbedRuntime.class);
-		gw2.getLocalNodeNameManager().addLocalNodeName("gw2");
+		portal = gw2Injector.getInstance(TestbedRuntime.class);
+		portal.getLocalNodeNameManager().addLocalNodeName(URN_PORTAL);
 
 		// configure topology on both nodes
-		gw1.getRoutingTableService().setNextHop("gw2", "gw2");
-		gw1.getNamingService().addEntry(new NamingEntry("gw2", new NamingInterface("tcp", "localhost:2220"), 1));
+		gateway.getRoutingTableService().setNextHop(URN_GATEWAY, URN_GATEWAY);
+		gateway.getRoutingTableService().setNextHop(URN_PORTAL, URN_PORTAL);
+		gateway.getNamingService().addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1));
+		gateway.getNamingService().addEntry(new NamingEntry(URN_GATEWAY, new NamingInterface("tcp", TCP_GATEWAY), 1));
 
-		gw2.getRoutingTableService().setNextHop("gw1", "gw1");
-		gw2.getNamingService().addEntry(new NamingEntry("gw1", new NamingInterface("tcp", "localhost:1110"), 1));
+		portal.getRoutingTableService().setNextHop(URN_PORTAL, URN_PORTAL);
+		portal.getRoutingTableService().setNextHop(URN_GATEWAY, URN_GATEWAY);
+		portal.getNamingService().addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1));
+		portal.getNamingService().addEntry(new NamingEntry(URN_GATEWAY, new NamingInterface("tcp", TCP_GATEWAY), 1));
+
+		gateway.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
+		portal.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
 
 		// start both nodes' stack
-		gw1.start();
-		gw2.start();
+		gateway.start();
+		portal.start();
 
-		cs1 = gw1.getConnectionService();
-		cs2 = gw2.getConnectionService();
-
-		sc1 = cs1.getServerConnection("tcp", "localhost:1110");
-		sc2 = cs2.getServerConnection("tcp", "localhost:2220");
-
-		sc1.bind();
-		sc2.bind();
-
-		wsnApp = new WSNAppImpl(gw1, ImmutableSet.of("urn:local:0x7856"));
+		wsnApp = new WSNAppImpl(portal, ImmutableSet.of(URN_GATEWAY));
 
 		final WSNDeviceAppConfiguration wsnDeviceAppConfiguration = WSNDeviceAppConfiguration
-				.builder("urn:local:0x7856", DeviceType.MOCK.toString())
-				.setNodeSerialInterface("urn:local:0x7856,10,SECONDS")
+				.builder(URN_GATEWAY, DeviceType.MOCK.toString())
+				.setNodeSerialInterface(URN_GATEWAY + ",10,SECONDS")
 				.build();
-		wsnDeviceApp = new WSNDeviceAppImpl(gw2, wsnDeviceAppConfiguration);
+		wsnDeviceApp = new WSNDeviceAppImpl(gateway, wsnDeviceAppConfiguration);
 
-		wsnApp.start(); // TODO refactor to use Guava Service class
-		wsnDeviceApp.start(); // TODO refactor to use Guava Service class
+		wsnDeviceApp.startAndWait();
+		wsnApp.startAndWait();
 
 		helper = new BenchmarkHelper();
 	}
@@ -115,11 +118,11 @@ public class WSNAppBenchmark {
 	@After
 	public void tearDown() throws Exception {
 
-		wsnApp.stop();
-		wsnDeviceApp.stop();
+		wsnApp.stopAndWait();
+		wsnDeviceApp.stopAndWait();
 
-		gw1.stop();
-		gw2.stop();
+		gateway.stop();
+		portal.stop();
 	}
 
 	@Test
@@ -128,11 +131,12 @@ public class WSNAppBenchmark {
 		List<Float> durations = newLinkedList();
 
 		long before, after;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 
 			final int messageNumber = i;
 
-			final ChannelBuffer buffer = ChannelBuffers.buffer(4);
+			final ChannelBuffer buffer = ChannelBuffers.buffer(5);
+			buffer.writeByte(10 & 0xFF);
 			buffer.writeInt(messageNumber);
 
 			final SettableFuture<Void> future = SettableFuture.create();
@@ -141,7 +145,8 @@ public class WSNAppBenchmark {
 				@Override
 				public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
 					final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
-					if (decodedMessage.readInt() == messageNumber) {
+					log.debug("{}", StringUtils.toHexString(toByteArray(decodedMessage)));
+					if (decodedMessage.getInt(1) == messageNumber) {
 						future.set(null);
 					}
 				}
@@ -154,24 +159,25 @@ public class WSNAppBenchmark {
 
 			wsnApp.addNodeMessageReceiver(receiver);
 
-			before = System.currentTimeMillis();
+			before = System.nanoTime() / 1000;
 			wsnApp.send(
-					newHashSet("urn:local:0x7856"),
+					newHashSet(URN_GATEWAY),
 					toByteArray(helper.encode(buffer)),
-					"urn:local:0x7856",
-					null,
+					URN_PORTAL,
+					"",
 					NULL_CALLBACK
 			);
 			future.get();
-			after = System.currentTimeMillis();
+			after = System.nanoTime() / 1000;
 
 			durations.add((float) (after - before));
 
 			wsnApp.removeNodeMessageReceiver(receiver);
 		}
 
-		System.out.println("Min: " + MIN.apply(durations) + " ms");
-		System.out.println("Max: " + MAX.apply(durations) + " ms");
-		System.out.println("Mean: " + MEAN.apply(durations) + " ms");
+		System.out.println("Min: " + MIN.apply(durations) + " µs");
+		System.out.println("Max: " + MAX.apply(durations) + " µs");
+		System.out.println("Mean: " + MEAN.apply(durations) + " µs");
+		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
 	}
 }

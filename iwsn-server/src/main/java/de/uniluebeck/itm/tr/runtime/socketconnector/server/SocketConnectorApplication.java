@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.runtime.socketconnector.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
@@ -43,7 +44,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
-public class SocketConnectorApplication implements TestbedApplication {
+public class SocketConnectorApplication extends AbstractService implements TestbedApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(SocketConnectorApplication.class);
 
@@ -86,33 +87,49 @@ public class SocketConnectorApplication implements TestbedApplication {
 		}
 	}
 
-	public void start() throws Exception {
+	@Override
+	protected void doStart() {
 
-		log.debug("SocketConnectorApplication.start()");
+		try {
 
-		scheduler = Executors.newScheduledThreadPool(
-				1,
-				new ThreadFactoryBuilder().setNameFormat("SocketConnector-Thread %d").build()
-		);
+			log.debug("SocketConnectorApplication.start()");
 
-		// start the server socket application
-		socketServer.startUp();
+			scheduler = Executors.newScheduledThreadPool(
+					1,
+					new ThreadFactoryBuilder().setNameFormat("SocketConnector-Thread %d").build()
+			);
 
-		// register for incoming messages
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
+			// start the server socket application
+			socketServer.startUp();
 
+			// register for incoming messages
+			testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStarted();
 	}
 
-	public void stop() throws Exception {
+	@Override
+	protected void doStop() {
 
-		log.debug("SocketConnectorApplication.stop()");
+		try {
 
-		// unregister for incoming messages
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+			log.debug("SocketConnectorApplication.stop()");
 
-		// close server socket
-		socketServer.shutdown();
+			// unregister for incoming messages
+			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
 
+			// close server socket
+			socketServer.shutdown();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStopped();
 	}
 
 	public void unregisterAsNodeOutputListener() {

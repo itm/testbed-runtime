@@ -9,12 +9,12 @@ public class EmbeddedChannelSink implements ChannelSink {
 
 	public void eventSunk(ChannelPipeline pipeline, ChannelEvent e) {
 
-		throw new RuntimeException("This should not have happened.");
+		throw new RuntimeException("This should not have happened: " + e);
 	}
 
 	public void exceptionCaught(ChannelPipeline pipeline, ChannelEvent e, ChannelPipelineException cause)
 			throws Exception {
 
-		throw new RuntimeException("This should not have happened.");
+		throw new RuntimeException("This should not have happened: " + cause);
 	}
 }

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.stats;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
@@ -19,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class OverlayStatsApplication implements TestbedApplication {
+public class OverlayStatsApplication extends AbstractService implements TestbedApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(OverlayStatsApplication.class);
 
@@ -111,75 +112,92 @@ public class OverlayStatsApplication implements TestbedApplication {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		if (scheduler == null) {
-			scheduler = Executors.newScheduledThreadPool(1,
-					new ThreadFactoryBuilder().setNameFormat("OverlayStats-Thread %d").build()
+		try {
+
+			if (scheduler == null) {
+				scheduler = Executors.newScheduledThreadPool(1,
+						new ThreadFactoryBuilder().setNameFormat("OverlayStats-Thread %d").build()
+				);
+			}
+
+			testbedRuntime.getMessageEventService().addListener(messageEventListener);
+
+			calculatingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
+				@Override
+				public void run() {
+
+					double sent = messagesSentLastSecond;
+					messagesSentLastSecond = 0;
+
+					double dropped = messagesDroppedLastSecond;
+					messagesDroppedLastSecond = 0;
+
+					double received = messagesReceivedLastSecond;
+					messagesReceivedLastSecond = 0;
+
+					messagesSentMovingAverage10Seconds.newNum(sent);
+					messagesSentMovingAverage60Seconds.newNum(sent);
+					messagesSentMovingAverage300Seconds.newNum(sent);
+
+					messagesDroppedMovingAverage10Seconds.newNum(dropped);
+					messagesDroppedMovingAverage60Seconds.newNum(dropped);
+					messagesDroppedMovingAverage300Seconds.newNum(dropped);
+
+					messagesReceivedMovingAverage10Seconds.newNum(received);
+					messagesReceivedMovingAverage60Seconds.newNum(received);
+					messagesReceivedMovingAverage300Seconds.newNum(received);
+
+				}
+			}, 1, 1, TimeUnit.SECONDS
 			);
+
+			loggingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
+				@Override
+				public void run() {
+					if (log.isInfoEnabled()) {
+						DecimalFormat formatter = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
+						log.info(
+								"Overlay messages in [10,60,300] seconds: sent [{},{},{}], received [{},{},{}], dropped [{},{},{}]",
+								new Object[]{
+										formatter.format(messagesSentMovingAverage10Seconds.getAvg()),
+										formatter.format(messagesSentMovingAverage60Seconds.getAvg()),
+										formatter.format(messagesSentMovingAverage300Seconds.getAvg()),
+										formatter.format(messagesReceivedMovingAverage10Seconds.getAvg()),
+										formatter.format(messagesReceivedMovingAverage60Seconds.getAvg()),
+										formatter.format(messagesReceivedMovingAverage300Seconds.getAvg()),
+										formatter.format(messagesDroppedMovingAverage10Seconds.getAvg()),
+										formatter.format(messagesDroppedMovingAverage60Seconds.getAvg()),
+										formatter.format(messagesDroppedMovingAverage300Seconds.getAvg())
+								}
+						);
+					}
+				}
+			}, 10, 10, TimeUnit.SECONDS
+			);
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 
-		testbedRuntime.getMessageEventService().addListener(messageEventListener);
-
-		calculatingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-
-				double sent = messagesSentLastSecond;
-				messagesSentLastSecond = 0;
-
-				double dropped = messagesDroppedLastSecond;
-				messagesDroppedLastSecond = 0;
-
-				double received = messagesReceivedLastSecond;
-				messagesReceivedLastSecond = 0;
-
-				messagesSentMovingAverage10Seconds.newNum(sent);
-				messagesSentMovingAverage60Seconds.newNum(sent);
-				messagesSentMovingAverage300Seconds.newNum(sent);
-
-				messagesDroppedMovingAverage10Seconds.newNum(dropped);
-				messagesDroppedMovingAverage60Seconds.newNum(dropped);
-				messagesDroppedMovingAverage300Seconds.newNum(dropped);
-
-				messagesReceivedMovingAverage10Seconds.newNum(received);
-				messagesReceivedMovingAverage60Seconds.newNum(received);
-				messagesReceivedMovingAverage300Seconds.newNum(received);
-
-			}
-		}, 1, 1, TimeUnit.SECONDS
-		);
-
-		loggingScheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				if (log.isInfoEnabled()) {
-					DecimalFormat formatter = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
-					log.info(
-							"Overlay messages in [10,60,300] seconds: sent [{},{},{}], received [{},{},{}], dropped [{},{},{}]",
-							new Object[]{
-									formatter.format(messagesSentMovingAverage10Seconds.getAvg()),
-									formatter.format(messagesSentMovingAverage60Seconds.getAvg()),
-									formatter.format(messagesSentMovingAverage300Seconds.getAvg()),
-									formatter.format(messagesReceivedMovingAverage10Seconds.getAvg()),
-									formatter.format(messagesReceivedMovingAverage60Seconds.getAvg()),
-									formatter.format(messagesReceivedMovingAverage300Seconds.getAvg()),
-									formatter.format(messagesDroppedMovingAverage10Seconds.getAvg()),
-									formatter.format(messagesDroppedMovingAverage60Seconds.getAvg()),
-									formatter.format(messagesDroppedMovingAverage300Seconds.getAvg())
-							}
-					);
-				}
-			}
-		}, 10, 10, TimeUnit.SECONDS
-		);
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() throws Exception {
-		loggingScheduledFuture.cancel(true);
-		calculatingScheduledFuture.cancel(true);
-		ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
-		testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+	protected void doStop() {
+
+		try {
+
+			loggingScheduledFuture.cancel(true);
+			calculatingScheduledFuture.cancel(true);
+			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+			testbedRuntime.getMessageEventService().removeListener(messageEventListener);
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
+		notifyStopped();
 	}
 }

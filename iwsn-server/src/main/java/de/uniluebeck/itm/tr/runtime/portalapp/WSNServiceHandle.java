@@ -70,7 +70,7 @@ public class WSNServiceHandle implements Service {
 
 	@Override
 	public void start() throws Exception {
-		wsnApp.start();
+		wsnApp.startAndWait();
 		wsnService.start();
 		wsnSoapService.start();
 	}
@@ -95,7 +95,7 @@ public class WSNServiceHandle implements Service {
 		}
 
 		try {
-			wsnApp.stop();
+			wsnApp.stopAndWait();
 		} catch (Throwable e) {
 			log.warn("" + e, e);
 		}
