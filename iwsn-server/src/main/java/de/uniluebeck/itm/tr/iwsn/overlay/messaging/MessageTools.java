@@ -44,18 +44,6 @@ public class MessageTools {
 		out.flush();
 	}
 
-	public static Messages.Msg buildMessage(String from, String to, String app, String replyWith, String replyTo,
-											Serializable msg, int priority, long validUntil) {
-		Messages.Msg.Builder builder = getBuilder(from, to, app, msg, priority, validUntil);
-		if (replyWith != null) {
-			builder.setReplyWith(replyWith);
-		}
-		if (replyTo != null) {
-			builder.setReplyTo(replyTo);
-		}
-		return builder.build();
-	}
-
 	public interface MessageCallback {
 
 		public void receivedMessage(ServerConnection serverConnection, Connection conn, Messages.Msg msg);
@@ -212,14 +200,20 @@ public class MessageTools {
 
 	private static Messages.Msg.Builder buildReplyBuilder(Messages.Msg msg, String msgType, byte[] payload) {
 		// TODO sensible valid until time
-		return Messages.Msg.newBuilder()
+
+		final Messages.Msg.Builder builder = Messages.Msg.newBuilder()
 				.setFrom(msg.getTo())
 				.setTo(msg.getFrom())
 				.setPayload(ByteString.copyFrom(payload))
 				.setMsgType(msgType)
 				.setPriority(msg.getPriority())
-				.setReplyTo(msg.getReplyWith())
 				.setValidUntil(System.currentTimeMillis() + 5000);
+
+		if (msg.hasReplyWith()) {
+			builder.setReplyTo(msg.getReplyWith());
+		}
+
+		return builder;
 	}
 
 	public static Messages.Msg buildReply(Messages.Msg msg, String msgType, byte[] payload) {

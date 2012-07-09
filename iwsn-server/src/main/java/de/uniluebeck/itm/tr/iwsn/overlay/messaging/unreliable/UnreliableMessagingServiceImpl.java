@@ -406,7 +406,7 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 
 				@Override
 				public void messageDropped(final Messages.Msg msg) {
-					log.trace("Message dropped: {}", MessageTools.toString(msg));
+					log.warn("Message dropped: {}", MessageTools.toString(msg));
 				}
 
 				@Override

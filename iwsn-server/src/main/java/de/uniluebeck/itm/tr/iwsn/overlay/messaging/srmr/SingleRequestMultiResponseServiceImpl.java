@@ -29,6 +29,7 @@ import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.iwsn.overlay.LocalNodeNameManager;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
@@ -241,7 +242,7 @@ public class SingleRequestMultiResponseServiceImpl
 					if (log.isTraceEnabled()) {
 						log.trace("=== Request === {} ==== {}",
 								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
-								msg
+								MessageTools.toString(msg)
 						);
 					}
 					// this happens on the request-receiver (server) side
@@ -287,7 +288,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 						log.trace("*** Response *** {} *** {}",
 								Arrays.toString(localNodeNameManager.getLocalNodeNames().toArray()),
-								msg
+								MessageTools.toString(msg)
 						);
 					}
 

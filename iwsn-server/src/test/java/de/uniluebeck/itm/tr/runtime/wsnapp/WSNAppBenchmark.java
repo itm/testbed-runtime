@@ -9,8 +9,8 @@ import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -22,13 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.wsnapp.BenchmarkHelper.*;
@@ -39,7 +38,7 @@ public class WSNAppBenchmark {
 	private static final Logger log = LoggerFactory.getLogger(WSNAppBenchmark.class);
 
 	static {
-		Logging.setLoggingDefaults(Level.DEBUG);
+		Logging.setLoggingDefaults();
 	}
 
 	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
@@ -82,8 +81,14 @@ public class WSNAppBenchmark {
 
 			final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
 
+			if (log.isTraceEnabled()) {
+				byte[] decodedBytes = new byte[decodedMessage.readableBytes()];
+				decodedMessage.getBytes(0, decodedBytes);
+				log.trace("{} packet decoding complete: {}", this, StringUtils.toHexString(decodedBytes));
+			}
+
 			if (decodedMessage.getInt(1) == messageNumber) {
-				log.debug("Received response for messageNumber {}", messageNumber);
+				log.debug("Received response for messageNumber={}", messageNumber);
 				duration = timeDiff.ms();
 				wsnApp.removeNodeMessageReceiver(this);
 				future.set(bytes);
@@ -132,6 +137,10 @@ public class WSNAppBenchmark {
 					"messageNumber=" + messageNumber +
 					'}';
 		}
+
+		public int getMessageNumber() {
+			return messageNumber;
+		}
 	}
 
 	private static final String URN_GATEWAY = "urn:local:0x7856";
@@ -144,8 +153,6 @@ public class WSNAppBenchmark {
 
 	private WSNAppImpl wsnApp;
 
-	private ScheduledExecutorService scheduler;
-
 	private TestbedRuntime gateway;
 
 	private TestbedRuntime portal;
@@ -157,7 +164,7 @@ public class WSNAppBenchmark {
 	@Before
 	public void setUp() throws Exception {
 
-		scheduler = Executors.newScheduledThreadPool(20);
+		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
 
 		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
 		gateway = gw1Injector.getInstance(TestbedRuntime.class);
@@ -218,7 +225,7 @@ public class WSNAppBenchmark {
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
 			receiver = new FutureMessageReceiver(helper, messageNumber, wsnApp);
 			receiver.start();
-			receiver.getFuture().get();
+			receiver.getFuture().get(5, TimeUnit.SECONDS);
 			durations.add((float) receiver.getDuration());
 		}
 
@@ -245,7 +252,15 @@ public class WSNAppBenchmark {
 
 		// join
 		for (FutureMessageReceiver messageReceiver : receivers) {
-			messageReceiver.getFuture().get();
+			try {
+				messageReceiver.getFuture().get(5, TimeUnit.SECONDS);
+			} catch (TimeoutException e) {
+				log.warn(
+						"TimeoutException for messageNumber={} (hex: {})",
+						messageReceiver.getMessageNumber(),
+						StringUtils.toHexString(messageReceiver.getMessageNumber())
+				);
+			}
 			durations.add((float) messageReceiver.getDuration());
 		}
 
