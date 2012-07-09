@@ -31,12 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 public interface SingleRequestMultiResponseService extends Service {
 
-	void sendReliableRequestReliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit, SingleRequestMultiResponseCallback callback);
-
-	void sendReliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit, SingleRequestMultiResponseCallback callback);
-
-	void sendUnreliableRequestReliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit, SingleRequestMultiResponseCallback callback);
-
 	void sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit, SingleRequestMultiResponseCallback callback);
 
 	void addListener(String urn, String msgType, SingleRequestMultiResponseListener listener);

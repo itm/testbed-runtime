@@ -153,7 +153,6 @@ public class SocketConnectorClient {
 				.setTo("urn:wisebed:testbeduzl1:1")
 				.setPayload(oiBuilder.build().toByteString())
 				.setPriority(1)
-				.setValidUntil(System.currentTimeMillis() + 5000)
 				.build();
 
 		channel.write(msg);

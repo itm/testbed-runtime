@@ -28,6 +28,7 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.*;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
@@ -460,9 +461,9 @@ public class ConnectivityTests {
 
 		final Connection gw1connection = cs1.getConnection("gw2");
 
-		final Map<String, Messages.Msg> messsagesSent =
+		final Map<String, Messages.Msg> messagesSent =
 				Collections.synchronizedMap(new HashMap<String, Messages.Msg>(cnt));
-		final Map<String, Messages.Msg> messsagesReceived =
+		final Map<String, Messages.Msg> messagesReceived =
 				Collections.synchronizedMap(new HashMap<String, Messages.Msg>(cnt));
 
 		ExecutorService readerExecutor = Executors.newFixedThreadPool(5);
@@ -493,7 +494,7 @@ public class ConnectivityTests {
 							Messages.Msg.Builder builder = Messages.Msg.newBuilder();
 							builder.mergeDelimitedFrom(in);
 							Messages.Msg msg = builder.build();
-							messsagesReceived.put((String) MessageTools.getPayloadSerializable(msg), msg);
+							messagesReceived.put((String) MessageTools.getPayloadSerializable(msg), msg);
 							log.debug("Received message #{}", MessageTools.getPayloadSerializable(msg));
 						}
 
@@ -525,13 +526,18 @@ public class ConnectivityTests {
 
 							OutputStream out = gw1connection.getOutputStream();
 
-							Messages.Msg msg = MessageTools.buildMessage("gw1", "gw2", "test", "" + msgNr, 1,
-									System.currentTimeMillis() + 5000
+							Messages.Msg msg = MessageTools.buildMessage(
+									"gw1",
+									"gw2",
+									"test",
+									"" + msgNr,
+									UnreliableMessagingService.PRIORITY_NORMAL
 							);
+
 							msg.writeDelimitedTo(out);
 							log.debug("Wrote message #{}", msgNr);
 
-							messsagesSent.put((String) MessageTools.getPayloadSerializable(msg), msg);
+							messagesSent.put((String) MessageTools.getPayloadSerializable(msg), msg);
 
 							return msg;
 
@@ -565,258 +571,23 @@ public class ConnectivityTests {
 		}
 		log.debug("Readers completed!");
 
-		for (Map.Entry<String, Messages.Msg> entry : messsagesSent.entrySet()) {
+		for (Map.Entry<String, Messages.Msg> entry : messagesSent.entrySet()) {
 
 			Messages.Msg sent = entry.getValue();
-			Messages.Msg recv = messsagesReceived.get(entry.getKey());
+			Messages.Msg received = messagesReceived.get(entry.getKey());
 
 			assertNotNull(sent);
-			assertNotNull(recv);
+			assertNotNull(received);
 
-			assertEquals(sent.getFrom(), recv.getFrom());
-			assertEquals(sent.getPayload(), recv.getPayload());
-			assertEquals(sent.getMsgType(), recv.getMsgType());
-			assertEquals(sent.getPriority(), recv.getPriority());
-			assertEquals(sent.getReplyTo(), recv.getReplyTo());
-			assertEquals(sent.getReplyWith(), recv.getReplyWith());
-			assertEquals(sent.getTo(), recv.getTo());
-			assertEquals(sent.getValidUntil(), recv.getValidUntil());
+			assertEquals(sent.getFrom(), received.getFrom());
+			assertEquals(sent.getPayload(), received.getPayload());
+			assertEquals(sent.getMsgType(), received.getMsgType());
+			assertEquals(sent.getPriority(), received.getPriority());
+			assertEquals(sent.getReplyTo(), received.getReplyTo());
+			assertEquals(sent.getReplyWith(), received.getReplyWith());
+			assertEquals(sent.getTo(), received.getTo());
 
 		}
 
 	}
-
-//	protected static final byte DLE = 0x10;
-//
-//	protected static final byte STX = 0x02;
-//
-//	protected static final byte ETX = 0x03;
-//
-//	protected static final byte[] DLE_STX = new byte[]{DLE, STX};
-//
-//	protected static final byte[] DLE_ETX = new byte[]{DLE, ETX};
-//
-//	@Test
-//	public void testDataStreamDLESTXETX() throws Exception {
-//
-//		int cnt = 100;
-//
-//		// need to use an array, so it can be final to be able to reference it from the listener below (whacky hacky)
-//		final Connection[] gw2connection = new Connection[1];
-//		sc2.addListener(new ServerConnectionListener() {
-//			@Override
-//			public void serverConnectionOpened(ServerConnection serverConnection) {
-//			}
-//
-//			@Override
-//			public void serverConnectionClosed(ServerConnection serverConnection) {
-//			}
-//
-//			@Override
-//			public void connectionEstablished(ServerConnection serverConnection, Connection connection) {
-//				gw2connection[0] = connection;
-//			}
-//		}
-//		);
-//
-//		final Connection gw1connection = cs1.getConnection("gw2");
-//		final Random random = new Random();
-//
-//		final Map<Integer, byte[]> messsagesSent = Collections.synchronizedMap(new HashMap<Integer, byte[]>(cnt));
-//		final Map<Integer, byte[]> messsagesReceived = Collections.synchronizedMap(new HashMap<Integer, byte[]>(cnt));
-//
-//		ExecutorService readerExecutor = Executors.newFixedThreadPool(5);
-//		ExecutorService writerExecutor = Executors.newFixedThreadPool(5);
-//
-//		List<Future> readerFutures = new LinkedList<Future>();
-//		List<Future> writerFutures = new LinkedList<Future>();
-//
-//		synchronized (this) {
-//			Thread.sleep(100);
-//		}
-//
-//		Runnable readerRunnable = new Runnable() {
-//
-//			private boolean foundDLE;
-//
-//			private boolean foundPacket;
-//
-//			private byte[] packet = new byte[2048];
-//
-//			private int packetLength = 0;
-//
-//			@Override
-//			@SuppressWarnings({"ConstantConditions"})
-//			public void run() {
-//
-//				log.debug("Reader started");
-//
-//				synchronized (gw2connection[0]) {
-//
-//
-//					try {
-//
-//						InputStream in = gw2connection[0].getInputStream();
-//
-//						log.debug("Got InputStream, starting to read...");
-//
-//						while (in != null && in.available() > 0 && !Thread.interrupted()) {
-//
-//							byte c = (byte) (0xff & in.read());
-//
-//							// Check if DLE was found
-//							if (foundDLE) {
-//								foundDLE = false;
-//
-//								if ((c == STX) && !this.foundPacket) {
-//
-//									log.trace("STX received in DLE mode");
-//									foundPacket = true;
-//
-//								} else if ((c == ETX) && this.foundPacket) {
-//
-//									log.trace("ETX received in DLE mode");
-//
-//									byte[] payload = new byte[packetLength];
-//									System.arraycopy(packet, 0, payload, 0, packetLength);
-//
-//									ByteBuffer msgNrBuffer = ByteBuffer.allocate(4);
-//									System.arraycopy(payload, 0, msgNrBuffer.array(), 0, 3);
-//									int msgNr = msgNrBuffer.getInt();
-//
-//									ByteBuffer msgBuffer = ByteBuffer.allocate(payload.length - 4);
-//									System.arraycopy(payload, 4, msgBuffer.array(), 0, payload.length - 4);
-//
-//									log.debug("= Reading message #{} of length {}", msgNr, payload.length - 4);
-//
-//									messsagesReceived.put(msgNr, msgBuffer.array());
-//
-//									clearPacket();
-//
-//								} else if ((c == DLE) && this.foundPacket) {
-//
-//									// Stuffed DLE found
-//									log.trace("Stuffed DLE received in DLE mode");
-//
-//									ensureBufferSize();
-//									this.packet[this.packetLength++] = DLE;
-//
-//								} else {
-//									log.trace("Incomplete packet received: " + packet.toString());
-//									clearPacket();
-//								}
-//
-//							} else {
-//								if (c == DLE) {
-//									log.trace("Plain DLE received");
-//									foundDLE = true;
-//								} else if (this.foundPacket) {
-//									this.packet[this.packetLength++] = c;
-//								}
-//							}
-//						}
-//
-//					} catch (final IOException error) {
-//						log.trace("Error on rx (Retry in 1s): " + error);
-//					}
-//
-//				}
-//
-//				log.debug("Reader stopped");
-//
-//			}
-//
-//			protected void ensureBufferSize() {
-//				if (this.packetLength + 1 >= this.packet.length) {
-//					final byte tmp[] = new byte[this.packetLength + 100];
-//					System.arraycopy(this.packet, 0, tmp, 0, this.packetLength);
-//					this.packet = tmp;
-//				}
-//			}
-//
-//			protected void clearPacket() {
-//				this.packetLength = 0;
-//				this.foundDLE = false;
-//				this.foundPacket = false;
-//			}
-//
-//		};
-//
-//		for (int i = 0; i < cnt; i++) {
-//
-//			final int msgNr = i;
-//
-//			Callable<byte[]> writerCallable = new Callable<byte[]>() {
-//				@Override
-//				public byte[] call() {
-//
-//					try {
-//
-//						synchronized (gw1connection) {
-//
-//							OutputStream out = gw1connection.getOutputStream();
-//
-//							out.write(DLE_STX);
-//
-//							int msgLength = random.nextInt(123);
-//
-//							ByteBuffer buffer = ByteBuffer.allocate(4);
-//							buffer.putInt(msgNr);
-//							out.write(buffer.array());
-//
-//							byte[] payload = new byte[msgLength];
-//							random.nextBytes(payload);
-//							out.write(payload);
-//
-//							out.write(DLE_ETX);
-//
-//							log.debug("* Writing message #{} of length {}", msgNr, msgLength);
-//
-//							messsagesSent.put(msgNr, payload);
-//
-//							return payload;
-//
-//						}
-//
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//						assertTrue(false);
-//					}
-//
-//					return null;
-//
-//				}
-//			};
-//
-//			writerFutures.add(writerExecutor.submit(writerCallable));
-//
-//		}
-//
-//		readerFutures.add(readerExecutor.submit(readerRunnable));
-//
-//		log.debug("Waiting for writers to complete...");
-//		for (Future future : writerFutures) {
-//			assertNotNull(future.get());
-//		}
-//		log.debug("Writers completed!");
-//
-//		log.debug("Waiting for readers to complete...");
-//		for (Future future : readerFutures) {
-//			assertNull(future.get());
-//		}
-//		log.debug("Readers completed!");
-//
-//		for (Map.Entry<Integer, byte[]> entry : messsagesSent.entrySet()) {
-//
-//			byte[] sent = entry.getValue();
-//			byte[] received = messsagesReceived.get(entry.getKey());
-//
-//			assertNotNull(sent);
-//			assertNotNull(received);
-//			assertArrayEquals(sent, received);
-//
-//		}
-//
-//	}
-
 }

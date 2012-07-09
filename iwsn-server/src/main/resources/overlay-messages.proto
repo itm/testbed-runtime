@@ -31,19 +31,16 @@ message Msg {
     required string from       = 2;
     required string msgType    = 3;
     required uint32 priority   = 4;
-    required uint64 validUntil = 5;
-    optional bytes  payload    = 6;
-    optional string replyWith  = 7;
-    optional string replyTo    = 8;
+    optional bytes  payload    = 5;
+    optional string replyWith  = 6;
+    optional string replyTo    = 7;
 
 }
 
 message SingleRequestMultipleResponseRequest {
 
 	required string requestId         = 1;
-	required bool   reliableRequest   = 2;
-	required bool   reliableResponses = 3;
-	required bytes  payload           = 4;
+	required bytes  payload           = 2;
 
 }
 

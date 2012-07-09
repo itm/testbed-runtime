@@ -23,38 +23,23 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.util.Service;
+
+import java.util.concurrent.TimeUnit;
 
 
 public interface ReliableMessagingService extends Service {
 
-	public static interface AsyncCallback {
+	byte[] send(Messages.Msg message, int timeout, TimeUnit timeUnit) throws ReliableMessagingTimeoutException;
 
-		void success(byte[] reply);
-
-		void failure(Exception exception);
-
-	}
-
-	public static class AsyncCallbackAdapter implements AsyncCallback {
-
-		@Override
-		public void success(byte[] reply) { /* ... */ }
-
-		@Override
-		public void failure(Exception e) { /* ... */ }
-
-	}
-
-	byte[] send(Messages.Msg message) throws ReliableMessagingTimeoutException;
-
-	byte[] send(String from, String to, String app, byte[] payload, int priority, long validUntil)
+	byte[] send(String from, String to, String app, byte[] payload, int priority, int timeout, TimeUnit timeUnit)
 			throws ReliableMessagingTimeoutException;
 
-	void sendAsync(Messages.Msg message, AsyncCallback callback);
+	ListenableFuture<byte[]> sendAsync(Messages.Msg message, int timeout, TimeUnit timeUnit);
 
-	void sendAsync(String from, String to, String app, byte[] payload, int priority, long validUntil,
-				   AsyncCallback callback);
+	ListenableFuture<byte[]> sendAsync(String from, String to, String app, byte[] payload, int priority, int timeout,
+									   TimeUnit timeUnit);
 
 }

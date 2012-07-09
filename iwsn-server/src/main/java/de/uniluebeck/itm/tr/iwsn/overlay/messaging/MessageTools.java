@@ -28,7 +28,6 @@ import com.google.protobuf.UninitializedMessageException;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +67,8 @@ public class MessageTools {
 		}
 
 		public void run() {
-			log.trace("Starting MessageReader for remote host {} on server connection {}", connection, serverConnection);
+			log.trace("Starting MessageReader for remote host {} on server connection {}", connection, serverConnection
+			);
 			readAndPostMessages();
 		}
 
@@ -89,7 +89,9 @@ public class MessageTools {
 
 					} catch (UninitializedMessageException e) {
 
-						log.debug("Received uninitialized message. That usually happens when the connection was broken.");
+						log.debug(
+								"Received uninitialized message. That usually happens when the connection was broken."
+						);
 						connection.disconnect();
 						return;
 					}
@@ -112,9 +114,9 @@ public class MessageTools {
 		Serializable inObject;
 		try {
 			ByteArrayInputStream in = new ByteArrayInputStream(messagePayload);
-			ObjectInputStream instream = new ObjectInputStream(in);
-			inObject = (Serializable) instream.readObject();
-			instream.close();
+			ObjectInputStream inputStream = new ObjectInputStream(in);
+			inObject = (Serializable) inputStream.readObject();
+			inputStream.close();
 			in.close();
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
@@ -123,16 +125,15 @@ public class MessageTools {
 	}
 
 	private static Messages.Msg.Builder getBuilder(String from, String to, String msgType, Serializable payload,
-												   int priority,
-												   long validUntil) {
+												   int priority) {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		try {
 
-			ObjectOutputStream oout = new ObjectOutputStream(out);
-			oout.writeObject(payload);
-			oout.close();
+			ObjectOutputStream outputStream = new ObjectOutputStream(out);
+			outputStream.writeObject(payload);
+			outputStream.close();
 
 			out.close();
 
@@ -140,41 +141,46 @@ public class MessageTools {
 			throw new IllegalArgumentException(e);
 		}
 
-		return Messages.Msg.newBuilder().setFrom(from).setTo(to).setMsgType(msgType)
+		return Messages.Msg.newBuilder()
+				.setFrom(from)
+				.setTo(to)
+				.setMsgType(msgType)
 				.setPayload(ByteString.copyFrom(out.toByteArray()))
-				.setPriority(priority).setValidUntil(validUntil);
+				.setPriority(priority);
 
 	}
 
-	private static Messages.Msg.Builder getBuilder(String from, String to, String msgType, byte[] payload, int priority,
-												   long validUntil) {
+	private static Messages.Msg.Builder getBuilder(String from, String to, String msgType, byte[] payload, int priority) {
 
-		return Messages.Msg.newBuilder().setFrom(from).setTo(to).setMsgType(msgType)
+		return Messages.Msg.newBuilder()
+				.setFrom(from)
+				.setTo(to)
+				.setMsgType(msgType)
 				.setPayload(ByteString.copyFrom(payload))
-				.setPriority(priority).setValidUntil(validUntil);
+				.setPriority(priority);
 	}
 
-	public static Messages.Msg buildMessage(String from, String to, String app, byte[] payload, int priority,
-											long validUntil) {
-		return getBuilder(from, to, app, payload, priority, validUntil).build();
+	public static Messages.Msg buildMessage(String from, String to, String app, byte[] payload, int priority) {
+		return getBuilder(from, to, app, payload, priority).build();
 	}
 
-	public static Messages.Msg buildMessage(String from, String to, String app, Serializable payload, int priority,
-											long validUntil) {
-		return getBuilder(from, to, app, payload, priority, validUntil).build();
+	public static Messages.Msg buildMessage(String from, String to, String app, Serializable payload, int priority) {
+		return getBuilder(from, to, app, payload, priority).build();
 	}
 
 	private static final Random random = new Random();
 
 	public static Messages.Msg buildReliableTransportMessage(String from, String to, String app, byte[] payload,
-															 int priority, long validUntil) {
-		return getBuilder(from, to, app, payload, priority, validUntil).setReplyWith(from + ":" + random.nextLong())
+															 int priority) {
+		return getBuilder(from, to, app, payload, priority)
+				.setReplyWith(from + ":" + random.nextLong())
 				.build();
 	}
 
 	public static Messages.Msg buildReliableTransportMessage(String from, String to, String app, Serializable payload,
-															 int priority, long validUntil) {
-		return getBuilder(from, to, app, payload, priority, validUntil).setReplyWith(from + ":" + random.nextLong())
+															 int priority) {
+		return getBuilder(from, to, app, payload, priority)
+				.setReplyWith(from + ":" + random.nextLong())
 				.build();
 	}
 
@@ -184,9 +190,9 @@ public class MessageTools {
 
 		try {
 
-			ObjectOutputStream oout = new ObjectOutputStream(out);
-			oout.writeObject(payload);
-			oout.close();
+			ObjectOutputStream outputStream = new ObjectOutputStream(out);
+			outputStream.writeObject(payload);
+			outputStream.close();
 
 			out.close();
 
@@ -206,8 +212,7 @@ public class MessageTools {
 				.setTo(msg.getFrom())
 				.setPayload(ByteString.copyFrom(payload))
 				.setMsgType(msgType)
-				.setPriority(msg.getPriority())
-				.setValidUntil(System.currentTimeMillis() + 5000);
+				.setPriority(msg.getPriority());
 
 		if (msg.hasReplyWith()) {
 			builder.setReplyTo(msg.getReplyWith());
@@ -230,8 +235,6 @@ public class MessageTools {
 		builder.append(msg.getMsgType());
 		builder.append("\", priority=");
 		builder.append(msg.getPriority());
-		builder.append(", validUntil=");
-		builder.append(new DateTime(msg.getValidUntil()));
 		builder.append(", payload=\"");
 		builder.append(StringUtils.replaceNonPrintableAsciiCharacters(msg.getPayload().toStringUtf8()));
 		builder.append("\", replyTo=\"");

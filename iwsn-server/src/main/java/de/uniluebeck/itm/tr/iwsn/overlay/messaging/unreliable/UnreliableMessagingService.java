@@ -27,16 +27,15 @@ import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.util.Service;
 
-import java.io.Serializable;
-
 public interface UnreliableMessagingService extends Service {
 
-	public static final long DEFAULT_MAX_VALIDITY = 60000;
+	public static final int PRIORITY_HIGH = 0;
 
-	ListenableFuture<Void> sendAsync(String from, String to, String msgType, Serializable msg, int priority,
-									 long validUntil);
+	public static final int PRIORITY_NORMAL = 1;
 
-	ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] msg, int priority, long validUntil);
+	public static final int PRIORITY_LOW = 2;
+
+	ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] msg, int priority);
 
 	ListenableFuture<Void> sendAsync(Messages.Msg message);
 }

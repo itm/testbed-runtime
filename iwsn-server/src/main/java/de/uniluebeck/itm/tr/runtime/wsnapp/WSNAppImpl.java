@@ -40,10 +40,9 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
-import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingService;
-import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingTimeoutException;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnknownNameException;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
@@ -77,22 +76,36 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 class WSNAppImpl extends AbstractService implements WSNApp {
 
-	private static class RequestStatusCallback implements ReliableMessagingService.AsyncCallback {
+	private static class RequestStatusRunnable implements Runnable {
 
-		private Callback callback;
+		private final ListenableFuture<byte[]> future;
 
-		private String nodeUrn;
+		private final Callback callback;
 
-		private long instantiation;
+		private final String nodeUrn;
 
-		private RequestStatusCallback(Callback callback, String nodeUrn) {
+		private final long instantiation;
+
+		private RequestStatusRunnable(final ListenableFuture<byte[]> future, final Callback callback,
+									  final String nodeUrn) {
+
+			this.future = future;
 			this.callback = callback;
 			this.nodeUrn = nodeUrn;
+
 			this.instantiation = System.currentTimeMillis();
 		}
 
 		@Override
-		public void success(byte[] reply) {
+		public void run() {
+			try {
+				success(future.get());
+			} catch (Exception e) {
+				failure(e);
+			}
+		}
+
+		private void success(byte[] reply) {
 			try {
 
 				WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
@@ -100,7 +113,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 						.mergeFrom(reply)
 						.build();
 
-				log.debug("+++ Received reply after {} milliseconds from {}.",
+				log.debug("Received reply after {} milliseconds from {}.",
 						(System.currentTimeMillis() - instantiation), nodeUrn
 				);
 
@@ -111,8 +124,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			}
 		}
 
-		@Override
-		public void failure(Exception exception) {
+		private void failure(Exception exception) {
 
 			String message = "Exception after "
 					+ (System.currentTimeMillis() - instantiation)
@@ -144,12 +156,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			callback.receivedRequestStatus(requestStatusBuilder.build());
 
 		}
-
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(WSNApp.class);
-
-	private static final int MSG_VALIDITY = 60000;
 
 	private TestbedRuntime testbedRuntime;
 
@@ -184,6 +193,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 	private final ChannelPipeline pipeline = pipeline();
 
+	@SuppressWarnings("unused")
 	private final Channel channel = new EmbeddedChannel(pipeline, new EmbeddedChannelSink());
 
 	private Runnable registerNodeMessageReceiverRunnable = new Runnable() {
@@ -287,6 +297,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		@Override
 		public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+
 			if (e instanceof ExceptionEvent) {
 
 				Throwable cause = ((ExceptionEvent) e).getCause();
@@ -349,19 +360,21 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 				try {
 
-					final ListenableFuture<Void> future =
-							testbedRuntime.getUnreliableMessagingService().sendAsync(
-									getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-									operationInvocation.toByteArray(), 1,
-									System.currentTimeMillis() + MSG_VALIDITY
-							);
+					final ListenableFuture<Void> future = testbedRuntime.getUnreliableMessagingService().sendAsync(
+							getLocalNodeName(),
+							nodeUrn,
+							MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+							operationInvocation.toByteArray(),
+							UnreliableMessagingService.PRIORITY_NORMAL
+					);
 
-					WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
-							WSNAppMessages.RequestStatus.Status.newBuilder()
-									.setNodeId(nodeUrn)
-									.setValue(1);
+					WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status
+							.newBuilder()
+							.setNodeId(nodeUrn)
+							.setValue(1);
 
-					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus.newBuilder()
+					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+							.newBuilder()
 							.setStatus(statusBuilder)
 							.build();
 
@@ -635,11 +648,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		for (String nodeUrn : nodeUrns) {
 
 			try {
-				testbedRuntime.getReliableMessagingService().sendAsync(
-						getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY,
-						new RequestStatusCallback(callback, nodeUrn)
+				final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+						getLocalNodeName(),
+						nodeUrn,
+						MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+						bytes,
+						UnreliableMessagingService.PRIORITY_NORMAL,
+						10, TimeUnit.SECONDS
 				);
+				future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 			} catch (UnknownNameException e) {
 				callback.failure(e);
 			}
@@ -662,11 +679,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		}
 
 		for (String nodeUrn : nodeUrns) {
-			testbedRuntime.getReliableMessagingService().sendAsync(
-					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-					System.currentTimeMillis() + MSG_VALIDITY,
-					new RequestStatusCallback(callback, nodeUrn)
+			final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					nodeUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
 			);
+			future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 		}
 	}
 
@@ -686,11 +707,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		}
 
 		for (String nodeUrn : nodeUrns) {
-			testbedRuntime.getReliableMessagingService().sendAsync(
-					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-					System.currentTimeMillis() + MSG_VALIDITY,
-					new RequestStatusCallback(callback, nodeUrn)
+			final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					nodeUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
 			);
+			future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 		}
 
 	}
@@ -716,8 +741,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 					.build();
 
 			Messages.Msg msg = MessageTools.buildMessage(
-					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, invocation.toByteArray(), 1,
-					System.currentTimeMillis() + MSG_VALIDITY
+					getLocalNodeName(),
+					nodeUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					invocation.toByteArray(), UnreliableMessagingService.PRIORITY_NORMAL
 			);
 
 			SingleRequestMultiResponseCallback multiResponseCallback = new SingleRequestMultiResponseCallback() {
@@ -765,8 +792,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				}
 			};
 
-			testbedRuntime.getSingleRequestMultiResponseService()
-					.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, multiResponseCallback);
+			testbedRuntime.getSingleRequestMultiResponseService().sendUnreliableRequestUnreliableResponse(
+					msg,
+					2, TimeUnit.MINUTES,
+					multiResponseCallback
+			);
 
 		}
 	}
@@ -784,11 +814,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		byte[] bytes = invocation.toByteArray();
 
 		for (String nodeUrn : nodeUrns) {
-			testbedRuntime.getReliableMessagingService().sendAsync(
-					getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-					System.currentTimeMillis() + MSG_VALIDITY,
-					new RequestStatusCallback(callback, nodeUrn)
+			final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					nodeUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
 			);
+			future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 		}
 
 	}
@@ -820,7 +854,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			log.debug("Removing node message receiver: {}", receiverToRemove);
 
-			final ImmutableSet.Builder<WSNNodeMessageReceiver> builder = ImmutableSet.<WSNNodeMessageReceiver>builder();
+			final ImmutableSet.Builder<WSNNodeMessageReceiver> builder = ImmutableSet.builder();
 			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
 				if (receiver != receiverToRemove) {
 					builder.add(receiver);
@@ -853,11 +887,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService()
-				.sendAsync(getLocalNodeName(), sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY,
-						new RequestStatusCallback(callback, sourceNodeUrn)
-				);
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				sourceNodeUrn,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
+		);
+		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 	}
 
 	@Override
@@ -880,11 +918,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
-				sourceNodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-				System.currentTimeMillis() + MSG_VALIDITY,
-				new RequestStatusCallback(callback, sourceNodeUrn)
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				sourceNodeUrn,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
 		);
+		future.addListener(new RequestStatusRunnable(future, callback, sourceNodeUrn), executor);
 
 	}
 
@@ -900,11 +942,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
-				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-				System.currentTimeMillis() + MSG_VALIDITY,
-				new RequestStatusCallback(callback, nodeUrn)
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				nodeUrn,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
 		);
+		future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 
 	}
 
@@ -920,12 +966,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
-				nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-				System.currentTimeMillis() + MSG_VALIDITY,
-				new RequestStatusCallback(callback, nodeUrn)
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				nodeUrn,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
 		);
-
+		future.addListener(new RequestStatusRunnable(future, callback, nodeUrn), executor);
 	}
 
 	@Override
@@ -947,12 +996,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
-				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-				System.currentTimeMillis() + MSG_VALIDITY,
-				new RequestStatusCallback(callback, nodeUrnA)
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				nodeUrnA,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
 		);
-
+		future.addListener(new RequestStatusRunnable(future, callback, nodeUrnA), executor);
 	}
 
 	@Override
@@ -974,12 +1026,15 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		byte[] bytes = invocation.toByteArray();
 
-		testbedRuntime.getReliableMessagingService().sendAsync(getLocalNodeName(),
-				nodeUrnA, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-				System.currentTimeMillis() + MSG_VALIDITY,
-				new RequestStatusCallback(callback, nodeUrnA)
+		final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
+				getLocalNodeName(),
+				nodeUrnA,
+				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+				bytes,
+				UnreliableMessagingService.PRIORITY_NORMAL,
+				10, TimeUnit.SECONDS
 		);
-
+		future.addListener(new RequestStatusRunnable(future, callback, nodeUrnA), executor);
 	}
 
 	private void assertNodeUrnsKnown(Collection<String> nodeUrns) throws UnknownNodeUrnsException {
@@ -1017,34 +1072,21 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				.setOperation(operation)
 				.build();
 
-		List<Future> futures = newArrayList();
+		List<Future<byte[]>> futures = newArrayList();
 		for (String destinationNodeName : reservedNodes) {
 
-			final SettableFuture<byte[]> future = SettableFuture.create();
-			futures.add(future);
-
-			testbedRuntime.getReliableMessagingService().sendAsync(
+			futures.add(testbedRuntime.getReliableMessagingService().sendAsync(
 					getLocalNodeName(),
 					destinationNodeName,
 					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
 					management.toByteArray(),
-					2,
-					System.currentTimeMillis() + MSG_VALIDITY,
-					new ReliableMessagingService.AsyncCallback() {
-						@Override
-						public void success(final byte[] reply) {
-							future.set(reply);
-						}
-
-						@Override
-						public void failure(final Exception exception) {
-							future.setException(exception);
-						}
-					}
+					UnreliableMessagingService.PRIORITY_LOW,
+					10, TimeUnit.SECONDS
+			)
 			);
 		}
 
-		for (Future future : futures) {
+		for (Future<byte[]> future : futures) {
 			try {
 				future.get();
 			} catch (Exception e) {
@@ -1087,8 +1129,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				getLocalNodeName(),
 				reservedNode,
 				MSG_TYPE_OPERATION_INVOCATION_REQUEST,
-				operationInvocation.toByteArray(), 1,
-				System.currentTimeMillis() + MSG_VALIDITY
+				operationInvocation.toByteArray(),
+				UnreliableMessagingService.PRIORITY_NORMAL
 		);
 
 		final SingleRequestMultiResponseCallback callback = new SingleRequestMultiResponseCallback() {
@@ -1137,9 +1179,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			}
 		};
 
-		testbedRuntime
-				.getSingleRequestMultiResponseService()
-				.sendUnreliableRequestUnreliableResponse(msg, 2, TimeUnit.MINUTES, callback);
+		testbedRuntime.getSingleRequestMultiResponseService().sendUnreliableRequestUnreliableResponse(
+				msg,
+				2, TimeUnit.MINUTES,
+				callback
+		);
 
 		return future;
 	}
@@ -1153,18 +1197,28 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				.setOperation(WSNAppMessages.OperationInvocation.Operation.SET_DEFAULT_CHANNEL_PIPELINE);
 
 		final byte[] bytes = operationInvocation.build().toByteArray();
+		final List<Future<byte[]>> futures = newArrayList();
 
+		// fork
 		for (String nodeUrn : reservedNodes) {
 
+			futures.add(testbedRuntime.getReliableMessagingService().sendAsync(
+					getLocalNodeName(),
+					nodeUrn,
+					MSG_TYPE_OPERATION_INVOCATION_REQUEST,
+					bytes,
+					UnreliableMessagingService.PRIORITY_NORMAL,
+					10, TimeUnit.SECONDS
+			)
+			);
+		}
+
+		// join
+		for (Future<byte[]> future : futures) {
 			try {
-				testbedRuntime.getReliableMessagingService().send(
-						getLocalNodeName(), nodeUrn, MSG_TYPE_OPERATION_INVOCATION_REQUEST, bytes, 1,
-						System.currentTimeMillis() + MSG_VALIDITY
-				);
-			} catch (UnknownNameException e) {
-				log.error("" + e, e);
-			} catch (ReliableMessagingTimeoutException e) {
-				log.error("" + e, e);
+				future.get();
+			} catch (Exception e) {
+				log.error("{}", e);
 			}
 		}
 	}

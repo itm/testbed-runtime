@@ -12,7 +12,6 @@ import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
-import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.After;

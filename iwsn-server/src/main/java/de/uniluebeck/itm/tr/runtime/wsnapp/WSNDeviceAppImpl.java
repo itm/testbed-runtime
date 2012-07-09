@@ -35,6 +35,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseListener;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.slf4j.Logger;
@@ -211,8 +212,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 								nodeMessageListener,
 								WSNApp.MSG_TYPE_LISTENER_MESSAGE,
 								message.toByteArray(),
-								1,
-								System.currentTimeMillis() + 5000
+								UnreliableMessagingService.PRIORITY_NORMAL
 						);
 					}
 				}
@@ -240,8 +240,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 								nodeMessageListener,
 								WSNApp.MSG_TYPE_LISTENER_NOTIFICATION,
 								message.toByteArray(),
-								1,
-								System.currentTimeMillis() + 5000
+								UnreliableMessagingService.PRIORITY_NORMAL
 						);
 					}
 				}

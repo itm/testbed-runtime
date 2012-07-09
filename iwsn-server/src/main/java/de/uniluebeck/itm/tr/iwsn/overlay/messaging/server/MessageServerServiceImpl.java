@@ -75,7 +75,8 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 	/**
 	 * Maps from a configuration tuple (containing type and address of the server connection) to the corresponding {@link
-	 * de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance. The server connection may both be bound or unbound.
+	 * de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance. The server connection may both be bound or
+	 * unbound.
 	 */
 	private final Map<Tuple<String, String>, ServerConnection> serverConnections =
 			new HashMap<Tuple<String, String>, ServerConnection>();
@@ -88,7 +89,8 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			new HashMap<Tuple<String, String>, MessageFilterChain>();
 
 	/**
-	 * Maps from a given {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance to the set of currently open
+	 * Maps from a given {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance to the set of
+	 * currently open
 	 * connections that were initiated by clients. Used to gracefully close the client connections if this service is
 	 * stopped.
 	 */
@@ -116,19 +118,9 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 
 				} else {
 
-					// sent to next hop as we're not the recipient
-					long now = System.currentTimeMillis();
-					if (now < msg.getValidUntil()) {
-
-						log.debug("Forwarding message: {}", msg);
-						unreliableMessagingService.sendAsync(msg);
-						// unreliable messaging will generate event for sent
-
-					} else {
-						log.debug("Not forwarding outdated message: {} at {1, date, dd.MM.yyyy, HH:mm:ss:SS}", msg, now
-						);
-						messageEventService.dropped(msg);
-					}
+					log.debug("Forwarding message: {}", msg);
+					unreliableMessagingService.sendAsync(msg);
+					// unreliable messaging will generate event for sent
 				}
 			}
 		}
@@ -225,9 +217,9 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			serverConnection.unbind();
 		}
 
-        for (Set<Connection> set : openClientConnections.values()) {
+		for (Set<Connection> set : openClientConnections.values()) {
 			for (Connection connection : set) {
-                connection.removeListener(this);
+				connection.removeListener(this);
 				connection.disconnect();
 			}
 		}
@@ -275,7 +267,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 	public synchronized void connectionClosed(Connection connection) {
 
 		for (Map.Entry<ServerConnection, Set<Connection>> entry : openClientConnections.entrySet()) {
-			for (Iterator<Connection> iterator = entry.getValue().iterator(); iterator.hasNext();) {
+			for (Iterator<Connection> iterator = entry.getValue().iterator(); iterator.hasNext(); ) {
 				Connection conn = iterator.next();
 				if (conn == connection) {
 					iterator.remove();
@@ -320,7 +312,7 @@ class MessageServerServiceImpl implements MessageServerService, ServerConnection
 			log.warn("Unavailable connection type \"{}\" found while creating server connection! {}", e.getType());
 			throw e;
 		} catch (ConnectionInvalidAddressException e) {
-			log.warn("Invalid address \""+e.getAddress()+"\" found while creating server connection: " + e, e);
+			log.warn("Invalid address \"" + e.getAddress() + "\" found while creating server connection: " + e, e);
 			throw e;
 		} catch (IOException e) {
 			log.info("IOException while binding ServerConnection!", e);

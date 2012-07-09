@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
@@ -137,21 +138,21 @@ public class MessagingTests {
 		MessageEventListener messageEventListener = new MessageEventListener() {
 			@Override
 			public void messageSent(Messages.Msg msg) {
-				log.info("SENT: {} -> {}: {}",
+				log.info("Sent: {} -> {}: {}",
 						new Object[]{msg.getFrom(), msg.getTo(), MessageTools.getPayloadSerializable(msg)}
 				);
 			}
 
 			@Override
 			public void messageDropped(Messages.Msg msg) {
-				log.info("DROP: {} -> {}: {}",
+				log.info("Dropped: {} -> {}: {}",
 						new Object[]{msg.getFrom(), msg.getTo(), MessageTools.getPayloadSerializable(msg)}
 				);
 			}
 
 			@Override
 			public void messageReceived(Messages.Msg msg) {
-				log.info("RECV: {} -> {}: {}",
+				log.info("Received: {} -> {}: {}",
 						new Object[]{msg.getFrom(), msg.getTo(), MessageTools.getPayloadSerializable(msg)}
 				);
 			}
@@ -218,8 +219,13 @@ public class MessagingTests {
 		List<Future> futures = new LinkedList<Future>();
 		for (int i = 0; i < cnt; i++) {
 			String payload = "" + i;
-			Messages.Msg msg =
-					MessageTools.buildMessage("gw1", "gw2", "test", payload, 1, System.currentTimeMillis() + 5000);
+			Messages.Msg msg = MessageTools.buildMessage(
+					"gw1",
+					"gw2",
+					"test",
+					payload,
+					UnreliableMessagingService.PRIORITY_NORMAL
+			);
 			futures.add(executorService.submit(new UnreliableMessageRunnable(ums1, msg)));
 		}
 
@@ -234,18 +240,17 @@ public class MessagingTests {
 		for (Map.Entry<String, Messages.Msg> entry : gw1MessagesSent.entrySet()) {
 
 			Messages.Msg sent = entry.getValue();
-			Messages.Msg recv = gw2MessagesReceived.get(entry.getKey());
+			Messages.Msg received = gw2MessagesReceived.get(entry.getKey());
 
-			assertNotNull("Message " + MessageTools.getPayloadSerializable(sent) + " was not received!", recv);
+			assertNotNull("Message " + MessageTools.getPayloadSerializable(sent) + " was not received!", received);
 
-			assertEquals(sent.getFrom(), recv.getFrom());
-			assertEquals(sent.getPayload(), recv.getPayload());
-			assertEquals(sent.getMsgType(), recv.getMsgType());
-			assertEquals(sent.getPriority(), recv.getPriority());
-			assertEquals(sent.getReplyTo(), recv.getReplyTo());
-			assertEquals(sent.getReplyWith(), recv.getReplyWith());
-			assertEquals(sent.getTo(), recv.getTo());
-			assertEquals(sent.getValidUntil(), recv.getValidUntil());
+			assertEquals(sent.getFrom(), received.getFrom());
+			assertEquals(sent.getPayload(), received.getPayload());
+			assertEquals(sent.getMsgType(), received.getMsgType());
+			assertEquals(sent.getPriority(), received.getPriority());
+			assertEquals(sent.getReplyTo(), received.getReplyTo());
+			assertEquals(sent.getReplyWith(), received.getReplyWith());
+			assertEquals(sent.getTo(), received.getTo());
 		}
 
 		assertSame(0, executorService.shutdownNow().size());
@@ -380,24 +385,35 @@ public class MessagingTests {
 
 		// fork some processes to do parallel work
 		for (int i = 0; i < cnt; i++) {
+
 			final int msgNr = i;
 			final String payload = "" + msgNr;
-			ReliableAsyncMessageCallable runnable = new ReliableAsyncMessageCallable("gw1", "gw2", rms1, payload,
-					new ReliableMessagingService.AsyncCallback() {
-						@Override
-						public void success(byte[] reply) {
-							receivedReplies.add(msgNr);
-							assertEquals(payload, MessageTools.getSerializable(reply));
-						}
 
-						@Override
-						public void failure(Exception exception) {
-							receivedReplies.add(msgNr);
-							fail();
-						}
-					}
+			final Messages.Msg msg = MessageTools.buildReliableTransportMessage(
+					"gw1",
+					"gw2",
+					"test",
+					payload,
+					UnreliableMessagingService.PRIORITY_NORMAL
 			);
-			futures.add(executorService.submit(runnable));
+
+			final ListenableFuture<byte[]> future = rms1.sendAsync(msg, 10, TimeUnit.SECONDS);
+
+			future.addListener(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						final byte[] reply = future.get();
+						receivedReplies.add(msgNr);
+						assertEquals(payload, MessageTools.getSerializable(reply));
+					} catch (Exception e) {
+						receivedReplies.add(msgNr);
+						fail();
+					}
+				}
+			}, executorService);
+
+			futures.add(future);
 		}
 
 		// join them and check if the results are as expected
@@ -415,64 +431,6 @@ public class MessagingTests {
 
 		assertSame(0, executorService.shutdownNow().size());
 
-	}
-
-	private class ReliableAsyncMessageCallable implements Runnable {
-
-		private String from;
-
-		private String to;
-
-		private ReliableMessagingService reliableMessagingService;
-
-		private String payload;
-
-		private ReliableMessagingService.AsyncCallback callback;
-
-		private ReliableAsyncMessageCallable(String from, String to, ReliableMessagingService reliableMessagingService,
-											 String payload, ReliableMessagingService.AsyncCallback callback) {
-			this.from = from;
-			this.to = to;
-			this.reliableMessagingService = reliableMessagingService;
-			this.payload = payload;
-			this.callback = callback;
-		}
-
-		@Override
-		public void run() {
-			Messages.Msg msg = MessageTools.buildReliableTransportMessage(
-					from,
-					to,
-					"test",
-					payload,
-					1,
-					System.currentTimeMillis() + 60000
-			);
-			reliableMessagingService.sendAsync(msg, callback);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-
-			ReliableMessageCallable callable = (ReliableMessageCallable) o;
-
-			return from.equals(callable.from) && payload.equals(callable.payload) && to.equals(callable.to);
-
-		}
-
-		@Override
-		public int hashCode() {
-			int result = from.hashCode();
-			result = 31 * result + to.hashCode();
-			result = 31 * result + payload.hashCode();
-			return result;
-		}
 	}
 
 	private class ReliableMessageCallable implements Callable<Serializable> {
@@ -500,10 +458,9 @@ public class MessagingTests {
 					to,
 					"test",
 					payload,
-					1,
-					System.currentTimeMillis() + 5000
+					UnreliableMessagingService.PRIORITY_NORMAL
 			);
-			return MessageTools.getSerializable(reliableMessagingService.send(msg));
+			return MessageTools.getSerializable(reliableMessagingService.send(msg, 10, TimeUnit.SECONDS));
 		}
 
 		@Override
@@ -535,18 +492,17 @@ public class MessagingTests {
 		for (Map.Entry<String, Messages.Msg> entry : senderMap.entrySet()) {
 
 			Messages.Msg sent = entry.getValue();
-			Messages.Msg recv = receiverMap.get(entry.getKey());
+			Messages.Msg received = receiverMap.get(entry.getKey());
 
-			assertNotNull("Message " + MessageTools.getPayloadSerializable(sent) + " was not received!", recv);
+			assertNotNull("Message " + MessageTools.getPayloadSerializable(sent) + " was not received!", received);
 
-			assertEquals(sent.getFrom(), recv.getFrom());
-			assertEquals(sent.getPayload(), recv.getPayload());
-			assertEquals(sent.getMsgType(), recv.getMsgType());
-			assertEquals(sent.getPriority(), recv.getPriority());
-			assertEquals(sent.getReplyTo(), recv.getReplyTo());
-			assertEquals(sent.getReplyWith(), recv.getReplyWith());
-			assertEquals(sent.getTo(), recv.getTo());
-			assertEquals(sent.getValidUntil(), recv.getValidUntil());
+			assertEquals(sent.getFrom(), received.getFrom());
+			assertEquals(sent.getPayload(), received.getPayload());
+			assertEquals(sent.getMsgType(), received.getMsgType());
+			assertEquals(sent.getPriority(), received.getPriority());
+			assertEquals(sent.getReplyTo(), received.getReplyTo());
+			assertEquals(sent.getReplyWith(), received.getReplyWith());
+			assertEquals(sent.getTo(), received.getTo());
 		}
 
 	}

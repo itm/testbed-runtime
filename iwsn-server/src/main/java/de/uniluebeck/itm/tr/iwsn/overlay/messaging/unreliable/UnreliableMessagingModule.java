@@ -39,9 +39,7 @@ public class UnreliableMessagingModule extends AbstractModule {
 	@Provides
 	@Unreliable
 	MessageCache<UnreliableMessagingCacheEntry> provideUnreliableMessageCache() {
-		return new MessageCacheImpl<UnreliableMessagingCacheEntry>(
-				UnreliableMessagingServiceImpl.MESSAGE_CACHE_COMPARATOR
-		);
+		return new MessageCacheImpl<UnreliableMessagingCacheEntry>(UnreliableMessagingServiceImpl.MESSAGE_CACHE_COMPARATOR);
 	}
 
 

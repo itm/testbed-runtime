@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -134,27 +136,22 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	}
 
 	@Override
-	public byte[] send(final Messages.Msg message) throws ReliableMessagingTimeoutException {
+	public byte[] send(final Messages.Msg message, final int timeout, final TimeUnit timeUnit)
+			throws ReliableMessagingTimeoutException {
 
 		checkNotNull(message);
 		checkNotNull(message.getReplyWith());
+		checkNotNull(timeUnit);
 
-		final long now = System.currentTimeMillis();
-		final long messageValidUntil = message.getValidUntil();
-
-		checkArgument(messageValidUntil > now);
-
-		final long timeout = message.getValidUntil() - now;
-
-		SynchronousJob job = new SynchronousJob(unreliableMessagingService, message, timeout, TimeUnit.MILLISECONDS);
-		synchronousCache.put(message.getReplyWith(), job, messageValidUntil, TimeUnit.MILLISECONDS);
+		final SynchronousJob job = new SynchronousJob(unreliableMessagingService, message, timeout, timeUnit);
+		synchronousCache.put(message.getReplyWith(), job, timeout, timeUnit);
 		return job.run().getPayload().toByteArray();
 
 	}
 
 	@Override
 	public byte[] send(final String from, final String to, final String app, final byte[] payload, final int priority,
-					   final long validUntil)
+					   int timeout, TimeUnit timeUnit)
 			throws ReliableMessagingTimeoutException {
 
 		checkNotNull(from);
@@ -162,44 +159,43 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 		checkNotNull(app);
 		checkArgument(priority > 0);
 
-		return send(MessageTools.buildReliableTransportMessage(from, to, app, payload, priority, validUntil));
+		return send(MessageTools.buildReliableTransportMessage(from, to, app, payload, priority), timeout, timeUnit);
 	}
 
 	@Override
-	public void sendAsync(final Messages.Msg message, final AsyncCallback callback) {
+	public ListenableFuture<byte[]> sendAsync(final Messages.Msg message, int timeout, TimeUnit timeUnit) {
 
 		checkNotNull(message);
 		checkNotNull(message.getReplyWith());
+		checkNotNull(timeUnit);
 
-		final long now = System.currentTimeMillis();
-		final long messageValidUntil = message.getValidUntil();
+		final SettableFuture<byte[]> future = SettableFuture.create();
 
-		checkArgument(messageValidUntil > now);
+		final AsynchronousJob job = new AsynchronousJob(unreliableMessagingService, message, future);
 
-		final long timeout = message.getValidUntil() - now;
+		asynchronousCache.put(message.getReplyWith(), job, timeout, timeUnit);
 
-		AsynchronousJob job =
-				new AsynchronousJob(unreliableMessagingService, message, timeout, TimeUnit.MILLISECONDS, callback);
-		asynchronousCache.put(message.getReplyWith(), job, timeout, TimeUnit.MILLISECONDS);
 		try {
 			job.send();
 		} catch (Exception e) {
 			job.failed(e);
 		}
 
+		return future;
 	}
 
 	@Override
-	public void sendAsync(final String from, final String to, final String app, final byte[] payload,
-						  final int priority, final long validUntil,
-						  final AsyncCallback callback) {
+	public ListenableFuture<byte[]> sendAsync(final String from, final String to, final String app,
+											  final byte[] payload,
+											  final int priority, int timeout, TimeUnit timeUnit) {
 
 		checkNotNull(from);
 		checkNotNull(to);
 		checkNotNull(app);
-		checkArgument(priority > 0);
+		checkArgument(priority >= 1 && priority <= 2);
 
-		sendAsync(MessageTools.buildReliableTransportMessage(from, to, app, payload, priority, validUntil), callback);
+		final Messages.Msg message = MessageTools.buildReliableTransportMessage(from, to, app, payload, priority);
 
+		return sendAsync(message, timeout, timeUnit);
 	}
 }

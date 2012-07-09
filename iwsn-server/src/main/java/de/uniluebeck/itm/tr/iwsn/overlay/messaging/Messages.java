@@ -27,19 +27,15 @@ public final class Messages {
     boolean hasPriority();
     int getPriority();
     
-    // required uint64 validUntil = 5;
-    boolean hasValidUntil();
-    long getValidUntil();
-    
-    // optional bytes payload = 6;
+    // optional bytes payload = 5;
     boolean hasPayload();
     com.google.protobuf.ByteString getPayload();
     
-    // optional string replyWith = 7;
+    // optional string replyWith = 6;
     boolean hasReplyWith();
     String getReplyWith();
     
-    // optional string replyTo = 8;
+    // optional string replyTo = 7;
     boolean hasReplyTo();
     String getReplyTo();
   }
@@ -178,31 +174,21 @@ public final class Messages {
       return priority_;
     }
     
-    // required uint64 validUntil = 5;
-    public static final int VALIDUNTIL_FIELD_NUMBER = 5;
-    private long validUntil_;
-    public boolean hasValidUntil() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    public long getValidUntil() {
-      return validUntil_;
-    }
-    
-    // optional bytes payload = 6;
-    public static final int PAYLOAD_FIELD_NUMBER = 6;
+    // optional bytes payload = 5;
+    public static final int PAYLOAD_FIELD_NUMBER = 5;
     private com.google.protobuf.ByteString payload_;
     public boolean hasPayload() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     public com.google.protobuf.ByteString getPayload() {
       return payload_;
     }
     
-    // optional string replyWith = 7;
-    public static final int REPLYWITH_FIELD_NUMBER = 7;
+    // optional string replyWith = 6;
+    public static final int REPLYWITH_FIELD_NUMBER = 6;
     private java.lang.Object replyWith_;
     public boolean hasReplyWith() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     public String getReplyWith() {
       java.lang.Object ref = replyWith_;
@@ -230,11 +216,11 @@ public final class Messages {
       }
     }
     
-    // optional string replyTo = 8;
-    public static final int REPLYTO_FIELD_NUMBER = 8;
+    // optional string replyTo = 7;
+    public static final int REPLYTO_FIELD_NUMBER = 7;
     private java.lang.Object replyTo_;
     public boolean hasReplyTo() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     public String getReplyTo() {
       java.lang.Object ref = replyTo_;
@@ -267,7 +253,6 @@ public final class Messages {
       from_ = "";
       msgType_ = "";
       priority_ = 0;
-      validUntil_ = 0L;
       payload_ = com.google.protobuf.ByteString.EMPTY;
       replyWith_ = "";
       replyTo_ = "";
@@ -293,10 +278,6 @@ public final class Messages {
         memoizedIsInitialized = 0;
         return false;
       }
-      if (!hasValidUntil()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -317,16 +298,13 @@ public final class Messages {
         output.writeUInt32(4, priority_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeUInt64(5, validUntil_);
+        output.writeBytes(5, payload_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, payload_);
+        output.writeBytes(6, getReplyWithBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getReplyWithBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(8, getReplyToBytes());
+        output.writeBytes(7, getReplyToBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -355,19 +333,15 @@ public final class Messages {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(5, validUntil_);
+          .computeBytesSize(5, payload_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, payload_);
+          .computeBytesSize(6, getReplyWithBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getReplyWithBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(8, getReplyToBytes());
+          .computeBytesSize(7, getReplyToBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -501,14 +475,12 @@ public final class Messages {
         bitField0_ = (bitField0_ & ~0x00000004);
         priority_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        validUntil_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000010);
         payload_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         replyWith_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         replyTo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
       
@@ -566,17 +538,13 @@ public final class Messages {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.validUntil_ = validUntil_;
+        result.payload_ = payload_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.payload_ = payload_;
+        result.replyWith_ = replyWith_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
-        }
-        result.replyWith_ = replyWith_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
-          to_bitField0_ |= 0x00000080;
         }
         result.replyTo_ = replyTo_;
         result.bitField0_ = to_bitField0_;
@@ -607,9 +575,6 @@ public final class Messages {
         if (other.hasPriority()) {
           setPriority(other.getPriority());
         }
-        if (other.hasValidUntil()) {
-          setValidUntil(other.getValidUntil());
-        }
         if (other.hasPayload()) {
           setPayload(other.getPayload());
         }
@@ -637,10 +602,6 @@ public final class Messages {
           return false;
         }
         if (!hasPriority()) {
-          
-          return false;
-        }
-        if (!hasValidUntil()) {
           
           return false;
         }
@@ -690,23 +651,18 @@ public final class Messages {
               priority_ = input.readUInt32();
               break;
             }
-            case 40: {
+            case 42: {
               bitField0_ |= 0x00000010;
-              validUntil_ = input.readUInt64();
+              payload_ = input.readBytes();
               break;
             }
             case 50: {
               bitField0_ |= 0x00000020;
-              payload_ = input.readBytes();
+              replyWith_ = input.readBytes();
               break;
             }
             case 58: {
               bitField0_ |= 0x00000040;
-              replyWith_ = input.readBytes();
-              break;
-            }
-            case 66: {
-              bitField0_ |= 0x00000080;
               replyTo_ = input.readBytes();
               break;
             }
@@ -845,31 +801,10 @@ public final class Messages {
         return this;
       }
       
-      // required uint64 validUntil = 5;
-      private long validUntil_ ;
-      public boolean hasValidUntil() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      public long getValidUntil() {
-        return validUntil_;
-      }
-      public Builder setValidUntil(long value) {
-        bitField0_ |= 0x00000010;
-        validUntil_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearValidUntil() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        validUntil_ = 0L;
-        onChanged();
-        return this;
-      }
-      
-      // optional bytes payload = 6;
+      // optional bytes payload = 5;
       private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasPayload() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       public com.google.protobuf.ByteString getPayload() {
         return payload_;
@@ -878,22 +813,22 @@ public final class Messages {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000010;
         payload_ = value;
         onChanged();
         return this;
       }
       public Builder clearPayload() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         payload_ = getDefaultInstance().getPayload();
         onChanged();
         return this;
       }
       
-      // optional string replyWith = 7;
+      // optional string replyWith = 6;
       private java.lang.Object replyWith_ = "";
       public boolean hasReplyWith() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       public String getReplyWith() {
         java.lang.Object ref = replyWith_;
@@ -909,27 +844,27 @@ public final class Messages {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000020;
         replyWith_ = value;
         onChanged();
         return this;
       }
       public Builder clearReplyWith() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         replyWith_ = getDefaultInstance().getReplyWith();
         onChanged();
         return this;
       }
       void setReplyWith(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         replyWith_ = value;
         onChanged();
       }
       
-      // optional string replyTo = 8;
+      // optional string replyTo = 7;
       private java.lang.Object replyTo_ = "";
       public boolean hasReplyTo() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       public String getReplyTo() {
         java.lang.Object ref = replyTo_;
@@ -945,19 +880,19 @@ public final class Messages {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000040;
         replyTo_ = value;
         onChanged();
         return this;
       }
       public Builder clearReplyTo() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         replyTo_ = getDefaultInstance().getReplyTo();
         onChanged();
         return this;
       }
       void setReplyTo(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         replyTo_ = value;
         onChanged();
       }
@@ -980,15 +915,7 @@ public final class Messages {
     boolean hasRequestId();
     String getRequestId();
     
-    // required bool reliableRequest = 2;
-    boolean hasReliableRequest();
-    boolean getReliableRequest();
-    
-    // required bool reliableResponses = 3;
-    boolean hasReliableResponses();
-    boolean getReliableResponses();
-    
-    // required bytes payload = 4;
+    // required bytes payload = 2;
     boolean hasPayload();
     com.google.protobuf.ByteString getPayload();
   }
@@ -1053,31 +980,11 @@ public final class Messages {
       }
     }
     
-    // required bool reliableRequest = 2;
-    public static final int RELIABLEREQUEST_FIELD_NUMBER = 2;
-    private boolean reliableRequest_;
-    public boolean hasReliableRequest() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public boolean getReliableRequest() {
-      return reliableRequest_;
-    }
-    
-    // required bool reliableResponses = 3;
-    public static final int RELIABLERESPONSES_FIELD_NUMBER = 3;
-    private boolean reliableResponses_;
-    public boolean hasReliableResponses() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    public boolean getReliableResponses() {
-      return reliableResponses_;
-    }
-    
-    // required bytes payload = 4;
-    public static final int PAYLOAD_FIELD_NUMBER = 4;
+    // required bytes payload = 2;
+    public static final int PAYLOAD_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString payload_;
     public boolean hasPayload() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public com.google.protobuf.ByteString getPayload() {
       return payload_;
@@ -1085,8 +992,6 @@ public final class Messages {
     
     private void initFields() {
       requestId_ = "";
-      reliableRequest_ = false;
-      reliableResponses_ = false;
       payload_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
@@ -1095,14 +1000,6 @@ public final class Messages {
       if (isInitialized != -1) return isInitialized == 1;
       
       if (!hasRequestId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasReliableRequest()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasReliableResponses()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -1121,13 +1018,7 @@ public final class Messages {
         output.writeBytes(1, getRequestIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBool(2, reliableRequest_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBool(3, reliableResponses_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, payload_);
+        output.writeBytes(2, payload_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1144,15 +1035,7 @@ public final class Messages {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, reliableRequest_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, reliableResponses_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, payload_);
+          .computeBytesSize(2, payload_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1280,12 +1163,8 @@ public final class Messages {
         super.clear();
         requestId_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        reliableRequest_ = false;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        reliableResponses_ = false;
-        bitField0_ = (bitField0_ & ~0x00000004);
         payload_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
       
@@ -1331,14 +1210,6 @@ public final class Messages {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.reliableRequest_ = reliableRequest_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.reliableResponses_ = reliableResponses_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
         result.payload_ = payload_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -1359,12 +1230,6 @@ public final class Messages {
         if (other.hasRequestId()) {
           setRequestId(other.getRequestId());
         }
-        if (other.hasReliableRequest()) {
-          setReliableRequest(other.getReliableRequest());
-        }
-        if (other.hasReliableResponses()) {
-          setReliableResponses(other.getReliableResponses());
-        }
         if (other.hasPayload()) {
           setPayload(other.getPayload());
         }
@@ -1374,14 +1239,6 @@ public final class Messages {
       
       public final boolean isInitialized() {
         if (!hasRequestId()) {
-          
-          return false;
-        }
-        if (!hasReliableRequest()) {
-          
-          return false;
-        }
-        if (!hasReliableResponses()) {
           
           return false;
         }
@@ -1420,18 +1277,8 @@ public final class Messages {
               requestId_ = input.readBytes();
               break;
             }
-            case 16: {
+            case 18: {
               bitField0_ |= 0x00000002;
-              reliableRequest_ = input.readBool();
-              break;
-            }
-            case 24: {
-              bitField0_ |= 0x00000004;
-              reliableResponses_ = input.readBool();
-              break;
-            }
-            case 34: {
-              bitField0_ |= 0x00000008;
               payload_ = input.readBytes();
               break;
             }
@@ -1477,52 +1324,10 @@ public final class Messages {
         onChanged();
       }
       
-      // required bool reliableRequest = 2;
-      private boolean reliableRequest_ ;
-      public boolean hasReliableRequest() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      public boolean getReliableRequest() {
-        return reliableRequest_;
-      }
-      public Builder setReliableRequest(boolean value) {
-        bitField0_ |= 0x00000002;
-        reliableRequest_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearReliableRequest() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        reliableRequest_ = false;
-        onChanged();
-        return this;
-      }
-      
-      // required bool reliableResponses = 3;
-      private boolean reliableResponses_ ;
-      public boolean hasReliableResponses() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      public boolean getReliableResponses() {
-        return reliableResponses_;
-      }
-      public Builder setReliableResponses(boolean value) {
-        bitField0_ |= 0x00000004;
-        reliableResponses_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearReliableResponses() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        reliableResponses_ = false;
-        onChanged();
-        return this;
-      }
-      
-      // required bytes payload = 4;
+      // required bytes payload = 2;
       private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasPayload() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       public com.google.protobuf.ByteString getPayload() {
         return payload_;
@@ -1531,13 +1336,13 @@ public final class Messages {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  bitField0_ |= 0x00000002;
         payload_ = value;
         onChanged();
         return this;
       }
       public Builder clearPayload() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000002);
         payload_ = getDefaultInstance().getPayload();
         onChanged();
         return this;
@@ -2031,16 +1836,14 @@ public final class Messages {
     java.lang.String[] descriptorData = {
       "\n)src/main/resources/overlay-messages.pr" +
       "oto\022+de.uniluebeck.itm.tr.iwsn.overlay.m" +
-      "essaging\"\213\001\n\003Msg\022\n\n\002to\030\001 \002(\t\022\014\n\004from\030\002 \002" +
-      "(\t\022\017\n\007msgType\030\003 \002(\t\022\020\n\010priority\030\004 \002(\r\022\022\n" +
-      "\nvalidUntil\030\005 \002(\004\022\017\n\007payload\030\006 \001(\014\022\021\n\tre" +
-      "plyWith\030\007 \001(\t\022\017\n\007replyTo\030\010 \001(\t\"~\n$Single" +
-      "RequestMultipleResponseRequest\022\021\n\treques" +
-      "tId\030\001 \002(\t\022\027\n\017reliableRequest\030\002 \002(\010\022\031\n\021re" +
-      "liableResponses\030\003 \002(\010\022\017\n\007payload\030\004 \002(\014\"K" +
-      "\n%SingleRequestMultipleResponseResponse\022",
-      "\021\n\trequestId\030\001 \002(\t\022\017\n\007payload\030\002 \002(\014B\nB\010M" +
-      "essages"
+      "essaging\"w\n\003Msg\022\n\n\002to\030\001 \002(\t\022\014\n\004from\030\002 \002(" +
+      "\t\022\017\n\007msgType\030\003 \002(\t\022\020\n\010priority\030\004 \002(\r\022\017\n\007" +
+      "payload\030\005 \001(\014\022\021\n\treplyWith\030\006 \001(\t\022\017\n\007repl" +
+      "yTo\030\007 \001(\t\"J\n$SingleRequestMultipleRespon" +
+      "seRequest\022\021\n\trequestId\030\001 \002(\t\022\017\n\007payload\030" +
+      "\002 \002(\014\"K\n%SingleRequestMultipleResponseRe" +
+      "sponse\022\021\n\trequestId\030\001 \002(\t\022\017\n\007payload\030\002 \002" +
+      "(\014B\nB\010Messages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2052,7 +1855,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_descriptor,
-              new java.lang.String[] { "To", "From", "MsgType", "Priority", "ValidUntil", "Payload", "ReplyWith", "ReplyTo", },
+              new java.lang.String[] { "To", "From", "MsgType", "Priority", "Payload", "ReplyWith", "ReplyTo", },
               de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg.class,
               de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_descriptor =
@@ -2060,7 +1863,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_descriptor,
-              new java.lang.String[] { "RequestId", "ReliableRequest", "ReliableResponses", "Payload", },
+              new java.lang.String[] { "RequestId", "Payload", },
               de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest.class,
               de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseResponse_descriptor =

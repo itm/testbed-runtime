@@ -1,6 +1,6 @@
 /**********************************************************************************************************************
  * Copyright (c) 2010, Institute of Telematics, University of Luebeck,                                                *
- * Institute of Operating Systems and Computer Networks Algorithms Group  University of Braunschweig                  *                          *
+ * Institute of Operating Systems and Computer Networks Algorithms Group  University of Braunschweig                  *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -10,7 +10,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -33,6 +33,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventAdapter;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
+import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import org.slf4j.Logger;
@@ -157,29 +158,36 @@ public class SocketConnectorApplication extends AbstractService implements Testb
 
 		ImmutableMap<String, String> map = testbedRuntime.getRoutingTableService().getEntries();
 
+		final String localNodeName = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next();
+
+		final WSNAppMessages.ListenerManagement.Operation operation = register ?
+				WSNAppMessages.ListenerManagement.Operation.REGISTER :
+				WSNAppMessages.ListenerManagement.Operation.UNREGISTER;
+
 		WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement.newBuilder()
-				.setNodeName(testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next())
-				.setOperation(
-						register ? WSNAppMessages.ListenerManagement.Operation.REGISTER :
-								WSNAppMessages.ListenerManagement.Operation.UNREGISTER
-				).build();
+				.setNodeName(localNodeName)
+				.setOperation(operation)
+				.build();
 
 		for (String destinationNodeName : map.keySet()) {
 
 			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next(), destinationNodeName,
-					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, management.toByteArray(), 1,
-					System.currentTimeMillis() + 5000
+					localNodeName,
+					destinationNodeName,
+					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+					management.toByteArray(),
+					UnreliableMessagingService.PRIORITY_NORMAL
 			);
 		}
 
 		// also register ourselves for all local node names
 		for (String currentLocalNodeName : testbedRuntime.getLocalNodeNameManager().getLocalNodeNames()) {
 			testbedRuntime.getUnreliableMessagingService().sendAsync(
-					testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().iterator().next(),
+					localNodeName,
 					currentLocalNodeName,
-					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT, management.toByteArray(), 1,
-					System.currentTimeMillis() + 5000
+					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+					management.toByteArray(),
+					UnreliableMessagingService.PRIORITY_NORMAL
 			);
 		}
 	}
