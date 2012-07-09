@@ -27,6 +27,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.UninitializedMessageException;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,17 +233,18 @@ public class MessageTools {
 		builder.append("\", to=\"");
 		builder.append(msg.getTo());
 		builder.append("\", type=\"");
+		builder.append(msg.getMsgType());
 		builder.append("\", priority=");
 		builder.append(msg.getPriority());
 		builder.append(", validUntil=");
 		builder.append(new DateTime(msg.getValidUntil()));
 		builder.append(", payload=\"");
-		builder.append(msg.getPayload());
+		builder.append(StringUtils.replaceNonPrintableAsciiCharacters(msg.getPayload().toStringUtf8()));
 		builder.append("\", replyTo=\"");
 		builder.append(msg.getReplyTo());
 		builder.append("\", replyWith=\"");
 		builder.append(msg.getReplyWith());
-		builder.append("}\"");
+		builder.append("\"}");
 		return builder.toString();
 	}
 
