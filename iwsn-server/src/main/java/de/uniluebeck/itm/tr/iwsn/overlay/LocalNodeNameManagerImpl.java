@@ -17,12 +17,13 @@ class LocalNodeNameManagerImpl implements LocalNodeNameManager {
 	private ImmutableSet<String> localNodeNames = ImmutableSet.of();
 
 	@Override
-	public void addLocalNodeName(final String localNodeName) {
+	public LocalNodeNameManager addLocalNodeName(final String localNodeName) {
 		if (!localNodeNames.contains(localNodeName)) {
 			notifyBeforeAdd(localNodeName);
 			localNodeNames = ImmutableSet.<String>builder().addAll(localNodeNames).add(localNodeName).build();
 			notifyAfterAdd(localNodeName);
 		}
+		return this;
 	}
 
 	@Override
@@ -31,12 +32,13 @@ class LocalNodeNameManagerImpl implements LocalNodeNameManager {
 	}
 
 	@Override
-	public void removeLocalNodeName(final String localNodeName) {
+	public LocalNodeNameManager removeLocalNodeName(final String localNodeName) {
 		if (localNodeNames.contains(localNodeName)) {
 			notifyBeforeRemove(localNodeName);
 			localNodeNames = ImmutableSet.copyOf(Iterables.filter(localNodeNames, not(equalTo(localNodeName))));
 			notifyAfterRemove(localNodeName);
 		}
+		return this;
 	}
 
 	@Override

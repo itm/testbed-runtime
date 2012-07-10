@@ -21,12 +21,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -38,7 +34,7 @@ public class WSNAppBenchmark {
 	private static final Logger log = LoggerFactory.getLogger(WSNAppBenchmark.class);
 
 	static {
-		Logging.setLoggingDefaults();
+		Logging.setLoggingDefaults(Level.INFO);
 	}
 
 	private static final WSNApp.Callback NULL_CALLBACK = new WSNApp.Callback() {
@@ -53,11 +49,11 @@ public class WSNAppBenchmark {
 		}
 	};
 
-	private static final int RUNS = 1000;
-
 	private static class FutureMessageReceiver implements WSNNodeMessageReceiver {
 
 		private final BenchmarkHelper helper;
+
+		private final Set<String> nodeUrns;
 
 		private final int messageNumber;
 
@@ -69,8 +65,9 @@ public class WSNAppBenchmark {
 
 		private long duration = Long.MAX_VALUE;
 
-		private FutureMessageReceiver(final int messageNumber, final WSNAppImpl wsnApp) {
+		private FutureMessageReceiver(final Set<String> nodeUrns, final int messageNumber, final WSNAppImpl wsnApp) {
 
+			this.nodeUrns = nodeUrns;
 			this.messageNumber = messageNumber;
 			this.wsnApp = wsnApp;
 
@@ -115,13 +112,7 @@ public class WSNAppBenchmark {
 			wsnApp.addNodeMessageReceiver(this);
 			try {
 
-				wsnApp.send(
-						newHashSet(URN_GATEWAY),
-						toByteArray(helper.encode(buffer)),
-						URN_PORTAL,
-						"",
-						NULL_CALLBACK
-				);
+				wsnApp.send(nodeUrns, toByteArray(helper.encode(buffer)), URN_PORTAL, "", NULL_CALLBACK);
 
 			} catch (UnknownNodeUrnsException e) {
 				future.setException(e);
@@ -148,7 +139,25 @@ public class WSNAppBenchmark {
 		}
 	}
 
-	private static final String URN_GATEWAY = "urn:local:0x7856";
+	private static final String URN_NODE_0 = "urn:local:0x0000";
+
+	private static final String URN_NODE_1 = "urn:local:0x0001";
+
+	private static final String URN_NODE_2 = "urn:local:0x0002";
+
+	private static final String URN_NODE_3 = "urn:local:0x0003";
+
+	private static final String URN_NODE_4 = "urn:local:0x0004";
+
+	private static final String URN_NODE_5 = "urn:local:0x0005";
+
+	private static final String URN_NODE_6 = "urn:local:0x0006";
+
+	private static final String URN_NODE_7 = "urn:local:0x0007";
+
+	private static final String URN_NODE_8 = "urn:local:0x0008";
+
+	private static final String URN_NODE_9 = "urn:local:0x0009";
 
 	private static final String URN_PORTAL = "urn:local:portal";
 
@@ -156,13 +165,28 @@ public class WSNAppBenchmark {
 
 	private static final String TCP_GATEWAY = "localhost:1111";
 
+	private static final ImmutableSet<String> reservedNodes = ImmutableSet.of(
+			URN_NODE_0,
+			URN_NODE_1,
+			URN_NODE_2,
+			URN_NODE_3,
+			URN_NODE_4,
+			URN_NODE_5,
+			URN_NODE_6,
+			URN_NODE_7,
+			URN_NODE_8,
+			URN_NODE_9
+	);
+
+	private static final int RUNS = 100;
+
 	private WSNAppImpl wsnApp;
 
 	private TestbedRuntime gateway;
 
 	private TestbedRuntime portal;
 
-	private WSNDeviceAppImpl wsnDeviceApp;
+	private Map<String, WSNDeviceAppImpl> wsnDeviceApps;
 
 	@Before
 	public void setUp() throws Exception {
@@ -171,39 +195,89 @@ public class WSNAppBenchmark {
 
 		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
 		gateway = gw1Injector.getInstance(TestbedRuntime.class);
-		gateway.getLocalNodeNameManager().addLocalNodeName(URN_GATEWAY);
+
+		gateway.getLocalNodeNameManager()
+				.addLocalNodeName(URN_NODE_0)
+				.addLocalNodeName(URN_NODE_1)
+				.addLocalNodeName(URN_NODE_2)
+				.addLocalNodeName(URN_NODE_3)
+				.addLocalNodeName(URN_NODE_4)
+				.addLocalNodeName(URN_NODE_5)
+				.addLocalNodeName(URN_NODE_6)
+				.addLocalNodeName(URN_NODE_7)
+				.addLocalNodeName(URN_NODE_8)
+				.addLocalNodeName(URN_NODE_9);
+
+		gateway.getRoutingTableService()
+				.setNextHop(URN_PORTAL, URN_PORTAL)
+				.setNextHop(URN_NODE_0, URN_NODE_0)
+				.setNextHop(URN_NODE_1, URN_NODE_1)
+				.setNextHop(URN_NODE_2, URN_NODE_2)
+				.setNextHop(URN_NODE_3, URN_NODE_3)
+				.setNextHop(URN_NODE_4, URN_NODE_4)
+				.setNextHop(URN_NODE_5, URN_NODE_5)
+				.setNextHop(URN_NODE_6, URN_NODE_6)
+				.setNextHop(URN_NODE_7, URN_NODE_7)
+				.setNextHop(URN_NODE_8, URN_NODE_8)
+				.setNextHop(URN_NODE_9, URN_NODE_9);
+
+		gateway.getNamingService()
+				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
+				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_2, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_3, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_4, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_5, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_6, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_7, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
+
+		gateway.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
 
 		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
 		portal = gw2Injector.getInstance(TestbedRuntime.class);
-		portal.getLocalNodeNameManager().addLocalNodeName(URN_PORTAL);
 
-		// configure topology on both nodes
-		gateway.getRoutingTableService().setNextHop(URN_GATEWAY, URN_GATEWAY);
-		gateway.getRoutingTableService().setNextHop(URN_PORTAL, URN_PORTAL);
-		gateway.getNamingService().addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1));
-		gateway.getNamingService().addEntry(new NamingEntry(URN_GATEWAY, new NamingInterface("tcp", TCP_GATEWAY), 1));
+		portal.getLocalNodeNameManager()
+				.addLocalNodeName(URN_PORTAL);
 
-		portal.getRoutingTableService().setNextHop(URN_PORTAL, URN_PORTAL);
-		portal.getRoutingTableService().setNextHop(URN_GATEWAY, URN_GATEWAY);
-		portal.getNamingService().addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1));
-		portal.getNamingService().addEntry(new NamingEntry(URN_GATEWAY, new NamingInterface("tcp", TCP_GATEWAY), 1));
+		portal.getRoutingTableService()
+				.setNextHop(URN_PORTAL, URN_PORTAL)
+				.setNextHop(URN_NODE_0, URN_NODE_0)
+				.setNextHop(URN_NODE_1, URN_NODE_1)
+				.setNextHop(URN_NODE_2, URN_NODE_2)
+				.setNextHop(URN_NODE_3, URN_NODE_3)
+				.setNextHop(URN_NODE_4, URN_NODE_4)
+				.setNextHop(URN_NODE_5, URN_NODE_5)
+				.setNextHop(URN_NODE_6, URN_NODE_6)
+				.setNextHop(URN_NODE_7, URN_NODE_7)
+				.setNextHop(URN_NODE_8, URN_NODE_8)
+				.setNextHop(URN_NODE_9, URN_NODE_9);
 
-		gateway.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
+		portal.getNamingService()
+				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
+				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_2, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_3, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_4, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_5, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_6, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_7, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
+				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
+
 		portal.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
 
 		// start both nodes' stack
 		gateway.start();
 		portal.start();
 
-		wsnApp = new WSNAppImpl(portal, ImmutableSet.of(URN_GATEWAY));
+		createWSNDeviceApps();
+		startWSNDeviceApps();
 
-		final WSNDeviceAppConfiguration wsnDeviceAppConfiguration = WSNDeviceAppConfiguration
-				.builder(URN_GATEWAY, DeviceType.MOCK.toString())
-				.setNodeSerialInterface(URN_GATEWAY + ",10,SECONDS")
-				.build();
-		wsnDeviceApp = new WSNDeviceAppImpl(gateway, wsnDeviceAppConfiguration);
-
-		wsnDeviceApp.startAndWait();
+		wsnApp = new WSNAppImpl(portal, reservedNodes);
 		wsnApp.startAndWait();
 	}
 
@@ -211,30 +285,54 @@ public class WSNAppBenchmark {
 	public void tearDown() throws Exception {
 
 		wsnApp.stopAndWait();
-		wsnDeviceApp.stopAndWait();
+		stopWSNDeviceApps();
 
 		gateway.stop();
 		portal.stop();
 	}
 
 	@Test
-	public void testSerial() throws Exception {
+	public void testSerial1Nodes() throws Exception {
+		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0);
+		printDurations(executeSerial(nodeUrns));
+	}
 
-		List<Float> durations = newLinkedList();
+	@Test
+	public void testSerial2Nodes() throws Exception {
+		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1);
+		printDurations(executeSerial(nodeUrns));
+	}
 
-		FutureMessageReceiver receiver;
-		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(messageNumber, wsnApp);
-			receiver.start();
-			receiver.getFuture().get(5, TimeUnit.SECONDS);
-			durations.add((float) receiver.getDuration());
-		}
+	@Test
+	public void testSerial3Nodes() throws Exception {
+		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2);
+		printDurations(executeSerial(nodeUrns));
+	}
 
-		System.out.println("---------- Serial execution --------");
-		System.out.println("Min:       " + MIN.apply(durations) + " ms");
-		System.out.println("Max:       " + MAX.apply(durations) + " ms");
-		System.out.println("Mean:      " + MEAN.apply(durations) + " ms");
-		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
+	@Test
+	public void testSerial4Nodes() throws Exception {
+		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3);
+		printDurations(executeSerial(nodeUrns));
+	}
+
+	@Test
+	public void testSerial5Nodes() throws Exception {
+		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
+		printDurations(executeSerial(nodeUrns));
+	}
+
+	@Test
+	public void testSerial1to10Nodes() throws Exception {
+		printDurations(executeSerial(newHashSet(URN_NODE_0)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7, URN_NODE_8)));
+		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7, URN_NODE_8, URN_NODE_9)));
 	}
 
 	@Test
@@ -246,7 +344,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(newHashSet(URN_NODE_1), messageNumber, wsnApp);
 			receiver.start();
 			receivers.add(receiver);
 		}
@@ -265,11 +363,55 @@ public class WSNAppBenchmark {
 			durations.add((float) messageReceiver.getDuration());
 		}
 
-		System.out.println("---------- Parallel execution --------");
+		printDurations(durations);
+	}
+
+	private void createWSNDeviceApps() {
+		wsnDeviceApps = new HashMap<String, WSNDeviceAppImpl>();
+		for (String nodeUrn : reservedNodes) {
+			final WSNDeviceAppConfiguration wsnDeviceAppConfiguration = WSNDeviceAppConfiguration
+					.builder(nodeUrn, DeviceType.MOCK.toString())
+					.setNodeSerialInterface(nodeUrn + ",10,SECONDS")
+					.build();
+			wsnDeviceApps.put(nodeUrn, new WSNDeviceAppImpl(gateway, wsnDeviceAppConfiguration));
+		}
+	}
+
+	private void startWSNDeviceApps() {
+		for (Map.Entry<String, WSNDeviceAppImpl> entry : wsnDeviceApps.entrySet()) {
+			entry.getValue().startAndWait();
+		}
+	}
+
+	private void stopWSNDeviceApps() {
+		for (Map.Entry<String, WSNDeviceAppImpl> entry : wsnDeviceApps.entrySet()) {
+			entry.getValue().stopAndWait();
+		}
+	}
+
+	private void printDurations(final List<Float> durations) {
+		System.out.println("--------------------- Durations ---------------------");
 		System.out.println("Min:       " + MIN.apply(durations) + " ms");
 		System.out.println("Max:       " + MAX.apply(durations) + " ms");
 		System.out.println("Mean:      " + MEAN.apply(durations) + " ms");
 		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
+		System.out.println("-----------------------------------------------------");
+	}
 
+	private List<Float> executeSerial(final HashSet<String> nodeUrns)
+			throws InterruptedException, TimeoutException, ExecutionException {
+
+		final List<Float> durations = newLinkedList();
+
+		FutureMessageReceiver receiver;
+		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
+
+			receiver = new FutureMessageReceiver(nodeUrns, messageNumber, wsnApp);
+			receiver.start();
+			receiver.getFuture().get(5, TimeUnit.SECONDS);
+			durations.add((float) receiver.getDuration());
+		}
+
+		return durations;
 	}
 }

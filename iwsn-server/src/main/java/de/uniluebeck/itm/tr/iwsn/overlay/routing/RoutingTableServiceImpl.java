@@ -59,15 +59,17 @@ class RoutingTableServiceImpl implements RoutingTableService {
 	}
 
 	@Override
-	public void setNextHop(String destinationName, String nextHopName) {
+	public RoutingTableService setNextHop(String destinationName, String nextHopName) {
 		log.debug("Setting route: {} => {}", destinationName, nextHopName);
 		routingTable.put(destinationName, nextHopName);
+		return this;
 	}
 
 	@Override
-	public void removeNextHop(String destinationName) {
+	public RoutingTableService removeNextHop(String destinationName) {
 		log.debug("Removing route for: {}", destinationName);
 		routingTable.remove(destinationName);
+		return this;
 	}
 
 	@Override

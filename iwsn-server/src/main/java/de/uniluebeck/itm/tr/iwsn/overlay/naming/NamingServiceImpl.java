@@ -39,7 +39,7 @@ class NamingServiceImpl implements NamingService {
 	private final Map<String, SortedSet<NamingEntry>> namingTable = new HashMap<String, SortedSet<NamingEntry>>();
 
 	@Override
-	public void addEntry(NamingEntry entry) {
+	public NamingService addEntry(NamingEntry entry) {
 
 		synchronized (namingTable) {
 
@@ -58,10 +58,11 @@ class NamingServiceImpl implements NamingService {
 
 		}
 
+		return this;
 	}
 
 	@Override
-	public void removeEntry(NamingEntry entry) {
+	public NamingService removeEntry(NamingEntry entry) {
 
 		synchronized (namingTable) {
 
@@ -79,6 +80,7 @@ class NamingServiceImpl implements NamingService {
 
 		}
 
+		return this;
 	}
 
 	@Override

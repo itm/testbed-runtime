@@ -1106,25 +1106,27 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				.setOperation(operation)
 				.build();
 
-		List<Future<byte[]>> futures = newArrayList();
+		Map<String, Future<byte[]>> futures = new HashMap<String, Future<byte[]>>();
 		for (String destinationNodeName : reservedNodes) {
 
-			futures.add(testbedRuntime.getReliableMessagingService().sendAsync(
-					getLocalNodeName(),
+			futures.put(
 					destinationNodeName,
-					WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
-					management.toByteArray(),
-					UnreliableMessagingService.PRIORITY_LOW,
-					10, TimeUnit.SECONDS
-			)
+					testbedRuntime.getReliableMessagingService().sendAsync(
+							getLocalNodeName(),
+							destinationNodeName,
+							WSNApp.MSG_TYPE_LISTENER_MANAGEMENT,
+							management.toByteArray(),
+							UnreliableMessagingService.PRIORITY_LOW,
+							10, TimeUnit.SECONDS
+					)
 			);
 		}
 
-		for (Future<byte[]> future : futures) {
+		for (Map.Entry<String, Future<byte[]>> entry : futures.entrySet()) {
 			try {
-				future.get();
+				entry.getValue().get();
 			} catch (Exception e) {
-				log.error("Exception while registering for node outputs: {}", e);
+				log.error("Exception while registering for node outputs of {}: {}", entry.getKey(), e);
 			}
 		}
 

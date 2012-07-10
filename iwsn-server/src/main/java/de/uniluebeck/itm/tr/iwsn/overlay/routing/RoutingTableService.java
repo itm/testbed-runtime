@@ -46,14 +46,14 @@ public interface RoutingTableService extends Service {
 	 * @param destinationNodeName the name of the destination node
 	 * @param nextHopNodeName	 the name of the next hop for the destination node name
 	 */
-	void setNextHop(String destinationNodeName, String nextHopNodeName);
+	RoutingTableService setNextHop(String destinationNodeName, String nextHopNodeName);
 
 	/**
 	 * Removes the entry for the destination node named {@code destinationNodeName}.
 	 *
 	 * @param destinationNodeName the name of the destination node who's entry is to be removed
 	 */
-	void removeNextHop(String destinationNodeName);
+	RoutingTableService removeNextHop(String destinationNodeName);
 
 	/**
 	 * Returns a map containing all entries of the routing table as that maps destination node name to next hop node

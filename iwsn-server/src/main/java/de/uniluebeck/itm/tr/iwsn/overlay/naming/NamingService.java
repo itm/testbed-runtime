@@ -39,14 +39,14 @@ public interface NamingService extends Service {
 	 *
 	 * @param entry the entry to add to the naming service
 	 */
-	void addEntry(NamingEntry entry);
+	NamingService addEntry(NamingEntry entry);
 
 	/**
 	 * Removes a naming entry from the naming service.
 	 *
 	 * @param entry the entry to remove
 	 */
-	void removeEntry(NamingEntry entry);
+	NamingService removeEntry(NamingEntry entry);
 
 	/**
 	 * Returns all entries of the naming table.

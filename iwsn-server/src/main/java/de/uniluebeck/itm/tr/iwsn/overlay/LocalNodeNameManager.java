@@ -5,9 +5,9 @@ import de.uniluebeck.itm.tr.util.Listenable;
 
 public interface LocalNodeNameManager extends Listenable<LocalNodeNameListener> {
 
-	void addLocalNodeName(String localNodeName);
+	LocalNodeNameManager addLocalNodeName(String localNodeName);
 
 	ImmutableSet<String> getLocalNodeNames();
 
-	void removeLocalNodeName(String localNodeName);
+	LocalNodeNameManager removeLocalNodeName(String localNodeName);
 }
