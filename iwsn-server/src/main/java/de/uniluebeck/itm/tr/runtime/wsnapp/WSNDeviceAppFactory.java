@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration;
@@ -62,8 +63,12 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 			try {
 
-				WSNDeviceAppConfiguration wsnDeviceAppConfiguration = createWsnDeviceAppConfiguration(wsnDevice);
-				return new WSNDeviceAppImpl(testbedRuntime, wsnDeviceAppConfiguration);
+				WSNDeviceAppConfiguration configuration = createConfiguration(wsnDevice);
+				WSNDeviceAppConnectorConfiguration connectorConfiguration = createConnectorConfiguration(wsnDevice);
+
+				return Guice.createInjector(new WSNDeviceAppModule())
+						.getInstance(WSNDeviceAppGuiceFactory.class)
+						.create(testbedRuntime, configuration, connectorConfiguration);
 
 			} catch (Exception e) {
 				throw propagate(e);
@@ -76,23 +81,14 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 	}
 
-	private WSNDeviceAppConfiguration createWsnDeviceAppConfiguration(final WsnDevice wsnDevice)
-			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	private WSNDeviceAppConnectorConfiguration createConnectorConfiguration(final WsnDevice wsnDevice)
+			throws Exception {
 
-		Map<String, String> configuration = convert(wsnDevice.getConfiguration());
-
-		WSNDeviceAppConfiguration.Builder builder = WSNDeviceAppConfiguration
-				.builder(wsnDevice.getUrn(), wsnDevice.getType())
-				.setNodeSerialInterface(wsnDevice.getSerialinterface())
-				.setMaximumMessageRate(wsnDevice.getMaximummessagerate())
-				.setNodeUSBChipID(wsnDevice.getUsbchipid());
-
+		File defaultChannelPipelineConfigurationFile = null;
 		if (wsnDevice.getDefaultChannelPipeline() != null) {
 
 			String configurationFileName = wsnDevice.getDefaultChannelPipeline().getConfigurationFile();
 			Object configurationXml = wsnDevice.getDefaultChannelPipeline().getConfigurationXml();
-
-			File defaultChannelPipelineConfigurationFile;
 
 			if (configurationFileName != null) {
 
@@ -119,28 +115,39 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 						wsnDevice.getUrn() + "\" is missing either the configuration file or the xml."
 				);
 			}
-
-			builder.setDefaultChannelPipelineConfigurationFile(defaultChannelPipelineConfigurationFile);
 		}
 
-		builder.setDefaultImage(wsnDevice.getDefaultImage() != null ? new File(wsnDevice.getDefaultImage()) : null);
+		final Integer maximumMessageRate = wsnDevice.getMaximummessagerate();
+		final Integer timeoutCheckAliveMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getCheckalive() : null;
+		final Integer timeoutFlashMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getFlash() : null;
+		final Integer timeoutNodeApiMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getNodeapi() : null;
+		final Integer timeoutResetMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getReset() : null;
 
-		if (wsnDevice.getTimeouts() != null) {
-			builder.setTimeoutCheckAliveMillis(wsnDevice.getTimeouts().getCheckalive());
-			builder.setTimeoutFlashMillis(wsnDevice.getTimeouts().getFlash());
-			builder.setTimeoutNodeApiMillis(wsnDevice.getTimeouts().getNodeapi());
-			builder.setTimeoutResetMillis(wsnDevice.getTimeouts().getReset());
-		}
+		return new WSNDeviceAppConnectorConfiguration(
+				wsnDevice.getUrn(),
+				wsnDevice.getType(),
+				wsnDevice.getSerialinterface(),
+				wsnDevice.getUsbchipid(),
+				convertDeviceConfiguration(wsnDevice.getConfiguration()),
+				defaultChannelPipelineConfigurationFile,
+				maximumMessageRate,
+				timeoutCheckAliveMillis,
+				timeoutFlashMillis,
+				timeoutNodeApiMillis,
+				timeoutResetMillis
+		);
+	}
 
-		if (wsnDevice.getConfiguration() != null) {
-			builder.setConfiguration(configuration);
-		}
+	private WSNDeviceAppConfiguration createConfiguration(final WsnDevice wsnDevice) throws Exception {
 
-		return builder.build();
+		return new WSNDeviceAppConfiguration(
+				wsnDevice.getUrn(),
+				wsnDevice.getDefaultImage() != null ? new File(wsnDevice.getDefaultImage()) : null
+		);
 	}
 
 	@Nullable
-	private Map<String, String> convert(@Nullable final List<Configuration> configuration) {
+	private Map<String, String> convertDeviceConfiguration(@Nullable final List<Configuration> configuration) {
 
 		if (configuration == null) {
 			return null;
@@ -150,6 +157,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 		for (Configuration configurationEntry : configuration) {
 			map.put(configurationEntry.getKey(), configurationEntry.getValue());
 		}
+
 		return map;
 	}
 

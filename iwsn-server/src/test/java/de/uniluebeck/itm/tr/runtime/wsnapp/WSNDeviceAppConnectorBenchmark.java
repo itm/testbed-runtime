@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -67,14 +68,18 @@ public class WSNDeviceAppConnectorBenchmark {
 	@Before
 	public void setUp() throws Exception {
 
-		final WSNDeviceAppConfiguration configuration = WSNDeviceAppConfiguration
-				//.builder("urn:local:0x7856", DeviceType.ISENSE.toString())
-				//.setNodeSerialInterface("/dev/tty.usbserial-001213FD")
-				.builder(NODE_URN, DeviceType.MOCK.toString())
-				.setNodeSerialInterface("urn:local:0x7856,10,SECONDS")
-				.build();
+		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+				NODE_URN,
+				DeviceType.MOCK.toString(),
+				NODE_URN + ",10,SECONDS",
+				null, null, null, null, null, null, null, null
+		);
 
-		connector = new WSNDeviceAppConnectorImpl(configuration, eventBus, asyncEventBus);
+		final WSNDeviceAppConnectorFactory factory = Guice
+				.createInjector(new WSNDeviceAppModule())
+				.getInstance(WSNDeviceAppConnectorFactory.class);
+
+		connector = factory.create(connectorConfiguration, eventBus, asyncEventBus);
 		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
 		connector.startAndWait();
 

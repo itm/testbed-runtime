@@ -27,6 +27,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -56,6 +58,10 @@ import static com.google.common.collect.Lists.newArrayList;
 
 
 class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
+
+	private final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory;
+
+	private final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration;
 
 	/**
 	 * A callback that answers the result of an operation invocation to the invoking overlay node.
@@ -259,13 +265,21 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	 */
 	private TestbedRuntime testbedRuntime;
 
-	public WSNDeviceAppImpl(final TestbedRuntime testbedRuntime, final WSNDeviceAppConfiguration configuration) {
+	@Inject
+	public WSNDeviceAppImpl(@Assisted final TestbedRuntime testbedRuntime,
+							@Assisted final WSNDeviceAppConfiguration configuration,
+							@Assisted final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration,
+							final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory) {
 
 		checkNotNull(testbedRuntime);
 		checkNotNull(configuration);
+		checkNotNull(wsnDeviceAppConnectorConfiguration);
+		checkNotNull(wsnDeviceAppConnectorFactory);
 
+		this.wsnDeviceAppConnectorFactory = wsnDeviceAppConnectorFactory;
 		this.testbedRuntime = testbedRuntime;
 		this.configuration = configuration;
+		this.wsnDeviceAppConnectorConfiguration = wsnDeviceAppConnectorConfiguration;
 
 		try {
 			this.datatypeFactory = DatatypeFactory.newInstance();
@@ -545,8 +559,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 		try {
 
-			if (configuration.getDefaultImage() != null) {
-				final byte[] binaryImage = Files.toByteArray(configuration.getDefaultImage());
+			if (configuration.getDefaultImageFile() != null) {
+				final byte[] binaryImage = Files.toByteArray(configuration.getDefaultImageFile());
 				executeFlashPrograms(binaryImage, responder);
 			} else {
 				responder.sendResponse(buildRequestStatus(100, null));
@@ -621,8 +635,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 
 			// connect to device
-			connector = new WSNDeviceAppConnectorImpl(
-					configuration,
+			connector = wsnDeviceAppConnectorFactory.create(
+					wsnDeviceAppConnectorConfiguration,
 					testbedRuntime.getEventBus(),
 					testbedRuntime.getAsyncEventBus()
 			);

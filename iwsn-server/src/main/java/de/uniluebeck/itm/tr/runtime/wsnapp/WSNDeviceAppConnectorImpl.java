@@ -31,6 +31,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
@@ -100,7 +102,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	private final ListenerManager<WSNDeviceAppConnector.NodeOutputListener> listenerManager =
 			new ListenerManagerImpl<NodeOutputListener>();
 
-	private final WSNDeviceAppConfiguration configuration;
+	private final WSNDeviceAppConnectorConfiguration configuration;
 
 	private final EventBus deviceObserverEventBus;
 
@@ -173,9 +175,10 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	private ScheduledExecutorService assureConnectivityScheduler;
 
-	public WSNDeviceAppConnectorImpl(@Nonnull final WSNDeviceAppConfiguration configuration,
-									 @Nonnull final EventBus deviceObserverEventBus,
-									 @Nonnull final AsyncEventBus deviceObserverAsyncEventBus) {
+	@Inject
+	public WSNDeviceAppConnectorImpl(@Assisted @Nonnull final WSNDeviceAppConnectorConfiguration configuration,
+									 @Assisted @Nonnull final EventBus deviceObserverEventBus,
+									 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus) {
 
 		checkNotNull(configuration);
 		checkNotNull(deviceObserverEventBus);
@@ -216,8 +219,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		final MacAddress macAddress = (MacAddress) deviceEvent.getDeviceInfo().getMacAddress();
 		boolean eventHasSameMac = nodeMacAddress.equals(macAddress);
-		boolean eventHasSameUSBChipId = configuration.getNodeUSBChipID() != null &&
-				configuration.getNodeUSBChipID().equals(deviceEvent.getDeviceInfo().getReference());
+		final String nodeUSBChipID = configuration.getNodeUSBChipID();
+		boolean eventHasSameUSBChipId = nodeUSBChipID != null &&
+				nodeUSBChipID.equals(deviceEvent.getDeviceInfo().getReference());
 
 		if (eventHasSameMac || eventHasSameUSBChipId) {
 
@@ -229,7 +233,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 						tryToConnect(
 								deviceEvent.getDeviceInfo().getType(),
 								deviceEvent.getDeviceInfo().getPort(),
-								configuration.getDeviceConfiguration()
+								configuration.getNodeConfiguration()
 						);
 					}
 					break;
@@ -259,7 +263,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			String nodeType = configuration.getNodeType();
 			String nodeSerialInterface = configuration.getNodeSerialInterface();
 			String nodeUrn = configuration.getNodeUrn();
-			Map<String, String> nodeConfiguration = configuration.getDeviceConfiguration();
+			Map<String, String> nodeConfiguration = configuration.getNodeConfiguration();
 
 			boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(nodeType);
 			boolean hasSerialInterface = nodeSerialInterface != null;
@@ -287,7 +291,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 						tryToConnect(
 								deviceRequest.getResponse().getType(),
 								deviceRequest.getResponse().getPort(),
-								configuration.getDeviceConfiguration()
+								configuration.getNodeConfiguration()
 						);
 					} catch (Exception e) {
 						log.warn("{} => {}. Retrying in 30 seconds at the same serial interface.",
@@ -346,7 +350,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		try {
 
-			log.debug("{} => Shutting down {} device connector", configuration.getNodeUrn(), configuration.getNodeType());
+			log.debug("{} => Shutting down {} device connector", configuration.getNodeUrn(),
+					configuration.getNodeType()
+			);
 
 			assureConnectivityRunnableSchedule.cancel(false);
 			ExecutorUtils.shutdown(assureConnectivityScheduler, 1, TimeUnit.SECONDS);

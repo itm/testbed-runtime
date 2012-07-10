@@ -182,21 +182,25 @@ public class WSNAppBenchmark {
 
 	private WSNAppImpl wsnApp;
 
-	private TestbedRuntime gateway;
+	private TestbedRuntime gatewayTR;
 
-	private TestbedRuntime portal;
+	private TestbedRuntime portalTR;
 
-	private Map<String, WSNDeviceAppImpl> wsnDeviceApps;
+	private Map<String, WSNDeviceApp> wsnDeviceApps;
 
 	@Before
 	public void setUp() throws Exception {
 
 		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
 
-		Injector gw1Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
-		gateway = gw1Injector.getInstance(TestbedRuntime.class);
+		Injector gatewayTRInjector = Guice.createInjector(
+				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
+				new WSNDeviceAppModule()
+		);
 
-		gateway.getLocalNodeNameManager()
+		gatewayTR = gatewayTRInjector.getInstance(TestbedRuntime.class);
+
+		gatewayTR.getLocalNodeNameManager()
 				.addLocalNodeName(URN_NODE_0)
 				.addLocalNodeName(URN_NODE_1)
 				.addLocalNodeName(URN_NODE_2)
@@ -208,7 +212,7 @@ public class WSNAppBenchmark {
 				.addLocalNodeName(URN_NODE_8)
 				.addLocalNodeName(URN_NODE_9);
 
-		gateway.getRoutingTableService()
+		gatewayTR.getRoutingTableService()
 				.setNextHop(URN_PORTAL, URN_PORTAL)
 				.setNextHop(URN_NODE_0, URN_NODE_0)
 				.setNextHop(URN_NODE_1, URN_NODE_1)
@@ -221,7 +225,7 @@ public class WSNAppBenchmark {
 				.setNextHop(URN_NODE_8, URN_NODE_8)
 				.setNextHop(URN_NODE_9, URN_NODE_9);
 
-		gateway.getNamingService()
+		gatewayTR.getNamingService()
 				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
 				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
 				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
@@ -234,15 +238,15 @@ public class WSNAppBenchmark {
 				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
 				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
 
-		gateway.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
+		gatewayTR.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
 
-		Injector gw2Injector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
-		portal = gw2Injector.getInstance(TestbedRuntime.class);
+		Injector portalTRInjector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
+		portalTR = portalTRInjector.getInstance(TestbedRuntime.class);
 
-		portal.getLocalNodeNameManager()
+		portalTR.getLocalNodeNameManager()
 				.addLocalNodeName(URN_PORTAL);
 
-		portal.getRoutingTableService()
+		portalTR.getRoutingTableService()
 				.setNextHop(URN_PORTAL, URN_PORTAL)
 				.setNextHop(URN_NODE_0, URN_NODE_0)
 				.setNextHop(URN_NODE_1, URN_NODE_1)
@@ -255,7 +259,7 @@ public class WSNAppBenchmark {
 				.setNextHop(URN_NODE_8, URN_NODE_8)
 				.setNextHop(URN_NODE_9, URN_NODE_9);
 
-		portal.getNamingService()
+		portalTR.getNamingService()
 				.addEntry(new NamingEntry(URN_PORTAL, new NamingInterface("tcp", TCP_PORTAL), 1))
 				.addEntry(new NamingEntry(URN_NODE_0, new NamingInterface("tcp", TCP_GATEWAY), 1))
 				.addEntry(new NamingEntry(URN_NODE_1, new NamingInterface("tcp", TCP_GATEWAY), 1))
@@ -268,16 +272,16 @@ public class WSNAppBenchmark {
 				.addEntry(new NamingEntry(URN_NODE_8, new NamingInterface("tcp", TCP_GATEWAY), 1))
 				.addEntry(new NamingEntry(URN_NODE_9, new NamingInterface("tcp", TCP_GATEWAY), 1));
 
-		portal.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
+		portalTR.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
 
 		// start both nodes' stack
-		gateway.start();
-		portal.start();
+		gatewayTR.start();
+		portalTR.start();
 
-		createWSNDeviceApps();
+		createWSNDeviceApps(gatewayTRInjector);
 		startWSNDeviceApps();
 
-		wsnApp = new WSNAppImpl(portal, reservedNodes);
+		wsnApp = new WSNAppImpl(portalTR, reservedNodes);
 		wsnApp.startAndWait();
 	}
 
@@ -287,8 +291,8 @@ public class WSNAppBenchmark {
 		wsnApp.stopAndWait();
 		stopWSNDeviceApps();
 
-		gateway.stop();
-		portal.stop();
+		gatewayTR.stop();
+		portalTR.stop();
 	}
 
 	@Test
@@ -366,25 +370,32 @@ public class WSNAppBenchmark {
 		printDurations(durations);
 	}
 
-	private void createWSNDeviceApps() {
-		wsnDeviceApps = new HashMap<String, WSNDeviceAppImpl>();
+	private void createWSNDeviceApps(final Injector injector) {
+		wsnDeviceApps = new HashMap<String, WSNDeviceApp>();
 		for (String nodeUrn : reservedNodes) {
-			final WSNDeviceAppConfiguration wsnDeviceAppConfiguration = WSNDeviceAppConfiguration
-					.builder(nodeUrn, DeviceType.MOCK.toString())
-					.setNodeSerialInterface(nodeUrn + ",10,SECONDS")
-					.build();
-			wsnDeviceApps.put(nodeUrn, new WSNDeviceAppImpl(gateway, wsnDeviceAppConfiguration));
+
+			final WSNDeviceAppConfiguration configuration = new WSNDeviceAppConfiguration(nodeUrn, null);
+			final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+					nodeUrn,
+					DeviceType.MOCK.toString(),
+					nodeUrn + ",10,SECONDS",
+					null, null, null, null, null, null, null, null
+			);
+
+			final WSNDeviceAppGuiceFactory factory = injector.getInstance(WSNDeviceAppGuiceFactory.class);
+			final WSNDeviceApp wsnDeviceApp = factory.create(gatewayTR, configuration, connectorConfiguration);
+			wsnDeviceApps.put(nodeUrn, wsnDeviceApp);
 		}
 	}
 
 	private void startWSNDeviceApps() {
-		for (Map.Entry<String, WSNDeviceAppImpl> entry : wsnDeviceApps.entrySet()) {
+		for (Map.Entry<String, WSNDeviceApp> entry : wsnDeviceApps.entrySet()) {
 			entry.getValue().startAndWait();
 		}
 	}
 
 	private void stopWSNDeviceApps() {
-		for (Map.Entry<String, WSNDeviceAppImpl> entry : wsnDeviceApps.entrySet()) {
+		for (Map.Entry<String, WSNDeviceApp> entry : wsnDeviceApps.entrySet()) {
 			entry.getValue().stopAndWait();
 		}
 	}

@@ -32,6 +32,8 @@ import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
  */
 public interface TestbedApplicationFactory {
 
+	public static final String APPLICATION_NAME = TestbedApplicationFactory.class.getName() + "/applicationName";
+
 	/**
 	 * Creates the {@link de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication} instance.
 	 *
