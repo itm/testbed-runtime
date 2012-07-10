@@ -236,7 +236,7 @@ public class MessageTools {
 		builder.append("\", priority=");
 		builder.append(msg.getPriority());
 		builder.append(", payload=\"");
-		builder.append(StringUtils.replaceNonPrintableAsciiCharacters(msg.getPayload().toStringUtf8()));
+		builder.append(StringUtils.toHexString(msg.getPayload().toByteArray()));
 		builder.append("\", replyTo=\"");
 		builder.append(msg.getReplyTo());
 		builder.append("\", replyWith=\"");

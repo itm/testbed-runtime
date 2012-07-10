@@ -48,6 +48,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannelSink;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
@@ -443,7 +444,22 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
 			String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
 
+			if (log.isTraceEnabled()) {
+				log.trace(
+						"Received {} bytes from {}: {}. Current listeners: {}",
+						new Object[]{
+								bytes.length,
+								sourceNodeId,
+								StringUtils.toHexString(bytes),
+								wsnNodeMessageReceivers
+						}
+				);
+			}
+
 			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
+				if (log.isTraceEnabled()) {
+					log.trace("Passing message to {}: {}", receiver, StringUtils.toHexString(bytes));
+				}
 				receiver.receive(bytes, sourceNodeId, timestamp);
 			}
 		}
@@ -578,7 +594,13 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 					handlerFactoryRegistry.create(convertCHCList(channelHandlerConfigurations)) :
 					null;
 
-			setPipeline(pipeline, createPipelineHandlers(innerPipelineHandlers));
+			final List<Tuple<String, ChannelHandler>> pipelineHandlers = createPipelineHandlers(innerPipelineHandlers);
+
+			if (log.isDebugEnabled()) {
+				log.debug("Setting pipeline to: {}", Arrays.toString(pipelineHandlers.toArray()));
+			}
+
+			setPipeline(pipeline, pipelineHandlers);
 
 			if (callback != null) {
 
@@ -833,12 +855,14 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		wsnNodeMessageReceiversLock.lock();
 		try {
 
-			log.debug("Adding node message receiver: {}", receiver);
+			log.debug("Adding node message receiver: {}. Listeners before: {}", receiver, wsnNodeMessageReceivers);
 
 			wsnNodeMessageReceivers = ImmutableSet.<WSNNodeMessageReceiver>builder()
 					.addAll(wsnNodeMessageReceivers)
 					.add(receiver)
 					.build();
+
+			log.debug("Added node message receiver: {}. Listeners after: {}", receiver, wsnNodeMessageReceivers);
 
 		} finally {
 			wsnNodeMessageReceiversLock.unlock();
@@ -852,7 +876,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		try {
 
-			log.debug("Removing node message receiver: {}", receiverToRemove);
+			log.debug(
+					"Removing node message receiver: {}. Listeners before: {}",
+					receiverToRemove,
+					wsnNodeMessageReceivers
+			);
 
 			final ImmutableSet.Builder<WSNNodeMessageReceiver> builder = ImmutableSet.builder();
 			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {
@@ -862,6 +890,12 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			}
 
 			wsnNodeMessageReceivers = builder.build();
+
+			log.debug(
+					"Removed node message receiver: {}. Listeners after: {}",
+					receiverToRemove,
+					wsnNodeMessageReceivers
+			);
 
 		} finally {
 			wsnNodeMessageReceiversLock.unlock();

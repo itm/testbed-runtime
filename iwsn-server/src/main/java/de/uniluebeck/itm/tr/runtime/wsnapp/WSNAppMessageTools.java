@@ -47,7 +47,7 @@ public class WSNAppMessageTools {
 
 			builder.append("Binary[");
 			builder.append("data=");
-			builder.append(StringUtils.replaceNonPrintableAsciiCharacters(binaryData.toByteArray(), offset, length));
+			builder.append(StringUtils.toHexString(binaryData.toByteArray(), offset, length));
 			builder.append("]");
 		}
 		return builder.toString();

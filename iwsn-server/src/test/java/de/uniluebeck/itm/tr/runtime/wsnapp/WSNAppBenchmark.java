@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
+import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.After;
@@ -52,7 +53,7 @@ public class WSNAppBenchmark {
 		}
 	};
 
-	private static final int RUNS = 100;
+	private static final int RUNS = 1000;
 
 	private static class FutureMessageReceiver implements WSNNodeMessageReceiver {
 
@@ -68,16 +69,21 @@ public class WSNAppBenchmark {
 
 		private long duration = Long.MAX_VALUE;
 
-		private FutureMessageReceiver(final BenchmarkHelper helper, final int messageNumber, final WSNAppImpl wsnApp) {
-			this.future = SettableFuture.create();
-			this.helper = helper;
+		private FutureMessageReceiver(final int messageNumber, final WSNAppImpl wsnApp) {
+
 			this.messageNumber = messageNumber;
 			this.wsnApp = wsnApp;
+
+			this.future = SettableFuture.create();
+			this.helper = new BenchmarkHelper();
 		}
 
 		@Override
 		public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
 
+			if (log.isTraceEnabled()) {
+				log.trace("Decoding received bytes: {}", StringUtils.toHexString(bytes));
+			}
 			final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
 
 			if (log.isTraceEnabled()) {
@@ -158,8 +164,6 @@ public class WSNAppBenchmark {
 
 	private WSNDeviceAppImpl wsnDeviceApp;
 
-	private BenchmarkHelper helper;
-
 	@Before
 	public void setUp() throws Exception {
 
@@ -201,8 +205,6 @@ public class WSNAppBenchmark {
 
 		wsnDeviceApp.startAndWait();
 		wsnApp.startAndWait();
-
-		helper = new BenchmarkHelper();
 	}
 
 	@After
@@ -222,7 +224,7 @@ public class WSNAppBenchmark {
 
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(helper, messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(messageNumber, wsnApp);
 			receiver.start();
 			receiver.getFuture().get(5, TimeUnit.SECONDS);
 			durations.add((float) receiver.getDuration());
@@ -244,7 +246,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(helper, messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(messageNumber, wsnApp);
 			receiver.start();
 			receivers.add(receiver);
 		}
