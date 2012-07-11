@@ -24,14 +24,15 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
-import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,10 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		this.preconditions.addServedUrnPrefixes(this.config.getUrnPrefix());
 		this.preconditions.addKnownNodeUrns(this.config.getNodeUrnsServed());
 
-		this.wsnApp = WSNAppFactory.create(testbedRuntime, config.getNodeUrnsServed());
+		this.wsnApp = Guice
+				.createInjector(new WSNAppModule())
+				.getInstance(WSNAppFactory.class)
+				.create(testbedRuntime, config.getNodeUrnsServed());
 
 		this.deliveryManager = new DeliveryManager();
 	}

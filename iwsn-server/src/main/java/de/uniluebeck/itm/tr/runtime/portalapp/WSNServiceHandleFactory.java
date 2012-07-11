@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -8,6 +10,7 @@ import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
+import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.Wiseml;
 
@@ -39,7 +42,8 @@ public class WSNServiceHandleFactory {
 		}
 
 		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(urnPrefix).build();
-		final WSNApp wsnApp = WSNAppFactory.create(testbedRuntime, reservedNodes);
+		final Injector injector = Guice.createInjector(new WSNAppModule());
+		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
 
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);

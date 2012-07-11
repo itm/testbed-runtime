@@ -31,6 +31,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -280,12 +282,16 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		}
 	};
 
-	public WSNAppImpl(final TestbedRuntime testbedRuntime, final ImmutableSet<String> reservedNodes) {
+	@Inject
+	public WSNAppImpl(@Assisted final TestbedRuntime testbedRuntime,
+					  @Assisted final ImmutableSet<String> reservedNodes) {
 
 		this.testbedRuntime = testbedRuntime;
 		this.reservedNodes = reservedNodes;
+
 		this.handlerFactoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(this.handlerFactoryRegistry);
+
 		abovePipelineLogger = new AbovePipelineLogger("portal");
 		belowPipelineLogger = new BelowPipelineLogger("portal");
 	}
@@ -373,10 +379,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 								future.get();
 
-								WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status
-										.newBuilder()
-										.setNodeId(nodeUrn)
-										.setValue(1);
+								WSNAppMessages.RequestStatus.Status.Builder statusBuilder =
+										WSNAppMessages.RequestStatus.Status
+												.newBuilder()
+												.setNodeId(nodeUrn)
+												.setValue(1);
 
 								WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
 										.newBuilder()
@@ -390,7 +397,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 							}
 						}
 
-					}, executor);
+					}, executor
+					);
 
 				} catch (UnknownNameException e1) {
 

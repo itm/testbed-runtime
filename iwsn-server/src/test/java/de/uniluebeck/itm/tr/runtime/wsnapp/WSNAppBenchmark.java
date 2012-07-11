@@ -57,7 +57,7 @@ public class WSNAppBenchmark {
 
 		private final int messageNumber;
 
-		private final WSNAppImpl wsnApp;
+		private final WSNApp wsnApp;
 
 		private final SettableFuture<byte[]> future;
 
@@ -65,7 +65,7 @@ public class WSNAppBenchmark {
 
 		private long duration = Long.MAX_VALUE;
 
-		private FutureMessageReceiver(final Set<String> nodeUrns, final int messageNumber, final WSNAppImpl wsnApp) {
+		private FutureMessageReceiver(final Set<String> nodeUrns, final int messageNumber, final WSNApp wsnApp) {
 
 			this.nodeUrns = nodeUrns;
 			this.messageNumber = messageNumber;
@@ -180,7 +180,7 @@ public class WSNAppBenchmark {
 
 	private static final int RUNS = 100;
 
-	private WSNAppImpl wsnApp;
+	private WSNApp wsnApp;
 
 	private TestbedRuntime gatewayTR;
 
@@ -240,7 +240,11 @@ public class WSNAppBenchmark {
 
 		gatewayTR.getMessageServerService().addMessageServer("tcp", TCP_GATEWAY);
 
-		Injector portalTRInjector = Guice.createInjector(new TestbedRuntimeModule(scheduler, scheduler, scheduler));
+		Injector portalTRInjector = Guice.createInjector(
+				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
+		        new WSNAppModule()
+		);
+
 		portalTR = portalTRInjector.getInstance(TestbedRuntime.class);
 
 		portalTR.getLocalNodeNameManager()
@@ -281,7 +285,7 @@ public class WSNAppBenchmark {
 		createWSNDeviceApps(gatewayTRInjector);
 		startWSNDeviceApps();
 
-		wsnApp = new WSNAppImpl(portalTR, reservedNodes);
+		wsnApp = portalTRInjector.getInstance(WSNAppFactory.class).create(portalTR, reservedNodes);
 		wsnApp.startAndWait();
 	}
 
