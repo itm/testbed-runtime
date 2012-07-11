@@ -318,12 +318,12 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		@Override
 		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
-			ChannelBuffer channelBuffer = (ChannelBuffer) e.getMessage();
+			ChannelBuffer buf = (ChannelBuffer) e.getMessage();
 			SocketAddress socketAddress = e.getRemoteAddress();
 
 			Set<String> nodeUrns;
 			String timestamp;
-			Callback callback;
+			final Callback callback;
 
 			if (socketAddress instanceof WisebedMulticastAddress) {
 
@@ -339,16 +339,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				);
 			}
 
-			for (String nodeUrn : nodeUrns) {
+			for (final String nodeUrn : nodeUrns) {
 
 				WSNAppMessages.Message message = WSNAppMessages.Message
 						.newBuilder()
-						.setBinaryData(ByteString.copyFrom(
-								channelBuffer.array(),
-								channelBuffer.readerIndex(),
-								channelBuffer.readableBytes()
-						)
-						)
+						.setBinaryData(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
 						.setSourceNodeId(nodeUrn)
 						.setTimestamp(timestamp)
 						.build();
@@ -361,34 +356,41 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 				try {
 
-					final ListenableFuture<Void> future = testbedRuntime.getUnreliableMessagingService().sendAsync(
+					final ListenableFuture<byte[]> future = testbedRuntime.getReliableMessagingService().sendAsync(
 							getLocalNodeName(),
 							nodeUrn,
 							MSG_TYPE_OPERATION_INVOCATION_REQUEST,
 							operationInvocation.toByteArray(),
-							UnreliableMessagingService.PRIORITY_NORMAL
+							UnreliableMessagingService.PRIORITY_NORMAL,
+							10, TimeUnit.SECONDS
 					);
 
-					WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status
-							.newBuilder()
-							.setNodeId(nodeUrn)
-							.setValue(1);
+					future.addListener(new Runnable() {
 
-					WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
-							.newBuilder()
-							.setStatus(statusBuilder)
-							.build();
+						@Override
+						public void run() {
+							try {
 
-					try {
+								future.get();
 
-						future.get();
-						callback.receivedRequestStatus(requestStatus);
+								WSNAppMessages.RequestStatus.Status.Builder statusBuilder = WSNAppMessages.RequestStatus.Status
+										.newBuilder()
+										.setNodeId(nodeUrn)
+										.setValue(1);
 
-					} catch (InterruptedException e1) {
-						callback.failure(e1);
-					} catch (ExecutionException e1) {
-						callback.failure(e1);
-					}
+								WSNAppMessages.RequestStatus requestStatus = WSNAppMessages.RequestStatus
+										.newBuilder()
+										.setStatus(statusBuilder)
+										.build();
+
+								callback.receivedRequestStatus(requestStatus);
+
+							} catch (Exception e) {
+								callback.failure(e);
+							}
+						}
+
+					}, executor);
 
 				} catch (UnknownNameException e1) {
 
@@ -567,6 +569,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				buffer,
 				targetAddress
 		);
+
 		pipeline.sendDownstream(downstreamMessageEvent);
 	}
 

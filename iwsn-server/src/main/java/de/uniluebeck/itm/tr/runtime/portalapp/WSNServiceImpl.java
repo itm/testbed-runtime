@@ -394,25 +394,39 @@ public class WSNServiceImpl implements WSNService {
 		log.debug("WSNServiceImpl.send({},{})", nodeIds, message);
 
 		final String requestId = secureIdGenerator.getNextId();
-		final long start = System.currentTimeMillis();
 
 		try {
-			wsnApp.send(new HashSet<String>(nodeIds), message.getBinaryData(), message.getSourceNodeId(),
-					message.getTimestamp().toXMLFormat(), new WSNApp.Callback() {
 
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					long end = System.currentTimeMillis();
-					log.debug("Received reply from device after {} ms.", (end - start));
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
+			wsnApp.send(
+					new HashSet<String>(nodeIds),
+					message.getBinaryData(),
+					message.getSourceNodeId(),
+					message.getTimestamp().toXMLFormat(),
+					new WSNApp.Callback() {
 
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-				}
-			}
+						private final long start = System.currentTimeMillis();
+
+						@Override
+						public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+
+							if (log.isDebugEnabled()) {
+
+								final long duration = System.currentTimeMillis() - start;
+								final String nodeUrn = requestStatus.getStatus().getNodeId();
+
+								log.debug("Received reply from {} after {} ms.", nodeUrn, duration);
+							}
+
+							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+						}
+
+						@Override
+						public void failure(Exception e) {
+							deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
+						}
+					}
 			);
+
 		} catch (UnknownNodeUrnsException e) {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
