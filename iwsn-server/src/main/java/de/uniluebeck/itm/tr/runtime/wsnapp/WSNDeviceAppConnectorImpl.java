@@ -49,7 +49,6 @@ import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
