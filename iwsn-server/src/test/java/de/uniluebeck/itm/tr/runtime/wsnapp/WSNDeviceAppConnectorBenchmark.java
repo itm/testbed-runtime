@@ -6,9 +6,11 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -75,11 +77,11 @@ public class WSNDeviceAppConnectorBenchmark {
 				null, null, null, null, null, null, null, null
 		);
 
-		final WSNDeviceAppConnectorFactory factory = Guice
-				.createInjector(new WSNDeviceAppModule())
-				.getInstance(WSNDeviceAppConnectorFactory.class);
+		final Injector injector = Guice.createInjector(new WSNDeviceAppModule());
+		final WSNDeviceAppConnectorFactory factory = injector.getInstance(WSNDeviceAppConnectorFactory.class);
+		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
-		connector = factory.create(connectorConfiguration, eventBus, asyncEventBus);
+		connector = factory.create(connectorConfiguration, deviceFactory, eventBus, asyncEventBus);
 		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
 		connector.startAndWait();
 

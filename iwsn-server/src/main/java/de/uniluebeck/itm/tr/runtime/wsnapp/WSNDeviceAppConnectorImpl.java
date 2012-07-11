@@ -175,16 +175,22 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	private ScheduledExecutorService assureConnectivityScheduler;
 
+	@Nonnull
+	private final DeviceFactory deviceFactory;
+
 	@Inject
 	public WSNDeviceAppConnectorImpl(@Assisted @Nonnull final WSNDeviceAppConnectorConfiguration configuration,
+									 @Assisted @Nonnull final DeviceFactory deviceFactory,
 									 @Assisted @Nonnull final EventBus deviceObserverEventBus,
 									 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus) {
 
 		checkNotNull(configuration);
+		checkNotNull(deviceFactory);
 		checkNotNull(deviceObserverEventBus);
 		checkNotNull(deviceObserverAsyncEventBus);
 
 		this.configuration = configuration;
+		this.deviceFactory = deviceFactory;
 		this.deviceObserverEventBus = deviceObserverEventBus;
 		this.deviceObserverAsyncEventBus = deviceObserverAsyncEventBus;
 
@@ -876,7 +882,6 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		try {
 
-			DeviceFactory deviceFactory = new DeviceFactoryImpl();
 			try {
 				device = deviceFactory.create(deviceDriverExecutorService, deviceType, deviceConfiguration);
 			} catch (Exception e) {

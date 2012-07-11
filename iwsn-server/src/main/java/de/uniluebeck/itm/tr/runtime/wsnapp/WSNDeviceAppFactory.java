@@ -24,10 +24,13 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.WsnDevice;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -39,7 +42,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -63,12 +65,16 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 			try {
 
+				final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
+
 				WSNDeviceAppConfiguration configuration = createConfiguration(wsnDevice);
 				WSNDeviceAppConnectorConfiguration connectorConfiguration = createConnectorConfiguration(wsnDevice);
 
-				return Guice.createInjector(new WSNDeviceAppModule())
+				DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
+
+				return injector
 						.getInstance(WSNDeviceAppGuiceFactory.class)
-						.create(testbedRuntime, configuration, connectorConfiguration);
+						.create(testbedRuntime, deviceFactory, configuration, connectorConfiguration);
 
 			} catch (Exception e) {
 				throw propagate(e);
@@ -118,9 +124,11 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 		}
 
 		final Integer maximumMessageRate = wsnDevice.getMaximummessagerate();
-		final Integer timeoutCheckAliveMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getCheckalive() : null;
+		final Integer timeoutCheckAliveMillis =
+				wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getCheckalive() : null;
 		final Integer timeoutFlashMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getFlash() : null;
-		final Integer timeoutNodeApiMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getNodeapi() : null;
+		final Integer timeoutNodeApiMillis =
+				wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getNodeapi() : null;
 		final Integer timeoutResetMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getReset() : null;
 
 		return new WSNDeviceAppConnectorConfiguration(

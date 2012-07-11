@@ -11,6 +11,8 @@ import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -195,7 +197,8 @@ public class WSNAppBenchmark {
 
 		Injector gatewayTRInjector = Guice.createInjector(
 				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
-				new WSNDeviceAppModule()
+				new WSNDeviceAppModule(),
+				new DeviceFactoryModule()
 		);
 
 		gatewayTR = gatewayTRInjector.getInstance(TestbedRuntime.class);
@@ -242,7 +245,7 @@ public class WSNAppBenchmark {
 
 		Injector portalTRInjector = Guice.createInjector(
 				new TestbedRuntimeModule(scheduler, scheduler, scheduler),
-		        new WSNAppModule()
+				new WSNAppModule()
 		);
 
 		portalTR = portalTRInjector.getInstance(TestbedRuntime.class);
@@ -336,11 +339,31 @@ public class WSNAppBenchmark {
 		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2)));
 		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3)));
 		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7, URN_NODE_8)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6, URN_NODE_7, URN_NODE_8, URN_NODE_9)));
+		printDurations(
+				executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5))
+		);
+		printDurations(executeSerial(
+				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6)
+		)
+		);
+		printDurations(executeSerial(
+				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+						URN_NODE_7
+				)
+		)
+		);
+		printDurations(executeSerial(
+				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+						URN_NODE_7, URN_NODE_8
+				)
+		)
+		);
+		printDurations(executeSerial(
+				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+						URN_NODE_7, URN_NODE_8, URN_NODE_9
+				)
+		)
+		);
 	}
 
 	@Test
@@ -387,7 +410,13 @@ public class WSNAppBenchmark {
 			);
 
 			final WSNDeviceAppGuiceFactory factory = injector.getInstance(WSNDeviceAppGuiceFactory.class);
-			final WSNDeviceApp wsnDeviceApp = factory.create(gatewayTR, configuration, connectorConfiguration);
+			final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
+			final WSNDeviceApp wsnDeviceApp = factory.create(
+					gatewayTR,
+					deviceFactory,
+					configuration,
+					connectorConfiguration
+			);
 			wsnDeviceApps.put(nodeUrn, wsnDeviceApp);
 		}
 	}
