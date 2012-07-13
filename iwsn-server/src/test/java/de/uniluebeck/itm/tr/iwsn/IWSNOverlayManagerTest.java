@@ -52,7 +52,7 @@ public class IWSNOverlayManagerTest {
 	private NamingService namingServiceMock;
 
 	@Mock
-	private RoutingTableService routingTableService;
+	private RoutingTableService routingTableServiceMock;
 
 	@Mock
 	private LocalNodeNameManager localNodeNameManagerMock;
@@ -78,7 +78,7 @@ public class IWSNOverlayManagerTest {
 		).getInstance(IWSNOverlayManagerFactory.class).create(testbedRuntimeMock, domObserverMock, "localhost");
 
 		when(testbedRuntimeMock.getNamingService()).thenReturn(namingServiceMock);
-		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableService);
+		when(testbedRuntimeMock.getRoutingTableService()).thenReturn(routingTableServiceMock);
 		when(testbedRuntimeMock.getLocalNodeNameManager()).thenReturn(localNodeNameManagerMock);
 		when(testbedRuntimeMock.getMessageServerService()).thenReturn(messageServerServiceMock);
 	}
@@ -88,7 +88,7 @@ public class IWSNOverlayManagerTest {
 
 		setListenerState(ONE_NODE_ONE_NAME_NO_APPS);
 
-		verify(routingTableService, atLeastOnce()).setNextHop("urn:local:0xdcb0", "urn:local:0xdcb0");
+		verify(routingTableServiceMock, atLeastOnce()).setNextHop("urn:local:0xdcb0", "urn:local:0xdcb0");
 
 		ArgumentCaptor<NamingEntry> namingEntryArgumentCaptor = ArgumentCaptor.forClass(NamingEntry.class);
 		verify(namingServiceMock).addEntry(namingEntryArgumentCaptor.capture());
@@ -101,12 +101,12 @@ public class IWSNOverlayManagerTest {
 	public void testIfNodeNamesAreAddedWhenThereIsAConfigBefore() throws Exception {
 
 		setListenerState(ONE_NODE_ONE_NAME_NO_APPS);
-		reset(routingTableService);
+		reset(routingTableServiceMock);
 
 		setListenerState(ONE_NODE_TWO_NAMES_NO_APPS);
 
-		verify(routingTableService, never()).setNextHop("urn:local:0xdcb0", "urn:local:0xdcb0");
-		verify(routingTableService).setNextHop("urn:local:0xdcb1", "urn:local:0xdcb1");
+		verify(routingTableServiceMock, never()).setNextHop("urn:local:0xdcb0", "urn:local:0xdcb0");
+		verify(routingTableServiceMock).setNextHop("urn:local:0xdcb1", "urn:local:0xdcb1");
 	}
 
 	@Test
@@ -115,13 +115,13 @@ public class IWSNOverlayManagerTest {
 		setListenerState(ONE_NODE_TWO_NAMES_NO_APPS);
 		setListenerState(ONE_NODE_ONE_NAME_NO_APPS);
 
-		verify(routingTableService).removeNextHop("urn:local:0xdcb1");
+		verify(routingTableServiceMock).removeNextHop("urn:local:0xdcb1");
 	}
 
 	@Test
 	public void testIfNodeIsAddedIfThereWasOnlyOneNodeBefore() throws Exception {
 
-		verify(routingTableService, never()).setNextHop(Matchers.<String>any(), Matchers.<String>any());
+		verify(routingTableServiceMock, never()).setNextHop(Matchers.<String>any(), Matchers.<String>any());
 		verify(namingServiceMock, never()).addEntry(Matchers.<NamingEntry>any());
 
 		setListenerState(ONE_NODE_ONE_NAME_NO_APPS);
@@ -133,11 +133,11 @@ public class IWSNOverlayManagerTest {
 		assertEquals("localhost:8888", namingEntryArgumentCaptor.getValue().getIface().getAddress());
 
 		reset(namingServiceMock);
-		reset(routingTableService);
+		reset(routingTableServiceMock);
 
 		setListenerState(TWO_NODES_ONE_NAME_NO_APPS);
 
-		verify(routingTableService, atLeastOnce()).setNextHop("urn:local:0xdcb2", "urn:local:0xdcb2");
+		verify(routingTableServiceMock, atLeastOnce()).setNextHop("urn:local:0xdcb2", "urn:local:0xdcb2");
 
 		ArgumentCaptor<NamingEntry> namingEntryArgumentCaptor2 = ArgumentCaptor.forClass(NamingEntry.class);
 		verify(namingServiceMock).addEntry(namingEntryArgumentCaptor2.capture());
