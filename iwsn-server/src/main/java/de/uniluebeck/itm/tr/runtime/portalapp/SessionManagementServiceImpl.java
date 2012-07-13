@@ -55,6 +55,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -123,6 +124,9 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	 * String)}.
 	 */
 	private final WSNApp wsnApp;
+
+	private final Map<String, ScheduledFuture<?>> scheduledCleanUpWSNInstanceJobs =
+			new HashMap<String, ScheduledFuture<?>>();
 
 	/**
 	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
@@ -305,11 +309,17 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 					long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
 
 					//stop and remove invalid instances after their expiration time
-					getScheduler().schedule(
-							new CleanUpWSNInstanceJob(keys),
-							delay,
-							TimeUnit.MILLISECONDS
-					);
+
+					synchronized (scheduledCleanUpWSNInstanceJobs) {
+
+						final ScheduledFuture<?> schedule = getScheduler().schedule(
+								new CleanUpWSNInstanceJob(keys),
+								delay,
+								TimeUnit.MILLISECONDS
+						);
+
+						scheduledCleanUpWSNInstanceJobs.put(secretReservationKey,schedule);
+					}
 				}
 
 			} else {
@@ -449,6 +459,15 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 	}
 
 	private void freeInternal(final String secretReservationKey) throws ExperimentNotRunningException_Exception {
+
+		synchronized (scheduledCleanUpWSNInstanceJobs) {
+
+			final ScheduledFuture<?> schedule = scheduledCleanUpWSNInstanceJobs.get(secretReservationKey);
+
+			if (schedule != null) {
+				schedule.cancel(true);
+			}
+		}
 
 		synchronized (wsnInstances) {
 
