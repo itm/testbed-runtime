@@ -78,11 +78,12 @@ public class WSNAppBenchmark {
 		}
 
 		@Override
-		public void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+		public synchronized void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
 
 			if (log.isTraceEnabled()) {
 				log.trace("Decoding received bytes: {}", StringUtils.toHexString(bytes));
 			}
+
 			final ChannelBuffer decodedMessage = helper.decode(wrappedBuffer(bytes));
 
 			if (log.isTraceEnabled()) {
@@ -100,11 +101,11 @@ public class WSNAppBenchmark {
 		}
 
 		@Override
-		public void receiveNotification(final WSNAppMessages.Notification notification) {
+		public synchronized void receiveNotification(final WSNAppMessages.Notification notification) {
 			// nothing to do
 		}
 
-		public void start() {
+		public synchronized void start() {
 
 			final ChannelBuffer buffer = ChannelBuffers.buffer(5);
 			buffer.writeByte(10 & 0xFF);
@@ -121,45 +122,77 @@ public class WSNAppBenchmark {
 			}
 		}
 
-		public long getDuration() {
+		public synchronized long getDuration() {
 			return duration;
 		}
 
-		public SettableFuture<byte[]> getFuture() {
+		public synchronized SettableFuture<byte[]> getFuture() {
 			return future;
 		}
 
 		@Override
-		public String toString() {
+		public synchronized String toString() {
 			return "FutureMessageReceiver{" +
 					"messageNumber=" + messageNumber +
 					'}';
 		}
 
-		public int getMessageNumber() {
+		public synchronized int getMessageNumber() {
 			return messageNumber;
 		}
 	}
 
 	private static final String URN_NODE_0 = "urn:local:0x0000";
 
+	private static final HashSet<String> NODES_1 = newHashSet(URN_NODE_0);
+
 	private static final String URN_NODE_1 = "urn:local:0x0001";
+
+	private static final HashSet<String> NODES_2 = newHashSet(URN_NODE_0, URN_NODE_1);
 
 	private static final String URN_NODE_2 = "urn:local:0x0002";
 
+	private static final HashSet<String> NODES_3 = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2);
+
 	private static final String URN_NODE_3 = "urn:local:0x0003";
+
+	private static final HashSet<String> NODES_4 = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3);
 
 	private static final String URN_NODE_4 = "urn:local:0x0004";
 
+	private static final HashSet<String> NODES_5 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
+
 	private static final String URN_NODE_5 = "urn:local:0x0005";
+
+	private static final HashSet<String> NODES_6 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5);
 
 	private static final String URN_NODE_6 = "urn:local:0x0006";
 
+	private static final HashSet<String> NODES_7 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6);
+
 	private static final String URN_NODE_7 = "urn:local:0x0007";
+
+	private static final HashSet<String> NODES_8 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+					URN_NODE_7
+			);
 
 	private static final String URN_NODE_8 = "urn:local:0x0008";
 
+	private static final HashSet<String> NODES_9 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+					URN_NODE_7, URN_NODE_8
+			);
+
 	private static final String URN_NODE_9 = "urn:local:0x0009";
+
+	private static final HashSet<String> NODES_10 =
+			newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
+					URN_NODE_7, URN_NODE_8, URN_NODE_9
+			);
 
 	private static final String URN_PORTAL = "urn:local:portal";
 
@@ -303,71 +336,46 @@ public class WSNAppBenchmark {
 	}
 
 	@Test
-	public void testSerial1Nodes() throws Exception {
-		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0);
-		printDurations(executeSerial(nodeUrns));
+	public void testSerial1Node() throws Exception {
+		printDurations(executeSerial(NODES_1));
 	}
 
 	@Test
 	public void testSerial2Nodes() throws Exception {
-		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1);
-		printDurations(executeSerial(nodeUrns));
+		printDurations(executeSerial(NODES_2));
 	}
 
 	@Test
 	public void testSerial3Nodes() throws Exception {
-		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2);
-		printDurations(executeSerial(nodeUrns));
+		printDurations(executeSerial(NODES_3));
 	}
 
 	@Test
 	public void testSerial4Nodes() throws Exception {
-		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3);
-		printDurations(executeSerial(nodeUrns));
+		printDurations(executeSerial(NODES_4));
 	}
 
 	@Test
 	public void testSerial5Nodes() throws Exception {
-		final HashSet<String> nodeUrns = newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4);
-		printDurations(executeSerial(nodeUrns));
+		printDurations(executeSerial(NODES_5));
 	}
 
 	@Test
 	public void testSerial1to10Nodes() throws Exception {
-		printDurations(executeSerial(newHashSet(URN_NODE_0)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3)));
-		printDurations(executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4)));
-		printDurations(
-				executeSerial(newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5))
-		);
-		printDurations(executeSerial(
-				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6)
-		)
-		);
-		printDurations(executeSerial(
-				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
-						URN_NODE_7
-				)
-		)
-		);
-		printDurations(executeSerial(
-				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
-						URN_NODE_7, URN_NODE_8
-				)
-		)
-		);
-		printDurations(executeSerial(
-				newHashSet(URN_NODE_0, URN_NODE_1, URN_NODE_2, URN_NODE_3, URN_NODE_4, URN_NODE_5, URN_NODE_6,
-						URN_NODE_7, URN_NODE_8, URN_NODE_9
-				)
-		)
-		);
+		printDurations(executeSerial(NODES_1));
+		printDurations(executeSerial(NODES_2));
+		printDurations(executeSerial(NODES_3));
+		printDurations(executeSerial(NODES_4));
+		printDurations(executeSerial(NODES_5));
+		printDurations(executeSerial(NODES_6));
+		printDurations(executeSerial(NODES_7));
+		printDurations(executeSerial(NODES_8));
+		printDurations(executeSerial(NODES_9));
+		printDurations(executeSerial(NODES_10));
 	}
 
 	@Test
-	public void testParallel() throws Exception {
+	public void testParallelSendToOneDevice() throws Exception {
 
 		final List<Float> durations = newLinkedList();
 		final List<FutureMessageReceiver> receivers = newLinkedList();
@@ -375,7 +383,7 @@ public class WSNAppBenchmark {
 		// fork
 		FutureMessageReceiver receiver;
 		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
-			receiver = new FutureMessageReceiver(newHashSet(URN_NODE_1), messageNumber, wsnApp);
+			receiver = new FutureMessageReceiver(NODES_1, messageNumber, wsnApp);
 			receiver.start();
 			receivers.add(receiver);
 		}
@@ -383,7 +391,7 @@ public class WSNAppBenchmark {
 		// join
 		for (FutureMessageReceiver messageReceiver : receivers) {
 			try {
-				messageReceiver.getFuture().get(5, TimeUnit.SECONDS);
+				messageReceiver.getFuture().get(10, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
 				log.warn(
 						"TimeoutException for messageNumber={} (hex: {})",
@@ -397,16 +405,44 @@ public class WSNAppBenchmark {
 		printDurations(durations);
 	}
 
+	@Test
+	public void testParallelWithMultipleDevices() throws Exception {
+
+		final List<Float> durations = newLinkedList();
+
+		for (int messageNumber = 0; messageNumber < RUNS; messageNumber++) {
+
+			final FutureMessageReceiver receiver;
+			receiver = new FutureMessageReceiver(NODES_10, messageNumber, wsnApp);
+			receiver.start();
+			try {
+				receiver.getFuture().get(5, TimeUnit.SECONDS);
+			} catch (TimeoutException e) {
+				log.warn(
+						"TimeoutException for messageNumber={} (hex: {})",
+						receiver.getMessageNumber(),
+						StringUtils.toHexString(receiver.getMessageNumber())
+				);
+			}
+			durations.add((float) receiver.getDuration());
+		}
+
+		printDurations(durations);
+	}
+
 	private void createWSNDeviceApps(final Injector injector) {
 		wsnDeviceApps = new HashMap<String, WSNDeviceApp>();
 		for (String nodeUrn : reservedNodes) {
+
+			final Map<String, String> nodeConfiguration = new HashMap<String, String>();
+			//nodeConfiguration.put("UART_LATENCY", "10");
+			nodeConfiguration.put("ECHO", "true");
 
 			final WSNDeviceAppConfiguration configuration = new WSNDeviceAppConfiguration(nodeUrn, null);
 			final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
 					nodeUrn,
 					DeviceType.MOCK.toString(),
-					nodeUrn + ",10,SECONDS",
-					null, null, null, null, null, null, null, null
+					null, null, nodeConfiguration, null, null, null, null, null, null
 			);
 
 			final WSNDeviceAppGuiceFactory factory = injector.getInstance(WSNDeviceAppGuiceFactory.class);
