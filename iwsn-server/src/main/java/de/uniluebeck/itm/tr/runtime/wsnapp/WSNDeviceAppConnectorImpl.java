@@ -966,6 +966,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
+		boolean isDelivered = false;
 
 		if (isWiselibReply) {
 
@@ -974,25 +975,20 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 			if (nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType)) {
 
+				isDelivered = true;
+
 				if (log.isDebugEnabled()) {
 					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
 							configuration.getNodeUrn(),
 							ChannelBufferTools.toPrintableString(buffer, 200)
 					);
 				}
-			} else {
 
-				if (log.isWarnEnabled()) {
-					log.warn(
-							"{} => Received WISELIB_UPSTREAM packet that was not expected by the Node API with content: {}",
-							configuration.getNodeUrn(),
-							ChannelBufferTools.toPrintableString(buffer, 200)
-					);
-				}
 			}
 
+		}
 
-		} else {
+		if (!isDelivered) {
 
 			// convert buffer to plain byte-array
 			byte[] bytes = new byte[buffer.readableBytes()];
