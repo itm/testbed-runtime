@@ -53,6 +53,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.tr.iwsn.AuthorizationRequired;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
@@ -592,6 +593,7 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("RESET_NODES")
 	public String resetNodes(final List<String> nodeUrns) {
 
 		preconditions.checkResetNodesArguments(nodeUrns);
