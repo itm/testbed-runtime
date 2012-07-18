@@ -56,9 +56,9 @@ import eu.wisebed.api.rs.SecretReservationKey;
  */
 @WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
 		targetNamespace = "urn:RSService")
-public class SingleUrnPrefixRS implements RS {
+public class SingleUrnPrefixSOAPRS implements RS {
 
-	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
+	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixSOAPRS.class);
 
 	/**
 	 * Testbed runtime internal implementation of the reservation system's functionality.

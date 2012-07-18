@@ -74,7 +74,7 @@ import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
@@ -221,11 +221,11 @@ public class RSServer {
 				final TimeLimiter timeLimiter = new SimpleTimeLimiter(executorService);
 
 				binder.bind(TimeLimiter.class)
-						.annotatedWith(Names.named("SingleUrnPrefixRS.timeLimiter"))
+						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.timeLimiter"))
 						.toInstance(timeLimiter);
 
 				binder.bind(String.class)
-						.annotatedWith(Names.named("SingleUrnPrefixRS.urnPrefix"))
+						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.urnPrefix"))
 						.toInstance(urnPrefix);
 
 				binder.bind(SNAA.class)
@@ -237,7 +237,7 @@ public class RSServer {
 							.toProvider(Providers.<SessionManagement>of(null));
 
 					binder.bind(String[].class)
-							.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+							.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
 							.toProvider(Providers.<String[]>of(null));
 
 				} else {
@@ -246,7 +246,7 @@ public class RSServer {
 							.toInstance(WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
 
 					binder.bind(String[].class)
-							.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+							.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
 							.toProvider(ServedNodeUrnsProvider.class);
 				}
 
@@ -255,7 +255,7 @@ public class RSServer {
 						.toInstance(persistence);
 				
 				binder.bind(RS.class)
-						.to(SingleUrnPrefixRS.class);
+						.to(SingleUrnPrefixSOAPRS.class);
 
 				binder.bind(RS.class)
 						.annotatedWith(NonWS.class)

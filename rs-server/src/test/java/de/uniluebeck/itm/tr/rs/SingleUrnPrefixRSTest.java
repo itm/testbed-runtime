@@ -34,7 +34,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
 import eu.wisebed.api.rs.AuthorizationExceptionException;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -117,7 +117,7 @@ public class SingleUrnPrefixRSTest {
 			@Override
 			public void configure(final Binder binder) {
 
-				binder.bind(String.class).annotatedWith(Names.named("SingleUrnPrefixRS.urnPrefix"))
+				binder.bind(String.class).annotatedWith(Names.named("SingleUrnPrefixSOAPRS.urnPrefix"))
 						.toInstance(URN_PREFIX);
 
 				binder.bind(SNAA.class)
@@ -130,11 +130,11 @@ public class SingleUrnPrefixRSTest {
 						.toInstance(persistence);
 
 				binder.bind(String[].class)
-						.annotatedWith(Names.named("SingleUrnPrefixRS.servedNodeUrns"))
+						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
 						.toProvider(servedNodeUrns);
 
 				binder.bind(RS.class)
-						.to(SingleUrnPrefixRS.class);
+						.to(SingleUrnPrefixSOAPRS.class);
 				
 				binder.bind(RS.class)
 				.annotatedWith(NonWS.class)

@@ -34,7 +34,7 @@ public class ServedNodeUrnsProvider implements Provider<String[]> {
 
 	@Inject
 	public ServedNodeUrnsProvider(@Nullable final SessionManagement sessionManagement,
-								  @Named("SingleUrnPrefixRS.timeLimiter") final TimeLimiter timeLimiter) {
+								  @Named("SingleUrnPrefixSOAPRS.timeLimiter") final TimeLimiter timeLimiter) {
 		this.sessionManagement = sessionManagement;
 		this.timeLimiter = timeLimiter;
 	}

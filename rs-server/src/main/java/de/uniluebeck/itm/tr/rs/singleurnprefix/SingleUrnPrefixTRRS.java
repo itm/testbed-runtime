@@ -54,7 +54,7 @@ public class SingleUrnPrefixTRRS implements RS {
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixTRRS.class);
 
 	@Inject
-	@Named("SingleUrnPrefixRS.urnPrefix")
+	@Named("SingleUrnPrefixSOAPRS.urnPrefix")
 	private String urnPrefix;
 
 	@Inject
@@ -62,7 +62,7 @@ public class SingleUrnPrefixTRRS implements RS {
 
 	@Inject
 	@Nullable
-	@Named("SingleUrnPrefixRS.servedNodeUrns")
+	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
 	private Provider<String[]> servedNodeUrns;
 
 	@Override
