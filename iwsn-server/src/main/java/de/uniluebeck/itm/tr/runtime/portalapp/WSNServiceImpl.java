@@ -48,6 +48,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -330,8 +331,11 @@ public class WSNServiceImpl implements WSNService {
 	private WSNNodeMessageReceiverInternal nodeMessageReceiver = new WSNNodeMessageReceiverInternal();
 
 	@Inject
-	public WSNServiceImpl(final WSNServiceConfig config, final DeliveryManager deliveryManager,
-						  final WSNPreconditions preconditions, final WSNApp wsnApp) {
+	public WSNServiceImpl(
+			@Assisted final WSNServiceConfig config,
+			@Assisted final DeliveryManager deliveryManager,
+			@Assisted final WSNPreconditions preconditions,
+			@Assisted final WSNApp wsnApp) {
 
 		checkNotNull(config);
 		checkNotNull(deliveryManager);

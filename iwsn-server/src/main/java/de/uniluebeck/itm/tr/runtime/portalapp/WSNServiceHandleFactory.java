@@ -46,27 +46,14 @@ public class WSNServiceHandleFactory {
 		}
 
 		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(urnPrefix).build();
-		final Injector injector = Guice.createInjector(new WSNAppModule());
-		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
-
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
 		
-		Injector wsnServiceInjector = Guice.createInjector(new Module(){
-			@Override
-			public void configure(Binder binder) {
-				
-				binder.bind(WSNServiceConfig.class).toInstance(config);
-				binder.bind(DeliveryManager.class).toInstance(protobufDeliveryManager);
-				binder.bind(WSNPreconditions.class).toInstance(preconditions);
-				binder.bind(WSNApp.class).toInstance(wsnApp);
-				
-				binder.bind(WSNService.class).to(WSNServiceImpl.class);
-				
-			}
-		});
-		final WSNService wsnService = wsnServiceInjector.getInstance(WSNService.class);
+		final Injector injector = Guice.createInjector(new WSNAppModule());
+		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
 		
+		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
+		final WSNService wsnService = wsnServiceInjector.getInstance(WSNServiceFactory.class).create(config, protobufDeliveryManager, preconditions, wsnApp);
 		
 		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
