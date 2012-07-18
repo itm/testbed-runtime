@@ -23,8 +23,34 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -35,6 +61,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
+import de.uniluebeck.itm.tr.util.Preconditions;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
@@ -44,22 +71,6 @@ import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 
 public class SessionManagementServiceImpl implements SessionManagementService {
 
@@ -286,41 +297,42 @@ public class SessionManagementServiceImpl implements SessionManagementService {
 				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 				confidentialReservationDataList = getReservationDataFromRS(keys);
 				reservedNodes = new HashSet<String>();
+				
+				// since only one secret reservation key is allowed only one piece of confidential reservation data is expected 
+				com.google.common.base.Preconditions.checkArgument(confidentialReservationDataList.size() == 1,
+						"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
+				);
 
 				// assure that wsnInstance creation doesn't happen before reservation time slot
 				assertReservationIntervalMet(confidentialReservationDataList);
 
-				// get reserved nodes
-				for (ConfidentialReservationData data : confidentialReservationDataList) {
+				ConfidentialReservationData data = confidentialReservationDataList.get(0);
 
-					// convert all node URNs to lower case so that we can do easy string-based comparisons
-					for (String nodeURN : data.getNodeURNs()) {
-						reservedNodes.add(nodeURN.toLowerCase());
-					}
+				// convert all node URNs to lower case so that we can do easy string-based comparisons
+				for (String nodeURN : data.getNodeURNs()) {
+					reservedNodes.add(nodeURN.toLowerCase());
 				}
+				
 
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes);
 
-				// assure that all wsn-instances will be removed after expiration time
-				for (ConfidentialReservationData data : confidentialReservationDataList) {
 
-					//Creating delay for CleanUpJob
-					long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
+				//Creating delay for CleanUpJob
+				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
 
-					//stop and remove invalid instances after their expiration time
+				//stop and remove invalid instances after their expiration time
+				synchronized (scheduledCleanUpWSNInstanceJobs) {
 
-					synchronized (scheduledCleanUpWSNInstanceJobs) {
+					final ScheduledFuture<?> schedule = getScheduler().schedule(
+							new CleanUpWSNInstanceJob(keys),
+							delay,
+							TimeUnit.MILLISECONDS
+					);
 
-						final ScheduledFuture<?> schedule = getScheduler().schedule(
-								new CleanUpWSNInstanceJob(keys),
-								delay,
-								TimeUnit.MILLISECONDS
-						);
-
-						scheduledCleanUpWSNInstanceJobs.put(secretReservationKey,schedule);
-					}
+					scheduledCleanUpWSNInstanceJobs.put(secretReservationKey,schedule);
 				}
+				
 
 			} else {
 				log.info("Information: No reservation system found! All existing nodes will be used.");
