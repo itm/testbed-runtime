@@ -1,87 +1,76 @@
-/**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
- * All rights reserved.                                                                                               *
- *                                                                                                                    *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
- * following conditions are met:                                                                                      *
- *                                                                                                                    *
- * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
- *   disclaimer.                                                                                                      *
- * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
- *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or        *
- *   promote products derived from this software without specific prior written permission.                           *
- *                                                                                                                    *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
- **********************************************************************************************************************/
-
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.transform;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+
+import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.rs.AuthorizationException;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.Data;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.snaa.*;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
 
-import javax.annotation.Nullable;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.transform;
-
-@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "urn:RSService")
+/**
+ * Testbed Runtime internal implementation of the interface which defines the reservation system
+ * (RS) for the WISEBED experimental facilities stripped of the Web Service accessibility. 
+ */
 public class SingleUrnPrefixRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
 
 	@Inject
-	@Named("SingleUrnPrefixRS.urnPrefix")
+	@Named("SingleUrnPrefixSOAPRS.urnPrefix")
 	private String urnPrefix;
-
-	@Inject
-	private SNAA snaa;
 
 	@Inject
 	private RSPersistence persistence;
 
 	@Inject
 	@Nullable
-	@Named("SingleUrnPrefixRS.servedNodeUrns")
+	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
 	private Provider<String[]> servedNodeUrns;
 
-	@WebResult(name = "secretReservationKey")
 	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation") ConfidentialReservationData reservation)
+	@AuthorizationRequired("MAKE_RESERVATION")
+	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
 
-		checkNotNull(
-				reservation.getUserData() != null && !"".equals(reservation.getUserData()),
-				"The field userData must be set!"
-		);
+		checkNotNull(reservation.getUserData() != null && !"".equals(reservation.getUserData()), "The field userData must be set!");
 
 		checkArgumentValid(reservation);
 		checkArgumentValidAuthentication(authenticationData);
@@ -89,7 +78,6 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
 
-		checkAuthorization(secretAuthenticationKey, Actions.MAKE_RESERVATION);
 		checkNodesAvailable(reservation);
 
 		return makeReservationInternal(reservation, secretAuthenticationKey);
@@ -97,8 +85,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private List<SecretReservationKey> makeReservationInternal(final ConfidentialReservationData reservation,
-															   final SecretAuthenticationKey secretAuthenticationKey)
-			throws RSExceptionException {
+			final SecretAuthenticationKey secretAuthenticationKey) throws RSExceptionException {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(reservation.getFrom());
@@ -128,9 +115,8 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys) throws RSExceptionException,
+			ReservervationNotFoundExceptionException {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 		checkArgumentValidReservation(secretReservationKeys);
@@ -151,11 +137,8 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys)
+	@AuthorizationRequired("DELETE_RESERVATION")
+	public void deleteReservation(List<SecretAuthenticationKey> authenticationData, List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
 		checkNotNull(authenticationData, "Parameter authenticationData is null!");
@@ -164,12 +147,12 @@ public class SingleUrnPrefixRS implements RS {
 		checkArgumentValidReservation(secretReservationKeys);
 
 		// TODO check authentication (https://github.com/itm/testbed-runtime/issues/47)
-		//checkArgumentValidAuthentication(authenticationData);
-		//try {
-		//	checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
-		//} catch (AuthorizationExceptionException e) {
-		//	throwRSExceptionException(e);
-		//}
+		// checkArgumentValidAuthentication(authenticationData);
+		// try {
+		// checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
+		// } catch (AuthorizationExceptionException e) {
+		// throwRSExceptionException(e);
+		// }
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
 		ConfidentialReservationData reservationToDelete = persistence.getReservation(secretReservationKeyToDelete);
@@ -181,8 +164,7 @@ public class SingleUrnPrefixRS implements RS {
 		log.debug("Deleted reservation {}", reservationToDelete);
 	}
 
-	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation)
-			throws RSExceptionException {
+	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSExceptionException {
 
 		DateTime reservationFrom = new DateTime(reservation.getFrom().toGregorianCalendar());
 
@@ -193,15 +175,12 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+	public List<PublicReservationData> getReservations(XMLGregorianCalendar from, XMLGregorianCalendar to) throws RSExceptionException {
 
 		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
 		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
 
-		Interval request =
-				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
+		Interval request = new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
 		List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
 
 		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
@@ -209,10 +188,9 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+	@AuthorizationRequired("GET_CONFIDENTIAL_RESERVATION")
+	public List<ConfidentialReservationData> getConfidentialReservations(List<SecretAuthenticationKey> secretAuthenticationKeys,
+			GetReservations period) throws RSExceptionException {
 
 		checkNotNull(period, "Parameter period is null!");
 		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
@@ -222,15 +200,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
 
-		try {
-			checkAuthorization(key, Actions.GET_CONFIDENTIAL_RESERVATION);
-		} catch (Exception e) {
-			return throwRSExceptionException(e);
-		}
-
-		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
-				new DateTime(period.getTo().toGregorianCalendar())
-		);
+		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()), new DateTime(period.getTo().toGregorianCalendar()));
 
 		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
@@ -245,8 +215,7 @@ public class SingleUrnPrefixRS implements RS {
 		return reservationsOfAuthenticatedUserInInterval;
 	}
 
-	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
-			throws RSExceptionException {
+	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData) throws RSExceptionException {
 
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
@@ -267,52 +236,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private boolean checkAuthentication(SecretAuthenticationKey key, Action action) throws RSExceptionException,
-			AuthorizationExceptionException, AuthenticationExceptionException {
-
-		log.debug("Checking authorization for key: " + key + " and action: " + action);
-		boolean authorized;
-
-		eu.wisebed.api.snaa.SecretAuthenticationKey sak = new eu.wisebed.api.snaa.SecretAuthenticationKey();
-		sak.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
-		sak.setUrnPrefix(key.getUrnPrefix());
-		sak.setUsername(key.getUsername());
-
-		List<eu.wisebed.api.snaa.SecretAuthenticationKey> saks = Lists.newArrayList();
-		saks.add(sak);
-
-		// Invoke isAuthorized
-		try {
-
-			authorized = snaa.isAuthorized(saks, action);
-			log.debug("Authorization result: " + authorized);
-
-			if (!authorized) {
-				AuthorizationException e = new AuthorizationException();
-				String msg = "Authorization failed";
-				e.setMessage(msg);
-				log.warn(msg, e);
-				throw new AuthorizationExceptionException(msg, e);
-			}
-
-		} catch (SNAAExceptionException e) {
-			throwRSExceptionException(e);
-		}
-
-		return true;
-	}
-
-	private void checkAuthorization(final SecretAuthenticationKey secretAuthenticationKey, final Action action)
-			throws RSExceptionException, AuthorizationExceptionException {
-
-		if (snaa != null) {
-			try {
-				checkAuthentication(secretAuthenticationKey, action);
-			} catch (AuthenticationExceptionException e) {
-				throw createAuthorizationExceptionException(e);
-			}
-		}
-	}
+	
 
 	private RSExceptionException createRSExceptionException(String message) {
 		RSException exception = new RSException();
@@ -340,13 +264,12 @@ public class SingleUrnPrefixRS implements RS {
 		// Check if we serve all node urns by urnPrefix
 		for (String nodeUrn : nodeUrns) {
 			if (!nodeUrn.startsWith(urnPrefix)) {
-				throw createRSExceptionException(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
-				);
+				throw createRSExceptionException("Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix);
 			}
 		}
 
-		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description
+		// Ask Session Management Endpoint of the testbed we're responsible for for it's network
+		// description
 		// and check if the individual node urns of the reservation are existing
 		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
 
@@ -375,11 +298,9 @@ public class SingleUrnPrefixRS implements RS {
 				}
 			}
 
-
 			if (unservedNodes.size() > 0) {
-				throw createRSExceptionException("The node URNs " + Arrays
-						.toString(unservedNodes.toArray()) + " are unknown to the reservation system!"
-				);
+				throw createRSExceptionException("The node URNs " + Arrays.toString(unservedNodes.toArray())
+						+ " are unknown to the reservation system!");
 			}
 
 		} else {
@@ -392,14 +313,13 @@ public class SingleUrnPrefixRS implements RS {
 		String msg = null;
 
 		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
-			//if reservation-data is null
+			// if reservation-data is null
 			msg = "No reservation data supplied.";
 		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-			//if "to" of reservation-timestamp lies in the past
+			// if "to" of reservation-timestamp lies in the past
 			msg = "To time is in the past.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom()
-				.toGregorianCalendar().getTimeInMillis()) {
-			//if "from" is later then "to"
+		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom().toGregorianCalendar().getTimeInMillis()) {
+			// if "from" is later then "to"
 			msg = "To is less than From time.";
 		}
 
@@ -416,8 +336,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException {
+	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys) throws RSExceptionException {
 
 		String msg = null;
 		SecretReservationKey srk;
@@ -441,8 +360,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkNodesAvailable(PublicReservationData reservation)
-			throws ReservervationConflictExceptionException, RSExceptionException {
+	private void checkNodesAvailable(PublicReservationData reservation) throws ReservervationConflictExceptionException, RSExceptionException {
 
 		List<String> requested = transform(reservation.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE);
 		Set<String> reserved = new HashSet<String>();
@@ -455,8 +373,7 @@ public class SingleUrnPrefixRS implements RS {
 		intersection.retainAll(requested);
 
 		if (intersection.size() > 0) {
-			String msg = "Some of the nodes are reserved during the requested time ("
-					+ Arrays.toString(intersection.toArray()) + ")";
+			String msg = "Some of the nodes are reserved during the requested time (" + Arrays.toString(intersection.toArray()) + ")";
 			log.warn(msg);
 			ReservervationConflictException exception = new ReservervationConflictException();
 			exception.setMessage(msg);
@@ -464,8 +381,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private List<ConfidentialReservationData> throwRSExceptionException(final Exception cause)
-			throws RSExceptionException {
+	private List<ConfidentialReservationData> throwRSExceptionException(final Exception cause) throws RSExceptionException {
 		RSException rse = new RSException();
 		log.warn(cause.getMessage());
 		rse.setMessage(cause.getMessage());
@@ -482,8 +398,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private List<PublicReservationData> convertToPublic(
-			List<ConfidentialReservationData> confidentialReservationDataList) {
+	private List<PublicReservationData> convertToPublic(List<ConfidentialReservationData> confidentialReservationDataList) {
 		List<PublicReservationData> publicReservationDataList = Lists.newArrayList();
 		for (ConfidentialReservationData confidentialReservationData : confidentialReservationDataList) {
 			publicReservationDataList.add(convertToPublic(confidentialReservationData));
