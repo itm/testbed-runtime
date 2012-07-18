@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
@@ -72,12 +74,19 @@ public class WSNDeviceAppConnectorBenchmark {
 
 		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
 				NODE_URN,
-				DeviceType.MOCK.toString(),
-				NODE_URN + ",10,SECONDS",
+				DeviceType.ISENSE.toString(),
+				"/dev/tty.usbserial-001213FD",
 				null, null, null, null, null, null, null, null
 		);
 
-		final Injector injector = Guice.createInjector(new WSNDeviceAppModule());
+		/*final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+				NODE_URN,
+				DeviceType.MOCK.toString(),
+				NODE_URN + ",10,SECONDS",
+				null, null, null, null, null, null, null, null
+		);*/
+
+		final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
 		final WSNDeviceAppConnectorFactory factory = injector.getInstance(WSNDeviceAppConnectorFactory.class);
 		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
@@ -99,7 +108,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		List<Float> durations = newLinkedList();
 
 		long before, after;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 
 			final SettableFuture<Object> future = SettableFuture.create();
 			final int messageNumber = i;
@@ -139,9 +148,12 @@ public class WSNDeviceAppConnectorBenchmark {
 			connector.removeListener(listener);
 		}
 
-		System.out.println("Min: " + MIN.apply(durations) + " ms");
-		System.out.println("Max: " + MAX.apply(durations) + " ms");
-		System.out.println("Mean: " + MEAN.apply(durations) + " ms");
+		System.out.println("--------------------- Durations ---------------------");
+		System.out.println("Min:       " + MIN.apply(durations) + " ms");
+		System.out.println("Max:       " + MAX.apply(durations) + " ms");
+		System.out.println("Mean:      " + MEAN.apply(durations) + " ms");
+		System.out.println("Durations: " + Arrays.toString(durations.toArray()));
+		System.out.println("-----------------------------------------------------");
 	}
 
 	@Test
