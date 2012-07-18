@@ -66,7 +66,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	 */
 	@Inject
 	@NonWS
-	private RS delegate;
+	private RS reservationSystem;
 
 	@WebResult(name = "secretReservationKey")
 	@Override
@@ -76,7 +76,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			@WebParam(name = "reservation") ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
 
-		return delegate.makeReservation(authenticationData, reservation);
+		return reservationSystem.makeReservation(authenticationData, reservation);
 
 	}
 	
@@ -85,7 +85,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		return delegate.getReservation(secretReservationKeys);
+		return reservationSystem.getReservation(secretReservationKeys);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		delegate.deleteReservation(authenticationData, secretReservationKeys);
+		reservationSystem.deleteReservation(authenticationData, secretReservationKeys);
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
 			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
 
-		return delegate.getReservations(from, to);
+		return reservationSystem.getReservations(from, to);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
 
-		return delegate.getConfidentialReservations(secretAuthenticationKeys, period);
+		return reservationSystem.getConfidentialReservations(secretAuthenticationKeys, period);
 	}
 
 }
