@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -82,24 +83,23 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
 
-	private static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+	static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
 
-	private static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+	static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
 
-	private static final byte NODE_OUTPUT_TEXT = 50;
+	static final byte NODE_OUTPUT_TEXT = 50;
 
-	private static final byte NODE_OUTPUT_BYTE = 51;
+	static final byte NODE_OUTPUT_BYTE = 51;
 
-	private static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+	static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
-	private static final byte VIRTUAL_LINK_MESSAGE = 11;
+	static final byte VIRTUAL_LINK_MESSAGE = 11;
 
 	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
 
 	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
-	private final ListenerManager<WSNDeviceAppConnector.NodeOutputListener> listenerManager =
-			new ListenerManagerImpl<NodeOutputListener>();
+	private final ListenerManager<WSNDeviceAppConnector.NodeOutputListener> listenerManager;
 
 	private final WSNDeviceAppConnectorConfiguration configuration;
 
@@ -181,17 +181,20 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	public WSNDeviceAppConnectorImpl(@Assisted @Nonnull final WSNDeviceAppConnectorConfiguration configuration,
 									 @Assisted @Nonnull final DeviceFactory deviceFactory,
 									 @Assisted @Nonnull final EventBus deviceObserverEventBus,
-									 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus) {
+									 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus,
+									 @Nonnull ListenerManager<NodeOutputListener> listenerManager) {
 
 		checkNotNull(configuration);
 		checkNotNull(deviceFactory);
 		checkNotNull(deviceObserverEventBus);
 		checkNotNull(deviceObserverAsyncEventBus);
+		checkNotNull(listenerManager);
 
 		this.configuration = configuration;
 		this.deviceFactory = deviceFactory;
 		this.deviceObserverEventBus = deviceObserverEventBus;
 		this.deviceObserverAsyncEventBus = deviceObserverAsyncEventBus;
+		this.listenerManager = listenerManager;
 
 		this.nodeApi = new NodeApi(
 				configuration.getNodeUrn(),
@@ -939,7 +942,8 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 	}
 
-	private void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
+	@VisibleForTesting
+	void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
 
 		//if reaching maximum-message-rate do not send more then 1 message
 		if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
@@ -957,6 +961,15 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			);
 		}
 
+		// pass output to all listeners
+		byte[] bytes = new byte[buffer.readableBytes()];
+		buffer.getBytes(0, bytes);
+
+		for (NodeOutputListener listener : listenerManager.getListeners()) {
+			listener.receivedPacket(bytes);
+		}
+
+		// additionally pass to Node API in case it awaits a response
 		boolean isWiselibUpstream =
 				(buffer.getByte(0) & 0xFF) == MESSAGE_TYPE_WISELIB_UPSTREAM;
 
@@ -966,37 +979,21 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 						(buffer.getByte(1) & 0xFF) == NODE_OUTPUT_VIRTUAL_LINK);
 
 		boolean isWiselibReply = isWiselibUpstream && !isByteTextOrVLink;
-		boolean isDelivered = false;
 
 		if (isWiselibReply) {
 
 			final ByteBuffer packetWithoutISenseMessageType = ByteBuffer.allocate(buffer.readableBytes() - 1);
-			System.arraycopy(buffer.array(), 1, packetWithoutISenseMessageType.array(), 0, buffer.readableBytes() - 1);
+			buffer.getBytes(1, packetWithoutISenseMessageType.array(), 0, buffer.readableBytes() - 1);
 
-			if (nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType)) {
+			final boolean isConsumedByNodeApi = nodeApiDeviceAdapter.receiveFromNode(packetWithoutISenseMessageType);
 
-				isDelivered = true;
-
-				if (log.isDebugEnabled()) {
-					log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
-							configuration.getNodeUrn(),
-							ChannelBufferTools.toPrintableString(buffer, 200)
-					);
-				}
-
+			if (isConsumedByNodeApi && log.isDebugEnabled()) {
+				log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
+						configuration.getNodeUrn(),
+						ChannelBufferTools.toPrintableString(buffer, 200)
+				);
 			}
 
-		}
-
-		if (!isDelivered) {
-
-			// convert buffer to plain byte-array
-			byte[] bytes = new byte[buffer.readableBytes()];
-			buffer.getBytes(0, bytes);
-
-			for (NodeOutputListener listener : listenerManager.getListeners()) {
-				listener.receivedPacket(bytes);
-			}
 		}
 	}
 
