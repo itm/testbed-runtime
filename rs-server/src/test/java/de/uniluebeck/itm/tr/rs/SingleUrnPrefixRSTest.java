@@ -35,7 +35,7 @@ import com.google.inject.name.Names;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import eu.wisebed.api.rs.AuthorizationExceptionException;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.Data;
@@ -138,7 +138,7 @@ public class SingleUrnPrefixRSTest {
 				
 				binder.bind(RS.class)
 				.annotatedWith(NonWS.class)
-				.to(SingleUrnPrefixTRRS.class);
+				.to(SingleUrnPrefixRS.class);
 		
 				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa));
 			}

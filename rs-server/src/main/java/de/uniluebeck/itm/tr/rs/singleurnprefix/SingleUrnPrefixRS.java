@@ -49,9 +49,9 @@ import eu.wisebed.api.snaa.AuthenticationExceptionException;
  * Testbed Runtime internal implementation of the interface which defines the reservation system
  * (RS) for the WISEBED experimental facilities stripped of the Web Service accessibility. 
  */
-public class SingleUrnPrefixTRRS implements RS {
+public class SingleUrnPrefixRS implements RS {
 
-	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixTRRS.class);
+	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
 
 	@Inject
 	@Named("SingleUrnPrefixSOAPRS.urnPrefix")

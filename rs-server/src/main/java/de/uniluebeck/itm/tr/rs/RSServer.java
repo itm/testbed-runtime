@@ -75,7 +75,7 @@ import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixTRRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.RS;
@@ -259,7 +259,7 @@ public class RSServer {
 
 				binder.bind(RS.class)
 						.annotatedWith(NonWS.class)
-						.to(SingleUrnPrefixTRRS.class);
+						.to(SingleUrnPrefixRS.class);
 				
 				binder.bindInterceptor(Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaaInstance));
 			}
