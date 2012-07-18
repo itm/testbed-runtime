@@ -8,43 +8,11 @@ public final class Messages {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface MsgOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required string to = 1;
-    boolean hasTo();
-    String getTo();
-    
-    // required string from = 2;
-    boolean hasFrom();
-    String getFrom();
-    
-    // required string msgType = 3;
-    boolean hasMsgType();
-    String getMsgType();
-    
-    // required uint32 priority = 4;
-    boolean hasPriority();
-    int getPriority();
-    
-    // optional bytes payload = 5;
-    boolean hasPayload();
-    com.google.protobuf.ByteString getPayload();
-    
-    // optional string replyWith = 6;
-    boolean hasReplyWith();
-    String getReplyWith();
-    
-    // optional string replyTo = 7;
-    boolean hasReplyTo();
-    String getReplyTo();
-  }
   public static final class Msg extends
-      com.google.protobuf.GeneratedMessage
-      implements MsgOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use Msg.newBuilder() to construct.
-    private Msg(Builder builder) {
-      super(builder);
+    private Msg() {
+      initFields();
     }
     private Msg(boolean noInit) {}
     
@@ -67,244 +35,88 @@ public final class Messages {
       return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_fieldAccessorTable;
     }
     
-    private int bitField0_;
     // required string to = 1;
     public static final int TO_FIELD_NUMBER = 1;
-    private java.lang.Object to_;
-    public boolean hasTo() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public String getTo() {
-      java.lang.Object ref = to_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          to_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getToBytes() {
-      java.lang.Object ref = to_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        to_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasTo;
+    private java.lang.String to_ = "";
+    public boolean hasTo() { return hasTo; }
+    public java.lang.String getTo() { return to_; }
     
     // required string from = 2;
     public static final int FROM_FIELD_NUMBER = 2;
-    private java.lang.Object from_;
-    public boolean hasFrom() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public String getFrom() {
-      java.lang.Object ref = from_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          from_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getFromBytes() {
-      java.lang.Object ref = from_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        from_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasFrom;
+    private java.lang.String from_ = "";
+    public boolean hasFrom() { return hasFrom; }
+    public java.lang.String getFrom() { return from_; }
     
     // required string msgType = 3;
     public static final int MSGTYPE_FIELD_NUMBER = 3;
-    private java.lang.Object msgType_;
-    public boolean hasMsgType() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    public String getMsgType() {
-      java.lang.Object ref = msgType_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          msgType_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getMsgTypeBytes() {
-      java.lang.Object ref = msgType_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        msgType_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasMsgType;
+    private java.lang.String msgType_ = "";
+    public boolean hasMsgType() { return hasMsgType; }
+    public java.lang.String getMsgType() { return msgType_; }
     
     // required uint32 priority = 4;
     public static final int PRIORITY_FIELD_NUMBER = 4;
-    private int priority_;
-    public boolean hasPriority() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    public int getPriority() {
-      return priority_;
-    }
+    private boolean hasPriority;
+    private int priority_ = 0;
+    public boolean hasPriority() { return hasPriority; }
+    public int getPriority() { return priority_; }
     
     // optional bytes payload = 5;
     public static final int PAYLOAD_FIELD_NUMBER = 5;
-    private com.google.protobuf.ByteString payload_;
-    public boolean hasPayload() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    public com.google.protobuf.ByteString getPayload() {
-      return payload_;
-    }
+    private boolean hasPayload;
+    private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasPayload() { return hasPayload; }
+    public com.google.protobuf.ByteString getPayload() { return payload_; }
     
     // optional string replyWith = 6;
     public static final int REPLYWITH_FIELD_NUMBER = 6;
-    private java.lang.Object replyWith_;
-    public boolean hasReplyWith() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    public String getReplyWith() {
-      java.lang.Object ref = replyWith_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          replyWith_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getReplyWithBytes() {
-      java.lang.Object ref = replyWith_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        replyWith_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasReplyWith;
+    private java.lang.String replyWith_ = "";
+    public boolean hasReplyWith() { return hasReplyWith; }
+    public java.lang.String getReplyWith() { return replyWith_; }
     
     // optional string replyTo = 7;
     public static final int REPLYTO_FIELD_NUMBER = 7;
-    private java.lang.Object replyTo_;
-    public boolean hasReplyTo() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    public String getReplyTo() {
-      java.lang.Object ref = replyTo_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          replyTo_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getReplyToBytes() {
-      java.lang.Object ref = replyTo_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        replyTo_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasReplyTo;
+    private java.lang.String replyTo_ = "";
+    public boolean hasReplyTo() { return hasReplyTo; }
+    public java.lang.String getReplyTo() { return replyTo_; }
     
     private void initFields() {
-      to_ = "";
-      from_ = "";
-      msgType_ = "";
-      priority_ = 0;
-      payload_ = com.google.protobuf.ByteString.EMPTY;
-      replyWith_ = "";
-      replyTo_ = "";
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasTo()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasFrom()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasMsgType()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPriority()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
+      if (!hasTo) return false;
+      if (!hasFrom) return false;
+      if (!hasMsgType) return false;
+      if (!hasPriority) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getToBytes());
+      if (hasTo()) {
+        output.writeString(1, getTo());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getFromBytes());
+      if (hasFrom()) {
+        output.writeString(2, getFrom());
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getMsgTypeBytes());
+      if (hasMsgType()) {
+        output.writeString(3, getMsgType());
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeUInt32(4, priority_);
+      if (hasPriority()) {
+        output.writeUInt32(4, getPriority());
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, payload_);
+      if (hasPayload()) {
+        output.writeBytes(5, getPayload());
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getReplyWithBytes());
+      if (hasReplyWith()) {
+        output.writeString(6, getReplyWith());
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getReplyToBytes());
+      if (hasReplyTo()) {
+        output.writeString(7, getReplyTo());
       }
       getUnknownFields().writeTo(output);
     }
@@ -315,44 +127,37 @@ public final class Messages {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasTo()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getToBytes());
+          .computeStringSize(1, getTo());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasFrom()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getFromBytes());
+          .computeStringSize(2, getFrom());
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (hasMsgType()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getMsgTypeBytes());
+          .computeStringSize(3, getMsgType());
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (hasPriority()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(4, priority_);
+          .computeUInt32Size(4, getPriority());
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (hasPayload()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, payload_);
+          .computeBytesSize(5, getPayload());
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (hasReplyWith()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getReplyWithBytes());
+          .computeStringSize(6, getReplyWith());
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (hasReplyTo()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getReplyToBytes());
+          .computeStringSize(7, getReplyTo());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg parseFrom(
@@ -429,63 +234,34 @@ public final class Messages {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.MsgOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg result;
       
       // Construct using de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        to_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        from_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
-        msgType_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
-        priority_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000008);
-        payload_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000010);
-        replyWith_ = "";
-        bitField0_ = (bitField0_ & ~0x00000020);
-        replyTo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -497,59 +273,33 @@ public final class Messages {
         return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg build() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg buildPartial() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.to_ = to_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.from_ = from_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.msgType_ = msgType_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.priority_ = priority_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.payload_ = payload_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
-        result.replyWith_ = replyWith_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
-        }
-        result.replyTo_ = replyTo_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -588,26 +338,6 @@ public final class Messages {
         return this;
       }
       
-      public final boolean isInitialized() {
-        if (!hasTo()) {
-          
-          return false;
-        }
-        if (!hasFrom()) {
-          
-          return false;
-        }
-        if (!hasMsgType()) {
-          
-          return false;
-        }
-        if (!hasPriority()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -620,281 +350,190 @@ public final class Messages {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              to_ = input.readBytes();
+              setTo(input.readString());
               break;
             }
             case 18: {
-              bitField0_ |= 0x00000002;
-              from_ = input.readBytes();
+              setFrom(input.readString());
               break;
             }
             case 26: {
-              bitField0_ |= 0x00000004;
-              msgType_ = input.readBytes();
+              setMsgType(input.readString());
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
-              priority_ = input.readUInt32();
+              setPriority(input.readUInt32());
               break;
             }
             case 42: {
-              bitField0_ |= 0x00000010;
-              payload_ = input.readBytes();
+              setPayload(input.readBytes());
               break;
             }
             case 50: {
-              bitField0_ |= 0x00000020;
-              replyWith_ = input.readBytes();
+              setReplyWith(input.readString());
               break;
             }
             case 58: {
-              bitField0_ |= 0x00000040;
-              replyTo_ = input.readBytes();
+              setReplyTo(input.readString());
               break;
             }
           }
         }
       }
       
-      private int bitField0_;
       
       // required string to = 1;
-      private java.lang.Object to_ = "";
       public boolean hasTo() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasTo();
       }
-      public String getTo() {
-        java.lang.Object ref = to_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          to_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getTo() {
+        return result.getTo();
       }
-      public Builder setTo(String value) {
+      public Builder setTo(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
-        to_ = value;
-        onChanged();
+  result.hasTo = true;
+        result.to_ = value;
         return this;
       }
       public Builder clearTo() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        to_ = getDefaultInstance().getTo();
-        onChanged();
+        result.hasTo = false;
+        result.to_ = getDefaultInstance().getTo();
         return this;
-      }
-      void setTo(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000001;
-        to_ = value;
-        onChanged();
       }
       
       // required string from = 2;
-      private java.lang.Object from_ = "";
       public boolean hasFrom() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return result.hasFrom();
       }
-      public String getFrom() {
-        java.lang.Object ref = from_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          from_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getFrom() {
+        return result.getFrom();
       }
-      public Builder setFrom(String value) {
+      public Builder setFrom(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
-        from_ = value;
-        onChanged();
+  result.hasFrom = true;
+        result.from_ = value;
         return this;
       }
       public Builder clearFrom() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        from_ = getDefaultInstance().getFrom();
-        onChanged();
+        result.hasFrom = false;
+        result.from_ = getDefaultInstance().getFrom();
         return this;
-      }
-      void setFrom(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000002;
-        from_ = value;
-        onChanged();
       }
       
       // required string msgType = 3;
-      private java.lang.Object msgType_ = "";
       public boolean hasMsgType() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return result.hasMsgType();
       }
-      public String getMsgType() {
-        java.lang.Object ref = msgType_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          msgType_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getMsgType() {
+        return result.getMsgType();
       }
-      public Builder setMsgType(String value) {
+      public Builder setMsgType(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
-        msgType_ = value;
-        onChanged();
+  result.hasMsgType = true;
+        result.msgType_ = value;
         return this;
       }
       public Builder clearMsgType() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        msgType_ = getDefaultInstance().getMsgType();
-        onChanged();
+        result.hasMsgType = false;
+        result.msgType_ = getDefaultInstance().getMsgType();
         return this;
-      }
-      void setMsgType(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000004;
-        msgType_ = value;
-        onChanged();
       }
       
       // required uint32 priority = 4;
-      private int priority_ ;
       public boolean hasPriority() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return result.hasPriority();
       }
       public int getPriority() {
-        return priority_;
+        return result.getPriority();
       }
       public Builder setPriority(int value) {
-        bitField0_ |= 0x00000008;
-        priority_ = value;
-        onChanged();
+        result.hasPriority = true;
+        result.priority_ = value;
         return this;
       }
       public Builder clearPriority() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        priority_ = 0;
-        onChanged();
+        result.hasPriority = false;
+        result.priority_ = 0;
         return this;
       }
       
       // optional bytes payload = 5;
-      private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasPayload() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return result.hasPayload();
       }
       public com.google.protobuf.ByteString getPayload() {
-        return payload_;
+        return result.getPayload();
       }
       public Builder setPayload(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
-        payload_ = value;
-        onChanged();
+  result.hasPayload = true;
+        result.payload_ = value;
         return this;
       }
       public Builder clearPayload() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        payload_ = getDefaultInstance().getPayload();
-        onChanged();
+        result.hasPayload = false;
+        result.payload_ = getDefaultInstance().getPayload();
         return this;
       }
       
       // optional string replyWith = 6;
-      private java.lang.Object replyWith_ = "";
       public boolean hasReplyWith() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return result.hasReplyWith();
       }
-      public String getReplyWith() {
-        java.lang.Object ref = replyWith_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          replyWith_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getReplyWith() {
+        return result.getReplyWith();
       }
-      public Builder setReplyWith(String value) {
+      public Builder setReplyWith(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
-        replyWith_ = value;
-        onChanged();
+  result.hasReplyWith = true;
+        result.replyWith_ = value;
         return this;
       }
       public Builder clearReplyWith() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        replyWith_ = getDefaultInstance().getReplyWith();
-        onChanged();
+        result.hasReplyWith = false;
+        result.replyWith_ = getDefaultInstance().getReplyWith();
         return this;
-      }
-      void setReplyWith(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000020;
-        replyWith_ = value;
-        onChanged();
       }
       
       // optional string replyTo = 7;
-      private java.lang.Object replyTo_ = "";
       public boolean hasReplyTo() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return result.hasReplyTo();
       }
-      public String getReplyTo() {
-        java.lang.Object ref = replyTo_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          replyTo_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getReplyTo() {
+        return result.getReplyTo();
       }
-      public Builder setReplyTo(String value) {
+      public Builder setReplyTo(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
-        replyTo_ = value;
-        onChanged();
+  result.hasReplyTo = true;
+        result.replyTo_ = value;
         return this;
       }
       public Builder clearReplyTo() {
-        bitField0_ = (bitField0_ & ~0x00000040);
-        replyTo_ = getDefaultInstance().getReplyTo();
-        onChanged();
+        result.hasReplyTo = false;
+        result.replyTo_ = getDefaultInstance().getReplyTo();
         return this;
-      }
-      void setReplyTo(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000040;
-        replyTo_ = value;
-        onChanged();
       }
       
       // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.overlay.messaging.Msg)
@@ -902,29 +541,18 @@ public final class Messages {
     
     static {
       defaultInstance = new Msg(true);
+      de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internalForceInit();
       defaultInstance.initFields();
     }
     
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.overlay.messaging.Msg)
   }
   
-  public interface SingleRequestMultipleResponseRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required string requestId = 1;
-    boolean hasRequestId();
-    String getRequestId();
-    
-    // required bytes payload = 2;
-    boolean hasPayload();
-    com.google.protobuf.ByteString getPayload();
-  }
   public static final class SingleRequestMultipleResponseRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements SingleRequestMultipleResponseRequestOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use SingleRequestMultipleResponseRequest.newBuilder() to construct.
-    private SingleRequestMultipleResponseRequest(Builder builder) {
-      super(builder);
+    private SingleRequestMultipleResponseRequest() {
+      initFields();
     }
     private SingleRequestMultipleResponseRequest(boolean noInit) {}
     
@@ -947,78 +575,36 @@ public final class Messages {
       return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_fieldAccessorTable;
     }
     
-    private int bitField0_;
     // required string requestId = 1;
     public static final int REQUESTID_FIELD_NUMBER = 1;
-    private java.lang.Object requestId_;
-    public boolean hasRequestId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public String getRequestId() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          requestId_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getRequestIdBytes() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        requestId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasRequestId;
+    private java.lang.String requestId_ = "";
+    public boolean hasRequestId() { return hasRequestId; }
+    public java.lang.String getRequestId() { return requestId_; }
     
     // required bytes payload = 2;
     public static final int PAYLOAD_FIELD_NUMBER = 2;
-    private com.google.protobuf.ByteString payload_;
-    public boolean hasPayload() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public com.google.protobuf.ByteString getPayload() {
-      return payload_;
-    }
+    private boolean hasPayload;
+    private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasPayload() { return hasPayload; }
+    public com.google.protobuf.ByteString getPayload() { return payload_; }
     
     private void initFields() {
-      requestId_ = "";
-      payload_ = com.google.protobuf.ByteString.EMPTY;
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasRequestId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPayload()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
+      if (!hasRequestId) return false;
+      if (!hasPayload) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getRequestIdBytes());
+      if (hasRequestId()) {
+        output.writeString(1, getRequestId());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, payload_);
+      if (hasPayload()) {
+        output.writeBytes(2, getPayload());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1029,24 +615,17 @@ public final class Messages {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasRequestId()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getRequestIdBytes());
+          .computeStringSize(1, getRequestId());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasPayload()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, payload_);
+          .computeBytesSize(2, getPayload());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest parseFrom(
@@ -1123,53 +702,34 @@ public final class Messages {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequestOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseRequest_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest result;
       
       // Construct using de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        requestId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        payload_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000002);
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -1181,39 +741,33 @@ public final class Messages {
         return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest build() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest buildPartial() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.requestId_ = requestId_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.payload_ = payload_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseRequest returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -1237,18 +791,6 @@ public final class Messages {
         return this;
       }
       
-      public final boolean isInitialized() {
-        if (!hasRequestId()) {
-          
-          return false;
-        }
-        if (!hasPayload()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1261,90 +803,67 @@ public final class Messages {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              requestId_ = input.readBytes();
+              setRequestId(input.readString());
               break;
             }
             case 18: {
-              bitField0_ |= 0x00000002;
-              payload_ = input.readBytes();
+              setPayload(input.readBytes());
               break;
             }
           }
         }
       }
       
-      private int bitField0_;
       
       // required string requestId = 1;
-      private java.lang.Object requestId_ = "";
       public boolean hasRequestId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasRequestId();
       }
-      public String getRequestId() {
-        java.lang.Object ref = requestId_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          requestId_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getRequestId() {
+        return result.getRequestId();
       }
-      public Builder setRequestId(String value) {
+      public Builder setRequestId(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
-        requestId_ = value;
-        onChanged();
+  result.hasRequestId = true;
+        result.requestId_ = value;
         return this;
       }
       public Builder clearRequestId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        requestId_ = getDefaultInstance().getRequestId();
-        onChanged();
+        result.hasRequestId = false;
+        result.requestId_ = getDefaultInstance().getRequestId();
         return this;
-      }
-      void setRequestId(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000001;
-        requestId_ = value;
-        onChanged();
       }
       
       // required bytes payload = 2;
-      private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasPayload() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return result.hasPayload();
       }
       public com.google.protobuf.ByteString getPayload() {
-        return payload_;
+        return result.getPayload();
       }
       public Builder setPayload(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
-        payload_ = value;
-        onChanged();
+  result.hasPayload = true;
+        result.payload_ = value;
         return this;
       }
       public Builder clearPayload() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        payload_ = getDefaultInstance().getPayload();
-        onChanged();
+        result.hasPayload = false;
+        result.payload_ = getDefaultInstance().getPayload();
         return this;
       }
       
@@ -1353,29 +872,18 @@ public final class Messages {
     
     static {
       defaultInstance = new SingleRequestMultipleResponseRequest(true);
+      de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internalForceInit();
       defaultInstance.initFields();
     }
     
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.overlay.messaging.SingleRequestMultipleResponseRequest)
   }
   
-  public interface SingleRequestMultipleResponseResponseOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required string requestId = 1;
-    boolean hasRequestId();
-    String getRequestId();
-    
-    // required bytes payload = 2;
-    boolean hasPayload();
-    com.google.protobuf.ByteString getPayload();
-  }
   public static final class SingleRequestMultipleResponseResponse extends
-      com.google.protobuf.GeneratedMessage
-      implements SingleRequestMultipleResponseResponseOrBuilder {
+      com.google.protobuf.GeneratedMessage {
     // Use SingleRequestMultipleResponseResponse.newBuilder() to construct.
-    private SingleRequestMultipleResponseResponse(Builder builder) {
-      super(builder);
+    private SingleRequestMultipleResponseResponse() {
+      initFields();
     }
     private SingleRequestMultipleResponseResponse(boolean noInit) {}
     
@@ -1398,78 +906,36 @@ public final class Messages {
       return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseResponse_fieldAccessorTable;
     }
     
-    private int bitField0_;
     // required string requestId = 1;
     public static final int REQUESTID_FIELD_NUMBER = 1;
-    private java.lang.Object requestId_;
-    public boolean hasRequestId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public String getRequestId() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          requestId_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getRequestIdBytes() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        requestId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
+    private boolean hasRequestId;
+    private java.lang.String requestId_ = "";
+    public boolean hasRequestId() { return hasRequestId; }
+    public java.lang.String getRequestId() { return requestId_; }
     
     // required bytes payload = 2;
     public static final int PAYLOAD_FIELD_NUMBER = 2;
-    private com.google.protobuf.ByteString payload_;
-    public boolean hasPayload() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public com.google.protobuf.ByteString getPayload() {
-      return payload_;
-    }
+    private boolean hasPayload;
+    private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasPayload() { return hasPayload; }
+    public com.google.protobuf.ByteString getPayload() { return payload_; }
     
     private void initFields() {
-      requestId_ = "";
-      payload_ = com.google.protobuf.ByteString.EMPTY;
     }
-    private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasRequestId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPayload()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
+      if (!hasRequestId) return false;
+      if (!hasPayload) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getRequestIdBytes());
+      if (hasRequestId()) {
+        output.writeString(1, getRequestId());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, payload_);
+      if (hasPayload()) {
+        output.writeBytes(2, getPayload());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1480,24 +946,17 @@ public final class Messages {
       if (size != -1) return size;
     
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (hasRequestId()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getRequestIdBytes());
+          .computeStringSize(1, getRequestId());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (hasPayload()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, payload_);
+          .computeBytesSize(2, getPayload());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
     }
     
     public static de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse parseFrom(
@@ -1574,53 +1033,34 @@ public final class Messages {
     }
     public Builder toBuilder() { return newBuilder(this); }
     
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponseOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseResponse_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_SingleRequestMultipleResponseResponse_fieldAccessorTable;
-      }
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse result;
       
       // Construct using de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse();
+        return builder;
       }
       
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
+      protected de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse internalGetResult() {
+        return result;
       }
       
       public Builder clear() {
-        super.clear();
-        requestId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        payload_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000002);
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse();
         return this;
       }
       
       public Builder clone() {
-        return create().mergeFrom(buildPartial());
+        return create().mergeFrom(result);
       }
       
       public com.google.protobuf.Descriptors.Descriptor
@@ -1632,39 +1072,33 @@ public final class Messages {
         return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse.getDefaultInstance();
       }
       
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse build() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse result = buildPartial();
-        if (!result.isInitialized()) {
+        if (result != null && !isInitialized()) {
           throw newUninitializedMessageException(result);
         }
-        return result;
+        return buildPartial();
       }
       
       private de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse result = buildPartial();
-        if (!result.isInitialized()) {
+        if (!isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
-        return result;
+        return buildPartial();
       }
       
       public de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse buildPartial() {
-        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse result = new de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
         }
-        result.requestId_ = requestId_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.payload_ = payload_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
+        de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.SingleRequestMultipleResponseResponse returnMe = result;
+        result = null;
+        return returnMe;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -1688,18 +1122,6 @@ public final class Messages {
         return this;
       }
       
-      public final boolean isInitialized() {
-        if (!hasRequestId()) {
-          
-          return false;
-        }
-        if (!hasPayload()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1712,90 +1134,67 @@ public final class Messages {
           switch (tag) {
             case 0:
               this.setUnknownFields(unknownFields.build());
-              onChanged();
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
                                      extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
-                onChanged();
                 return this;
               }
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              requestId_ = input.readBytes();
+              setRequestId(input.readString());
               break;
             }
             case 18: {
-              bitField0_ |= 0x00000002;
-              payload_ = input.readBytes();
+              setPayload(input.readBytes());
               break;
             }
           }
         }
       }
       
-      private int bitField0_;
       
       // required string requestId = 1;
-      private java.lang.Object requestId_ = "";
       public boolean hasRequestId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return result.hasRequestId();
       }
-      public String getRequestId() {
-        java.lang.Object ref = requestId_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          requestId_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public java.lang.String getRequestId() {
+        return result.getRequestId();
       }
-      public Builder setRequestId(String value) {
+      public Builder setRequestId(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
-        requestId_ = value;
-        onChanged();
+  result.hasRequestId = true;
+        result.requestId_ = value;
         return this;
       }
       public Builder clearRequestId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        requestId_ = getDefaultInstance().getRequestId();
-        onChanged();
+        result.hasRequestId = false;
+        result.requestId_ = getDefaultInstance().getRequestId();
         return this;
-      }
-      void setRequestId(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000001;
-        requestId_ = value;
-        onChanged();
       }
       
       // required bytes payload = 2;
-      private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasPayload() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return result.hasPayload();
       }
       public com.google.protobuf.ByteString getPayload() {
-        return payload_;
+        return result.getPayload();
       }
       public Builder setPayload(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
-        payload_ = value;
-        onChanged();
+  result.hasPayload = true;
+        result.payload_ = value;
         return this;
       }
       public Builder clearPayload() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        payload_ = getDefaultInstance().getPayload();
-        onChanged();
+        result.hasPayload = false;
+        result.payload_ = getDefaultInstance().getPayload();
         return this;
       }
       
@@ -1804,6 +1203,7 @@ public final class Messages {
     
     static {
       defaultInstance = new SingleRequestMultipleResponseResponse(true);
+      de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internalForceInit();
       defaultInstance.initFields();
     }
     
@@ -1882,6 +1282,8 @@ public final class Messages {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
   }
+  
+  public static void internalForceInit() {}
   
   // @@protoc_insertion_point(outer_class_scope)
 }
