@@ -1,9 +1,17 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
@@ -14,10 +22,6 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
 import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.Wiseml;
 
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-
 public class WSNServiceHandleFactory {
 
 	public static WSNServiceHandle create(String secretReservationKey,
@@ -26,7 +30,7 @@ public class WSNServiceHandleFactory {
 										  URL wsnServiceEndpointURL,
 										  String wiseMLFilename,
 										  ImmutableSet<String> reservedNodes,
-										  ProtobufDeliveryManager protobufDeliveryManager,
+										  final ProtobufDeliveryManager protobufDeliveryManager,
 										  ProtobufControllerServer protobufControllerServer) {
 
 		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
@@ -47,7 +51,23 @@ public class WSNServiceHandleFactory {
 
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
-		final WSNServiceImpl wsnService = new WSNServiceImpl(config, protobufDeliveryManager, preconditions, wsnApp);
+		
+		Injector wsnServiceInjector = Guice.createInjector(new Module(){
+			@Override
+			public void configure(Binder binder) {
+				
+				binder.bind(WSNServiceConfig.class).toInstance(config);
+				binder.bind(DeliveryManager.class).toInstance(protobufDeliveryManager);
+				binder.bind(WSNPreconditions.class).toInstance(preconditions);
+				binder.bind(WSNApp.class).toInstance(wsnApp);
+				
+				binder.bind(WSNService.class).to(WSNServiceImpl.class);
+				
+			}
+		});
+		final WSNService wsnService = wsnServiceInjector.getInstance(WSNService.class);
+		
+		
 		final WSNSoapService wsnSoapService = new WSNSoapService(wsnService, config);
 
 		return new WSNServiceHandle(
