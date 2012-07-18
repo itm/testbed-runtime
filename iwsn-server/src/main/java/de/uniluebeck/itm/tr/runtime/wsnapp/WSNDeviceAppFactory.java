@@ -65,7 +65,9 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 
 			try {
 
-				final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
+				final WSNDeviceAppModule wsnDeviceAppModule = new WSNDeviceAppModule();
+				final DeviceFactoryModule deviceFactoryModule = new DeviceFactoryModule();
+				final Injector injector = Guice.createInjector(wsnDeviceAppModule, deviceFactoryModule);
 
 				WSNDeviceAppConfiguration configuration = createConfiguration(wsnDevice);
 				WSNDeviceAppConnectorConfiguration connectorConfiguration = createConnectorConfiguration(wsnDevice);
@@ -83,8 +85,6 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 		} catch (JAXBException e) {
 			throw propagate(e);
 		}
-
-
 	}
 
 	private WSNDeviceAppConnectorConfiguration createConnectorConfiguration(final WsnDevice wsnDevice)
