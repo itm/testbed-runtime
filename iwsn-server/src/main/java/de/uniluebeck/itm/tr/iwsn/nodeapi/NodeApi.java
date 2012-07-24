@@ -92,8 +92,8 @@ public class NodeApi {
 				// waiting blocking for next job to execute
 				try {
 
-					currentJobLock.lock();
 					currentJob = jobQueue.take();
+					currentJobLock.lock();
 
 					// execute job
 					if (log.isDebugEnabled()) {
