@@ -63,7 +63,11 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 	public void stop() {
 
 		if (endpoint != null) {
-			endpoint.stop();
+			try {
+				endpoint.stop();
+			} catch (NullPointerException expectedWellKnownBug) {
+				// do nothing
+			}
 			log.info("Stopped Session Management service on {}", config.getSessionManagementEndpointUrl());
 		}
 	}
