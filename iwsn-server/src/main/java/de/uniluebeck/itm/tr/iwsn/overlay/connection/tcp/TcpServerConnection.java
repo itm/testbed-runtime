@@ -49,31 +49,41 @@ public class TcpServerConnection extends ServerConnection {
 
 		public void run() {
 
-			while (!Thread.interrupted()) {
+			while (!Thread.currentThread().isInterrupted()) {
+
+				Socket socket;
+
 				try {
 
 					// listeners will track the connection...
-					Socket socket = serverSocket.accept();
-					log.trace("Socket opened by remote host ({})", socket);
-					InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
-					log.trace("Socket remote address: {}", remoteSocketAddress);
-
-					TcpConnection connection = new TcpConnection(
-							null,
-							Connection.Direction.IN,
-							remoteSocketAddress.getAddress().toString(),
-							remoteSocketAddress.getPort()
-					);
-
-					log.trace("Created new connection object: {}", connection);
-					connection.setSocket(socket);
-
-					for (ServerConnectionListener listener : listenerManager.getListeners()) {
-						listener.connectionEstablished(TcpServerConnection.this, connection);
-					}
+					socket = serverSocket.accept();
 
 				} catch (IOException e) {
-					log.trace("IOException after accepting connection initiated by remote host: {}", e);
+
+					if (Thread.currentThread().isInterrupted()) {
+						return;
+					}
+
+					log.error("IOException after accepting connection initiated by remote host: {}", e);
+					continue;
+				}
+
+				log.trace("Socket opened by remote host ({})", socket);
+				InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+				log.trace("Socket remote address: {}", remoteSocketAddress);
+
+				TcpConnection connection = new TcpConnection(
+						null,
+						Connection.Direction.IN,
+						remoteSocketAddress.getAddress().toString(),
+						remoteSocketAddress.getPort()
+				);
+
+				log.trace("Created new connection object: {}", connection);
+				connection.setSocket(socket);
+
+				for (ServerConnectionListener listener : listenerManager.getListeners()) {
+					listener.connectionEstablished(TcpServerConnection.this, connection);
 				}
 			}
 
