@@ -91,7 +91,11 @@ public class WSNSoapService implements WSN, Service {
 		log.info("Stopping WSN service SOAP API...");
 
 		if (endpoint != null) {
-			endpoint.stop();
+			try {
+				endpoint.stop();
+			} catch (NullPointerException expectedWellKnownBug) {
+				// do nothing
+			}
 			log.info("Stopped WSN service SOAP API on {}", config.getWebserviceEndpointUrl());
 		}
 

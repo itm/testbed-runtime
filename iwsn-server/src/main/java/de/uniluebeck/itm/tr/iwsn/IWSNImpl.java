@@ -39,7 +39,7 @@ class IWSNImpl implements IWSN {
 	@Override
 	public void start() throws Exception {
 
-		log.info("Starting iWSN...");
+		log.info("Starting IWSN...");
 
 		log.debug("Starting overlay services...");
 		testbedRuntime.start();
@@ -61,21 +61,37 @@ class IWSNImpl implements IWSN {
 	@Override
 	public void stop() {
 
-		log.info("Stopping iWSN...");
+		log.info("Stopping IWSN...");
 
 		log.debug("Stopping DOM observer...");
-		domObserverSchedule.cancel(true);
-		ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
+		try {
+			domObserverSchedule.cancel(true);
+			ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			log.error("Exception while stopping DOM observer: {}", e);
+		}
 
 		log.debug("Stopping application manager...");
-		applicationManager.stop();
+		try {
+			applicationManager.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping application manager: {}", e);
+		}
 
 		log.debug("Stopping overlay manager...");
-		overlayManager.stop();
+		try {
+			overlayManager.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping overlay manager: {}", e);
+		}
 
 		log.debug("Stopping overlay...");
-		testbedRuntime.stop();
+		try {
+			testbedRuntime.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping overlay: {}", e);
+		}
 
-		log.info("Stopped iWSN. Bye!");
+		log.info("Stopped IWSN. Bye!");
 	}
 }
