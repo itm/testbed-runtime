@@ -236,6 +236,10 @@ public class NodeApi {
 			return false;
 		}
 
+		if (packetBytes.length < 3) {
+			return false;
+		}
+
 		int requestId = (packetBytes[1] & 0xFF);
 		byte responseCode = packetBytes[2];
 		byte[] responsePayload = null;
