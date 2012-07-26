@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
-import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
+import de.uniluebeck.itm.tr.util.Listenable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,19 +34,20 @@ import java.io.OutputStream;
  * Abstract base class for all connection types. A connection is either incoming, i.e. it was opened by the remote host
  * or is outgoing and thereby opened by the local host.
  * <p/>
- * A connection is, together with the {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} the central abstraction
+ * A connection is, together with the {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} the central
+ * abstraction
  * for any kind of transport layer that can be used (e.g. TCP, UDP, ...).
  * <p/>
- * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()} properly
+ * Implementations of this interface must implement {@link Object#equals(Object)} and {@link Object#hashCode()}
+ * properly
  * so it can be used in {@link java.util.HashMap}s.
  * <p/>
- * {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionListener} instances can register themselves to be notified when the
- * Connection opens or closes.
  */
-public abstract class Connection extends ListenerManagerImpl<ConnectionListener> {
+public abstract class Connection {
 
 	/**
-	 * Enum type defining the direction of a {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection} instance. Incoming
+	 * Enum type defining the direction of a {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection} instance.
+	 * Incoming
 	 * connections were opened by the remote host, outgoing were opened by the local host.
 	 */
 	public static enum Direction {
@@ -57,12 +58,14 @@ public abstract class Connection extends ListenerManagerImpl<ConnectionListener>
 	 * Tries to connect to the remote host using the underlay transport layer.
 	 *
 	 * @throws ConnectionTypeUnavailableException
-	 *                     if this instance was created with a type for which no implementation is available
+	 * 		if this instance was created with a type for which no implementation is available
 	 * @throws ConnectionInvalidAddressException
-	 *                     if the address of the remote host is invalid or the format of the address string is invalid
-	 * @throws IOException if any {@link java.io.IOException} occurs in the underlying transport implementation
+	 * 		if the address of the remote host is invalid or the format of the address string is invalid
+	 * @throws IOException
+	 * 		if any {@link java.io.IOException} occurs in the underlying transport implementation
 	 */
-	public abstract void connect() throws ConnectionTypeUnavailableException, ConnectionInvalidAddressException, IOException;
+	public abstract void connect()
+			throws ConnectionTypeUnavailableException, ConnectionInvalidAddressException, IOException;
 
 	/**
 	 * Returns if the connection is currently established.
@@ -110,7 +113,9 @@ public abstract class Connection extends ListenerManagerImpl<ConnectionListener>
 	 * of this method.
 	 *
 	 * @return the {@link java.io.InputStream} for this connection
-	 * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
+	 *
+	 * @throws IOException
+	 * 		if an {@link java.io.IOException} occurs in the underlying transport
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 
@@ -120,7 +125,9 @@ public abstract class Connection extends ListenerManagerImpl<ConnectionListener>
 	 * of this method.
 	 *
 	 * @return the {@link java.io.OutputStream} for this connection
-	 * @throws IOException if an {@link java.io.IOException} occurs in the underlying transport
+	 *
+	 * @throws IOException
+	 * 		if an {@link java.io.IOException} occurs in the underlying transport
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
 

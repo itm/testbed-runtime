@@ -24,10 +24,12 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -52,13 +54,24 @@ public class AsynchronousJob {
 		this.future = future;
 	}
 
-	public void send() throws Exception {
+	public void send() {
 
 		// lock to be sure that a callback is invoked for both success and failure in parallel
 		lock.lock();
 		try {
-			final ListenableFuture<Void> future = unreliableMessagingService.sendAsync(message);
-			future.get();
+
+			final ListenableFuture<Void> sendFuture = unreliableMessagingService.sendAsync(message);
+			sendFuture.addListener(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						sendFuture.get();
+					} catch (Exception e) {
+						failed(e);
+					}
+				}
+			}, MoreExecutors.sameThreadExecutor());
+
 		} finally {
 			lock.unlock();
 		}

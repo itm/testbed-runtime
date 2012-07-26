@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn;
 
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
@@ -42,6 +44,7 @@ class IWSNImpl implements IWSN {
 		log.info("Starting IWSN...");
 
 		log.debug("Starting overlay services...");
+		testbedRuntime.getEventBus().register(this);
 		testbedRuntime.start();
 
 		log.debug("Starting overlay manager...");
@@ -88,10 +91,16 @@ class IWSNImpl implements IWSN {
 		log.debug("Stopping overlay...");
 		try {
 			testbedRuntime.stop();
+			testbedRuntime.getEventBus().unregister(this);
 		} catch (Exception e) {
 			log.error("Exception while stopping overlay: {}", e);
 		}
 
 		log.info("Stopped IWSN. Bye!");
+	}
+
+	@Subscribe
+	public void onDeadEvent(DeadEvent deadEvent) {
+		log.warn("Received dead event: {}", deadEvent.getEvent());
 	}
 }

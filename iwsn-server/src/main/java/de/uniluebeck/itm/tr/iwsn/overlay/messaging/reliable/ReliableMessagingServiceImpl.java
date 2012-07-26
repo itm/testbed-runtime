@@ -175,11 +175,7 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 
 		asynchronousCache.put(message.getReplyWith(), job, timeout, timeUnit);
 
-		try {
-			job.send();
-		} catch (Exception e) {
-			job.failed(e);
-		}
+		job.send();
 
 		return future;
 	}

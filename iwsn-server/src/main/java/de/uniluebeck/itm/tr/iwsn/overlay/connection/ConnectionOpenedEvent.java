@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
-public class ConnectionClosedEvent {
+public class ConnectionOpenedEvent {
 
 	private final Connection connection;
 
-	public ConnectionClosedEvent(final Connection connection) {
+	public ConnectionOpenedEvent(final Connection connection) {
 		this.connection = connection;
 	}
 

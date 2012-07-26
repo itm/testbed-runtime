@@ -23,15 +23,18 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
+import de.uniluebeck.itm.tr.util.Service;
 
 import java.util.concurrent.TimeUnit;
 
 
 public interface SingleRequestMultiResponseService extends Service {
 
-	void sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit, SingleRequestMultiResponseCallback callback);
+	ListenableFuture<Void> sendUnreliableRequestUnreliableResponse(Messages.Msg msg,
+																   int timeout, TimeUnit timeUnit,
+																   SingleRequestMultiResponseCallback callback);
 
 	void addListener(String urn, String msgType, SingleRequestMultiResponseListener listener);
 

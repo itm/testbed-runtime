@@ -24,9 +24,11 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
 
+import com.google.common.eventbus.EventBus;
+
 public interface ConnectionFactory {
 
-	Connection create(String nodeName, Connection.Direction direction, String address)
+	Connection create(String nodeName, Connection.Direction direction, String address, EventBus eventBus)
 			throws ConnectionInvalidAddressException;
 
 	String getType();

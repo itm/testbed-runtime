@@ -74,8 +74,10 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 	@Named(INJECT_ASYNC_EVENTBUS_EXECUTOR)
 	private ExecutorService asyncEventBusExecutor;
 
+	@Inject
 	private EventBus eventBus;
 
+	@Inject
 	private AsyncEventBus asyncEventBus;
 
 	@Override
@@ -104,17 +106,11 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 
 	@Override
 	public EventBus getEventBus() {
-		if (eventBus == null) {
-			eventBus = new EventBus();
-		}
 		return eventBus;
 	}
 
 	@Override
 	public AsyncEventBus getAsyncEventBus() {
-		if (asyncEventBus == null) {
-			asyncEventBus = new AsyncEventBus(asyncEventBusExecutor);
-		}
 		return asyncEventBus;
 	}
 
