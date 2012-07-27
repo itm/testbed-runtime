@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.BiMap;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import eu.wisebed.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.wiseml.WiseMLHelper;
+import eu.wisebed.wiseml.merger.config.MergerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

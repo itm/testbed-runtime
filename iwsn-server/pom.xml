@@ -50,10 +50,6 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wiseml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>
 		<dependency>

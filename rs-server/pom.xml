@@ -43,11 +43,11 @@
 			<groupId>eu.wisebed</groupId>
 			<artifactId>api</artifactId>
 		</dependency>
-
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wiseml</artifactId>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>wiseml</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.federator-utils</artifactId>
