@@ -23,17 +23,15 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <ns2:testbed xmlns:ns2="http://itm.uniluebeck.de/tr/xml">
 
-	<nodes id="REPLACE_WITH_HOSTNAME">
+	<nodes id="REPLACE_WITH_PORTAL_HOSTNAME">
 
-		<!-- Place every urn of sensor nodes as name here -->
 		<names>
-			<nodename name="urn:local:0x0001" description=""/>
-			<!-- Uncomment and edit one or more of the following lines corresponding to the connected devices (see below)
-			<nodename name="urn:local:0x1234" description=""/>
-			<nodename name="urn:local:0x2345" description=""/>
-			<nodename name="urn:local:0x3456" description=""/>
-			-->
+			<nodename name="urn:local:portal" />
 		</names>
+
+		<serverconnections>
+			<serverconnection type="tcp" address="localhost:9990" />
+		</serverconnections>
 
 		<applications>
 
@@ -45,49 +43,109 @@
 						<sessionmanagementendpointurl>http://localhost:10011/sessions</sessionmanagementendpointurl>
 						<wsninstancebaseurl>http://localhost:10011/wsn</wsninstancebaseurl>
 						<reservationendpointurl>http://localhost:30011/rs</reservationendpointurl>
-                        <snaaendpointurl>http://localhost:20011/snaa</snaaendpointurl>
+						<snaaendpointurl>http://localhost:20011/snaa</snaaendpointurl>
 						<wisemlfilename>../conf/tr.iwsn-wiseml.xml</wisemlfilename>
+						<!-- Uncomment the protobufinterface tag to enable the unofficial protobuf API -->
+						<!--<protobufinterface>
+							<port>8885</port>
+							<ip>0.0.0.0</ip>
+						</protobufinterface>-->
 					</webservice>
 				</portal:portalapp>
 			</application>
 
+		</applications>
+	</nodes>
+
+	<nodes id="REPLACE_WITH_GATEWAY_HOSTNAME">
+
+		<names>
+			<nodename name="urn:local:0x0123"/>
+			<!-- Uncomment and edit one or more of the following lines corresponding to the connected devices (see below) -->
+			<!-- <nodename name="urn:local:0x1234"/> -->
+			<!-- <nodename name="urn:local:0x2345"/> -->
+			<!-- <nodename name="urn:local:0x3456"/> -->
+		</names>
+
+		<serverconnections>
+			<serverconnection type="tcp" address="localhost:9991" />
+		</serverconnections>
+
+		<applications>
+
 			<!-- Instantiation of the application component that handles communication with the sensor nodes -->
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
-					<urn>urn:local:0x0001</urn>
+					<urn>urn:local:0x0123</urn>
 					<type>mock</type>
-					<serialinterface>urn:local:0x0001,2,SECONDS</serialinterface>
+					<!-- the behavior of the mock device can be customized using the key-value mappings below -->
+					<configuration key="BOOT_MESSAGE" value="Hello, Local Testbed!" />
+					<configuration key="BOOT_MESSAGE_TYPE" value="ascii" />
+					<configuration key="HEARTBEAT_MESSAGE" value="I'm alive!" />
+					<configuration key="HEARTBEAT_MESSAGE_TYPE" value="ascii" />
+					<configuration key="HEARTBEAT_MESSAGE_RATE" value="10000" />
+					<configuration key="ECHO" value="true" />
 				</wsn:wsnDevice>
 			</application>
-			<!-- Uncomment and edit this to use a locally connected iSense (JN513XR1, JN513X) device with MAC address 0x1234
+
+			<!--
+			Instantiation of the component that observes the USB ports to detect attachment and detachment of devices
+			at runtime. If this component is NOT running you need to specify the 'serialinterface' for every device
+			manually. If it is running you get a type of plug&play functionality. For some device types (such as
+			Telos B) it is (currently) not possible to read out the MAC address. These devices are then identified using
+			the unique ID of the UART to USB converter ('usbchipid'). Therefore the 'mapping' tags are used to specify
+			which USB chip ID shall be mapped to which MAC address.
+			-->
+			<application name="WSNDeviceObserver"
+						 factoryclass="de.uniluebeck.itm.tr.runtime.wsndeviceobserver.WSNDeviceObserverFactory">
+				<do:wsnDeviceObserver xmlns:do="http://itm.uniluebeck.de/tr/runtime/wsndeviceobserver/config">
+					<mapping usbchipid="1234567890" mac="0x2345" />
+				</do:wsnDeviceObserver>
+			</application>
+
+			<!-- Uncomment and edit this to use a locally connected iSense (JN513X) device with MAC address 0x1234 -->
+			<!--
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<urn>urn:local:0x1234</urn>
-					<type>isense</type>
+					<type>isense39</type>
 					<serialinterface>/dev/ttyUSB0</serialinterface>
 				</wsn:wsnDevice>
 			</application>
 			-->
-			<!-- Uncomment and edit this to use a locally connected Telos B device with MAC address 0x2345
+
+			<!-- Uncomment and edit this to use a locally connected iSense (JN5148) device with MAC address 0x2345 -->
+			<!--
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<urn>urn:local:0x2345</urn>
-					<type>telosb</type>
-					<serialinterface>/dev/ttyUSB1</serialinterface>
+					<type>isense48</type>
 				</wsn:wsnDevice>
 			</application>
 			-->
-			<!-- Uncomment and edit this to use a locally connected Pacemate device with MAC address 0x3456
+
+			<!-- Uncomment and edit this to use a locally connected Telos B device with MAC address 0x3456 -->
+			<!--
 			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
 				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
 					<urn>urn:local:0x3456</urn>
+					<type>telosb</type>
+				</wsn:wsnDevice>
+			</application>
+			-->
+
+			<!-- Uncomment and edit this to use a locally connected Pacemate device with MAC address 0x4567 -->
+			<!--
+			<application name="WSNDeviceApp" factoryclass="de.uniluebeck.itm.tr.runtime.wsnapp.WSNDeviceAppFactory">
+				<wsn:wsnDevice xmlns:wsn="http://itm.uniluebeck.de/tr/runtime/wsnapp/xml">
+					<urn>urn:local:0x4567</urn>
 					<type>pacemate</type>
-					<serialinterface>/dev/ttyUSB2</serialinterface>
 				</wsn:wsnDevice>
 			</application>
 			-->
 
 		</applications>
+
 	</nodes>
 
 </ns2:testbed>
