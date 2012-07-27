@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.BiMap;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
+import eu.wisebed.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public abstract class FederatorWiseMLMerger {
 
 		// return merged network definitions
 		try {
-			return de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper.mergeFromStrings(config, serializedWiseMLs);
+			return eu.wisebed.wiseml.merger.WiseMLMergerHelper.mergeFromStrings(config, serializedWiseMLs);
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}
