@@ -42,7 +42,6 @@
 		<module>snaa-server</module>
 
 		<module>federator-utils</module>
-		<module>wiseml</module>
 		<module>wiseml-merger</module>
 
 	</modules>
@@ -130,7 +129,7 @@
 			<dependency>
 				<groupId>eu.wisebed</groupId>
 				<artifactId>wiseml</artifactId>
-				<version>1.0</version>
+				<version>1.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<!-- other itm projects -->
