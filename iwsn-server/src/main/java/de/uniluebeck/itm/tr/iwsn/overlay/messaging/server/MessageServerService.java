@@ -23,8 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.server;
 
-import de.uniluebeck.itm.tr.util.Service;
-
+import com.google.common.util.concurrent.Service;
 
 /**
  * A service that allows to open {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection}s and listens for incoming
