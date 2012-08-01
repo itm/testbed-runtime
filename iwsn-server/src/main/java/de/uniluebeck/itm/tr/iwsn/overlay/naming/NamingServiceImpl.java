@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.overlay.naming;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 @Singleton
-class NamingServiceImpl implements NamingService {
+class NamingServiceImpl extends AbstractService implements NamingService {
 
 	private static final Logger log = LoggerFactory.getLogger(NamingService.class);
 
@@ -119,12 +120,12 @@ class NamingServiceImpl implements NamingService {
 	}
 
 	@Override
-	public void start() throws Exception {
-		// nothing to do
+	protected void doStart() {
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() {
-		// nothing to do
+	protected void doStop() {
+		notifyStopped();
 	}
 }

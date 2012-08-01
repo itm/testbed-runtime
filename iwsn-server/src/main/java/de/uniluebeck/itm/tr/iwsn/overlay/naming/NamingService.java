@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.overlay.naming;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.Service;
 
 
 /**

@@ -57,7 +57,7 @@ class ConnectionServiceImpl extends AbstractService implements ConnectionService
 
 	private final RoutingTableService routing;
 
-	private NamingService naming;
+	private final NamingService naming;
 
 	private final EventBus eventBus;
 
