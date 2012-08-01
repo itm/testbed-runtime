@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.Service;
 
 public interface IWSN extends Service {
 

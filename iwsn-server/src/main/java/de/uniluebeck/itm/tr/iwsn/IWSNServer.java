@@ -182,12 +182,16 @@ public class IWSNServer {
 		final IWSNFactory iwsnFactory = injector.getInstance(IWSNFactory.class);
 		final IWSN iwsn = iwsnFactory.create(xmlFile, nodeIdFoundInConfigurationFile);
 
-		iwsn.start();
+		iwsn.startAndWait();
 
 		Runnable shutdownRunnable = new Runnable() {
 			@Override
 			public void run() {
-				iwsn.stop();
+				try {
+					iwsn.stopAndWait();
+				} catch (Exception e) {
+					log.error("Exception while stopping IWSN: ", e);
+				}
 				ExecutorUtils.shutdown(asyncEventBusExecutor, 10, TimeUnit.SECONDS);
 				ExecutorUtils.shutdown(messageServerServiceScheduler, 10, TimeUnit.SECONDS);
 			}
