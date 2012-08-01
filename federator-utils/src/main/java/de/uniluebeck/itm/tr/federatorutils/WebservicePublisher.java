@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.federatorutils;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,7 @@ import java.net.URL;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class WebservicePublisher<T> implements Service {
+public class WebservicePublisher<T> extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WebservicePublisher.class);
 
@@ -32,24 +33,41 @@ public class WebservicePublisher<T> implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		checkState(implementer != null, "Implementer must be set before calling start()!");
+		try {
 
-		if (log.isInfoEnabled()) {
-			log.info("Started {} endpoint using endpoint URL {}", implementer.getClass().getSimpleName(), endpointUrl);
+			checkState(implementer != null, "Implementer must be set before calling start()!");
+
+			if (log.isInfoEnabled()) {
+				log.info("Started {} endpoint using endpoint URL {}", implementer.getClass().getSimpleName(), endpointUrl);
+			}
+
+			endpoint = Endpoint.publish(endpointUrl.toString(), implementer);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-
-		endpoint = Endpoint.publish(endpointUrl.toString(), implementer);
 	}
 
 	@Override
-	public void stop() {
-		if (endpoint != null) {
-			if (endpoint.isPublished()) {
-				endpoint.stop();
+	protected void doStop() {
+
+		try {
+
+			if (endpoint != null) {
+				if (endpoint.isPublished()) {
+					endpoint.stop();
+				}
+				endpoint = null;
 			}
-			endpoint = null;
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 	}
 

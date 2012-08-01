@@ -93,7 +93,7 @@ public class FederatorWSN implements WSN {
 	 */
 	public void start() throws Exception {
 		federatorController.start();
-		webservicePublisher.start();
+		webservicePublisher.startAndWait();
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class FederatorWSN implements WSN {
 	 * 		on failure
 	 */
 	public void stop() throws Exception {
-		webservicePublisher.stop();
+		webservicePublisher.stopAndWait();
 		federatorController.stop();
 	}
 
