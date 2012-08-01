@@ -54,7 +54,7 @@ class IWSNImpl extends AbstractService implements IWSN {
 			overlayManager.start();
 
 			log.debug("Starting application manager...");
-			applicationManager.start();
+			applicationManager.startAndWait();
 
 			log.debug("Starting DOM observer...");
 			final ThreadFactory domObserverThreadFactory = new ThreadFactoryBuilder()
@@ -87,7 +87,7 @@ class IWSNImpl extends AbstractService implements IWSN {
 
 			log.debug("Stopping application manager...");
 			try {
-				applicationManager.stop();
+				applicationManager.stopAndWait();
 			} catch (Exception e) {
 				log.error("Exception while stopping application manager: {}", e);
 			}
