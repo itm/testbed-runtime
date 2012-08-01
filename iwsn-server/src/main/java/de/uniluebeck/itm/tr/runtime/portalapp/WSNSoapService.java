@@ -1,15 +1,15 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.Program;
 import eu.wisebed.api.wsn.WSN;
-import org.jboss.netty.util.internal.ExecutorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +20,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 		portName = "WSNPort",
 		endpointInterface = "eu.wisebed.api.wsn.WSN"
 )
-public class WSNSoapService implements WSN, Service {
+public class WSNSoapService extends AbstractService implements WSN, Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNSoapService.class);
 
@@ -63,43 +64,60 @@ public class WSNSoapService implements WSN, Service {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		log.debug("Starting WSN service SOAP API...");
+		try {
 
-		endpoint = Endpoint.create(this);
-		endpoint.setExecutor(wsnInstanceWebServiceThreadPool);
+			log.debug("Starting WSN service SOAP API...");
 
-		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
-				config.getWebserviceEndpointUrl().toString() :
-				UrlUtils.convertHostToZeros(config.getWebserviceEndpointUrl().toString());
+			endpoint = Endpoint.create(this);
+			endpoint.setExecutor(wsnInstanceWebServiceThreadPool);
 
-		log.info(
-				"Starting WSN service SOAP API on binding URL {} for endpoint URL {}",
-				bindAllInterfacesUrl,
-				config.getWebserviceEndpointUrl().toString()
-		);
+			String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+					config.getWebserviceEndpointUrl().toString() :
+					UrlUtils.convertHostToZeros(config.getWebserviceEndpointUrl().toString());
 
-		endpoint.publish(bindAllInterfacesUrl);
+			log.info(
+					"Starting WSN service SOAP API on binding URL {} for endpoint URL {}",
+					bindAllInterfacesUrl,
+					config.getWebserviceEndpointUrl().toString()
+			);
 
-		log.info("Started WSN service SOAP API on {}", bindAllInterfacesUrl);
+			endpoint.publish(bindAllInterfacesUrl);
+
+			log.info("Started WSN service SOAP API on {}", bindAllInterfacesUrl);
+			notifyStarted();
+
+		} catch (MalformedURLException e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.info("Stopping WSN service SOAP API...");
+		try {
 
-		if (endpoint != null) {
-			try {
-				endpoint.stop();
-			} catch (NullPointerException expectedWellKnownBug) {
-				// do nothing
+			log.info("Stopping WSN service SOAP API...");
+
+			if (endpoint != null) {
+				try {
+					endpoint.stop();
+				} catch (NullPointerException expectedWellKnownBug) {
+					// do nothing
+				}
+				log.info("Stopped WSN service SOAP API on {}", config.getWebserviceEndpointUrl());
 			}
-			log.info("Stopped WSN service SOAP API on {}", config.getWebserviceEndpointUrl());
+
+			ExecutorUtils.shutdown(wsnInstanceWebServiceThreadPool, 10, TimeUnit.SECONDS);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 
-		ExecutorUtils.shutdown(wsnInstanceWebServiceThreadPool, 10, TimeUnit.SECONDS);
 	}
 
 	@Override

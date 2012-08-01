@@ -72,14 +72,14 @@ public class WSNServiceHandle implements Service {
 	public void start() throws Exception {
 		wsnApp.startAndWait();
 		wsnService.start();
-		wsnSoapService.start();
+		wsnSoapService.startAndWait();
 	}
 
 	@Override
 	public void stop() {
 
 		try {
-			wsnSoapService.stop();
+			wsnSoapService.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while stopping WSN SOAP Web service interface: {}", e);
 		}
