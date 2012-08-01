@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
-import de.uniluebeck.itm.tr.util.Service;
 
 public interface UnreliableMessagingService extends Service {
 
