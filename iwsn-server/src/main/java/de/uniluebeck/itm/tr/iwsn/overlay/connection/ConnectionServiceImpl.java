@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
@@ -45,7 +46,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
-class ConnectionServiceImpl implements ConnectionService {
+class ConnectionServiceImpl extends AbstractService implements ConnectionService {
 
 	private static final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
@@ -205,15 +206,32 @@ class ConnectionServiceImpl implements ConnectionService {
 	}
 
 	@Override
-	public void start() throws Exception {
-		eventBus.register(this);
+	protected void doStart() {
+
+		try {
+
+			eventBus.register(this);
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		closeConnections();
-		closeServerConnections();
-		eventBus.unregister(this);
+	protected void doStop() {
+
+		try {
+
+			closeConnections();
+			closeServerConnections();
+			eventBus.unregister(this);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	private void closeServerConnections() {
