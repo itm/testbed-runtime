@@ -374,7 +374,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
 			deliveryManager.experimentEnded();
-			deliveryManager.stop();
+			deliveryManager.stopAndWait();
 
 			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
 

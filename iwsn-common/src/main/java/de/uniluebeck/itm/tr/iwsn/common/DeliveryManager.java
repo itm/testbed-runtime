@@ -76,14 +76,6 @@ public class DeliveryManager extends AbstractService implements Service {
 	private ExecutorService executorService;
 
 	/**
-	 * A flag to indicate if this service is running.
-	 *
-	 * @see DeliveryManager#start()
-	 * @see DeliveryManager#stop()
-	 */
-	private volatile boolean running = false;
-
-	/**
 	 * Constructs a new {@link DeliveryManager} instance.
 	 */
 	public DeliveryManager() {
@@ -177,7 +169,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
 	public void experimentEnded() {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.experimentEnded();
 			}
@@ -191,7 +185,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		the list of messages to be delivered
 	 */
 	public void receive(final Message... messages) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receive(messages);
 			}
@@ -205,7 +201,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		the list of messages to be delivered
 	 */
 	public void receive(List<Message> messages) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receive(messages);
 			}
@@ -219,7 +217,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final String... notifications) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveNotification(notifications);
 			}
@@ -233,7 +233,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final List<String> notifications) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveNotification(notifications);
 			}
@@ -247,7 +249,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(final RequestStatus... statuses) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveStatus(statuses);
 			}
@@ -261,7 +265,9 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(List<RequestStatus> statuses) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveStatus(statuses);
 			}
@@ -283,7 +289,8 @@ public class DeliveryManager extends AbstractService implements Service {
 	 */
 	public void receiveFailureStatusMessages(List<String> nodeUrns, String requestId, Exception e, int statusValue) {
 
-		if (running) {
+		if (isRunning()) {
+
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
@@ -313,7 +320,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
 												   final String requestId) {
 
-		if (running) {
+		if (isRunning()) {
 
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
@@ -338,12 +345,13 @@ public class DeliveryManager extends AbstractService implements Service {
 
 		try {
 
-			if (!running) {
+			if (!isRunning()) {
+
 				log.debug("Starting DeliveryManager...");
 				executorService = Executors.newCachedThreadPool(
 						new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
 				);
-				running = true;
+
 			}
 
 			notifyStarted();

@@ -115,7 +115,7 @@ public class FederatorController implements Controller {
 		log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
 
 		controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
-		deliveryManager.start();
+		deliveryManager.startAndWait();
 
 		log.debug("Started federator controller on {}!", controllerEndpointUrl);
 	}
@@ -130,7 +130,7 @@ public class FederatorController implements Controller {
 		log.debug("Calling experimentEnded() on connected controllers...");
 		deliveryManager.experimentEnded();
 
-		deliveryManager.stop();
+		deliveryManager.stopAndWait();
 
 		if (controllerEndpoint != null) {
 			log.info("Stopping federator controller at {}...", controllerEndpointUrl);
