@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
@@ -15,6 +16,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 		portName = "SessionManagementPort",
 		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
 )
-public class SessionManagementSoapService implements Service, SessionManagement {
+public class SessionManagementSoapService extends AbstractService implements Service, SessionManagement {
 
 	private static final Logger log = LoggerFactory.getLogger(SessionManagementSoapService.class);
 
@@ -46,31 +48,48 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
-				config.getSessionManagementEndpointUrl().toString() :
-				UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
+		try {
 
-		log.info("Starting session management SOAP service on binding URL {} for endpoint URL {}",
-				bindAllInterfacesUrl,
-				config.getSessionManagementEndpointUrl().toString()
-		);
+			String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+					config.getSessionManagementEndpointUrl().toString() :
+					UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
 
-		endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
+			log.info("Starting session management SOAP service on binding URL {} for endpoint URL {}",
+					bindAllInterfacesUrl,
+					config.getSessionManagementEndpointUrl().toString()
+			);
+
+			endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
+
+			notifyStarted();
+
+		} catch (MalformedURLException e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		if (endpoint != null) {
-			try {
-				endpoint.stop();
-			} catch (NullPointerException expectedWellKnownBug) {
-				// do nothing
+		try {
+
+			if (endpoint != null) {
+				try {
+					endpoint.stop();
+				} catch (NullPointerException expectedWellKnownBug) {
+					// do nothing
+				}
+				log.info("Stopped session management SOAP service on {}", config.getSessionManagementEndpointUrl());
 			}
-			log.info("Stopped session management SOAP service on {}", config.getSessionManagementEndpointUrl());
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
+
 	}
 
 	@Override

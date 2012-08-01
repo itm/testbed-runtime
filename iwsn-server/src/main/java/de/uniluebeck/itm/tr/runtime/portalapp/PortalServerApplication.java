@@ -96,7 +96,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		try {
 
 			soapService = new SessionManagementSoapService(service, config);
-			soapService.start();
+			soapService.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -109,7 +109,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 	protected void doStop() {
 
 		try {
-			soapService.stop();
+			soapService.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management SOAP web service: {}", e);
 			notifyFailed(e);
