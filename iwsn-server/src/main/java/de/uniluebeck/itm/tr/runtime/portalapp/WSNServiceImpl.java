@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -64,12 +65,12 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
-public class WSNServiceImpl implements WSNService {
+public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	/**
 	 * The logger for this WSN service.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNService.class);
 
 	/**
 	 * An implementation of {@link WSNNodeMessageReceiver} that listens for messages coming from sensor nodes and
@@ -342,32 +343,48 @@ public class WSNServiceImpl implements WSNService {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		log.info("Starting WSN service...");
+		try {
 
-		executorService = Executors.newSingleThreadScheduledExecutor(
-				new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
-		);
+			log.info("Starting WSN service...");
 
-		wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
+			executorService = Executors.newSingleThreadScheduledExecutor(
+					new ThreadFactoryBuilder().setNameFormat("WSNService-Thread %d").build()
+			);
 
-		deliveryManager.start();
+			wsnApp.addNodeMessageReceiver(nodeMessageReceiver);
+
+			deliveryManager.startAndWait();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.info("Stopping WSN service...");
+		try {
 
-		wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
+			log.info("Stopping WSN service...");
 
-		deliveryManager.experimentEnded();
-		deliveryManager.stop();
+			wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
-		ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
+			deliveryManager.experimentEnded();
+			deliveryManager.stop();
 
-		log.info("Stopped WSN service!");
+			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);
+
+			log.info("Stopped WSN service!");
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 
 	}
 

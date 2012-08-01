@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.wsn.WSN;
 
 

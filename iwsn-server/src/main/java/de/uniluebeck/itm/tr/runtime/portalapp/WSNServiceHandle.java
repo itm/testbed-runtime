@@ -75,7 +75,7 @@ public class WSNServiceHandle extends AbstractService implements Service {
 		try {
 
 			wsnApp.startAndWait();
-			wsnService.start();
+			wsnService.startAndWait();
 			wsnSoapService.startAndWait();
 
 			notifyStarted();
@@ -93,29 +93,25 @@ public class WSNServiceHandle extends AbstractService implements Service {
 			try {
 				wsnSoapService.stopAndWait();
 			} catch (Exception e) {
-				log.error("Exception while stopping WSN SOAP Web service interface: {}", e);
+				log.error("Exception while stopping WSN SOAP Web service interface: ", e);
 			}
 
 			try {
-				wsnService.stop();
+				wsnService.stopAndWait();
 			} catch (Throwable e) {
-				if (e instanceof NullPointerException) {
-					// ignore as it is well-known and an error in the jre library
-				} else {
-					log.warn("" + e, e);
-				}
+				log.error("Exception while stopping WSN service: ", e);
 			}
 
 			try {
 				wsnApp.stopAndWait();
 			} catch (Throwable e) {
-				log.warn("" + e, e);
+				log.error("Exception while stopping WSNApp: ", e);
 			}
 
 			try {
 				protobufControllerServer.stopHandlers(secretReservationKey);
 			} catch (Throwable e) {
-				log.warn("" + e, e);
+				log.error("Exception while stopping ProtobufControllerServer: ", e);
 			}
 
 			notifyStopped();
