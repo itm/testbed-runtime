@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.overlay;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionService;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventService;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable.ReliableMessagingService;
@@ -33,7 +34,6 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiRespon
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingService;
 import de.uniluebeck.itm.tr.iwsn.overlay.routing.RoutingTableService;
-import de.uniluebeck.itm.tr.util.Service;
 
 
 public interface TestbedRuntime extends Service {
