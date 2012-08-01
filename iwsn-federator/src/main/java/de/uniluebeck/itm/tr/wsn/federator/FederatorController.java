@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.UrlUtils;
@@ -45,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 		portName = "ControllerPort",
 		endpointInterface = "eu.wisebed.api.controller.Controller"
 )
-public class FederatorController implements Controller {
+public class FederatorController extends AbstractService implements Service, Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorController.class);
 
@@ -105,37 +107,46 @@ public class FederatorController implements Controller {
 		}
 	}
 
-	/**
-	 * Starts the Controller Web Service endpoint.
-	 *
-	 * @throws Exception on failure
-	 */
-	public void start() throws Exception {
+	@Override
+	protected void doStart() {
 
-		log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
+		try {
 
-		controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
-		deliveryManager.startAndWait();
+			log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
 
-		log.debug("Started federator controller on {}!", controllerEndpointUrl);
+			controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
+			deliveryManager.startAndWait();
+
+			log.debug("Started federator controller on {}!", controllerEndpointUrl);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
-	/**
-	 * Stops the Controller Web Service endpoint.
-	 *
-	 * @throws Exception on failure
-	 */
-	public void stop() throws Exception {
+	@Override
+	protected void doStop() {
 
-		log.debug("Calling experimentEnded() on connected controllers...");
-		deliveryManager.experimentEnded();
+		try {
 
-		deliveryManager.stopAndWait();
+			log.debug("Calling experimentEnded() on connected controllers...");
+			deliveryManager.experimentEnded();
 
-		if (controllerEndpoint != null) {
-			log.info("Stopping federator controller at {}...", controllerEndpointUrl);
-			controllerEndpoint.stop();
+			deliveryManager.stopAndWait();
+
+			if (controllerEndpoint != null) {
+				log.info("Stopping federator controller at {}...", controllerEndpointUrl);
+				controllerEndpoint.stop();
+			}
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
+
 	}
 
 	public void addController(String controllerEndpointUrl) {

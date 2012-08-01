@@ -136,7 +136,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 		log.debug("Starting Session Management federator on endpoint URL {}...", config.getFederatorSmEndpointURL());
 
-		federatorController.start();
+		federatorController.startAndWait();
 		sessionManagementEndpoint = Endpoint.publish(config.getFederatorSmEndpointURL().toString(), this);
 
 		log.info("Started Session Management federator on endpoint URL {}", config.getFederatorSmEndpointURL());
@@ -152,7 +152,7 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 
 		log.debug("Stopping Session Management federator controller...");
-		federatorController.stop();
+		federatorController.stopAndWait();
 
 		if (sessionManagementEndpoint != null) {
 			log.info("Stopping Session Management federator instance on {}...", config.getFederatorSmEndpointURL());
