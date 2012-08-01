@@ -384,7 +384,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			// start the WSN instance
 			try {
 
-				wsnServiceHandleInstance.start();
+				wsnServiceHandleInstance.startAndWait();
 
 			} catch (Exception e) {
 				log.error("Exception while creating WSN API wsnInstance: " + e, e);
@@ -508,7 +508,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			if (wsnServiceHandleInstance != null) {
 
 				try {
-					wsnServiceHandleInstance.stop();
+					wsnServiceHandleInstance.stopAndWait();
 				} catch (Exception e) {
 					log.error("Error while stopping WSN service instance: " + e, e);
 				}
