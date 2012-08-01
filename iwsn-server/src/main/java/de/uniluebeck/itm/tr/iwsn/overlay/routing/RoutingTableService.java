@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.routing;
 
 import com.google.common.collect.ImmutableMap;
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.Service;
 
 /**
  * A simple service that provides a routing table that allows to get the name of the next hop on

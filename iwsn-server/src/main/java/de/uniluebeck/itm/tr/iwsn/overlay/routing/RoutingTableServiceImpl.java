@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.routing;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import java.util.Map;
 
 
 @Singleton
-class RoutingTableServiceImpl implements RoutingTableService {
+class RoutingTableServiceImpl extends AbstractService implements RoutingTableService {
 
 	private static final Logger log = LoggerFactory.getLogger(RoutingTableService.class);
 
@@ -44,13 +45,13 @@ class RoutingTableServiceImpl implements RoutingTableService {
 	private Map<String, String> routingTable = Collections.synchronizedMap(new HashMap<String, String>());
 
 	@Override
-	public void start() throws Exception {
-		// nothing to do
+	protected void doStart() {
+		notifyStarted();
 	}
 
 	@Override
-	public void stop() {
-		// nothing to do
+	protected void doStop() {
+		notifyStopped();
 	}
 
 	@Override
