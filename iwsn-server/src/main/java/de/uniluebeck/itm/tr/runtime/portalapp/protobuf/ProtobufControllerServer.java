@@ -2,9 +2,10 @@ package de.uniluebeck.itm.tr.runtime.portalapp.protobuf;
 
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
-import de.uniluebeck.itm.tr.util.Service;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ProtobufControllerServer implements Service {
+public class ProtobufControllerServer extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufControllerServer.class);
 
@@ -32,36 +33,52 @@ public class ProtobufControllerServer implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		if (log.isInfoEnabled()) {
-			log.info("Starting protocol buffer interface on {}:{}.",
-					config.getHostname() != null ?
-							config.getHostname() :
-							config.getIp(),
-					config.getPort()
+		try {
+
+			if (log.isInfoEnabled()) {
+				log.info("Starting protocol buffer interface on {}:{}.",
+						config.getHostname() != null ?
+								config.getHostname() :
+								config.getIp(),
+						config.getPort()
+				);
+			}
+
+			bootstrap = new ServerBootstrap(
+					new NioServerSocketChannelFactory(
+							Executors.newCachedThreadPool(),
+							Executors.newCachedThreadPool()
+					)
 			);
+			bootstrap.setPipelineFactory(new ProtobufControllerServerPipelineFactory(this, sessionManagement));
+			bootstrap.bind(new InetSocketAddress(
+					config.getHostname() != null ? config.getHostname() : config.getIp(),
+					config.getPort()
+			)
+			);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-
-		bootstrap = new ServerBootstrap(
-				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()
-				)
-		);
-		bootstrap.setPipelineFactory(new ProtobufControllerServerPipelineFactory(this, sessionManagement));
-		bootstrap.bind(new InetSocketAddress(
-				config.getHostname() != null ? config.getHostname() : config.getIp(),
-				config.getPort()
-		)
-		);
-
 	}
 
 	@Override
-	public void stop() {
-		stopHandlers(null);
-		bootstrap.releaseExternalResources();
+	protected void doStop() {
+
+		try {
+
+			stopHandlers(null);
+			bootstrap.releaseExternalResources();
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	private final List<ProtobufControllerServerHandler> handlers = Lists.newLinkedList();

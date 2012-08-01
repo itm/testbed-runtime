@@ -178,7 +178,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 			if (config.getProtobufinterface() != null) {
 				protobufControllerServer = new ProtobufControllerServer(this, config.getProtobufinterface());
-				protobufControllerServer.start();
+				protobufControllerServer.startAndWait();
 			}
 
 			deliveryManager.startAndWait();
@@ -214,7 +214,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 			if (protobufControllerServer != null) {
 				try {
-					protobufControllerServer.stop();
+					protobufControllerServer.stopAndWait();
 				} catch (Exception e) {
 					log.error("Exception while shutting down Session Management Protobuf service: {}", e);
 				}
