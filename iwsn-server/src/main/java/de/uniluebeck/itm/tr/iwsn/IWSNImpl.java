@@ -51,7 +51,7 @@ class IWSNImpl extends AbstractService implements IWSN {
 			testbedRuntime.start();
 
 			log.debug("Starting overlay manager...");
-			overlayManager.start();
+			overlayManager.startAndWait();
 
 			log.debug("Starting application manager...");
 			applicationManager.startAndWait();
@@ -94,7 +94,7 @@ class IWSNImpl extends AbstractService implements IWSN {
 
 			log.debug("Stopping overlay manager...");
 			try {
-				overlayManager.stop();
+				overlayManager.stopAndWait();
 			} catch (Exception e) {
 				log.error("Exception while stopping overlay manager: {}", e);
 			}
