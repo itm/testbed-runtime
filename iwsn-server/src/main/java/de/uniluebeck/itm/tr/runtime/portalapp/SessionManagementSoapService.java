@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
@@ -8,6 +7,7 @@ import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,8 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 
 	private Endpoint endpoint;
 
-	public SessionManagementSoapService(final SessionManagementService sm, final SessionManagementServiceConfig config) {
+	public SessionManagementSoapService(final SessionManagementService sm,
+										final SessionManagementServiceConfig config) {
 
 		checkNotNull(sm);
 		checkNotNull(config);
@@ -63,7 +64,11 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 	public void stop() {
 
 		if (endpoint != null) {
-			endpoint.stop();
+			try {
+				endpoint.stop();
+			} catch (NullPointerException expectedWellKnownBug) {
+				// do nothing
+			}
 			log.info("Stopped Session Management service on {}", config.getSessionManagementEndpointUrl());
 		}
 	}

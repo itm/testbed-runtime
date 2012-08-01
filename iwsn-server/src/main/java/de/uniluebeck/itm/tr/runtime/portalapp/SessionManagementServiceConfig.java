@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
+import eu.wisebed.wiseml.WiseMLHelper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -81,7 +81,8 @@ public class SessionManagementServiceConfig {
 				);
 			}
 
-			this.nodeUrnsServed = ImmutableSet.<String>builder().addAll(WiseMLHelper.getNodeUrns(serializedWiseML)).build();
+			this.nodeUrnsServed =
+					ImmutableSet.<String>builder().addAll(WiseMLHelper.getNodeUrns(serializedWiseML)).build();
 			this.protobufinterface = config.getWebservice().getProtobufinterface();
 			this.maximumDeliveryQueueSize = config.getWebservice().getMaximumdeliveryqueuesize();
 			this.sessionManagementEndpointUrl = new URL(config.getWebservice().getSessionmanagementendpointurl());

@@ -91,9 +91,18 @@ public class NodeApi {
 
 				// waiting blocking for next job to execute
 				try {
-
-					currentJobLock.lock();
 					currentJob = jobQueue.take();
+				} catch (InterruptedException e) {
+					log.trace("{} => Interrupted while waiting for job to be done."
+							+ " This is probably OK as it should only happen during shutdown.",
+							nodeUrn
+					);
+					continue;
+				}
+
+				currentJobLock.lock();
+
+				try {
 
 					// execute job
 					if (log.isDebugEnabled()) {
@@ -128,11 +137,14 @@ public class NodeApi {
 					}
 
 				} catch (InterruptedException e) {
+
 					log.trace("{} => Interrupted while waiting for job to be done."
-							+ " This is propably OK as it should only happen during shutdown.",
+							+ " This is probably OK as it should only happen during shutdown.",
 							nodeUrn
 					);
+
 				} finally {
+
 					currentJobLock.unlock();
 				}
 			}
@@ -221,6 +233,10 @@ public class NodeApi {
 						Packets.NodeControl.isNodeControlPacket(packet);
 
 		if (!isNodeAPIPacket) {
+			return false;
+		}
+
+		if (packetBytes.length < 3) {
 			return false;
 		}
 

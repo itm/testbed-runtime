@@ -694,74 +694,44 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
 
-		if (isConnected()) {
-
-			if (isVirtualLinkMessage(messageBytes)) {
-
-				log.debug("{} => Delivering virtual link message over node API", configuration.getNodeUrn());
-
-				ByteBuffer messageBuffer = ByteBuffer.wrap(messageBytes);
-
-				final byte RSSI = messageBuffer.get(3);
-				final byte LQI = messageBuffer.get(4);
-				final byte payloadLength = messageBuffer.get(5);
-				final long destination = messageBuffer.getLong(6);
-				final long source = messageBuffer.getLong(14);
-				final byte[] payload = new byte[payloadLength];
-
-				System.arraycopy(messageBytes, 22, payload, 0, payloadLength);
-
-				nodeApiExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						callCallback(
-								nodeApi.getInteraction().sendVirtualLinkMessage(RSSI, LQI, destination, source,
-										payload
-								),
-								callback
-						);
-					}
-				}
-				);
-
-			} else {
-
-				log.debug("{} => Delivering message directly over iSenseDevice.send(), i.e. not as a virtual link "
-						+ "message.", configuration.getNodeUrn()
-				);
-
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
-
-				deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(final ChannelFuture future) throws Exception {
-
-						if (future.isSuccess()) {
-
-							callback.success(null);
-
-						} else if (future.isCancelled()) {
-
-							String msg = "Sending message was canceled.";
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -3, msg.getBytes());
-
-						} else {
-
-							String msg = "Failed sending message. Reason: " + future.getCause();
-							log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
-							callback.failure((byte) -2, msg.getBytes());
-						}
-					}
-				}
-				);
-
-			}
-
-		} else {
+		if (!isConnected()) {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
+			return;
 		}
 
+		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
+
+		if (log.isDebugEnabled()) {
+			log.debug("{} => Delivering message: ",
+					configuration.getNodeUrn(),
+					ChannelBufferTools.toPrintableString(buffer, 200)
+			);
+		}
+
+		deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
+
+			@Override
+			public void operationComplete(final ChannelFuture future) throws Exception {
+
+				if (future.isSuccess()) {
+
+					callback.success(null);
+
+				} else if (future.isCancelled()) {
+
+					String msg = "Sending message was canceled.";
+					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					callback.failure((byte) -3, msg.getBytes());
+
+				} else {
+
+					String msg = "Failed sending message. Reason: " + future.getCause();
+					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					callback.failure((byte) -2, msg.getBytes());
+				}
+			}
+		}
+		);
 	}
 
 	@Override
@@ -955,7 +925,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		}
 
 		if (log.isTraceEnabled()) {
-			log.trace("{} => WSNDeviceAppConnectorImpl.receivePacket: {}",
+			log.trace("{} => WSNDeviceAppConnectorImpl.onBytesReceivedFromDevice: {}",
 					configuration.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);

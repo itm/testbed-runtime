@@ -126,14 +126,14 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 							(oldApplicationConfig != null && newApplicationConfig == null) ||
 							(oldApplicationConfig != null && !oldApplicationConfig.isEqualNode(newApplicationConfig));
 
-			checkState(applications.containsKey(oldApplicationName));
-
 			if (factoryClassChanged || configurationChanged) {
 
-				stopApplication(newApplicationXml);
+				if (applications.containsKey(oldApplicationName)) {
+					stopApplication(newApplicationXml);
+				}
 				startApplication(newApplicationXml);
 
-			} else if (nameChanged) {
+			} else if (applications.containsKey(oldApplicationName) && nameChanged) {
 
 				applications.put(newApplicationName, applications.remove(oldApplicationName));
 			}

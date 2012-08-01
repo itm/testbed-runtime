@@ -23,8 +23,6 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
-import de.uniluebeck.itm.tr.util.Listenable;
-
 import java.io.IOException;
 
 /**
@@ -34,7 +32,7 @@ import java.io.IOException;
  * properly
  * so it can be used in {@link java.util.HashMap}s.
  */
-public abstract class ServerConnection implements Listenable<ServerConnectionListener> {
+public abstract class ServerConnection {
 
 	public abstract void bind() throws ConnectionInvalidAddressException, IOException;
 

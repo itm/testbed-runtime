@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection.tcp;
 
+import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressException;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionFactory;
@@ -35,7 +36,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionFactory;
 public class TcpServerConnectionFactory implements ServerConnectionFactory {
 
 	@Override
-	public ServerConnection create(String address) throws ConnectionInvalidAddressException {
+	public ServerConnection create(String address, EventBus eventBus) throws ConnectionInvalidAddressException {
 		try {
 
 			String[] split = address.split(":");
@@ -43,7 +44,7 @@ public class TcpServerConnectionFactory implements ServerConnectionFactory {
 			String hostName = "0.0.0.0";
 			int port = Integer.parseInt(split[1]);
 
-			return new TcpServerConnection(hostName, port);
+			return new TcpServerConnection(hostName, port, eventBus);
 
 		} catch (NumberFormatException e) {
 			throw new ConnectionInvalidAddressException(address, e);

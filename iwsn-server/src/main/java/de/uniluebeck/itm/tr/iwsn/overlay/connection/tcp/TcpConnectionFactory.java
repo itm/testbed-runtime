@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection.tcp;
 
+import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressException;
@@ -31,7 +32,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressExce
 public class TcpConnectionFactory implements ConnectionFactory {
 
 	@Override
-	public Connection create(String nodeName, Connection.Direction direction, String address)
+	public Connection create(String nodeName, Connection.Direction direction, String address, EventBus eventBus)
 			throws ConnectionInvalidAddressException {
 
 		try {
@@ -40,7 +41,7 @@ public class TcpConnectionFactory implements ConnectionFactory {
 			String hostName = split[0];
 			int port = Integer.parseInt(split[1]);
 
-			return new TcpConnection(nodeName, direction, hostName, port);
+			return new TcpConnection(nodeName, direction, hostName, port, eventBus);
 
 		} catch (NumberFormatException e) {
 			throw new ConnectionInvalidAddressException(address, "Could not parse port number!", e);

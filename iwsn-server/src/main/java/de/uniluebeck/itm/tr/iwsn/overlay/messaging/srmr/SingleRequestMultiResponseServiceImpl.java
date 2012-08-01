@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.ByteString;
@@ -74,7 +75,7 @@ public class SingleRequestMultiResponseServiceImpl
 			);
 
 	@Override
-	public void sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
+	public ListenableFuture<Void> sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
 														SingleRequestMultiResponseCallback callback) {
 
 		String requestId = secureIdGenerator.getNextId();
@@ -99,8 +100,7 @@ public class SingleRequestMultiResponseServiceImpl
 
 		timedCache.put(requestId, requestTuple, timeout, timeUnit);
 
-		unreliableMessagingService.sendAsync(messageBuilder.build());
-
+		return unreliableMessagingService.sendAsync(messageBuilder.build());
 	}
 
 	@Override

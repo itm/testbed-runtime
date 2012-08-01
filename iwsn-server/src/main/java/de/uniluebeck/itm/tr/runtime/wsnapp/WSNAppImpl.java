@@ -27,10 +27,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
@@ -1158,7 +1155,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			try {
 				future.get();
 			} catch (Exception e) {
-				log.error("{}", e);
+				log.error("Exception while flashing default image to reserved nodes: {}", e.getMessage());
 			}
 		}
 	}
@@ -1226,10 +1223,23 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			}
 		};
 
-		testbedRuntime.getSingleRequestMultiResponseService().sendUnreliableRequestUnreliableResponse(
-				msg,
-				2, TimeUnit.MINUTES,
-				callback
+		final ListenableFuture<Void> requestFuture =
+				testbedRuntime.getSingleRequestMultiResponseService().sendUnreliableRequestUnreliableResponse(
+						msg,
+						2, TimeUnit.MINUTES,
+						callback
+				);
+
+		requestFuture.addListener(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					requestFuture.get();
+				} catch (Exception e) {
+					future.setException(e);
+				}
+			}
+		}, MoreExecutors.sameThreadExecutor()
 		);
 
 		return future;
@@ -1265,7 +1275,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			try {
 				future.get();
 			} catch (Exception e) {
-				log.error("{}", e);
+				log.error("Exception while setting default pipeline on reserved nodes: {}", e.getMessage());
 			}
 		}
 	}

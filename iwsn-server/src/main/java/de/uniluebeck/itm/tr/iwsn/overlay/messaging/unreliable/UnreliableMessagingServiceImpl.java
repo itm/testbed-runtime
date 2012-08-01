@@ -134,70 +134,75 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 				// try to get a connection
 				Connection connection = getConnection(msg);
 
-				// try to send the message, fails silently if one of the
-				// arguments is null. this results in a drop of the message.
+				log.debug("UnreliableMessagingService.DispatcherRunnable.dispatchMessages(): got connection {}", connection);
+
 				final String to = msg.getTo();
 
-				if (connection != null) {
+				if (connection == null) {
+					String warningMsg = "No connection to \"" + to + "\"!";
+					log.warn(warningMsg);
+					messageCacheEntry.future.setException(new RuntimeException(warningMsg));
+					messageEventService.dropped(msg);
+					return;
+				}
+
+				// try to send the message, fails silently if one of the
+				// arguments is null. this results in a drop of the message.
+				try {
+
+					if (!connection.isConnected()) {
+						throw new IOException("Connection broke!");
+					}
+
+					log.trace("Writing message to connection output stream ({})", connection.getOutputStream());
+					sendMessage(msg, connection);
+					log.trace("Wrote message to connection output stream ({})", connection.getOutputStream());
+					messageCacheEntry.future.set(null);
+					messageEventService.sent(msg);
+
+				} catch (IOException e) {
+
+					log.trace("IOException when trying to send message to {}. Trying to reconnect...", to);
+
+					connection.disconnect();
+
+					// in case the remote host got e.g. restarted it may be that the current connection is
+					// broken. give it a second try here by creating a new connection and only assume sending
+					// failed if this doesn't work now
+					connection = getConnection(msg);
+
+					if (connection == null) {
+						String warningMsg = "No connection to " + to + ".";
+						log.warn(warningMsg);
+						messageCacheEntry.future.setException(new RuntimeException(warningMsg));
+						messageEventService.dropped(msg);
+						return;
+					}
 
 					try {
 
-						log.trace("Writing message to connection output stream ({})", connection.getOutputStream());
 						sendMessage(msg, connection);
-						log.trace("Wrote message to connection output stream ({})", connection.getOutputStream());
 						messageCacheEntry.future.set(null);
 						messageEventService.sent(msg);
 
-					} catch (IOException e) {
-
-						log.trace("IOException when trying to send message to {}. Trying to reconnect...", to);
-
-						connection.disconnect();
-
-						// in case the remote host got e.g. restarted it may be that the current connection is
-						// broken. give it a second try here by creating a new connection and only assume sending
-						// failed if this doesn't work now
-						connection = getConnection(msg);
-
-						if (connection == null) {
-							String warningMsg = "No connection to " + to + ". Dropping message " + msg;
-							log.warn(warningMsg);
-							messageCacheEntry.future.setException(new RuntimeException(warningMsg));
-							messageEventService.dropped(msg);
-							return;
-						}
-
-						try {
-
-							sendMessage(msg, connection);
-							messageCacheEntry.future.set(null);
-							messageEventService.sent(msg);
-
-						} catch (Exception e1) {
-
-							String warningMsg =
-									"Can't send message to " + to + " because the attempt threw an exception: " + e1;
-							log.warn(warningMsg);
-							messageCacheEntry.future.setException(new RuntimeException(warningMsg));
-							messageEventService.dropped(msg);
-						}
-
-					} catch (Exception e) {
+					} catch (Exception e1) {
 
 						String warningMsg =
-								"Exception while serializing message to " + to + ". Dropping message: " + msg;
+								"Can't send message to " + to + " because the attempt threw an exception: " + e1;
 						log.warn(warningMsg);
 						messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 						messageEventService.dropped(msg);
 					}
 
-				} else {
+				} catch (Exception e) {
 
-					String warningMsg = "No connection to " + to + ". Dropping message " + msg;
+					String warningMsg =
+							"Exception while serializing message to " + to + ". Dropping message: " + msg;
 					log.warn(warningMsg);
 					messageCacheEntry.future.setException(new RuntimeException(warningMsg));
 					messageEventService.dropped(msg);
 				}
+
 			}
 
 		}

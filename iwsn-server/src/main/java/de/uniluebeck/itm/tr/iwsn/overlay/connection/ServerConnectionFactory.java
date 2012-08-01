@@ -24,9 +24,11 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
 
+import com.google.common.eventbus.EventBus;
+
 public interface ServerConnectionFactory {
 
-	ServerConnection create(String address) throws ConnectionInvalidAddressException;
+	ServerConnection create(String address, EventBus eventBus) throws ConnectionInvalidAddressException;
 
 	String getType();
 

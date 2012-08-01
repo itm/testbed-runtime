@@ -6,7 +6,7 @@
 	<parent>
         <groupId>de.uniluebeck.itm</groupId>
         <artifactId>tr</artifactId>
-        <version>0.8.3-SNAPSHOT</version>
+        <version>0.8.5-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -20,8 +20,8 @@
 			<artifactId>tr.iwsn-server</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.wiseml</artifactId>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>wiseml</artifactId>
 		</dependency>
 
 		<dependency>

@@ -23,6 +23,9 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
@@ -33,13 +36,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
-class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
+class ConnectionServiceImpl implements ConnectionService {
 
 	private static final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
@@ -52,19 +58,23 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 
 	private NamingService naming;
 
+	private final EventBus eventBus;
+
 	private final Map<Tuple<String, String>, ServerConnection> serverConnectionInstances =
 			new HashMap<Tuple<String, String>, ServerConnection>();
 
 	private final Map<String, Set<Connection>> connectionInstances = new HashMap<String, Set<Connection>>();
 
 	@Inject
-	public ConnectionServiceImpl(Set<ConnectionFactory> connectionFactories,
-								 Set<ServerConnectionFactory> serverConnectionFactories,
-								 RoutingTableService routing,
-								 NamingService naming) {
+	public ConnectionServiceImpl(final Set<ConnectionFactory> connectionFactories,
+								 final Set<ServerConnectionFactory> serverConnectionFactories,
+								 final RoutingTableService routing,
+								 final NamingService naming,
+								 final EventBus eventBus) {
 
 		this.routing = routing;
 		this.naming = naming;
+		this.eventBus = eventBus;
 
 		for (ConnectionFactory connectionFactory : connectionFactories) {
 			this.connectionFactories.put(connectionFactory.getType(), connectionFactory);
@@ -98,14 +108,14 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 			}
 
 			Connection connection = noExistingConnection ?
-					createConnection(naming.getEntries(nextHop)) :
+					createConnection(nextHop) :
 					nodeConnections.iterator().next();
 
 			if (connection != null) {
 
 				if (!connection.isConnected()) {
 					log.trace("Existing connection is not connected. Creating new one...");
-					connection = createConnection(naming.getEntries(nextHop));
+					connection = createConnection(nextHop);
 				}
 
 				log.trace("Connection to \"{}\" found/created: {}", nextHop, connection);
@@ -117,7 +127,9 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 		}
 	}
 
-	private Connection createConnection(SortedSet<NamingEntry> namingEntries) {
+	private Connection createConnection(final String nextHop) {
+
+		final ImmutableSortedSet<NamingEntry> namingEntries = naming.getEntries(nextHop);
 
 		if (namingEntries == null) {
 			return null;
@@ -125,43 +137,51 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 
 		for (NamingEntry namingEntry : namingEntries) {
 
-			ConnectionFactory connectionFactory = connectionFactories.get(namingEntry.getIface().getType());
-
-			if (connectionFactory == null) {
-				throw new RuntimeException(
-						"No ConnectionFactory implementation found for interface type " +
-								namingEntry.getIface().getType()
-				);
-			}
-
-			try {
-
-				Connection connection = connectionFactory.create(
-						namingEntry.getNodeName(),
-						Connection.Direction.OUT,
-						namingEntry.getIface().getAddress()
-				);
-				connection.addListener(this);
-				connection.connect();
+			final Connection connection = tryCreateConnection(namingEntry);
+			if (connection != null) {
 				return connection;
-
-			} catch (java.net.UnknownHostException e) {
-				log.error(
-						"Unkown host {}.",
-						namingEntry.getIface().getAddress()
-				);
-			} catch (Exception e) {
-				log.info(
-						"Exception while trying to establish connection to {}. Cause: {}",
-						namingEntry.getIface().getAddress(),
-						e.getCause()
-				);
 			}
-
 		}
 
 		return null;
 
+	}
+
+	private Connection tryCreateConnection(final NamingEntry namingEntry) {
+
+		final ConnectionFactory connectionFactory = connectionFactories.get(namingEntry.getIface().getType());
+
+		if (connectionFactory == null) {
+			throw new RuntimeException(
+					"No ConnectionFactory implementation found for interface type " +
+							namingEntry.getIface().getType()
+			);
+		}
+
+		final String nodeName = namingEntry.getNodeName();
+		final String address = namingEntry.getIface().getAddress();
+
+		try {
+
+			final Connection connection = connectionFactory.create(
+					nodeName,
+					Connection.Direction.OUT,
+					address,
+					eventBus
+			);
+
+			connection.connect();
+			return connection;
+
+		} catch (java.net.UnknownHostException e) {
+			log.error("Unknown host {} for overlay node {}.", address, nodeName);
+			return null;
+		} catch (Exception e) {
+			log.info("Exception while trying to establish connection with {} for overlay node {}: {}",
+					new Object[]{address, nodeName, e}
+			);
+			return null;
+		}
 	}
 
 	@Override
@@ -179,61 +199,76 @@ class ConnectionServiceImpl implements ConnectionService, ConnectionListener {
 	private ServerConnection createServerConnection(String type, String address)
 			throws ConnectionInvalidAddressException {
 		ServerConnectionFactory serverConnectionFactory = serverConnectionFactories.get(type);
-		ServerConnection serverConnection = serverConnectionFactory.create(address);
+		ServerConnection serverConnection = serverConnectionFactory.create(address, eventBus);
 		serverConnectionInstances.put(new Tuple<String, String>(type, address), serverConnection);
 		return serverConnection;
 	}
 
 	@Override
 	public void start() throws Exception {
-		// nothing to do
+		eventBus.register(this);
 	}
 
 	@Override
 	public void stop() {
 		closeConnections();
 		closeServerConnections();
+		eventBus.unregister(this);
 	}
 
 	private void closeServerConnections() {
-		for (ServerConnection serverConnection : serverConnectionInstances.values()) {
+
+		Set<ServerConnection> openServerConnections = new HashSet<ServerConnection>(serverConnectionInstances.values());
+
+		for (ServerConnection serverConnection : openServerConnections) {
 			serverConnection.unbind();
 		}
 	}
 
 	private void closeConnections() {
+
+		Set<Connection> openConnections = new HashSet<Connection>();
+
 		for (Set<Connection> connections : this.connectionInstances.values()) {
 			for (Connection connection : connections) {
-				connection.disconnect();
+				openConnections.add(connection);
 			}
+		}
+
+		for (Connection openConnection : openConnections) {
+			openConnection.disconnect();
 		}
 	}
 
-	@Override
-	public void connectionOpened(Connection connection) {
+	@Subscribe
+	public void connectionOpened(ConnectionOpenedEvent event) {
 
-		if (Connection.Direction.OUT == connection.getDirection()) {
+		log.debug("ConnectionService.connectionOpened({})", event);
+
+		if (Connection.Direction.OUT == event.getConnection().getDirection()) {
 			synchronized (connectionInstances) {
-				Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
+				Set<Connection> nodeConnections = connectionInstances.get(event.getConnection().getRemoteNodeName());
 				if (nodeConnections == null) {
 					nodeConnections = new HashSet<Connection>();
-					connectionInstances.put(connection.getRemoteNodeName(), nodeConnections);
+					connectionInstances.put(event.getConnection().getRemoteNodeName(), nodeConnections);
 				}
-				nodeConnections.add(connection);
+				nodeConnections.add(event.getConnection());
 			}
 		}
 
 	}
 
-	@Override
-	public void connectionClosed(Connection connection) {
+	@Subscribe
+	public void connectionClosed(ConnectionClosedEvent event) {
 
-		if (Connection.Direction.OUT == connection.getDirection()) {
+		log.debug("ConnectionService.connectionClosed({})", event);
+
+		if (Connection.Direction.OUT == event.getConnection().getDirection()) {
 
 			synchronized (connectionInstances) {
-				Set<Connection> nodeConnections = connectionInstances.get(connection.getRemoteNodeName());
+				Set<Connection> nodeConnections = connectionInstances.get(event.getConnection().getRemoteNodeName());
 				if (nodeConnections != null) {
-					nodeConnections.remove(connection);
+					nodeConnections.remove(event.getConnection());
 				}
 			}
 		}

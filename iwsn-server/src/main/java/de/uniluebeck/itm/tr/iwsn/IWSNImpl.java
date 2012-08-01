@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn;
 
+import com.google.common.eventbus.DeadEvent;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
@@ -39,9 +41,10 @@ class IWSNImpl implements IWSN {
 	@Override
 	public void start() throws Exception {
 
-		log.info("Starting iWSN...");
+		log.info("Starting IWSN...");
 
 		log.debug("Starting overlay services...");
+		testbedRuntime.getEventBus().register(this);
 		testbedRuntime.start();
 
 		log.debug("Starting overlay manager...");
@@ -61,21 +64,43 @@ class IWSNImpl implements IWSN {
 	@Override
 	public void stop() {
 
-		log.info("Stopping iWSN...");
+		log.info("Stopping IWSN...");
 
 		log.debug("Stopping DOM observer...");
-		domObserverSchedule.cancel(true);
-		ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
+		try {
+			domObserverSchedule.cancel(true);
+			ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			log.error("Exception while stopping DOM observer: {}", e);
+		}
 
 		log.debug("Stopping application manager...");
-		applicationManager.stop();
+		try {
+			applicationManager.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping application manager: {}", e);
+		}
 
 		log.debug("Stopping overlay manager...");
-		overlayManager.stop();
+		try {
+			overlayManager.stop();
+		} catch (Exception e) {
+			log.error("Exception while stopping overlay manager: {}", e);
+		}
 
 		log.debug("Stopping overlay...");
-		testbedRuntime.stop();
+		try {
+			testbedRuntime.stop();
+			testbedRuntime.getEventBus().unregister(this);
+		} catch (Exception e) {
+			log.error("Exception while stopping overlay: {}", e);
+		}
 
-		log.info("Stopped iWSN. Bye!");
+		log.info("Stopped IWSN. Bye!");
+	}
+
+	@Subscribe
+	public void onDeadEvent(DeadEvent deadEvent) {
+		log.warn("Received dead event: {}", deadEvent.getEvent());
 	}
 }

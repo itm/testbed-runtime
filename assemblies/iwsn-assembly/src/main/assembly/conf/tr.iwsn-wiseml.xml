@@ -23,19 +23,11 @@
 <wiseml version="1.0" xmlns="http://wisebed.eu/ns/wiseml/1.0">
 	<setup>
 		<description>The WSN testbed of the University of Lübeck, Germany</description>
-		<node id="urn:local:0x0001" >
-			<nodeType>mock</nodeType>
-		</node>
-		<!-- Uncomment and edit one or more of the following corresponding to the settings in tr.iwsn-testbed.xml
-		<node id="urn:local:0x1234" >
-			<nodeType>isense</nodeType>
-		</node>
-		<node id="urn:local:0x2345" >
-			<nodeType>telosb</nodeType>
-		</node>
-		<node id="urn:local:0x3456" >
-			<nodeType>pacemate</nodeType>
-		</node>
-		-->
+		<node id="urn:local:0x0123"><nodeType>mock</nodeType></node>
+		<!-- Uncomment and edit one or more of the following corresponding to the settings in tr.iwsn-testbed.xml -->
+		<!-- <node id="urn:local:0x1234"><nodeType>isense</nodeType></node> -->
+		<!-- <node id="urn:local:0x2345"><nodeType>isense</nodeType></node> -->
+		<!-- <node id="urn:local:0x3456"><nodeType>telosb</nodeType></node> -->
+		<!-- <node id="urn:local:0x4567"><nodeType>pacemate</nodeType></node> -->
 	</setup>
 </wiseml>

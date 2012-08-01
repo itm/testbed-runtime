@@ -23,12 +23,9 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection.tcp;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressException;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionListener;
-import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
+import de.uniluebeck.itm.tr.iwsn.overlay.connection.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,34 +46,42 @@ public class TcpServerConnection extends ServerConnection {
 
 		public void run() {
 
-			while (!Thread.interrupted()) {
+			while (!Thread.currentThread().isInterrupted()) {
+
+				Socket socket;
+
 				try {
 
 					// listeners will track the connection...
-					Socket socket = serverSocket.accept();
-					log.trace("Socket opened by remote host ({})", socket);
-					InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
-					log.trace("Socket remote address: {}", remoteSocketAddress);
-
-					TcpConnection connection = new TcpConnection(
-							null,
-							Connection.Direction.IN,
-							remoteSocketAddress.getAddress().toString(),
-							remoteSocketAddress.getPort()
-					);
-
-					log.trace("Created new connection object: {}", connection);
-					connection.setSocket(socket);
-
-					for (ServerConnectionListener listener : listenerManager.getListeners()) {
-						listener.connectionEstablished(TcpServerConnection.this, connection);
-					}
+					socket = serverSocket.accept();
 
 				} catch (IOException e) {
-					log.trace("IOException after accepting connection initiated by remote host: {}", e);
-				}
-			}
 
+					if (Thread.currentThread().isInterrupted()) {
+						return;
+					}
+
+					log.error("IOException after accepting connection initiated by remote host: {}", e);
+					continue;
+				}
+
+				log.trace("Socket opened by remote host ({})", socket);
+				InetSocketAddress remoteSocketAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+				log.trace("Socket remote address: {}", remoteSocketAddress);
+
+				TcpConnection connection = new TcpConnection(
+						null,
+						Connection.Direction.IN,
+						remoteSocketAddress.getAddress().toString(),
+						remoteSocketAddress.getPort(),
+						eventBus
+				);
+
+				log.trace("Created new connection object: {}", connection);
+				connection.setSocket(socket);
+
+				eventBus.post(new ConnectionAcceptedEvent(TcpServerConnection.this, connection));
+			}
 		}
 	};
 
@@ -84,17 +89,17 @@ public class TcpServerConnection extends ServerConnection {
 			new ThreadFactoryBuilder().setNameFormat("TcpServerConnection-Thread %d").build()
 	);
 
-	private final ListenerManagerImpl<ServerConnectionListener> listenerManager =
-			new ListenerManagerImpl<ServerConnectionListener>();
-
 	private ServerSocket serverSocket;
 
 	private InetSocketAddress socketAddress;
 
 	private Future<?> acceptThreadFuture;
 
-	public TcpServerConnection(String hostName, int port) {
+	private EventBus eventBus;
+
+	public TcpServerConnection(String hostName, int port, EventBus eventBus) {
 		this.socketAddress = new InetSocketAddress(hostName, port);
+		this.eventBus = eventBus;
 	}
 
 	public void bind() throws IOException, ConnectionInvalidAddressException {
@@ -121,24 +126,8 @@ public class TcpServerConnection extends ServerConnection {
 		}
 
 		acceptThreadFuture = executor.submit(acceptRunnable);
-		postEvent(true);
+		eventBus.post(new ServerConnectionOpenedEvent(this));
 
-	}
-
-	private void postEvent(final boolean connected) {
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (ServerConnectionListener listener : listenerManager.getListeners()) {
-					if (connected) {
-						listener.serverConnectionOpened(TcpServerConnection.this);
-					} else {
-						listener.serverConnectionClosed(TcpServerConnection.this);
-					}
-				}
-			}
-		}
-		);
 	}
 
 	public void unbind() {
@@ -149,13 +138,17 @@ public class TcpServerConnection extends ServerConnection {
 		try {
 
 			serverSocket.close();
-			log.debug("Unbound overlay server socket from {}:{}.", socketAddress.getHostName(), socketAddress.getPort()
+
+			log.debug(
+					"Unbound overlay server socket from {}:{}.",
+					socketAddress.getHostName(),
+					socketAddress.getPort()
 			);
 
 		} catch (IOException e) {
 			log.debug("IOException while closing server socket.", e);
 		} finally {
-			postEvent(false);
+			eventBus.post(new ServerConnectionClosedEvent(this));
 		}
 
 	}
@@ -178,15 +171,5 @@ public class TcpServerConnection extends ServerConnection {
 		return "TcpServerConnection{" +
 				"socketAddress=" + socketAddress +
 				'}';
-	}
-
-	@Override
-	public void addListener(final ServerConnectionListener listener) {
-		listenerManager.addListener(listener);
-	}
-
-	@Override
-	public void removeListener(final ServerConnectionListener listener) {
-		listenerManager.removeListener(listener);
 	}
 }

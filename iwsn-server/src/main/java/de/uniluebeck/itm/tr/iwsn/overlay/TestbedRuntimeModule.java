@@ -23,7 +23,11 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventModule;
@@ -58,6 +62,8 @@ public class TestbedRuntimeModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
+		bind(EventBus.class).in(Singleton.class);
+
 		bind(ExecutorService.class)
 				.annotatedWith(Names.named(TestbedRuntime.INJECT_ASYNC_EVENTBUS_EXECUTOR))
 				.toInstance(asyncEventBusExecutor);
@@ -81,6 +87,11 @@ public class TestbedRuntimeModule extends AbstractModule {
 		install(new LocalNodeNameManagerModule());
 
 		bind(TestbedRuntime.class).to(TestbedRuntimeImpl.class);
+	}
+
+	@Provides
+	private AsyncEventBus createAsyncEventBus() {
+		return new AsyncEventBus(asyncEventBusExecutor);
 	}
 
 }

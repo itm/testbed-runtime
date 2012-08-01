@@ -23,17 +23,24 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection.tcp;
 
+import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.Connection;
+import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionClosedEvent;
 import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionInvalidAddressException;
-import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionListener;
+import de.uniluebeck.itm.tr.iwsn.overlay.connection.ConnectionOpenedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class TcpConnection extends Connection {
@@ -48,44 +55,44 @@ public class TcpConnection extends Connection {
 
 	private Direction direction;
 
-	public TcpConnection(String nodeName, Connection.Direction direction, String hostName, int port) {
+	private final EventBus eventBus;
+
+	public TcpConnection(@Nullable final String nodeName,
+						 @Nonnull final Direction direction,
+						 @Nonnull final String hostName,
+						 final int port,
+						 @Nonnull final EventBus eventBus) {
+
+		switch (direction) {
+			case IN:
+				checkArgument(nodeName == null);
+				break;
+			case OUT:
+				checkNotNull(nodeName);
+				break;
+		}
+
+		checkNotNull(eventBus);
+		checkNotNull(hostName);
 
 		this.nodeName = nodeName;
 		this.direction = direction;
-		this.socketAddress = new InetSocketAddress(hostName, port);
+		this.eventBus = eventBus;
 
+		this.socketAddress = new InetSocketAddress(hostName, port);
 	}
 
 	public void connect() throws ConnectionInvalidAddressException, IOException {
 
-		if (socket == null) {
-
-			socket = new Socket();
-			socket.connect(socketAddress);
-			postEvent(true);
-
-		} else if (!socket.isConnected()) {
-
-			disconnect();
-
-			socket = new Socket();
-			socket.connect(socketAddress);
-			postEvent(true);
-
+		if (socket != null && !socket.isClosed()) {
+			return;
 		}
 
-	}
+		socket = new Socket();
+		socket.setKeepAlive(true);
+		socket.connect(socketAddress);
 
-	private void postEvent(boolean connected) {
-		for (ConnectionListener listener : listeners) {
-			if (connected) {
-				log.trace("Connection {} opened!", this);
-				listener.connectionOpened(this);
-			} else {
-				log.trace("Connection {} closed!", this);
-				listener.connectionClosed(this);
-			}
-		}
+		eventBus.post(new ConnectionOpenedEvent(this));
 	}
 
 	public void disconnect() {
@@ -94,7 +101,7 @@ public class TcpConnection extends Connection {
 
 			if (socket != null && !socket.isClosed()) {
 				socket.close();
-				postEvent(false);
+				eventBus.post(new ConnectionClosedEvent(this));
 			}
 
 		} catch (IOException e) {
@@ -129,7 +136,7 @@ public class TcpConnection extends Connection {
 	}
 
 	public boolean isConnected() {
-		return socket != null && socket.isConnected();
+		return socket != null && socket.isConnected() && !socket.isClosed();
 	}
 
 	@Override
@@ -145,28 +152,29 @@ public class TcpConnection extends Connection {
 	}
 
 	void setSocket(Socket socket) {
+
 		this.socket = socket;
-		if (socket.isConnected()) {
-			postEvent(true);
+
+		if (socket.isConnected() && !socket.isClosed()) {
+			eventBus.post(new ConnectionOpenedEvent(this));
 		}
 	}
 
 	@Override
 	public boolean equals(Object o) {
+
 		if (this == o) {
 			return true;
 		}
+
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
 
 		TcpConnection that = (TcpConnection) o;
 
-		if (!socketAddress.equals(that.socketAddress)) {
-			return false;
-		}
+		return socketAddress.equals(that.socketAddress);
 
-		return true;
 	}
 
 	@Override
