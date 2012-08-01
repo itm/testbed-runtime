@@ -90,7 +90,7 @@ class TestbedRuntimeImpl extends AbstractService implements TestbedRuntime {
 			messageEventService.startAndWait();
 			messageServerService.startAndWait();
 			namingService.startAndWait();
-			reliableMessagingService.start();
+			reliableMessagingService.startAndWait();
 			routingTableService.startAndWait();
 			unreliableMessagingService.startAndWait();
 			singleRequestMultiResponseService.startAndWait();
@@ -111,7 +111,7 @@ class TestbedRuntimeImpl extends AbstractService implements TestbedRuntime {
 			singleRequestMultiResponseService.stopAndWait();
 			unreliableMessagingService.stopAndWait();
 			routingTableService.stopAndWait();
-			reliableMessagingService.stop();
+			reliableMessagingService.stopAndWait();
 			namingService.stopAndWait();
 			messageServerService.stopAndWait();
 			messageEventService.stopAndWait();

@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
-import de.uniluebeck.itm.tr.util.Service;
 
 import java.util.concurrent.TimeUnit;
 
