@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -46,9 +47,11 @@ import java.util.concurrent.TimeUnit;
 
 
 @Singleton
-public class SingleRequestMultiResponseServiceImpl
-		extends ListenerManagerImpl<Triple<String, String, SingleRequestMultiResponseListener>>
+public class SingleRequestMultiResponseServiceImpl extends AbstractService
 		implements SingleRequestMultiResponseService {
+
+	private final ListenerManager<Triple<String, String, SingleRequestMultiResponseListener>> listenerManager =
+			new ListenerManagerImpl<Triple<String, String, SingleRequestMultiResponseListener>>();
 
 	@Inject
 	private LocalNodeNameManager localNodeNameManager;
@@ -75,8 +78,9 @@ public class SingleRequestMultiResponseServiceImpl
 			);
 
 	@Override
-	public ListenableFuture<Void> sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout, TimeUnit timeUnit,
-														SingleRequestMultiResponseCallback callback) {
+	public ListenableFuture<Void> sendUnreliableRequestUnreliableResponse(Messages.Msg msg, int timeout,
+																		  TimeUnit timeUnit,
+																		  SingleRequestMultiResponseCallback callback) {
 
 		String requestId = secureIdGenerator.getNextId();
 
@@ -105,21 +109,19 @@ public class SingleRequestMultiResponseServiceImpl
 
 	@Override
 	public void addListener(String urn, String msgType, SingleRequestMultiResponseListener listener) {
-		addListener(new Triple<String, String, SingleRequestMultiResponseListener>(urn, msgType, listener));
+		listenerManager.addListener(
+				new Triple<String, String, SingleRequestMultiResponseListener>(urn, msgType, listener)
+		);
 	}
 
 	@Override
 	public void removeListener(SingleRequestMultiResponseListener listener) {
 
-		ImmutableList.Builder<Triple<String, String, SingleRequestMultiResponseListener>> listBuilder =
-				ImmutableList.builder();
-		for (Triple<String, String, SingleRequestMultiResponseListener> t : listeners) {
+		for (Triple<String, String, SingleRequestMultiResponseListener> t : listenerManager.getListeners()) {
 			if (t.getThird() != listener) {
-				listBuilder.add(t);
+				listenerManager.removeListener(t);
 			}
 		}
-		listeners = listBuilder.build();
-
 	}
 
 	private class ResponderImpl implements SingleRequestMultiResponseListener.Responder {
@@ -181,6 +183,9 @@ public class SingleRequestMultiResponseServiceImpl
 
 					boolean matchesNodeUrn;
 					boolean matchesMsgType;
+
+					final ImmutableList<Triple<String,String,SingleRequestMultiResponseListener>> listeners =
+							listenerManager.getListeners();
 
 					for (Triple<String, String, SingleRequestMultiResponseListener> listener : listeners) {
 
@@ -249,16 +254,33 @@ public class SingleRequestMultiResponseServiceImpl
 			};
 
 	@Override
-	public void start() throws Exception {
-		messageEventService.addListener(messageEventListener);
-		timedCache.setListener(timedCacheListener);
+	protected void doStart() {
+
+		try {
+
+			messageEventService.addListener(messageEventListener);
+			timedCache.setListener(timedCacheListener);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		messageEventService.removeListener(messageEventListener);
-		timedCache.clear();
-		timedCache.setListener(null);
-	}
+	protected void doStop() {
 
+		try {
+
+			messageEventService.removeListener(messageEventListener);
+			timedCache.clear();
+			timedCache.setListener(null);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 }
