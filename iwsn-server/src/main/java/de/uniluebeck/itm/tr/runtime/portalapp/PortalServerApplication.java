@@ -87,7 +87,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		try {
 
 			service = new SessionManagementServiceImpl(testbedRuntime, config, preconditions, wsnApp, deliveryManager);
-			service.start();
+			service.startAndWait();
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -116,7 +116,7 @@ public class PortalServerApplication extends AbstractService implements TestbedA
 		}
 
 		try {
-			service.stop();
+			service.stopAndWait();
 		} catch (Exception e) {
 			log.error("Exception while shutting down Session Management service: {}", e);
 			notifyFailed(e);

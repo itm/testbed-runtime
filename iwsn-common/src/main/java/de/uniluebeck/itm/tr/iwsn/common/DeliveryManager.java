@@ -25,8 +25,9 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
@@ -50,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * list of recipients. Between every try there's a pause of {@link DeliveryManagerConstants#RETRY_TIMEOUT} in time unit
  * {@link DeliveryManagerConstants#RETRY_TIME_UNIT}.
  */
-public class DeliveryManager implements Service {
+public class DeliveryManager extends AbstractService implements Service {
 
 	/**
 	 * The logger instance for this class.
@@ -333,21 +334,35 @@ public class DeliveryManager implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
-		if (!running) {
-			log.debug("Starting DeliveryManager...");
-			executorService = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
-			);
-			running = true;
+	protected void doStart() {
+
+		try {
+
+			if (!running) {
+				log.debug("Starting DeliveryManager...");
+				executorService = Executors.newCachedThreadPool(
+						new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
+				);
+				running = true;
+			}
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 	}
 
 	@Override
-	public void stop() {
-		if (running) {
+	protected void doStop() {
+
+		try {
+
 			log.debug("Stopping delivery manager (asynchronously)...");
-			new Thread("DeliveryManager-ShutdownThread") {
+
+			experimentEnded();
+
+			final Thread shutdownThread = new Thread("DeliveryManager-ShutdownThread") {
 				@Override
 				public void run() {
 
@@ -373,11 +388,14 @@ public class DeliveryManager implements Service {
 
 					log.debug("Stopped delivery manager!");
 				}
-			}.start();
-			experimentEnded();
-			running = false;
-		} else {
-			log.debug("Not stopping DeliveryManager as it is not running.");
+			};
+
+			shutdownThread.start();
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 	}
 }

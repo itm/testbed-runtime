@@ -52,7 +52,7 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 				config.getSessionManagementEndpointUrl().toString() :
 				UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
 
-		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
+		log.info("Starting session management SOAP service on binding URL {} for endpoint URL {}",
 				bindAllInterfacesUrl,
 				config.getSessionManagementEndpointUrl().toString()
 		);
@@ -69,7 +69,7 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 			} catch (NullPointerException expectedWellKnownBug) {
 				// do nothing
 			}
-			log.info("Stopped Session Management service on {}", config.getSessionManagementEndpointUrl());
+			log.info("Stopped session management SOAP service on {}", config.getSessionManagementEndpointUrl());
 		}
 	}
 
