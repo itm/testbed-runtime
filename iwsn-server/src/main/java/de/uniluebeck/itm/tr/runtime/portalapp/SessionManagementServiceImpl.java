@@ -43,7 +43,7 @@ import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -245,42 +245,10 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	}
 
 	@Override
-	public String getInstance(List<SecretReservationKey> secretReservationKeys, String controller)
+	public String getInstance(List<SecretReservationKey> secretReservationKeys)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
-		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
-
-		// check if controller endpoint URL is a valid URL and connectivity is given
-		// (i.e. endpoint is not behind a NAT or firewalled)
-		try {
-
-			// the user may pass NONE to indicate the wish to not add a controller endpoint URL for now
-			if (!"NONE".equals(controller)) {
-				new URL(controller);
-				try {
-					NetworkUtils.checkConnectivity(controller);
-				} catch (Exception e) {
-					throw new RuntimeException("The testbed backend system could not connect to host/port of the given "
-							+ "controller endpoint URL: \"" + controller + "\". Please make sure: \n"
-							+ " 1) your host is not behind a firewall or the firewall is configured to allow incoming connections\n"
-							+ " 2) your host is not behind a Network Address Translation (NAT) system or the NAT system is configured to forward incoming connections\n"
-							+ " 3) the domain in the endpoint URL can be resolved to an IP address and\n"
-							+ " 4) the Controller endpoint Web service is already started.\n"
-							+ "\n"
-							+ "The testbed backend system needs an implementation of the Wisebed APIs Controller "
-							+ "Web service to run on the client side. It uses this as a feedback channel to deliver "
-							+ "sensor node outputs to the client application.\n"
-							+ "\n"
-							+ "Please note: If this testbed runs the unofficial Protocol buffers based API you might "
-							+ "try to use this method to connect to the testbed as it doesn't require a feedback "
-							+ "channel but delivers the node output using the TCP connection initiated by the client."
-					);
-				}
-			}
-
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
 		// extract the one and only relevant secretReservationKey
 		String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
@@ -294,12 +262,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			wsnServiceHandleInstance = wsnInstances.get(secretReservationKey);
 
 			if (wsnServiceHandleInstance != null) {
-
-				if (!"NONE".equals(controller)) {
-					log.debug("Adding new controller to the list: {}", controller);
-					wsnServiceHandleInstance.getWsnService().addController(controller);
-				}
-
 				return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 			}
 
@@ -392,10 +354,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			}
 
 			wsnInstances.put(secretReservationKey, wsnServiceHandleInstance);
-
-			if (!"NONE".equals(controller)) {
-				wsnServiceHandleInstance.getWsnService().addController(controller);
-			}
 
 			return wsnServiceHandleInstance.getWsnInstanceEndpointUrl().toString();
 
@@ -527,24 +485,6 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		}
 	}
 
-	private List<eu.wisebed.api.rs.SecretReservationKey> convert(
-			List<SecretReservationKey> secretReservationKey) {
-
-		List<eu.wisebed.api.rs.SecretReservationKey> retList =
-				new ArrayList<eu.wisebed.api.rs.SecretReservationKey>(secretReservationKey.size());
-		for (SecretReservationKey reservationKey : secretReservationKey) {
-			retList.add(convert(reservationKey));
-		}
-		return retList;
-	}
-
-	private eu.wisebed.api.rs.SecretReservationKey convert(SecretReservationKey reservationKey) {
-		eu.wisebed.api.rs.SecretReservationKey retSRK =
-				new eu.wisebed.api.rs.SecretReservationKey();
-		retSRK.setSecretReservationKey(reservationKey.getSecretReservationKey());
-		retSRK.setUrnPrefix(reservationKey.getUrnPrefix());
-		return retSRK;
-	}
 
 	/**
 	 * Tries to fetch the reservation data from {@link de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementServiceConfig#getReservationEndpointUrl()}
@@ -564,7 +504,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		try {
 
 			RS rsService = WisebedServiceHelper.getRSService(config.getReservationEndpointUrl().toString());
-			return rsService.getReservation(convert(secretReservationKeys));
+			return rsService.getReservation((secretReservationKeys));
 
 		} catch (RSExceptionException e) {
 			String msg = "Generic exception occurred in the federated reservation system.";

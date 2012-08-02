@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 
 import javax.annotation.Nonnull;
@@ -36,9 +36,9 @@ import java.util.List;
 public interface SessionManagementService extends Service {
 
 	/**
-	 * See {@link eu.wisebed.api.sm.SessionManagement#getInstance(java.util.List, String)}
+	 * See {@link eu.wisebed.api.sm.SessionManagement#getInstance(java.util.List)}
 	 */
-	String getInstance(List<SecretReservationKey> secretReservationKeys, String controller)
+	String getInstance(List<SecretReservationKey> secretReservationKeys)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
 
 	/**

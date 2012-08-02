@@ -5,7 +5,7 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.wiseml.WiseMLHelper;
@@ -134,11 +134,10 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	@Override
 	public String getInstance(
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
-			List<SecretReservationKey> secretReservationKey,
-			@WebParam(name = "controller", targetNamespace = "") final String controller)
+			List<SecretReservationKey> secretReservationKey)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
-		return sm.getInstance(secretReservationKey, controller);
+		return sm.getInstance(secretReservationKey);
 	}
 
 	@Override
