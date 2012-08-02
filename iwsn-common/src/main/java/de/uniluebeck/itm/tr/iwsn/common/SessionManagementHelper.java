@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.ExperimentNotRunningException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
+
 
 
 public class SessionManagementHelper {

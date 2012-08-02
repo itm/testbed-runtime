@@ -23,16 +23,16 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import de.uniluebeck.itm.tr.util.NetworkUtils;
-import eu.wisebed.api.sm.SecretReservationKey;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import de.uniluebeck.itm.tr.util.NetworkUtils;
+import eu.wisebed.api.common.SecretReservationKey;
 
 public class SessionManagementPreconditions {
 
