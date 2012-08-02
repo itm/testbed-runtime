@@ -54,15 +54,14 @@ public class SessionManagementPreconditions {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 	}
 
-	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller) {
-		checkGetInstanceArguments(secretReservationKey, controller, false);
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey) {
+		checkGetInstanceArguments(secretReservationKey, false);
 	}
 
-	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller,
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey,
 										  boolean singleUrnImplementation) {
 
 		checkNotNull(secretReservationKey);
-		checkNotNull(controller);
 
 		checkUrnPrefixesServed(secretReservationKey);
 

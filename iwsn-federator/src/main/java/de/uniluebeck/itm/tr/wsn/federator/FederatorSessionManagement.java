@@ -23,9 +23,42 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper;
@@ -37,25 +70,15 @@ import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.sm.*;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.sm.UnknownReservationIdException;
+import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.*;
-
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -218,23 +241,23 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			SessionManagement service = WisebedServiceHelper
 					.getSessionManagementService(federatedSessionManagementEndpointUrl);
-			String federatedWSNInstanceEndpointUrl = service.getInstance(secretReservationKey, controller);
+			String federatedWSNInstanceEndpointUrl = service.getInstance(secretReservationKey);
 
 			return new GetInstanceCallable.Result(secretReservationKey, controller, federatedWSNInstanceEndpointUrl);
 
 		}
 
 	}
+	
+
 
 	@Override
 	public String getInstance(
 			@WebParam(name = "secretReservationKeys", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys,
-			@WebParam(name = "controller", targetNamespace = "")
-			String controller)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+			List<SecretReservationKey> secretReservationKeys)
+			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {		
 
-		preconditions.checkGetInstanceArguments(secretReservationKeys, controller);
+		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
 		final String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
 
@@ -250,11 +273,6 @@ public class FederatorSessionManagement implements SessionManagement {
 							secretReservationKeys
 					}
 			);
-
-			if (!"NONE".equals(controller)) {
-				log.debug("Adding controller to the set of controllers: {}", controller);
-				existingWSNFederatorInstance.addController(controller);
-			}
 
 			return existingWSNFederatorInstance.getEndpointUrl();
 		}
@@ -375,10 +393,6 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			federatorWSN.start();
 
-			// add controller to set of upstream controllers so that output is
-			// sent upwards
-			federatorWSN.addController(controller);
-
 		} catch (Exception e) {
 			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
 		}
@@ -393,16 +407,16 @@ public class FederatorSessionManagement implements SessionManagement {
 		return federatorWSN.getEndpointUrl();
 	}
 
-	private List<eu.wisebed.api.rs.SecretReservationKey> copyWsnToRs(final List<SecretReservationKey> ins) {
-		List<eu.wisebed.api.rs.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
+	private List<eu.wisebed.api.common.SecretReservationKey> copyWsnToRs(final List<eu.wisebed.api.common.SecretReservationKey> ins) {
+		List<eu.wisebed.api.common.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
 		for (SecretReservationKey in : ins) {
 			outs.add(convertWsnToRs(in));
 		}
 		return outs;
 	}
 
-	private eu.wisebed.api.rs.SecretReservationKey convertWsnToRs(final SecretReservationKey in) {
-		eu.wisebed.api.rs.SecretReservationKey out = new eu.wisebed.api.rs.SecretReservationKey();
+	private eu.wisebed.api.common.SecretReservationKey convertWsnToRs(final eu.wisebed.api.common.SecretReservationKey in) {
+		eu.wisebed.api.common.SecretReservationKey out = new eu.wisebed.api.common.SecretReservationKey();
 		out.setSecretReservationKey(in.getSecretReservationKey());
 		out.setUrnPrefix(in.getUrnPrefix());
 		return out;
@@ -529,7 +543,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	@Override
 	public void free(
 			@WebParam(name = "secretReservationKeys", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys)
+			List<eu.wisebed.api.common.SecretReservationKey> secretReservationKeys)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
 		preconditions.checkFreeArguments(secretReservationKeys);
@@ -634,5 +648,6 @@ public class FederatorSessionManagement implements SessionManagement {
 				federatorSmEndpointURL.getPort() + "/" +
 				secureIdGenerator.getNextId() + "/wsn";
 	}
+
 
 }
