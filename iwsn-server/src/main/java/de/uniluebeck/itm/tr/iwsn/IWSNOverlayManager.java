@@ -1,12 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingInterface;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingService;
 import de.uniluebeck.itm.tr.iwsn.overlay.routing.RoutingTableService;
-import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
@@ -31,7 +32,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class IWSNOverlayManager implements Service {
+public class IWSNOverlayManager extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(IWSNOverlayManager.class);
 
@@ -95,13 +96,23 @@ public class IWSNOverlayManager implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
-		domObserver.addListener(domObserverListener);
+	protected void doStart() {
+		try {
+			domObserver.addListener(domObserverListener);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		domObserver.removeListener(domObserverListener);
+	protected void doStop() {
+		try {
+			domObserver.removeListener(domObserverListener);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	private void addAndRemoveLocalNodeNames(final Testbed oldConfig, final Testbed newConfig) {

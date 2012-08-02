@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.overlay;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -41,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 
 
 @Singleton
-class TestbedRuntimeImpl implements TestbedRuntime {
+class TestbedRuntimeImpl extends AbstractService implements TestbedRuntime {
 
 	@Inject
 	private LocalNodeNameManager localNodeNameManager;
@@ -81,27 +82,46 @@ class TestbedRuntimeImpl implements TestbedRuntime {
 	private AsyncEventBus asyncEventBus;
 
 	@Override
-	public void stop() {
-		singleRequestMultiResponseService.stop();
-		unreliableMessagingService.stop();
-		routingTableService.stop();
-		reliableMessagingService.stop();
-		namingService.stop();
-		messageServerService.stop();
-		messageEventService.stop();
-		connectionService.stop();
+	protected void doStart() {
+
+		try {
+
+			connectionService.startAndWait();
+			messageEventService.startAndWait();
+			messageServerService.startAndWait();
+			namingService.startAndWait();
+			reliableMessagingService.startAndWait();
+			routingTableService.startAndWait();
+			unreliableMessagingService.startAndWait();
+			singleRequestMultiResponseService.startAndWait();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	@Override
-	public void start() throws Exception {
-		connectionService.start();
-		messageEventService.start();
-		messageServerService.start();
-		namingService.start();
-		reliableMessagingService.start();
-		routingTableService.start();
-		unreliableMessagingService.start();
-		singleRequestMultiResponseService.start();
+	protected void doStop() {
+
+		try {
+
+			singleRequestMultiResponseService.stopAndWait();
+			unreliableMessagingService.stopAndWait();
+			routingTableService.stopAndWait();
+			reliableMessagingService.stopAndWait();
+			namingService.stopAndWait();
+			messageServerService.stopAndWait();
+			messageEventService.stopAndWait();
+			connectionService.stopAndWait();
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override

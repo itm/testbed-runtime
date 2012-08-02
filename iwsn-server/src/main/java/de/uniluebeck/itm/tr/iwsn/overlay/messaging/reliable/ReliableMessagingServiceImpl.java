@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.reliable;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
@@ -49,7 +50,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Singleton
-class ReliableMessagingServiceImpl implements ReliableMessagingService {
+class ReliableMessagingServiceImpl extends AbstractService implements ReliableMessagingService {
 
 	private static final Logger log = LoggerFactory.getLogger(ReliableMessagingService.class);
 
@@ -119,20 +120,34 @@ class ReliableMessagingServiceImpl implements ReliableMessagingService {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		log.debug("Starting overlay reliable messaging service...");
-		messageEventService.addListener(messageEventListener);
-		asynchronousCache.setListener(asynchronousCacheListener);
+		try {
 
+			log.debug("Starting overlay reliable messaging service...");
+			messageEventService.addListener(messageEventListener);
+			asynchronousCache.setListener(asynchronousCacheListener);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.debug("Stopping overlay reliable messaging service...");
-		messageEventService.removeListener(messageEventListener);
+		try {
 
+			log.debug("Stopping overlay reliable messaging service...");
+			messageEventService.removeListener(messageEventListener);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override

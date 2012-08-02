@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -54,7 +55,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Singleton
-class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
+class UnreliableMessagingServiceImpl extends AbstractService implements UnreliableMessagingService {
 
 	private static final Logger log = LoggerFactory.getLogger(UnreliableMessagingService.class);
 
@@ -343,34 +344,49 @@ class UnreliableMessagingServiceImpl implements UnreliableMessagingService {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		if (log.isTraceEnabled()) {
-			messageEventService.addListener(new MessageEventListener() {
-				@Override
-				public void messageSent(final Messages.Msg msg) {
-					log.trace("Message sent: {}", MessageTools.toString(msg));
-				}
+		try {
 
-				@Override
-				public void messageDropped(final Messages.Msg msg) {
-					log.warn("Message dropped: {}", MessageTools.toString(msg));
-				}
+			if (log.isTraceEnabled()) {
+				messageEventService.addListener(new MessageEventListener() {
+					@Override
+					public void messageSent(final Messages.Msg msg) {
+						log.trace("Message sent: {}", MessageTools.toString(msg));
+					}
 
-				@Override
-				public void messageReceived(final Messages.Msg msg) {
-					log.trace("Message received: {}", MessageTools.toString(msg));
+					@Override
+					public void messageDropped(final Messages.Msg msg) {
+						log.warn("Message dropped: {}", MessageTools.toString(msg));
+					}
+
+					@Override
+					public void messageReceived(final Messages.Msg msg) {
+						log.trace("Message received: {}", MessageTools.toString(msg));
+					}
 				}
+				);
 			}
-			);
-		}
 
-		dequeuingThread.start();
+			dequeuingThread.start();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		dequeuingThread.interrupt();
-	}
+	protected void doStop() {
 
+		try {
+
+			dequeuingThread.interrupt();
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 }

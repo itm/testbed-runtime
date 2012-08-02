@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
-class IWSNImpl implements IWSN {
+class IWSNImpl extends AbstractService implements IWSN {
 
 	private static final Logger log = LoggerFactory.getLogger(IWSN.class);
 
@@ -39,64 +40,80 @@ class IWSNImpl implements IWSN {
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		log.info("Starting IWSN...");
+		try {
 
-		log.debug("Starting overlay services...");
-		testbedRuntime.getEventBus().register(this);
-		testbedRuntime.start();
+			log.info("Starting IWSN...");
 
-		log.debug("Starting overlay manager...");
-		overlayManager.start();
+			log.debug("Starting overlay services...");
+			testbedRuntime.getEventBus().register(this);
+			testbedRuntime.startAndWait();
 
-		log.debug("Starting application manager...");
-		applicationManager.start();
+			log.debug("Starting overlay manager...");
+			overlayManager.startAndWait();
 
-		log.debug("Starting DOM observer...");
-		final ThreadFactory domObserverThreadFactory = new ThreadFactoryBuilder()
-				.setNameFormat("DOMObserver-Thread %d")
-				.build();
-		domObserverScheduler = Executors.newScheduledThreadPool(1, domObserverThreadFactory);
-		domObserverSchedule = domObserverScheduler.scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
+			log.debug("Starting application manager...");
+			applicationManager.startAndWait();
+
+			log.debug("Starting DOM observer...");
+			final ThreadFactory domObserverThreadFactory = new ThreadFactoryBuilder()
+					.setNameFormat("DOMObserver-Thread %d")
+					.build();
+			domObserverScheduler = Executors.newScheduledThreadPool(1, domObserverThreadFactory);
+			domObserverSchedule = domObserverScheduler.scheduleWithFixedDelay(domObserver, 0, 3, TimeUnit.SECONDS);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
-		log.info("Stopping IWSN...");
-
-		log.debug("Stopping DOM observer...");
 		try {
-			domObserverSchedule.cancel(true);
-			ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			log.error("Exception while stopping DOM observer: {}", e);
-		}
 
-		log.debug("Stopping application manager...");
-		try {
-			applicationManager.stop();
-		} catch (Exception e) {
-			log.error("Exception while stopping application manager: {}", e);
-		}
+			log.info("Stopping IWSN...");
 
-		log.debug("Stopping overlay manager...");
-		try {
-			overlayManager.stop();
-		} catch (Exception e) {
-			log.error("Exception while stopping overlay manager: {}", e);
-		}
+			log.debug("Stopping DOM observer...");
+			try {
+				domObserverSchedule.cancel(true);
+				ExecutorUtils.shutdown(domObserverScheduler, 1, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				log.error("Exception while stopping DOM observer: {}", e);
+			}
 
-		log.debug("Stopping overlay...");
-		try {
-			testbedRuntime.stop();
-			testbedRuntime.getEventBus().unregister(this);
-		} catch (Exception e) {
-			log.error("Exception while stopping overlay: {}", e);
-		}
+			log.debug("Stopping application manager...");
+			try {
+				applicationManager.stopAndWait();
+			} catch (Exception e) {
+				log.error("Exception while stopping application manager: {}", e);
+			}
 
-		log.info("Stopped IWSN. Bye!");
+			log.debug("Stopping overlay manager...");
+			try {
+				overlayManager.stopAndWait();
+			} catch (Exception e) {
+				log.error("Exception while stopping overlay manager: {}", e);
+			}
+
+			log.debug("Stopping overlay...");
+			try {
+				testbedRuntime.stopAndWait();
+				testbedRuntime.getEventBus().unregister(this);
+			} catch (Exception e) {
+				log.error("Exception while stopping overlay: {}", e);
+			}
+
+			log.info("Stopped IWSN. Bye!");
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Subscribe

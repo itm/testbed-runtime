@@ -2,10 +2,11 @@ package de.uniluebeck.itm.tr.iwsn;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
-import de.uniluebeck.itm.tr.util.Service;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserver;
 import de.uniluebeck.itm.tr.util.domobserver.DOMObserverListener;
 import de.uniluebeck.itm.tr.util.domobserver.DOMTuple;
@@ -24,14 +25,13 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class IWSNApplicationManager implements DOMObserverListener, Service {
+public class IWSNApplicationManager extends AbstractService implements DOMObserverListener, Service {
 
 	private static final Logger log = LoggerFactory.getLogger(IWSNApplicationManager.class);
 
@@ -262,21 +262,31 @@ public class IWSNApplicationManager implements DOMObserverListener, Service {
 	}
 
 	@Override
-	public void start() throws Exception {
-		domObserver.addListener(this);
+	protected void doStart() {
+		try {
+			domObserver.addListener(this);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-		for (TestbedApplication testbedApplication : applications.values()) {
-			try {
-				testbedApplication.stopAndWait();
-			} catch (Exception e) {
-				log.warn("TestbedApplication \"{}\" threw an Exception during shutdown: {}",
-						testbedApplication.getName(), e
-				);
+	protected void doStop() {
+		try {
+			for (TestbedApplication testbedApplication : applications.values()) {
+				try {
+					testbedApplication.stopAndWait();
+				} catch (Exception e) {
+					log.warn("TestbedApplication \"{}\" threw an Exception during shutdown: {}",
+							testbedApplication.getName(), e
+					);
+				}
 			}
+			domObserver.removeListener(this);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-		domObserver.removeListener(this);
 	}
 }

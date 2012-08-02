@@ -315,8 +315,8 @@ public class WSNAppBenchmark {
 		portalTR.getMessageServerService().addMessageServer("tcp", TCP_PORTAL);
 
 		// start both nodes' stack
-		gatewayTR.start();
-		portalTR.start();
+		gatewayTR.startAndWait();
+		portalTR.startAndWait();
 
 		createWSNDeviceApps(gatewayTRInjector);
 		startWSNDeviceApps();
@@ -331,8 +331,8 @@ public class WSNAppBenchmark {
 		wsnApp.stopAndWait();
 		stopWSNDeviceApps();
 
-		gatewayTR.stop();
-		portalTR.stop();
+		gatewayTR.stopAndWait();
+		portalTR.stopAndWait();
 	}
 
 	@Test

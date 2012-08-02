@@ -23,8 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.server;
 
-import de.uniluebeck.itm.tr.util.Service;
-
+import com.google.common.util.concurrent.Service;
 
 /**
  * A service that allows to open {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection}s and listens for incoming
@@ -36,8 +35,7 @@ public interface MessageServerService extends Service {
 	/**
 	 * Creates a {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} of type {@code type} with the address {@code
 	 * address} and starts to listen for incoming messages on the {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection}s
-	 * {@link java.io.InputStream} instance. The connection will be established immediately or after {@link
-	 * de.uniluebeck.itm.tr.util.Service#start()} was invoked on this service.
+	 * {@link java.io.InputStream} instance. The connection will be established immediately or after this service was started.
 	 *
 	 * @param type	the type of the {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance
 	 * @param address the address of the {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnection} instance

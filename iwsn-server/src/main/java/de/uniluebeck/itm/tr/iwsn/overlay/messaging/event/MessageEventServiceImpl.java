@@ -49,7 +49,7 @@ class MessageEventServiceImpl extends MessageEventService {
 
 		@Override
 		public void run() {
-			for (MessageEventListener listener : listeners) {
+			for (MessageEventListener listener : listenerManager.getListeners()) {
 				listener.messageSent(msg);
 			}
 		}
@@ -66,7 +66,7 @@ class MessageEventServiceImpl extends MessageEventService {
 
 		@Override
 		public void run() {
-			for (MessageEventListener listener : listeners) {
+			for (MessageEventListener listener : listenerManager.getListeners()) {
 				listener.messageDropped(msg);
 			}
 		}
@@ -83,7 +83,7 @@ class MessageEventServiceImpl extends MessageEventService {
 
 		@Override
 		public void run() {
-			for (MessageEventListener listener : listeners) {
+			for (MessageEventListener listener : listenerManager.getListeners()) {
 				listener.messageReceived(msg);
 			}
 		}
@@ -118,20 +118,28 @@ class MessageEventServiceImpl extends MessageEventService {
 	}
 
 	@Override
-	public void start() throws Exception {
-		executorService = new ThreadPoolExecutor(
-				1,
-				3,
-				60L, TimeUnit.SECONDS,
-				new LinkedBlockingQueue<Runnable>(),
-				new ThreadFactoryBuilder().setNameFormat("MessageEventService-Thread %d").build()
-		);
+	protected void doStart() {
+		try {
+			executorService = new ThreadPoolExecutor(
+					1,
+					3,
+					60L, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<Runnable>(),
+					new ThreadFactoryBuilder().setNameFormat("MessageEventService-Thread %d").build()
+			);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
-
-		ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
-
+	protected void doStop() {
+		try {
+			ExecutorUtils.shutdown(executorService, 1, TimeUnit.SECONDS);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 }

@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -54,7 +55,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 
 @Singleton
-class MessageServerServiceImpl implements MessageServerService {
+class MessageServerServiceImpl extends AbstractService implements MessageServerService {
 
 	private static final Logger log = LoggerFactory.getLogger(MessageServerServiceImpl.class);
 
@@ -67,8 +68,6 @@ class MessageServerServiceImpl implements MessageServerService {
 	private final UnreliableMessagingService unreliableMessagingService;
 
 	private final ScheduledExecutorService scheduler;
-
-	private volatile boolean running;
 
 	/**
 	 * Maps a connection type (e.g. tcp, udp, ...) to a set of {@link de.uniluebeck.itm.tr.iwsn.overlay.connection.ServerConnectionFactory}
@@ -179,10 +178,34 @@ class MessageServerServiceImpl implements MessageServerService {
 	}
 
 	@Override
-	public synchronized void start() throws Exception {
-		eventBus.register(this);
-		running = true;
-		openConnections();
+	protected synchronized void doStart() {
+
+		try {
+
+			eventBus.register(this);
+			openConnections();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected synchronized void doStop() {
+
+		try {
+
+			closeConnections();
+			eventBus.unregister(this);
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	private synchronized void openConnections() {
@@ -210,13 +233,6 @@ class MessageServerServiceImpl implements MessageServerService {
 
 		ServerConnectionFactory serverConnectionFactory = connectionFactories.iterator().next();
 		return serverConnectionFactory.create(address, eventBus);
-	}
-
-	@Override
-	public synchronized void stop() {
-		closeConnections();
-		running = false;
-		eventBus.unregister(this);
 	}
 
 	@Subscribe
@@ -371,7 +387,7 @@ class MessageServerServiceImpl implements MessageServerService {
 		serverConnections.put(config, null);
 		messageFilterChains.put(config, new MessageFilterChain(filters));
 
-		if (running) {
+		if (isRunning()) {
 			scheduler.schedule(new EstablishServerConnectionRunnable(config), 0, TimeUnit.MILLISECONDS);
 		}
 

@@ -110,6 +110,7 @@
 					<urn>urn:local:0x1234</urn>
 					<type>isense39</type>
 					<serialinterface>/dev/ttyUSB0</serialinterface>
+					<defaultImage>/full/path/to/the/defaultimage.bin</defaultImage>
 				</wsn:wsnDevice>
 			</application>
 			-->

@@ -25,8 +25,9 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import de.uniluebeck.itm.tr.util.Service;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
@@ -50,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * list of recipients. Between every try there's a pause of {@link DeliveryManagerConstants#RETRY_TIMEOUT} in time unit
  * {@link DeliveryManagerConstants#RETRY_TIME_UNIT}.
  */
-public class DeliveryManager implements Service {
+public class DeliveryManager extends AbstractService implements Service {
 
 	/**
 	 * The logger instance for this class.
@@ -73,14 +74,6 @@ public class DeliveryManager implements Service {
 	 * Used to deliver messages and request status messages in parallel.
 	 */
 	private ExecutorService executorService;
-
-	/**
-	 * A flag to indicate if this service is running.
-	 *
-	 * @see DeliveryManager#start()
-	 * @see DeliveryManager#stop()
-	 */
-	private volatile boolean running = false;
 
 	/**
 	 * Constructs a new {@link DeliveryManager} instance.
@@ -176,7 +169,9 @@ public class DeliveryManager implements Service {
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
 	public void experimentEnded() {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.experimentEnded();
 			}
@@ -190,7 +185,9 @@ public class DeliveryManager implements Service {
 	 * 		the list of messages to be delivered
 	 */
 	public void receive(final Message... messages) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receive(messages);
 			}
@@ -204,7 +201,9 @@ public class DeliveryManager implements Service {
 	 * 		the list of messages to be delivered
 	 */
 	public void receive(List<Message> messages) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receive(messages);
 			}
@@ -218,7 +217,9 @@ public class DeliveryManager implements Service {
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final String... notifications) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveNotification(notifications);
 			}
@@ -232,7 +233,9 @@ public class DeliveryManager implements Service {
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
 	public void receiveNotification(final List<String> notifications) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveNotification(notifications);
 			}
@@ -246,7 +249,9 @@ public class DeliveryManager implements Service {
 	 * 		a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(final RequestStatus... statuses) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveStatus(statuses);
 			}
@@ -260,7 +265,9 @@ public class DeliveryManager implements Service {
 	 * 		a list of statuses to be forwarded to all currently registered controllers
 	 */
 	public void receiveStatus(List<RequestStatus> statuses) {
-		if (running) {
+
+		if (isRunning()) {
+
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.receiveStatus(statuses);
 			}
@@ -282,7 +289,8 @@ public class DeliveryManager implements Service {
 	 */
 	public void receiveFailureStatusMessages(List<String> nodeUrns, String requestId, Exception e, int statusValue) {
 
-		if (running) {
+		if (isRunning()) {
+
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
@@ -312,7 +320,7 @@ public class DeliveryManager implements Service {
 	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
 												   final String requestId) {
 
-		if (running) {
+		if (isRunning()) {
 
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
@@ -333,21 +341,36 @@ public class DeliveryManager implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
-		if (!running) {
-			log.debug("Starting DeliveryManager...");
-			executorService = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
-			);
-			running = true;
+	protected void doStart() {
+
+		try {
+
+			if (!isRunning()) {
+
+				log.debug("Starting DeliveryManager...");
+				executorService = Executors.newCachedThreadPool(
+						new ThreadFactoryBuilder().setNameFormat("DeliveryWorker %d").build()
+				);
+
+			}
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 	}
 
 	@Override
-	public void stop() {
-		if (running) {
+	protected void doStop() {
+
+		try {
+
 			log.debug("Stopping delivery manager (asynchronously)...");
-			new Thread("DeliveryManager-ShutdownThread") {
+
+			experimentEnded();
+
+			final Thread shutdownThread = new Thread("DeliveryManager-ShutdownThread") {
 				@Override
 				public void run() {
 
@@ -373,11 +396,14 @@ public class DeliveryManager implements Service {
 
 					log.debug("Stopped delivery manager!");
 				}
-			}.start();
-			experimentEnded();
-			running = false;
-		} else {
-			log.debug("Not stopping DeliveryManager as it is not running.");
+			};
+
+			shutdownThread.start();
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 	}
 }

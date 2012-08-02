@@ -124,8 +124,8 @@ public class MessagingTests {
 		gw2.getMessageServerService().addMessageServer("tcp", "localhost:2220");
 
 		// start both nodes' services
-		gw1.start();
-		gw2.start();
+		gw1.startAndWait();
+		gw2.startAndWait();
 
 		ums1 = gw1.getUnreliableMessagingService();
 		ums2 = gw2.getUnreliableMessagingService();
@@ -166,8 +166,8 @@ public class MessagingTests {
 	@After
 	public void tearDown() {
 
-		gw1.stop();
-		gw2.stop();
+		gw1.stopAndWait();
+		gw2.stopAndWait();
 
 		executorService = null;
 		gw1 = gw2 = null;

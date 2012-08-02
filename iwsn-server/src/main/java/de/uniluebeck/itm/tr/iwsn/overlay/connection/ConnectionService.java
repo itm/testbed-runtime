@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.connection;
 
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.Service;
 
 import java.io.IOException;
 
