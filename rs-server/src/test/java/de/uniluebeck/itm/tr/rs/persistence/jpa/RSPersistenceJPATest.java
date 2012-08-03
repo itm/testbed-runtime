@@ -27,7 +27,7 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.Data;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,15 +1,21 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.rs.*;
+import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
 
 abstract class FederatorRSHelper {
 

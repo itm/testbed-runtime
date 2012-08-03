@@ -44,8 +44,8 @@ import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 
 /**
  * Implementation of the interface defines the reservation system (RS) for the WISEBED
@@ -90,13 +90,11 @@ public class SingleUrnPrefixSOAPRS implements RS {
 
 	@Override
 	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		reservationSystem.deleteReservation(authenticationData, secretReservationKeys);
+		reservationSystem.deleteReservation(secretReservationKeys);
 	}
 
 	@Override

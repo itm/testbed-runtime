@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.rs.persistence;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.Interval;
 
 import java.util.List;

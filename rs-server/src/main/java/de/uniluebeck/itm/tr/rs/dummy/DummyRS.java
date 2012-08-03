@@ -23,16 +23,27 @@
 
 package de.uniluebeck.itm.tr.rs.dummy;
 
-import eu.wisebed.api.rs.*;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 
 @WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
 		targetNamespace = "urn:RSService")
@@ -74,8 +85,6 @@ public class DummyRS implements RS {
 
 	@Override
 	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {

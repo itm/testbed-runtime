@@ -29,6 +29,8 @@ import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.rs.*;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +139,7 @@ public class RSPersistenceJPA implements RSPersistence {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+					new ReservationNotFoundException()
 			);
 		}
 		try {
@@ -159,7 +161,7 @@ public class RSPersistenceJPA implements RSPersistence {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+					new ReservationNotFoundException()
 			);
 		}
 		reservationData.delete();

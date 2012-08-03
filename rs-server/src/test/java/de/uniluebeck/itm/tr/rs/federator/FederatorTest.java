@@ -26,6 +26,8 @@ package de.uniluebeck.itm.tr.rs.federator;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import eu.wisebed.api.rs.*;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -132,7 +134,7 @@ public class FederatorTest {
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new ReservervationNotFoundExceptionException("", new ReservervationNotFoundException())
+				new ReservervationNotFoundExceptionException("", new ReservationNotFoundException())
 		);
 
 		try {

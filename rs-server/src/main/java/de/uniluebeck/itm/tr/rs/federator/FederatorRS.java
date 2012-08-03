@@ -23,22 +23,39 @@
 
 package de.uniluebeck.itm.tr.rs.federator;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Maps;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.rs.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.collect.Lists.newArrayList;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static com.google.common.collect.Lists.newArrayList;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.Maps;
+
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.AuthorizationExceptionException;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.GetReservations;
+import eu.wisebed.api.rs.PublicReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 
 
 @WebService(
@@ -63,13 +80,10 @@ public class FederatorRS implements RS {
 
 	@Override
 	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		assertNotNull(authenticationData, "authenticationData");
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
 		Map<RS, List<SecretReservationKey>> map = FederatorRSHelper.constructEndpointToReservationKeyMap(

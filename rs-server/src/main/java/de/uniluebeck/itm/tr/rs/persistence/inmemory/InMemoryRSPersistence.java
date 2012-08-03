@@ -27,9 +27,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.ReservervationNotFoundException;
+import eu.wisebed.api.rs.ReservationNotFoundException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -179,7 +179,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 			return confidentialReservationData;
 		} else {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+					new ReservationNotFoundException()
 			);
 		}
 	}
@@ -193,7 +193,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 			return confidentialReservationData;
 		} else {
 			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+					new ReservationNotFoundException()
 			);
 		}
 	}

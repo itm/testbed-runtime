@@ -27,7 +27,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;

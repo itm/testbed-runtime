@@ -39,6 +39,8 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.rs.*;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -362,7 +364,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	private ReservervationNotFoundExceptionException createReservationNotFoundException(String msg) {
 		log.warn(msg);
-		ReservervationNotFoundException exception = new ReservervationNotFoundException();
+		ReservationNotFoundException exception = new ReservationNotFoundException();
 		exception.setMessage(msg);
 		return new ReservervationNotFoundExceptionException(msg, exception);
 	}

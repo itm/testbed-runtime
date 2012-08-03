@@ -37,12 +37,12 @@ import eu.wisebed.api.rs.PublicReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictException;
+import eu.wisebed.api.rs.ReservationConflictException;
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundException;
+import eu.wisebed.api.rs.ReservationNotFoundException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
 
 /**
@@ -66,7 +66,7 @@ public class SingleUrnPrefixRS implements RS {
 	private Provider<String[]> servedNodeUrns;
 
 	@Override
-	@AuthorizationRequired("MAKE_RESERVATION")
+	@AuthorizationRequired("RS_MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
 
@@ -126,7 +126,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (reservation == null) {
 			String msg = "Reservation not found for key " + secretReservationKey;
-			ReservervationNotFoundException exception = new ReservervationNotFoundException();
+			ReservationNotFoundException exception = new ReservationNotFoundException();
 			exception.setMessage(msg);
 			throw new ReservervationNotFoundExceptionException(msg, exception);
 		}
@@ -138,10 +138,9 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	@AuthorizationRequired("DELETE_RESERVATION")
-	public void deleteReservation(List<SecretAuthenticationKey> authenticationData, List<SecretReservationKey> secretReservationKeys)
+	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
-		checkNotNull(authenticationData, "Parameter authenticationData is null!");
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
 		checkArgumentValidReservation(secretReservationKeys);
@@ -375,7 +374,7 @@ public class SingleUrnPrefixRS implements RS {
 		if (intersection.size() > 0) {
 			String msg = "Some of the nodes are reserved during the requested time (" + Arrays.toString(intersection.toArray()) + ")";
 			log.warn(msg);
-			ReservervationConflictException exception = new ReservervationConflictException();
+			ReservationConflictException exception = new ReservationConflictException();
 			exception.setMessage(msg);
 			throw new ReservervationConflictExceptionException(msg, exception);
 		}

@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.rs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -15,9 +16,10 @@ import eu.wisebed.api.rs.AuthorizationException;
 import eu.wisebed.api.rs.AuthorizationExceptionException;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.Actions;
+import eu.wisebed.api.snaa.AuthorizationResponse;
 import eu.wisebed.api.snaa.SNAA;
 import eu.wisebed.api.snaa.SNAAExceptionException;
 
@@ -57,12 +59,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 		boolean keysFound = false;
-		boolean isAuthenticated = false;
+		AuthorizationResponse isAuthenticated = null;
 
-		Action requestedAction = new Action(authorizationAnnotation.value());
+		Action requestedAction = Action.valueOf(authorizationAnnotation.value());
 
-		if (!requestedAction.equals(Actions.DELETE_RESERVATION) && !requestedAction.equals(Actions.GET_CONFIDENTIAL_RESERVATION)
-				&& !requestedAction.equals(Actions.MAKE_RESERVATION)) {
+		if (!requestedAction.equals(Action.RS_DELETE_RESERVATION) && !requestedAction.equals(Action.RS_GET_RESERVATIONS)
+				&& !requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 			throwAuthorizationFailedException("Unknown annotated value \"" + requestedAction + "\"!");
 		}
 
@@ -74,12 +76,8 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 				List<?> list = (List<?>) object;
 
-				if (list.size() > 0 && list.get(0) instanceof eu.wisebed.api.rs.SecretAuthenticationKey) {
-					isAuthenticated = checkAuthentication(convert((List<eu.wisebed.api.rs.SecretAuthenticationKey>) list), requestedAction);
-					keysFound = true;
-					break;
-				} else if (list.size() > 0 && list.get(0) instanceof eu.wisebed.api.snaa.SecretAuthenticationKey) {
-					isAuthenticated = checkAuthentication((List<eu.wisebed.api.snaa.SecretAuthenticationKey>) list, requestedAction);
+				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
+					isAuthenticated = checkAuthentication(convert((List<SecretAuthenticationKey>) list), requestedAction);
 					keysFound = true;
 					break;
 				}
@@ -89,35 +87,33 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		if (!keysFound) {
 			throwAuthorizationFailedException("No sekret authentication keys found!");
 		}
-		if (!isAuthenticated) {
+		if (isAuthenticated == null || !isAuthenticated.isAuthorized()) {
 			throwAuthorizationFailedException("The user's access privileges are not sufficient");
 		}
 
-		log.debug("The user was authorized to perform the action \"MAKE_RESERVATION\".");
+		log.debug("The user was authorized to perform the action \""+requestedAction+"\".");
 		return invocation.proceed();
 
 	}
 
 	// ------------------------------------------------------------------------
 	/**
-	 * Converts from RS specific secret reservation keys to SNAA specific ones
+	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
+	 * urn prefixes and returns the result.
 	 * 
-	 * @param from
-	 *            A collection of RS specific secret reservarion keys
-	 * @return A collection of SNAA specific secret reservarion keys
+	 * @param secretAuthenticationKeys
+	 *            A list of secret authentication keys
+	 * @return A list of tuples comprising user names and urn prefixes
 	 */
-	private List<eu.wisebed.api.snaa.SecretAuthenticationKey> convert(final Collection<eu.wisebed.api.rs.SecretAuthenticationKey> from) {
-		List<eu.wisebed.api.snaa.SecretAuthenticationKey> to = new ArrayList<eu.wisebed.api.snaa.SecretAuthenticationKey>();
-
-		for (SecretAuthenticationKey key : from) {
-			eu.wisebed.api.snaa.SecretAuthenticationKey sak = new eu.wisebed.api.snaa.SecretAuthenticationKey();
-			sak.setSecretAuthenticationKey(key.getSecretAuthenticationKey());
-			sak.setUrnPrefix(key.getUrnPrefix());
-			sak.setUsername(key.getUsername());
-			to.add(sak);
+	private List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
+		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
+		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
+			usernamePrefixPairs.add(upp);
+			upp.setUsername(secretAuthenticationKey.getUsername());
+			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
 		}
-
-		return to;
+		return null;
 	}
 
 	// ------------------------------------------------------------------------
@@ -125,23 +121,21 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * Checks and returns whether an action is allowed to be performed due to the privileges bound
 	 * to certain secret reservation keys.
 	 * 
-	 * @param saks
-	 *            A collection of secret reservation keys
+	 * @param upp
+	 *            A collection of tuples of user names and urn prefixes
 	 * @param action
 	 *            Action to be performed.
-	 * @return <code>true</code> if the action is authorized, <code>false</code> otherwise
+	 * @return An object which returns whether the requested action is authorized.
 	 * @throws RSExceptionException
 	 *             Thrown if an exception is thrown in the reservation system
 	 */
-	private boolean checkAuthentication(final List<eu.wisebed.api.snaa.SecretAuthenticationKey> saks, final Action action)
-			throws RSExceptionException {
+	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action) throws RSExceptionException {
 
-		// Invoke isAuthorized
 		try {
 
-			boolean authorized = snaa.isAuthorized(saks, action);
-			log.debug("Authorization result: " + authorized);
-			return authorized;
+			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, null);
+			log.debug("Authorization result: " + authorizationResponse);
+			return authorizationResponse;
 
 		} catch (SNAAExceptionException e) {
 			RSException rse = new RSException();

@@ -43,10 +43,10 @@ import eu.wisebed.api.rs.GetReservations;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.Actions;
+import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.SNAA;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -291,8 +291,8 @@ public class SingleUrnPrefixRSTest {
 		final String user1Node = URN_PREFIX + "0x1234";
 		final String user2Node = URN_PREFIX + "0x4321";
 
-		when(snaa.isAuthorized(user1SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
-		when(snaa.isAuthorized(user2SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
+		when(snaa.isAuthorized(user1SaksSnaa, Action.RS_GET_RESERVATIONS)).thenReturn(true);
+		when(snaa.isAuthorized(user2SaksSnaa, Action.RS_GET_RESERVATIONS)).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
@@ -354,15 +354,16 @@ public class SingleUrnPrefixRSTest {
 		return crd;
 	}
 
-	private static List<eu.wisebed.api.snaa.SecretAuthenticationKey> copyRsToSnaa(
-			List<eu.wisebed.api.rs.SecretAuthenticationKey> snaaKeys) {
+	// TODO
+	private static List<SecretAuthenticationKey> copyRsToSnaa(
+			List<SecretAuthenticationKey> snaaKeys) {
 
-		List<eu.wisebed.api.snaa.SecretAuthenticationKey> secretAuthKeys =
+		List<SecretAuthenticationKey> secretAuthKeys =
 				Lists.newArrayListWithCapacity(snaaKeys.size());
 
-		for (eu.wisebed.api.rs.SecretAuthenticationKey snaaKey : snaaKeys) {
+		for (SecretAuthenticationKey snaaKey : snaaKeys) {
 
-			eu.wisebed.api.snaa.SecretAuthenticationKey key = new eu.wisebed.api.snaa.SecretAuthenticationKey();
+			SecretAuthenticationKey key = new SecretAuthenticationKey();
 
 			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
 			key.setUrnPrefix(snaaKey.getUrnPrefix());
