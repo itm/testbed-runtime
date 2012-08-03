@@ -57,25 +57,25 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	@Override
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
 
-		
-		/* 
+		/*
 		 * (1) Identify the action to be authorized and check whether it is known
 		 */
-		
+
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 
-		// If the action is not known by the intercepter, throw an exception to indicate that an authorization is impossible
+		// If the action is not known by the intercepter, throw an exception to indicate that an
+		// authorization is impossible
 		Action requestedAction = Action.valueOf(authorizationAnnotation.value());
 		if (!requestedAction.equals(Action.RS_DELETE_RESERVATION) && !requestedAction.equals(Action.RS_GET_RESERVATIONS)
 				&& !requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 			throwAuthorizationFailedException("Unknown annotated value \"" + requestedAction + "\"!");
 		}
-		
-		/* 
-		 * (2a) Retrieve the list of tuples of user names and URN prefixes 
-		 * (2b) Retrieve the list of urns of the nodes where the provided action is to be applied to
+
+		/*
+		 * (2a) Retrieve the list of tuples of user names and URN prefixes (2b) Retrieve the list of
+		 * urns of the nodes where the provided action is to be applied to
 		 */
-		
+
 		List<UsernameUrnPrefixPair> usernamePrefixPairs = null;
 		List<String> nodeURNs = null;
 
@@ -94,21 +94,25 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 				}
 			}
 		}
-		
-		
+
 		/*
-		 * (3) Check whether the user is authorized to apply the action on the selected nodes
-		 *     and return the result
-		 */
-		
+		 * (3) Check whether the user is authorized to apply the action on the selected nodes and
+		 * return the result
+		 */	
+
+		// To delete a reservation, it is sufficient to know of the secret reservation key.
+		if (requestedAction.equals(Action.RS_DELETE_RESERVATION)){
+			return invocation.proceed();
+		}
+
 		AuthorizationResponse isAuthenticated = checkAuthentication(usernamePrefixPairs, requestedAction, nodeURNs);
 
 		if (isAuthenticated == null || !isAuthenticated.isAuthorized()) {
-			log.warn("The user was NOT authorized to perform the action \""+requestedAction+"\".");
-			throwAuthorizationFailedException("The user's access privileges are not sufficient");
+			log.warn("The user was NOT authorized to perform the action \"" + requestedAction + "\".");
+			throwAuthorizationFailedException("The user was NOT authorized to perform the action \"" + requestedAction + "\".");
 		}
 
-		log.debug("The user was authorized to perform the action \""+requestedAction+"\".");
+		log.debug("The user was authorized to perform the action \"" + requestedAction + "\".");
 		return invocation.proceed();
 
 	}
@@ -130,7 +134,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 			upp.setUsername(secretAuthenticationKey.getUsername());
 			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
 		}
-		return null;
+		return usernamePrefixPairs;
 	}
 
 	// ------------------------------------------------------------------------
@@ -142,19 +146,26 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 *            A collection of tuples of user names and urn prefixes
 	 * @param action
 	 *            Action to be performed.
+	 * @param nodeURNs
+	 *            The urns of the nodes the action is to be performed at
 	 * @return An object which returns whether the requested action is authorized.
 	 * @throws RSExceptionException
 	 *             Thrown if an exception is thrown in the reservation system
 	 */
-	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs) throws RSExceptionException {
+	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs)
+			throws RSExceptionException {
 
 		try {
-			StringBuffer nodeURNStringBuffer = new StringBuffer();
-			for (String urn : nodeURNs) {
-				nodeURNStringBuffer.append(urn+",");
+			String nodeURNsSting = null;
+			if (nodeURNs != null) {
+				StringBuffer nodeURNStringBuffer = new StringBuffer();
+				for (String urn : nodeURNs) {
+					nodeURNStringBuffer.append(urn + ",");
+				}
+				nodeURNsSting = nodeURNStringBuffer.substring(0, nodeURNStringBuffer.length() - 1);
 			}
-			
-			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, nodeURNStringBuffer.substring(0, nodeURNStringBuffer.length()-1) );
+
+			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, nodeURNsSting);
 			log.debug("Authorization result: " + authorizationResponse);
 			return authorizationResponse;
 
@@ -172,15 +183,15 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * 
 	 * @param message
 	 *            States the cause of the authorization failure.
-	 * @throws AuthorizationExceptionException
+	 * @throws RSExceptionException
 	 *             Thrown to indicate an authorization failure.
 	 */
-	private void throwAuthorizationFailedException(final String message) throws AuthorizationExceptionException {
-		AuthorizationException e = new AuthorizationException();
+	private void throwAuthorizationFailedException(final String message) throws RSExceptionException {
+		RSException e = new RSException();
 
 		String msg = "Authorization failed" + ((message != null && message.length() > 0) ? ": " + message : "");
 		e.setMessage(msg);
 		log.warn(msg, e);
-		throw new AuthorizationExceptionException(msg, e);
+		throw new RSExceptionException(msg, e);
 	}
 }
