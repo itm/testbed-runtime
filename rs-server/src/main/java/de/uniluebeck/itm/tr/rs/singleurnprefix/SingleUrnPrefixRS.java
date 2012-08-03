@@ -138,7 +138,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("DELETE_RESERVATION")
+	@AuthorizationRequired("RS_DELETE_RESERVATION")
 	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSExceptionException, ReservervationNotFoundExceptionException {
 
@@ -188,7 +188,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("GET_CONFIDENTIAL_RESERVATION")
+	@AuthorizationRequired("RS_GET_RESERVATIONS")
 	public List<ConfidentialReservationData> getConfidentialReservations(List<SecretAuthenticationKey> secretAuthenticationKeys,
 			GetReservations period) throws RSExceptionException {
 
