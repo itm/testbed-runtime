@@ -38,7 +38,9 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
+import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
@@ -150,17 +152,7 @@ public class SNAAServer {
             } else if ("shibboleth".equals(type)) {
 
                 urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
-
-                String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-                        "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
-                );
-
-                IUserAuthorization authorization = getAuthorizationModule(authorizationClassName);
-
-                if (authorizationClassName.endsWith(".AttributeBasedAuthorization")) {
-                    createAndSetAuthenticationAttributes(snaaName, props, authorization);
-                }
-
+                IUserAuthorization authorization = getAuthorizationModule(snaaName, props);
                 String secretAuthkeyUrl = props.getProperty(snaaName + ".authorization.url");
 
                 startShibbolethSNAA(path, urnprefix, secretAuthkeyUrl, authorization, shibbolethInjector, shibbolethProxy);
@@ -170,15 +162,8 @@ public class SNAAServer {
                 urnprefix = props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName);
                 String jaasModuleName = props.getProperty(snaaName + ".module", null);
                 String jaasConfigFile = props.getProperty(snaaName + ".configfile", null);
-                String authorizationClassName = props.getProperty(snaaName + ".authorization_class",
-                        "eu.wisebed.testbed.api.snaa.authorization.AlwaysAllowAuthorization"
-                );
 
-                IUserAuthorization authorization = getAuthorizationModule(authorizationClassName);
-
-                if (authorizationClassName.endsWith(".AttributeBasedAuthorization")) {
-                    createAndSetAuthenticationAttributes(snaaName, props, authorization);
-                }
+                IUserAuthorization authorization = getAuthorizationModule(snaaName, props);
 
                 if (jaasConfigFile == null) {
                     throw new Exception(("Supply a value for " + snaaName + ".configfile"));
@@ -188,9 +173,7 @@ public class SNAAServer {
                     throw new Exception(("Supply a value for " + snaaName + ".module"));
                 }
 
-                startJAASSNAA(path, urnprefix, jaasModuleName, jaasConfigFile,
-                        getAuthorizationModule(authorizationClassName)
-                );
+                startJAASSNAA(path, urnprefix, jaasModuleName, jaasConfigFile, authorization);
 
             } else if ("wisebed-federator".equals(type) || "federator".equals(type)) {
                 FederatorType fedType = FederatorType.GENERIC;
@@ -238,9 +221,23 @@ public class SNAAServer {
         return null;
     }
 
-    private static IUserAuthorization getAuthorizationModule(String className) throws ClassNotFoundException,
+    private static IUserAuthorization getAuthorizationModule(String snaaName, Properties props) throws ClassNotFoundException,
             InstantiationException, IllegalAccessException {
-        return (IUserAuthorization) Class.forName(className).newInstance();
+    	
+    	String authorizationClassName = props.getProperty(
+        		snaaName + ".authorization_class",
+        		AlwaysAllowAuthorization.class.getCanonicalName()
+        );
+    	
+    	IUserAuthorization authorization = (IUserAuthorization) Class.forName(authorizationClassName).newInstance();
+    	
+    	if (AttributeBasedAuthorization.class.getCanonicalName().equals(authorizationClassName)) {
+            Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
+			((AttributeBasedAuthorization) authorization).setAttributes(attributes);
+			((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
+        }
+    	
+		return authorization;
     }
 
     private static void startJAASSNAA(String path, String urnprefix, String jaasModuleName, String jaasConfigFile,
@@ -359,97 +356,91 @@ public class SNAAServer {
         System.exit(1);
     }
 
-    @SuppressWarnings("unused")
-    private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
-            AuthenticationExceptionException {
-
-		SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
-
-		AuthenticationTriple auth1 = new AuthenticationTriple();
-        auth1.setUrnPrefix("urn:wisebed:shib1");
-        auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
-        auth1.setPassword("xxx");
-
-        List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
-        authTriples.add(auth1);
-        port.authenticate(authTriples);
-        Action action = new Action();
-        action.setAction("sth");
-        port.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
-
-    }
-
-    @SuppressWarnings("unused")
-    private static void callFederatorAsWS() throws MalformedURLException, SNAAExceptionException,
-            AuthenticationExceptionException {
-
-        SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/fed1");
-
-        List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
-
-        AuthenticationTriple auth1 = new AuthenticationTriple();
-        auth1.setUrnPrefix("urn:wisebed:shib1");
-        auth1.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
-        auth1.setPassword("xxx");
-        authTriples.add(auth1);
-
-        AuthenticationTriple auth2 = new AuthenticationTriple();
-        auth2.setUrnPrefix("urn:wisebed:dummy1");
-        auth2.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
-        auth2.setPassword("xxx");
-        authTriples.add(auth2);
-
-        AuthenticationTriple auth3 = new AuthenticationTriple();
-        auth3.setUrnPrefix("urn:wisebed:dummy2");
-        auth3.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
-        auth3.setPassword("xxx");
-        authTriples.add(auth3);
-
-        AuthenticationTriple auth4 = new AuthenticationTriple();
-        auth4.setUrnPrefix("urn:wisebed:shib2");
-        auth4.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
-        auth4.setPassword("xxx");
-        authTriples.add(auth4);
-
-        try {
-            List<SecretAuthenticationKey> keys = port.authenticate(authTriples);
-            log.info("Got authentication keys: " + keys);
-            Action action = new Action();
-            action.setAction("sth");
-            boolean b = port.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
-            log.info("Is authorized: " + b);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    private static void callFederatorJVMInternal() {
-
-        try {
-            federator.authenticate(new ArrayList<AuthenticationTriple>());
-        } catch (SNAAExceptionException e) {
-            e.printStackTrace();
-        } catch (AuthenticationExceptionException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Action action = new Action();
-            action.setAction("sth");
-            federator.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
-        } catch (SNAAExceptionException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private static void createAndSetAuthenticationAttributes(String snaaName, Properties props, IUserAuthorization authorization) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Map<String, String> attributes = createAuthorizationAttributeMap(snaaName, props);
-        ((AttributeBasedAuthorization) authorization).setAttributes(attributes);
-        ((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource(snaaName, props));
-    }
+//    @SuppressWarnings("unused")
+//    private static void callShibbAsWS() throws MalformedURLException, SNAAExceptionException,
+//            AuthenticationExceptionException {
+//
+//		SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/shib1");
+//
+//		AuthenticationTriple auth1 = new AuthenticationTriple();
+//        auth1.setUrnPrefix("urn:wisebed:shib1");
+//        auth1.setUsername("pfisterer@wisebed1.itm.uni-luebeck.de");
+//        auth1.setPassword("xxx");
+//
+//        List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
+//        authTriples.add(auth1);
+//        port.authenticate(authTriples);
+//        Action action = new Action();
+//        action.setAction("sth");
+//        port.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
+//
+//    }
+//
+//    @SuppressWarnings("unused")
+//    private static void callFederatorAsWS() throws MalformedURLException, SNAAExceptionException,
+//            AuthenticationExceptionException {
+//
+//        SNAA port = WisebedServiceHelper.getSNAAService("http://localhost:8080/snaa/fed1");
+//
+//        List<AuthenticationTriple> authTriples = new ArrayList<AuthenticationTriple>();
+//
+//        AuthenticationTriple auth1 = new AuthenticationTriple();
+//        auth1.setUrnPrefix("urn:wisebed:shib1");
+//        auth1.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
+//        auth1.setPassword("xxx");
+//        authTriples.add(auth1);
+//
+//        AuthenticationTriple auth2 = new AuthenticationTriple();
+//        auth2.setUrnPrefix("urn:wisebed:dummy1");
+//        auth2.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
+//        auth2.setPassword("xxx");
+//        authTriples.add(auth2);
+//
+//        AuthenticationTriple auth3 = new AuthenticationTriple();
+//        auth3.setUrnPrefix("urn:wisebed:dummy2");
+//        auth3.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
+//        auth3.setPassword("xxx");
+//        authTriples.add(auth3);
+//
+//        AuthenticationTriple auth4 = new AuthenticationTriple();
+//        auth4.setUrnPrefix("urn:wisebed:shib2");
+//        auth4.setUsername("bimschas@wisebed1.itm.uni-luebeck.de");
+//        auth4.setPassword("xxx");
+//        authTriples.add(auth4);
+//
+//        try {
+//            List<SecretAuthenticationKey> keys = port.authenticate(authTriples);
+//            log.info("Got authentication keys: " + keys);
+//            Action action = new Action();
+//            action.setAction("sth");
+//            boolean b = port.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
+//            log.info("Is authorized: " + b);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//
+//    @SuppressWarnings("unused")
+//    private static void callFederatorJVMInternal() {
+//
+//        try {
+//            federator.authenticate(new ArrayList<AuthenticationTriple>());
+//        } catch (SNAAExceptionException e) {
+//            e.printStackTrace();
+//        } catch (AuthenticationExceptionException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            Action action = new Action();
+//            action.setAction("sth");
+//            federator.isAuthorized(new ArrayList<SecretAuthenticationKey>(), action);
+//        } catch (SNAAExceptionException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     private static String authorizationAtt = ".authorization";
     private static String authorizationKeyAtt = ".key";

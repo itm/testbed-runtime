@@ -27,7 +27,10 @@ import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.UserDetails;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
 
 @WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
 public class JAASSNAA implements SNAA {
@@ -128,11 +132,29 @@ public class JAASSNAA implements SNAA {
 		}
 
 	}
-
+	
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	@Deprecated
+	public AuthorizationResponse isAuthorized(
+	        @WebParam(name = "usernames", targetNamespace = "")
+	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "action", targetNamespace = "")
+	        Action action,
+	        @WebParam(name = "nodeUrns", targetNamespace = "")
+	        String nodeUrns)
+	        throws SNAAExceptionException {
+		
+
+
+		AuthorizationResponse authorized = new AuthorizationResponse();
+		authorized.setAuthorized(true);
+		authorized.setMessage("JAASSNAA is used for authentication only and always return 'true'");
+		authorized.setNodeUrn(nodeUrns);
+		return authorized;
+	}
+
+	public boolean isSAKValid(
+			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData) throws SNAAExceptionException {
 		boolean authorized = false;
 
 		// Check the supplied authentication keys
@@ -143,24 +165,8 @@ public class JAASSNAA implements SNAA {
 		// Get the session from the cache of authenticated sessions
 		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
 
-		if (auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
-				|| !secretAuthenticationKey.getUsername().equals(auth.username)) {
-			log.warn("Authorization failed. Invalid parameters.");
-			return false;
-		}
-
-		// Perform Authorization
-		if (authorization != null) {
-			IUserAuthorization.UserDetails details = new UserDetails();
-			details.setUsername(secretAuthenticationKey.getUsername());
-            List<Object> subjects = new LinkedList<Object>();
-            subjects.add(auth.subject);
-			details.getUserDetails().put("subject", subjects);
-			authorized = authorization.isAuthorized(action, details);
-			log.debug("Authorization result[" + authorized + "] for action[" + action + "], authdata[" + details + "]");
-		}
-
-		return authorized;
+		return !(auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
+				|| !secretAuthenticationKey.getUsername().equals(auth.username));
 	}
 
 }

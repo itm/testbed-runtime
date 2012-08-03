@@ -24,8 +24,13 @@
 package de.uniluebeck.itm.tr.snaa.federator;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -58,28 +63,34 @@ public class FederatorSNAA implements SNAA {
 		}
 	}
 
-	protected static class IsAuthorizedCallable implements Callable<Boolean> {
+	
+	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
 
-		private List<SecretAuthenticationKey> secretAuthenticationKeys;
+		private List<UsernameUrnPrefixPair> usernameUrnPrefixPairs;
 
 		private Action action;
 
 		private String wsEndpointUrl;
+		
+		private String nodeURNS;
 
-		public IsAuthorizedCallable(String wsEndpointUrl, List<SecretAuthenticationKey> secretAuthenticationKeys,
-									Action action) {
+		public IsAuthorizedCallable(String wsEndpointUrl, List<UsernameUrnPrefixPair> usernameUrnPrefixPairs,
+									Action action, String nodeURNS) {
 			super();
 			this.wsEndpointUrl = wsEndpointUrl;
-			this.secretAuthenticationKeys = secretAuthenticationKeys;
+			this.usernameUrnPrefixPairs = usernameUrnPrefixPairs;
 			this.action = action;
+			this.nodeURNS = nodeURNS;
 		}
 
 		@Override
-		public Boolean call() throws Exception {
-			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(secretAuthenticationKeys, action);
+		public AuthorizationResponse call() throws Exception {
+			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(usernameUrnPrefixPairs, action, nodeURNS);
 		}
 
 	}
+	
+	
 
 	/**
 	 * Web Service Endpoint URL -> Set<URN Prefixes>
@@ -177,6 +188,47 @@ public class FederatorSNAA implements SNAA {
 
 		return intersectionPrefixSet;
 	}
+	
+	protected Map<String, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
+			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAExceptionException {
+
+		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
+		// authenticationData
+		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
+				new HashMap<String, Set<UsernameUrnPrefixPair>>();
+
+		for (UsernameUrnPrefixPair usernameURNPrefixPair : usernameURNPrefixPairs) {
+
+			for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
+				if (entry.getValue().contains(usernameURNPrefixPair.getUrnPrefix())) {
+					Set<UsernameUrnPrefixPair> set = intersectionPrefixSet
+							.get(usernameURNPrefixPair.getUrnPrefix());
+					if (set == null) {
+						set = new HashSet<UsernameUrnPrefixPair>();
+						intersectionPrefixSet.put(usernameURNPrefixPair.getUrnPrefix(), set);
+					}
+					set.add(usernameURNPrefixPair);
+				}
+			}
+
+			// check if federator federates the urn prefix found in the authentication triple
+			boolean found = false;
+			for (Set<UsernameUrnPrefixPair> triples : intersectionPrefixSet.values()) {
+				for (UsernameUrnPrefixPair triple : triples) {
+					if (triple.getUrnPrefix().equals(usernameURNPrefixPair.getUrnPrefix())) {
+						found = true;
+					}
+				}
+			}
+
+			if (!found) {
+				throw createSNAAException("No endpoint known for URN prefix " + usernameURNPrefixPair.getUrnPrefix());
+			}
+
+		}
+
+		return intersectionPrefixSet;
+	}
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(
@@ -216,33 +268,44 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(
+	        @WebParam(name = "usernames", targetNamespace = "")
+	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "action", targetNamespace = "")
+	        Action action,
+	        @WebParam(name = "nodeUrns", targetNamespace = "")
+	        String nodeUrns)
+	        throws SNAAExceptionException {
 
-		if (authenticationData == null || action == null) {
+		if (usernames == null || action == null) {
 			throw createSNAAException("Arguments must not be null!");
 		}
+		
+		AuthorizationResponse response = new AuthorizationResponse();
+		response.setAuthorized(true);
+		response.setMessage("");
+		response.setNodeUrn("");
 
-		Map<String, Set<SecretAuthenticationKey>> intersectionPrefixSet =
-				getIntersectionPrefixSetSAK(authenticationData);
+		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
+				getIntersectionPrefixSetUPP(usernames);
 
-		Set<Future<Boolean>> futures = new HashSet<Future<Boolean>>();
+		Set<Future<AuthorizationResponse>> futures = new HashSet<Future<AuthorizationResponse>>();
 
 		for (String urnPrefix : intersectionPrefixSet.keySet()) {
 			IsAuthorizedCallable authenticationCallable = new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(urnPrefix),
-					new ArrayList<SecretAuthenticationKey>(intersectionPrefixSet.get(urnPrefix)), action
+					new ArrayList<UsernameUrnPrefixPair>(intersectionPrefixSet.get(urnPrefix)), action, nodeUrns
 			);
-			Future<Boolean> future = executorService.submit(authenticationCallable);
+			Future<AuthorizationResponse> future = executorService.submit(authenticationCallable);
 			futures.add(future);
 		}
 
-		for (Future<Boolean> future : futures) {
+		for (Future<AuthorizationResponse> future : futures) {
 			try {
-				if (!future.get()) {
-					return false;
-				}
+				AuthorizationResponse authorizationResponse = future.get();
+				response.setMessage(response.getMessage()+"; "+authorizationResponse.getMessage());
+				response.setAuthorized(response.isAuthorized() && authorizationResponse.isAuthorized());
+				response.setNodeUrn(response.getNodeUrn()+"; "+authorizationResponse.getNodeUrn());
+
 			} catch (InterruptedException e) {
 				throw createSNAAException(e.getMessage());
 			} catch (ExecutionException e) {
@@ -250,7 +313,7 @@ public class FederatorSNAA implements SNAA {
 			}
 		}
 
-		return true;
+		return response;
 	}
 
 	private String getWsnUrlFromUrnPrefix(String urnPrefix) {

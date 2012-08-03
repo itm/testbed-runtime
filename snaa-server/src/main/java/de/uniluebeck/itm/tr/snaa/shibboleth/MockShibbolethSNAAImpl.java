@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
 
 import javax.jws.WebParam;
@@ -15,7 +17,18 @@ public class MockShibbolethSNAAImpl implements SNAA {
     }
 
     @Override
-    public boolean isAuthorized(@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData, @WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public AuthorizationResponse isAuthorized(
+            @WebParam(name = "usernames", targetNamespace = "")
+            List<UsernameUrnPrefixPair> usernames,
+            @WebParam(name = "action", targetNamespace = "")
+            Action action,
+            @WebParam(name = "nodeUrns", targetNamespace = "")
+            String nodeUrns)
+            throws SNAAExceptionException {
+    	AuthorizationResponse response = new AuthorizationResponse();
+    	response.setMessage("MockShibbolethSNAAImpl will always return 'false'");
+    	response.setAuthorized(false);
+    	response.setNodeUrn(nodeUrns);
+        return response; 
     }
 }

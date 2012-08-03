@@ -27,7 +27,10 @@ import com.google.inject.Injector;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
@@ -128,54 +131,20 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	@Deprecated
+	public AuthorizationResponse isAuthorized(
+	        @WebParam(name = "usernames", targetNamespace = "")
+	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "action", targetNamespace = "")
+	        Action action,
+	        @WebParam(name = "nodeUrns", targetNamespace = "")
+	        String nodeUrns)
+	        throws SNAAExceptionException {
 
-		boolean authorized = true;
-		String logInfo = "Done checking authorization, result: ";
-		Map<String, List<Object>> authorizeMap;
-
-		// Check if we serve all URNs
-		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
-
-		// Check if we have all SecretAuthenticationKeys as sessions
-		for (SecretAuthenticationKey key : authenticationData) {
-
-			//check if authorized
-			try {
-				IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-				sa.setUsernameAtIdpDomain(key.getUsername());
-				sa.setUrl(secretAuthenticationKeyUrl);
-				if (proxy != null) {
-					sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
-				}
-
-				//check authorization
-				List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-				log.info("De-serialization successfully done.");
-				authorizeMap = sa.isAuthorized(cookies);
-
-				if (authorizeMap == null) {
-					authorized = false;
-					log.debug(logInfo + "false");
-					return authorized;
-				}
-
-				//create Authorization from map
-				IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
-				details.setUsername(key.getUsername());
-				details.setUserDetails(authorizeMap);
-
-				authorized = authorization.isAuthorized(action, details);
-			} catch (Exception e) {
-				log.error(e.getMessage());
-				throw createSNAAException("Authorization failed :" + e);
-			}
-		}
-
-		log.debug(logInfo + authorized);
+		AuthorizationResponse authorized = new AuthorizationResponse();
+		authorized.setAuthorized(true);
+		authorized.setMessage("ShibbolethSNAAImpl is used for authentication only and always return 'true'");
+		authorized.setNodeUrn(nodeUrns);
 		return authorized;
 
 	}

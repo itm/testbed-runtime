@@ -24,10 +24,16 @@
 package de.uniluebeck.itm.tr.snaa;
 
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.common.UsernameUrnPrefixPair;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -64,6 +70,17 @@ public class SNAAHelper {
 
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
+		} catch (Exception e) {
+			createSNAAException(e.getMessage());
+		}
+
+	}
+
+	public static void assertElementCount(Collection<?> c, int minCountInclusive, int maxCountInclusive)
+			throws SNAAExceptionException {
+
+		try {
+			assertCollectionMinCount(c, minCountInclusive);
 		} catch (Exception e) {
 			createSNAAException(e.getMessage());
 		}
@@ -128,6 +145,28 @@ public class SNAAHelper {
 		AuthenticationException exception = new AuthenticationException();
 		exception.setMessage(msg);
 		return new AuthenticationExceptionException(msg, exception);
+	}
+	
+
+
+	// ------------------------------------------------------------------------
+	/**
+	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
+	 * urn prefixes and returns the result.
+	 * 
+	 * @param secretAuthenticationKeys
+	 *            A list of secret authentication keys
+	 * @return A list of tuples comprising user names and urn prefixes
+	 */
+	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
+		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
+		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
+			usernamePrefixPairs.add(upp);
+			upp.setUsername(secretAuthenticationKey.getUsername());
+			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+		}
+		return null;
 	}
 
 }

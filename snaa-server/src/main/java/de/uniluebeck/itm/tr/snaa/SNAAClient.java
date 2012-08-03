@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.snaa;
 
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
+import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.snaa.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -156,10 +157,9 @@ public class SNAAClient {
 			saks.add(sak);
 
 			try {
-				Action actionObj = new Action();
-				actionObj.setAction(action);
-				boolean authorized = port.isAuthorized(saks, actionObj);
-				System.out.println("Authorization " + (authorized ? "suceeded" : "failed"));
+				Action actionObj = Action.valueOf(action);
+				AuthorizationResponse authorized = port.isAuthorized(SNAAHelper.convert(saks), actionObj, null);
+				System.out.println("Authorization " + (authorized.isAuthorized() ? "suceeded" : "failed"));
 
 			} catch (SNAAExceptionException e) {
 				System.out.println("Authorization failed, server reported error [" + e + "]");

@@ -69,7 +69,7 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
             }
 
             //check datasource
-            return dataSource.isAuthorized(puid, action.getAction());
+            return dataSource.isAuthorized(puid, action.toString());
         }
         catch (Exception e) {
             log.warn(e.getMessage());

@@ -1,7 +1,8 @@
 package eu.wisebed.shibboauth;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.tools.TimeDiff;
+import de.uniluebeck.itm.tr.util.TimeDiff;
+
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
