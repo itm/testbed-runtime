@@ -149,8 +149,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs) throws RSExceptionException {
 
 		try {
-
-			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, null);
+			StringBuffer nodeURNStringBuffer = new StringBuffer();
+			for (String urn : nodeURNs) {
+				nodeURNStringBuffer.append(urn+",");
+			}
+			
+			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, nodeURNStringBuffer.substring(0, nodeURNStringBuffer.length()-1) );
 			log.debug("Authorization result: " + authorizationResponse);
 			return authorizationResponse;
 
