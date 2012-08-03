@@ -105,7 +105,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 *            A list of secret authentication keys
 	 * @return A list of tuples comprising user names and urn prefixes
 	 */
-	private List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
+	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
 		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
 		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
 			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();

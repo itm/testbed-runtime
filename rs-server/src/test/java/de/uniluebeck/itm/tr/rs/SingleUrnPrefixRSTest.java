@@ -106,9 +106,9 @@ public class SingleUrnPrefixRSTest {
 
 	private List<SecretReservationKey> user2Srks;
 
-	private List<eu.wisebed.api.snaa.SecretAuthenticationKey> user1SaksSnaa;
+	private List<SecretAuthenticationKey> user1SaksSnaa;
 
-	private List<eu.wisebed.api.snaa.SecretAuthenticationKey> user2SaksSnaa;
+	private List<SecretAuthenticationKey> user2SaksSnaa;
 
 	@Before
 	public void setUp() {
@@ -184,11 +184,11 @@ public class SingleUrnPrefixRSTest {
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
 		crd.setUserData(USER1_USERNAME);
 
-		when(snaa.isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION)).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null).isAuthorized()).thenReturn(true);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
 		try {
-			rs.deleteReservation(user1Saks, user1Srks);
+			rs.deleteReservation(user1Srks);
 			fail();
 		} catch (RSExceptionException e) {
 			// this should be thrown
@@ -212,13 +212,13 @@ public class SingleUrnPrefixRSTest {
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
 		crd.setUserData(USER1_USERNAME);
 
-		when(snaa.isAuthorized(user1SaksSnaa, Actions.GET_CONFIDENTIAL_RESERVATION)).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null).isAuthorized()).thenReturn(true);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
-		when(snaa.isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION)).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null).isAuthorized()).thenReturn(true);
 		when(persistence.deleteReservation(user1Srk)).thenReturn(crd);
 
-		rs.deleteReservation(user1Saks, user1Srks);
+		rs.deleteReservation(user1Srks);
 
 		// TODO https://github.com/itm/testbed-runtime/issues/47
 		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
@@ -242,7 +242,7 @@ public class SingleUrnPrefixRSTest {
 		reservedNodes.add(persistenceCrd);
 
 		// make a valid reservation
-		when(snaa.isAuthorized(user1SaksSnaa, Actions.MAKE_RESERVATION)).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_MAKE_RESERVATION, null).isAuthorized()).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
@@ -291,8 +291,8 @@ public class SingleUrnPrefixRSTest {
 		final String user1Node = URN_PREFIX + "0x1234";
 		final String user2Node = URN_PREFIX + "0x4321";
 
-		when(snaa.isAuthorized(user1SaksSnaa, Action.RS_GET_RESERVATIONS)).thenReturn(true);
-		when(snaa.isAuthorized(user2SaksSnaa, Action.RS_GET_RESERVATIONS)).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null).isAuthorized()).thenReturn(true);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user2SaksSnaa), Action.RS_GET_RESERVATIONS,null).isAuthorized()).thenReturn(true);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
