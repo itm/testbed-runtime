@@ -57,16 +57,27 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	@Override
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
 
+		
+		/* 
+		 * (1) Identify the action to be authorized and check whether it is known
+		 */
+		
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
-		boolean keysFound = false;
-		AuthorizationResponse isAuthenticated = null;
 
+		// If the action is not known by the intercepter, throw an exception to indicate that an authorization is impossible
 		Action requestedAction = Action.valueOf(authorizationAnnotation.value());
-
 		if (!requestedAction.equals(Action.RS_DELETE_RESERVATION) && !requestedAction.equals(Action.RS_GET_RESERVATIONS)
 				&& !requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 			throwAuthorizationFailedException("Unknown annotated value \"" + requestedAction + "\"!");
 		}
+		
+		/* 
+		 * (2a) Retrieve the list of tuples of user names and URN prefixes 
+		 * (2b) Retrieve the list of urns of the nodes where the provided action is to be applied to
+		 */
+		
+		List<UsernameUrnPrefixPair> usernamePrefixPairs = null;
+		List<String> nodeURNs = null;
 
 		Object[] arguments = invocation.getArguments();
 
@@ -77,17 +88,23 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 				List<?> list = (List<?>) object;
 
 				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
-					isAuthenticated = checkAuthentication(convert((List<SecretAuthenticationKey>) list), requestedAction);
-					keysFound = true;
-					break;
+					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(convert((List<SecretAuthenticationKey>) list));
+				} else if (list.size() > 0 && list.get(0) instanceof String) {
+					nodeURNs = new LinkedList<String>((Collection<? extends String>) list);
 				}
 			}
 		}
+		
+		
+		/*
+		 * (3) Check whether the user is authorized to apply the action on the selected nodes
+		 *     and return the result
+		 */
+		
+		AuthorizationResponse isAuthenticated = checkAuthentication(usernamePrefixPairs, requestedAction, nodeURNs);
 
-		if (!keysFound) {
-			throwAuthorizationFailedException("No sekret authentication keys found!");
-		}
 		if (isAuthenticated == null || !isAuthenticated.isAuthorized()) {
+			log.warn("The user was NOT authorized to perform the action \""+requestedAction+"\".");
 			throwAuthorizationFailedException("The user's access privileges are not sufficient");
 		}
 
@@ -129,7 +146,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @throws RSExceptionException
 	 *             Thrown if an exception is thrown in the reservation system
 	 */
-	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action) throws RSExceptionException {
+	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs) throws RSExceptionException {
 
 		try {
 

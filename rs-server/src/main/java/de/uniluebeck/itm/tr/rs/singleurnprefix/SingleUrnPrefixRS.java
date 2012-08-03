@@ -43,6 +43,7 @@ import eu.wisebed.api.rs.ReservationNotFoundException;
 import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
 
 /**
