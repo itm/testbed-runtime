@@ -42,8 +42,8 @@ import eu.wisebed.api.rs.GetReservations;
 import eu.wisebed.api.rs.PublicReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationConflictExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
 
@@ -74,7 +74,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			@WebParam(name = "authenticationData", targetNamespace = "")
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "reservation") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
+			throws AuthorizationExceptionException, ReservationConflictExceptionException, RSExceptionException {
 
 		return reservationSystem.makeReservation(authenticationData, reservation);
 
@@ -83,7 +83,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		return reservationSystem.getReservation(secretReservationKeys);
 	}
@@ -92,7 +92,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	public void deleteReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		reservationSystem.deleteReservation(secretReservationKeys);
 	}

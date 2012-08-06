@@ -177,7 +177,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 
 		Tuple<Entry, ReservationData> reservation = getReservation(secretReservationKey.getSecretReservationKey());
 		ConfidentialReservationData confidentialReservationData = reservation.getSecond().getReservation();
@@ -198,7 +198,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		return getReservation(secretReservationKey.getSecretReservationKey()).getSecond().getReservation();
 	}
 
@@ -316,7 +316,7 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	private Tuple<Entry, ReservationData> getReservation(String secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundExceptionException, RSExceptionException {
 		// Do a full text search for the secretReservationKey and then iterate over the results
 		Query myQuery = new Query(eventFeedUrl);
 		myQuery.setFullTextQuery(secretReservationKey);
@@ -362,11 +362,11 @@ public class GCalRSPersistence implements RSPersistence {
 		}
 	}
 
-	private ReservervationNotFoundExceptionException createReservationNotFoundException(String msg) {
+	private ReservationNotFoundExceptionException createReservationNotFoundException(String msg) {
 		log.warn(msg);
 		ReservationNotFoundException exception = new ReservationNotFoundException();
 		exception.setMessage(msg);
-		return new ReservervationNotFoundExceptionException(msg, exception);
+		return new ReservationNotFoundExceptionException(msg, exception);
 	}
 
 	private RSExceptionException createRSException(String msg) {

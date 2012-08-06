@@ -28,7 +28,7 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.ReservationNotFoundException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -172,13 +172,13 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
-			ReservervationNotFoundExceptionException {
+			ReservationNotFoundExceptionException {
 		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
 		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
 					new ReservationNotFoundException()
 			);
 		}
@@ -186,13 +186,13 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
-			ReservervationNotFoundExceptionException {
+			ReservationNotFoundExceptionException {
 		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
 		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
+			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
 					new ReservationNotFoundException()
 			);
 		}

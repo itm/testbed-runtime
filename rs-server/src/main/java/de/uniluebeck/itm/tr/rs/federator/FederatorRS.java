@@ -54,8 +54,8 @@ import eu.wisebed.api.rs.PublicReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationConflictExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 
 
 @WebService(
@@ -82,7 +82,7 @@ public class FederatorRS implements RS {
 	public void deleteReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -128,7 +128,7 @@ public class FederatorRS implements RS {
 			@WebParam(name = "authenticationData", targetNamespace = "")
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservervationConflictExceptionException {
+			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
 
 		assertNotNull(authenticationData, "authenticationData");
 		assertNotNull(reservation, "reservation");
@@ -283,7 +283,7 @@ public class FederatorRS implements RS {
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -310,8 +310,8 @@ public class FederatorRS implements RS {
 				if (e.getCause() instanceof RSExceptionException) {
 					throw (RSExceptionException) e.getCause();
 				}
-				if (e.getCause() instanceof ReservervationNotFoundExceptionException) {
-					throw (ReservervationNotFoundExceptionException) e.getCause();
+				if (e.getCause() instanceof ReservationNotFoundExceptionException) {
+					throw (ReservationNotFoundExceptionException) e.getCause();
 				}
 				throwRSException("Unknown exception occurred!", e.getCause());
 			}

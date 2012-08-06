@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.rs.persistence;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -180,7 +180,7 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-			} catch (ReservervationNotFoundExceptionException e) {
+			} catch (ReservationNotFoundExceptionException e) {
 			}
 		}
 		reservationDataMap = null;
@@ -209,7 +209,7 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkGetReservationBeforeDeletion()
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 
 			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
@@ -229,8 +229,8 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.getReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			} catch (ReservervationNotFoundExceptionException e) {
+				fail("Should have raised an ReservationNotFoundExceptionException");
+			} catch (ReservationNotFoundExceptionException e) {
 			}
 		}
 	}
@@ -251,7 +251,7 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkDeleteReservation()
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			ConfidentialReservationData actualData = persistence.deleteReservation(reservationKeyMap.get(i));
 			ConfidentialReservationData expectedData = reservationDataMap.get(i);
@@ -266,8 +266,8 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			} catch (ReservervationNotFoundExceptionException expected) {
+				fail("Should have raised an ReservationNotFoundExceptionException");
+			} catch (ReservationNotFoundExceptionException expected) {
 			}
 		}
 	}

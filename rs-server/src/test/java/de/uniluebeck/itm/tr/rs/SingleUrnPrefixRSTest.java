@@ -42,7 +42,7 @@ import eu.wisebed.api.rs.Data;
 import eu.wisebed.api.rs.GetReservations;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservationConflictExceptionException;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
@@ -267,7 +267,7 @@ public class SingleUrnPrefixRSTest {
 			fail();
 		} catch (RSExceptionException e) {
 			fail();
-		} catch (ReservervationConflictExceptionException expected) {
+		} catch (ReservationConflictExceptionException expected) {
 		}
 
 		// try to reserve in lowercase
@@ -279,7 +279,7 @@ public class SingleUrnPrefixRSTest {
 			fail();
 		} catch (RSExceptionException e) {
 			fail();
-		} catch (ReservervationConflictExceptionException expected) {
+		} catch (ReservationConflictExceptionException expected) {
 		}
 
 	}

@@ -42,8 +42,8 @@ import eu.wisebed.api.rs.PublicReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationConflictExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 
 @WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
 		targetNamespace = "urn:RSService")
@@ -74,7 +74,7 @@ public class DummyRS implements RS {
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		String msg = "Reservation not found (not implemented, this is the dummy implementation";
 		RSException exception = new RSException();
@@ -87,7 +87,7 @@ public class DummyRS implements RS {
 	public void deleteReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "")
 			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		// nothing to do as this is a dummy
 	}
@@ -97,7 +97,7 @@ public class DummyRS implements RS {
 			@WebParam(name = "authenticationData", targetNamespace = "")
 			List<SecretAuthenticationKey> authenticationData,
 			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservervationConflictExceptionException {
+			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
 
 		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());
 

@@ -38,9 +38,9 @@ import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservationConflictException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.rs.ReservationConflictExceptionException;
 import eu.wisebed.api.rs.ReservationNotFoundException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.snaa.Action;
@@ -69,7 +69,7 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	@AuthorizationRequired("RS_MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
+			throws AuthorizationExceptionException, ReservationConflictExceptionException, RSExceptionException {
 
 		checkNotNull(reservation.getUserData() != null && !"".equals(reservation.getUserData()), "The field userData must be set!");
 
@@ -117,7 +117,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys) throws RSExceptionException,
-			ReservervationNotFoundExceptionException {
+			ReservationNotFoundExceptionException {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 		checkArgumentValidReservation(secretReservationKeys);
@@ -129,7 +129,7 @@ public class SingleUrnPrefixRS implements RS {
 			String msg = "Reservation not found for key " + secretReservationKey;
 			ReservationNotFoundException exception = new ReservationNotFoundException();
 			exception.setMessage(msg);
-			throw new ReservervationNotFoundExceptionException(msg, exception);
+			throw new ReservationNotFoundExceptionException(msg, exception);
 		}
 
 		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
@@ -140,7 +140,7 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	@AuthorizationRequired("RS_DELETE_RESERVATION")
 	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
@@ -360,7 +360,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkNodesAvailable(PublicReservationData reservation) throws ReservervationConflictExceptionException, RSExceptionException {
+	private void checkNodesAvailable(PublicReservationData reservation) throws ReservationConflictExceptionException, RSExceptionException {
 
 		List<String> requested = transform(reservation.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE);
 		Set<String> reserved = new HashSet<String>();
@@ -377,7 +377,7 @@ public class SingleUrnPrefixRS implements RS {
 			log.warn(msg);
 			ReservationConflictException exception = new ReservationConflictException();
 			exception.setMessage(msg);
-			throw new ReservervationConflictExceptionException(msg, exception);
+			throw new ReservationConflictExceptionException(msg, exception);
 		}
 	}
 

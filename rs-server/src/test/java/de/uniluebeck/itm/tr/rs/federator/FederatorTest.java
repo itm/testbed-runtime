@@ -134,13 +134,13 @@ public class FederatorTest {
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new ReservervationNotFoundExceptionException("", new ReservationNotFoundException())
+				new ReservationNotFoundExceptionException("", new ReservationNotFoundException())
 		);
 
 		try {
 			federatorRS.getReservation(secretReservationKeys);
 			fail("Should have raised ReservationNotFoundException");
-		} catch (ReservervationNotFoundExceptionException expected) {
+		} catch (ReservationNotFoundExceptionException expected) {
 		}
 	}
 
