@@ -252,10 +252,7 @@ public class SingleUrnPrefixRSTest {
 		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
 		authorizationResponse.setAuthorized(true);
 
-		// make a valid reservation
-		// TODO: mock converter
-		System.out.println(RSAuthorizationInterceptor.convert(user1Saks).equals(RSAuthorizationInterceptor.convert(user1Saks)));
-		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>anyObject(), Action.RS_MAKE_RESERVATION, null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), (String) Matchers.isNull())).thenReturn(authorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
@@ -303,9 +300,14 @@ public class SingleUrnPrefixRSTest {
 
 		final String user1Node = URN_PREFIX + "0x1234";
 		final String user2Node = URN_PREFIX + "0x4321";
+		
 
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null).isAuthorized()).thenReturn(true);
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user2SaksSnaa), Action.RS_GET_RESERVATIONS,null).isAuthorized()).thenReturn(true);
+
+		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+		authorizationResponse.setAuthorized(true);
+
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user2SaksSnaa), Action.RS_GET_RESERVATIONS,null)).thenReturn(authorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
