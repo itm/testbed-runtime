@@ -73,7 +73,7 @@ import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException;
@@ -293,7 +293,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			reservedNodeUrns = reservedNodeUrnsBuilder.build();
 
-		} catch (ReservervationNotFoundExceptionException e) {
+		} catch (ReservationNotFoundExceptionException e) {
 			final UnknownReservationIdException faultInfo = new UnknownReservationIdException();
 			faultInfo.setMessage(e.getFaultInfo().getMessage());
 			throw new UnknownReservationIdException_Exception(e.getMessage(), faultInfo, e);
