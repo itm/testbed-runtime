@@ -186,10 +186,10 @@ public class SingleUrnPrefixRSTest {
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
 		crd.setUserData(USER1_USERNAME);
 		
-		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
+		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+		successfulAuthorizationResponse.setAuthorized(true);
 		
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null)).thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
 		try {
@@ -217,13 +217,13 @@ public class SingleUrnPrefixRSTest {
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
 		crd.setUserData(USER1_USERNAME);
 
-		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
+		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+		successfulAuthorizationResponse.setAuthorized(true);
 
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null)).thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_DELETE_RESERVATION, null)).thenReturn(successfulAuthorizationResponse);
 		when(persistence.deleteReservation(user1Srk)).thenReturn(crd);
 
 		rs.deleteReservation(user1Srks);
@@ -249,10 +249,10 @@ public class SingleUrnPrefixRSTest {
 		persistenceCrd.getNodeURNs().add("urn:local:0xcbe4");
 		reservedNodes.add(persistenceCrd);
 
-		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
+		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+		successfulAuthorizationResponse.setAuthorized(true);
 
-		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), (String) Matchers.isNull())).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), (String) Matchers.isNull())).thenReturn(successfulAuthorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
@@ -303,11 +303,11 @@ public class SingleUrnPrefixRSTest {
 		
 
 
-		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
+		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+		successfulAuthorizationResponse.setAuthorized(true);
 
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null)).thenReturn(authorizationResponse);
-		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user2SaksSnaa), Action.RS_GET_RESERVATIONS,null)).thenReturn(authorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user1SaksSnaa), Action.RS_GET_RESERVATIONS, null)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(RSAuthorizationInterceptor.convert(user2SaksSnaa), Action.RS_GET_RESERVATIONS,null)).thenReturn(successfulAuthorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
