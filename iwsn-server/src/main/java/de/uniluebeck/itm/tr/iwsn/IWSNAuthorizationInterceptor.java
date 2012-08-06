@@ -44,6 +44,8 @@ public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 			throw new AuthorizationExceptionException("No Authorization server configured", new AuthorizationException());
 		}
 		
+		// TODO: Wait for the new wisebed API release to actually request authorization from SNAA
+		
 		log.debug("Interception successful");
 		
 		return invocation.proceed();
