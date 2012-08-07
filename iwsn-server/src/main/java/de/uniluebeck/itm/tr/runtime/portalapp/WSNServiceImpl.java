@@ -31,6 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.tr.iwsn.AuthorizationRequired;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
@@ -410,6 +411,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_SEND")
 	public String send(final List<String> nodeIds, final Message message) {
 
 		preconditions.checkSendArguments(nodeIds, message);
@@ -459,6 +461,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_SET_CHANNEL_PIPELINE")
 	public String setChannelPipeline(final List<String> nodes,
 									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
@@ -493,6 +496,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_ARE_NODES_ALIVE")
 	public String areNodesAlive(final List<String> nodeIds) {
 
 		preconditions.checkAreNodesAliveArguments(nodeIds);
@@ -522,6 +526,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_FLASH_PROGRAMS")
 	public String flashPrograms(final List<String> nodeIds,
 								final List<Integer> programIndices,
 								final List<Program> programs) {
@@ -602,6 +607,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_RESET_NODES")
 	public String resetNodes(final List<String> nodeUrns) {
 
 		preconditions.checkResetNodesArguments(nodeUrns);
@@ -636,6 +642,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
 
 	@Override
+	@AuthorizationRequired("WSN_SET_VIRTUAL_LINK")
 	public String setVirtualLink(final String sourceNode,
 								 final String targetNode,
 								 final String remoteServiceInstance,
@@ -748,6 +755,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_DESTROY_VIRTUAL_LINK")
 	public String destroyVirtualLink(final String sourceNode,
 									 final String targetNode) {
 
@@ -783,6 +791,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_DISABLE_NODE")
 	public String disableNode(final String node) {
 
 		preconditions.checkDisableNodeArguments(node);
@@ -814,6 +823,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_DISABLE_PHYSICAL_LINK")
 	public String disablePhysicalLink(final String nodeA, final String nodeB) {
 
 		preconditions.checkDisablePhysicalLinkArguments(nodeA, nodeB);
@@ -846,6 +856,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_ENABLE_NODE")
 	public String enableNode(final String node) {
 
 		preconditions.checkEnableNodeArguments(node);
@@ -878,6 +889,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	@AuthorizationRequired("WSN_ENABLE_PHYSICAL_LINK")
 	public String enablePhysicalLink(final String nodeA, final String nodeB) {
 
 		preconditions.checkEnablePhysicalLinkArguments(nodeA, nodeB);
