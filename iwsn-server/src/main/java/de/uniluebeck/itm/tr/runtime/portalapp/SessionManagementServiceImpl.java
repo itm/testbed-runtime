@@ -41,7 +41,7 @@ import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
+import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
@@ -510,7 +510,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			String msg = "Generic exception occurred in the federated reservation system.";
 			log.warn(msg + ": " + e, e);
 			throw WisebedServiceHelper.createUnknownReservationIdException(msg, null, e);
-		} catch (ReservervationNotFoundExceptionException e) {
+		} catch (ReservationNotFoundExceptionException e) {
 			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
 			throw WisebedServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
 		}
