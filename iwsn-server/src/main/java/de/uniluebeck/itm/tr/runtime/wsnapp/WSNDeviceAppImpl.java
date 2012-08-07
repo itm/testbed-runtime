@@ -119,7 +119,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 			boolean isRecipient = wsnDeviceAppConfiguration.getNodeUrn().equals(msg.getTo());
 			boolean isOperationInvocation = WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST.equals(msg.getMsgType());
-			boolean isListenerManagement = WSNApp.MSG_TYPE_LISTENER_MANAGEMENT.equals(msg.getMsgType());
+			boolean isListenerManagement = WSNApp.MSG_TYPE_LISTENER_MANAGEMENT.equals(msg.getMsgType()) && msg.hasReplyWith();
 
 			if (isRecipient && isOperationInvocation) {
 
