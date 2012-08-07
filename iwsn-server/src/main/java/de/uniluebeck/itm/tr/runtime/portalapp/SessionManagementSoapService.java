@@ -101,15 +101,6 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public void free(
-			@WebParam(name = "secretReservationKey", targetNamespace = "") final
-			List<SecretReservationKey> secretReservationKey)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
-
-		sm.free(secretReservationKey);
-	}
-
-	@Override
 	public void getConfiguration(
 			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
 			Holder<String> rsEndpointUrl,

@@ -541,66 +541,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public void free(
-			@WebParam(name = "secretReservationKeys", targetNamespace = "")
-			List<eu.wisebed.api.common.SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
-
-		preconditions.checkFreeArguments(secretReservationKeys);
-
-		// check if instance still exists and if not simply exit
-		String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
-		stopFederatorWSN(wsnInstanceHash);
-		instanceCache.remove(wsnInstanceHash);
-
-		// call free on all relevant federated Session Management API endpoints
-		// (asynchronously)
-		// only fork, but no join since return values are irrelevant for us
-		Map<String, List<SecretReservationKey>> serviceMapping = getServiceMapping(secretReservationKeys);
-
-		for (Map.Entry<String, List<SecretReservationKey>> entry : serviceMapping.entrySet()) {
-
-			String federatedSessionManagementEndpointUrl = entry.getKey();
-			List<SecretReservationKey> secretReservationKeysToFree = entry.getValue();
-
-			executorService
-					.submit(new FreeRunnable(federatedSessionManagementEndpointUrl, secretReservationKeysToFree));
-
-		}
-
-	}
-
-	private static class FreeRunnable implements Runnable {
-
-		String sessionManagementEndpointUrl;
-
-		List<SecretReservationKey> secretReservationKeys;
-
-		private FreeRunnable(String sessionManagementEndpointUrl, List<SecretReservationKey> secretReservationKeys) {
-			this.sessionManagementEndpointUrl = sessionManagementEndpointUrl;
-			this.secretReservationKeys = secretReservationKeys;
-		}
-
-		@Override
-		public void run() {
-			try {
-				log.debug(
-						"Freeing WSN instance on {} for keys {}",
-						sessionManagementEndpointUrl,
-						secretReservationKeys
-				);
-				WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointUrl)
-						.free(secretReservationKeys);
-			} catch (ExperimentNotRunningException_Exception e) {
-				log.warn("" + e, e);
-			} catch (UnknownReservationIdException_Exception e) {
-				log.warn("" + e, e);
-			}
-		}
-
-	}
-
-	@Override
 	public String getNetwork() {
 
 		final BiMap<String, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
