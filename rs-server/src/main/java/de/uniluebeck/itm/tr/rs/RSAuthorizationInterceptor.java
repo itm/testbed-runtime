@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RSException;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.snaa.Action;
@@ -85,9 +86,9 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 				List<?> list = (List<?>) object;
 				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
 					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(convert((List<SecretAuthenticationKey>) list));
-				} else if (list.size() > 0 && list.get(0) instanceof String) {
-					nodeURNs = new LinkedList<String>((Collection<? extends String>) list);
 				}
+			}else if (object instanceof ConfidentialReservationData){
+				nodeURNs = ((ConfidentialReservationData)object).getNodeURNs();
 			}
 		}
 

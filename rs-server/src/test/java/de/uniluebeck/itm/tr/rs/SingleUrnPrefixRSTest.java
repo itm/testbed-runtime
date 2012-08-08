@@ -252,7 +252,8 @@ public class SingleUrnPrefixRSTest {
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
 
-		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), (String) Matchers.isNull())).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), eq("urn:local:0xCBE4"))).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(Matchers.<List<UsernameUrnPrefixPair>>any(), eq(Action.RS_MAKE_RESERVATION), eq("urn:local:0xcbe4"))).thenReturn(successfulAuthorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
