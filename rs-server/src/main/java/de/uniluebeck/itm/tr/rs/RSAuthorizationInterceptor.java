@@ -57,7 +57,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 		final AuthorizationRequired authorizationAnnotation = invocation.getMethod().getAnnotation(AuthorizationRequired.class);
 		boolean keysFound = false;
-		boolean isAuthenticated = false;
+		boolean isAuthorized = false;
 
 		Action requestedAction = new Action(authorizationAnnotation.value());
 
@@ -75,11 +75,11 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 				List<?> list = (List<?>) object;
 
 				if (list.size() > 0 && list.get(0) instanceof eu.wisebed.api.rs.SecretAuthenticationKey) {
-					isAuthenticated = checkAuthentication(convert((List<eu.wisebed.api.rs.SecretAuthenticationKey>) list), requestedAction);
+					isAuthorized = checkAuthorization(convert((List<eu.wisebed.api.rs.SecretAuthenticationKey>) list), requestedAction);
 					keysFound = true;
 					break;
 				} else if (list.size() > 0 && list.get(0) instanceof eu.wisebed.api.snaa.SecretAuthenticationKey) {
-					isAuthenticated = checkAuthentication((List<eu.wisebed.api.snaa.SecretAuthenticationKey>) list, requestedAction);
+					isAuthorized = checkAuthorization((List<eu.wisebed.api.snaa.SecretAuthenticationKey>) list, requestedAction);
 					keysFound = true;
 					break;
 				}
@@ -89,7 +89,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		if (!keysFound) {
 			throwAuthorizationFailedException("No sekret authentication keys found!");
 		}
-		if (!isAuthenticated) {
+		if (!isAuthorized) {
 			throwAuthorizationFailedException("The user's access privileges are not sufficient");
 		}
 
@@ -133,7 +133,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @throws RSExceptionException
 	 *             Thrown if an exception is thrown in the reservation system
 	 */
-	private boolean checkAuthentication(final List<eu.wisebed.api.snaa.SecretAuthenticationKey> saks, final Action action)
+	private boolean checkAuthorization(final List<eu.wisebed.api.snaa.SecretAuthenticationKey> saks, final Action action)
 			throws RSExceptionException {
 
 		// Invoke isAuthorized
