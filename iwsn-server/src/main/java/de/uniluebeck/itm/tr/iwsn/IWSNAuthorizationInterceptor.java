@@ -1,7 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn;
 
-import java.util.List;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
@@ -12,7 +10,6 @@ import com.google.inject.name.Named;
 
 import eu.wisebed.api.rs.AuthorizationException;
 import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.sm.SecretReservationKey;
 import eu.wisebed.api.snaa.SNAA;
 
 public class IWSNAuthorizationInterceptor implements MethodInterceptor{
