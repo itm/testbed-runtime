@@ -186,7 +186,9 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 			try {
 				sessionManagement.getInstance(secretReservationKeys);
+				
 				wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
+				wsnServiceHandle.getWsnService().addController("NONE");
 			} catch (UnknownReservationIdException_Exception e1) {
 				log.debug("{}", e1.getMessage());
 				channel.close();
