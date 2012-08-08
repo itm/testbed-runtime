@@ -30,6 +30,7 @@ import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.UserDetails;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,6 +168,32 @@ public class JAASSNAA implements SNAA {
 
 		return !(auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
 				|| !secretAuthenticationKey.getUsername().equals(auth.username));
+	}
+
+	@Override
+	public ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+		
+			List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
+			saks.add(secretAuthenticationKey);
+		
+			// Check the supplied authentication keys
+			assertSAKUrnPrefixServed(urnPrefix, saks);
+
+			// Get the session from the cache of authenticated sessions
+			AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
+
+			boolean isValid = !(auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
+					|| !secretAuthenticationKey.getUsername().equals(auth.username));
+			
+			// TODO: Add a message which explains the result
+			
+			ValidationResult result = new ValidationResult();
+			result.setValid(isValid);
+			
+		return result;
 	}
 
 }

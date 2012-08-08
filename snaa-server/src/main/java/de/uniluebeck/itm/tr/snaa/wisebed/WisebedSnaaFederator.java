@@ -30,6 +30,7 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,15 @@ public class WisebedSnaaFederator implements SNAA {
 
 		log.debug("WisebedSnaaFederator::isAuthorized delegating to internal FederatorSNAA instance");
 		return authorizationFederator.isAuthorized(usernames, action, nodeUrns);
+	}
+
+	@Override
+	public IsValidResponse.ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+		log.debug("WisebedSnaaFederator::isValid delegating to internal FederatorSNAA instance");
+		return authorizationFederator.isValid(secretAuthenticationKey);
 	}
 
 }

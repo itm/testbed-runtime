@@ -30,6 +30,7 @@ import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.cookie.Cookie;
@@ -147,6 +148,22 @@ public class ShibbolethSNAAImpl implements SNAA {
 		authorized.setNodeUrn(nodeUrns);
 		return authorized;
 
+	}
+
+	@Override
+	public ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+		
+		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
+		saks.add(secretAuthenticationKey);
+	
+		// Check if we serve all URNs
+		assertAllSAKUrnPrefixesServed(urnPrefixes, saks);
+		
+		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
+		return null;
 	}
 
 }

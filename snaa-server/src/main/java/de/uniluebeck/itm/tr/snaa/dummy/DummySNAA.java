@@ -24,12 +24,16 @@
 package de.uniluebeck.itm.tr.snaa.dummy;
 
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+
+import org.apache.commons.lang.Validate;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,5 +82,15 @@ public class DummySNAA implements SNAA {
 		response.setNodeUrn(nodeUrns);
 		response.setMessage("DummySNAA will always return true");
 		return response;
+	}
+
+	@Override
+	public ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+		ValidationResult result = new ValidationResult();
+		result.setValid(true);
+		return result;
 	}
 }

@@ -28,6 +28,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
@@ -86,6 +87,22 @@ public class FederatorSNAA implements SNAA {
 		@Override
 		public AuthorizationResponse call() throws Exception {
 			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(usernameUrnPrefixPairs, action, nodeURNS);
+		}
+
+	}
+	
+	protected static class IsValidCallable implements Callable<ValidationResult> {
+
+		private SecretAuthenticationKey secretAuthenticationKey;
+
+		public IsValidCallable(SecretAuthenticationKey secretAuthenticationKey) {
+			super();
+			this.secretAuthenticationKey = secretAuthenticationKey;
+		}
+
+		@Override
+		public ValidationResult call() throws Exception {
+			return WisebedServiceHelper.getSNAAService(secretAuthenticationKey.getUrnPrefix()).isValid(secretAuthenticationKey);
 		}
 
 	}
@@ -323,6 +340,26 @@ public class FederatorSNAA implements SNAA {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+
+		if (secretAuthenticationKey == null) {
+			throw createSNAAException("SecretAuthenticationKey must not be null!");
+		}
+		
+		try {
+			Future<ValidationResult> future = executorService.submit(new IsValidCallable(secretAuthenticationKey));
+			return future.get();
+		} catch (InterruptedException e) {
+			throw createSNAAException(e.getMessage());
+		} catch (ExecutionException e) {
+			throw createSNAAException(e.getMessage());
+		}
 	}
 
 }

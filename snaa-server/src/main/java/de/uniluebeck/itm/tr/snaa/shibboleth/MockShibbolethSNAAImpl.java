@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -31,4 +32,18 @@ public class MockShibbolethSNAAImpl implements SNAA {
     	response.setNodeUrn(nodeUrns);
         return response; 
     }
+
+	@Override
+	public ValidationResult isValid(
+	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
+	        SecretAuthenticationKey secretAuthenticationKey)
+	        throws SNAAExceptionException {
+		
+
+		ValidationResult result = new ValidationResult();
+		result.setValid(false);
+		result.setMessage("MockShibbolethSNAAImpl will always return 'false'");
+		
+		return result;
+	}
 }
