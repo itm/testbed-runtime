@@ -270,6 +270,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			// query reservation system for reservation data if reservation system is to be used (i.e.
 			// reservationEndpointUrl is not null)
 			List<ConfidentialReservationData> confidentialReservationDataList;
+			String requestingUser = null;
 			Set<String> reservedNodes = null;
 			if (config.getReservationEndpointUrl() != null) {
 
@@ -297,7 +298,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes);
 
-
+				requestingUser = data.getUserData();
+				
 				//Creating delay for CleanUpJob
 				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
 
@@ -340,7 +342,9 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 					config.getWiseMLFilename(),
 					reservedNodesSet,
 					protobufDeliveryManager,
-					protobufControllerServer
+					protobufControllerServer,
+					config,
+					requestingUser
 			);
 
 			// start the WSN instance

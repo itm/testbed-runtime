@@ -27,7 +27,9 @@ public class WSNServiceHandleFactory {
 										  String wiseMLFilename,
 										  ImmutableSet<String> reservedNodes,
 										  final ProtobufDeliveryManager protobufDeliveryManager,
-										  ProtobufControllerServer protobufControllerServer) {
+										  ProtobufControllerServer protobufControllerServer,
+										  SessionManagementServiceConfig sessionManagementServiceConfig,
+										  String authorizedUser) {
 
 		// De-serialize original WiseML and strip out all nodes that are not part of this reservation
 		Wiseml wiseML = WiseMLHelper.deserialize(WiseMLHelper.readWiseMLFromFile(wiseMLFilename));
@@ -47,8 +49,8 @@ public class WSNServiceHandleFactory {
 
 		final Injector injector = Guice.createInjector(new WSNAppModule());
 		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
-
-		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule());
+		
+		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule(sessionManagementServiceConfig,authorizedUser));
 		final WSNService wsnService = wsnServiceInjector.getInstance(WSNServiceFactory.class)
 				.create(config, protobufDeliveryManager, preconditions, wsnApp);
 
