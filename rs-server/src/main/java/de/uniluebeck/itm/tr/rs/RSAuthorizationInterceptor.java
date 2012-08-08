@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.rs;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,12 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-import eu.wisebed.api.rs.AuthorizationException;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.RSException;
-import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.rs.RSException;
+import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthorizationResponse;
 import eu.wisebed.api.snaa.SNAA;
@@ -86,7 +83,6 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 			if (object instanceof List<?>) {
 
 				List<?> list = (List<?>) object;
-
 				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
 					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(convert((List<SecretAuthenticationKey>) list));
 				} else if (list.size() > 0 && list.get(0) instanceof String) {
@@ -105,9 +101,9 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 			return invocation.proceed();
 		}
 
-		AuthorizationResponse isAuthenticated = checkAuthentication(usernamePrefixPairs, requestedAction, nodeURNs);
+		AuthorizationResponse isAuthorized = checkAuthorization(usernamePrefixPairs, requestedAction, nodeURNs);
 
-		if (isAuthenticated == null || !isAuthenticated.isAuthorized()) {
+		if (isAuthorized == null || !isAuthorized.isAuthorized()) {
 			log.warn("The user was NOT authorized to perform the action \"" + requestedAction + "\".");
 			throwAuthorizationFailedException("The user was NOT authorized to perform the action \"" + requestedAction + "\".");
 		}
@@ -152,7 +148,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @throws RSExceptionException
 	 *             Thrown if an exception is thrown in the reservation system
 	 */
-	private AuthorizationResponse checkAuthentication(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs)
+	private AuthorizationResponse checkAuthorization(final List<UsernameUrnPrefixPair> upp, final Action action, Collection<String> nodeURNs)
 			throws RSExceptionException {
 
 		try {
