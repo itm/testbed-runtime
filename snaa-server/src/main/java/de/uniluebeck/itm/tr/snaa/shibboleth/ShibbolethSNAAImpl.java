@@ -28,6 +28,7 @@ import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
@@ -134,18 +135,15 @@ public class ShibbolethSNAAImpl implements SNAA {
 	@Override
 	@Deprecated
 	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernames", targetNamespace = "")
-	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 	        @WebParam(name = "action", targetNamespace = "")
-	        Action action,
-	        @WebParam(name = "nodeUrns", targetNamespace = "")
-	        String nodeUrns)
+	        Action action)
 	        throws SNAAExceptionException {
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
 		authorized.setAuthorized(true);
 		authorized.setMessage("ShibbolethSNAAImpl is used for authentication only and always return 'true'");
-		authorized.setNodeUrn(nodeUrns);
 		return authorized;
 
 	}

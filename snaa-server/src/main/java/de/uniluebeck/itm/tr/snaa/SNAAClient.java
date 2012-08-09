@@ -27,6 +27,8 @@ import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.util.WisebedConversionHelper;
+
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,10 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+
+import javax.naming.directory.InvalidAttributesException;
 
 public class SNAAClient {
 
@@ -158,12 +163,14 @@ public class SNAAClient {
 
 			try {
 				Action actionObj = Action.valueOf(action);
-				AuthorizationResponse authorized = port.isAuthorized(SNAAHelper.convert(saks), actionObj, null);
+				AuthorizationResponse authorized = port.isAuthorized(WisebedConversionHelper.convertToUsernameNodeUrnsMap(saks, new LinkedList<String>()), actionObj);
 				System.out.println("Authorization " + (authorized.isAuthorized() ? "suceeded" : "failed"));
 
 			} catch (SNAAExceptionException e) {
 				System.out.println("Authorization failed, server reported error [" + e + "]");
 				e.printStackTrace();
+			} catch (InvalidAttributesException e) {
+				log.error("Authorization failed, server reported error [" + e + "]",e);
 			}
 
 		}

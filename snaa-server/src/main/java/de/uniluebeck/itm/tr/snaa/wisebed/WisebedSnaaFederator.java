@@ -28,6 +28,7 @@ import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
@@ -74,16 +75,14 @@ public class WisebedSnaaFederator implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernames", targetNamespace = "")
-	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 	        @WebParam(name = "action", targetNamespace = "")
-	        Action action,
-	        @WebParam(name = "nodeUrns", targetNamespace = "")
-	        String nodeUrns)
+	        Action action)
 	        throws SNAAExceptionException {
 
 		log.debug("WisebedSnaaFederator::isAuthorized delegating to internal FederatorSNAA instance");
-		return authorizationFederator.isAuthorized(usernames, action, nodeUrns);
+		return authorizationFederator.isAuthorized(usernameNodeUrnsMapList, action);
 	}
 
 	@Override

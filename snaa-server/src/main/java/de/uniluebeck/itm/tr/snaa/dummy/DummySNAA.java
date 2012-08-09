@@ -27,6 +27,7 @@ import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 
 import javax.jws.WebParam;
@@ -69,17 +70,14 @@ public class DummySNAA implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernames", targetNamespace = "")
-	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 	        @WebParam(name = "action", targetNamespace = "")
-	        Action action,
-	        @WebParam(name = "nodeUrns", targetNamespace = "")
-	        String nodeUrns)
+	        Action action)
 	        throws SNAAExceptionException {
 		
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
-		response.setNodeUrn(nodeUrns);
 		response.setMessage("DummySNAA will always return true");
 		return response;
 	}

@@ -23,14 +23,14 @@
 
 package de.uniluebeck.itm.tr.snaa.federator;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import de.uniluebeck.itm.tr.snaa.SNAAHelper;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
 
 import javax.jws.WebParam;
@@ -67,26 +67,24 @@ public class FederatorSNAA implements SNAA {
 	
 	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
 
-		private List<UsernameUrnPrefixPair> usernameUrnPrefixPairs;
+		private List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps;
 
 		private Action action;
 
 		private String wsEndpointUrl;
 		
-		private String nodeURNS;
 
-		public IsAuthorizedCallable(String wsEndpointUrl, List<UsernameUrnPrefixPair> usernameUrnPrefixPairs,
-									Action action, String nodeURNS) {
+		public IsAuthorizedCallable(String wsEndpointUrl, List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps,
+									Action action) {
 			super();
 			this.wsEndpointUrl = wsEndpointUrl;
-			this.usernameUrnPrefixPairs = usernameUrnPrefixPairs;
+			this.userNamesNodeUrnsMaps = userNamesNodeUrnsMaps;
 			this.action = action;
-			this.nodeURNS = nodeURNS;
 		}
 
 		@Override
 		public AuthorizationResponse call() throws Exception {
-			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(usernameUrnPrefixPairs, action, nodeURNS);
+			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(userNamesNodeUrnsMaps, action);
 		}
 
 	}
@@ -286,32 +284,28 @@ public class FederatorSNAA implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernames", targetNamespace = "")
-	        List<UsernameUrnPrefixPair> usernames,
+	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
+	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 	        @WebParam(name = "action", targetNamespace = "")
-	        Action action,
-	        @WebParam(name = "nodeUrns", targetNamespace = "")
-	        String nodeUrns)
+	        Action action)
 	        throws SNAAExceptionException {
 
-		if (usernames == null || action == null) {
+		if (usernameNodeUrnsMapList == null || action == null) {
 			throw createSNAAException("Arguments must not be null!");
 		}
 		
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
 		response.setMessage("");
-		response.setNodeUrn("");
 
-		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
-				getIntersectionPrefixSetUPP(usernames);
+//		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
+//				getIntersectionPrefixSetUPP(usernames);
 
 		Set<Future<AuthorizationResponse>> futures = new HashSet<Future<AuthorizationResponse>>();
-
-		for (String urnPrefix : intersectionPrefixSet.keySet()) {
-			IsAuthorizedCallable authenticationCallable = new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(urnPrefix),
-					new ArrayList<UsernameUrnPrefixPair>(intersectionPrefixSet.get(urnPrefix)), action, nodeUrns
-			);
+		
+		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
+			IsAuthorizedCallable authenticationCallable = new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(usernameNodeUrnsMap.getUsername().getUrnPrefix()),
+					Lists.newArrayList(usernameNodeUrnsMap), action);
 			Future<AuthorizationResponse> future = executorService.submit(authenticationCallable);
 			futures.add(future);
 		}
@@ -321,8 +315,6 @@ public class FederatorSNAA implements SNAA {
 				AuthorizationResponse authorizationResponse = future.get();
 				response.setMessage(response.getMessage()+"; "+authorizationResponse.getMessage());
 				response.setAuthorized(response.isAuthorized() && authorizationResponse.isAuthorized());
-				response.setNodeUrn(response.getNodeUrn()+"; "+authorizationResponse.getNodeUrn());
-
 			} catch (InterruptedException e) {
 				throw createSNAAException(e.getMessage());
 			} catch (ExecutionException e) {
