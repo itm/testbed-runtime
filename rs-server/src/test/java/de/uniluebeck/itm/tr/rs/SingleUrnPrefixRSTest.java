@@ -52,6 +52,7 @@ import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthorizationResponse;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.snaa.SNAA;
 import eu.wisebed.api.util.WisebedConversionHelper;
 
@@ -269,17 +270,17 @@ public class SingleUrnPrefixRSTest {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase = 
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						Arrays.asList("urn:local:0xcbe4"));
+						Arrays.asList("urn:local:0xCBE4"));
 
 		
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase = 
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						Arrays.asList("urn:local:0xCBE4"));
+						Arrays.asList("urn:local:0xcbe4"));
 
 //		when(snaa.isAuthorized(Matchers.<List<UsernameNodeUrnsMap>>any(), eq(Action.RS_MAKE_RESERVATION))).thenReturn(successfulAuthorizationResponse);
-		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, eq(Action.RS_MAKE_RESERVATION))).thenReturn(successfulAuthorizationResponse);
-		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, eq(Action.RS_MAKE_RESERVATION))).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
@@ -338,8 +339,13 @@ public class SingleUrnPrefixRSTest {
 						WisebedConversionHelper.convert(user1SaksSnaa),
 						new LinkedList<String>());
 
+		ValidationResult validationResult = new ValidationResult();
+		validationResult.setValid(true);
+
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS)).thenReturn(successfulAuthorizationResponse);
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isValid(user1Saks.get(0))).thenReturn(validationResult);
+		when(snaa.isValid(user2Saks.get(0))).thenReturn(validationResult);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
