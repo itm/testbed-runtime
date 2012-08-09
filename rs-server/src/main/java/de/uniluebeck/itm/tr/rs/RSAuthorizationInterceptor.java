@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.naming.directory.InvalidAttributesException;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import eu.wisebed.api.snaa.Action;
 import eu.wisebed.api.snaa.AuthorizationResponse;
 import eu.wisebed.api.snaa.SNAA;
 import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.util.WisebedConversionHelper;
 
 /**
  * Instances of this class intercept calls to methods which are annotated in a way that indicate
@@ -85,7 +88,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 				List<?> list = (List<?>) object;
 				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
-					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(convert((List<SecretAuthenticationKey>) list));
+					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(WisebedConversionHelper.convert((List<SecretAuthenticationKey>) list));
 				}
 			}else if (object instanceof ConfidentialReservationData){
 				nodeURNs = ((ConfidentialReservationData)object).getNodeURNs();
@@ -116,26 +119,6 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 	// ------------------------------------------------------------------------
 	/**
-	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
-	 * urn prefixes and returns the result.
-	 * 
-	 * @param secretAuthenticationKeys
-	 *            A list of secret authentication keys
-	 * @return A list of tuples comprising user names and urn prefixes
-	 */
-	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
-		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
-		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
-			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
-			usernamePrefixPairs.add(upp);
-			upp.setUsername(secretAuthenticationKey.getUsername());
-			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-		}
-		return usernamePrefixPairs;
-	}
-
-	// ------------------------------------------------------------------------
-	/**
 	 * Checks and returns whether an action is allowed to be performed due to the privileges bound
 	 * to certain secret reservation keys.
 	 * 
@@ -153,22 +136,18 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 			throws RSExceptionException {
 
 		try {
-			String nodeURNsSting = null;
-			if (nodeURNs != null) {
-				StringBuffer nodeURNStringBuffer = new StringBuffer();
-				for (String urn : nodeURNs) {
-					nodeURNStringBuffer.append(urn + ",");
-				}
-				nodeURNsSting = nodeURNStringBuffer.substring(0, nodeURNStringBuffer.length() - 1);
-			}
-
-			AuthorizationResponse authorizationResponse = snaa.isAuthorized(upp, action, nodeURNsSting);
+			AuthorizationResponse authorizationResponse = snaa.isAuthorized(WisebedConversionHelper.convertToUsernameNodeUrnsMap(upp, nodeURNs), action);
 			log.debug("Authorization result: " + authorizationResponse);
 			return authorizationResponse;
 
 		} catch (SNAAExceptionException e) {
 			RSException rse = new RSException();
 			log.warn(e.getMessage());
+			rse.setMessage(e.getMessage());
+			throw new RSExceptionException(e.getMessage(), rse);
+		} catch (InvalidAttributesException e) {
+			RSException rse = new RSException();
+			log.error(e.getMessage(),e);
 			rse.setMessage(e.getMessage());
 			throw new RSExceptionException(e.getMessage(), rse);
 		}
