@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.naming.spi.DirStateFactory.Result;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -174,23 +175,33 @@ public class JAASSNAA implements SNAA {
 	        SecretAuthenticationKey secretAuthenticationKey)
 	        throws SNAAExceptionException {
 		
-			List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
-			saks.add(secretAuthenticationKey);
+		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
+		saks.add(secretAuthenticationKey);
+	
+		// Check the supplied authentication keys
+		assertSAKUrnPrefixServed(urnPrefix, saks);
+
+		// Get the session from the cache of authenticated sessions
+		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
 		
-			// Check the supplied authentication keys
-			assertSAKUrnPrefixServed(urnPrefix, saks);
+		ValidationResult result = new ValidationResult();
+		
+		if (auth == null){
+			result.setValid(false);
+			result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
+		}else if (secretAuthenticationKey.getUsername() == null){
+			result.setValid(false);
+			result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");
+		}else if(auth.username == null){
+			result.setValid(false);
+			result.setMessage("The user name which was provided by the original authentication is not known.");
+		}else if (!secretAuthenticationKey.getUsername().equals(auth.username)){
+			result.setValid(false);
+			result.setMessage("The user name which was provided by the original authentication does not match the one in the secret authentication key.");
+		}else{
+			result.setValid(true);
+		}
 
-			// Get the session from the cache of authenticated sessions
-			AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
-
-			boolean isValid = !(auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
-					|| !secretAuthenticationKey.getUsername().equals(auth.username));
-			
-			// TODO: Add a message which explains the result
-			
-			ValidationResult result = new ValidationResult();
-			result.setValid(isValid);
-			
 		return result;
 	}
 
