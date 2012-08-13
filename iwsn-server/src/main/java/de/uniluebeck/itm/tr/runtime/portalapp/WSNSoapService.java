@@ -6,10 +6,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,6 +271,12 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 								List<Integer> programIndices,
 								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
 		return wsn.flashPrograms(nodeIds, programIndices, programs);
+	}
+
+	@Override
+	public List<ChannelPipelinesMap> getChannelPipelines(
+			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> strings) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override

@@ -45,16 +45,14 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.WisebedServiceHelper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.wsn.*;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -578,6 +576,12 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		}
 
 		return requestId;
+	}
+
+	@Override
+	public List<ChannelPipelinesMap> getChannelPipelines(
+			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> strings) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override

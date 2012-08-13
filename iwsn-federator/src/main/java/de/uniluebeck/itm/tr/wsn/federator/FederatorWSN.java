@@ -30,10 +30,7 @@ import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,6 +269,12 @@ public class FederatorWSN implements WSN {
 		}
 
 		return requestId;
+	}
+
+	@Override
+	public List<ChannelPipelinesMap> getChannelPipelines(
+			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
