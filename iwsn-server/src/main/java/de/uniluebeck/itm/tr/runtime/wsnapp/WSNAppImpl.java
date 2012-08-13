@@ -751,7 +751,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void flashPrograms(final Map<String, WSNAppMessages.Program> programs, final Callback callback)
+	public void flashPrograms(final Map<String, byte[]> programs, final Callback callback)
 			throws UnknownNodeUrnsException {
 
 		assertNodeUrnsKnown(programs.keySet());
@@ -761,13 +761,13 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				.setOperation(WSNAppMessages.OperationInvocation.Operation.FLASH_PROGRAMS)
 				.buildPartial();
 
-		for (Map.Entry<String, WSNAppMessages.Program> entry : programs.entrySet()) {
+		for (Map.Entry<String, byte[]> entry : programs.entrySet()) {
 
 			final String nodeUrn = entry.getKey();
 
 			WSNAppMessages.OperationInvocation invocation = WSNAppMessages.OperationInvocation
 					.newBuilder(operationInvocationProtobuf)
-					.setArguments(entry.getValue().toByteString())
+					.setArguments(ByteString.copyFrom(entry.getValue()))
 					.build();
 
 			Messages.Msg msg = MessageTools.buildMessage(

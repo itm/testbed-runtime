@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
@@ -524,61 +525,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
-	@AuthorizationRequired("WSN_FLASH_PROGRAMS")
-	public String flashPrograms(final List<String> nodeIds,
-								final List<Integer> programIndices,
-								final List<Program> programs) {
-
-		preconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
-
-		log.debug("WSNServiceImpl.flashPrograms");
-
-		final String requestId = secureIdGenerator.getNextId();
-
-		try {
-			wsnApp.flashPrograms(TypeConverter.convert(nodeIds, programIndices, programs), new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-
-					if (log.isDebugEnabled()) {
-
-						boolean hasInformation = requestStatus.hasStatus() &&
-								requestStatus.getStatus().hasValue() &&
-								requestStatus.getStatus().hasNodeId();
-
-						if (hasInformation && requestStatus.getStatus().getValue() >= 0) {
-							log.debug(
-									"Flashing node {} completed {} percent.",
-									requestStatus.getStatus().getNodeId(),
-									requestStatus.getStatus().getValue()
-							);
-						} else if (hasInformation && requestStatus.getStatus().getValue() < 0) {
-							log.warn(
-									"Failed flashing node {} ({})!",
-									requestStatus.getStatus().getNodeId(),
-									requestStatus.getStatus().getValue()
-							);
-						}
-					}
-
-					// deliver output to client
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(nodeIds, requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-
-		return requestId;
-	}
-
-	@Override
 	public List<ChannelPipelinesMap> getChannelPipelines(
 			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> strings) {
 		throw new RuntimeException("Not yet implemented!");
@@ -923,6 +869,68 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		return requestId;
 
+	}
+
+	@Override
+	public String flashPrograms(
+			@WebParam(name = "configurations", targetNamespace = "") final List<FlashProgramsConfiguration> configurations) {
+
+		log.debug("WSNServiceImpl.flashPrograms({})", configurations);
+
+		preconditions.checkFlashProgramsArguments(configurations);
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		try {
+
+			final Map<String, byte[]> map = newHashMap();
+
+			for (FlashProgramsConfiguration configuration : configurations) {
+				for (String nodeUrn : configuration.getNodeUrns()) {
+					map.put(nodeUrn, configuration.getProgram());
+				}
+			}
+
+			wsnApp.flashPrograms(map, new WSNApp.Callback() {
+				@Override
+				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+
+					if (log.isDebugEnabled()) {
+
+						boolean hasInformation = requestStatus.hasStatus() &&
+								requestStatus.getStatus().hasValue() &&
+								requestStatus.getStatus().hasNodeId();
+
+						if (hasInformation && requestStatus.getStatus().getValue() >= 0) {
+							log.debug(
+									"Flashing node {} completed {} percent.",
+									requestStatus.getStatus().getNodeId(),
+									requestStatus.getStatus().getValue()
+							);
+						} else if (hasInformation && requestStatus.getStatus().getValue() < 0) {
+							log.warn(
+									"Failed flashing node {} ({})!",
+									requestStatus.getStatus().getNodeId(),
+									requestStatus.getStatus().getValue()
+							);
+						}
+					}
+
+					// deliver output to client
+					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+				}
+
+				@Override
+				public void failure(Exception e) {
+					deliveryManager.receiveFailureStatusMessages(newArrayList(map.keySet()), requestId, e, -1);
+				}
+			}
+			);
+		} catch (UnknownNodeUrnsException e) {
+			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+		}
+
+		return requestId;
 	}
 
 	@Override

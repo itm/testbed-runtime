@@ -341,24 +341,24 @@
 			<dependency>
 				<groupId>org.glassfish.metro</groupId>
 				<artifactId>webservices-rt</artifactId>
-				<version>2.1.1</version>
+				<version>2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish.metro</groupId>
 				<artifactId>webservices-api</artifactId>
-				<version>2.1.1</version>
+				<version>2.2</version>
 			</dependency>
 
 			<!-- JAXB reference implementation -->
 			<dependency>
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
-				<version>2.2.4</version>
+				<version>2.2.6</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.xml.bind</groupId>
 				<artifactId>jaxb-impl</artifactId>
-				<version>2.2.4</version>
+				<version>2.2.6</version>
 			</dependency>
 
 			<!-- unit testing dependencies -->

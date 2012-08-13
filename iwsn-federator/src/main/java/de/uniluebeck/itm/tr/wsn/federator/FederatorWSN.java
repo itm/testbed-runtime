@@ -138,7 +138,7 @@ public class FederatorWSN implements WSN {
 		wsnPreconditions.checkSendArguments(nodeIds, message);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToServedUrnPrefixesMap(nodeIds);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeIds);
 
 		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeIds, message, map.keySet()});
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
@@ -163,7 +163,7 @@ public class FederatorWSN implements WSN {
 		wsnPreconditions.checkAreNodesAliveArguments(nodes);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToServedUrnPrefixesMap(nodes);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodes);
 
 		log.debug("Invoking areNodesAlive({}) on {}", nodes, map.keySet());
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
@@ -173,99 +173,6 @@ public class FederatorWSN implements WSN {
 
 			executorService
 					.submit(new WSNAreNodesAliveRunnable(federatorController, endpoint, requestId, nodeIdSubset));
-		}
-
-		return requestId;
-	}
-
-	private class ProgramWrapper {
-
-		public Program program;
-
-		public String hashCode;
-
-		private ProgramWrapper(Program program) {
-			this.program = program;
-			this.hashCode = secureIdGenerator.getNextId();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-
-			ProgramWrapper that = (ProgramWrapper) o;
-
-			return hashCode.equals(that.hashCode);
-
-		}
-
-		@Override
-		public int hashCode() {
-			return hashCode.hashCode();
-		}
-
-	}
-
-	@Override
-	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
-								@WebParam(name = "programIndices", targetNamespace = "") List<Integer> programIndices,
-								@WebParam(name = "programs", targetNamespace = "") List<Program> programs) {
-
-		wsnPreconditions.checkFlashProgramsArguments(nodeIds, programIndices, programs);
-
-		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToServedUrnPrefixesMap(nodeIds);
-
-		//BiMap of node id <-> program (the helper class ProgramWrapper is used since Program has no hashCode)
-		BiMap<String, ProgramWrapper> programsMap = createFlashProgramsMap(nodeIds, programIndices, programs);
-
-		log.debug("Invoking flashPrograms({}, ...) on {}", nodeIds, map.keySet());
-		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
-
-			WSN endpoint = entry.getKey();
-
-			//The subset of nodes that is handled by the federated instance
-			List<String> subsetNodeIds = entry.getValue();
-
-			//The filtered map from above containing only the entries for the current set of node ids
-			BiMap<String, ProgramWrapper> subsetProgramsMap = filterFlashProgramsMap(subsetNodeIds, programsMap);
-
-			//A list of programs containing only the ones that are used by the current set of node ids
-			List<ProgramWrapper> subsetProgramWrappers = new ArrayList<ProgramWrapper>(subsetProgramsMap.values());
-
-			//Now we assign the corresponding index of a program to the node. The index of the program is written
-			//in this array list at the same index where the node id is located in the subsetNodeIds Array List
-			Integer[] subsetProgramIndices = new Integer[subsetNodeIds.size()];
-
-			for (int subsetNodeIdIndex = 0; subsetNodeIdIndex < subsetNodeIds.size(); subsetNodeIdIndex++) {
-				FederatorWSN.ProgramWrapper nodeProgram = subsetProgramsMap.get(subsetNodeIds.get(subsetNodeIdIndex));
-				int nodeProgramIndex = subsetProgramWrappers.indexOf(nodeProgram);
-				subsetProgramIndices[subsetNodeIdIndex] = nodeProgramIndex;
-			}
-
-			//Convert the ProgramWrappers list to a Program list (necessary since Program has no hashCode)
-			Program[] subsetPrograms = new Program[subsetProgramWrappers.size()];
-			for (int i = 0; i < subsetProgramWrappers.size(); i++) {
-				subsetPrograms[i] = subsetProgramWrappers.get(i).program;
-			}
-
-			//Submit the sub-job
-			executorService.submit(
-					new FlashProgramsRunnable(
-							federatorController,
-							endpoint,
-							requestId,
-							subsetNodeIds,
-							Arrays.asList(subsetProgramIndices),
-							Arrays.asList(subsetPrograms)
-					)
-			);
-
 		}
 
 		return requestId;
@@ -301,7 +208,7 @@ public class FederatorWSN implements WSN {
 		wsnPreconditions.checkResetNodesArguments(nodes);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToServedUrnPrefixesMap(nodes);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodes);
 
 		log.debug("Invoking resetNodes({}) on {}", nodes, map.keySet());
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
@@ -460,6 +367,48 @@ public class FederatorWSN implements WSN {
 						nodeUrnB
 				)
 		);
+
+		return requestId;
+	}
+
+	@Override
+	public String flashPrograms(
+			@WebParam(name = "configurations", targetNamespace = "") final
+			List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+
+		wsnPreconditions.checkFlashProgramsArguments(flashProgramsConfigurations);
+
+		final String requestId = secureIdGenerator.getNextId();
+
+		final Multimap<WSN, FlashProgramsConfiguration> federatedConfigurations = HashMultimap.create();
+
+		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
+
+			final Map<WSN, List<String>> endpointToNodeUrnMap = federationManager.getEndpointToNodeUrnMap(
+					flashProgramsConfiguration.getNodeUrns()
+			);
+
+			for (Map.Entry<WSN, List<String>> entry : endpointToNodeUrnMap.entrySet()) {
+
+				final FlashProgramsConfiguration federatedConfiguration = new FlashProgramsConfiguration();
+				federatedConfiguration.setProgram(flashProgramsConfiguration.getProgram());
+				federatedConfiguration.getNodeUrns().addAll(entry.getValue());
+
+				federatedConfigurations.put(entry.getKey(), federatedConfiguration);
+			}
+		}
+
+
+
+		for (final WSN wsn : federatedConfigurations.keySet()) {
+
+			executorService.submit(new FlashProgramsRunnable(
+					federatorController,
+					wsn,
+					requestId,
+					newArrayList(federatedConfigurations.get(wsn))
+			));
+		}
 
 		return requestId;
 	}
@@ -649,29 +598,6 @@ public class FederatorWSN implements WSN {
 		}
 
 		return mapping;
-	}
-
-	private BiMap<String, ProgramWrapper> filterFlashProgramsMap(List<String> subsetNodeIds,
-																 BiMap<String, ProgramWrapper> programsMap) {
-
-		BiMap<String, ProgramWrapper> retMap = HashBiMap.create(subsetNodeIds.size());
-		for (Map.Entry<String, ProgramWrapper> entry : programsMap.entrySet()) {
-			if (subsetNodeIds.contains(entry.getKey())) {
-				retMap.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return retMap;
-	}
-
-	private BiMap<String, ProgramWrapper> createFlashProgramsMap(List<String> nodeIds, List<Integer> programIndices,
-																 List<Program> programs) {
-
-		BiMap<String, ProgramWrapper> retMap = HashBiMap.create(nodeIds.size());
-		for (int i = 0; i < nodeIds.size(); i++) {
-			retMap.put(nodeIds.get(i), new ProgramWrapper(programs.get(programIndices.get(i))));
-		}
-		return retMap;
-
 	}
 
 }

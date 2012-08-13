@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
+import eu.wisebed.api.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.wsn.WSN;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -105,11 +107,45 @@ public class FederatorWSNTest {
 		ExecutorUtils.shutdown(executorService, 0, TimeUnit.SECONDS);
 	}
 
+	@Test
+	public void testFlashProgramsCalledOnInvolvedTestbeds() throws Exception {
+
+		final byte[] image1 = {0, 1, 2};
+		final byte[] image2 = {1, 2, 3};
+
+		final FlashProgramsConfiguration config1 = new FlashProgramsConfiguration();
+		config1.getNodeUrns().add(TESTBED_1_NODE_1);
+		config1.getNodeUrns().add(TESTBED_1_NODE_2);
+		config1.setProgram(image1);
+
+		final FlashProgramsConfiguration config2 = new FlashProgramsConfiguration();
+		config2.getNodeUrns().add(TESTBED_2_NODE_1);
+		config2.setProgram(image2);
+
+		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
+
+		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_1)).thenReturn(testbed1WSN);
+		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
+		when(federationManager.getEndpointByNodeUrn(TESTBED_2_NODE_1)).thenReturn(testbed2WSN);
+
+		federatorWSN.flashPrograms(flashProgramsConfigurations);
+
+		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
+		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_1);
+		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_2);
+
+		verify(testbed1WSN).flashPrograms(eq(newArrayList(config1)));
+		verify(testbed2WSN).flashPrograms(eq(newArrayList(config2)));
+
+		verify(testbed3WSN, never()).flashPrograms(Matchers.<List<FlashProgramsConfiguration>>any());
+	}
+
 	/**
 	 * Tests if calling {@link WSN#setChannelPipeline(java.util.List, java.util.List)} on the federator leads to calls on
 	 * exactly the involved and only the involved federated testbeds.
 	 *
-	 * @throws Exception if anything goes wrong
+	 * @throws Exception
+	 * 		if anything goes wrong
 	 */
 	@Test
 	public void testSetChannelPipelineCalledOnInvolvedTestbeds() throws Exception {
@@ -149,7 +185,8 @@ public class FederatorWSNTest {
 	 * Tests if calling {@link eu.wisebed.api.wsn.WSN#getSupportedChannelHandlers()} on the federator returns only the
 	 * handlers that are supported on all federated testbeds.
 	 *
-	 * @throws Exception if anything goes wrong
+	 * @throws Exception
+	 * 		if anything goes wrong
 	 */
 	@Test
 	public void testGetSupportedChannelHandlersReturnsOnlyHandlersSupportedByAllFederatedTestbeds() throws Exception {

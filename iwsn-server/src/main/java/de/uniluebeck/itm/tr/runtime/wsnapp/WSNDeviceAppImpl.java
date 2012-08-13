@@ -180,8 +180,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 				switch (invocation.getOperation()) {
 					case FLASH_PROGRAMS:
-						WSNAppMessages.Program program = WSNAppMessages.Program.parseFrom(invocation.getArguments());
-						executeFlashPrograms(program.getProgram().toByteArray(), responder);
+						executeFlashPrograms(invocation.getArguments().toByteArray(), responder);
 						break;
 					case FLASH_DEFAULT_IMAGE:
 						executeFlashDefaultImage(responder);

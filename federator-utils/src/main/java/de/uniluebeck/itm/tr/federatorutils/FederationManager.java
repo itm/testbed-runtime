@@ -221,7 +221,7 @@ public class FederationManager<V> {
 	 *
 	 * @return see above
 	 */
-	public Map<V, List<String>> getEndpointToServedUrnPrefixesMap(List<String> nodeUrns) {
+	public Map<V, List<String>> getEndpointToNodeUrnMap(List<String> nodeUrns) {
 
 		Map<V, List<String>> mapping = Maps.newHashMap();
 

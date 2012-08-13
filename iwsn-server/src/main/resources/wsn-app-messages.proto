@@ -56,23 +56,6 @@ message RequestStatus {
 }
 
 
-
-// ==== flashPrograms ===
-message Program {
-
-    message ProgramMetaData{
-        required string version = 1;
-        required string name = 2;
-        required string platform = 3;
-        required string other = 4;
-    }
-
-	required bytes program = 1;
-	optional ProgramMetaData metaData = 2;
-
-}
-
-
 // ==== receiveNotification ====
 message Notification {
 	required string message = 1;

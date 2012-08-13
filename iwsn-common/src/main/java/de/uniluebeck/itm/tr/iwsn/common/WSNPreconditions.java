@@ -23,17 +23,21 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.Program;
+import eu.wisebed.api.wsn.FlashProgramsConfiguration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
 
 
 public class WSNPreconditions {
@@ -50,28 +54,41 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
-	public void checkFlashProgramsArguments(List<String> nodeIds, List<Integer> programIndices,
-											List<Program> programs) {
+	public void checkFlashProgramsArguments(final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
-		checkNotNull(nodeIds);
-		checkNotNull(programIndices);
-		checkNotNull(programs);
+		checkNotNull(flashProgramsConfigurations);
 
 		// check if there's at least on node to flash
-		checkArgument(nodeIds.size() > 0);
+		checkArgument(flashProgramsConfigurations.size() > 0);
 
-		commonPreconditions.checkNodesKnown(nodeIds);
+		Set<String> nodeUrns = newHashSet();
 
-		// check if for every node there's a corresponding program index and the program exists
-		checkArgument(nodeIds.size() == programIndices.size(),
-				"For every node URN there must be a corresponding program index."
-		);
+		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
 
-		for (int i = 0; i < programIndices.size(); i++) {
-			checkArgument(programIndices.get(i) < programs.size(), "There is no program for index %s for node URN %s.",
-					i, nodeIds.get(i)
+			commonPreconditions.checkNodesKnown(flashProgramsConfiguration.getNodeUrns());
+
+			final Set<String> configNodeUrns = newHashSet(flashProgramsConfiguration.getNodeUrns());
+
+			checkArgument(
+					Sets.intersection(nodeUrns, configNodeUrns).isEmpty(),
+					"Node URN sets of flashProgram configurations must be distinct!"
+			);
+
+			configNodeUrns.addAll(configNodeUrns);
+
+			checkNotNull(
+					flashProgramsConfiguration.getProgram(),
+					"Image for node URNs " + Joiner.on(", ")
+							.join(flashProgramsConfiguration.getNodeUrns()) + " is null!"
+			);
+
+			checkArgument(
+					flashProgramsConfiguration.getProgram().length > 0,
+					"Image for node URNs " + Joiner.on(", ")
+							.join(flashProgramsConfiguration.getNodeUrns()) + " contains 0 bytes!"
 			);
 		}
+
 
 	}
 

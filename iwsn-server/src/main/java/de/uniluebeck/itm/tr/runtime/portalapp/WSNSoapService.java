@@ -257,20 +257,17 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 			targetNamespace = ""
 	)
 	@RequestWrapper(
-			localName = "flashPrograms",
-			targetNamespace = "urn:WSNService",
+			localName = "flashPrograms", targetNamespace = "urn:WSNService",
 			className = "eu.wisebed.api.wsn.FlashPrograms"
 	)
 	@ResponseWrapper(
-			localName = "flashProgramsResponse",
-			targetNamespace = "urn:WSNService",
+			localName = "flashProgramsResponse", targetNamespace = "urn:WSNService",
 			className = "eu.wisebed.api.wsn.FlashProgramsResponse"
 	)
-	public String flashPrograms(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
-								@WebParam(name = "programIndices", targetNamespace = "") final
-								List<Integer> programIndices,
-								@WebParam(name = "programs", targetNamespace = "") final List<Program> programs) {
-		return wsn.flashPrograms(nodeIds, programIndices, programs);
+	public String flashPrograms(
+			@WebParam(name = "configurations", targetNamespace = "")
+			final List<FlashProgramsConfiguration> configurations) {
+		return wsn.flashPrograms(configurations);
 	}
 
 	@Override
