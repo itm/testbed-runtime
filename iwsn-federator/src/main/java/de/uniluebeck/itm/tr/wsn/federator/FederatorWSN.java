@@ -328,6 +328,16 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
+	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
+	public void enableVirtualization() throws VirtualizationNotSupported_Exception {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
 	public String enableNode(@WebParam(name = "node", targetNamespace = "") String nodeUrn) {
 
 		wsnPreconditions.checkEnableNodeArguments(nodeUrn);

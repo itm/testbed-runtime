@@ -806,6 +806,16 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
+	public void enableVirtualization() throws VirtualizationNotSupported_Exception {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
 	@AuthorizationRequired("WSN_ENABLE_NODE")
 	public String enableNode(final String node) {
 

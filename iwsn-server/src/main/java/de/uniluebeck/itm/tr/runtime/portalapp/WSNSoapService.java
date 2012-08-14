@@ -213,6 +213,16 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
+	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
+		wsn.disableVirtualization();
+	}
+
+	@Override
+	public void enableVirtualization() throws VirtualizationNotSupported_Exception {
+		wsn.enableVirtualization();
+	}
+
+	@Override
 	@WebMethod
 	@WebResult(
 			targetNamespace = ""
