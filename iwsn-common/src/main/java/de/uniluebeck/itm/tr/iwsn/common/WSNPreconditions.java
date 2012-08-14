@@ -99,7 +99,7 @@ public class WSNPreconditions {
 
 		commonPreconditions.checkNodesKnown(nodeIds);
 
-		checkNotNull(message.getSourceNodeId(), "Source node ID is missing.");
+		checkNotNull(message.getSourceNodeUrn(), "Source node ID is missing.");
 		checkArgument(message.getBinaryData() != null, "A message to a node must contain binary data.");
 
 	}

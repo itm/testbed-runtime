@@ -35,15 +35,14 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.WisebedServiceHelper;
+import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
 import eu.wisebed.api.rs.RSExceptionException;
 import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.common.SecretReservationKey;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -290,7 +289,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				ConfidentialReservationData data = confidentialReservationDataList.get(0);
 
 				// convert all node URNs to lower case so that we can do easy string-based comparisons
-				for (String nodeURN : data.getNodeURNs()) {
+				for (String nodeURN : data.getNodeUrns()) {
 					reservedNodes.add(nodeURN.toLowerCase());
 				}
 
@@ -299,7 +298,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				assertNodesInTestbed(reservedNodes);
 
 				requestingUser = data.getUserData();
-				
+
 				//Creating delay for CleanUpJob
 				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
 
@@ -543,7 +542,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			if (from.isAfterNow()) {
 				throw WisebedServiceHelper
 						.createExperimentNotRunningException("Reservation time interval for node URNs " +
-								Arrays.toString(reservation.getNodeURNs().toArray())
+								Arrays.toString(reservation.getNodeUrns().toArray())
 								+ " lies in the future.", null
 						);
 			}
@@ -551,7 +550,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			if (to.isBeforeNow()) {
 				throw WisebedServiceHelper
 						.createExperimentNotRunningException("Reservation time interval for node URNs " +
-								Arrays.toString(reservation.getNodeURNs().toArray())
+								Arrays.toString(reservation.getNodeUrns().toArray())
 								+ " lies in the past.", null
 						);
 			}

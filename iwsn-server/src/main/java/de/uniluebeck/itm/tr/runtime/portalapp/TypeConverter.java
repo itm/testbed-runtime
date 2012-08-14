@@ -15,7 +15,7 @@ class TypeConverter {
 		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();
 		Status retStatus = new Status();
 		retStatus.setMsg(status.getMsg());
-		retStatus.setNodeId(status.getNodeId());
+		retStatus.setNodeUrn(status.getNodeId());
 		retStatus.setValue(status.getValue());
 		retRequestStatus.getStatus().add(retStatus);
 		return retRequestStatus;

@@ -25,20 +25,15 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.UserDetails;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
-
+import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.naming.spi.DirStateFactory.Result;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -48,9 +43,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
-import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(
+		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+)
 public class JAASSNAA implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(JAASSNAA.class);
@@ -93,8 +92,7 @@ public class JAASSNAA implements SNAA {
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
@@ -135,16 +133,11 @@ public class JAASSNAA implements SNAA {
 		}
 
 	}
-	
+
 	@Override
 	@Deprecated
-	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
-	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-	        @WebParam(name = "action", targetNamespace = "")
-	        Action action)
-	        throws SNAAExceptionException {
-		
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAExceptionException {
 
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
@@ -153,52 +146,36 @@ public class JAASSNAA implements SNAA {
 		return authorized;
 	}
 
-	public boolean isSAKValid(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData) throws SNAAExceptionException {
-		boolean authorized = false;
-
-		// Check the supplied authentication keys
-		assertAuthenticationKeyCount(authenticationData, 1, 1);
-		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
-		assertSAKUrnPrefixServed(urnPrefix, authenticationData);
-
-		// Get the session from the cache of authenticated sessions
-		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
-
-		return !(auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
-				|| !secretAuthenticationKey.getUsername().equals(auth.username));
-	}
-
 	@Override
-	public ValidationResult isValid(
-	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-	        SecretAuthenticationKey secretAuthenticationKey)
-	        throws SNAAExceptionException {
-		
+	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+
 		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
 		saks.add(secretAuthenticationKey);
-	
+
 		// Check the supplied authentication keys
 		assertSAKUrnPrefixServed(urnPrefix, saks);
 
 		// Get the session from the cache of authenticated sessions
 		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
-		
+
 		ValidationResult result = new ValidationResult();
-		
-		if (auth == null){
+
+		if (auth == null) {
 			result.setValid(false);
 			result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
-		}else if (secretAuthenticationKey.getUsername() == null){
+		} else if (secretAuthenticationKey.getUsername() == null) {
 			result.setValid(false);
 			result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");
-		}else if(auth.username == null){
+		} else if (auth.username == null) {
 			result.setValid(false);
 			result.setMessage("The user name which was provided by the original authentication is not known.");
-		}else if (!secretAuthenticationKey.getUsername().equals(auth.username)){
+		} else if (!secretAuthenticationKey.getUsername().equals(auth.username)) {
 			result.setValid(false);
-			result.setMessage("The user name which was provided by the original authentication does not match the one in the secret authentication key.");
-		}else{
+			result.setMessage(
+					"The user name which was provided by the original authentication does not match the one in the secret authentication key."
+			);
+		} else {
 			result.setValid(true);
 		}
 

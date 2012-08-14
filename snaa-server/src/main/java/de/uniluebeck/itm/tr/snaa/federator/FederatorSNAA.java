@@ -25,15 +25,13 @@ package de.uniluebeck.itm.tr.snaa.federator;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.*;
 import java.util.Map.Entry;
@@ -41,8 +39,12 @@ import java.util.concurrent.*;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAException;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
-		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(
+		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+)
 public class FederatorSNAA implements SNAA {
 
 	protected static class AuthenticationCallable implements Callable<List<SecretAuthenticationKey>> {
@@ -64,7 +66,7 @@ public class FederatorSNAA implements SNAA {
 		}
 	}
 
-	
+
 	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
 
 		private List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps;
@@ -72,7 +74,7 @@ public class FederatorSNAA implements SNAA {
 		private Action action;
 
 		private String wsEndpointUrl;
-		
+
 
 		public IsAuthorizedCallable(String wsEndpointUrl, List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps,
 									Action action) {
@@ -88,7 +90,7 @@ public class FederatorSNAA implements SNAA {
 		}
 
 	}
-	
+
 	protected static class IsValidCallable implements Callable<ValidationResult> {
 
 		private SecretAuthenticationKey secretAuthenticationKey;
@@ -100,12 +102,12 @@ public class FederatorSNAA implements SNAA {
 
 		@Override
 		public ValidationResult call() throws Exception {
-			return WisebedServiceHelper.getSNAAService(secretAuthenticationKey.getUrnPrefix()).isValid(secretAuthenticationKey);
+			return WisebedServiceHelper.getSNAAService(secretAuthenticationKey.getUrnPrefix())
+					.isValid(secretAuthenticationKey);
 		}
 
 	}
-	
-	
+
 
 	/**
 	 * Web Service Endpoint URL -> Set<URN Prefixes>
@@ -203,7 +205,7 @@ public class FederatorSNAA implements SNAA {
 
 		return intersectionPrefixSet;
 	}
-	
+
 	protected Map<String, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
 			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAExceptionException {
 
@@ -246,8 +248,7 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
 
 		Map<String, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
@@ -283,17 +284,13 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
-	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-	        @WebParam(name = "action", targetNamespace = "")
-	        Action action)
-	        throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAExceptionException {
 
 		if (usernameNodeUrnsMapList == null || action == null) {
 			throw createSNAAException("Arguments must not be null!");
 		}
-		
+
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
 		response.setMessage("");
@@ -302,10 +299,12 @@ public class FederatorSNAA implements SNAA {
 //				getIntersectionPrefixSetUPP(usernames);
 
 		Set<Future<AuthorizationResponse>> futures = new HashSet<Future<AuthorizationResponse>>();
-		
+
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
-			IsAuthorizedCallable authenticationCallable = new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(usernameNodeUrnsMap.getUsername().getUrnPrefix()),
-					Lists.newArrayList(usernameNodeUrnsMap), action);
+			IsAuthorizedCallable authenticationCallable =
+					new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(usernameNodeUrnsMap.getUsername().getUrnPrefix()),
+							Lists.newArrayList(usernameNodeUrnsMap), action
+					);
 			Future<AuthorizationResponse> future = executorService.submit(authenticationCallable);
 			futures.add(future);
 		}
@@ -313,7 +312,7 @@ public class FederatorSNAA implements SNAA {
 		for (Future<AuthorizationResponse> future : futures) {
 			try {
 				AuthorizationResponse authorizationResponse = future.get();
-				response.setMessage(response.getMessage()+"; "+authorizationResponse.getMessage());
+				response.setMessage(response.getMessage() + "; " + authorizationResponse.getMessage());
 				response.setAuthorized(response.isAuthorized() && authorizationResponse.isAuthorized());
 			} catch (InterruptedException e) {
 				throw createSNAAException(e.getMessage());
@@ -335,15 +334,13 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public ValidationResult isValid(
-	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-	        SecretAuthenticationKey secretAuthenticationKey)
-	        throws SNAAExceptionException {
+	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
 
 		if (secretAuthenticationKey == null) {
 			throw createSNAAException("SecretAuthenticationKey must not be null!");
 		}
-		
+
 		try {
 			Future<ValidationResult> future = executorService.submit(new IsValidCallable(secretAuthenticationKey));
 			return future.get();

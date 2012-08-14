@@ -10,13 +10,8 @@ import eu.wisebed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
@@ -118,98 +113,28 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	@WebMethod
-	@RequestWrapper(
-			localName = "addController",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.AddController"
-	)
-	@ResponseWrapper(
-			localName = "addControllerResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.AddControllerResponse"
-	)
-	public void addController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
+	public void addController(final String controllerEndpointUrl) {
 		wsn.addController(controllerEndpointUrl);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "areNodesAlive",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.AreNodesAlive"
-	)
-	@ResponseWrapper(
-			localName = "areNodesAliveResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.AreNodesAliveResponse"
-	)
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes) {
-		return wsn.areNodesAlive(nodes);
+	public String areNodesAlive(final List<String> nodeUrns) {
+		return wsn.areNodesAlive(nodeUrns);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "destroyVirtualLink",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.DestroyVirtualLink"
-	)
-	@ResponseWrapper(
-			localName = "destroyVirtualLinkResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SetVirtualLinkResponse"
-	)
-	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
-									 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode) {
-		return wsn.destroyVirtualLink(sourceNode, targetNode);
+	public String destroyVirtualLink(final String sourceNodeUrn, final String targetNodeUrn) {
+		return wsn.destroyVirtualLink(sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "disableNode",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.DisableNode"
-	)
-	@ResponseWrapper(
-			localName = "disableNodeResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.DisableNodeResponse"
-	)
-	public String disableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
-		return wsn.disableNode(node);
+	public String disableNode(final String nodeUrn) {
+		return wsn.disableNode(nodeUrn);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "disablePhysicalLink",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.DisablePhysicalLink"
-	)
-	@ResponseWrapper(
-			localName = "disablePhysicalLinkResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.DisablePhysicalLinkResponse"
-	)
-	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
-									  @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
-		return wsn.disablePhysicalLink(nodeA, nodeB);
+	public String disablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
+		return wsn.disablePhysicalLink(sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
@@ -223,243 +148,74 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "enableNode",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.EnableNode"
-	)
-	@ResponseWrapper(
-			localName = "enableNodeResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.EnableNodeResponse"
-	)
-	public String enableNode(@WebParam(name = "node", targetNamespace = "") final String node) {
-		return wsn.enableNode(node);
+	public String enableNode(final String nodeUrn) {
+		return wsn.enableNode(nodeUrn);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "enablePhysicalLink",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.EnablePhysicalLink"
-	)
-	@ResponseWrapper(
-			localName = "enablePhysicalLinkResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.EnablePhysicalLinkResponse"
-	)
-	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") final String nodeA,
-									 @WebParam(name = "nodeB", targetNamespace = "") final String nodeB) {
-		return wsn.enablePhysicalLink(nodeA, nodeB);
+	public String enablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
+		return wsn.enablePhysicalLink(sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "flashPrograms", targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.FlashPrograms"
-	)
-	@ResponseWrapper(
-			localName = "flashProgramsResponse", targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.FlashProgramsResponse"
-	)
-	public String flashPrograms(
-			@WebParam(name = "configurations", targetNamespace = "")
-			final List<FlashProgramsConfiguration> configurations) {
+	public String flashPrograms(final List<FlashProgramsConfiguration> configurations) {
 		return wsn.flashPrograms(configurations);
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(
-			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> strings) {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<String> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "getFilters",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetFilters"
-	)
-	@ResponseWrapper(
-			localName = "getFiltersResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetFiltersResponse"
-	)
 	public List<String> getFilters() {
 		return wsn.getFilters();
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "getNetwork",
-			targetNamespace = "urn:CommonTypes",
-			className = "eu.wisebed.api.common.GetNetwork"
-	)
-	@ResponseWrapper(
-			localName = "getNetworkResponse",
-			targetNamespace = "urn:CommonTypes",
-			className = "eu.wisebed.api.common.GetNetworkResponse"
-	)
 	public String getNetwork() {
 		return wsn.getNetwork();
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "getSupportedChannelHandlers",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetSupportedChannelHandlers"
-	)
-	@ResponseWrapper(
-			localName = "getSupportedChannelHandlersResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetSupportedChannelHandlersResponse"
-	)
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
 		return wsn.getSupportedChannelHandlers();
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "getVersion",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetVersion"
-	)
-	@ResponseWrapper(
-			localName = "getVersionResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.GetVersionResponse"
-	)
 	public String getVersion() {
 		return wsn.getVersion();
 	}
 
 	@Override
-	@WebMethod
-	@RequestWrapper(
-			localName = "removeController",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.RemoveController"
-	)
-	@ResponseWrapper(
-			localName = "removeControllerResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.RemoveControllerResponse"
-	)
-	public void removeController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
+	public void removeController(final String controllerEndpointUrl) {
 		wsn.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "resetNodes",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.ResetNodes"
-	)
-	@ResponseWrapper(
-			localName = "resetNodesResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.ResetNodesResponse"
-	)
-	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes) {
-		return wsn.resetNodes(nodes);
+	public String resetNodes(final List<String> nodeUrns) {
+		return wsn.resetNodes(nodeUrns);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "send",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.Send"
-	)
-	@ResponseWrapper(
-			localName = "sendResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SendResponse"
-	)
-	public String send(@WebParam(name = "nodeIds", targetNamespace = "") final List<String> nodeIds,
-					   @WebParam(name = "message", targetNamespace = "") final Message message) {
-		return wsn.send(nodeIds, message);
+	public String send(final List<String> nodeUrns, final Message message) {
+		return wsn.send(nodeUrns, message);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "setChannelPipeline",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SetChannelPipeline"
-	)
-	@ResponseWrapper(
-			localName = "setChannelPipelineResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SetChannelPipelineResponse"
-	)
-	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
-									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		return wsn.setChannelPipeline(nodes, channelHandlerConfigurations);
+	public String setChannelPipeline(final List<String> nodeUrns,
+									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+
+		return wsn.setChannelPipeline(nodeUrns, channelHandlerConfigurations);
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(
-			targetNamespace = ""
-	)
-	@RequestWrapper(
-			localName = "setVirtualLink",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SetVirtualLink"
-	)
-	@ResponseWrapper(
-			localName = "setVirtualLinkResponse",
-			targetNamespace = "urn:WSNService",
-			className = "eu.wisebed.api.wsn.SetVirtualLinkResponse"
-	)
-	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") final String sourceNode,
-								 @WebParam(name = "targetNode", targetNamespace = "") final String targetNode,
-								 @WebParam(name = "remoteServiceInstance", targetNamespace = "") final
-								 String remoteServiceInstance,
-								 @WebParam(name = "parameters", targetNamespace = "") final List<String> parameters,
-								 @WebParam(name = "filters", targetNamespace = "") final List<String> filters) {
-		return wsn.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters);
+	public String setVirtualLink(final String sourceNodeUrn,
+								 final String targetNodeUrn,
+								 final String remoteServiceInstance,
+								 final List<String> parameters,
+								 final List<String> filters) {
+
+		return wsn.setVirtualLink(sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters);
 	}
 }

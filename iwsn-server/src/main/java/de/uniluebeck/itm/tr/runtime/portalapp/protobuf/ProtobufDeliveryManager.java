@@ -126,7 +126,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 			for (String nodeId : nodeUrns) {
 				Status status = new Status();
-				status.setNodeId(nodeId);
+				status.setNodeUrn(nodeId);
 				status.setValue(statusValue);
 				status.setMsg(e.getMessage());
 				requestStatus.getStatus().add(status);
@@ -136,7 +136,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 		}
 
-		super.receiveFailureStatusMessages(nodeUrns, requestId, e, statusValue);	// TODO implement
+		super.receiveFailureStatusMessages(nodeUrns, requestId, e, statusValue);
 	}
 
 	@Override
@@ -230,7 +230,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 				.setTimestamp(message.getTimestamp().toXMLFormat());
 
 		WisebedMessages.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedMessages.Message.NodeBinary.newBuilder()
-				.setSourceNodeUrn(message.getSourceNodeId())
+				.setSourceNodeUrn(message.getSourceNodeUrn())
 				.setData(ByteString.copyFrom(message.getBinaryData()));
 
 		messageBuilder.setNodeBinary(nodeBinaryBuilder);
@@ -251,7 +251,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 			requestStatusBuilder.addStatus(WisebedMessages.RequestStatus.Status.newBuilder()
 					.setValue(status.getValue())
 					.setMessage(status.getMsg())
-					.setNodeUrn(status.getNodeId())
+					.setNodeUrn(status.getNodeUrn())
 			);
 		}
 

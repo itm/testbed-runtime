@@ -23,18 +23,12 @@
 
 package de.uniluebeck.itm.tr.snaa.dummy;
 
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.snaa.*;
 import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-
-import org.apache.commons.lang.Validate;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +45,7 @@ public class DummySNAA implements SNAA {
 	private Random r = new SecureRandom();
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
 
 		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
@@ -69,13 +62,10 @@ public class DummySNAA implements SNAA {
 	}
 
 	@Override
-	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
-	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-	        @WebParam(name = "action", targetNamespace = "")
-	        Action action)
-	        throws SNAAExceptionException {
-		
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action)
+			throws SNAAExceptionException {
+
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
 		response.setMessage("DummySNAA will always return true");
@@ -83,10 +73,10 @@ public class DummySNAA implements SNAA {
 	}
 
 	@Override
-	public ValidationResult isValid(
-	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-	        SecretAuthenticationKey secretAuthenticationKey)
-	        throws SNAAExceptionException {
+	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey)
+			throws SNAAExceptionException {
+
 		ValidationResult result = new ValidationResult();
 		result.setValid(true);
 		return result;

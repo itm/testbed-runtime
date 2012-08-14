@@ -4,15 +4,14 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -93,21 +92,15 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-								String controllerEndpointUrl) {
+	public String areNodesAlive(final List<String> nodeUrns, final String controllerEndpointUrl) {
 
-		return sm.areNodesAlive(nodes, controllerEndpointUrl);
+		return sm.areNodesAlive(nodeUrns, controllerEndpointUrl);
 	}
 
 	@Override
-	public void getConfiguration(
-			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> rsEndpointUrl,
-			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> snaaEndpointUrl,
-			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<List<KeyValuePair>> options) {
+	public void getConfiguration(final Holder<String> rsEndpointUrl,
+								 final Holder<String> snaaEndpointUrl,
+								 final Holder<List<KeyValuePair>> options) {
 
 		if (config.getReservationEndpointUrl() != null) {
 			rsEndpointUrl.value = config.getReservationEndpointUrl().toString();
@@ -123,9 +116,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public String getInstance(
-			@WebParam(name = "secretReservationKey", targetNamespace = "") final
-			List<SecretReservationKey> secretReservationKey)
+	public String getInstance(final List<SecretReservationKey> secretReservationKey)
 			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
 		return sm.getInstance(secretReservationKey);

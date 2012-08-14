@@ -86,7 +86,7 @@ abstract class FederatorRSHelper {
 
 		BiMap<RS, ConfidentialReservationData> map = HashBiMap.create(federationManager.getEndpoints().size());
 
-		for (String nodeURN : reservation.getNodeURNs()) {
+		for (String nodeURN : reservation.getNodeUrns()) {
 
 			RS rs = federationManager.getEndpointByNodeUrn(nodeURN);
 
@@ -96,7 +96,7 @@ abstract class FederatorRSHelper {
 				map.put(rs, data);
 			}
 
-			data.getNodeURNs().add(nodeURN);
+			data.getNodeUrns().add(nodeURN);
 			data.setFrom(reservation.getFrom());
 			data.setTo(reservation.getTo());
 			data.setUserData(reservation.getUserData());

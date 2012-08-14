@@ -34,9 +34,11 @@ import eu.wisebed.api.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -114,8 +116,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void addController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
+	public void addController(final String controllerEndpointUrl) {
 
 		if (!"NONE".equals(controllerEndpointUrl)) {
 			log.debug("Adding controller endpoint URL {}", controllerEndpointUrl);
@@ -124,23 +125,21 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void removeController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
+	public void removeController(final String controllerEndpointUrl) {
 
 		log.debug("Removing controller endpoint URL {}", controllerEndpointUrl);
 		federatorController.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	public String send(@WebParam(name = "nodeIds", targetNamespace = "") List<String> nodeIds,
-					   @WebParam(name = "message", targetNamespace = "") Message message) {
+	public String send(final List<String> nodeUrns, final Message message) {
 
-		wsnPreconditions.checkSendArguments(nodeIds, message);
+		wsnPreconditions.checkSendArguments(nodeUrns, message);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeIds);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
-		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeIds, message, map.keySet()});
+		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeUrns, message, map.keySet()});
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
 
 			WSN endpoint = entry.getKey();
@@ -158,29 +157,28 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
+	public String areNodesAlive(final List<String> nodeUrns) {
 
-		wsnPreconditions.checkAreNodesAliveArguments(nodes);
+		wsnPreconditions.checkAreNodesAliveArguments(nodeUrns);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodes);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
-		log.debug("Invoking areNodesAlive({}) on {}", nodes, map.keySet());
+		log.debug("Invoking areNodesAlive({}) on {}", nodeUrns, map.keySet());
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
 
 			WSN endpoint = entry.getKey();
-			List<String> nodeIdSubset = entry.getValue();
+			List<String> nodeUrnSubset = entry.getValue();
 
 			executorService
-					.submit(new WSNAreNodesAliveRunnable(federatorController, endpoint, requestId, nodeIdSubset));
+					.submit(new WSNAreNodesAliveRunnable(federatorController, endpoint, requestId, nodeUrnSubset));
 		}
 
 		return requestId;
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(
-			@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<String> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
@@ -204,13 +202,14 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String resetNodes(@WebParam(name = "nodes", targetNamespace = "") List<String> nodes) {
-		wsnPreconditions.checkResetNodesArguments(nodes);
+	public String resetNodes(final List<String> nodeUrns) {
+
+		wsnPreconditions.checkResetNodesArguments(nodeUrns);
 
 		String requestId = secureIdGenerator.getNextId();
-		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodes);
+		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
-		log.debug("Invoking resetNodes({}) on {}", nodes, map.keySet());
+		log.debug("Invoking resetNodes({}) on {}", nodeUrns, map.keySet());
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
 
 			WSN endpoint = entry.getKey();
@@ -223,16 +222,15 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String setVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNodeUrn,
-								 @WebParam(name = "targetNode", targetNamespace = "") String targetNode,
-								 @WebParam(name = "remoteServiceInstance", targetNamespace = "")
-								 String remoteServiceInstance,
-								 @WebParam(name = "parameters", targetNamespace = "") List<String> parameters,
-								 @WebParam(name = "filters", targetNamespace = "") List<String> filters) {
+	public String setVirtualLink(final String sourceNodeUrn,
+								 final String targetNodeUrn,
+								 final String remoteServiceInstance,
+								 final List<String> parameters,
+								 final List<String> filters) {
 
 		wsnPreconditions.checkSetVirtualLinkArguments(
 				sourceNodeUrn,
-				targetNode,
+				targetNodeUrn,
 				remoteServiceInstance,
 				parameters,
 				filters
@@ -242,7 +240,7 @@ public class FederatorWSN implements WSN {
 		WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
 		log.debug("Invoking setVirtualLink({}, {}, {}, {}, {}) on {}",
-				new Object[]{sourceNodeUrn, targetNode, remoteServiceInstance, parameters, filters, endpoint}
+				new Object[]{sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters, endpoint}
 		);
 		executorService.submit(
 				new SetVirtualLinkRunnable(
@@ -250,7 +248,7 @@ public class FederatorWSN implements WSN {
 						endpoint,
 						requestId,
 						sourceNodeUrn,
-						targetNode,
+						targetNodeUrn,
 						remoteServiceInstance,
 						parameters,
 						filters
@@ -261,22 +259,21 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String destroyVirtualLink(@WebParam(name = "sourceNode", targetNamespace = "") String sourceNodeUrn,
-									 @WebParam(name = "targetNode", targetNamespace = "") String targetNode) {
+	public String destroyVirtualLink(final String sourceNodeUrn, final String targetNodeUrn) {
 
-		wsnPreconditions.checkDestroyVirtualLinkArguments(sourceNodeUrn, targetNode);
+		wsnPreconditions.checkDestroyVirtualLinkArguments(sourceNodeUrn, targetNodeUrn);
 
 		String requestId = secureIdGenerator.getNextId();
 		WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
-		log.debug("Invoking destroyVirtualLink({}, {}) on {}", new Object[]{sourceNodeUrn, targetNode, endpoint});
+		log.debug("Invoking destroyVirtualLink({}, {}) on {}", new Object[]{sourceNodeUrn, targetNodeUrn, endpoint});
 		executorService.submit(
 				new DestroyVirtualLinkRunnable(
 						federatorController,
 						endpoint,
 						requestId,
 						sourceNodeUrn,
-						targetNode
+						targetNodeUrn
 				)
 		);
 
@@ -284,7 +281,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String disableNode(@WebParam(name = "node", targetNamespace = "") String nodeUrn) {
+	public String disableNode(final String nodeUrn) {
 
 		wsnPreconditions.checkDisableNodeArguments(nodeUrn);
 
@@ -305,22 +302,21 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String disablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeUrnA,
-									  @WebParam(name = "nodeB", targetNamespace = "") String nodeUrnB) {
+	public String disablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
 
-		wsnPreconditions.checkDisablePhysicalLinkArguments(nodeUrnA, nodeUrnB);
+		wsnPreconditions.checkDisablePhysicalLinkArguments(sourceNodeUrn, targetNodeUrn);
 
 		String requestId = secureIdGenerator.getNextId();
-		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
+		WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
-		log.debug("Invoking disablePhysicalLink({}, {}) on {}", new Object[]{nodeUrnA, nodeUrnB, endpoint});
+		log.debug("Invoking disablePhysicalLink({}, {}) on {}", new Object[]{sourceNodeUrn, targetNodeUrn, endpoint});
 		executorService.submit(
 				new DisablePhysicalLinkRunnable(
 						federatorController,
 						endpoint,
 						requestId,
-						nodeUrnA,
-						nodeUrnB
+						sourceNodeUrn,
+						targetNodeUrn
 				)
 		);
 
@@ -338,7 +334,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String enableNode(@WebParam(name = "node", targetNamespace = "") String nodeUrn) {
+	public String enableNode(final String nodeUrn) {
 
 		wsnPreconditions.checkEnableNodeArguments(nodeUrn);
 
@@ -359,22 +355,21 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String enablePhysicalLink(@WebParam(name = "nodeA", targetNamespace = "") String nodeUrnA,
-									 @WebParam(name = "nodeB", targetNamespace = "") String nodeUrnB) {
+	public String enablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
 
-		wsnPreconditions.checkEnablePhysicalLinkArguments(nodeUrnA, nodeUrnB);
+		wsnPreconditions.checkEnablePhysicalLinkArguments(sourceNodeUrn, targetNodeUrn);
 
 		String requestId = secureIdGenerator.getNextId();
-		WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrnA);
+		WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
-		log.debug("Invoking enablePhysicalLink({}, {}) on {}", new Object[]{nodeUrnA, nodeUrnB, endpoint});
+		log.debug("Invoking enablePhysicalLink({}, {}) on {}", new Object[]{sourceNodeUrn, targetNodeUrn, endpoint});
 		executorService.submit(
 				new EnablePhysicalLinkRunnable(
 						federatorController,
 						endpoint,
 						requestId,
-						nodeUrnA,
-						nodeUrnB
+						sourceNodeUrn,
+						targetNodeUrn
 				)
 		);
 
@@ -382,9 +377,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String flashPrograms(
-			@WebParam(name = "configurations", targetNamespace = "") final
-			List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+	public String flashPrograms(final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
 		wsnPreconditions.checkFlashProgramsArguments(flashProgramsConfigurations);
 
@@ -409,7 +402,6 @@ public class FederatorWSN implements WSN {
 		}
 
 
-
 		for (final WSN wsn : federatedConfigurations.keySet()) {
 
 			executorService.submit(new FlashProgramsRunnable(
@@ -417,7 +409,8 @@ public class FederatorWSN implements WSN {
 					wsn,
 					requestId,
 					newArrayList(federatedConfigurations.get(wsn))
-			));
+			)
+			);
 		}
 
 		return requestId;
@@ -564,14 +557,13 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public String setChannelPipeline(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-									 @WebParam(name = "channelHandlerConfigurations", targetNamespace = "") final
-									 List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+	public String setChannelPipeline(final List<String> nodeUrns,
+									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
-		log.debug("setChannelPipeline({}, {}) called...", nodes, channelHandlerConfigurations);
+		log.debug("setChannelPipeline({}, {}) called...", nodeUrns, channelHandlerConfigurations);
 
 		final String federatorRequestId = secureIdGenerator.getNextId();
-		final Map<WSN, List<String>> endpointToNodesMapping = constructEndpointToNodesMapping(nodes);
+		final Map<WSN, List<String>> endpointToNodesMapping = constructEndpointToNodesMapping(nodeUrns);
 
 		for (WSN wsnEndpoint : endpointToNodesMapping.keySet()) {
 
@@ -590,20 +582,20 @@ public class FederatorWSN implements WSN {
 		return federatorRequestId;
 	}
 
-	private Map<WSN, List<String>> constructEndpointToNodesMapping(final List<String> nodes) {
+	private Map<WSN, List<String>> constructEndpointToNodesMapping(final List<String> nodeUrns) {
 
 		final Map<WSN, List<String>> mapping = newHashMap();
 
-		for (String node : nodes) {
+		for (String nodeUrn : nodeUrns) {
 
-			final WSN endpoint = federationManager.getEndpointByNodeUrn(node);
+			final WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
 
 			List<String> filteredNodeUrns = mapping.get(endpoint);
 			if (filteredNodeUrns == null) {
 				filteredNodeUrns = newArrayList();
 				mapping.put(endpoint, filteredNodeUrns);
 			}
-			filteredNodeUrns.add(node);
+			filteredNodeUrns.add(nodeUrn);
 
 		}
 

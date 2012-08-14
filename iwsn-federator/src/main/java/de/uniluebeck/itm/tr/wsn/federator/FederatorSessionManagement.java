@@ -23,42 +23,9 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Holder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper;
@@ -79,6 +46,19 @@ import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.*;
+
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
 
 @WebService(
 		serviceName = "SessionManagementService",
@@ -248,14 +228,11 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 
 	}
-	
 
 
 	@Override
-	public String getInstance(
-			@WebParam(name = "secretReservationKeys", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {		
+	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
+			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
@@ -288,7 +265,7 @@ public class FederatorSessionManagement implements SessionManagement {
 					rs.getReservation(copyWsnToRs(secretReservationKeys));
 
 			for (ConfidentialReservationData reservation : reservations) {
-				reservedNodeUrnsBuilder.addAll(reservation.getNodeURNs());
+				reservedNodeUrnsBuilder.addAll(reservation.getNodeUrns());
 			}
 
 			reservedNodeUrns = reservedNodeUrnsBuilder.build();
@@ -407,7 +384,8 @@ public class FederatorSessionManagement implements SessionManagement {
 		return federatorWSN.getEndpointUrl();
 	}
 
-	private List<eu.wisebed.api.common.SecretReservationKey> copyWsnToRs(final List<eu.wisebed.api.common.SecretReservationKey> ins) {
+	private List<eu.wisebed.api.common.SecretReservationKey> copyWsnToRs(
+			final List<eu.wisebed.api.common.SecretReservationKey> ins) {
 		List<eu.wisebed.api.common.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
 		for (SecretReservationKey in : ins) {
 			outs.add(convertWsnToRs(in));
@@ -415,7 +393,8 @@ public class FederatorSessionManagement implements SessionManagement {
 		return outs;
 	}
 
-	private eu.wisebed.api.common.SecretReservationKey convertWsnToRs(final eu.wisebed.api.common.SecretReservationKey in) {
+	private eu.wisebed.api.common.SecretReservationKey convertWsnToRs(
+			final eu.wisebed.api.common.SecretReservationKey in) {
 		eu.wisebed.api.common.SecretReservationKey out = new eu.wisebed.api.common.SecretReservationKey();
 		out.setSecretReservationKey(in.getSecretReservationKey());
 		out.setUrnPrefix(in.getUrnPrefix());
@@ -444,8 +423,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	 *
 	 * @param secretReservationKeys
 	 * 		the list of {@link SecretReservationKey} instances as passed in as parameter e.g. to
-	 * 		{@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List,
-	 *         String)}
+	 * 		{@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List)}
 	 *
 	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they
 	 *         serve
@@ -476,16 +454,14 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-								String controllerEndpointUrl) {
+	public String areNodesAlive(final List<String> nodeUrns, final String controllerEndpointUrl) {
 
-		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodes, controllerEndpointUrl);
+		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodeUrns, controllerEndpointUrl);
 
 		// fork areNodesAlive() calls to federated testbeds
 		final String requestId = secureIdGenerator.getNextId();
 		final Map<String, Set<String>> sessionManagementEndpointUrlToNodeUrnMapping =
-				createSessionManagementEndpointUrlToNodeUrnMapping(nodes);
+				createSessionManagementEndpointUrlToNodeUrnMapping(nodeUrns);
 
 		for (Map.Entry<String, Set<String>> entry : sessionManagementEndpointUrlToNodeUrnMapping.entrySet()) {
 
@@ -561,13 +537,9 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public void getConfiguration(
-			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> rsEndpointUrl,
-			@WebParam(name = "federatorSnaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<String> snaaEndpointUrl,
-			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
-			Holder<List<KeyValuePair>> options) {
+	public void getConfiguration(final Holder<String> rsEndpointUrl,
+								 final Holder<String> snaaEndpointUrl,
+								 final Holder<List<KeyValuePair>> options) {
 
 		rsEndpointUrl.value = config.getFederatorRsEndpointURL().toString();
 		snaaEndpointUrl.value = config.getFederatorSnaaEndpointUrl().toString();

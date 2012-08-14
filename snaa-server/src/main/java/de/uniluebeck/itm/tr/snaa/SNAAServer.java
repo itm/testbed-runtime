@@ -249,7 +249,7 @@ public class SNAAServer {
 
         System.setProperty("java.security.auth.login.config", jaasConfigFile);
 
-        JAASSNAA jaasSnaa = new JAASSNAA(urnprefix, jaasModuleName, authorization);
+        SNAA jaasSnaa = new JAASSNAA(urnprefix, jaasModuleName, authorization);
 
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(jaasSnaa);

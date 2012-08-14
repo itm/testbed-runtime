@@ -25,9 +25,9 @@ package de.uniluebeck.itm.tr.rs.federator;
 
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import eu.wisebed.api.rs.*;
 import eu.wisebed.api.common.SecretAuthenticationKey;
 import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.*;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -168,7 +168,7 @@ public class FederatorTest {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeURNs().add("urn:not:served");
+			resData.getNodeUrns().add("urn:not:served");
 			federatorRS.makeReservation(authData, resData);
 			fail("Should have raised an RSExceptionException");
 		} catch (RSExceptionException expected) {
@@ -182,7 +182,7 @@ public class FederatorTest {
 			ConfidentialReservationData resData = new ConfidentialReservationData();
 			resData.setFrom(createXMLGregorianCalendar(1 * 60 * 1000));
 			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
-			resData.getNodeURNs().add("urn:wisebed1:testbed1");
+			resData.getNodeUrns().add("urn:wisebed1:testbed1");
 			federatorRS.makeReservation(authData, resData);
 			fail("Should have raised an RSExceptionException");
 		} catch (RSExceptionException expected) {
@@ -194,7 +194,7 @@ public class FederatorTest {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeURNs();
+			resData.getNodeUrns();
 			federatorRS.makeReservation(authData, resData);
 			fail();
 		} catch (RSExceptionException expected) {

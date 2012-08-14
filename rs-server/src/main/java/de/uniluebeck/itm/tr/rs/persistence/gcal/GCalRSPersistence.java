@@ -112,7 +112,7 @@ public class GCalRSPersistence implements RSPersistence {
 			);
 
 			String reservationDataXml = marshall(reservationData);
-			String eventTitle = confidentialReservationData.getNodeURNs().size() + " Node(s)";
+			String eventTitle = confidentialReservationData.getNodeUrns().size() + " Node(s)";
 
 			// Create a new calendar entry
 			CalendarEventEntry myEntry = new CalendarEventEntry();

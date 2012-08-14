@@ -180,7 +180,7 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-			} catch (ReservationNotFoundExceptionException e) {
+			} catch (ReservationNotFoundExceptionException ignored) {
 			}
 		}
 		reservationDataMap = null;
@@ -212,14 +212,11 @@ public abstract class RSPersistenceTest {
 			throws RSExceptionException, ReservationNotFoundExceptionException {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
-
 			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
 			ConfidentialReservationData receivedCRD = persistence.getReservation(reservationKeyMap.get(i));
 
 			assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
-			assertEquals(rememberedCRD.getNodeURNs(), receivedCRD.getNodeURNs());
+			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
 			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
 			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
 		}
@@ -230,7 +227,7 @@ public abstract class RSPersistenceTest {
 			try {
 				persistence.getReservation(reservationKeyMap.get(i));
 				fail("Should have raised an ReservationNotFoundExceptionException");
-			} catch (ReservationNotFoundExceptionException e) {
+			} catch (ReservationNotFoundExceptionException ignored) {
 			}
 		}
 	}
@@ -257,7 +254,7 @@ public abstract class RSPersistenceTest {
 			ConfidentialReservationData expectedData = reservationDataMap.get(i);
 			assertEquals(actualData.getFrom(), expectedData.getFrom());
 			assertEquals(actualData.getTo(), expectedData.getTo());
-			assertEquals(actualData.getNodeURNs(), expectedData.getNodeURNs());
+			assertEquals(actualData.getNodeUrns(), expectedData.getNodeUrns());
 			assertEquals(actualData.getUserData(), expectedData.getUserData());
 		}
 	}
@@ -267,7 +264,7 @@ public abstract class RSPersistenceTest {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
 				fail("Should have raised an ReservationNotFoundExceptionException");
-			} catch (ReservationNotFoundExceptionException expected) {
+			} catch (ReservationNotFoundExceptionException ignored) {
 			}
 		}
 	}

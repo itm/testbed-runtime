@@ -24,28 +24,27 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Injector;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.snaa.*;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
-
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.*;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
-		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(
+		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+)
 public class ShibbolethSNAAImpl implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
@@ -70,8 +69,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationExceptionException, SNAAExceptionException {
 
 		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
@@ -103,7 +101,8 @@ public class ShibbolethSNAAImpl implements SNAA {
 						sa.authenticate();
 					} catch (Exception e1) {
 						throw createSNAAException("Authentication failed: the authentication system has problems "
-										+ "contacting the Shibboleth server. Please try again later!");
+								+ "contacting the Shibboleth server. Please try again later!"
+						);
 					}
 				}
 
@@ -134,12 +133,8 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	@Override
 	@Deprecated
-	public AuthorizationResponse isAuthorized(
-	        @WebParam(name = "usernameNodeUrnsMapList", targetNamespace = "")
-	        List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-	        @WebParam(name = "action", targetNamespace = "")
-	        Action action)
-	        throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAExceptionException {
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
 		authorized.setAuthorized(true);
@@ -149,17 +144,15 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public ValidationResult isValid(
-	        @WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-	        SecretAuthenticationKey secretAuthenticationKey)
-	        throws SNAAExceptionException {
-		
+	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+
 		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
 		saks.add(secretAuthenticationKey);
-	
+
 		// Check if we serve all URNs
 		assertAllSAKUrnPrefixesServed(urnPrefixes, saks);
-		
+
 		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
 		return null;
 	}

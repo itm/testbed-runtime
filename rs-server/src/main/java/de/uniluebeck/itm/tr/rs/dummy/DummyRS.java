@@ -23,57 +23,46 @@
 
 package de.uniluebeck.itm.tr.rs.dummy;
 
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.*;
+
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.GetReservations;
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSException;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservationConflictExceptionException;
-import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
-
-@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "urn:RSService")
+@WebService(
+		endpointInterface = "eu.wisebed.api.rs.RS",
+		portName = "RSPort",
+		serviceName = "RSService",
+		targetNamespace = "urn:RSService"
+)
 public class DummyRS implements RS {
 
 	private Random r = new SecureRandom();
 
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
-
+	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
+													   final XMLGregorianCalendar to) throws RSExceptionException {
 		return Collections.emptyList();
 
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKey,
-			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final GetReservations period) throws RSExceptionException {
 
 		return Collections.emptyList();
 
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
+	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		String msg = "Reservation not found (not implemented, this is the dummy implementation";
@@ -84,9 +73,7 @@ public class DummyRS implements RS {
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
+	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		// nothing to do as this is a dummy
@@ -94,9 +81,8 @@ public class DummyRS implements RS {
 
 	@Override
 	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
+			final List<SecretAuthenticationKey> authenticationData,
+			final ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
 
 		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());

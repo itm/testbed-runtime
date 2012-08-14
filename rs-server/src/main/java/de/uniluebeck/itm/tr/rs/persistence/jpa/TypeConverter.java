@@ -61,7 +61,7 @@ public class TypeConverter {
 		fromGregorianCalendar.setTimeZone(localTimeZone);
 		internal.setFromDate(fromGregorianCalendar.getTimeInMillis());
 
-		internal.setNodeURNs(external.getNodeURNs());
+		internal.setNodeURNs(external.getNodeUrns());
 		internal.setData(convertExternalToInternal(external.getData()));
 
 		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
@@ -93,7 +93,7 @@ public class TypeConverter {
 													  TimeZone localTimeZone) throws DatatypeConfigurationException {
 		ConfidentialReservationData external = new ConfidentialReservationData();
 		external.setFrom(convert(internal.getFromDate(), localTimeZone));
-		external.getNodeURNs().addAll(internal.getNodeURNs());
+		external.getNodeUrns().addAll(internal.getNodeURNs());
 		external.setTo(convert(internal.getToDate(), localTimeZone));
 		external.getData().addAll(convertInternalToExternal(internal.getData()));
 		external.setUserData(internal.getUserData());

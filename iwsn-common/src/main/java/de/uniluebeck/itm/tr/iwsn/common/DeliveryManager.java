@@ -294,9 +294,9 @@ public class DeliveryManager extends AbstractService implements Service {
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
-			for (String nodeId : nodeUrns) {
+			for (String nodeUrn : nodeUrns) {
 				Status status = new Status();
-				status.setNodeId(nodeId);
+				status.setNodeUrn(nodeUrn);
 				status.setValue(statusValue);
 				status.setMsg(e.getMessage());
 				requestStatus.getStatus().add(status);
@@ -329,7 +329,7 @@ public class DeliveryManager extends AbstractService implements Service {
 
 				Status status = new Status();
 				status.setMsg(msg);
-				status.setNodeId(nodeUrn);
+				status.setNodeUrn(nodeUrn);
 				status.setValue(-1);
 
 				requestStatus.getStatus().add(status);

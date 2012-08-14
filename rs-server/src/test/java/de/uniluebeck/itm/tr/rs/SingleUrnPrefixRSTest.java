@@ -1,23 +1,22 @@
 package de.uniluebeck.itm.tr.rs;
 
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.inject.matcher.Matchers.annotatedWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
+import com.google.common.collect.Lists;
+import com.google.inject.*;
+import com.google.inject.name.Names;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.rs.*;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.snaa.Action;
+import eu.wisebed.api.snaa.AuthorizationResponse;
+import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.util.WisebedConversionHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -27,34 +26,19 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provider;
-import com.google.inject.name.Names;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.rs.GetReservations;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservationConflictExceptionException;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.AuthorizationResponse;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
-import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.util.WisebedConversionHelper;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SingleUrnPrefixRSTest {
@@ -142,12 +126,14 @@ public class SingleUrnPrefixRSTest {
 
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixSOAPRS.class);
-				
+
 				binder.bind(RS.class)
-				.annotatedWith(NonWS.class)
-				.to(SingleUrnPrefixRS.class);
-		
-				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa));
+						.annotatedWith(NonWS.class)
+						.to(SingleUrnPrefixRS.class);
+
+				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(),
+						annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa)
+				);
 			}
 		}
 		);
@@ -190,16 +176,18 @@ public class SingleUrnPrefixRSTest {
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
 		crd.setUserData(USER1_USERNAME);
-		
+
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
-		
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = 
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						new LinkedList<String>());
-		
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
+						new LinkedList<String>()
+				);
+
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
+				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
 		try {
@@ -229,16 +217,19 @@ public class SingleUrnPrefixRSTest {
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
-		
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = 
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						new LinkedList<String>());
-		
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS)).thenReturn(successfulAuthorizationResponse);
+						new LinkedList<String>()
+				);
+
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
+				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
+				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.deleteReservation(user1Srk)).thenReturn(crd);
 
 		rs.deleteReservation(user1Srks);
@@ -261,26 +252,30 @@ public class SingleUrnPrefixRSTest {
 
 		final List<ConfidentialReservationData> reservedNodes = newArrayList();
 		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
-		persistenceCrd.getNodeURNs().add("urn:local:0xcbe4");
+		persistenceCrd.getNodeUrns().add("urn:local:0xcbe4");
 		reservedNodes.add(persistenceCrd);
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
-		
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase = 
-				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
-						Arrays.asList("urn:local:0xCBE4"));
 
-		
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase = 
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						Arrays.asList("urn:local:0xcbe4"));
+						Arrays.asList("urn:local:0xCBE4")
+				);
+
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase =
+				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
+						WisebedConversionHelper.convert(user1SaksSnaa),
+						Arrays.asList("urn:local:0xcbe4")
+				);
 
 //		when(snaa.isAuthorized(Matchers.<List<UsernameNodeUrnsMap>>any(), eq(Action.RS_MAKE_RESERVATION))).thenReturn(successfulAuthorizationResponse);
-		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
-		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION))
+				.thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION))
+				.thenReturn(successfulAuthorizationResponse);
 		when(servedNodeUrns.get()).thenReturn(new String[]{"urn:local:0xcbe4"});
 		when(persistence.addReservation(Matchers.<ConfidentialReservationData>any(), eq("urn:local:"))).thenReturn(srk);
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
@@ -328,22 +323,24 @@ public class SingleUrnPrefixRSTest {
 
 		final String user1Node = URN_PREFIX + "0x1234";
 		final String user2Node = URN_PREFIX + "0x4321";
-		
 
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
-		
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = 
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
 						WisebedConversionHelper.convert(user1SaksSnaa),
-						new LinkedList<String>());
+						new LinkedList<String>()
+				);
 
 		ValidationResult validationResult = new ValidationResult();
 		validationResult.setValid(true);
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS)).thenReturn(successfulAuthorizationResponse);
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS)).thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
+				.thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
+				.thenReturn(successfulAuthorizationResponse);
 		when(snaa.isValid(user1Saks.get(0))).thenReturn(validationResult);
 		when(snaa.isValid(user2Saks.get(0))).thenReturn(validationResult);
 		when(servedNodeUrns.get()).thenReturn(new String[]{user1Node, user2Node});
@@ -362,8 +359,8 @@ public class SingleUrnPrefixRSTest {
 		);
 
 		assertEquals(1, user1Reservations.size());
-		assertEquals(1, user1Reservations.get(0).getNodeURNs().size());
-		assertEquals(user1Node, user1Reservations.get(0).getNodeURNs().get(0));
+		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
+		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
 		final List<ConfidentialReservationData> user2Reservations = rs.getConfidentialReservations(
 				user2Saks,
@@ -371,8 +368,8 @@ public class SingleUrnPrefixRSTest {
 		);
 
 		assertEquals(1, user2Reservations.size());
-		assertEquals(1, user2Reservations.get(0).getNodeURNs().size());
-		assertEquals(user2Node, user2Reservations.get(0).getNodeURNs().get(0));
+		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
+		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
 	}
 
 	private GetReservations buildPeriod(final DateTime from, final DateTime to) {
@@ -393,7 +390,7 @@ public class SingleUrnPrefixRSTest {
 		crd.setUserData(new Random().nextInt(Integer.MAX_VALUE) + "");
 
 		for (String nodeUrn : nodeUrns) {
-			crd.getNodeURNs().add(nodeUrn);
+			crd.getNodeUrns().add(nodeUrn);
 		}
 
 		Data data = new Data();

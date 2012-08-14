@@ -23,39 +23,23 @@
 
 package de.uniluebeck.itm.tr.rs.federator;
 
-import static com.google.common.collect.Lists.newArrayList;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.Maps;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.common.SecretAuthenticationKey;
+import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.rs.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Maps;
-
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.GetReservations;
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSException;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservationConflictExceptionException;
-import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
+import static com.google.common.collect.Lists.newArrayList;
 
 
 @WebService(
@@ -79,9 +63,7 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
+	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
@@ -124,19 +106,17 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> authenticationData,
+													  final ConfidentialReservationData reservation)
 			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
 
 		assertNotNull(authenticationData, "authenticationData");
 		assertNotNull(reservation, "reservation");
 
 		assertTrue(authenticationData.size() > 0, "The parameter authenticationData must contain at least one element");
-		assertTrue(reservation.getNodeURNs().size() > 0, "The reservation data must contain at least one node URN");
+		assertTrue(reservation.getNodeUrns().size() > 0, "The reservation data must contain at least one node URN");
 
-		assertUrnsServed(reservation.getNodeURNs());
+		assertUrnsServed(reservation.getNodeUrns());
 
 		// run a set of parallel jobs to make a reservation on the federated rs services
 		BiMap<RS, ConfidentialReservationData> reservationMap = FederatorRSHelper.constructEndpointToReservationMap(
@@ -179,10 +159,8 @@ public class FederatorRS implements RS {
 				failed = true;
 			} catch (ExecutionException e) {
 				failed = true;
-				failMessages
-						.add(Arrays.toString(futures.get(future).getReservation().getNodeURNs().toArray()) + ": " + e
-								.getCause().getMessage()
-						);
+				final Object[] nodeUrns = futures.get(future).getReservation().getNodeUrns().toArray();
+				failMessages.add(Arrays.toString(nodeUrns) + ": " + e.getCause().getMessage());
 			}
 		}
 
@@ -205,9 +183,8 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
+													   final XMLGregorianCalendar to) throws RSExceptionException {
 
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
@@ -235,10 +212,8 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			@WebParam(name = "period", targetNamespace = "")
-			GetReservations period) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
+			final GetReservations period) throws RSExceptionException {
 
 		//check for null
 		if (period.getFrom() == null || period.getTo() == null) {
@@ -280,9 +255,7 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
+	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
 			throws RSExceptionException, ReservationNotFoundExceptionException {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
@@ -364,20 +337,20 @@ public class FederatorRS implements RS {
 	}*/
 
 	/**
-	 * Checks if all nodes in {@code nodeURNs} are served by this federators federated rs services and throws an exception
+	 * Checks if all nodes in {@code nodeUrns} are served by this federators federated rs services and throws an exception
 	 * if not
 	 *
-	 * @param nodeURNs
+	 * @param nodeUrns
 	 * 		the node URNs to check
 	 *
 	 * @throws RSExceptionException
 	 * 		if one of the node URNs is not served by this instance
 	 */
-	private void assertUrnsServed(List<String> nodeURNs) throws RSExceptionException {
+	private void assertUrnsServed(List<String> nodeUrns) throws RSExceptionException {
 
 		List<String> notServed = new LinkedList<String>();
 
-		for (String nodeURN : nodeURNs) {
+		for (String nodeURN : nodeUrns) {
 			String endpointUrlForNodeURN = federationManager.getEndpointUrlByNodeUrn(nodeURN);
 			if (endpointUrlForNodeURN == null) {
 				notServed.add(nodeURN);
@@ -385,8 +358,7 @@ public class FederatorRS implements RS {
 		}
 
 		if (notServed.size() > 0) {
-			String msg =
-					"The node URNs " + Arrays.toString(notServed.toArray()) + " are not served by this RS instance!";
+			String msg = "The nodes " + Arrays.toString(notServed.toArray()) + " are not served by this RS instance!";
 			RSException exception = new RSException();
 			exception.setMessage(msg);
 			throw new RSExceptionException(msg, exception);

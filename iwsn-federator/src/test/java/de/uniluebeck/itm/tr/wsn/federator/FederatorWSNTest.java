@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
@@ -12,20 +14,25 @@ import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.wsn.WSN;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -50,6 +57,8 @@ public class FederatorWSNTest {
 	private static final String TESTBED_2_NODE_1 = TESTBED_2_URN_PREFIX + "0x0001";
 
 	private static final String TESTBED_2_NODE_2 = TESTBED_2_URN_PREFIX + "0x0002";
+
+	private static final String TESTBED_2_NODE_3 = TESTBED_2_URN_PREFIX + "0x0003";
 
 	private static final String TESTBED_3_NODE_1 = TESTBED_3_URN_PREFIX + "0x0001";
 
@@ -108,7 +117,8 @@ public class FederatorWSNTest {
 	}
 
 	@Test
-	public void testFlashProgramsCalledOnInvolvedTestbeds() throws Exception {
+	public void testFlashProgramsCalledOnInvolvedTestbedsIfEveryConfigurationCanBeForwardedToOneTestbed()
+			throws Exception {
 
 		final byte[] image1 = {0, 1, 2};
 		final byte[] image2 = {1, 2, 3};
@@ -124,18 +134,83 @@ public class FederatorWSNTest {
 
 		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
 
-		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_1)).thenReturn(testbed1WSN);
-		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
-		when(federationManager.getEndpointByNodeUrn(TESTBED_2_NODE_1)).thenReturn(testbed2WSN);
+		when(federationManager.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
+				ImmutableMap.of(testbed1WSN, config1.getNodeUrns())
+		);
+		when(federationManager.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
+				ImmutableMap.of(testbed2WSN, config2.getNodeUrns())
+		);
 
 		federatorWSN.flashPrograms(flashProgramsConfigurations);
 
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_1);
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_2);
-
 		verify(testbed1WSN).flashPrograms(eq(newArrayList(config1)));
 		verify(testbed2WSN).flashPrograms(eq(newArrayList(config2)));
+
+		verify(testbed3WSN, never()).flashPrograms(Matchers.<List<FlashProgramsConfiguration>>any());
+	}
+
+	@Test
+	public void testFlashProgramsCalledOnInvolvedTestbedsIfConfigurationsHaveToBeSplitUpForDifferentTestbeds()
+			throws Exception {
+
+		final byte[] image1 = {0, 1, 2};
+		final byte[] image2 = {1, 2, 3};
+
+		final FlashProgramsConfiguration config1 = new FlashProgramsConfiguration();
+		config1.getNodeUrns().add(TESTBED_1_NODE_1);
+		config1.getNodeUrns().add(TESTBED_2_NODE_1);
+		config1.getNodeUrns().add(TESTBED_2_NODE_2);
+		config1.setProgram(image1);
+
+		final FlashProgramsConfiguration config2 = new FlashProgramsConfiguration();
+		config2.getNodeUrns().add(TESTBED_1_NODE_2);
+		config2.getNodeUrns().add(TESTBED_2_NODE_3);
+		config2.setProgram(image2);
+
+		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
+
+		when(federationManager.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
+				ImmutableMap.<WSN, List<String>>of(
+						testbed1WSN, newArrayList(TESTBED_1_NODE_1),
+						testbed2WSN, newArrayList(TESTBED_2_NODE_1, TESTBED_2_NODE_2)
+				)
+		);
+		when(federationManager.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
+				ImmutableMap.<WSN, List<String>>of(
+						testbed1WSN, newArrayList(TESTBED_1_NODE_2),
+						testbed2WSN, newArrayList(TESTBED_2_NODE_3)
+				)
+		);
+
+		federatorWSN.flashPrograms(flashProgramsConfigurations);
+
+		final FlashProgramsConfiguration testbed1ExpectedConfiguration1 = new FlashProgramsConfiguration();
+		testbed1ExpectedConfiguration1.getNodeUrns().add(TESTBED_1_NODE_1);
+		testbed1ExpectedConfiguration1.setProgram(image1);
+
+		final FlashProgramsConfiguration testbed1ExpectedConfiguration2 = new FlashProgramsConfiguration();
+		testbed1ExpectedConfiguration2.getNodeUrns().add(TESTBED_1_NODE_2);
+		testbed1ExpectedConfiguration2.setProgram(image2);
+
+		final List<FlashProgramsConfiguration> testbed1ExpectedConfigurations = newArrayList(
+				testbed1ExpectedConfiguration1, testbed1ExpectedConfiguration2
+		);
+
+		final FlashProgramsConfiguration testbed2ExpectedConfiguration1 = new FlashProgramsConfiguration();
+		testbed2ExpectedConfiguration1.getNodeUrns().add(TESTBED_2_NODE_1);
+		testbed2ExpectedConfiguration1.getNodeUrns().add(TESTBED_2_NODE_2);
+		testbed2ExpectedConfiguration1.setProgram(image1);
+
+		final FlashProgramsConfiguration testbed2ExpectedConfiguration2 = new FlashProgramsConfiguration();
+		testbed2ExpectedConfiguration2.getNodeUrns().add(TESTBED_2_NODE_3);
+		testbed2ExpectedConfiguration2.setProgram(image2);
+
+		final List<FlashProgramsConfiguration> testbed2ExpectedConfigurations = newArrayList(
+				testbed2ExpectedConfiguration1, testbed2ExpectedConfiguration2
+		);
+
+		verify(testbed1WSN).flashPrograms(argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)));
+		verify(testbed2WSN).flashPrograms(eq(testbed2ExpectedConfigurations));
 
 		verify(testbed3WSN, never()).flashPrograms(Matchers.<List<FlashProgramsConfiguration>>any());
 	}
@@ -257,5 +332,21 @@ public class FederatorWSNTest {
 				chc1,
 				chc2
 		);
+	}
+
+	private class ListAsSetMatcher extends ArgumentMatcher<List<FlashProgramsConfiguration>> {
+
+		private final Set<FlashProgramsConfiguration> set1;
+
+		public ListAsSetMatcher(final List<FlashProgramsConfiguration> set1) {
+			this.set1 = newHashSet(set1);
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public boolean matches(final Object o) {
+			final Set<FlashProgramsConfiguration> set2 = newHashSet((List<FlashProgramsConfiguration>) o);
+			return Sets.difference(set1, set2).isEmpty();
+		}
 	}
 }

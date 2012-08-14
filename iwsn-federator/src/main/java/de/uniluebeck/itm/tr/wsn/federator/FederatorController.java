@@ -27,14 +27,12 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.common.Message;
 import eu.wisebed.api.controller.Controller;
 import eu.wisebed.api.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.util.LinkedList;
@@ -157,7 +155,7 @@ public class FederatorController extends AbstractService implements Service, Con
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
-	private void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+	private void receive(final Message msg) {
 		deliveryManager.receive(msg);
 	}
 
@@ -197,7 +195,7 @@ public class FederatorController extends AbstractService implements Service, Con
 		deliveryManager.receiveStatus(status);
 	}
 
-	private void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+	private void receiveStatus(final RequestStatus status) {
 
 		String federatorRequestId = requestIdMappingCache.get(status.getRequestId());
 
@@ -216,22 +214,21 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
-	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> messageList) {
+	public void receive(final List<Message> messageList) {
 		for (Message message : messageList) {
 			receive(message);
 		}
 	}
 
 	@Override
-	public void receiveStatus(
-			@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> requestStatusList) {
+	public void receiveStatus(final List<RequestStatus> requestStatusList) {
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
 	}
 
 	@Override
-	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> notificationList) {
+	public void receiveNotification(final List<String> notificationList) {
 		deliveryManager.receiveNotification(notificationList);
 	}
 
