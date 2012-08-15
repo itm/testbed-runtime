@@ -389,7 +389,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	public String getVersion() {
-		return "2.3";
+		return "3.0";
 	}
 
 	@Override
@@ -550,8 +550,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
+	public List<String> getSupportedVirtualLinkFilters() {
+		log.debug("WSNServiceImpl.getFilters()");
+		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
+	}
+
+	@Override
 	public String getNetwork() {
-		log.debug("WSNServiceImpl.getNetwork");
+		log.debug("WSNServiceImpl.getNetwork()");
 		return WiseMLHelper.serialize(config.getWiseML());
 	}
 
@@ -942,12 +948,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		}
 
 		return requestId;
-	}
-
-	@Override
-	public List<String> getFilters() {
-		log.debug("WSNServiceImpl.getFilters");
-		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
 	}
 
 	private ChannelHandlerDescription convert(
