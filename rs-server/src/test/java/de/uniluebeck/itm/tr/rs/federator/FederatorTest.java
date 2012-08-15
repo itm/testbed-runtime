@@ -25,9 +25,9 @@ package de.uniluebeck.itm.tr.rs.federator;
 
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -226,7 +226,7 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.rs.GetReservations)} is
+	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.v3.rs.GetReservations)} is
 	 * made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception

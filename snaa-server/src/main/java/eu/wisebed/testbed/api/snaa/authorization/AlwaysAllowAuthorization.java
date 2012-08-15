@@ -23,8 +23,8 @@
 
 package eu.wisebed.testbed.api.snaa.authorization;
 
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAExceptionException;
 
 public class AlwaysAllowAuthorization implements IUserAuthorization {
 

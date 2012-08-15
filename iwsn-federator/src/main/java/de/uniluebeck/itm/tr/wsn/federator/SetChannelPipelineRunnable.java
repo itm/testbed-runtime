@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 import java.util.concurrent.Callable;

@@ -25,10 +25,10 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
 		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
@@ -147,7 +147,7 @@ public class JAASSNAA implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
 			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
 
 		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();

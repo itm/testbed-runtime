@@ -24,7 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 
 import java.util.List;
 import java.util.Map;

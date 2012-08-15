@@ -24,10 +24,10 @@
 package de.uniluebeck.itm.tr.snaa;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.util.WisebedConversionHelper;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.util.WisebedConversionHelper;
 
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;

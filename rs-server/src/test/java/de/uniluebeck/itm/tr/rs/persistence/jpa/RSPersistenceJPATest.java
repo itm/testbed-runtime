@@ -24,10 +24,10 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.Data;
+import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

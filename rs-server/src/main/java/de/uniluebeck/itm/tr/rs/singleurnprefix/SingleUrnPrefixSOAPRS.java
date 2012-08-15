@@ -25,9 +25,9 @@ package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.rs.NonWS;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -39,7 +39,7 @@ import java.util.List;
  * This implementation is accessible via web services.
  */
 @WebService(
-		endpointInterface = "eu.wisebed.api.rs.RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
 		targetNamespace = "urn:RSService"

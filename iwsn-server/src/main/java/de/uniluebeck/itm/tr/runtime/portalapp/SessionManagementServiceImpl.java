@@ -36,14 +36,14 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
 	/**
-	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
+	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
 	@Nonnull
@@ -136,7 +136,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			new HashMap<String, ScheduledFuture<?>>();
 
 	/**
-	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List,
+	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List,
 	 * String)}.
 	 */
 	@Nonnull

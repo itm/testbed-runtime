@@ -23,9 +23,9 @@
 
 package de.uniluebeck.itm.tr.rs.dummy;
 
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.rs.RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
 		targetNamespace = "urn:RSService"

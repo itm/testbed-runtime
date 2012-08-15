@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 

@@ -27,9 +27,9 @@ import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDat
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.Data;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

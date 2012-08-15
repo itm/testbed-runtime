@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.sm.ExperimentNotRunningException;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningException;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
 
 
 
@@ -40,7 +40,7 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.api.sm.SecretReservationKey} instances that
+	 * @param secretReservationKeys the list of {@link eu.wisebed.api.v3.sm.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash

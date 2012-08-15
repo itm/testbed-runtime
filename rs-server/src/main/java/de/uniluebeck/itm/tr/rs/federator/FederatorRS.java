@@ -26,9 +26,9 @@ package de.uniluebeck.itm.tr.rs.federator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.rs.RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
 		targetNamespace = "urn:RSService"

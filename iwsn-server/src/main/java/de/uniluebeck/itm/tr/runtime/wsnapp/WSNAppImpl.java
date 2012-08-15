@@ -50,7 +50,7 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;

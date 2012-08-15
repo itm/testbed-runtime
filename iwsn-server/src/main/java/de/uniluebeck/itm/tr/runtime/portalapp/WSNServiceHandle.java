@@ -28,7 +28,7 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import eu.wisebed.api.rs.AuthorizationException;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.v3.rs.AuthorizationException;
+import eu.wisebed.api.v3.rs.AuthorizationExceptionException;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 public class IWSNAuthorizationInterceptor implements MethodInterceptor{
 	

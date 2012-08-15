@@ -35,17 +35,17 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.UnknownReservationIdException;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownReservationIdException;
+import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ import static com.google.common.collect.Lists.newArrayListWithCapacity;
 		serviceName = "SessionManagementService",
 		targetNamespace = "urn:SessionManagementService",
 		portName = "SessionManagementPort",
-		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
+		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement"
 )
 public class FederatorSessionManagement implements SessionManagement {
 
@@ -384,18 +384,18 @@ public class FederatorSessionManagement implements SessionManagement {
 		return federatorWSN.getEndpointUrl();
 	}
 
-	private List<eu.wisebed.api.common.SecretReservationKey> copyWsnToRs(
-			final List<eu.wisebed.api.common.SecretReservationKey> ins) {
-		List<eu.wisebed.api.common.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
+	private List<eu.wisebed.api.v3.common.SecretReservationKey> copyWsnToRs(
+			final List<eu.wisebed.api.v3.common.SecretReservationKey> ins) {
+		List<eu.wisebed.api.v3.common.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
 		for (SecretReservationKey in : ins) {
 			outs.add(convertWsnToRs(in));
 		}
 		return outs;
 	}
 
-	private eu.wisebed.api.common.SecretReservationKey convertWsnToRs(
-			final eu.wisebed.api.common.SecretReservationKey in) {
-		eu.wisebed.api.common.SecretReservationKey out = new eu.wisebed.api.common.SecretReservationKey();
+	private eu.wisebed.api.v3.common.SecretReservationKey convertWsnToRs(
+			final eu.wisebed.api.v3.common.SecretReservationKey in) {
+		eu.wisebed.api.v3.common.SecretReservationKey out = new eu.wisebed.api.v3.common.SecretReservationKey();
 		out.setSecretReservationKey(in.getSecretReservationKey());
 		out.setUrnPrefix(in.getUrnPrefix());
 		return out;

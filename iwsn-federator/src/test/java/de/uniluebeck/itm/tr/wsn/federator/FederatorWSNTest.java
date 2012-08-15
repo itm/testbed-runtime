@@ -9,11 +9,11 @@ import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.wsn.FlashProgramsConfiguration;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.ChannelHandlerDescription;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -257,7 +257,7 @@ public class FederatorWSNTest {
 	}
 
 	/**
-	 * Tests if calling {@link eu.wisebed.api.wsn.WSN#getSupportedChannelHandlers()} on the federator returns only the
+	 * Tests if calling {@link eu.wisebed.api.v3.wsn.WSN#getSupportedChannelHandlers()} on the federator returns only the
 	 * handlers that are supported on all federated testbeds.
 	 *
 	 * @throws Exception

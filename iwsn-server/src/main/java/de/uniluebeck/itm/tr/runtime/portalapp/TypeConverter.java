@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.v3.controller.RequestStatus;
+import eu.wisebed.api.v3.controller.Status;
 
 /**
  * Helper class for this package that converts types from WSNApp representation to Web service representation and back.

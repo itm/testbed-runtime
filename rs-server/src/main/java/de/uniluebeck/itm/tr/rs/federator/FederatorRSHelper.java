@@ -10,12 +10,12 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSException;
-import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSException;
+import eu.wisebed.api.v3.rs.RSExceptionException;
 
 abstract class FederatorRSHelper {
 

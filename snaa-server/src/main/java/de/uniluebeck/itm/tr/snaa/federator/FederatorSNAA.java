@@ -25,12 +25,12 @@ package de.uniluebeck.itm.tr.snaa.federator;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebService;
 import java.util.*;
@@ -40,7 +40,7 @@ import java.util.concurrent.*;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAException;
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
 		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
@@ -334,7 +334,7 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
 			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
 
 		if (secretAuthenticationKey == null) {

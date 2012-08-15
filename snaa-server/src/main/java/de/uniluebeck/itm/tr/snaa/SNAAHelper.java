@@ -23,10 +23,10 @@
 
 package de.uniluebeck.itm.tr.snaa;
 
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

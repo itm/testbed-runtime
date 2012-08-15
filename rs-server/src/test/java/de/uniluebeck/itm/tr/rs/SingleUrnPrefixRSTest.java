@@ -7,16 +7,16 @@ import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.rs.*;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.AuthorizationResponse;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
-import eu.wisebed.api.snaa.SNAA;
-import eu.wisebed.api.util.WisebedConversionHelper;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.AuthorizationResponse;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.snaa.SNAA;
+import eu.wisebed.api.v3.util.WisebedConversionHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -310,7 +310,7 @@ public class SingleUrnPrefixRSTest {
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
 	 * user
-	 * when {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.rs.GetReservations)} is called.
+	 * when {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.v3.rs.GetReservations)} is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong

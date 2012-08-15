@@ -28,9 +28,9 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.*;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ import static com.google.common.collect.Sets.newTreeSet;
 		serviceName = "WSNService",
 		targetNamespace = "urn:WSNService",
 		portName = "WSNPort",
-		endpointInterface = "eu.wisebed.api.wsn.WSN"
+		endpointInterface = "eu.wisebed.api.v3.wsn.WSN"
 )
 public class FederatorWSN implements WSN {
 

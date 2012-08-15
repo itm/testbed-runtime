@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.wsn.WSN;
 
 class EnablePhysicalLinkRunnable extends AbstractRequestRunnable {
 

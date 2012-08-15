@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import java.util.List;
 
-import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.SessionManagement;
 
 class SMAreNodesAliveRunnable implements Runnable {
 

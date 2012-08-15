@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.v3.rs.PublicReservationData;
+import eu.wisebed.api.v3.rs.RS;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;

@@ -27,9 +27,9 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 		serviceName = "ControllerService",
 		targetNamespace = "urn:ControllerService",
 		portName = "ControllerPort",
-		endpointInterface = "eu.wisebed.api.controller.Controller"
+		endpointInterface = "eu.wisebed.api.v3.controller.Controller"
 )
 public class FederatorController extends AbstractService implements Service, Controller {
 

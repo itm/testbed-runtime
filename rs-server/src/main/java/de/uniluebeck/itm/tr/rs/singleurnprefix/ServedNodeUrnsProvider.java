@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -25,9 +25,9 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 
 import java.net.MalformedURLException;
 import java.net.URL;

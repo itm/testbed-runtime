@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.uniluebeck.itm.tr.util.NetworkUtils;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 public class SessionManagementPreconditions {
 

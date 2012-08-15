@@ -21,7 +21,7 @@ public class WSNServiceConfig {
 	private final Wiseml wiseML;
 
 	/**
-	 * The set of node URNs that are reserved and thereby associated with this {@link eu.wisebed.api.wsn.WSN} instance.
+	 * The set of node URNs that are reserved and thereby associated with this {@link eu.wisebed.api.v3.wsn.WSN} instance.
 	 */
 	private final ImmutableSet<String> reservedNodes;
 

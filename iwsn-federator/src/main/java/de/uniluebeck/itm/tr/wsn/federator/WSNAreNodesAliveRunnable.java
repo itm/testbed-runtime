@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import java.util.List;
 
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.wsn.WSN;
 
 class WSNAreNodesAliveRunnable extends AbstractRequestRunnable {
 

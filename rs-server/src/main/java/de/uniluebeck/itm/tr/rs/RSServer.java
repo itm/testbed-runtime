@@ -77,11 +77,11 @@ import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 @SuppressWarnings("restriction")
 public class RSServer {

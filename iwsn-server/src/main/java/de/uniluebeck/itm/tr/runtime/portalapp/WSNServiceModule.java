@@ -12,8 +12,8 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
 import de.uniluebeck.itm.tr.iwsn.IWSNAuthorizationInterceptor;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 public class WSNServiceModule extends AbstractModule {
 	

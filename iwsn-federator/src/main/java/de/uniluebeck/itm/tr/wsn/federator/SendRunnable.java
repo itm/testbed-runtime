@@ -25,8 +25,8 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import java.util.List;
 
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.wsn.WSN;
 
 class SendRunnable extends AbstractRequestRunnable {
 

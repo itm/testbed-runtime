@@ -3,11 +3,11 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.common.SecretReservationKey;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 		serviceName = "SessionManagementService",
 		targetNamespace = "urn:SessionManagementService",
 		portName = "SessionManagementPort",
-		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
+		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement"
 )
 public class SessionManagementSoapService extends AbstractService implements Service, SessionManagement {
 

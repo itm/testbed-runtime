@@ -23,10 +23,10 @@
 
 package de.uniluebeck.itm.tr.snaa.dummy;
 
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.api.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebService;
 import java.security.SecureRandom;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
 		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
@@ -73,7 +73,7 @@ public class DummySNAA implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.snaa.IsValidResponse.ValidationResult isValid(
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
 			final SecretAuthenticationKey secretAuthenticationKey)
 			throws SNAAExceptionException {
 

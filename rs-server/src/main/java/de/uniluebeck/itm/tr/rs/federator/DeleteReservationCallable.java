@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.common.SecretAuthenticationKey;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import java.util.Collections;
 import java.util.List;

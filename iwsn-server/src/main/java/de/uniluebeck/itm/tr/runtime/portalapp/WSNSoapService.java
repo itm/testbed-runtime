@@ -5,8 +5,8 @@ import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.*;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 		serviceName = "WSNService",
 		targetNamespace = "urn:WSNService",
 		portName = "WSNPort",
-		endpointInterface = "eu.wisebed.api.wsn.WSN"
+		endpointInterface = "eu.wisebed.api.v3.wsn.WSN"
 )
 public class WSNSoapService extends AbstractService implements WSN, Service {
 
@@ -34,7 +34,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 
 	/**
 	 * Threads from this ThreadPoolExecutor will be used to deliver messages to controllers by invoking the {@link
-	 * eu.wisebed.api.controller.Controller#receive(java.util.List)} or {@link eu.wisebed.api.controller.Controller#receiveStatus(java.util.List)}
+	 * eu.wisebed.api.v3.controller.Controller#receive(java.util.List)} or {@link eu.wisebed.api.v3.controller.Controller#receiveStatus(java.util.List)}
 	 * method. The ThreadPoolExecutor is instantiated with at least one thread as there usually will be at least one
 	 * controller and, if more controllers are attached to the running experiment the maximum thread pool size will be
 	 * increased. By that, the number of threads for web-service calls is bounded by the number of controller endpoints as

@@ -57,7 +57,7 @@ public class SessionManagementServiceConfig {
 
 	/**
 	 * The filename of the file containing the WiseML document that is to delivered when {@link
-	 * eu.wisebed.api.sm.SessionManagement#getNetwork()} is called.
+	 * eu.wisebed.api.v3.sm.SessionManagement#getNetwork()} is called.
 	 */
 	private final String wiseMLFilename;
 

@@ -28,11 +28,11 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
-import eu.wisebed.api.controller.Status;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.RequestStatus;
+import eu.wisebed.api.v3.controller.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

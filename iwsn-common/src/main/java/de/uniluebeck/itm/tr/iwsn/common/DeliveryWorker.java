@@ -3,9 +3,9 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

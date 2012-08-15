@@ -24,10 +24,10 @@
 package de.uniluebeck.itm.tr.rs.persistence;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservationNotFoundExceptionException;
-import eu.wisebed.api.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
