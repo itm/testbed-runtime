@@ -46,10 +46,11 @@ import static com.google.common.collect.Sets.newTreeSet;
 
 
 @WebService(
-		serviceName = "WSNService",
-		targetNamespace = "urn:WSNService",
+		name = "WSN",
+		endpointInterface = "eu.wisebed.api.v3.wsn.WSN",
 		portName = "WSNPort",
-		endpointInterface = "eu.wisebed.api.v3.wsn.WSN"
+		serviceName = "WSNService",
+		targetNamespace = "http://wisebed.eu/api/v3/wsn"
 )
 public class FederatorWSN implements WSN {
 

@@ -35,10 +35,11 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
+		name = "SNAA",
 		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
-		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
 public class DummySNAA implements SNAA {
 

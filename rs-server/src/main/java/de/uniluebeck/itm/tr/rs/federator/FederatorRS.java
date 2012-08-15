@@ -43,10 +43,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 
 @WebService(
+		name = "RS",
 		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
-		targetNamespace = "urn:RSService"
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
 public class FederatorRS implements RS {
 
@@ -212,13 +213,14 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final GetReservations period) throws RSFault_Exception {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final XMLGregorianCalendar from,
+			final XMLGregorianCalendar to) throws RSFault_Exception {
 
 		//check for null
-		if (period.getFrom() == null || period.getTo() == null) {
+		if (from == null || to == null) {
 			throw createRSFault_Exception(
-					"could not validate period from: " + period.getFrom() + " to: " + period.getTo()
+					"could not validate period from: " + from + " to: " + to
 			);
 		}
 
@@ -226,12 +228,12 @@ public class FederatorRS implements RS {
 		Map<RS, List<SecretAuthenticationKey>> endpointToAuthenticationMap = FederatorRSHelper
 				.constructEndpointToAuthenticationMap(
 						federationManager,
-						secretAuthenticationKeys
+						secretAuthenticationKey
 				);
 
 		for (RS rs : federationManager.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
-					rs, endpointToAuthenticationMap.get(rs), period
+					rs, endpointToAuthenticationMap.get(rs), from, to
 			);
 			futures.add(executorService.submit(callable));
 		}

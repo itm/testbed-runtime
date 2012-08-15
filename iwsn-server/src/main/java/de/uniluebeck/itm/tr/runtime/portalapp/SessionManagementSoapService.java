@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
@@ -22,10 +23,11 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @WebService(
-		serviceName = "SessionManagementService",
-		targetNamespace = "urn:SessionManagementService",
+		name = "SessionManagement",
+		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement",
 		portName = "SessionManagementPort",
-		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement"
+		serviceName = "SessionManagementService",
+		targetNamespace = "http://wisebed.eu/api/v3/sm"
 )
 public class SessionManagementSoapService extends AbstractService implements Service, SessionManagement {
 

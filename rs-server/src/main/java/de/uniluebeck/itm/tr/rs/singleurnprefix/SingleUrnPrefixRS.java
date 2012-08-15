@@ -175,19 +175,22 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	@AuthorizationRequired("RS_GET_RESERVATIONS")
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			GetReservations period) throws RSFault_Exception {
+			List<SecretAuthenticationKey> secretAuthenticationKey,
+			XMLGregorianCalendar from,
+			XMLGregorianCalendar to)
+			throws RSFault_Exception {
 
-		checkNotNull(period, "Parameter period is null!");
-		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
+		checkNotNull(from, "Parameter from is null!");
+		checkNotNull(to, "Parameter to is null!");
+		checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKeys is null!");
 
-		checkArgumentValid(period);
-		checkArgumentValidAuthentication(secretAuthenticationKeys);
+		checkArgumentValid(from, to);
+		checkArgumentValidAuthentication(secretAuthenticationKey);
 
-		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
+		SecretAuthenticationKey key = secretAuthenticationKey.get(0);
 
-		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()),
-				new DateTime(period.getTo().toGregorianCalendar())
+		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
+				new DateTime(to.toGregorianCalendar())
 		);
 
 		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
@@ -225,12 +228,12 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-
 	private RSFault_Exception createRSFault_Exception(String message) {
 		RSFault exception = new RSFault();
 		exception.setMessage(message);
 		return new RSFault_Exception(message, exception);
 	}
+
 
 	private PublicReservationData convertToPublic(ConfidentialReservationData confidentialReservationData) {
 		PublicReservationData publicReservationData = new PublicReservationData();
@@ -370,8 +373,10 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkArgumentValid(final GetReservations period) throws RSFault_Exception {
-		if (period == null || period.getFrom() == null || period.getTo() == null) {
+	private void checkArgumentValid(final XMLGregorianCalendar from, final XMLGregorianCalendar to)
+			throws RSFault_Exception {
+
+		if (from == null || to == null) {
 			String message = "Error on checking null for period. Either period, period.from or period.to is null.";
 			log.warn(message);
 			RSFault rse = new RSFault();

@@ -40,10 +40,11 @@ import java.util.concurrent.*;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAFault;
 
 @WebService(
+		name = "SNAA",
 		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
-		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
 public class FederatorSNAA implements SNAA {
 

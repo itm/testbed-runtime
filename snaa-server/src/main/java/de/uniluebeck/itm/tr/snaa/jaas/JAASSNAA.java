@@ -37,6 +37,7 @@ import javax.jws.WebService;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,10 +46,11 @@ import java.util.concurrent.TimeUnit;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
 @WebService(
+		name = "SNAA",
 		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
-		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
 public class JAASSNAA implements SNAA {
 

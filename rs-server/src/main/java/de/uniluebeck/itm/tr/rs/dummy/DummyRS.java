@@ -27,6 +27,7 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
@@ -36,10 +37,11 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
+		name = "RS",
 		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
-		targetNamespace = "urn:RSService"
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
 public class DummyRS implements RS {
 
@@ -55,10 +57,10 @@ public class DummyRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final GetReservations period) throws RSFault_Exception {
+			final XMLGregorianCalendar from,
+			final XMLGregorianCalendar to) throws RSFault_Exception {
 
 		return Collections.emptyList();
-
 	}
 
 	@Override

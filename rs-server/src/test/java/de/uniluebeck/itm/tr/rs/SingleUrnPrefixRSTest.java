@@ -310,7 +310,8 @@ public class SingleUrnPrefixRSTest {
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
 	 * user
-	 * when {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.v3.rs.GetReservations)} is called.
+	 * when {@link RS#getConfidentialReservations(java.util.List, javax.xml.datatype.XMLGregorianCalendar,
+	 * javax.xml.datatype.XMLGregorianCalendar)}  is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -355,7 +356,8 @@ public class SingleUrnPrefixRSTest {
 
 		final List<ConfidentialReservationData> user1Reservations = rs.getConfidentialReservations(
 				user1Saks,
-				buildPeriod(from, to)
+				datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()),
+				datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar())
 		);
 
 		assertEquals(1, user1Reservations.size());
@@ -364,19 +366,13 @@ public class SingleUrnPrefixRSTest {
 
 		final List<ConfidentialReservationData> user2Reservations = rs.getConfidentialReservations(
 				user2Saks,
-				buildPeriod(from, to)
+				datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()),
+				datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar())
 		);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
-	}
-
-	private GetReservations buildPeriod(final DateTime from, final DateTime to) {
-		GetReservations gr = new GetReservations();
-		gr.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
-		gr.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
-		return gr;
 	}
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,

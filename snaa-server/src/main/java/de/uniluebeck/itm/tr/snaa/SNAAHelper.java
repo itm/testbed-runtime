@@ -23,19 +23,13 @@
 
 package de.uniluebeck.itm.tr.snaa;
 
-import eu.wisebed.api.v3.snaa.*;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
-
+import eu.wisebed.api.v3.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinMaxCount;
@@ -50,7 +44,7 @@ public class SNAAHelper {
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAFault(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 	}
 
@@ -60,7 +54,7 @@ public class SNAAHelper {
 		try {
 			assertCollectionMinMaxCount(authenticationData, minCountInclusive, maxCountInclusive);
 		} catch (Exception e) {
-			createSNAAFault(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 	}
 
@@ -71,7 +65,7 @@ public class SNAAHelper {
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAFault(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 
 	}
@@ -82,9 +76,8 @@ public class SNAAHelper {
 		try {
 			assertCollectionMinCount(c, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAFault(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
-
 	}
 
 	public static void assertUrnPrefixServed(String servedURNPrefix, List<AuthenticationTriple> authenticationData)
@@ -128,11 +121,6 @@ public class SNAAHelper {
 		}
 	}
 
-	/**
-	 * @param msg
-	 *
-	 * @return
-	 */
 	public static SNAAFault_Exception createSNAAFault(String msg) {
 		log.warn(msg);
 		SNAAFault exception = new SNAAFault();
@@ -146,27 +134,28 @@ public class SNAAHelper {
 		exception.setMessage(msg);
 		return new AuthenticationFault_Exception(msg, exception);
 	}
-	
 
 
 	// ------------------------------------------------------------------------
+
 	/**
 	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
 	 * urn prefixes and returns the result.
-	 * 
+	 *
 	 * @param secretAuthenticationKeys
-	 *            A list of secret authentication keys
+	 * 		A list of secret authentication keys
+	 *
 	 * @return A list of tuples comprising user names and urn prefixes
 	 */
 	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
 		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
 		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
 			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
-			usernamePrefixPairs.add(upp);
 			upp.setUsername(secretAuthenticationKey.getUsername());
 			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+			usernamePrefixPairs.add(upp);
 		}
-		return null;
+		return usernamePrefixPairs;
 	}
 
 }

@@ -39,10 +39,11 @@ import java.util.List;
  * This implementation is accessible via web services.
  */
 @WebService(
+		name = "RS",
 		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
-		targetNamespace = "urn:RSService"
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
 public class SingleUrnPrefixSOAPRS implements RS {
 
@@ -87,10 +88,10 @@ public class SingleUrnPrefixSOAPRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final GetReservations period) throws RSFault_Exception {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final XMLGregorianCalendar from,
+			final XMLGregorianCalendar to) throws RSFault_Exception {
 
-		return reservationSystem.getConfidentialReservations(secretAuthenticationKeys, period);
+		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to);
 	}
-
 }

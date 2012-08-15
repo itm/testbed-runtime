@@ -40,10 +40,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @WebService(
-		serviceName = "ControllerService",
-		targetNamespace = "urn:ControllerService",
+		name = "Controller",
+		endpointInterface = "eu.wisebed.api.v3.controller.Controller",
 		portName = "ControllerPort",
-		endpointInterface = "eu.wisebed.api.v3.controller.Controller"
+		serviceName = "ControllerService",
+		targetNamespace = "http://wisebed.eu/api/v3/controller"
 )
 public class FederatorController extends AbstractService implements Service, Controller {
 
