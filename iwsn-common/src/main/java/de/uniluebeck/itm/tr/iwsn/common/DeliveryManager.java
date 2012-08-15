@@ -287,7 +287,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param statusValue
 	 * 		the Integer value that should be sent to the controllers
 	 */
-	public void receiveFailureStatusMessages(List<String> nodeUrns, String requestId, Exception e, int statusValue) {
+	public void receiveFailureStatusMessages(List<String> nodeUrns, long requestId, Exception e, int statusValue) {
 
 		if (isRunning()) {
 
@@ -318,7 +318,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * 		the requestId
 	 */
 	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
-												   final String requestId) {
+												   final long requestId) {
 
 		if (isRunning()) {
 

@@ -23,29 +23,33 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
-
 import eu.wisebed.api.v3.wsn.WSN;
+
+import java.util.List;
 
 class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 
-	private String sourceNode;
+	private final String sourceNode;
 
-	private String targetNode;
+	private final String targetNode;
 
-	private String remoteServiceInstance;
+	private final String remoteServiceInstance;
 
-	private List<String> parameters;
+	private final List<String> parameters;
 
-	private List<String> filters;
+	private final List<String> filters;
 
-	SetVirtualLinkRunnable(FederatorController federatorController, WSN wsnEndpoint,
-						   String federatorRequestId,
-						   String sourceNode, String targetNode, String remoteServiceInstance,
-						   List<String> parameters,
-						   List<String> filters) {
+	SetVirtualLinkRunnable(final FederatorController federatorController,
+						   final WSN wsnEndpoint,
+						   final long federatedRequestId,
+						   final long federatorRequestId,
+						   final String sourceNode,
+						   final String targetNode,
+						   final String remoteServiceInstance,
+						   final List<String> parameters,
+						   final List<String> filters) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
@@ -55,10 +59,14 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.setVirtualLink(sourceNode, targetNode, remoteServiceInstance, parameters, filters));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.setVirtualLink(
+				federatedRequestId,
+				sourceNode,
+				targetNode,
+				remoteServiceInstance,
+				parameters,
+				filters
+		);
 	}
 }

@@ -12,6 +12,7 @@ import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -92,9 +93,12 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public String areNodesAlive(final List<String> nodeUrns, final String controllerEndpointUrl) {
+	public void areNodesAlive(@WebParam(name = "requestId", targetNamespace = "") final long requestId,
+							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns,
+							  @WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
+							  String controllerEndpointUrl) {
 
-		return sm.areNodesAlive(nodeUrns, controllerEndpointUrl);
+		sm.areNodesAlive(requestId, nodeUrns, controllerEndpointUrl);
 	}
 
 	@Override

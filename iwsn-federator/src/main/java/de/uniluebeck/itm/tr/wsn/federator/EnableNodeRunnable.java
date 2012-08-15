@@ -29,21 +29,20 @@ class EnableNodeRunnable extends AbstractRequestRunnable {
 
 	private final String nodeUrn;
 
-	public EnableNodeRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-							  final String federatorRequestId,
+	EnableNodeRunnable(final FederatorController federatorController,
+							  final WSN wsnEndpoint,
+							  final long federatedRequestId,
+							  final long federatorRequestId,
 							  final String nodeUrn) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.enableNode(nodeUrn));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.enableNode(federatedRequestId, nodeUrn);
 	}
 
 }

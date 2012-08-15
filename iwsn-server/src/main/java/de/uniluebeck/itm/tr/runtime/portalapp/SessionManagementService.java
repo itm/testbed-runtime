@@ -42,15 +42,9 @@ public interface SessionManagementService extends Service {
 			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception;
 
 	/**
-	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List, String)}
+	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(long, java.util.List, String)}
 	 */
-	String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl);
-
-	/**
-	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#free(java.util.List)}
-	 */
-	void free(List<SecretReservationKey> secretReservationKeyList)
-			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception;
+	void areNodesAlive(final long requestId, final List<String> nodes, final String controllerEndpointUrl);
 
 	@Nullable
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);

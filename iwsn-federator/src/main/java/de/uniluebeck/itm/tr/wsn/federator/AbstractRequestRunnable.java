@@ -27,21 +27,35 @@ import eu.wisebed.api.v3.wsn.WSN;
 
 abstract class AbstractRequestRunnable implements Runnable {
 
-	private final FederatorController federatorController;
+	protected final FederatorController federatorController;
 
 	protected final WSN wsnEndpoint;
 
-	protected final String federatorRequestId;
+	protected final long federatedRequestId;
 
-	protected AbstractRequestRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-									  final String federatorRequestId) {
+	protected final long federatorRequestId;
+
+	protected AbstractRequestRunnable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId) {
 
 		this.federatorController = federatorController;
 		this.wsnEndpoint = wsnEndpoint;
+		this.federatedRequestId = federatedRequestId;
 		this.federatorRequestId = federatorRequestId;
 	}
 
-	protected void done(String federatedRequestId) {
+	@Override
+	public void run() {
+
 		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
+
+		// instance wsnEndpoint is potentially not thread-safe!!!
+		synchronized (wsnEndpoint) {
+			executeRequestOnFederatedTestbed(federatedRequestId);
+		}
 	}
+
+	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId);
 }

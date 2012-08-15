@@ -119,15 +119,14 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	private final TestbedRuntime testbedRuntime;
 
 	/**
-	 * Holds all currently instantiated WSN API instances that are not yet removed by {@link
-	 * de.uniluebeck.itm.tr.runtime.portalapp.SessionManagementService#free(java.util.List)}.
+	 * Holds all currently instantiated WSN API instances that are not yet removed after reservation timeout.
 	 */
 	@Nonnull
 	private final Map<String, WSNServiceHandle> wsnInstances = new HashMap<String, WSNServiceHandle>();
 
 	/**
-	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List,
-	 * String)}.
+	 * {@link WSNApp} instance that is used to execute {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(long,
+	 * java.util.List, String)}.
 	 */
 	@Nonnull
 	private final WSNApp wsnApp;
@@ -137,7 +136,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			new HashMap<String, ScheduledFuture<?>>();
 
 	/**
-	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List,
+	 * Helper to deliver messages to controllers. Used for {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(long,
+	 * java.util.List, String)}.
 	 * String)}.
 	 */
 	@Nonnull
@@ -395,14 +395,13 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	}
 
 	@Override
-	public String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl) {
+	public void areNodesAlive(final long requestId, final List<String> nodes, final String controllerEndpointUrl) {
 
 		preconditions.checkAreNodesAliveArguments(nodes, controllerEndpointUrl);
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodes);
 
 		this.deliveryManager.addController(controllerEndpointUrl);
-		final String requestId = secureIdGenerator.getNextId();
 
 		try {
 			wsnApp.areNodesAliveSm(new HashSet<String>(nodes), new WSNApp.Callback() {
@@ -430,13 +429,9 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 					}
 				}, 10, TimeUnit.SECONDS
 		);
-
-		return requestId;
-
 	}
 
-	@Override
-	public void free(List<SecretReservationKey> secretReservationKeyList)
+	private void free(List<SecretReservationKey> secretReservationKeyList)
 			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
 		preconditions.checkFreeArguments(secretReservationKeyList);

@@ -32,18 +32,19 @@ class FlashProgramsRunnable extends AbstractRequestRunnable {
 
 	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	FlashProgramsRunnable(FederatorController federatorController, WSN wsnEndpoint, String federatorRequestId,
-						  List<FlashProgramsConfiguration> flashProgramsConfigurations) {
-		super(federatorController, wsnEndpoint, federatorRequestId);
+	FlashProgramsRunnable(final FederatorController federatorController,
+						  final WSN wsnEndpoint,
+						  final long federatedRequestId,
+						  final long federatorRequestId,
+						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+
 		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.flashPrograms(flashProgramsConfigurations));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
 	}
-
 }

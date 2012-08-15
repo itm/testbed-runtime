@@ -9,7 +9,7 @@ import eu.wisebed.api.v3.controller.Status;
  */
 class TypeConverter {
 
-	static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, String requestId) {
+	static RequestStatus convert(WSNAppMessages.RequestStatus requestStatus, long requestId) {
 		RequestStatus retRequestStatus = new RequestStatus();
 		retRequestStatus.setRequestId(requestId);
 		WSNAppMessages.RequestStatus.Status status = requestStatus.getStatus();

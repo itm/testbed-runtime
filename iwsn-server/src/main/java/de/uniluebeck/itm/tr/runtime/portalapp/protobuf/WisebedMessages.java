@@ -2871,12 +2871,12 @@ public final class WisebedMessages {
       // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status)
     }
     
-    // required string request_id = 1;
+    // required sint64 request_id = 1;
     public static final int REQUEST_ID_FIELD_NUMBER = 1;
     private boolean hasRequestId;
-    private java.lang.String requestId_ = "";
+    private long requestId_ = 0L;
     public boolean hasRequestId() { return hasRequestId; }
-    public java.lang.String getRequestId() { return requestId_; }
+    public long getRequestId() { return requestId_; }
     
     // repeated .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status status = 2;
     public static final int STATUS_FIELD_NUMBER = 2;
@@ -2904,7 +2904,7 @@ public final class WisebedMessages {
                         throws java.io.IOException {
       getSerializedSize();
       if (hasRequestId()) {
-        output.writeString(1, getRequestId());
+        output.writeSInt64(1, getRequestId());
       }
       for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
         output.writeMessage(2, element);
@@ -2920,7 +2920,7 @@ public final class WisebedMessages {
       size = 0;
       if (hasRequestId()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getRequestId());
+          .computeSInt64Size(1, getRequestId());
       }
       for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
         size += com.google.protobuf.CodedOutputStream
@@ -3122,8 +3122,8 @@ public final class WisebedMessages {
               }
               break;
             }
-            case 10: {
-              setRequestId(input.readString());
+            case 8: {
+              setRequestId(input.readSInt64());
               break;
             }
             case 18: {
@@ -3137,24 +3137,21 @@ public final class WisebedMessages {
       }
       
       
-      // required string request_id = 1;
+      // required sint64 request_id = 1;
       public boolean hasRequestId() {
         return result.hasRequestId();
       }
-      public java.lang.String getRequestId() {
+      public long getRequestId() {
         return result.getRequestId();
       }
-      public Builder setRequestId(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasRequestId = true;
+      public Builder setRequestId(long value) {
+        result.hasRequestId = true;
         result.requestId_ = value;
         return this;
       }
       public Builder clearRequestId() {
         result.hasRequestId = false;
-        result.requestId_ = getDefaultInstance().getRequestId();
+        result.requestId_ = 0L;
         return this;
       }
       
@@ -3299,7 +3296,7 @@ public final class WisebedMessages {
       "\t\022\014\n\004data\030\002 \002(\014\022\035\n\025destination_node_urns" +
       "\030\003 \003(\t\032\027\n\007Backend\022\014\n\004text\030\002 \002(\t\"$\n\004Type\022" +
       "\017\n\013NODE_BINARY\020\001\022\013\n\007BACKEND\020\002\"\266\001\n\rReques" +
-      "tStatus\022\022\n\nrequest_id\030\001 \002(\t\022U\n\006status\030\002 ",
+      "tStatus\022\022\n\nrequest_id\030\001 \002(\022\022U\n\006status\030\002 ",
       "\003(\0132E.de.uniluebeck.itm.tr.runtime.porta" +
       "lapp.protobuf.RequestStatus.Status\032:\n\006St" +
       "atus\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005value\030\002 \002(\005\022\017\n" +

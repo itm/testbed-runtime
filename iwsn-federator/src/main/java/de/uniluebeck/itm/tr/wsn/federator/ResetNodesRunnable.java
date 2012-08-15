@@ -23,27 +23,27 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
-
 import eu.wisebed.api.v3.wsn.WSN;
+
+import java.util.List;
 
 class ResetNodesRunnable extends AbstractRequestRunnable {
 
 	private List<String> nodes;
 
-	ResetNodesRunnable(FederatorController federatorController, WSN wsnEndpoint, String federatorRequestId,
-							   List<String> nodes) {
+	ResetNodesRunnable(final FederatorController federatorController,
+					   final WSN wsnEndpoint,
+					   final long federatedRequestId,
+					   final long federatorRequestId,
+					   final List<String> nodes) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.nodes = nodes;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.resetNodes(nodes));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.resetNodes(federatedRequestId, nodes);
 	}
 }

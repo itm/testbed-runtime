@@ -57,7 +57,7 @@ message RequestStatus {
     optional string message = 3;
   }
 
-  required string request_id = 1;
+  required sint64 request_id = 1;
   repeated Status status = 2;
 
 }

@@ -116,7 +116,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receiveFailureStatusMessages(final List<String> nodeUrns, final String requestId, final Exception e,
+	public void receiveFailureStatusMessages(final List<String> nodeUrns, final long requestId, final Exception e,
 											 final int statusValue) {
 
 		if (channels.size() > 0) {
@@ -175,7 +175,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 	@Override
 	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
-												   final String requestId) {
+												   final long requestId) {
 		if (channels.size() > 0) {
 
 			WisebedMessages.RequestStatus.Builder requestStatusBuilder = WisebedMessages.RequestStatus.newBuilder()

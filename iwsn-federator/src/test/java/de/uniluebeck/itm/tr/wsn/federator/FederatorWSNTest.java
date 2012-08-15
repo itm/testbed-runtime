@@ -14,9 +14,6 @@ import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.WSN;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +65,8 @@ public class FederatorWSNTest {
 	private static final String TESTBED_1_ENDPOINT_URL = "http://localhost:1234/";
 
 	private static final String TESTBED_2_ENDPOINT_URL = "http://localhost:2345/";
+
+	private final Random requestIdGenerator = new Random();
 
 	@Mock
 	private WSN testbed1WSN;
@@ -141,12 +141,12 @@ public class FederatorWSNTest {
 				ImmutableMap.of(testbed2WSN, config2.getNodeUrns())
 		);
 
-		federatorWSN.flashPrograms(flashProgramsConfigurations);
+		federatorWSN.flashPrograms(requestIdGenerator.nextLong(), flashProgramsConfigurations);
 
-		verify(testbed1WSN).flashPrograms(eq(newArrayList(config1)));
-		verify(testbed2WSN).flashPrograms(eq(newArrayList(config2)));
+		verify(testbed1WSN).flashPrograms(anyLong(), eq(newArrayList(config1)));
+		verify(testbed2WSN).flashPrograms(anyLong(), eq(newArrayList(config2)));
 
-		verify(testbed3WSN, never()).flashPrograms(Matchers.<List<FlashProgramsConfiguration>>any());
+		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any());
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class FederatorWSNTest {
 				)
 		);
 
-		federatorWSN.flashPrograms(flashProgramsConfigurations);
+		federatorWSN.flashPrograms(anyLong(), flashProgramsConfigurations);
 
 		final FlashProgramsConfiguration testbed1ExpectedConfiguration1 = new FlashProgramsConfiguration();
 		testbed1ExpectedConfiguration1.getNodeUrns().add(TESTBED_1_NODE_1);
@@ -209,14 +209,15 @@ public class FederatorWSNTest {
 				testbed2ExpectedConfiguration1, testbed2ExpectedConfiguration2
 		);
 
-		verify(testbed1WSN).flashPrograms(argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)));
-		verify(testbed2WSN).flashPrograms(eq(testbed2ExpectedConfigurations));
+		verify(testbed1WSN).flashPrograms(anyLong(), argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)));
+		verify(testbed2WSN).flashPrograms(anyLong(), eq(testbed2ExpectedConfigurations));
 
-		verify(testbed3WSN, never()).flashPrograms(Matchers.<List<FlashProgramsConfiguration>>any());
+		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any());
 	}
 
 	/**
-	 * Tests if calling {@link WSN#setChannelPipeline(java.util.List, java.util.List)} on the federator leads to calls on
+	 * Tests if calling {@link WSN#setChannelPipeline(long, java.util.List, java.util.List)}  on the federator leads to
+	 * calls on
 	 * exactly the involved and only the involved federated testbeds.
 	 *
 	 * @throws Exception
@@ -236,21 +237,24 @@ public class FederatorWSNTest {
 		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
 		when(federationManager.getEndpointByNodeUrn(TESTBED_3_NODE_1)).thenReturn(testbed3WSN);
 
-		federatorWSN.setChannelPipeline(nodes, channelHandlerConfigurations);
+		federatorWSN.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations);
 
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_1);
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_2);
 
 		verify(testbed1WSN).setChannelPipeline(
+				anyLong(),
 				eq(newArrayList(TESTBED_1_NODE_1, TESTBED_1_NODE_2)),
 				eq(channelHandlerConfigurations)
 		);
 		verify(testbed2WSN, never()).setChannelPipeline(
+				anyLong(),
 				Matchers.<List<String>>any(),
 				Matchers.<List<ChannelHandlerConfiguration>>any()
 		);
 		verify(testbed3WSN).setChannelPipeline(
+				anyLong(),
 				eq(newArrayList(TESTBED_3_NODE_1)),
 				eq(channelHandlerConfigurations)
 		);

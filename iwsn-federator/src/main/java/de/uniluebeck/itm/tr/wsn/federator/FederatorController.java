@@ -56,7 +56,7 @@ public class FederatorController extends AbstractService implements Service, Con
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
 	 */
-	private TimedCache<String, String> requestIdMappingCache = new TimedCache<String, String>(
+	private TimedCache<Long, Long> requestIdMappingCache = new TimedCache<Long, Long>(
 			CACHE_TIMEOUT,
 			CACHE_TIMEOUT_UNIT
 	);
@@ -67,21 +67,21 @@ public class FederatorController extends AbstractService implements Service, Con
 	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
 	 * update is received before the mapping is set using addRequestIdMapping.
 	 */
-	private TimedCache<String, LinkedList<RequestStatus>> pendingRequestStatus =
-			new TimedCache<String, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
+	private final TimedCache<Long, LinkedList<RequestStatus>> pendingRequestStatus =
+			new TimedCache<Long, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
 
-	private String controllerEndpointUrl;
+	private final String controllerEndpointUrl;
+
+	private final DeliveryManager deliveryManager;
 
 	private Endpoint controllerEndpoint;
-
-	private DeliveryManager deliveryManager;
 
 	public FederatorController(String controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
 		this.deliveryManager = new DeliveryManager();
 	}
 
-	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
+	public void addRequestIdMapping(long federatedRequestId, long federatorRequestId) {
 
 		// Add the mapping to the list
 		log.debug("Mapping federatedRequestId {} to federatorRequestId {} = ", federatedRequestId, federatorRequestId);
@@ -164,8 +164,6 @@ public class FederatorController extends AbstractService implements Service, Con
 	 * map caches received RequestStatus instances until the final mapping of federatedRequestID to federatorRequestId is
 	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
 	 * update is received before the mapping is set using addRequestIdMapping.
-	 *
-	 * @param status
 	 */
 	private void cacheRequestStatus(RequestStatus status) {
 		synchronized (pendingRequestStatus) {
@@ -186,18 +184,15 @@ public class FederatorController extends AbstractService implements Service, Con
 
 	/**
 	 * Change the incoming request ID to the request ID that was issued by the federator to its client.
-	 *
-	 * @param newRequestId
-	 * @param status
 	 */
-	private void changeIdAndDispatch(String newRequestId, RequestStatus status) {
+	private void changeIdAndDispatch(long newRequestId, RequestStatus status) {
 		status.setRequestId(newRequestId);
 		deliveryManager.receiveStatus(status);
 	}
 
 	private void receiveStatus(final RequestStatus status) {
 
-		String federatorRequestId = requestIdMappingCache.get(status.getRequestId());
+		Long federatorRequestId = requestIdMappingCache.get(status.getRequestId());
 
 		if (federatorRequestId != null) {
 			// change the incoming request ID to the request ID that was issued

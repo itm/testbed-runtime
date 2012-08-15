@@ -31,7 +31,9 @@ class SMAreNodesAliveRunnable implements Runnable {
 
 	private final FederatorController federatorController;
 
-	private final String federatorRequestId;
+	private final long federatedRequestId;
+
+	private final long federatorRequestId;
 
 	private final SessionManagement smEndpoint;
 
@@ -39,24 +41,25 @@ class SMAreNodesAliveRunnable implements Runnable {
 
 	SMAreNodesAliveRunnable(final FederatorController federatorController,
 							final SessionManagement smEndpoint,
-							final String federatorRequestId,
+							final long federatedRequestId,
+							final long federatorRequestId,
 							final List<String> nodes) {
 
 		this.federatorController = federatorController;
 		this.smEndpoint = smEndpoint;
+		this.federatedRequestId = federatedRequestId;
 		this.federatorRequestId = federatorRequestId;
 		this.nodes = nodes;
 	}
 
 	@Override
 	public void run() {
+
+		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
+
 		// instance smEndpoint is potentially not thread-safe!!!
 		synchronized (smEndpoint) {
-			done(smEndpoint.areNodesAlive(nodes, federatorController.getControllerEndpointUrl()));
+			smEndpoint.areNodesAlive(federatedRequestId, nodes, federatorController.getControllerEndpointUrl());
 		}
-	}
-
-	private void done(String federatedRequestId) {
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
 	}
 }

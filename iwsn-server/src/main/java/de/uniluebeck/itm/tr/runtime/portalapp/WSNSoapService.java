@@ -118,23 +118,23 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public String areNodesAlive(final List<String> nodeUrns) {
-		return wsn.areNodesAlive(nodeUrns);
+	public void areNodesAlive(final long requestId, final List<String> nodeUrns) {
+		wsn.areNodesAlive(requestId, nodeUrns);
 	}
 
 	@Override
-	public String destroyVirtualLink(final String sourceNodeUrn, final String targetNodeUrn) {
-		return wsn.destroyVirtualLink(sourceNodeUrn, targetNodeUrn);
+	public void destroyVirtualLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
+		wsn.destroyVirtualLink(requestId, sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
-	public String disableNode(final String nodeUrn) {
-		return wsn.disableNode(nodeUrn);
+	public void disableNode(final long requestId, final String nodeUrn) {
+		wsn.disableNode(requestId, nodeUrn);
 	}
 
 	@Override
-	public String disablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
-		return wsn.disablePhysicalLink(sourceNodeUrn, targetNodeUrn);
+	public void disablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
+		wsn.disablePhysicalLink(requestId, sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
@@ -148,18 +148,18 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public String enableNode(final String nodeUrn) {
-		return wsn.enableNode(nodeUrn);
+	public void enableNode(final long requestId, final String nodeUrn) {
+		wsn.enableNode(requestId, nodeUrn);
 	}
 
 	@Override
-	public String enablePhysicalLink(final String sourceNodeUrn, final String targetNodeUrn) {
-		return wsn.enablePhysicalLink(sourceNodeUrn, targetNodeUrn);
+	public void enablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
+		wsn.enablePhysicalLink(requestId, sourceNodeUrn, targetNodeUrn);
 	}
 
 	@Override
-	public String flashPrograms(final List<FlashProgramsConfiguration> configurations) {
-		return wsn.flashPrograms(configurations);
+	public void flashPrograms(final long requestId, final List<FlashProgramsConfiguration> configurations) {
+		wsn.flashPrograms(requestId, configurations);
 	}
 
 	@Override
@@ -193,29 +193,31 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public String resetNodes(final List<String> nodeUrns) {
-		return wsn.resetNodes(nodeUrns);
+	public void resetNodes(final long requestId, final List<String> nodeUrns) {
+		wsn.resetNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public String send(final List<String> nodeUrns, final Message message) {
-		return wsn.send(nodeUrns, message);
+	public void send(final long requestId, final List<String> nodeUrns, final Message message) {
+		wsn.send(requestId, nodeUrns, message);
 	}
 
 	@Override
-	public String setChannelPipeline(final List<String> nodeUrns,
-									 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+	public void setChannelPipeline(final long requestId,
+								   final List<String> nodeUrns,
+								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
-		return wsn.setChannelPipeline(nodeUrns, channelHandlerConfigurations);
+		wsn.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);
 	}
 
 	@Override
-	public String setVirtualLink(final String sourceNodeUrn,
-								 final String targetNodeUrn,
-								 final String remoteServiceInstance,
-								 final List<String> parameters,
-								 final List<String> filters) {
+	public void setVirtualLink(final long requestId,
+							   final String sourceNodeUrn,
+							   final String targetNodeUrn,
+							   final String remoteServiceInstance,
+							   final List<String> parameters,
+							   final List<String> filters) {
 
-		return wsn.setVirtualLink(sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters);
+		wsn.setVirtualLink(requestId, sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters);
 	}
 }

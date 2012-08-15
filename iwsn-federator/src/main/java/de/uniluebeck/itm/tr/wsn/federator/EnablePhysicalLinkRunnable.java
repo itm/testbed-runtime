@@ -31,22 +31,22 @@ class EnablePhysicalLinkRunnable extends AbstractRequestRunnable {
 
 	private final String nodeUrnB;
 
-	public EnablePhysicalLinkRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-									  final String federatorRequestId,
-									  final String nodeUrnA, final String nodeUrnB) {
+	public EnablePhysicalLinkRunnable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId,
+									  final String nodeUrnA,
+									  final String nodeUrnB) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.nodeUrnA = nodeUrnA;
 		this.nodeUrnB = nodeUrnB;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.enablePhysicalLink(nodeUrnA, nodeUrnB));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.enablePhysicalLink(federatedRequestId, nodeUrnA, nodeUrnB);
 	}
 
 }

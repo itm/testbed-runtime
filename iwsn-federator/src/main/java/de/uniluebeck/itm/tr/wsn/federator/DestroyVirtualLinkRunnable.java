@@ -27,25 +27,25 @@ import eu.wisebed.api.v3.wsn.WSN;
 
 class DestroyVirtualLinkRunnable extends AbstractRequestRunnable {
 
-	private String sourceNode;
+	private final String sourceNode;
 
-	private String targetNode;
+	private final String targetNode;
 
-	DestroyVirtualLinkRunnable(FederatorController federatorController, WSN wsnEndpoint,
-									   String federatorRequestId,
-									   String sourceNode, String targetNode) {
+	DestroyVirtualLinkRunnable(final FederatorController federatorController,
+							   final WSN wsnEndpoint,
+							   final long federatedRequestId,
+							   final long federatorRequestId,
+							   final String sourceNode,
+							   final String targetNode) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.destroyVirtualLink(sourceNode, targetNode));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.destroyVirtualLink(federatedRequestId, sourceNode, targetNode);
 	}
 }

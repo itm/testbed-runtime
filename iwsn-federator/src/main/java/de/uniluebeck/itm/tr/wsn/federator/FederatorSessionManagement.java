@@ -108,12 +108,14 @@ public class FederatorSessionManagement implements SessionManagement {
 	private final SessionManagementPreconditions preconditions;
 
 	/**
-	 * FederatorController instance managing asynchronous replies for {@link SessionManagement#areNodesAlive(java.util.List,
-	 * String)}.
+	 * FederatorController instance managing asynchronous replies for {@link SessionManagement#areNodesAlive(long,
+	 * java.util.List, String)}.
 	 */
 	private final FederatorController federatorController;
 
 	private final FederatorWSNConfig config;
+
+	private final Random requestIdGenerator = new Random();
 
 	public FederatorSessionManagement(final FederatorWSNConfig config) {
 
@@ -454,12 +456,11 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public String areNodesAlive(final List<String> nodeUrns, final String controllerEndpointUrl) {
+	public void areNodesAlive(final long clientRequest, final List<String> nodeUrns, final String controllerEndpointUrl) {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodeUrns, controllerEndpointUrl);
 
 		// fork areNodesAlive() calls to federated testbeds
-		final String requestId = secureIdGenerator.getNextId();
 		final Map<String, Set<String>> sessionManagementEndpointUrlToNodeUrnMapping =
 				createSessionManagementEndpointUrlToNodeUrnMapping(nodeUrns);
 
@@ -467,18 +468,18 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			final String nodeUrnSubsetSessionManagementEndpointUrl = entry.getKey();
 			final Set<String> nodeUrnSubset = entry.getValue();
+			final long federatedRequestId = requestIdGenerator.nextLong();
 
 			executorService.submit(
 					new SMAreNodesAliveRunnable(
 							federatorController,
 							WisebedServiceHelper.getSessionManagementService(nodeUrnSubsetSessionManagementEndpointUrl),
-							requestId,
+							federatedRequestId,
+							clientRequest,
 							Lists.newArrayList(nodeUrnSubset)
 					)
 			);
 		}
-
-		return requestId;
 	}
 
 	/**
