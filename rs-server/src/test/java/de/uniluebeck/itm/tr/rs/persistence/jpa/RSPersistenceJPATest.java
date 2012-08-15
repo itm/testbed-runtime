@@ -26,7 +26,7 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.Data;
-import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.junit.After;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	}};
 
 	@Before
-	public void setUp() throws RSExceptionException {
+	public void setUp() throws RSFault_Exception {
 		super.setUp();
 		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(localTimeZone, properties);
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);

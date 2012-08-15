@@ -27,8 +27,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.ReservationNotFoundException;
-import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -172,28 +172,28 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
-			ReservationNotFoundExceptionException {
+			ReservationNotFoundFault_Exception {
 		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
 		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
-			ReservationNotFoundExceptionException {
+			ReservationNotFoundFault_Exception {
 		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
 		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 	}

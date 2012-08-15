@@ -79,7 +79,7 @@ import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
 
@@ -369,7 +369,7 @@ public class RSServer {
 	}
 
 	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix)
-			throws IOException, RSExceptionException {
+			throws IOException, RSFault_Exception {
 
 		Map<String, String> properties = new HashMap<String, String>();
 		for (Object key : props.keySet()) {

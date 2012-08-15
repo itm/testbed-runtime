@@ -24,9 +24,9 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.Service;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public interface SessionManagementService extends Service {
 	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#getInstance(java.util.List)}
 	 */
 	String getInstance(List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception;
 
 	/**
 	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(java.util.List, String)}
@@ -50,7 +50,7 @@ public interface SessionManagementService extends Service {
 	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#free(java.util.List)}
 	 */
 	void free(List<SecretReservationKey> secretReservationKeyList)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception;
 
 	@Nullable
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);

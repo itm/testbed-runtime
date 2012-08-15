@@ -46,7 +46,7 @@ public class DummySNAA implements SNAA {
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
 
@@ -64,7 +64,7 @@ public class DummySNAA implements SNAA {
 	@Override
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
@@ -75,7 +75,7 @@ public class DummySNAA implements SNAA {
 	@Override
 	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
 			final SecretAuthenticationKey secretAuthenticationKey)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		ValidationResult result = new ValidationResult();
 		result.setValid(true);

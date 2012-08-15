@@ -25,13 +25,13 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
-import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import org.junit.Before;
 
 public class InMemoryRSPersistenceTest extends RSPersistenceTest {
 
 	@Before
-	public void setUp() throws RSExceptionException {
+	public void setUp() throws RSFault_Exception {
 		super.setUp();
 		RSPersistence persistence = new InMemoryRSPersistence();
 		super.setPersistence(persistence);

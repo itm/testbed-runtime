@@ -14,14 +14,14 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.RSException;
-import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 
 abstract class FederatorRSHelper {
 
 	static Map<RS, List<SecretAuthenticationKey>> constructEndpointToAuthenticationMap(
 			final FederationManager<RS> federationManager,
-			final List<SecretAuthenticationKey> secretAuthenticationKey) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKey) throws RSFault_Exception {
 
 		Map<RS, List<SecretAuthenticationKey>> map = newHashMap();
 
@@ -34,9 +34,9 @@ abstract class FederatorRSHelper {
 						authenticationKey.getUrnPrefix() +
 						" is not served by this RS instance!";
 
-				RSException exception = new RSException();
+				RSFault exception = new RSFault();
 				exception.setMessage(msg);
-				throw new RSExceptionException(msg, exception);
+				throw new RSFault_Exception(msg, exception);
 			}
 
 			List<SecretAuthenticationKey> secretReservationKeyList = map.get(rs);
@@ -51,7 +51,7 @@ abstract class FederatorRSHelper {
 
 	static Map<RS, List<SecretReservationKey>> constructEndpointToReservationKeyMap(
 			final FederationManager<RS> federationManager,
-			final List<SecretReservationKey> secretReservationKey) throws RSExceptionException {
+			final List<SecretReservationKey> secretReservationKey) throws RSFault_Exception {
 
 		Map<RS, List<SecretReservationKey>> map = newHashMap();
 
@@ -64,9 +64,9 @@ abstract class FederatorRSHelper {
 						+ reservationKey.getUrnPrefix() +
 						" is not served by this RS instance!";
 
-				RSException exception = new RSException();
+				RSFault exception = new RSFault();
 				exception.setMessage(msg);
-				throw new RSExceptionException(msg, exception);
+				throw new RSFault_Exception(msg, exception);
 			}
 
 			List<SecretReservationKey> secretReservationKeyList = map.get(rs);

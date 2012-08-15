@@ -5,9 +5,9 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,7 +117,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKey)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
 		return sm.getInstance(secretReservationKey);
 	}

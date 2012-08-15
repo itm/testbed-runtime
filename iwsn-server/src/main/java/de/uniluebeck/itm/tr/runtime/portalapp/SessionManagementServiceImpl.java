@@ -40,10 +40,10 @@ import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.RSExceptionException;
-import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
+import static eu.wisebed.api.v3.WisebedServiceHelper.createUnknownReservationIdException;
 
 public class SessionManagementServiceImpl extends AbstractService implements SessionManagementService {
 
@@ -78,9 +79,9 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		public void run() {
 			try {
 				free(secretReservationKeys);
-			} catch (ExperimentNotRunningException_Exception expected) {
+			} catch (ExperimentNotRunningFault_Exception expected) {
 				// if user called free before this is expected
-			} catch (UnknownReservationIdException_Exception e) {
+			} catch (UnknownReservationIdFault_Exception e) {
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -205,8 +206,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				for (String secretReservationKey : secretReservationKeys) {
 					try {
 						freeInternal(secretReservationKey);
-					} catch (ExperimentNotRunningException_Exception e) {
-						log.error("ExperimentNotRunningException while shutting down all WSN instances: " + e, e);
+					} catch (ExperimentNotRunningFault_Exception e) {
+						log.error("ExperimentNotRunningFault while shutting down all WSN instances: " + e, e);
 					}
 				}
 			}
@@ -245,7 +246,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 	@Override
 	public String getInstance(List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
@@ -436,7 +437,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 	@Override
 	public void free(List<SecretReservationKey> secretReservationKeyList)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
 		preconditions.checkFreeArguments(secretReservationKeyList);
 
@@ -449,7 +450,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 
 	}
 
-	private void freeInternal(final String secretReservationKey) throws ExperimentNotRunningException_Exception {
+	private void freeInternal(final String secretReservationKey) throws ExperimentNotRunningFault_Exception {
 
 		synchronized (scheduledCleanUpWSNInstanceJobs) {
 
@@ -498,24 +499,24 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	 *
 	 * @return the list of reservations
 	 *
-	 * @throws UnknownReservationIdException_Exception
+	 * @throws UnknownReservationIdFault_Exception
 	 * 		if the reservation could not be found
 	 */
 	private List<ConfidentialReservationData> getReservationDataFromRS(
-			List<SecretReservationKey> secretReservationKeys) throws UnknownReservationIdException_Exception {
+			List<SecretReservationKey> secretReservationKeys) throws UnknownReservationIdFault_Exception {
 
 		try {
 
 			RS rsService = WisebedServiceHelper.getRSService(config.getReservationEndpointUrl().toString());
 			return rsService.getReservation((secretReservationKeys));
 
-		} catch (RSExceptionException e) {
+		} catch (RSFault_Exception e) {
 			String msg = "Generic exception occurred in the federated reservation system.";
 			log.warn(msg + ": " + e, e);
-			throw WisebedServiceHelper.createUnknownReservationIdException(msg, null, e);
-		} catch (ReservationNotFoundExceptionException e) {
+			throw createUnknownReservationIdException(msg, null, e);
+		} catch (ReservationNotFoundFault_Exception e) {
 			log.debug("Reservation was not found. Message from RS: {}", e.getMessage());
-			throw WisebedServiceHelper.createUnknownReservationIdException(e.getMessage(), null, e);
+			throw createUnknownReservationIdException(e.getMessage(), null, e);
 		}
 
 	}
@@ -528,11 +529,11 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	 * @param reservations
 	 * 		the reservations to check
 	 *
-	 * @throws ExperimentNotRunningException_Exception
+	 * @throws ExperimentNotRunningFault_Exception
 	 * 		if now is not inside the reservations' time interval
 	 */
 	private void assertReservationIntervalMet(List<ConfidentialReservationData> reservations)
-			throws ExperimentNotRunningException_Exception {
+			throws ExperimentNotRunningFault_Exception {
 
 		for (ConfidentialReservationData reservation : reservations) {
 
@@ -540,19 +541,21 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			DateTime to = new DateTime(reservation.getTo().toGregorianCalendar());
 
 			if (from.isAfterNow()) {
-				throw WisebedServiceHelper
-						.createExperimentNotRunningException("Reservation time interval for node URNs " +
-								Arrays.toString(reservation.getNodeUrns().toArray())
-								+ " lies in the future.", null
-						);
+				throw WisebedServiceHelper.createExperimentNotRunningException(
+						"Reservation time interval for node URNs "
+								+ Arrays.toString(reservation.getNodeUrns().toArray())
+								+ " lies in the future.",
+						null
+				);
 			}
 
 			if (to.isBeforeNow()) {
-				throw WisebedServiceHelper
-						.createExperimentNotRunningException("Reservation time interval for node URNs " +
-								Arrays.toString(reservation.getNodeUrns().toArray())
-								+ " lies in the past.", null
-						);
+				throw WisebedServiceHelper.createExperimentNotRunningException(
+						"Reservation time interval for node URNs "
+								+ Arrays.toString(reservation.getNodeUrns().toArray())
+								+ " lies in the past.",
+						null
+				);
 			}
 
 		}

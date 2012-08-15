@@ -70,7 +70,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
 		log.debug("Starting for " + authenticationData.size() + " urns.");
@@ -100,7 +100,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 					try {
 						sa.authenticate();
 					} catch (Exception e1) {
-						throw createSNAAException("Authentication failed: the authentication system has problems "
+						throw createSNAAFault("Authentication failed: the authentication system has problems "
 								+ "contacting the Shibboleth server. Please try again later!"
 						);
 					}
@@ -115,13 +115,13 @@ public class ShibbolethSNAAImpl implements SNAA {
 					secretAuthKey.setUsername(triple.getUsername());
 					keys.add(secretAuthKey);
 				} else {
-					throw createAuthenticationException("Authentication for urn[" + urn + "] and user["
+					throw createAuthenticationFault_Exception("Authentication for urn[" + urn + "] and user["
 							+ triple.getUsername() + " failed."
 					);
 				}
 
 			} catch (Exception e) {
-				throw createSNAAException("Authentication failed :" + e);
+				throw createSNAAFault("Authentication failed :" + e);
 			}
 
 		}
@@ -134,7 +134,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 	@Override
 	@Deprecated
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-											  final Action action) throws SNAAExceptionException {
+											  final Action action) throws SNAAFault_Exception {
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
 		authorized.setAuthorized(true);
@@ -145,7 +145,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	@Override
 	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
 
 		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
 		saks.add(secretAuthenticationKey);

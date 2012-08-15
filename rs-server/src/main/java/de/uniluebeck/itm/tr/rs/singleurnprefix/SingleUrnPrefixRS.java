@@ -48,7 +48,7 @@ public class SingleUrnPrefixRS implements RS {
 	@AuthorizationRequired("RS_MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData,
 													  ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservationConflictExceptionException, RSExceptionException {
+			throws AuthorizationFault_Exception, ReservationConflictFault_Exception, RSFault_Exception {
 
 		checkNotNull(reservation.getUserData() != null && !"".equals(reservation.getUserData()),
 				"The field userData must be set!"
@@ -68,7 +68,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	private List<SecretReservationKey> makeReservationInternal(final ConfidentialReservationData reservation,
 															   final SecretAuthenticationKey secretAuthenticationKey)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(reservation.getFrom());
@@ -93,14 +93,14 @@ public class SingleUrnPrefixRS implements RS {
 			return keys;
 
 		} catch (Exception e) {
-			throw createRSExceptionException(e.getMessage());
+			throw createRSFault_Exception(e.getMessage());
 		}
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException,
-			ReservationNotFoundExceptionException {
+			throws RSFault_Exception,
+			ReservationNotFoundFault_Exception {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 		checkArgumentValidReservation(secretReservationKeys);
@@ -110,9 +110,9 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (reservation == null) {
 			String msg = "Reservation not found for key " + secretReservationKey;
-			ReservationNotFoundException exception = new ReservationNotFoundException();
+			ReservationNotFoundFault exception = new ReservationNotFoundFault();
 			exception.setMessage(msg);
-			throw new ReservationNotFoundExceptionException(msg, exception);
+			throw new ReservationNotFoundFault_Exception(msg, exception);
 		}
 
 		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
@@ -123,7 +123,7 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	@AuthorizationRequired("RS_DELETE_RESERVATION")
 	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
@@ -133,8 +133,8 @@ public class SingleUrnPrefixRS implements RS {
 		// checkArgumentValidAuthentication(authenticationData);
 		// try {
 		// checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
-		// } catch (AuthorizationExceptionException e) {
-		// throwRSExceptionException(e);
+		// } catch (AuthorizationFault_Exception e) {
+		// throwRSFault_Exception(e);
 		// }
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
@@ -147,19 +147,19 @@ public class SingleUrnPrefixRS implements RS {
 		log.debug("Deleted reservation {}", reservationToDelete);
 	}
 
-	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSExceptionException {
+	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
 
 		DateTime reservationFrom = new DateTime(reservation.getFrom().toGregorianCalendar());
 
 		if (reservationFrom.isBeforeNow()) {
 			final String msg = "You are not allowed to delete reservations that have already started.";
-			throw createRSExceptionException(msg);
+			throw createRSFault_Exception(msg);
 		}
 	}
 
 	@Override
 	public List<PublicReservationData> getReservations(XMLGregorianCalendar from, XMLGregorianCalendar to)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
 		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
@@ -176,7 +176,7 @@ public class SingleUrnPrefixRS implements RS {
 	@AuthorizationRequired("RS_GET_RESERVATIONS")
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			GetReservations period) throws RSExceptionException {
+			GetReservations period) throws RSFault_Exception {
 
 		checkNotNull(period, "Parameter period is null!");
 		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
@@ -204,32 +204,32 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
 			String msg = "No or too much authentication data supplied -> error.";
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
 		if (!urnPrefix.equals(sak.getUrnPrefix())) {
 			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 	}
 
 
-	private RSExceptionException createRSExceptionException(String message) {
-		RSException exception = new RSException();
+	private RSFault_Exception createRSFault_Exception(String message) {
+		RSFault exception = new RSFault();
 		exception.setMessage(message);
-		return new RSExceptionException(message, exception);
+		return new RSFault_Exception(message, exception);
 	}
 
 	private PublicReservationData convertToPublic(ConfidentialReservationData confidentialReservationData) {
@@ -241,12 +241,12 @@ public class SingleUrnPrefixRS implements RS {
 		return publicReservationData;
 	}
 
-	private void checkNodesServed(List<String> nodeUrns) throws RSExceptionException {
+	private void checkNodesServed(List<String> nodeUrns) throws RSFault_Exception {
 
 		// Check if we serve all node urns by urnPrefix
 		for (String nodeUrn : nodeUrns) {
 			if (!nodeUrn.startsWith(urnPrefix)) {
-				throw createRSExceptionException(
+				throw createRSFault_Exception(
 						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
 				);
 			}
@@ -261,7 +261,7 @@ public class SingleUrnPrefixRS implements RS {
 			try {
 				networkNodes = servedNodeUrns.get();
 			} catch (Exception e) {
-				throw createRSExceptionException(e.getMessage());
+				throw createRSFault_Exception(e.getMessage());
 			}
 
 			List<String> unservedNodes = new LinkedList<String>();
@@ -283,7 +283,7 @@ public class SingleUrnPrefixRS implements RS {
 			}
 
 			if (unservedNodes.size() > 0) {
-				throw createRSExceptionException("The node URNs " + Arrays.toString(unservedNodes.toArray())
+				throw createRSFault_Exception("The node URNs " + Arrays.toString(unservedNodes.toArray())
 						+ " are unknown to the reservation system!"
 				);
 			}
@@ -294,7 +294,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private void checkArgumentValid(PublicReservationData reservation) throws RSExceptionException {
+	private void checkArgumentValid(PublicReservationData reservation) throws RSFault_Exception {
 		String msg = null;
 
 		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
@@ -315,15 +315,15 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (msg != null) {
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 
 	}
 
 	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		String msg = null;
 		SecretReservationKey srk;
@@ -341,14 +341,14 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (msg != null) {
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 	}
 
 	private void checkNodesAvailable(PublicReservationData reservation)
-			throws ReservationConflictExceptionException, RSExceptionException {
+			throws ReservationConflictFault_Exception, RSFault_Exception {
 
 		List<String> requested = transform(reservation.getNodeUrns(), StringUtils.STRING_TO_LOWER_CASE);
 		Set<String> reserved = new HashSet<String>();
@@ -364,19 +364,19 @@ public class SingleUrnPrefixRS implements RS {
 			String msg = "Some of the nodes are reserved during the requested time (" + Arrays
 					.toString(intersection.toArray()) + ")";
 			log.warn(msg);
-			ReservationConflictException exception = new ReservationConflictException();
+			ReservationConflictFault exception = new ReservationConflictFault();
 			exception.setMessage(msg);
-			throw new ReservationConflictExceptionException(msg, exception);
+			throw new ReservationConflictFault_Exception(msg, exception);
 		}
 	}
 
-	private void checkArgumentValid(final GetReservations period) throws RSExceptionException {
+	private void checkArgumentValid(final GetReservations period) throws RSFault_Exception {
 		if (period == null || period.getFrom() == null || period.getTo() == null) {
 			String message = "Error on checking null for period. Either period, period.from or period.to is null.";
 			log.warn(message);
-			RSException rse = new RSException();
+			RSFault rse = new RSFault();
 			rse.setMessage(message);
-			throw new RSExceptionException(message, rse);
+			throw new RSFault_Exception(message, rse);
 		}
 	}
 

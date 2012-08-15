@@ -93,7 +93,7 @@ public class JAASSNAA implements SNAA {
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
 		assertUrnPrefixServed(urnPrefix, authenticationData);
@@ -126,10 +126,10 @@ public class JAASSNAA implements SNAA {
 
 		} catch (LoginException le) {
 			log.debug("LoginException: " + le, le);
-			throw createAuthenticationException("Authentication failed!");
+			throw createAuthenticationFault_Exception("Authentication failed!");
 		} catch (SecurityException se) {
 			log.debug("SecurityException: " + se, se);
-			throw createSNAAException("Internal Server Error");
+			throw createSNAAFault("Internal Server Error");
 		}
 
 	}
@@ -137,7 +137,7 @@ public class JAASSNAA implements SNAA {
 	@Override
 	@Deprecated
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-											  final Action action) throws SNAAExceptionException {
+											  final Action action) throws SNAAFault_Exception {
 
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
@@ -148,7 +148,7 @@ public class JAASSNAA implements SNAA {
 
 	@Override
 	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
 
 		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
 		saks.add(secretAuthenticationKey);

@@ -47,7 +47,7 @@ public class DummyRS implements RS {
 
 	@Override
 	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
-													   final XMLGregorianCalendar to) throws RSExceptionException {
+													   final XMLGregorianCalendar to) throws RSFault_Exception {
 		return Collections.emptyList();
 
 	}
@@ -55,7 +55,7 @@ public class DummyRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final GetReservations period) throws RSExceptionException {
+			final GetReservations period) throws RSFault_Exception {
 
 		return Collections.emptyList();
 
@@ -63,18 +63,18 @@ public class DummyRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		String msg = "Reservation not found (not implemented, this is the dummy implementation";
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 
 	}
 
 	@Override
 	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		// nothing to do as this is a dummy
 	}
@@ -83,7 +83,7 @@ public class DummyRS implements RS {
 	public List<SecretReservationKey> makeReservation(
 			final List<SecretAuthenticationKey> authenticationData,
 			final ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());
 

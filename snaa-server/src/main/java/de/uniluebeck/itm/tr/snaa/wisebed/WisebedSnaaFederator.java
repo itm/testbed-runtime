@@ -70,7 +70,7 @@ public class WisebedSnaaFederator implements SNAA {
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::authenticate delegating to internal ShibbolethSNAA instance");
 		return authenticationSnaa.authenticate(authenticationData);
@@ -78,7 +78,7 @@ public class WisebedSnaaFederator implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-											  final Action action) throws SNAAExceptionException {
+											  final Action action) throws SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::isAuthorized delegating to internal FederatorSNAA instance");
 		return authorizationFederator.isAuthorized(usernameNodeUrnsMapList, action);
@@ -86,7 +86,7 @@ public class WisebedSnaaFederator implements SNAA {
 
 	@Override
 	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::isValid delegating to internal FederatorSNAA instance");
 		return authorizationFederator.isValid(secretAuthenticationKey);

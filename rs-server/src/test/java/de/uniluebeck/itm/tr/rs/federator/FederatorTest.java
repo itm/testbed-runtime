@@ -97,8 +97,8 @@ public class FederatorTest {
 	public void testGetReservationsWithNullParameters() {
 		try {
 			federatorRS.getReservations(null, null);
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -106,8 +106,8 @@ public class FederatorTest {
 	public void testGetReservationWithNullParameters() throws Exception {
 		try {
 			federatorRS.getReservation(null);
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -119,8 +119,8 @@ public class FederatorTest {
 
 		try {
 			federatorRS.getReservation(newArrayList(new SecretReservationKey()));
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -134,13 +134,13 @@ public class FederatorTest {
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new ReservationNotFoundExceptionException("", new ReservationNotFoundException())
+				new ReservationNotFoundFault_Exception("", new ReservationNotFoundFault())
 		);
 
 		try {
 			federatorRS.getReservation(secretReservationKeys);
-			fail("Should have raised ReservationNotFoundException");
-		} catch (ReservationNotFoundExceptionException expected) {
+			fail("Should have raised ReservationNotFoundFault");
+		} catch (ReservationNotFoundFault_Exception expected) {
 		}
 	}
 
@@ -148,8 +148,8 @@ public class FederatorTest {
 	public void testMakeReservationWithNullParameters() throws Exception {
 		try {
 			federatorRS.makeReservation(null, null);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised an RSFault_Exception");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -158,8 +158,8 @@ public class FederatorTest {
 		try {
 			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
 			federatorRS.makeReservation(data, null);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised an RSFault_Exception");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -170,8 +170,8 @@ public class FederatorTest {
 			ConfidentialReservationData resData = new ConfidentialReservationData();
 			resData.getNodeUrns().add("urn:not:served");
 			federatorRS.makeReservation(authData, resData);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised an RSFault_Exception");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -184,8 +184,8 @@ public class FederatorTest {
 			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
 			resData.getNodeUrns().add("urn:wisebed1:testbed1");
 			federatorRS.makeReservation(authData, resData);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised an RSFault_Exception");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -197,7 +197,7 @@ public class FederatorTest {
 			resData.getNodeUrns();
 			federatorRS.makeReservation(authData, resData);
 			fail();
-		} catch (RSExceptionException expected) {
+		} catch (RSFault_Exception expected) {
 		}
 	}
 

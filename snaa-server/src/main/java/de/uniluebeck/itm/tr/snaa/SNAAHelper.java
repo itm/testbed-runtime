@@ -46,49 +46,49 @@ public class SNAAHelper {
 
 	public static void assertMinAuthenticationCount(List<AuthenticationTriple> authenticationData,
 													int minCountInclusive)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			createSNAAFault(e.getMessage());
 		}
 	}
 
 	public static void assertAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive,
-												 int maxCountInclusive) throws SNAAExceptionException {
+												 int maxCountInclusive) throws SNAAFault_Exception {
 
 		try {
 			assertCollectionMinMaxCount(authenticationData, minCountInclusive, maxCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			createSNAAFault(e.getMessage());
 		}
 	}
 
 	public static void assertAuthenticationKeyCount(List<SecretAuthenticationKey> authenticationData,
 													int minCountInclusive, int maxCountInclusive)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			createSNAAFault(e.getMessage());
 		}
 
 	}
 
 	public static void assertElementCount(Collection<?> c, int minCountInclusive, int maxCountInclusive)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		try {
 			assertCollectionMinCount(c, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			createSNAAFault(e.getMessage());
 		}
 
 	}
 
 	public static void assertUrnPrefixServed(String servedURNPrefix, List<AuthenticationTriple> authenticationData)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 		Set<String> urnPrefixes = new HashSet<String>();
 		urnPrefixes.add(servedURNPrefix);
 
@@ -98,7 +98,7 @@ public class SNAAHelper {
 
 	public static void assertSAKUrnPrefixServed(String servedURNPrefix,
 												List<SecretAuthenticationKey> authenticationData)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 		Set<String> urnPrefixes = new HashSet<String>();
 		urnPrefixes.add(servedURNPrefix);
 
@@ -108,22 +108,22 @@ public class SNAAHelper {
 
 	public static void assertAllUrnPrefixesServed(Set<String> servedURNPrefixes,
 												  List<AuthenticationTriple> authenticationData)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		for (AuthenticationTriple triple : authenticationData) {
 			if (!servedURNPrefixes.contains(triple.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + triple.getUrnPrefix());
+				throw createSNAAFault("Not serving urn prefix " + triple.getUrnPrefix());
 			}
 		}
 	}
 
 	public static void assertAllSAKUrnPrefixesServed(Set<String> servedURNPrefixes,
 													 List<SecretAuthenticationKey> authenticationData)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		for (SecretAuthenticationKey key : authenticationData) {
 			if (!servedURNPrefixes.contains(key.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + key.getUrnPrefix());
+				throw createSNAAFault("Not serving urn prefix " + key.getUrnPrefix());
 			}
 		}
 	}
@@ -133,18 +133,18 @@ public class SNAAHelper {
 	 *
 	 * @return
 	 */
-	public static SNAAExceptionException createSNAAException(String msg) {
+	public static SNAAFault_Exception createSNAAFault(String msg) {
 		log.warn(msg);
-		SNAAException exception = new SNAAException();
+		SNAAFault exception = new SNAAFault();
 		exception.setMessage(msg);
-		return new SNAAExceptionException(msg, exception);
+		return new SNAAFault_Exception(msg, exception);
 	}
 
-	public static AuthenticationExceptionException createAuthenticationException(String msg) {
+	public static AuthenticationFault_Exception createAuthenticationFault_Exception(String msg) {
 		log.warn(msg);
-		AuthenticationException exception = new AuthenticationException();
+		AuthenticationFault exception = new AuthenticationFault();
 		exception.setMessage(msg);
-		return new AuthenticationExceptionException(msg, exception);
+		return new AuthenticationFault_Exception(msg, exception);
 	}
 	
 

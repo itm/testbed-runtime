@@ -64,7 +64,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -108,7 +108,7 @@ public class FederatorRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> authenticationData,
 													  final ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservationConflictExceptionException {
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		assertNotNull(authenticationData, "authenticationData");
 		assertNotNull(reservation, "reservation");
@@ -184,7 +184,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
-													   final XMLGregorianCalendar to) throws RSExceptionException {
+													   final XMLGregorianCalendar to) throws RSFault_Exception {
 
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
@@ -201,9 +201,9 @@ public class FederatorRS implements RS {
 			try {
 				res.addAll(future.get());
 			} catch (InterruptedException e) {
-				throwRSException("InterruptedException while getting reservations!", e);
+				throwRSFault("InterruptedException while getting reservations!", e);
 			} catch (ExecutionException e) {
-				throwRSException("ExecutionException while getting reservations!", e);
+				throwRSFault("ExecutionException while getting reservations!", e);
 			}
 		}
 
@@ -213,11 +213,11 @@ public class FederatorRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final GetReservations period) throws RSExceptionException {
+			final GetReservations period) throws RSFault_Exception {
 
 		//check for null
 		if (period.getFrom() == null || period.getTo() == null) {
-			throw createRSExceptionException(
+			throw createRSFault_Exception(
 					"could not validate period from: " + period.getFrom() + " to: " + period.getTo()
 			);
 		}
@@ -243,11 +243,11 @@ public class FederatorRS implements RS {
 			} catch (InterruptedException e) {
 				String message = "InterruptedException while getting reservations!";
 				log.warn(message);
-				throwRSException(message, e);
+				throwRSFault(message, e);
 			} catch (ExecutionException e) {
 				String message = "ExecutionException while getting reservations!";
 				log.warn(message);
-				throwRSException(message, e);
+				throwRSFault(message, e);
 			}
 		}
 
@@ -256,7 +256,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -278,37 +278,37 @@ public class FederatorRS implements RS {
 			try {
 				res.addAll(future.get());
 			} catch (InterruptedException e) {
-				throwRSException("InterruptedException while getting reservation data!", e);
+				throwRSFault("InterruptedException while getting reservation data!", e);
 			} catch (ExecutionException e) {
-				if (e.getCause() instanceof RSExceptionException) {
-					throw (RSExceptionException) e.getCause();
+				if (e.getCause() instanceof RSFault_Exception) {
+					throw (RSFault_Exception) e.getCause();
 				}
-				if (e.getCause() instanceof ReservationNotFoundExceptionException) {
-					throw (ReservationNotFoundExceptionException) e.getCause();
+				if (e.getCause() instanceof ReservationNotFoundFault_Exception) {
+					throw (ReservationNotFoundFault_Exception) e.getCause();
 				}
-				throwRSException("Unknown exception occurred!", e.getCause());
+				throwRSFault("Unknown exception occurred!", e.getCause());
 			}
 		}
 
 		return res;
 	}
 
-	private static void assertTrue(boolean bool, String errorMessage) throws RSExceptionException {
+	private static void assertTrue(boolean bool, String errorMessage) throws RSFault_Exception {
 		if (!bool) {
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(errorMessage);
-			throw new RSExceptionException(errorMessage, exception);
+			throw new RSFault_Exception(errorMessage, exception);
 		}
 	}
 
-	private static void assertNotNull(Object obj, String paramName) throws RSExceptionException {
+	private static void assertNotNull(Object obj, String paramName) throws RSFault_Exception {
 		if (obj != null) {
 			return;
 		}
 		String msg = "Argument " + paramName + " must not be null!";
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 	}
 
 	/**
@@ -317,13 +317,13 @@ public class FederatorRS implements RS {
 	 * @param reservationMap    a mapping between federated endpoints and the reservation data belonging to them
 	 * @param authenticationMap a mapping between federated endpoints and the authentication data belonging to them
 	 *
-	 * @throws AuthorizationExceptionException
+	 * @throws AuthorizationFault_Exception
 	 *          if the user has insufficient authorization
 	 */
 	/*private void assertAuthenticationForReservation(
 			final BiMap<RS, ConfidentialReservationData> reservationMap,
 			final BiMap<RS, List<SecretAuthenticationKey>> authenticationMap)
-			throws AuthorizationExceptionException {
+			throws AuthorizationFault_Exception {
 
 		// TODO really check the matches
 		boolean matches = reservationMap.size() == authenticationMap.size();
@@ -332,7 +332,7 @@ public class FederatorRS implements RS {
 			String msg = "Not for all reservation there's a matching secret authentication key!";
 			AuthorizationException exception = new AuthorizationException();
 			exception.setMessage(msg);
-			throw new AuthorizationExceptionException(msg, exception);
+			throw new AuthorizationFault_Exception(msg, exception);
 		}
 	}*/
 
@@ -343,10 +343,10 @@ public class FederatorRS implements RS {
 	 * @param nodeUrns
 	 * 		the node URNs to check
 	 *
-	 * @throws RSExceptionException
+	 * @throws RSFault_Exception
 	 * 		if one of the node URNs is not served by this instance
 	 */
-	private void assertUrnsServed(List<String> nodeUrns) throws RSExceptionException {
+	private void assertUrnsServed(List<String> nodeUrns) throws RSFault_Exception {
 
 		List<String> notServed = new LinkedList<String>();
 
@@ -359,20 +359,20 @@ public class FederatorRS implements RS {
 
 		if (notServed.size() > 0) {
 			String msg = "The nodes " + Arrays.toString(notServed.toArray()) + " are not served by this RS instance!";
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 
 	}
 
-	private RSExceptionException createRSExceptionException(String s) {
-		RSException exception = new RSException();
+	private RSFault_Exception createRSFault_Exception(String s) {
+		RSFault exception = new RSFault();
 		exception.setMessage(s);
-		return new RSExceptionException(s, exception);
+		return new RSFault_Exception(s, exception);
 	}
 
-	private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSExceptionException {
+	private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSFault_Exception {
 		StringBuilder builder = new StringBuilder();
 		builder.append("The following errors occurred: \n");
 		for (String failMessage : failMessages) {
@@ -380,16 +380,16 @@ public class FederatorRS implements RS {
 			builder.append("\n");
 		}
 		String msg = builder.toString();
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 	}
 
-	private void throwRSException(String msg, Throwable e) throws RSExceptionException {
+	private void throwRSFault(String msg, Throwable e) throws RSFault_Exception {
 		log.error(msg, e);
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception, e);
+		throw new RSFault_Exception(msg, exception, e);
 	}
 
 	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded) {

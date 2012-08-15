@@ -40,11 +40,11 @@ import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.ReservationNotFoundExceptionException;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,7 +232,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
@@ -270,10 +270,10 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			reservedNodeUrns = reservedNodeUrnsBuilder.build();
 
-		} catch (ReservationNotFoundExceptionException e) {
-			final UnknownReservationIdException faultInfo = new UnknownReservationIdException();
+		} catch (ReservationNotFoundFault_Exception e) {
+			final UnknownReservationIdFault faultInfo = new UnknownReservationIdFault();
 			faultInfo.setMessage(e.getFaultInfo().getMessage());
-			throw new UnknownReservationIdException_Exception(e.getMessage(), faultInfo, e);
+			throw new UnknownReservationIdFault_Exception(e.getMessage(), faultInfo, e);
 		} catch (Exception e) {
 			log.warn("An exception was thrown by the reservation system: " + e, e);
 			throw new RuntimeException("An exception was thrown by the reservation system: " + e, e);

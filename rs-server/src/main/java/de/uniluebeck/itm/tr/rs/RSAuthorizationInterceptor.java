@@ -5,13 +5,13 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RSException;
-import eu.wisebed.api.v3.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.v3.snaa.SNAA;
-import eu.wisebed.api.v3.snaa.SNAAExceptionException;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import eu.wisebed.api.v3.util.WisebedConversionHelper;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -215,7 +215,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 	private AuthorizationResponse checkRSGetReservationsAuthorization(
 			List<SecretAuthenticationKey> secretAuthenticationKeys)
-			throws SNAAExceptionException, RSExceptionException {
+			throws SNAAFault_Exception, RSFault_Exception {
 
 		AuthorizationResponse response = new AuthorizationResponse();
 		response.setAuthorized(true);
@@ -251,14 +251,14 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 *
 	 * @return An object which returns whether the requested action is authorized.
 	 *
-	 * @throws RSExceptionException
+	 * @throws RSFault_Exception
 	 * 		Thrown if an exception is thrown in the reservation system
 	 */
 	@Nonnull
 	private AuthorizationResponse checkMakeReservationAuthorization(final List<UsernameUrnPrefixPair> upp,
 																	final Action action,
 																	Collection<String> nodeURNs)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		try {
 
@@ -267,22 +267,22 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 			AuthorizationResponse authorizationResponse = snaa.isAuthorized(mapList, action);
 			log.debug("Authorization result: " + authorizationResponse);
 			if (authorizationResponse == null) {
-				throw createRSException("Authorization result was null");
+				throw createRSFault("Authorization result was null");
 			}
 			return authorizationResponse;
 
-		} catch (SNAAExceptionException e) {
-			throw createRSException(e.getMessage());
+		} catch (SNAAFault_Exception e) {
+			throw createRSFault(e.getMessage());
 		} catch (InvalidAttributesException e) {
-			throw createRSException(e.getMessage());
+			throw createRSFault(e.getMessage());
 		}
 	}
 
-	private RSExceptionException createRSException(final String message) {
-		RSException rse = new RSException();
+	private RSFault_Exception createRSFault(final String message) {
+		RSFault rse = new RSFault();
 		log.warn(message);
 		rse.setMessage(message);
-		return new RSExceptionException(message, rse);
+		return new RSFault_Exception(message, rse);
 	}
 
 	// ------------------------------------------------------------------------
@@ -293,12 +293,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @param message
 	 * 		States the cause of the authorization failure.
 	 */
-	private RSExceptionException getAuthorizationFailedException(final String message) {
-		RSException e = new RSException();
+	private RSFault_Exception getAuthorizationFailedException(final String message) {
+		RSFault e = new RSFault();
 
 		String msg = "Authorization failed" + ((message != null && message.length() > 0) ? ": " + message : "");
 		e.setMessage(msg);
 		log.warn(msg, e);
-		return new RSExceptionException(msg, e);
+		return new RSFault_Exception(msg, e);
 	}
 }

@@ -24,7 +24,7 @@
 package eu.wisebed.testbed.api.snaa.authorization;
 
 import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.SNAAExceptionException;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +60,6 @@ public interface IUserAuthorization {
 
 	}
 
-	boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException;
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
 
 }

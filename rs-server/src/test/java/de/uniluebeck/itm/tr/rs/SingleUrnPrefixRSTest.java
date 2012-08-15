@@ -193,7 +193,7 @@ public class SingleUrnPrefixRSTest {
 		try {
 			rs.deleteReservation(user1Srks);
 			fail();
-		} catch (RSExceptionException e) {
+		} catch (RSFault_Exception e) {
 			// this should be thrown
 		}
 
@@ -286,11 +286,11 @@ public class SingleUrnPrefixRSTest {
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
-		} catch (AuthorizationExceptionException e) {
+		} catch (AuthorizationFault_Exception e) {
 			fail();
-		} catch (RSExceptionException e) {
+		} catch (RSFault_Exception e) {
 			fail();
-		} catch (ReservationConflictExceptionException expected) {
+		} catch (ReservationConflictFault_Exception expected) {
 		}
 
 		// try to reserve in lowercase
@@ -298,11 +298,11 @@ public class SingleUrnPrefixRSTest {
 		try {
 			rs.makeReservation(user1Saks, crd);
 			fail();
-		} catch (AuthorizationExceptionException e) {
+		} catch (AuthorizationFault_Exception e) {
 			fail();
-		} catch (RSExceptionException e) {
+		} catch (RSFault_Exception e) {
 			fail();
-		} catch (ReservationConflictExceptionException expected) {
+		} catch (ReservationConflictFault_Exception expected) {
 		}
 
 	}

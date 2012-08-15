@@ -57,7 +57,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> authenticationData,
 													  final ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservationConflictExceptionException, RSExceptionException {
+			throws AuthorizationFault_Exception, ReservationConflictFault_Exception, RSFault_Exception {
 
 		return reservationSystem.makeReservation(authenticationData, reservation);
 
@@ -66,21 +66,21 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getReservation(
 			final List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		return reservationSystem.getReservation(secretReservationKeys);
 	}
 
 	@Override
 	public void deleteReservation(final List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		reservationSystem.deleteReservation(secretReservationKeys);
 	}
 
 	@Override
 	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from, final XMLGregorianCalendar to)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		return reservationSystem.getReservations(from, to);
 	}
@@ -88,7 +88,7 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final GetReservations period) throws RSExceptionException {
+			final GetReservations period) throws RSFault_Exception {
 
 		return reservationSystem.getConfidentialReservations(secretAuthenticationKeys, period);
 	}

@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAException;
+import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAFault;
 
 @WebService(
 		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
@@ -124,10 +124,10 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	protected Map<String, Set<AuthenticationTriple>> getIntersectionPrefixSetAT(
-			List<AuthenticationTriple> authenticationData) throws SNAAExceptionException {
+			List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
 
 		if (authenticationData == null) {
-			throw createSNAAException("Argument authenticationData must not be null!");
+			throw createSNAAFault("Argument authenticationData must not be null!");
 		}
 
 		// WS Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
@@ -157,7 +157,7 @@ public class FederatorSNAA implements SNAA {
 			}
 
 			if (!found) {
-				throw createSNAAException("No endpoint known for URN prefix " + authenticationTriple.getUrnPrefix());
+				throw createSNAAFault("No endpoint known for URN prefix " + authenticationTriple.getUrnPrefix());
 			}
 
 		}
@@ -166,7 +166,7 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	protected Map<String, Set<SecretAuthenticationKey>> getIntersectionPrefixSetSAK(
-			List<SecretAuthenticationKey> authenticationKeys) throws SNAAExceptionException {
+			List<SecretAuthenticationKey> authenticationKeys) throws SNAAFault_Exception {
 
 		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
 		// authenticationData
@@ -198,7 +198,7 @@ public class FederatorSNAA implements SNAA {
 			}
 
 			if (!found) {
-				throw createSNAAException("No endpoint known for URN prefix " + secretAuthenticationKey.getUrnPrefix());
+				throw createSNAAFault("No endpoint known for URN prefix " + secretAuthenticationKey.getUrnPrefix());
 			}
 
 		}
@@ -207,7 +207,7 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	protected Map<String, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
-			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAExceptionException {
+			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAFault_Exception {
 
 		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
 		// authenticationData
@@ -239,7 +239,7 @@ public class FederatorSNAA implements SNAA {
 			}
 
 			if (!found) {
-				throw createSNAAException("No endpoint known for URN prefix " + usernameURNPrefixPair.getUrnPrefix());
+				throw createSNAAFault("No endpoint known for URN prefix " + usernameURNPrefixPair.getUrnPrefix());
 			}
 
 		}
@@ -249,7 +249,7 @@ public class FederatorSNAA implements SNAA {
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		Map<String, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
 
@@ -269,13 +269,13 @@ public class FederatorSNAA implements SNAA {
 			try {
 				resultSet.addAll(future.get());
 			} catch (InterruptedException e) {
-				SNAAException exception = new SNAAException();
+				SNAAFault exception = new SNAAFault();
 				exception.setMessage(e.getMessage());
-				throw new SNAAExceptionException(e.getMessage(), exception, e);
+				throw new SNAAFault_Exception(e.getMessage(), exception, e);
 			} catch (ExecutionException e) {
-				SNAAException exception = new SNAAException();
+				SNAAFault exception = new SNAAFault();
 				exception.setMessage(e.getMessage());
-				throw new SNAAExceptionException(e.getMessage(), exception, e);
+				throw new SNAAFault_Exception(e.getMessage(), exception, e);
 			}
 		}
 
@@ -285,10 +285,10 @@ public class FederatorSNAA implements SNAA {
 
 	@Override
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
-											  final Action action) throws SNAAExceptionException {
+											  final Action action) throws SNAAFault_Exception {
 
 		if (usernameNodeUrnsMapList == null || action == null) {
-			throw createSNAAException("Arguments must not be null!");
+			throw createSNAAFault("Arguments must not be null!");
 		}
 
 		AuthorizationResponse response = new AuthorizationResponse();
@@ -315,9 +315,9 @@ public class FederatorSNAA implements SNAA {
 				response.setMessage(response.getMessage() + "; " + authorizationResponse.getMessage());
 				response.setAuthorized(response.isAuthorized() && authorizationResponse.isAuthorized());
 			} catch (InterruptedException e) {
-				throw createSNAAException(e.getMessage());
+				throw createSNAAFault(e.getMessage());
 			} catch (ExecutionException e) {
-				throw createSNAAException(e.getMessage());
+				throw createSNAAFault(e.getMessage());
 			}
 		}
 
@@ -335,19 +335,19 @@ public class FederatorSNAA implements SNAA {
 
 	@Override
 	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAExceptionException {
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
 
 		if (secretAuthenticationKey == null) {
-			throw createSNAAException("SecretAuthenticationKey must not be null!");
+			throw createSNAAFault("SecretAuthenticationKey must not be null!");
 		}
 
 		try {
 			Future<ValidationResult> future = executorService.submit(new IsValidCallable(secretAuthenticationKey));
 			return future.get();
 		} catch (InterruptedException e) {
-			throw createSNAAException(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		} catch (ExecutionException e) {
-			throw createSNAAException(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 	}
 

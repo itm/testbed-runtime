@@ -146,10 +146,10 @@ public class SNAAClient {
 					);
 				}
 
-			} catch (AuthenticationExceptionException e) {
+			} catch (AuthenticationFault_Exception e) {
 				System.out.println("Authentication failed [" + e + "]");
 				e.printStackTrace();
-			} catch (SNAAExceptionException e) {
+			} catch (SNAAFault_Exception e) {
 				System.out.println("Server reported error, authentication failed [" + e + "]");
 				e.printStackTrace();
 			}
@@ -166,7 +166,7 @@ public class SNAAClient {
 				AuthorizationResponse authorized = port.isAuthorized(WisebedConversionHelper.convertToUsernameNodeUrnsMap(saks, new LinkedList<String>()), actionObj);
 				System.out.println("Authorization " + (authorized.isAuthorized() ? "suceeded" : "failed"));
 
-			} catch (SNAAExceptionException e) {
+			} catch (SNAAFault_Exception e) {
 				System.out.println("Authorization failed, server reported error [" + e + "]");
 				e.printStackTrace();
 			} catch (InvalidAttributesException e) {

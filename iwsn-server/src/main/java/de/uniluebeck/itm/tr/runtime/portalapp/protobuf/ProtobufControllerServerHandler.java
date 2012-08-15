@@ -8,7 +8,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,11 +185,11 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			List<SecretReservationKey> secretReservationKeys = convert(envelope.getSecretReservationKeys());
 
 			try {
+
 				sessionManagement.getInstance(secretReservationKeys);
-				
 				wsnServiceHandle = sessionManagement.getWsnServiceHandle(secretReservationKey);
-				wsnServiceHandle.getWsnService().addController("NONE");
-			} catch (UnknownReservationIdException_Exception e1) {
+
+			} catch (UnknownReservationIdFault_Exception e1) {
 				log.debug("{}", e1.getMessage());
 				channel.close();
 				return;
@@ -204,7 +204,6 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 				channel.close();
 				return;
 			}
-
 		}
 
 		log.debug("Valid secret reservation key. Adding listener to WSN App instance.");

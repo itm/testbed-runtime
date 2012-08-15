@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningException_Exception;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 
 
 
@@ -54,14 +54,14 @@ public class SessionManagementHelper {
 		return "wsnInstanceHash" + map.hashCode();
 	}
 
-	public static ExperimentNotRunningException_Exception createExperimentNotRunningException(
+	public static ExperimentNotRunningFault_Exception createExperimentNotRunningException(
 			final String secretReservationKey) {
 
 		String msg = "Experiment with secret reservation key \""+secretReservationKey+"\" either does not exist "
 				+ "or is currently not running.";
 
-		ExperimentNotRunningException exception = new ExperimentNotRunningException();
+		ExperimentNotRunningFault exception = new ExperimentNotRunningFault();
 		exception.setMessage(msg);
-		return new ExperimentNotRunningException_Exception(msg, exception);
+		return new ExperimentNotRunningFault_Exception(msg, exception);
 	}
 }

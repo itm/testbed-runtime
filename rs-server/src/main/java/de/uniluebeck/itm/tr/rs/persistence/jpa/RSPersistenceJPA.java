@@ -62,7 +62,7 @@ public class RSPersistenceJPA implements RSPersistence {
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
 											   String urnPrefix)
-			throws RSExceptionException {
+			throws RSFault_Exception {
 
 		SecretReservationKeyInternal secretReservationKey = null;
 		String generatedSecretReservationKey = null;
@@ -120,16 +120,16 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			String msg = "Could not add Reservation because of: " + e.getMessage();
 			log.error(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception, e);
+			throw new RSFault_Exception(msg, exception, e);
 
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
@@ -138,20 +138,20 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
@@ -160,8 +160,8 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 		reservationData.delete();
@@ -172,13 +172,13 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSExceptionException {
+	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSFault_Exception {
 
 		// transforming to default timezone
 		GregorianCalendar from = interval.getStart().toGregorianCalendar();
@@ -195,7 +195,7 @@ public class RSPersistenceJPA implements RSPersistence {
 					.getResultList(), this.localTimeZone
 			);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 
