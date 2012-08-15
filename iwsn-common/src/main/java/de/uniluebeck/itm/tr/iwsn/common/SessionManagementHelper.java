@@ -40,7 +40,7 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.api.v3.sm.SecretReservationKey} instances that
+	 * @param secretReservationKeys the list of {@link eu.wisebed.api.v3.common.SecretReservationKey} instances that
 	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash
