@@ -229,6 +229,12 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
+	public void experimentStarted() {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
 	public void experimentEnded() {
 		deliveryManager.experimentEnded();
 	}
