@@ -395,6 +395,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public void addController(final String controllerEndpointUrl) {
 
+		log.debug("WSNServiceImpl.addController({})", controllerEndpointUrl);
+
 		if (!"NONE".equals(controllerEndpointUrl)) {
 			NetworkUtils.checkConnectivity(controllerEndpointUrl);
 		}
@@ -404,6 +406,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	public void removeController(String controllerEndpointUrl) {
+
+		log.debug("WSNServiceImpl.removeController({})", controllerEndpointUrl);
 
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
