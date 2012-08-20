@@ -28,17 +28,17 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 
 public class WSNAppMessageTools {
 
-	public static String toString(final WSNAppMessages.Message message, final boolean prependSourceNodeId,
+	public static String toString(final WSNAppMessages.UpstreamMessage message, final boolean prependSourceNodeId,
 								  final int maxLength) {
 
 		StringBuilder builder = new StringBuilder();
 
 		if (prependSourceNodeId) {
-			builder.append(message.getSourceNodeId());
+			builder.append(message.getSourceNodeUrn());
 			builder.append(" => ");
 		}
 
-		final ByteString binaryData = message.getBinaryData();
+		final ByteString binaryData = message.getMessageBytes();
 
 		if (binaryData != null) {
 
@@ -53,7 +53,7 @@ public class WSNAppMessageTools {
 		return builder.toString();
 	}
 
-	public static String toString(final WSNAppMessages.Message message, final boolean prependSourceNodeId) {
+	public static String toString(final WSNAppMessages.UpstreamMessage message, final boolean prependSourceNodeId) {
 		return toString(message, prependSourceNodeId, Integer.MAX_VALUE);
 	}
 

@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import org.jboss.netty.channel.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,11 +64,11 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		WisebedMessages.Envelope envelope = (WisebedMessages.Envelope) e.getMessage();
-		switch (envelope.getBodyType()) {
+		switch (envelope.getMessageType()) {
 			case SECRET_RESERVATION_KEYS:
 				receivedSecretReservationKeys(e, envelope);
 				break;
-			case MESSAGE:
+			case DOWNSTREAM_MESSAGE:
 				receivedMessage(ctx, e, envelope);
 				break;
 			default:
@@ -89,16 +90,13 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			return;
 		}
 
-		final WisebedMessages.Message message = envelope.getMessage();
+		final WisebedMessages.DownstreamMessage message = envelope.getDownstreamMessage();
 
 
-		final HashSet<String> nodeUrns = Sets.newHashSet(message.getNodeBinary().getDestinationNodeUrnsList());
+		final HashSet<String> nodeUrns = Sets.newHashSet(message.getTargetNodeUrnsList());
+		final byte[] bytes = message.getMessageBytes().toByteArray();
 
 		try {
-
-			final byte[] bytes = message.getNodeBinary().getData().toByteArray();
-			final String sourceNodeUrn = message.getNodeBinary().getSourceNodeUrn();
-			final String timestamp = message.getTimestamp();
 
 			if (log.isDebugEnabled()) {
 				log.debug("Sending message {} to nodeUrns {}", toPrintableString(bytes, 200), nodeUrns);
@@ -112,7 +110,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 								"\"" + requestStatus.getStatus().getMsg() + "\"" +
 								" (value=" + requestStatus.getStatus().getValue() + ")";
 						log.warn(text);
-						sendBackendMessage(ctx, e.getRemoteAddress(), text);
+						sendNotification(ctx, e.getRemoteAddress(), text);
 					}
 				}
 
@@ -121,32 +119,33 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 					String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception
 							.getMessage();
 					log.error(text);
-					sendBackendMessage(ctx, e.getRemoteAddress(), text);
+					sendNotification(ctx, e.getRemoteAddress(), text);
 				}
 			};
-			wsnServiceHandle.getWsnApp().send(nodeUrns, bytes, sourceNodeUrn, timestamp, callback);
+
+			wsnServiceHandle.getWsnApp().send(nodeUrns, bytes, callback);
 
 		} catch (UnknownNodeUrnsException exception) {
 			String text = "Message delivery to " + nodeUrns + " failed. Reason: " + exception.getMessage();
 			log.error(text);
-			sendBackendMessage(ctx, e.getRemoteAddress(), text);
+			sendNotification(ctx, e.getRemoteAddress(), text);
 		}
 
 
 	}
 
-	private void sendBackendMessage(final ChannelHandlerContext ctx, final SocketAddress remoteAddress,
-									final String text) {
+	private void sendNotification(final ChannelHandlerContext ctx, final SocketAddress remoteAddress,
+								  final String text) {
 
-		WisebedMessages.Message.Backend.Builder backendBuilder = WisebedMessages.Message.Backend.newBuilder()
-				.setText(text);
-		WisebedMessages.Message.Builder messageBuilder = WisebedMessages.Message.newBuilder()
-				.setType(WisebedMessages.Message.Type.BACKEND)
-				.setBackend(backendBuilder);
+		WisebedMessages.Notification.Builder notificationBuilder = WisebedMessages.Notification.newBuilder()
+				.setMsg(text)
+				.setTimestamp(new DateTime().toString());
+
 		WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
-				.setMessage(messageBuilder)
-				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
+				.setNotification(notificationBuilder)
+				.setMessageType(WisebedMessages.MessageType.NOTIFICATION)
 				.build();
+
 		DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
 		future.addListener(new ChannelFutureListener() {
 			@Override
@@ -159,8 +158,8 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 			}
 		}
 		);
-		ctx.sendDownstream(new DownstreamMessageEvent(ctx.getChannel(), future, envelope, remoteAddress));
 
+		ctx.sendDownstream(new DownstreamMessageEvent(ctx.getChannel(), future, envelope, remoteAddress));
 	}
 
 	private void receivedSecretReservationKeys(final MessageEvent e, final WisebedMessages.Envelope envelope) {

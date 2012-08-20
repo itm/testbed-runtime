@@ -129,7 +129,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void send(final long federatorRequestId, final List<String> nodeUrns, final Message message) {
+	public void send(final long federatorRequestId, final List<String> nodeUrns, final byte[] message) {
 
 		wsnPreconditions.checkSendArguments(nodeUrns, message);
 

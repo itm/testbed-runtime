@@ -32,14 +32,14 @@ class SendRunnable extends AbstractRequestRunnable {
 
 	private final List<String> nodeIds;
 
-	private final Message message;
+	private final byte[] message;
 
 	SendRunnable(final FederatorController federatorController,
 				 final WSN wsnEndpoint,
 				 final long federatedRequestId,
 				 final long federatorRequestId,
 				 final List<String> nodeIds,
-				 final Message message) {
+				 final byte[] message) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 

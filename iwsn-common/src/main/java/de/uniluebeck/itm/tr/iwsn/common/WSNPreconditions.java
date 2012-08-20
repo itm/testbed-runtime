@@ -92,16 +92,12 @@ public class WSNPreconditions {
 
 	}
 
-	public void checkSendArguments(List<String> nodeIds, Message message) {
+	public void checkSendArguments(List<String> nodeIds, byte[] message) {
 
 		checkNotNull(nodeIds);
-		checkNotNull(message);
+		checkNotNull(message, "A message to a node must not be null!");
 
 		commonPreconditions.checkNodesKnown(nodeIds);
-
-		checkNotNull(message.getSourceNodeUrn(), "Source node ID is missing.");
-		checkArgument(message.getBinaryData() != null, "A message to a node must contain binary data.");
-
 	}
 
 	public void checkResetNodesArguments(List<String> nodes) {

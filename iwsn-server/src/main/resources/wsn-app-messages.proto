@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 option java_outer_classname = "WSNAppMessages";
+
 option java_multiple_files = false;
 
 
@@ -31,12 +32,12 @@ option java_multiple_files = false;
 message ListenerManagement {
 
 	enum Operation {
-	    REGISTER = 1;
-	    UNREGISTER = 2;
+		REGISTER = 1;
+		UNREGISTER = 2;
 	}
 
 	required Operation operation = 1;
-	required string nodeName = 2; 
+	required string nodeName = 2;
 
 }
 
@@ -45,14 +46,14 @@ message ListenerManagement {
 // ==== asynchronous RequestStatus ====
 message RequestStatus {
 
-    message Status {
-        required string nodeId = 1;
-        optional int32 value = 2;
-        optional string msg = 3;
-    }
+	message Status {
+		required string nodeId = 1;
+		optional int32 value = 2;
+		optional string msg = 3;
+	}
 
-    required Status status = 1;
-    
+	required Status status = 1;
+
 }
 
 
@@ -63,10 +64,15 @@ message Notification {
 
 
 // ==== send ====
-message Message {
-    required string sourceNodeId = 1;
-    required string timestamp = 2;
-    required bytes binaryData = 3;
+message UpstreamMessage {
+	required string sourceNodeUrn = 1;
+	required string timestamp = 2;
+	required bytes messageBytes = 3;
+}
+
+message DownstreamMessage {
+	repeated string targetNodeUrns = 1;
+	required bytes messageBytes = 2;
 }
 
 
@@ -79,8 +85,8 @@ message SetVirtualLinkRequest {
 
 // ==== destroyVirtualLink ====
 message DestroyVirtualLinkRequest {
-    required string sourceNode = 1;
-    required string targetNode = 2;
+	required string sourceNode = 1;
+	required string targetNode = 2;
 }
 
 
@@ -105,36 +111,37 @@ message SetChannelPipelineRequest {
 			required string value = 2;
 		}
 
-        required string name = 1;
-        repeated KeyValuePair configuration = 2;
+		required string name = 1;
+		repeated KeyValuePair configuration = 2;
 	}
 
-    repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
+	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
 }
 
 // ==== operation invocation ====
 message OperationInvocation {
 
-    enum Operation {
+	enum Operation {
 
-         SEND                         = 0;
-         ARE_NODES_ALIVE              = 1;
-         FLASH_PROGRAMS               = 2;
-         RESET_NODES                  = 3;
-         SET_VIRTUAL_LINK             = 4;
-		 DESTROY_VIRTUAL_LINK         = 5;
-         DISABLE_NODE                 = 6;
-         ENABLE_NODE                  = 7;
-         DISABLE_PHYSICAL_LINK        = 8;
-         ENABLE_PHYSICAL_LINK         = 9;
-         SET_CHANNEL_PIPELINE         = 10;
-         SET_DEFAULT_CHANNEL_PIPELINE = 11;
-         ARE_NODES_ALIVE_SM           = 12;
-         FLASH_DEFAULT_IMAGE          = 13;
+		SEND_UPSTREAM = 0;
+		SEND_DOWNSTREAM = 1;
+		ARE_NODES_ALIVE = 2;
+		FLASH_PROGRAMS = 3;
+		RESET_NODES = 4;
+		SET_VIRTUAL_LINK = 5;
+		DESTROY_VIRTUAL_LINK = 6;
+		DISABLE_NODE = 7;
+		ENABLE_NODE = 8;
+		DISABLE_PHYSICAL_LINK = 9;
+		ENABLE_PHYSICAL_LINK = 10;
+		SET_CHANNEL_PIPELINE = 11;
+		SET_DEFAULT_CHANNEL_PIPELINE = 12;
+		ARE_NODES_ALIVE_SM = 13;
+		FLASH_DEFAULT_IMAGE = 14;
 
-    }
+	}
 
-    required Operation operation = 1;
-    optional bytes arguments = 2;
+	required Operation operation = 1;
+	optional bytes arguments = 2;
 
 }

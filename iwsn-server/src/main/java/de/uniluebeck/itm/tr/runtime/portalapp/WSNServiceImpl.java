@@ -114,18 +114,17 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			if (!isVirtualLinkMessage) {
 				deliverNonVirtualLinkMessageToControllers(bytes, sourceNodeUrn, timestamp);
 			} else {
-				deliverVirtualLinkMessage(bytes, sourceNodeUrn, timestamp);
+				deliverVirtualLinkMessage(bytes, sourceNodeUrn);
 			}
 		}
 
-		private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeUrn, final String timestamp) {
+		private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeUrn) {
 
 			Map<String, WSN> recipients = getVirtualLinkMessageRecipients(sourceNodeUrn, readDestinationNodeUrn(bytes));
 
 			if (recipients.size() > 0) {
 
-				Message outboundVirtualLinkMessage =
-						constructOutboundVirtualLinkMessage(bytes, sourceNodeUrn, timestamp);
+				final byte[] virtualLinkMessage = constructOutboundVirtualLinkMessage(bytes);
 
 				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
 
@@ -136,15 +135,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 							sourceNodeUrn,
 							targetNodeUrn,
 							recipientEndpointProxy,
-							outboundVirtualLinkMessage
+							virtualLinkMessage
 					)
 					);
 				}
 			}
 		}
 
-		private Message constructOutboundVirtualLinkMessage(final byte[] bytes, final String sourceNodeUrn,
-															final String timestamp) {
+		private byte[] constructOutboundVirtualLinkMessage(final byte[] bytes) {
 
 			// byte 0: ISense Packet Type
 			// byte 1: Node API Command Type
@@ -155,27 +153,18 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			// byte 9-12: Source Node URN
 			// byte 13-13+Payload Length: Payload
 
-			Message outboundVirtualLinkMessage = new Message();
-			outboundVirtualLinkMessage.setSourceNodeUrn(sourceNodeUrn);
-			outboundVirtualLinkMessage.setTimestamp(
-					datatypeFactory.newXMLGregorianCalendar(timestamp)
-			);
-
 			// construct message that is actually sent to the destination node URN
 			ChannelBuffer header = ChannelBuffers.buffer(3);
 			header.writeByte(MESSAGE_TYPE_WISELIB_DOWNSTREAM);
 			header.writeByte(WISELIB_VIRTUAL_LINK_MESSAGE);
 			header.writeByte(0); // request id according to Node API
-
 			ChannelBuffer payload = ChannelBuffers.wrappedBuffer(bytes, 2, bytes.length - 2);
 			ChannelBuffer packet = ChannelBuffers.wrappedBuffer(header, payload);
 
 			byte[] outboundVirtualLinkMessageBinaryData = new byte[packet.readableBytes()];
 			packet.getBytes(0, outboundVirtualLinkMessageBinaryData);
 
-			outboundVirtualLinkMessage.setBinaryData(outboundVirtualLinkMessageBinaryData);
-
-			return outboundVirtualLinkMessage;
+			return outboundVirtualLinkMessageBinaryData;
 		}
 
 		private Map<String, WSN> getVirtualLinkMessageRecipients(final String sourceNodeUrn,
@@ -245,14 +234,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		private final WSN recipient;
 
-		private final Message message;
+		private final byte[] message;
 
 		private int tries = 0;
 
 		public DeliverVirtualLinkMessageRunnable(final String sourceNodeUrn,
 												 final String targetNodeUrn,
 												 final WSN recipient,
-												 final Message message) {
+												 final byte[] message) {
 			this.sourceNodeUrn = sourceNodeUrn;
 			this.targetNodeUrn = targetNodeUrn;
 			this.recipient = recipient;
@@ -414,7 +403,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_SEND")
-	public void send(final long requestId, final List<String> nodeUrns, final Message message) {
+	public void send(final long requestId, final List<String> nodeUrns, final byte[] message) {
 
 		preconditions.checkSendArguments(nodeUrns, message);
 
@@ -424,9 +413,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			wsnApp.send(
 					new HashSet<String>(nodeUrns),
-					message.getBinaryData(),
-					message.getSourceNodeUrn(),
-					message.getTimestamp().toXMLFormat(),
+					message,
 					new WSNApp.Callback() {
 
 						private final long start = System.currentTimeMillis();

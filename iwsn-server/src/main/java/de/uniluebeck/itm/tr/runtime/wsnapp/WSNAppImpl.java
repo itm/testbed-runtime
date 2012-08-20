@@ -228,7 +228,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			try {
 
-				WSNAppMessages.Message message = WSNAppMessages.Message.newBuilder()
+				WSNAppMessages.UpstreamMessage message = WSNAppMessages.UpstreamMessage.newBuilder()
 						.mergeFrom(msg.getPayload())
 						.build();
 
@@ -238,13 +238,13 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 					log.debug("{}", output);
 				}
 
-				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getBinaryData().toByteArray());
+				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes().toByteArray());
 
 				final Map<String, Object> userContext = Maps.newHashMap();
 				userContext.put("timestamp", message.getTimestamp());
 
 				final WisebedMulticastAddress sourceAddress = new WisebedMulticastAddress(
-						newHashSet(message.getSourceNodeId()),
+						newHashSet(message.getSourceNodeUrn()),
 						userContext
 				);
 
@@ -304,7 +304,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			if (e instanceof ExceptionEvent) {
 
-				Throwable cause = ((ExceptionEvent) e).getCause();
+				@SuppressWarnings("ThrowableResultOfMethodCallIgnored") Throwable cause = ((ExceptionEvent) e).getCause();
 				String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
 						cause.getClass().getSimpleName() +
 						" was caught and contained the following message: " +
@@ -325,13 +325,11 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			SocketAddress socketAddress = e.getRemoteAddress();
 
 			Set<String> nodeUrns;
-			String timestamp;
 			final Callback callback;
 
 			if (socketAddress instanceof WisebedMulticastAddress) {
 
 				nodeUrns = ((WisebedMulticastAddress) socketAddress).getNodeUrns();
-				timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
 				callback = (Callback) ((WisebedMulticastAddress) socketAddress).getUserContext().get("callback");
 
 			} else {
@@ -344,17 +342,14 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			for (final String nodeUrn : nodeUrns) {
 
-				WSNAppMessages.Message message = WSNAppMessages.Message
-						.newBuilder()
-						.setBinaryData(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
-						.setSourceNodeId(nodeUrn)
-						.setTimestamp(timestamp)
+				WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage.newBuilder()
+						.setMessageBytes(ByteString.copyFrom(buf.array(), buf.readerIndex(), buf.readableBytes()))
+						.addTargetNodeUrns(nodeUrn)
 						.build();
 
-				WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation
-						.newBuilder()
+				WSNAppMessages.OperationInvocation operationInvocation = WSNAppMessages.OperationInvocation.newBuilder()
 						.setArguments(message.toByteString())
-						.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
+						.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND_DOWNSTREAM)
 						.build();
 
 				try {
@@ -555,15 +550,12 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 	}
 
 	@Override
-	public void send(final Set<String> nodeUrns, final byte[] bytes, final String sourceNodeId, final String timestamp,
-					 final Callback callback) throws UnknownNodeUrnsException {
+	public void send(final Set<String> nodeUrns, final byte[] bytes, final Callback callback)
+			throws UnknownNodeUrnsException {
 
 		assertNodeUrnsKnown(nodeUrns);
 
-		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(bytes);
-
 		final HashMap<String, Object> userContext = new HashMap<String, Object>();
-		userContext.put("timestamp", timestamp);
 		userContext.put("callback", callback);
 
 		final WisebedMulticastAddress targetAddress = new WisebedMulticastAddress(nodeUrns, userContext);
@@ -571,7 +563,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 		final DownstreamMessageEvent downstreamMessageEvent = new DownstreamMessageEvent(
 				pipeline.getChannel(),
 				future(pipeline.getChannel()),
-				buffer,
+				ChannelBuffers.wrappedBuffer(bytes),
 				targetAddress
 		);
 

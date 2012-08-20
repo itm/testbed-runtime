@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.runtime.socketconnector.client;
 
-import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
@@ -18,9 +17,7 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
@@ -111,59 +108,7 @@ public class SocketConnectorClient {
 
 		SocketConnectorClient client = new SocketConnectorClient(ipAddress, port);
 		client.start();
-		client.loopMenu();
 
-	}
-
-	private void loopMenu() throws IOException {
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		String currentLine;
-
-		printMenu();
-
-		while ((currentLine = reader.readLine()) != null) {
-			if ("1".equals(currentLine)) {
-				pingNode();
-			} else if ("2".equals(currentLine)) {
-				stop();
-				break;
-			} else {
-				System.out.println("Invalid input.");
-			}
-			printMenu();
-		}
-
-	}
-
-	private void pingNode() {
-
-		WSNAppMessages.Message.Builder message = WSNAppMessages.Message.newBuilder()
-				.setBinaryData(ByteString.copyFrom("Hello World".getBytes()))
-				.setSourceNodeId("urn:wisebed:nodeconnector:client:1")
-				.setTimestamp("Nobody cares for this demo purpose");
-
-		WSNAppMessages.OperationInvocation.Builder oiBuilder = WSNAppMessages.OperationInvocation.newBuilder()
-				.setOperation(WSNAppMessages.OperationInvocation.Operation.SEND)
-				.setArguments(message.build().toByteString());
-
-		Messages.Msg msg = Messages.Msg.newBuilder()
-				.setMsgType(WSNApp.MSG_TYPE_OPERATION_INVOCATION_REQUEST)
-				.setFrom("urn:wisebed:nodeconnector:client:1")
-				.setTo("urn:wisebed:testbeduzl1:1")
-				.setPayload(oiBuilder.build().toByteString())
-				.setPriority(1)
-				.build();
-
-		channel.write(msg);
-
-	}
-
-	private void printMenu() {
-		System.out.println("********************************");
-		System.out.println("1 => ping all nodes");
-		System.out.println("2 => quit program");
-		System.out.println("********************************");
 	}
 
 	private SimpleChannelUpstreamHandler upstreamHandler = new SimpleChannelUpstreamHandler() {
@@ -174,11 +119,12 @@ public class SocketConnectorClient {
 
 			if (WSNApp.MSG_TYPE_LISTENER_MESSAGE.equals(message.getMsgType())) {
 
-				WSNAppMessages.Message wsnAppMessage = WSNAppMessages.Message.parseFrom(message.getPayload());
+				WSNAppMessages.UpstreamMessage upstreamMessage =
+						WSNAppMessages.UpstreamMessage.parseFrom(message.getPayload());
 				if (log.isInfoEnabled()) {
 					log.info(
 							"Received device output: \"{}\"",
-							toPrintableString(wsnAppMessage.getBinaryData().toByteArray())
+							toPrintableString(upstreamMessage.getMessageBytes().toByteArray())
 					);
 				}
 
@@ -225,6 +171,13 @@ public class SocketConnectorClient {
 			log.error("client connect failed!", connectFuture.getCause());
 		}
 
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				SocketConnectorClient.this.stop();
+			}
+		}
+		);
 	}
 
 	private void stop() {

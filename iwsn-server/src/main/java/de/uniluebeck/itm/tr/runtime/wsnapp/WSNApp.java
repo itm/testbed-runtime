@@ -76,8 +76,7 @@ public interface WSNApp extends TestbedApplication {
 
 	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	void send(Set<String> nodeUrns, byte[] bytes, String sourceNodeId, String timestamp, Callback callback)
-			throws UnknownNodeUrnsException;
+	void send(Set<String> nodeUrns, byte[] bytes, Callback callback) throws UnknownNodeUrnsException;
 
 	void setChannelPipeline(Set<String> nodeUrn, List<ChannelHandlerConfiguration> channelHandlerConfigurations,
 							Callback callback) throws UnknownNodeUrnsException;

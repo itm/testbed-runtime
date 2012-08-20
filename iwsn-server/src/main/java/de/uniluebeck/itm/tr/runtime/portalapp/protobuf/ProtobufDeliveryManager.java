@@ -11,13 +11,11 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
@@ -25,16 +23,6 @@ import java.util.Set;
 public class ProtobufDeliveryManager extends DeliveryManager {
 
 	private static final Logger log = LoggerFactory.getLogger(ProtobufDeliveryManager.class);
-
-	private static final DatatypeFactory datatypeFactory;
-
-	static {
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	private final ChannelGroup channels = new DefaultChannelGroup();
 
@@ -79,7 +67,6 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 					// write message to clients
 					// messageDeliveryListener will decrease delivery queue size counter
 					channels.write(convert(message)).addListener(messageDeliveryListener);
-
 				}
 
 				// inform the user of dropped messages every BACKEND_MESSAGE_INTERVAL milliseconds
@@ -87,21 +74,20 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 					log.warn("Dropped one or more messages. Informing protobuf controllers.");
 
-					WisebedMessages.Message.Backend.Builder backendBuilder =
-							WisebedMessages.Message.Backend.newBuilder()
-									.setText("Your experiment is generating too many messages to be delivered. "
-											+ "Therefore the backend drops messages. "
-											+ "Please make sure the message rate is lowered."
-									);
+					WisebedMessages.Notification.Builder notification = WisebedMessages.Notification.newBuilder()
+							.setTimestamp(new DateTime().toString())
+							.setMsg("Your experiment is generating too many messages to be delivered. "
+									+ "Therefore the backend drops messages. "
+									+ "Please make sure the message rate is lowered."
+							);
 
-					WisebedMessages.Message backendMessage = WisebedMessages.Message.newBuilder()
-							.setType(WisebedMessages.Message.Type.BACKEND)
-							.setBackend(backendBuilder)
+					WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
+							.setMessageType(WisebedMessages.MessageType.NOTIFICATION)
+							.setNotification(notification)
 							.build();
 
-					channels.write(backendMessage).awaitUninterruptibly();
+					channels.write(envelope);
 					lastBackendMessage = System.currentTimeMillis();
-
 				}
 			}
 		}
@@ -191,7 +177,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 			}
 
 			WisebedMessages.Envelope envelope = WisebedMessages.Envelope.newBuilder()
-					.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
+					.setMessageType(WisebedMessages.MessageType.REQUEST_STATUS)
 					.setRequestStatus(requestStatusBuilder)
 					.build();
 
@@ -210,35 +196,26 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 	private WisebedMessages.Envelope convert(final String notification) {
 
-		WisebedMessages.Message.Backend.Builder backendBuilder = WisebedMessages.Message.Backend.newBuilder()
-				.setText(notification);
-
-		WisebedMessages.Message.Builder backendMessageBuilder = WisebedMessages.Message.newBuilder()
-				.setType(WisebedMessages.Message.Type.BACKEND)
-				.setTimestamp(datatypeFactory.newXMLGregorianCalendar(new GregorianCalendar()).toXMLFormat())
-				.setBackend(backendBuilder);
+		WisebedMessages.Notification.Builder notificationBuilder = WisebedMessages.Notification.newBuilder()
+				.setTimestamp(new DateTime().toString())
+				.setMsg(notification);
 
 		return WisebedMessages.Envelope.newBuilder()
-				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
-				.setMessage(backendMessageBuilder)
+				.setMessageType(WisebedMessages.MessageType.NOTIFICATION)
+				.setNotification(notificationBuilder)
 				.build();
 	}
 
 	private WisebedMessages.Envelope convert(Message message) {
 
-		WisebedMessages.Message.Builder messageBuilder = WisebedMessages.Message.newBuilder()
+		WisebedMessages.UpstreamMessage.Builder upstreamMessageBuilder = WisebedMessages.UpstreamMessage.newBuilder()
+				.setMessageBytes(ByteString.copyFrom(message.getBinaryData()))
+				.setSourceNodeUrn(message.getSourceNodeUrn())
 				.setTimestamp(message.getTimestamp().toXMLFormat());
 
-		WisebedMessages.Message.NodeBinary.Builder nodeBinaryBuilder = WisebedMessages.Message.NodeBinary.newBuilder()
-				.setSourceNodeUrn(message.getSourceNodeUrn())
-				.setData(ByteString.copyFrom(message.getBinaryData()));
-
-		messageBuilder.setNodeBinary(nodeBinaryBuilder);
-		messageBuilder.setType(WisebedMessages.Message.Type.NODE_BINARY);
-
 		return WisebedMessages.Envelope.newBuilder()
-				.setBodyType(WisebedMessages.Envelope.BodyType.MESSAGE)
-				.setMessage(messageBuilder)
+				.setMessageType(WisebedMessages.MessageType.UPSTREAM_MESSAGE)
+				.setUpstreamMessage(upstreamMessageBuilder)
 				.build();
 	}
 
@@ -256,7 +233,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 		}
 
 		return WisebedMessages.Envelope.newBuilder()
-				.setBodyType(WisebedMessages.Envelope.BodyType.REQUEST_STATUS)
+				.setMessageType(WisebedMessages.MessageType.REQUEST_STATUS)
 				.setRequestStatus(requestStatusBuilder)
 				.build();
 	}

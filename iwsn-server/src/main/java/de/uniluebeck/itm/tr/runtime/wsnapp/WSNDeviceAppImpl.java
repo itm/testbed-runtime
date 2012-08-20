@@ -201,16 +201,15 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				@Override
 				public void receivedPacket(final byte[] bytes) {
 
-					XMLGregorianCalendar now =
-							datatypeFactory
-									.newXMLGregorianCalendar((GregorianCalendar) GregorianCalendar.getInstance());
+					final GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
+					final XMLGregorianCalendar now = datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
 
-					WSNAppMessages.Message.Builder messageBuilder = WSNAppMessages.Message.newBuilder()
-							.setSourceNodeId(wsnDeviceAppConfiguration.getNodeUrn())
+					WSNAppMessages.UpstreamMessage.Builder messageBuilder = WSNAppMessages.UpstreamMessage.newBuilder()
+							.setSourceNodeUrn(wsnDeviceAppConfiguration.getNodeUrn())
 							.setTimestamp(now.toXMLFormat())
-							.setBinaryData(ByteString.copyFrom(bytes));
+							.setMessageBytes(ByteString.copyFrom(bytes));
 
-					WSNAppMessages.Message message = messageBuilder.build();
+					WSNAppMessages.UpstreamMessage message = messageBuilder.build();
 
 					for (String nodeMessageListener : nodeMessageListeners) {
 
@@ -429,11 +428,13 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				connector.resetNode(callback);
 				break;
 
-			case SEND:
+			case SEND_DOWNSTREAM:
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> send()", wsnDeviceAppConfiguration.getNodeUrn());
 				try {
 
-					WSNAppMessages.Message message = WSNAppMessages.Message.parseFrom(invocation.getArguments());
+					WSNAppMessages.DownstreamMessage message = WSNAppMessages.DownstreamMessage
+							.parseFrom(invocation.getArguments());
+
 					executeSendMessage(message, callback);
 
 				} catch (InvalidProtocolBufferException e) {
@@ -568,12 +569,9 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	}
 
-	public void executeSendMessage(final WSNAppMessages.Message message, final ReplyingNodeApiCallback callback) {
-
+	public void executeSendMessage(final WSNAppMessages.DownstreamMessage message, final ReplyingNodeApiCallback callback) {
 		log.debug("{} => WSNDeviceAppImpl.executeSendMessage()", wsnDeviceAppConfiguration.getNodeUrn());
-
-		byte[] messageBytes = message.getBinaryData().toByteArray();
-		connector.sendMessage(messageBytes, callback);
+		connector.sendMessage(message.getMessageBytes().toByteArray(), callback);
 	}
 
 	public void executeFlashDefaultImage(final SingleRequestMultiResponseListener.Responder responder) {

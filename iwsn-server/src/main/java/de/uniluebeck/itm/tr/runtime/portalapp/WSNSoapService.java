@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +198,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void send(final long requestId, final List<String> nodeUrns, final Message message) {
+	public void send(final long requestId, final List<String> nodeUrns, final byte[] message) {
 		wsn.send(requestId, nodeUrns, message);
 	}
 

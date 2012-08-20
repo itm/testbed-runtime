@@ -115,7 +115,7 @@ public class WSNAppBenchmark {
 			wsnApp.addNodeMessageReceiver(this);
 			try {
 
-				wsnApp.send(nodeUrns, toByteArray(helper.encode(buffer)), URN_PORTAL, "", NULL_CALLBACK);
+				wsnApp.send(nodeUrns, toByteArray(helper.encode(buffer)), NULL_CALLBACK);
 
 			} catch (UnknownNodeUrnsException e) {
 				future.setException(e);
