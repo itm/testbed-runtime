@@ -298,7 +298,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				// assure that nodes are in TestbedRuntime
 				assertNodesInTestbed(reservedNodes);
 
-				requestingUser = data.getUserData();
+				requestingUser = data.getData().get(0).getUsername();
 
 				//Creating delay for CleanUpJob
 				long delay = data.getTo().toGregorianCalendar().getTimeInMillis() - System.currentTimeMillis();
