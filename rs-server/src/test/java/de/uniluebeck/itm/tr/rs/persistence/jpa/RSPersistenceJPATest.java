@@ -25,7 +25,7 @@ import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.Data;
+import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.junit.After;
@@ -85,23 +85,19 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		final ConfidentialReservationData result = persistence.getReservation(secretReservationKey);
 
 		assertNotNull(result);
-		assertNotNull(result.getUserData());
-		assertEquals(result.getUserData(), confidentialReservationData.getUserData());
-		assertNotNull(result.getData().get(0));
+		assertNotNull(result.getKeys().get(0));
 
-		final String resultReservationKey = result.getData().get(0).getSecretReservationKey();
+		final String resultReservationKey = result.getKeys().get(0).getSecretReservationKey();
 
 		assertNotNull(resultReservationKey);
 		assertFalse(resultReservationKey.isEmpty());
-		assertEquals(resultReservationKey, confidentialReservationData.getData().get(0).getSecretReservationKey());
+		assertEquals(resultReservationKey, confidentialReservationData.getKeys().get(0).getSecretReservationKey());
 
 		System.out.println(resultReservationKey);
 	}
 
 	private ConfidentialReservationData createConfidentialReservationData() throws DatatypeConfigurationException {
 		final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-		confidentialReservationData.setUserData("test-user");
-
 		final XMLGregorianCalendar xmlGregorianCalendar
 				= DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2011, 6, 25, 0);
 		confidentialReservationData.setFrom(xmlGregorianCalendar);
@@ -110,11 +106,11 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		); // 30 minutes
 		confidentialReservationData.setTo(xmlGregorianCalendar);
 
-		Data data = new Data();
+		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
 		data.setSecretReservationKey("SECRET12345");
 		data.setUrnPrefix("urn:smartsantander:testbed:");
 		data.setUsername("test-user");
-		confidentialReservationData.getData().add(data);
+		confidentialReservationData.getKeys().add(data);
 
 		return confidentialReservationData;
 	}

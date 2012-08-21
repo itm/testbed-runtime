@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
@@ -44,43 +45,22 @@ public class SingleUrnPrefixRS implements RS {
 	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
 	private Provider<String[]> servedNodeUrns;
 
-	@Override
-	@AuthorizationRequired("RS_MAKE_RESERVATION")
-	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData,
-													  ConfidentialReservationData reservation)
-			throws AuthorizationFault_Exception, ReservationConflictFault_Exception, RSFault_Exception {
-
-		checkNotNull(reservation.getUserData() != null && !"".equals(reservation.getUserData()),
-				"The field userData must be set!"
-		);
-
-		checkArgumentValid(reservation);
-		checkArgumentValidAuthentication(authenticationData);
-		checkNodesServed(reservation.getNodeUrns());
-
-		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
-
-		checkNodesAvailable(reservation);
-
-		return makeReservationInternal(reservation, secretAuthenticationKey);
-
-	}
-
-	private List<SecretReservationKey> makeReservationInternal(final ConfidentialReservationData reservation,
-															   final SecretAuthenticationKey secretAuthenticationKey)
-			throws RSFault_Exception {
+	private List<SecretReservationKey> makeReservationInternal(
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
+			final List<String> nodeUrns,
+			final XMLGregorianCalendar from,
+			final XMLGregorianCalendar to) throws RSFault_Exception {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(reservation.getFrom());
-		crd.setTo(reservation.getTo());
-		crd.setUserData(reservation.getUserData());
-		crd.getNodeUrns().addAll(reservation.getNodeUrns());
+		crd.setFrom(from);
+		crd.setTo(to);
+		crd.getNodeUrns().addAll(nodeUrns);
 
-		Data data = new Data();
-		data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-		data.setUsername(secretAuthenticationKey.getUsername());
+		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
+		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
+		data.setUsername(secretAuthenticationKeys.get(0).getUsername());
 
-		crd.getData().add(data);
+		crd.getKeys().add(data);
 
 		try {
 
@@ -147,6 +127,20 @@ public class SingleUrnPrefixRS implements RS {
 		log.debug("Deleted reservation {}", reservationToDelete);
 	}
 
+	@Override
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<String> nodeUrns,
+													  final XMLGregorianCalendar from,
+													  final XMLGregorianCalendar to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+
+		checkArgumentValid(nodeUrns, from, to);
+		checkArgumentValidAuthentication(secretAuthenticationKeys);
+		checkNodesServed(nodeUrns);
+		checkNodesAvailable(nodeUrns, from, to);
+		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to);
+	}
+
 	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
 
 		DateTime reservationFrom = new DateTime(reservation.getFrom().toGregorianCalendar());
@@ -197,7 +191,7 @@ public class SingleUrnPrefixRS implements RS {
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
-			boolean sameUser = crd.getData().get(0).getUsername().equals(key.getUsername());
+			boolean sameUser = crd.getKeys().get(0).getUsername().equals(key.getUsername());
 			if (sameUser) {
 				reservationsOfAuthenticatedUserInInterval.add(crd);
 			}
@@ -234,12 +228,10 @@ public class SingleUrnPrefixRS implements RS {
 		return new RSFault_Exception(message, exception);
 	}
 
-
 	private PublicReservationData convertToPublic(ConfidentialReservationData confidentialReservationData) {
 		PublicReservationData publicReservationData = new PublicReservationData();
 		publicReservationData.setFrom(confidentialReservationData.getFrom());
 		publicReservationData.setTo(confidentialReservationData.getTo());
-		publicReservationData.setUserData(confidentialReservationData.getUserData());
 		publicReservationData.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
 		return publicReservationData;
 	}
@@ -297,32 +289,28 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private void checkArgumentValid(PublicReservationData reservation) throws RSFault_Exception {
-		String msg = null;
+	private void checkArgumentValid(final List<String> nodeUrns,
+									final XMLGregorianCalendar fromArg,
+									final XMLGregorianCalendar toArg) throws RSFault_Exception {
 
-		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
-			// if reservation-data is null
-			msg = "No reservation data supplied.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-			// if "to" of reservation-timestamp lies in the past
-			msg = "To time is in the past.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom()
-				.toGregorianCalendar().getTimeInMillis()) {
-			// if "from" is later then "to"
-			msg = "To is less than From time.";
-		}
+		try {
 
-		if (reservation == null || reservation.getNodeUrns() == null || reservation.getNodeUrns().size() == 0) {
-			msg = "Empty reservation request! At least one node URN must be reserved.";
-		}
+			checkNotNull(fromArg, "Reservation start time parameter \"from\" is missing.");
+			checkNotNull(toArg, "Reservation end time parameter \"to\" is missing.");
 
-		if (msg != null) {
-			log.warn(msg);
+			final DateTime from = new DateTime(fromArg.toGregorianCalendar());
+			final DateTime to = new DateTime(toArg.toGregorianCalendar());
+
+			checkArgument(!to.isBeforeNow(), "Reservation end time parameter \"to\" lies in the past.");
+			checkArgument(!to.isBefore(from), "Reservation end time is before reservation start time.");
+			checkArgument(!nodeUrns.isEmpty(), "Empty reservation request! At least one node must be reserved.");
+
+		} catch (Exception e) {
+			log.debug(e.getMessage());
 			RSFault exception = new RSFault();
-			exception.setMessage(msg);
-			throw new RSFault_Exception(msg, exception);
+			exception.setMessage(e.getMessage());
+			throw new RSFault_Exception(e.getMessage(), exception);
 		}
-
 	}
 
 	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys)
@@ -350,18 +338,20 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkNodesAvailable(PublicReservationData reservation)
+	private void checkNodesAvailable(final List<String> nodeUrns,
+									 final XMLGregorianCalendar from,
+									 final XMLGregorianCalendar to)
 			throws ReservationConflictFault_Exception, RSFault_Exception {
 
-		List<String> requested = transform(reservation.getNodeUrns(), StringUtils.STRING_TO_LOWER_CASE);
-		Set<String> reserved = new HashSet<String>();
+		List<String> requestedNodeUrns = transform(nodeUrns, StringUtils.STRING_TO_LOWER_CASE);
+		Set<String> reservedNodeUrns = new HashSet<String>();
 
-		for (PublicReservationData res : getReservations(reservation.getFrom(), reservation.getTo())) {
-			reserved.addAll(transform(res.getNodeUrns(), StringUtils.STRING_TO_LOWER_CASE));
+		for (PublicReservationData res : getReservations(from, to)) {
+			reservedNodeUrns.addAll(transform(res.getNodeUrns(), StringUtils.STRING_TO_LOWER_CASE));
 		}
 
-		Set<String> intersection = new HashSet<String>(reserved);
-		intersection.retainAll(requested);
+		Set<String> intersection = new HashSet<String>(reservedNodeUrns);
+		intersection.retainAll(requestedNodeUrns);
 
 		if (intersection.size() > 0) {
 			String msg = "Some of the nodes are reserved during the requested time (" + Arrays

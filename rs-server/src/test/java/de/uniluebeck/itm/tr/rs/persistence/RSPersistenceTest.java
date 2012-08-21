@@ -215,7 +215,6 @@ public abstract class RSPersistenceTest {
 			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
 			ConfidentialReservationData receivedCRD = persistence.getReservation(reservationKeyMap.get(i));
 
-			assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
 			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
 			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
 			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
@@ -255,7 +254,6 @@ public abstract class RSPersistenceTest {
 			assertEquals(actualData.getFrom(), expectedData.getFrom());
 			assertEquals(actualData.getTo(), expectedData.getTo());
 			assertEquals(actualData.getNodeUrns(), expectedData.getNodeUrns());
-			assertEquals(actualData.getUserData(), expectedData.getUserData());
 		}
 	}
 

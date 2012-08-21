@@ -56,15 +56,6 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	private RS reservationSystem;
 
 	@Override
-	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> authenticationData,
-													  final ConfidentialReservationData reservation)
-			throws AuthorizationFault_Exception, ReservationConflictFault_Exception, RSFault_Exception {
-
-		return reservationSystem.makeReservation(authenticationData, reservation);
-
-	}
-
-	@Override
 	public List<ConfidentialReservationData> getReservation(
 			final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, ReservationNotFoundFault_Exception {
@@ -77,6 +68,16 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		reservationSystem.deleteReservation(secretReservationKeys);
+	}
+
+	@Override
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<String> nodeUrns,
+													  final XMLGregorianCalendar from,
+													  final XMLGregorianCalendar to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+
+		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
 	}
 
 	@Override

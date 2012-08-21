@@ -28,7 +28,7 @@ import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.Data;
+import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -62,7 +62,7 @@ public class TypeConverter {
 		internal.setFromDate(fromGregorianCalendar.getTimeInMillis());
 
 		internal.setNodeURNs(external.getNodeUrns());
-		internal.setData(convertExternalToInternal(external.getData()));
+		internal.setData(convertExternalToInternal(external.getKeys()));
 
 		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
 
@@ -72,20 +72,20 @@ public class TypeConverter {
 		toGregorianCalendar.setTimeZone(localTimeZone);
 		internal.setToDate(toGregorianCalendar.getTimeInMillis());
 
-		internal.setUserData(external.getUserData());
+		internal.setUserData("");
 
 		return internal;
 	}
 
-	private static List<DataInternal> convertExternalToInternal(List<Data> external) {
+	private static List<DataInternal> convertExternalToInternal(List<ConfidentialReservationDataKey> external) {
 		List<DataInternal> internal = new ArrayList<DataInternal>(external.size());
-		for (Data data : external) {
-			internal.add(convert(data));
+		for (ConfidentialReservationDataKey key : external) {
+			internal.add(convert(key));
 		}
 		return internal;
 	}
 
-	private static DataInternal convert(Data external) {
+	private static DataInternal convert(ConfidentialReservationDataKey external) {
 		return new DataInternal(external.getUrnPrefix(), external.getUsername(), external.getSecretReservationKey());
 	}
 
@@ -95,21 +95,20 @@ public class TypeConverter {
 		external.setFrom(convert(internal.getFromDate(), localTimeZone));
 		external.getNodeUrns().addAll(internal.getNodeURNs());
 		external.setTo(convert(internal.getToDate(), localTimeZone));
-		external.getData().addAll(convertInternalToExternal(internal.getData()));
-		external.setUserData(internal.getUserData());
+		external.getKeys().addAll(convertInternalToExternal(internal.getData()));
 		return external;
 	}
 
-	private static List<Data> convertInternalToExternal(List<DataInternal> internalList) {
-		List<Data> externalList = new ArrayList<Data>(internalList.size());
+	private static List<ConfidentialReservationDataKey> convertInternalToExternal(List<DataInternal> internalList) {
+		List<ConfidentialReservationDataKey> externalList = new ArrayList<ConfidentialReservationDataKey>(internalList.size());
 		for (DataInternal internal : internalList) {
 			externalList.add(convert(internal));
 		}
 		return externalList;
 	}
 
-	private static Data convert(DataInternal internal) {
-		Data external = new Data();
+	private static ConfidentialReservationDataKey convert(DataInternal internal) {
+		ConfidentialReservationDataKey external = new ConfidentialReservationDataKey();
 		external.setUrnPrefix(internal.getUrnPrefix());
 		external.setUsername(internal.getUsername());
 		external.setSecretReservationKey(internal.getSecretReservationKey());

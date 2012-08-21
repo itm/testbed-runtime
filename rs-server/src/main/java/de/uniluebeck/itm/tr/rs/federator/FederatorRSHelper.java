@@ -1,21 +1,17 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import static com.google.common.collect.Maps.newHashMap;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSFault;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.RSFault;
-import eu.wisebed.api.v3.rs.RSFault_Exception;
+import static com.google.common.collect.Maps.newHashMap;
 
 abstract class FederatorRSHelper {
 
@@ -77,54 +73,6 @@ abstract class FederatorRSHelper {
 			secretReservationKeyList.add(reservationKey);
 
 		}
-		return map;
-	}
-
-	static BiMap<RS, ConfidentialReservationData> constructEndpointToReservationMap(
-			final FederationManager<RS> federationManager,
-			final ConfidentialReservationData reservation) {
-
-		BiMap<RS, ConfidentialReservationData> map = HashBiMap.create(federationManager.getEndpoints().size());
-
-		for (String nodeURN : reservation.getNodeUrns()) {
-
-			RS rs = federationManager.getEndpointByNodeUrn(nodeURN);
-
-			ConfidentialReservationData data = map.get(rs);
-			if (data == null) {
-				data = new ConfidentialReservationData();
-				map.put(rs, data);
-			}
-
-			data.getNodeUrns().add(nodeURN);
-			data.setFrom(reservation.getFrom());
-			data.setTo(reservation.getTo());
-			data.setUserData(reservation.getUserData());
-			data.getData().addAll(reservation.getData());
-		}
-
-		return map;
-
-	}
-
-	static BiMap<RS, List<SecretAuthenticationKey>> constructEndpointToAuthenticationKeysMap(
-			final FederationManager<RS> federationManager,
-			final List<SecretAuthenticationKey> authenticationData) {
-
-		BiMap<RS, List<SecretAuthenticationKey>> map = HashBiMap.create(federationManager.getEndpoints().size());
-
-		for (SecretAuthenticationKey secretAuthenticationKey : authenticationData) {
-
-			RS rs = federationManager.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-
-			List<SecretAuthenticationKey> keys = map.get(rs);
-			if (keys == null) {
-				keys = new LinkedList<SecretAuthenticationKey>();
-				map.put(rs, keys);
-			}
-			keys.add(secretAuthenticationKey);
-		}
-
 		return map;
 	}
 }

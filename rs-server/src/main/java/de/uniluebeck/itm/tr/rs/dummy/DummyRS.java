@@ -27,7 +27,6 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
@@ -82,14 +81,15 @@ public class DummyRS implements RS {
 	}
 
 	@Override
-	public List<SecretReservationKey> makeReservation(
-			final List<SecretAuthenticationKey> authenticationData,
-			final ConfidentialReservationData reservation)
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<String> nodeUrns,
+													  final XMLGregorianCalendar from,
+													  final XMLGregorianCalendar to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
-		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());
+		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(secretAuthenticationKeys.size());
 
-		for (SecretAuthenticationKey key : authenticationData) {
+		for (SecretAuthenticationKey key : secretAuthenticationKeys) {
 			SecretReservationKey secretAuthenticationKey = new SecretReservationKey();
 			secretAuthenticationKey.setUrnPrefix(key.getUrnPrefix());
 			secretAuthenticationKey.setSecretReservationKey(Long.toString(r.nextLong()));
@@ -97,7 +97,5 @@ public class DummyRS implements RS {
 		}
 
 		return keys;
-
 	}
-
 }

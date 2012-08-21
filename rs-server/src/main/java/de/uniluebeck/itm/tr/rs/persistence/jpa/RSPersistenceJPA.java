@@ -28,9 +28,8 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class RSPersistenceJPA implements RSPersistence {
 			}
 		}
 
-		for (Data data : confidentialReservationData.getData()) {
+		for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
 			data.setSecretReservationKey(generatedSecretReservationKey);
 		}
 

@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.federator;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -39,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -138,8 +140,10 @@ public class FederatorTest {
 		);
 
 		try {
+
 			federatorRS.getReservation(secretReservationKeys);
 			fail("Should have raised ReservationNotFoundFault");
+
 		} catch (ReservationNotFoundFault_Exception expected) {
 		}
 	}
@@ -147,8 +151,10 @@ public class FederatorTest {
 	@Test
 	public void testMakeReservationWithNullParameters() throws Exception {
 		try {
-			federatorRS.makeReservation(null, null);
+
+			federatorRS.makeReservation(null, null, null, null);
 			fail("Should have raised an RSFault_Exception");
+
 		} catch (RSFault_Exception expected) {
 		}
 	}
@@ -156,9 +162,12 @@ public class FederatorTest {
 	@Test
 	public void testMakeReservationWithInvalidParameters() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
-			federatorRS.makeReservation(data, null);
+
+			federatorRS.makeReservation(data, null, null, null);
 			fail("Should have raised an RSFault_Exception");
+
 		} catch (RSFault_Exception expected) {
 		}
 	}
@@ -166,11 +175,18 @@ public class FederatorTest {
 	@Test
 	public void testMakeReservationWithNotServedUrn() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeUrns().add("urn:not:served");
-			federatorRS.makeReservation(authData, resData);
+
+			final GregorianCalendar now = new DateTime().toGregorianCalendar();
+			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
+
+			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
+			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+
+			federatorRS.makeReservation(authData, newArrayList("urn:not:served"), from, to);
 			fail("Should have raised an RSFault_Exception");
+
 		} catch (RSFault_Exception expected) {
 		}
 	}
@@ -178,13 +194,18 @@ public class FederatorTest {
 	@Test
 	public void testMakeReservationWithInvalidAuthenticationData() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.setFrom(createXMLGregorianCalendar(1 * 60 * 1000));
-			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
-			resData.getNodeUrns().add("urn:wisebed1:testbed1");
-			federatorRS.makeReservation(authData, resData);
+
+			final GregorianCalendar now = new DateTime().toGregorianCalendar();
+			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
+
+			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
+			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+
+			federatorRS.makeReservation(authData, newArrayList("urn:wisebed1:testbed1"), from, to);
 			fail("Should have raised an RSFault_Exception");
+
 		} catch (RSFault_Exception expected) {
 		}
 	}
@@ -193,10 +214,16 @@ public class FederatorTest {
 	public void testMakeReservationWithEmptyReservationAndAuthenticationDataReturnsEmptyList() throws Exception {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeUrns();
-			federatorRS.makeReservation(authData, resData);
+
+			final GregorianCalendar now = new DateTime().toGregorianCalendar();
+			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
+
+			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
+			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+
+			federatorRS.makeReservation(authData, Lists.<String>newArrayList(), from, to);
 			fail();
+
 		} catch (RSFault_Exception expected) {
 		}
 	}
@@ -226,8 +253,8 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.v3.rs.GetReservations)} is
-	 * made on all federated RS instances and the results are merged correctly.
+	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, javax.xml.datatype.XMLGregorianCalendar,
+	 * javax.xml.datatype.XMLGregorianCalendar)} is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -235,10 +262,5 @@ public class FederatorTest {
 	@Test
 	public void testGetConfidentialReservations() throws Exception {
 		// TODO implement
-	}
-
-	private XMLGregorianCalendar createXMLGregorianCalendar(int msInFuture) {
-		DateTime dateTime = new DateTime(System.currentTimeMillis());
-		return datatypeFactory.newXMLGregorianCalendar(dateTime.plusMillis(msInFuture).toGregorianCalendar());
 	}
 }

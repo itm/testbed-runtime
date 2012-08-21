@@ -28,10 +28,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.inject.matcher.Matchers.annotatedWith;
@@ -81,8 +81,10 @@ public class SingleUrnPrefixRSTest {
 
 	private RS rs;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private SecretAuthenticationKey user1Sak;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private SecretAuthenticationKey user2Sak;
 
 	private List<SecretAuthenticationKey> user1Saks;
@@ -91,15 +93,13 @@ public class SingleUrnPrefixRSTest {
 
 	private SecretReservationKey user1Srk;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private SecretReservationKey user2Srk;
 
 	private List<SecretReservationKey> user1Srks;
 
+	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private List<SecretReservationKey> user2Srks;
-
-	private List<SecretAuthenticationKey> user1SaksSnaa;
-
-	private List<SecretAuthenticationKey> user2SaksSnaa;
 
 	@Before
 	public void setUp() {
@@ -152,9 +152,6 @@ public class SingleUrnPrefixRSTest {
 		user2Sak.setUsername(USER2_USERNAME);
 		user2Saks = Lists.newArrayList(user2Sak);
 
-		user1SaksSnaa = copyRsToSnaa(user1Saks);
-		user2SaksSnaa = copyRsToSnaa(user2Saks);
-
 		user1Srk = new SecretReservationKey();
 		user1Srk.setSecretReservationKey(USER1_SECRET_RESERVATION_KEY);
 		user1Srk.setUrnPrefix(URN_PREFIX);
@@ -175,14 +172,13 @@ public class SingleUrnPrefixRSTest {
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
-		crd.setUserData(USER1_USERNAME);
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
+						WisebedConversionHelper.convert(user1Saks),
 						new LinkedList<String>()
 				);
 
@@ -213,14 +209,13 @@ public class SingleUrnPrefixRSTest {
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
-		crd.setUserData(USER1_USERNAME);
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
+						WisebedConversionHelper.convert(user1Saks),
 						new LinkedList<String>()
 				);
 
@@ -260,14 +255,14 @@ public class SingleUrnPrefixRSTest {
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
+						WisebedConversionHelper.convert(user1Saks),
 						Arrays.asList("urn:local:0xCBE4")
 				);
 
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
+						WisebedConversionHelper.convert(user1Saks),
 						Arrays.asList("urn:local:0xcbe4")
 				);
 
@@ -281,10 +276,12 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
-		ConfidentialReservationData crd =
-				buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xCBE4");
+		final XMLGregorianCalendar fromXml = datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar());
+		final XMLGregorianCalendar toXml = datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar());
 		try {
-			rs.makeReservation(user1Saks, crd);
+
+			rs.makeReservation(user1Saks, newArrayList("urn:local:0xCBE4"), fromXml, toXml);
+
 			fail();
 		} catch (AuthorizationFault_Exception e) {
 			fail();
@@ -294,9 +291,8 @@ public class SingleUrnPrefixRSTest {
 		}
 
 		// try to reserve in lowercase
-		crd = buildConfidentialReservationData(from, to, USER1_USERNAME, null, "urn:local:0xcbe4");
 		try {
-			rs.makeReservation(user1Saks, crd);
+			rs.makeReservation(user1Saks, newArrayList("urn:local:0xcbe4"), fromXml, toXml);
 			fail();
 		} catch (AuthorizationFault_Exception e) {
 			fail();
@@ -331,7 +327,7 @@ public class SingleUrnPrefixRSTest {
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap =
 				WisebedConversionHelper.convertToUsernameNodeUrnsMap(
-						WisebedConversionHelper.convert(user1SaksSnaa),
+						WisebedConversionHelper.convert(user1Saks),
 						new LinkedList<String>()
 				);
 
@@ -383,42 +379,19 @@ public class SingleUrnPrefixRSTest {
 
 		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
 		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
-		crd.setUserData(new Random().nextInt(Integer.MAX_VALUE) + "");
 
 		for (String nodeUrn : nodeUrns) {
 			crd.getNodeUrns().add(nodeUrn);
 		}
 
-		Data data = new Data();
+		ConfidentialReservationDataKey key = new ConfidentialReservationDataKey();
 
-		data.setSecretReservationKey(secretReservationKey);
-		data.setUrnPrefix(URN_PREFIX);
-		data.setUsername(username);
+		key.setSecretReservationKey(secretReservationKey);
+		key.setUrnPrefix(URN_PREFIX);
+		key.setUsername(username);
 
-		crd.getData().add(data);
+		crd.getKeys().add(key);
 
 		return crd;
 	}
-
-	// TODO
-	private static List<SecretAuthenticationKey> copyRsToSnaa(
-			List<SecretAuthenticationKey> snaaKeys) {
-
-		List<SecretAuthenticationKey> secretAuthKeys =
-				Lists.newArrayListWithCapacity(snaaKeys.size());
-
-		for (SecretAuthenticationKey snaaKey : snaaKeys) {
-
-			SecretAuthenticationKey key = new SecretAuthenticationKey();
-
-			key.setSecretAuthenticationKey(snaaKey.getSecretAuthenticationKey());
-			key.setUrnPrefix(snaaKey.getUrnPrefix());
-			key.setUsername(snaaKey.getUsername());
-
-			secretAuthKeys.add(key);
-		}
-
-		return secretAuthKeys;
-	}
-
 }

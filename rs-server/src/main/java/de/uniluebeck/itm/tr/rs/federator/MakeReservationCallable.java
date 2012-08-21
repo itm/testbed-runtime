@@ -5,6 +5,7 @@ import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -14,17 +15,22 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	private final List<SecretAuthenticationKey> secretAuthenticationKeys;
 
-	private final ConfidentialReservationData reservation;
+	private final List<String> nodeUrns;
 
-	public MakeReservationCallable(final RS rs, final List<SecretAuthenticationKey> secretAuthenticationKeys,
-								   final ConfidentialReservationData reservation) {
+	private final XMLGregorianCalendar from;
+
+	private final XMLGregorianCalendar to;
+
+	public MakeReservationCallable(final RS rs,
+								   final List<SecretAuthenticationKey> secretAuthenticationKeys,
+								   final List<String> nodeUrns,
+								   final XMLGregorianCalendar from,
+								   final XMLGregorianCalendar to) {
 		this.rs = rs;
 		this.secretAuthenticationKeys = secretAuthenticationKeys;
-		this.reservation = reservation;
-	}
-
-	public ConfidentialReservationData getReservation() {
-		return reservation;
+		this.nodeUrns = nodeUrns;
+		this.from = from;
+		this.to = to;
 	}
 
 	public RS getRs() {
@@ -35,8 +41,20 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 		return secretAuthenticationKeys;
 	}
 
+	public XMLGregorianCalendar getFrom() {
+		return from;
+	}
+
+	public List<String> getNodeUrns() {
+		return nodeUrns;
+	}
+
+	public XMLGregorianCalendar getTo() {
+		return to;
+	}
+
 	@Override
 	public List<SecretReservationKey> call() throws Exception {
-		return rs.makeReservation(secretAuthenticationKeys, reservation);
+		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
 	}
 }
