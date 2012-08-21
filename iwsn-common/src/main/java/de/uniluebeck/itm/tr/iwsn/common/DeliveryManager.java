@@ -168,7 +168,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
-	public void experimentEnded() {
+	public void reservationEnded() {
 
 		if (isRunning()) {
 
@@ -368,7 +368,7 @@ public class DeliveryManager extends AbstractService implements Service {
 
 			log.debug("Stopping delivery manager (asynchronously)...");
 
-			experimentEnded();
+			reservationEnded();
 
 			final Thread shutdownThread = new Thread("DeliveryManager-ShutdownThread") {
 				@Override

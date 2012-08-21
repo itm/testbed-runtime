@@ -29,8 +29,6 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.iwsn.AuthorizationRequired;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
@@ -42,7 +40,6 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.WisebedServiceHelper;
-import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.wsn.*;
 import eu.wisebed.wiseml.WiseMLHelper;
@@ -361,7 +358,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			wsnApp.removeNodeMessageReceiver(nodeMessageReceiver);
 
-			deliveryManager.experimentEnded();
+			deliveryManager.reservationEnded();
 			deliveryManager.stopAndWait();
 
 			ExecutorUtils.shutdown(executorService, 5, TimeUnit.SECONDS);

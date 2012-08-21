@@ -42,11 +42,11 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void experimentEnded() {
+	public void reservationEnded() {
 		if (channels.size() > 0) {
 			channels.close();
 		}
-		super.experimentEnded();
+		super.reservationEnded();
 	}
 
 	@Override

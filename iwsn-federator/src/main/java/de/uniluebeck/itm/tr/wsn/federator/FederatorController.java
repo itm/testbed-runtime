@@ -130,8 +130,8 @@ public class FederatorController extends AbstractService implements Service, Con
 
 		try {
 
-			log.debug("Calling experimentEnded() on connected controllers...");
-			deliveryManager.experimentEnded();
+			log.debug("Calling reservationEnded() on connected controllers...");
+			deliveryManager.reservationEnded();
 
 			deliveryManager.stopAndWait();
 
@@ -229,14 +229,14 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
-	public void experimentStarted() {
+	public void reservationStarted() {
 		// TODO implement
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
-	public void experimentEnded() {
-		deliveryManager.experimentEnded();
+	public void reservationEnded() {
+		deliveryManager.reservationEnded();
 	}
 
 	String getControllerEndpointUrl() {

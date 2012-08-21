@@ -107,20 +107,20 @@ class DeliveryWorker implements Runnable {
 
 		while (!stopDelivery) {
 
-			// check if signal 'experimentEnded' has been given
+			// check if signal 'reservationEnded' has been given
 			lock.lock();
 			try {
 
 				if (experimentEnded && deliveryQueuesEmpty()) {
 					log.debug(
-							"{} => Calling experimentEnded() as experiment ended and all messages have been delivered.",
+							"{} => Calling reservationEnded() as experiment ended and all messages have been delivered.",
 							endpointUrl
 					);
 					try {
-						endpoint.experimentEnded();
+						endpoint.reservationEnded();
 					} catch (Exception e) {
 						log.warn(
-								"{} => Exception while calling experimentEnded() after delivering all queued messages.",
+								"{} => Exception while calling reservationEnded() after delivering all queued messages.",
 								endpointUrl
 						);
 					}
