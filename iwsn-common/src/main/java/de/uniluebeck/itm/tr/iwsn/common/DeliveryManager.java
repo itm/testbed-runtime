@@ -31,6 +31,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.Status;
 import org.slf4j.Logger;
@@ -112,7 +113,7 @@ public class DeliveryManager extends AbstractService implements Service {
 		final Controller endpoint = WisebedServiceHelper.getControllerService(endpointUrl, executorService);
 
 		final Deque<Message> messageQueue = new LinkedList<Message>();
-		final Deque<String> notificationQueue = new LinkedList<String>();
+		final Deque<Notification> notificationQueue = new LinkedList<Notification>();
 		final Deque<RequestStatus> statusQueue = new LinkedList<RequestStatus>();
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
@@ -216,7 +217,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param notifications
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
-	public void receiveNotification(final String... notifications) {
+	public void receiveNotification(final Notification... notifications) {
 
 		if (isRunning()) {
 
@@ -232,7 +233,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param notifications
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
-	public void receiveNotification(final List<String> notifications) {
+	public void receiveNotification(final List<Notification> notifications) {
 
 		if (isRunning()) {
 

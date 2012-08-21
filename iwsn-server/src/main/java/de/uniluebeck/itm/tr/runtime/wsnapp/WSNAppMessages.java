@@ -1120,25 +1120,46 @@ public final class WSNAppMessages {
       return de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_fieldAccessorTable;
     }
     
-    // required string message = 1;
-    public static final int MESSAGE_FIELD_NUMBER = 1;
-    private boolean hasMessage;
-    private java.lang.String message_ = "";
-    public boolean hasMessage() { return hasMessage; }
-    public java.lang.String getMessage() { return message_; }
+    // optional string nodeUrn = 1;
+    public static final int NODEURN_FIELD_NUMBER = 1;
+    private boolean hasNodeUrn;
+    private java.lang.String nodeUrn_ = "";
+    public boolean hasNodeUrn() { return hasNodeUrn; }
+    public java.lang.String getNodeUrn() { return nodeUrn_; }
+    
+    // required string timestamp = 2;
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private boolean hasTimestamp;
+    private java.lang.String timestamp_ = "";
+    public boolean hasTimestamp() { return hasTimestamp; }
+    public java.lang.String getTimestamp() { return timestamp_; }
+    
+    // required string msg = 3;
+    public static final int MSG_FIELD_NUMBER = 3;
+    private boolean hasMsg;
+    private java.lang.String msg_ = "";
+    public boolean hasMsg() { return hasMsg; }
+    public java.lang.String getMsg() { return msg_; }
     
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasMessage) return false;
+      if (!hasTimestamp) return false;
+      if (!hasMsg) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasMessage()) {
-        output.writeString(1, getMessage());
+      if (hasNodeUrn()) {
+        output.writeString(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        output.writeString(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        output.writeString(3, getMsg());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1149,9 +1170,17 @@ public final class WSNAppMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasMessage()) {
+      if (hasNodeUrn()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getMessage());
+          .computeStringSize(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getMsg());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1311,8 +1340,14 @@ public final class WSNAppMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification other) {
         if (other == de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.getDefaultInstance()) return this;
-        if (other.hasMessage()) {
-          setMessage(other.getMessage());
+        if (other.hasNodeUrn()) {
+          setNodeUrn(other.getNodeUrn());
+        }
+        if (other.hasTimestamp()) {
+          setTimestamp(other.getTimestamp());
+        }
+        if (other.hasMsg()) {
+          setMsg(other.getMsg());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1340,7 +1375,15 @@ public final class WSNAppMessages {
               break;
             }
             case 10: {
-              setMessage(input.readString());
+              setNodeUrn(input.readString());
+              break;
+            }
+            case 18: {
+              setTimestamp(input.readString());
+              break;
+            }
+            case 26: {
+              setMsg(input.readString());
               break;
             }
           }
@@ -1348,24 +1391,66 @@ public final class WSNAppMessages {
       }
       
       
-      // required string message = 1;
-      public boolean hasMessage() {
-        return result.hasMessage();
+      // optional string nodeUrn = 1;
+      public boolean hasNodeUrn() {
+        return result.hasNodeUrn();
       }
-      public java.lang.String getMessage() {
-        return result.getMessage();
+      public java.lang.String getNodeUrn() {
+        return result.getNodeUrn();
       }
-      public Builder setMessage(java.lang.String value) {
+      public Builder setNodeUrn(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasMessage = true;
-        result.message_ = value;
+  result.hasNodeUrn = true;
+        result.nodeUrn_ = value;
         return this;
       }
-      public Builder clearMessage() {
-        result.hasMessage = false;
-        result.message_ = getDefaultInstance().getMessage();
+      public Builder clearNodeUrn() {
+        result.hasNodeUrn = false;
+        result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+        return this;
+      }
+      
+      // required string timestamp = 2;
+      public boolean hasTimestamp() {
+        return result.hasTimestamp();
+      }
+      public java.lang.String getTimestamp() {
+        return result.getTimestamp();
+      }
+      public Builder setTimestamp(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasTimestamp = true;
+        result.timestamp_ = value;
+        return this;
+      }
+      public Builder clearTimestamp() {
+        result.hasTimestamp = false;
+        result.timestamp_ = getDefaultInstance().getTimestamp();
+        return this;
+      }
+      
+      // required string msg = 3;
+      public boolean hasMsg() {
+        return result.hasMsg();
+      }
+      public java.lang.String getMsg() {
+        return result.getMsg();
+      }
+      public Builder setMsg(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMsg = true;
+        result.msg_ = value;
+        return this;
+      }
+      public Builder clearMsg() {
+        result.hasMsg = false;
+        result.msg_ = getDefaultInstance().getMsg();
         return this;
       }
       
@@ -4919,39 +5004,40 @@ public final class WSNAppMessages {
       "REGISTER\020\002\"\220\001\n\rRequestStatus\022I\n\006status\030\001" +
       " \002(\01329.de.uniluebeck.itm.tr.runtime.wsna" +
       "pp.RequestStatus.Status\0324\n\006Status\022\016\n\006nod" +
-      "eId\030\001 \002(\t\022\r\n\005value\030\002 \001(\005\022\013\n\003msg\030\003 \001(\t\"\037\n",
-      "\014Notification\022\017\n\007message\030\001 \002(\t\"Q\n\017Upstre" +
-      "amMessage\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttime" +
-      "stamp\030\002 \002(\t\022\024\n\014messageBytes\030\003 \002(\014\"A\n\021Dow" +
-      "nstreamMessage\022\026\n\016targetNodeUrns\030\001 \003(\t\022\024" +
-      "\n\014messageBytes\030\002 \002(\014\"?\n\025SetVirtualLinkRe" +
-      "quest\022\022\n\nsourceNode\030\001 \002(\t\022\022\n\ntargetNode\030" +
-      "\002 \002(\t\"C\n\031DestroyVirtualLinkRequest\022\022\n\nso" +
-      "urceNode\030\001 \002(\t\022\022\n\ntargetNode\030\002 \002(\t\"$\n\023Di" +
-      "sablePhysicalLink\022\r\n\005nodeB\030\002 \002(\t\"#\n\022Enab" +
-      "lePhysicalLink\022\r\n\005nodeB\030\002 \002(\t\"\370\002\n\031SetCha",
-      "nnelPipelineRequest\022\200\001\n\034channelHandlerCo" +
-      "nfigurations\030\001 \003(\0132Z.de.uniluebeck.itm.t" +
-      "r.runtime.wsnapp.SetChannelPipelineReque" +
-      "st.ChannelHandlerConfiguration\032\327\001\n\033Chann" +
-      "elHandlerConfiguration\022\014\n\004name\030\001 \002(\t\022~\n\r" +
-      "configuration\030\002 \003(\0132g.de.uniluebeck.itm." +
-      "tr.runtime.wsnapp.SetChannelPipelineRequ" +
-      "est.ChannelHandlerConfiguration.KeyValue" +
-      "Pair\032*\n\014KeyValuePair\022\013\n\003key\030\001 \002(\t\022\r\n\005val" +
-      "ue\030\002 \002(\t\"\344\003\n\023OperationInvocation\022U\n\toper",
-      "ation\030\001 \002(\0162B.de.uniluebeck.itm.tr.runti" +
-      "me.wsnapp.OperationInvocation.Operation\022" +
-      "\021\n\targuments\030\002 \001(\014\"\342\002\n\tOperation\022\021\n\rSEND" +
-      "_UPSTREAM\020\000\022\023\n\017SEND_DOWNSTREAM\020\001\022\023\n\017ARE_" +
-      "NODES_ALIVE\020\002\022\022\n\016FLASH_PROGRAMS\020\003\022\017\n\013RES" +
-      "ET_NODES\020\004\022\024\n\020SET_VIRTUAL_LINK\020\005\022\030\n\024DEST" +
-      "ROY_VIRTUAL_LINK\020\006\022\020\n\014DISABLE_NODE\020\007\022\017\n\013" +
-      "ENABLE_NODE\020\010\022\031\n\025DISABLE_PHYSICAL_LINK\020\t" +
-      "\022\030\n\024ENABLE_PHYSICAL_LINK\020\n\022\030\n\024SET_CHANNE" +
-      "L_PIPELINE\020\013\022 \n\034SET_DEFAULT_CHANNEL_PIPE",
-      "LINE\020\014\022\026\n\022ARE_NODES_ALIVE_SM\020\r\022\027\n\023FLASH_" +
-      "DEFAULT_IMAGE\020\016B\022B\016WSNAppMessagesP\000"
+      "eId\030\001 \002(\t\022\r\n\005value\030\002 \001(\005\022\013\n\003msg\030\003 \001(\t\"?\n",
+      "\014Notification\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimest" +
+      "amp\030\002 \002(\t\022\013\n\003msg\030\003 \002(\t\"Q\n\017UpstreamMessag" +
+      "e\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttimestamp\030\002 " +
+      "\002(\t\022\024\n\014messageBytes\030\003 \002(\014\"A\n\021DownstreamM" +
+      "essage\022\026\n\016targetNodeUrns\030\001 \003(\t\022\024\n\014messag" +
+      "eBytes\030\002 \002(\014\"?\n\025SetVirtualLinkRequest\022\022\n" +
+      "\nsourceNode\030\001 \002(\t\022\022\n\ntargetNode\030\002 \002(\t\"C\n" +
+      "\031DestroyVirtualLinkRequest\022\022\n\nsourceNode" +
+      "\030\001 \002(\t\022\022\n\ntargetNode\030\002 \002(\t\"$\n\023DisablePhy" +
+      "sicalLink\022\r\n\005nodeB\030\002 \002(\t\"#\n\022EnablePhysic",
+      "alLink\022\r\n\005nodeB\030\002 \002(\t\"\370\002\n\031SetChannelPipe" +
+      "lineRequest\022\200\001\n\034channelHandlerConfigurat" +
+      "ions\030\001 \003(\0132Z.de.uniluebeck.itm.tr.runtim" +
+      "e.wsnapp.SetChannelPipelineRequest.Chann" +
+      "elHandlerConfiguration\032\327\001\n\033ChannelHandle" +
+      "rConfiguration\022\014\n\004name\030\001 \002(\t\022~\n\rconfigur" +
+      "ation\030\002 \003(\0132g.de.uniluebeck.itm.tr.runti" +
+      "me.wsnapp.SetChannelPipelineRequest.Chan" +
+      "nelHandlerConfiguration.KeyValuePair\032*\n\014" +
+      "KeyValuePair\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t",
+      "\"\344\003\n\023OperationInvocation\022U\n\toperation\030\001 " +
+      "\002(\0162B.de.uniluebeck.itm.tr.runtime.wsnap" +
+      "p.OperationInvocation.Operation\022\021\n\targum" +
+      "ents\030\002 \001(\014\"\342\002\n\tOperation\022\021\n\rSEND_UPSTREA" +
+      "M\020\000\022\023\n\017SEND_DOWNSTREAM\020\001\022\023\n\017ARE_NODES_AL" +
+      "IVE\020\002\022\022\n\016FLASH_PROGRAMS\020\003\022\017\n\013RESET_NODES" +
+      "\020\004\022\024\n\020SET_VIRTUAL_LINK\020\005\022\030\n\024DESTROY_VIRT" +
+      "UAL_LINK\020\006\022\020\n\014DISABLE_NODE\020\007\022\017\n\013ENABLE_N" +
+      "ODE\020\010\022\031\n\025DISABLE_PHYSICAL_LINK\020\t\022\030\n\024ENAB" +
+      "LE_PHYSICAL_LINK\020\n\022\030\n\024SET_CHANNEL_PIPELI",
+      "NE\020\013\022 \n\034SET_DEFAULT_CHANNEL_PIPELINE\020\014\022\026" +
+      "\n\022ARE_NODES_ALIVE_SM\020\r\022\027\n\023FLASH_DEFAULT_" +
+      "IMAGE\020\016B\022B\016WSNAppMessagesP\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4987,7 +5073,7 @@ public final class WSNAppMessages {
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_Notification_descriptor,
-              new java.lang.String[] { "Message", },
+              new java.lang.String[] { "NodeUrn", "Timestamp", "Msg", },
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.class,
               de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages.Notification.Builder.class);
           internal_static_de_uniluebeck_itm_tr_runtime_wsnapp_UpstreamMessage_descriptor =

@@ -59,7 +59,9 @@ message RequestStatus {
 
 // ==== receiveNotification ====
 message Notification {
-	required string message = 1;
+	optional string nodeUrn   = 1;
+	required string timestamp = 2;
+	required string msg       = 3;
 }
 
 

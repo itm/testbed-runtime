@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.Status;
 import org.jboss.netty.channel.Channel;
@@ -126,10 +127,10 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receiveNotification(final List<String> notifications) {
+	public void receiveNotification(final List<Notification> notifications) {
 
 		if (channels.size() > 0) {
-			for (String notification : notifications) {
+			for (Notification notification : notifications) {
 				channels.write(convert(notification));
 			}
 		}
@@ -138,7 +139,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receiveNotification(final String... notifications) {
+	public void receiveNotification(final Notification... notifications) {
 		receiveNotification(Lists.newArrayList(notifications));
 	}
 
@@ -194,11 +195,15 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 		channels.remove(channel);
 	}
 
-	private WisebedMessages.Envelope convert(final String notification) {
+	private WisebedMessages.Envelope convert(final Notification notification) {
 
 		WisebedMessages.Notification.Builder notificationBuilder = WisebedMessages.Notification.newBuilder()
-				.setTimestamp(new DateTime().toString())
-				.setMsg(notification);
+				.setTimestamp(new DateTime(notification.getTimestamp().toGregorianCalendar()).toString())
+				.setMsg(notification.getMsg());
+
+		if (notification.getNodeUrn() != null && !"".equals(notification.getNodeUrn())) {
+			notificationBuilder.setNodeUrn(notification.getNodeUrn());
+		}
 
 		return WisebedMessages.Envelope.newBuilder()
 				.setMessageType(WisebedMessages.MessageType.NOTIFICATION)

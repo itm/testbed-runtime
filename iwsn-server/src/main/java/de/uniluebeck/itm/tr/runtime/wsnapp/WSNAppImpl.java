@@ -54,6 +54,7 @@ import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -414,9 +415,9 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
 
-			final WSNAppMessages.Notification notification = WSNAppMessages.Notification
-					.newBuilder()
-					.setMessage(notificationString)
+			final WSNAppMessages.Notification notification = WSNAppMessages.Notification.newBuilder()
+					.setTimestamp(new DateTime().toString())
+					.setMsg(notificationString)
 					.build();
 
 			for (WSNNodeMessageReceiver receiver : wsnNodeMessageReceivers) {

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The queue that contains all notifications to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<String> notificationQueue;
+	private final Deque<Notification> notificationQueue;
 
 	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
@@ -81,7 +82,7 @@ class DeliveryWorker implements Runnable {
 						  final Controller endpoint,
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
-						  final Deque<String> notificationQueue,
+						  final Deque<Notification> notificationQueue,
 						  final int maximumDeliveryQueueSize) {
 
 		checkNotNull(deliveryManager);
@@ -276,7 +277,7 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNotifications() {
 
-		final List<String> notificationList = Lists.newArrayList();
+		final List<Notification> notificationList = Lists.newArrayList();
 
 		lock.lock();
 		try {
@@ -368,7 +369,7 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void receiveNotification(final String... notifications) {
+	public void receiveNotification(final Notification... notifications) {
 		lock.lock();
 		try {
 			Collections.addAll(notificationQueue, notifications);
@@ -378,7 +379,7 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void receiveNotification(final List<String> notifications) {
+	public void receiveNotification(final List<Notification> notifications) {
 		lock.lock();
 		try {
 			notificationQueue.addAll(notifications);
@@ -427,7 +428,9 @@ class DeliveryWorker implements Runnable {
 			String msg = "Dropped " + messagesDroppedSinceLastNotification + " messages in the last " +
 					lastMessageDropNotificationTimeDiff.ms() + " milliseconds, " +
 					"because the experiment is producing more messages than the backend is able to deliver.";
-			receiveNotification(msg);
+			Notification notification = new Notification();
+			notification.setMsg(msg);
+			receiveNotification(notification);
 			lastMessageDropNotificationTimeDiff.touch();
 			messagesDroppedSinceLastNotification = 0;
 		}

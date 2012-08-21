@@ -41,10 +41,13 @@ import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.wsn.*;
 import eu.wisebed.wiseml.WiseMLHelper;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +60,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -87,7 +91,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			try {
 				datatypeFactory = DatatypeFactory.newInstance();
 			} catch (DatatypeConfigurationException e) {
-				log.error("" + e, e);
+				throw propagate(e);
 			}
 		}
 
@@ -216,7 +220,16 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		@Override
 		public void receiveNotification(final WSNAppMessages.Notification notification) {
-			deliveryManager.receiveNotification(Lists.newArrayList(notification.getMessage()));
+			deliveryManager.receiveNotification(convert(notification));
+		}
+
+		private Notification convert(final WSNAppMessages.Notification notification) {
+			final Notification wsNotification = new Notification();
+			wsNotification.setMsg(notification.getMsg());
+			wsNotification.setNodeUrn(notification.getNodeUrn());
+			final DateTime timestamp = ISODateTimeFormat.dateTimeParser().parseDateTime(notification.getTimestamp());
+			wsNotification.setTimestamp(datatypeFactory.newXMLGregorianCalendar(timestamp.toGregorianCalendar()));
+			return wsNotification;
 		}
 	}
 

@@ -41,6 +41,7 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagin
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,11 +234,18 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				}
 
 				@Override
-				public void receiveNotification(final String notificationString) {
+				public void receiveNotification(@Nullable final String nodeUrn, final DateTime timestamp,
+												final String msg) {
 
-					WSNAppMessages.Notification message = WSNAppMessages.Notification.newBuilder()
-							.setMessage(notificationString)
-							.build();
+					final WSNAppMessages.Notification.Builder builder = WSNAppMessages.Notification.newBuilder()
+							.setTimestamp(timestamp.toString())
+							.setMsg(msg);
+
+					if (nodeUrn != null) {
+						builder.setNodeUrn(nodeUrn);
+					}
+
+					WSNAppMessages.Notification message = builder.build();
 
 					for (String nodeMessageListener : nodeMessageListeners) {
 
@@ -245,7 +253,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							log.debug("{} => Delivering notification to {}: {}", new String[]{
 									wsnDeviceAppConfiguration.getNodeUrn(),
 									nodeMessageListener,
-									notificationString
+									msg
 							}
 							);
 						}

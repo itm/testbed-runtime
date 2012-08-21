@@ -21,34 +21,39 @@ enum MessageType {
 
 message UpstreamMessage {
 	required string source_node_urn = 1;
-	required string timestamp = 2;
-	required bytes message_bytes = 3;
+	required string timestamp       = 2;
+	required bytes message_bytes    = 3;
 }
 
 message DownstreamMessage {
 	repeated string target_node_urns = 1;
-	required bytes message_bytes = 2;
+	required bytes message_bytes     = 2;
 }
 
 message Notification {
-	required string msg = 1;
+	optional string nodeUrn   = 1;
 	required string timestamp = 2;
+	required string msg       = 3;
 }
 
 message RequestStatus {
+
 	message Status {
 		required string node_urn = 1;
-		required int32 value = 2;
-		optional string message = 3;
+		required int32 value     = 2;
+		optional string message  = 3;
 	}
+
 	required sint64 request_id = 1;
-	repeated Status status = 2;
+	repeated Status status     = 2;
 }
 
 message SecretReservationKeys {
+
 	message SecretReservationKey {
 		required string urn_prefix = 1;
-		required string key = 2;
+		required string key        = 2;
 	}
+
 	repeated SecretReservationKey keys = 1;
 }

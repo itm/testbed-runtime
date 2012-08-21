@@ -1478,12 +1478,12 @@ public final class WisebedMessages {
       return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_fieldAccessorTable;
     }
     
-    // required string msg = 1;
-    public static final int MSG_FIELD_NUMBER = 1;
-    private boolean hasMsg;
-    private java.lang.String msg_ = "";
-    public boolean hasMsg() { return hasMsg; }
-    public java.lang.String getMsg() { return msg_; }
+    // optional string nodeUrn = 1;
+    public static final int NODEURN_FIELD_NUMBER = 1;
+    private boolean hasNodeUrn;
+    private java.lang.String nodeUrn_ = "";
+    public boolean hasNodeUrn() { return hasNodeUrn; }
+    public java.lang.String getNodeUrn() { return nodeUrn_; }
     
     // required string timestamp = 2;
     public static final int TIMESTAMP_FIELD_NUMBER = 2;
@@ -1492,22 +1492,32 @@ public final class WisebedMessages {
     public boolean hasTimestamp() { return hasTimestamp; }
     public java.lang.String getTimestamp() { return timestamp_; }
     
+    // required string msg = 3;
+    public static final int MSG_FIELD_NUMBER = 3;
+    private boolean hasMsg;
+    private java.lang.String msg_ = "";
+    public boolean hasMsg() { return hasMsg; }
+    public java.lang.String getMsg() { return msg_; }
+    
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasMsg) return false;
       if (!hasTimestamp) return false;
+      if (!hasMsg) return false;
       return true;
     }
     
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasMsg()) {
-        output.writeString(1, getMsg());
+      if (hasNodeUrn()) {
+        output.writeString(1, getNodeUrn());
       }
       if (hasTimestamp()) {
         output.writeString(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        output.writeString(3, getMsg());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1518,13 +1528,17 @@ public final class WisebedMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasMsg()) {
+      if (hasNodeUrn()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getMsg());
+          .computeStringSize(1, getNodeUrn());
       }
       if (hasTimestamp()) {
         size += com.google.protobuf.CodedOutputStream
           .computeStringSize(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getMsg());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1684,11 +1698,14 @@ public final class WisebedMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification other) {
         if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance()) return this;
-        if (other.hasMsg()) {
-          setMsg(other.getMsg());
+        if (other.hasNodeUrn()) {
+          setNodeUrn(other.getNodeUrn());
         }
         if (other.hasTimestamp()) {
           setTimestamp(other.getTimestamp());
+        }
+        if (other.hasMsg()) {
+          setMsg(other.getMsg());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1716,11 +1733,15 @@ public final class WisebedMessages {
               break;
             }
             case 10: {
-              setMsg(input.readString());
+              setNodeUrn(input.readString());
               break;
             }
             case 18: {
               setTimestamp(input.readString());
+              break;
+            }
+            case 26: {
+              setMsg(input.readString());
               break;
             }
           }
@@ -1728,24 +1749,24 @@ public final class WisebedMessages {
       }
       
       
-      // required string msg = 1;
-      public boolean hasMsg() {
-        return result.hasMsg();
+      // optional string nodeUrn = 1;
+      public boolean hasNodeUrn() {
+        return result.hasNodeUrn();
       }
-      public java.lang.String getMsg() {
-        return result.getMsg();
+      public java.lang.String getNodeUrn() {
+        return result.getNodeUrn();
       }
-      public Builder setMsg(java.lang.String value) {
+      public Builder setNodeUrn(java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasMsg = true;
-        result.msg_ = value;
+  result.hasNodeUrn = true;
+        result.nodeUrn_ = value;
         return this;
       }
-      public Builder clearMsg() {
-        result.hasMsg = false;
-        result.msg_ = getDefaultInstance().getMsg();
+      public Builder clearNodeUrn() {
+        result.hasNodeUrn = false;
+        result.nodeUrn_ = getDefaultInstance().getNodeUrn();
         return this;
       }
       
@@ -1767,6 +1788,27 @@ public final class WisebedMessages {
       public Builder clearTimestamp() {
         result.hasTimestamp = false;
         result.timestamp_ = getDefaultInstance().getTimestamp();
+        return this;
+      }
+      
+      // required string msg = 3;
+      public boolean hasMsg() {
+        return result.hasMsg();
+      }
+      public java.lang.String getMsg() {
+        return result.getMsg();
+      }
+      public Builder setMsg(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMsg = true;
+        result.msg_ = value;
+        return this;
+      }
+      public Builder clearMsg() {
+        result.hasMsg = false;
+        result.msg_ = getDefaultInstance().getMsg();
         return this;
       }
       
@@ -3260,20 +3302,21 @@ public final class WisebedMessages {
       "e_node_urn\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\t\022\025\n\rm" +
       "essage_bytes\030\003 \002(\014\"D\n\021DownstreamMessage\022" +
       "\030\n\020target_node_urns\030\001 \003(\t\022\025\n\rmessage_byt",
-      "es\030\002 \002(\014\".\n\014Notification\022\013\n\003msg\030\001 \002(\t\022\021\n" +
-      "\ttimestamp\030\002 \002(\t\"\266\001\n\rRequestStatus\022\022\n\nre" +
-      "quest_id\030\001 \002(\022\022U\n\006status\030\002 \003(\0132E.de.unil" +
-      "uebeck.itm.tr.runtime.portalapp.protobuf" +
-      ".RequestStatus.Status\032:\n\006Status\022\020\n\010node_" +
-      "urn\030\001 \002(\t\022\r\n\005value\030\002 \002(\005\022\017\n\007message\030\003 \001(" +
-      "\t\"\273\001\n\025SecretReservationKeys\022i\n\004keys\030\001 \003(" +
-      "\0132[.de.uniluebeck.itm.tr.runtime.portala" +
-      "pp.protobuf.SecretReservationKeys.Secret" +
-      "ReservationKey\0327\n\024SecretReservationKey\022\022",
-      "\n\nurn_prefix\030\001 \002(\t\022\013\n\003key\030\002 \002(\t*~\n\013Messa" +
-      "geType\022\024\n\020UPSTREAM_MESSAGE\020\001\022\026\n\022DOWNSTRE" +
-      "AM_MESSAGE\020\002\022\020\n\014NOTIFICATION\020\003\022\022\n\016REQUES" +
-      "T_STATUS\020\004\022\033\n\027SECRET_RESERVATION_KEYS\020\005"
+      "es\030\002 \002(\014\"?\n\014Notification\022\017\n\007nodeUrn\030\001 \001(" +
+      "\t\022\021\n\ttimestamp\030\002 \002(\t\022\013\n\003msg\030\003 \002(\t\"\266\001\n\rRe" +
+      "questStatus\022\022\n\nrequest_id\030\001 \002(\022\022U\n\006statu" +
+      "s\030\002 \003(\0132E.de.uniluebeck.itm.tr.runtime.p" +
+      "ortalapp.protobuf.RequestStatus.Status\032:" +
+      "\n\006Status\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005value\030\002 \002(" +
+      "\005\022\017\n\007message\030\003 \001(\t\"\273\001\n\025SecretReservation" +
+      "Keys\022i\n\004keys\030\001 \003(\0132[.de.uniluebeck.itm.t" +
+      "r.runtime.portalapp.protobuf.SecretReser" +
+      "vationKeys.SecretReservationKey\0327\n\024Secre",
+      "tReservationKey\022\022\n\nurn_prefix\030\001 \002(\t\022\013\n\003k" +
+      "ey\030\002 \002(\t*~\n\013MessageType\022\024\n\020UPSTREAM_MESS" +
+      "AGE\020\001\022\026\n\022DOWNSTREAM_MESSAGE\020\002\022\020\n\014NOTIFIC" +
+      "ATION\020\003\022\022\n\016REQUEST_STATUS\020\004\022\033\n\027SECRET_RE" +
+      "SERVATION_KEYS\020\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3309,7 +3352,7 @@ public final class WisebedMessages {
           internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_descriptor,
-              new java.lang.String[] { "Msg", "Timestamp", },
+              new java.lang.String[] { "NodeUrn", "Timestamp", "Msg", },
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.class,
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.Builder.class);
           internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor =

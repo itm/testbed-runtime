@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -37,7 +38,7 @@ public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.
 
 		void receivedPacket(byte[] bytes);
 
-		void receiveNotification(String notification);
+		void receiveNotification(@Nullable String nodeUrn, DateTime timestamp, String msg);
 
 	}
 

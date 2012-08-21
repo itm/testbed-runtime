@@ -29,6 +29,7 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,15 +218,15 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
+	public void receiveNotification(final List<Notification> notifications) {
+		deliveryManager.receiveNotification(notifications);
+	}
+
+	@Override
 	public void receiveStatus(final List<RequestStatus> requestStatusList) {
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
-	}
-
-	@Override
-	public void receiveNotification(final List<String> notificationList) {
-		deliveryManager.receiveNotification(notificationList);
 	}
 
 	@Override

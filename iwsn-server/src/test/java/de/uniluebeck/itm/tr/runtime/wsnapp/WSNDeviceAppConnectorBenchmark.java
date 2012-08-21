@@ -15,6 +15,7 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -132,7 +133,8 @@ public class WSNDeviceAppConnectorBenchmark {
 				}
 
 				@Override
-				public void receiveNotification(final String notification) {
+				public void receiveNotification(@Nullable final String nodeUrn, final DateTime timestamp,
+												final String msg) {
 					// don't care
 				}
 			};
