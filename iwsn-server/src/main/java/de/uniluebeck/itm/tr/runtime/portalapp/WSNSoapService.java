@@ -123,18 +123,18 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void destroyVirtualLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
-		wsn.destroyVirtualLink(requestId, sourceNodeUrn, targetNodeUrn);
+	public void destroyVirtualLinks(final long requestId, final List<Link> links) {
+		wsn.destroyVirtualLinks(requestId, links);
 	}
 
 	@Override
-	public void disableNode(final long requestId, final String nodeUrn) {
-		wsn.disableNode(requestId, nodeUrn);
+	public void disableNodes(final long requestId, final List<String> nodeUrns) {
+		wsn.disableNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void disablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
-		wsn.disablePhysicalLink(requestId, sourceNodeUrn, targetNodeUrn);
+	public void disablePhysicalLinks(final long requestId, final List<Link> links) {
+		wsn.disablePhysicalLinks(requestId, links);
 	}
 
 	@Override
@@ -148,13 +148,13 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void enableNode(final long requestId, final String nodeUrn) {
-		wsn.enableNode(requestId, nodeUrn);
+	public void enableNodes(final long requestId, final List<String> nodeUrns) {
+		wsn.enableNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void enablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
-		wsn.enablePhysicalLink(requestId, sourceNodeUrn, targetNodeUrn);
+	public void enablePhysicalLinks(final long requestId, final List<Link> links) {
+		wsn.enablePhysicalLinks(requestId, links);
 	}
 
 	@Override
@@ -201,13 +201,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void setVirtualLink(final long requestId,
-							   final String sourceNodeUrn,
-							   final String targetNodeUrn,
-							   final String remoteServiceInstance,
-							   final List<String> parameters,
-							   final List<String> filters) {
-
-		wsn.setVirtualLink(requestId, sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters);
+	public void setVirtualLinks(final long requestId, final List<VirtualLink> links) {
+		wsn.setVirtualLinks(requestId, links);
 	}
 }

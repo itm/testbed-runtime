@@ -23,30 +23,35 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.wsn.Link;
 import eu.wisebed.api.v3.wsn.WSN;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 class EnablePhysicalLinkRunnable extends AbstractRequestRunnable {
 
-	private final String nodeUrnA;
+	private final String sourceNodeUrn;
 
-	private final String nodeUrnB;
+	private final String targetNodeUrn;
 
 	public EnablePhysicalLinkRunnable(final FederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId,
-									  final String nodeUrnA,
-									  final String nodeUrnB) {
+									  final String sourceNodeUrn,
+									  final String targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeUrnA = nodeUrnA;
-		this.nodeUrnB = nodeUrnB;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.enablePhysicalLink(federatedRequestId, nodeUrnA, nodeUrnB);
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
-
 }

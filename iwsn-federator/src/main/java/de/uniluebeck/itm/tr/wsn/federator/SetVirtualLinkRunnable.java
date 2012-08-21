@@ -23,15 +23,18 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.wsn.VirtualLink;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 
-	private final String sourceNode;
+	private final String sourceNodeUrn;
 
-	private final String targetNode;
+	private final String targetNodeUrn;
 
 	private final String remoteServiceInstance;
 
@@ -43,16 +46,16 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 						   final WSN wsnEndpoint,
 						   final long federatedRequestId,
 						   final long federatorRequestId,
-						   final String sourceNode,
-						   final String targetNode,
+						   final String sourceNodeUrn,
+						   final String targetNodeUrn,
 						   final String remoteServiceInstance,
 						   final List<String> parameters,
 						   final List<String> filters) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 		this.remoteServiceInstance = remoteServiceInstance;
 		this.parameters = parameters;
 		this.filters = filters;
@@ -60,13 +63,12 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.setVirtualLink(
-				federatedRequestId,
-				sourceNode,
-				targetNode,
-				remoteServiceInstance,
-				parameters,
-				filters
-		);
+		final VirtualLink virtualLink = new VirtualLink();
+		virtualLink.setRemoteServiceInstance(remoteServiceInstance);
+		virtualLink.setSourceNodeUrn(sourceNodeUrn);
+		virtualLink.setTargetNodeUrn(targetNodeUrn);
+		virtualLink.getParameters().addAll(parameters);
+		virtualLink.getFilters().addAll(filters);
+		wsnEndpoint.setVirtualLinks(federatedRequestId, newArrayList(virtualLink));
 	}
 }

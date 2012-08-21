@@ -25,6 +25,8 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.wsn.WSN;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 class DisableNodeRunnable extends AbstractRequestRunnable {
 
 	private final String nodeUrn;
@@ -42,7 +44,7 @@ class DisableNodeRunnable extends AbstractRequestRunnable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.disableNode(federatedRequestId, nodeUrn);
+		wsnEndpoint.disableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 
 }

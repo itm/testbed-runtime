@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
@@ -261,7 +262,12 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					if (tries >= 3) {
 
 						log.warn("Repeatedly couldn't deliver virtual link message. Destroy virtual link.");
-						destroyVirtualLink(requestIdGenerator.nextLong(), sourceNodeUrn, targetNodeUrn);
+
+						Link link = new Link();
+						link.setSourceNodeUrn(sourceNodeUrn);
+						link.setTargetNodeUrn(targetNodeUrn);
+
+						destroyVirtualLinks(requestIdGenerator.nextLong(), newArrayList(link));
 
 					} else {
 						log.warn("Error while delivering virtual link message to remote testbed service. "
@@ -424,7 +430,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 								log.debug("Received reply from {} after {} ms.", nodeUrn, duration);
 							}
 
-							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+							deliveryManager.receiveStatus(convert(requestStatus, requestId));
 						}
 
 						@Override
@@ -459,7 +465,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
 							long end = System.currentTimeMillis();
 							log.debug("Received reply after {} ms.", (end - start));
-							deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+							deliveryManager.receiveStatus(convert(requestStatus, requestId));
 						}
 
 						@Override
@@ -470,6 +476,46 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			);
 		} catch (UnknownNodeUrnsException e) {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+		}
+	}
+
+	@Override
+	@AuthorizationRequired("WSN_SET_VIRTUAL_LINK")
+	public void setVirtualLinks(final long requestId, final List<VirtualLink> links) {
+
+		log.debug("WSNServiceImpl.setVirtualLinks({}, {})", requestId, links);
+
+		preconditions.checkSetVirtualLinkArguments(links);
+
+		for (VirtualLink link : links) {
+
+			try {
+
+				final String sourceNodeUrn = link.getSourceNodeUrn();
+				final String targetNodeUrn = link.getTargetNodeUrn();
+				final String remoteServiceInstance = link.getRemoteServiceInstance();
+
+				wsnApp.setVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
+
+					@Override
+					public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+
+						if (requestStatus.getStatus().getValue() == 1) {
+							addVirtualLink(sourceNodeUrn, targetNodeUrn, remoteServiceInstance);
+						}
+					}
+
+					@Override
+					public void failure(Exception e) {
+						deliveryManager.receiveFailureStatusMessages(newArrayList(sourceNodeUrn), requestId, e, -1);
+					}
+				}
+				);
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			}
 		}
 	}
 
@@ -485,7 +531,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			wsnApp.areNodesAlive(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					deliveryManager.receiveStatus(convert(requestStatus, requestId));
 				}
 
 				@Override
@@ -496,6 +542,115 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			);
 		} catch (UnknownNodeUrnsException e) {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+		}
+	}
+
+	@Override
+	@AuthorizationRequired("WSN_DESTROY_VIRTUAL_LINK")
+	public void destroyVirtualLinks(final long requestId, final List<Link> links) {
+
+		log.debug("WSNServiceImpl.destroyVirtualLinks({}, {})", requestId, links);
+
+		preconditions.checkDestroyVirtualLinkArguments(links);
+
+		for (Link link : links) {
+
+			final String sourceNodeUrn = link.getSourceNodeUrn();
+			final String targetNodeUrn = link.getTargetNodeUrn();
+
+			try {
+
+				wsnApp.destroyVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
+
+					@Override
+					public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
+
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+
+						if (requestStatus.getStatus().getValue() == 1) {
+							removeVirtualLink(sourceNodeUrn, targetNodeUrn);
+						}
+					}
+
+					@Override
+					public void failure(Exception e) {
+						deliveryManager.receiveFailureStatusMessages(
+								Lists.newArrayList(sourceNodeUrn),
+								requestId,
+								e,
+								-1
+						);
+					}
+				}
+				);
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			}
+		}
+	}
+
+	@Override
+	@AuthorizationRequired("WSN_DISABLE_NODE")
+	public void disableNodes(final long requestId, final List<String> nodeUrns) {
+
+		log.debug("WSNServiceImpl.disableNodes({}, {})", requestId, nodeUrns);
+
+		preconditions.checkDisableNodeArguments(nodeUrns);
+
+		for (final String nodeUrn : nodeUrns) {
+
+			try {
+
+				wsnApp.disableNode(nodeUrn, new WSNApp.Callback() {
+					@Override
+					public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+					}
+
+					@Override
+					public void failure(final Exception e) {
+						deliveryManager.receiveFailureStatusMessages(newArrayList(nodeUrn), requestId, e, -1);
+					}
+				}
+				);
+
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			}
+		}
+	}
+
+	@Override
+	@AuthorizationRequired("WSN_DISABLE_PHYSICAL_LINK")
+	public void disablePhysicalLinks(final long requestId, final List<Link> links) {
+
+		log.debug("WSNServiceImpl.disablePhysicalLinks({}, {})", requestId, links);
+
+		preconditions.checkDisablePhysicalLinkArguments(links);
+
+		for (Link link : links) {
+
+			final String sourceNodeUrn = link.getSourceNodeUrn();
+			final String targetNodeUrn = link.getTargetNodeUrn();
+
+			try {
+
+				wsnApp.disablePhysicalLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
+					@Override
+					public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+					}
+
+					@Override
+					public void failure(final Exception e) {
+						deliveryManager.receiveFailureStatusMessages(newArrayList(sourceNodeUrn), requestId, e, -1);
+					}
+				}
+				);
+
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
+			}
 		}
 	}
 
@@ -522,7 +677,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			wsnApp.resetNodes(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					deliveryManager.receiveStatus(convert(requestStatus, requestId));
 				}
 
 				@Override
@@ -540,48 +695,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	 * Map: (Source Node URN) -> (Map: (Target Node URN) -> (WSN endpoint instance))
 	 */
 	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
-
-	@Override
-	@AuthorizationRequired("WSN_SET_VIRTUAL_LINK")
-	public void setVirtualLink(final long requestId,
-							   final String sourceNodeUrn,
-							   final String targetNodeUrn,
-							   final String remoteServiceInstance,
-							   final List<String> parameters,
-							   final List<String> filters) {
-
-		preconditions.checkSetVirtualLinkArguments(
-				sourceNodeUrn,
-				targetNodeUrn,
-				remoteServiceInstance,
-				parameters,
-				filters
-		);
-
-		try {
-			wsnApp.setVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
-
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-
-					if (requestStatus.getStatus().getValue() == 1) {
-						addVirtualLink(sourceNodeUrn, targetNodeUrn, remoteServiceInstance);
-					}
-
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNodeUrn), requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-	}
 
 	private void addVirtualLink(String sourceNodeUrn, String targetNodeUrn, String remoteServiceInstance) {
 
@@ -658,95 +771,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
-	@AuthorizationRequired("WSN_DESTROY_VIRTUAL_LINK")
-	public void destroyVirtualLink(final long requestId,
-								   final String sourceNodeUrn,
-								   final String targetNodeUrn) {
-
-		preconditions.checkDestroyVirtualLinkArguments(sourceNodeUrn, targetNodeUrn);
-
-		try {
-			wsnApp.destroyVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
-
-				@Override
-				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
-
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-
-					if (requestStatus.getStatus().getValue() == 1) {
-						removeVirtualLink(sourceNodeUrn, targetNodeUrn);
-					}
-
-				}
-
-				@Override
-				public void failure(Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNodeUrn), requestId, e, -1);
-				}
-			}
-			);
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-	}
-
-	@Override
-	@AuthorizationRequired("WSN_DISABLE_NODE")
-	public void disableNode(final long requestId, final String nodeUrn) {
-
-		preconditions.checkDisableNodeArguments(nodeUrn);
-
-		log.debug("WSNServiceImpl.disableNode");
-
-		try {
-
-			wsnApp.disableNode(nodeUrn, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeUrn), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-	}
-
-	@Override
-	@AuthorizationRequired("WSN_DISABLE_PHYSICAL_LINK")
-	public void disablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
-
-		preconditions.checkDisablePhysicalLinkArguments(sourceNodeUrn, targetNodeUrn);
-
-		log.debug("WSNServiceImpl.disablePhysicalLink");
-
-		try {
-
-			wsnApp.disablePhysicalLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
-				}
-
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNodeUrn), requestId, e, -1);
-				}
-			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
-		}
-	}
-
-	@Override
 	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
 		throw new RuntimeException("Not yet implemented!");
 	}
@@ -758,57 +782,66 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_ENABLE_NODE")
-	public void enableNode(final long requestId, final String nodeUrn) {
+	public void enableNodes(final long requestId, final List<String> nodeUrns) {
 
-		preconditions.checkEnableNodeArguments(nodeUrn);
+		log.debug("WSNServiceImpl.enableNodes({}, {})", requestId, nodeUrns);
 
-		log.debug("WSNServiceImpl.enableNode");
+		preconditions.checkEnableNodeArguments(nodeUrns);
 
-		try {
+		for (final String nodeUrn : nodeUrns) {
 
-			wsnApp.enableNode(nodeUrn, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+			try {
+
+				wsnApp.enableNode(nodeUrn, new WSNApp.Callback() {
+					@Override
+					public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+					}
+
+					@Override
+					public void failure(final Exception e) {
+						deliveryManager.receiveFailureStatusMessages(newArrayList(nodeUrn), requestId, e, -1);
+					}
 				}
+				);
 
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(nodeUrn), requestId, e, -1);
-				}
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 	}
 
 	@Override
 	@AuthorizationRequired("WSN_ENABLE_PHYSICAL_LINK")
-	public void enablePhysicalLink(final long requestId, final String sourceNodeUrn, final String targetNodeUrn) {
+	public void enablePhysicalLinks(final long requestId, final List<Link> links) {
 
-		preconditions.checkEnablePhysicalLinkArguments(sourceNodeUrn, targetNodeUrn);
+		log.debug("WSNServiceImpl.enablePhysicalLinks({}, {})", requestId, links);
 
-		log.debug("WSNServiceImpl.enablePhysicalLink");
+		preconditions.checkEnablePhysicalLinkArguments(links);
 
-		try {
+		for (Link link : links) {
 
-			wsnApp.enablePhysicalLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
-				@Override
-				public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+			try {
+
+				final String sourceNodeUrn = link.getSourceNodeUrn();
+				final String targetNodeUrn = link.getTargetNodeUrn();
+
+				wsnApp.enablePhysicalLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
+					@Override
+					public void receivedRequestStatus(final WSNAppMessages.RequestStatus requestStatus) {
+						deliveryManager.receiveStatus(convert(requestStatus, requestId));
+					}
+
+					@Override
+					public void failure(final Exception e) {
+						deliveryManager.receiveFailureStatusMessages(newArrayList(sourceNodeUrn), requestId, e, -1);
+					}
 				}
+				);
 
-				@Override
-				public void failure(final Exception e) {
-					deliveryManager.receiveFailureStatusMessages(Lists.newArrayList(sourceNodeUrn), requestId, e, -1);
-				}
+			} catch (UnknownNodeUrnsException e) {
+				deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 			}
-			);
-
-		} catch (UnknownNodeUrnsException e) {
-			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 	}
 
@@ -855,7 +888,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					}
 
 					// deliver output to client
-					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));
+					deliveryManager.receiveStatus(convert(requestStatus, requestId));
 				}
 
 				@Override

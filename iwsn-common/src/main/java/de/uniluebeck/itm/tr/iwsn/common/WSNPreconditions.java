@@ -25,9 +25,10 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.VirtualLink;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -106,62 +107,68 @@ public class WSNPreconditions {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkSetVirtualLinkArguments(String sourceNode, String targetNode, String remoteServiceInstance,
-											 List<String> parameters, List<String> filters) {
+	public void checkSetVirtualLinkArguments(List<VirtualLink> links) {
 
-		checkNotNull(sourceNode);
-		checkNotNull(targetNode);
-		checkNotNull(remoteServiceInstance);
+		for (VirtualLink link : links) {
 
-		commonPreconditions.checkNodesKnown(sourceNode);
+			final String sourceNodeUrn = link.getSourceNodeUrn();
+			final String targetNodeUrn = link.getTargetNodeUrn();
+			final String remoteServiceInstance = link.getRemoteServiceInstance();
 
-		try {
-			new URL(remoteServiceInstance);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(
-					"The remoteServiceInstance argument (\"" + remoteServiceInstance + "\") is not a valid URL!"
-			);
+			checkNotNull(sourceNodeUrn);
+			checkNotNull(targetNodeUrn);
+			checkNotNull(remoteServiceInstance);
+
+			commonPreconditions.checkNodesKnown(sourceNodeUrn);
+
+			try {
+				new URL(remoteServiceInstance);
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException(
+						"The remoteServiceInstance argument (\"" + remoteServiceInstance + "\") is not a valid URL!"
+				);
+			}
 		}
-
 	}
 
-	public void checkDestroyVirtualLinkArguments(String sourceNode, String targetNode) {
-
-		checkNotNull(sourceNode);
-		checkNotNull(targetNode);
-
-		commonPreconditions.checkNodeUrnsPrefixesServed(sourceNode);
-
+	public void checkDestroyVirtualLinkArguments(List<Link> links) {
+		checkLinkArguments(links, false);
 	}
 
-	public void checkDisableNodeArguments(String node) {
-
-		checkNotNull(node);
-
-		commonPreconditions.checkNodesKnown(node);
+	private void checkLinkArguments(final List<Link> links, final boolean targetNodeMustBeInTestbed) {
+		checkNotNull(links, "The set of links must not be null");
+		for (Link link : links) {
+			checkNotNull(link.getSourceNodeUrn(), "The source node URN must not be null");
+			checkNotNull(link.getTargetNodeUrn(), "The target node URN must not be null");
+			commonPreconditions.checkNodesKnown(link.getSourceNodeUrn());
+			commonPreconditions.checkNodeUrnsPrefixesServed(link.getSourceNodeUrn());
+			if (targetNodeMustBeInTestbed) {
+				commonPreconditions.checkNodesKnown(link.getTargetNodeUrn());
+				commonPreconditions.checkNodeUrnsPrefixesServed(link.getTargetNodeUrn());
+			}
+		}
 	}
 
-	public void checkDisablePhysicalLinkArguments(String nodeA, String nodeB) {
-
-		checkNotNull(nodeA);
-		checkNotNull(nodeB);
-
-		commonPreconditions.checkNodesKnown(nodeA, nodeB);
+	public void checkDisableNodeArguments(List<String> nodeUrns) {
+		checkNodeUrnsArgument(nodeUrns);
 	}
 
-	public void checkEnableNodeArguments(String node) {
-
-		checkNotNull(node);
-
-		commonPreconditions.checkNodesKnown(node);
+	private void checkNodeUrnsArgument(final List<String> nodeUrns) {
+		checkNotNull(nodeUrns, "The set of node URNs must not be null");
+		checkArgument(!nodeUrns.isEmpty(), "The set of node URNs to disable must not be empty");
+		commonPreconditions.checkNodesKnown(nodeUrns);
 	}
 
-	public void checkEnablePhysicalLinkArguments(String nodeA, String nodeB) {
+	public void checkDisablePhysicalLinkArguments(List<Link> links) {
+		checkLinkArguments(links, true);
+	}
 
-		checkNotNull(nodeA);
-		checkNotNull(nodeB);
+	public void checkEnableNodeArguments(List<String> nodeUrns) {
+		checkNodeUrnsArgument(nodeUrns);
+	}
 
-		commonPreconditions.checkNodesKnown(nodeA, nodeB);
+	public void checkEnablePhysicalLinkArguments(List<Link> links) {
+		checkLinkArguments(links, true);
 	}
 
 	public void checkSetChannelPipelineArguments(final List<String> nodes,
