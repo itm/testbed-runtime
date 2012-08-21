@@ -34,6 +34,7 @@ import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.util.LinkedList;
@@ -227,6 +228,16 @@ public class FederatorController extends AbstractService implements Service, Con
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
+	}
+
+	@Override
+	public void nodesAttached(@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+		deliveryManager.nodesAttached(nodeUrns);
+	}
+
+	@Override
+	public void nodesDetached(@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+		deliveryManager.nodesDetached(nodeUrns);
 	}
 
 	@Override

@@ -115,6 +115,8 @@ public class DeliveryManager extends AbstractService implements Service {
 		final Deque<Message> messageQueue = new LinkedList<Message>();
 		final Deque<Notification> notificationQueue = new LinkedList<Notification>();
 		final Deque<RequestStatus> statusQueue = new LinkedList<RequestStatus>();
+		final Deque<List<String>> nodesAttachedQueue = new LinkedList<List<String>>();
+		final Deque<List<String>> nodesDetachedQueue = new LinkedList<List<String>>();
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
@@ -123,6 +125,8 @@ public class DeliveryManager extends AbstractService implements Service {
 				messageQueue,
 				statusQueue,
 				notificationQueue,
+				nodesAttachedQueue,
+				nodesDetachedQueue,
 				maximumDeliveryQueueSize
 		);
 
@@ -175,6 +179,23 @@ public class DeliveryManager extends AbstractService implements Service {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.experimentEnded();
+			}
+		}
+	}
+
+	public void nodesAttached(final List<String> nodeUrns) {
+		if (isRunning()) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.nodesAttached(nodeUrns);
+			}
+		}
+	}
+
+
+	public void nodesDetached(final List<String> nodeUrns) {
+		if (isRunning()) {
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.nodesDetached(nodeUrns);
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -57,6 +58,16 @@ class DeliveryWorker implements Runnable {
 	private final Deque<Notification> notificationQueue;
 
 	/**
+	 * The queue that contains all nodesAttached events to be delivered to {@link DeliveryWorker#endpoint}.
+	 */
+	private final Deque<List<String>> nodesAttachedQueue;
+
+	/**
+	 * The queue that contains all nodesDetached events to be delivered to {@link DeliveryWorker#endpoint}.
+	 */
+	private final Deque<List<String>> nodesDetachedQueue;
+
+	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
 	 * the controller that informs him of messages being dropped due to messageQueue congestion.
 	 */
@@ -83,21 +94,17 @@ class DeliveryWorker implements Runnable {
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
 						  final Deque<Notification> notificationQueue,
+						  final Deque<List<String>> nodesAttachedQueue,
+						  final Deque<List<String>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
-
-		checkNotNull(deliveryManager);
-		checkNotNull(endpointUrl);
-		checkNotNull(endpoint);
-		checkNotNull(messageQueue);
-		checkNotNull(statusQueue);
-		checkNotNull(notificationQueue);
-
-		this.deliveryManager = deliveryManager;
-		this.endpointUrl = endpointUrl;
-		this.endpoint = endpoint;
-		this.messageQueue = messageQueue;
-		this.statusQueue = statusQueue;
-		this.notificationQueue = notificationQueue;
+		this.deliveryManager = checkNotNull(deliveryManager);
+		this.endpointUrl = checkNotNull(endpointUrl);
+		this.endpoint = checkNotNull(endpoint);
+		this.messageQueue = checkNotNull(messageQueue);
+		this.statusQueue = checkNotNull(statusQueue);
+		this.notificationQueue = checkNotNull(notificationQueue);
+		this.nodesAttachedQueue = checkNotNull(nodesAttachedQueue);
+		this.nodesDetachedQueue = checkNotNull(nodesDetachedQueue);
 		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
 	}
 
@@ -140,6 +147,10 @@ class DeliveryWorker implements Runnable {
 				deliverySuccessful = deliverNotifications();
 			} else if (!statusQueue.isEmpty()) {
 				deliverySuccessful = deliverStatuses();
+			} else if (!nodesAttachedQueue.isEmpty()) {
+				deliverySuccessful = deliverNodesAttached();
+			} else if (!nodesDetachedQueue.isEmpty()) {
+				deliverySuccessful = deliverNodesDetached();
 			} else if (!messageQueue.isEmpty()) {
 				deliverySuccessful = deliverMessages();
 			}
@@ -314,8 +325,84 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
+	private boolean deliverNodesAttached() {
+
+		final List<String> nodeUrns;
+
+		lock.lock();
+		try {
+			nodeUrns = nodesAttachedQueue.poll();
+		} finally {
+			lock.unlock();
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"{} => Delivering nodes attached events for node URNs {}",
+					endpointUrl,
+					Arrays.toString(nodeUrns.toArray())
+			);
+		}
+
+		try {
+
+			endpoint.nodesAttached(nodeUrns);
+			return true;
+
+		} catch (Exception e) {
+			lock.lock();
+			try {
+				nodesAttachedQueue.addFirst(nodeUrns);
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		return false;
+	}
+
+	private boolean deliverNodesDetached() {
+
+		final List<String> nodeUrns;
+
+		lock.lock();
+		try {
+			nodeUrns = nodesDetachedQueue.poll();
+		} finally {
+			lock.unlock();
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"{} => Delivering nodes detached events for node URNs {}",
+					endpointUrl,
+					Arrays.toString(nodeUrns.toArray())
+			);
+		}
+
+		try {
+
+			endpoint.nodesDetached(nodeUrns);
+			return true;
+
+		} catch (Exception e) {
+			lock.lock();
+			try {
+				nodesDetachedQueue.addFirst(nodeUrns);
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		return false;
+	}
+
 	private boolean deliveryQueuesEmpty() {
-		return !(!messageQueue.isEmpty() || !notificationQueue.isEmpty() || !statusQueue.isEmpty());
+		return !(!messageQueue.isEmpty() ||
+				!notificationQueue.isEmpty() ||
+				!statusQueue.isEmpty() ||
+				!nodesAttachedQueue.isEmpty() ||
+				!nodesDetachedQueue.isEmpty());
 	}
 
 	/**
@@ -379,6 +466,26 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
+	public void nodesAttached(final List<String> nodeUrns) {
+		lock.lock();
+		try {
+			nodesAttachedQueue.add(nodeUrns);
+			workAvailable.signalAll();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void nodesDetached(final List<String> nodeUrns) {
+		lock.lock();
+		try {
+			nodesDetachedQueue.add(nodeUrns);
+			workAvailable.signalAll();
+		} finally {
+			lock.unlock();
+		}
+	}
+
 	public void receiveNotification(final List<Notification> notifications) {
 		lock.lock();
 		try {
@@ -414,7 +521,8 @@ class DeliveryWorker implements Runnable {
 	 * Notifies the currently registered controllers that a number of messages have been dropped if the last notification
 	 * lies far enough in the past.
 	 *
-	 * @param messagesDropped the number of messages being dropped right now
+	 * @param messagesDropped
+	 * 		the number of messages being dropped right now
 	 */
 
 	private void enqueueDropNotificationIfNotificationRateAllows(final int messagesDropped) {
@@ -435,5 +543,4 @@ class DeliveryWorker implements Runnable {
 			messagesDroppedSinceLastNotification = 0;
 		}
 	}
-
 }
