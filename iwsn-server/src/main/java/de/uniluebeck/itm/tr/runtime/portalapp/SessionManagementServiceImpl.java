@@ -285,6 +285,12 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	}
 
 	@Override
+	public List<String> getSupportedVirtualLinkFilters() {
+		log.debug("WSNServiceImpl.getFilters()");
+		return newArrayList();
+	}
+
+	@Override
 	public String getInstance(List<SecretReservationKey> secretReservationKeys)
 			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 

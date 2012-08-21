@@ -288,6 +288,50 @@ public class FederatorSessionManagement implements SessionManagement {
 		return newArrayList(commonHandlers);
 	}
 
+	@Override
+	public List<String> getSupportedVirtualLinkFilters() {
+
+		ImmutableSet<String> endpointUrls = federationManager.getEndpointUrls();
+		Map<String, Future<ImmutableSet<String>>> endpointUrlToResultsMapping = Maps.newHashMap();
+
+		// fork calls to endpoints
+		log.debug("Invoking getFilters() on {}", endpointUrls);
+		for (final String endpointUrl : endpointUrls) {
+			Future<ImmutableSet<String>> future = executorService.submit(new Callable<ImmutableSet<String>>() {
+				@Override
+				public ImmutableSet<String> call() throws Exception {
+					SessionManagement endpoint = federationManager.getEndpointByEndpointUrl(endpointUrl);
+					return ImmutableSet.copyOf(endpoint.getSupportedVirtualLinkFilters());
+				}
+			}
+			);
+			endpointUrlToResultsMapping.put(endpointUrl, future);
+		}
+
+		// join results from endpoints
+		ImmutableSet<String> intersectedFilters = null;
+		for (Map.Entry<String, Future<ImmutableSet<String>>> entry : endpointUrlToResultsMapping.entrySet()) {
+
+			try {
+
+				ImmutableSet<String> endpointFilters = entry.getValue().get();
+
+				if (intersectedFilters == null) {
+					intersectedFilters = endpointFilters;
+				} else {
+					intersectedFilters = ImmutableSet.copyOf(Sets.intersection(intersectedFilters, endpointFilters));
+				}
+
+			} catch (Exception e) {
+				log.error("Error while calling getFilters() on federated WSN endpoint \"{}\". Ignoring this endpoint.",
+						entry.getKey()
+				);
+			}
+		}
+
+		return Lists.newArrayList(intersectedFilters);
+	}
+
 	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR =
 			new Comparator<ChannelHandlerDescription>() {
 				@Override

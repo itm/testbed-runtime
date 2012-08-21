@@ -138,4 +138,9 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
 		return sm.getSupportedChannelHandlers();
 	}
+
+	@Override
+	public List<String> getSupportedVirtualLinkFilters() {
+		return sm.getSupportedVirtualLinkFilters();
+	}
 }

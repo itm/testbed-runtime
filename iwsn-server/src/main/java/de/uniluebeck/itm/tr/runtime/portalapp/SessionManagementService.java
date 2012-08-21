@@ -51,4 +51,6 @@ public interface SessionManagementService extends Service {
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);
 
 	List<ChannelHandlerDescription> getSupportedChannelHandlers();
+
+	List<String> getSupportedVirtualLinkFilters();
 }
