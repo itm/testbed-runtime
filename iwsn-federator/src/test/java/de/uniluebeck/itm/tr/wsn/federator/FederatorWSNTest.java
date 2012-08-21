@@ -11,7 +11,6 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.v3.wsn.ChannelHandlerDescription;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.junit.After;
@@ -258,70 +257,6 @@ public class FederatorWSNTest {
 				eq(newArrayList(TESTBED_3_NODE_1)),
 				eq(channelHandlerConfigurations)
 		);
-	}
-
-	/**
-	 * Tests if calling {@link eu.wisebed.api.v3.wsn.WSN#getSupportedChannelHandlers()} on the federator returns only the
-	 * handlers that are supported on all federated testbeds.
-	 *
-	 * @throws Exception
-	 * 		if anything goes wrong
-	 */
-	@Test
-	public void testGetSupportedChannelHandlersReturnsOnlyHandlersSupportedByAllFederatedTestbeds() throws Exception {
-
-		when(federationManager.getEntries()).thenReturn(ImmutableSet.<FederationManager.Entry<WSN>>of(
-				new FederationManager.Entry<WSN>(
-						testbed1WSN,
-						TESTBED_1_ENDPOINT_URL,
-						ImmutableSet.of(TESTBED_1_URN_PREFIX)
-				),
-				new FederationManager.Entry<WSN>(
-						testbed2WSN,
-						TESTBED_2_ENDPOINT_URL,
-						ImmutableSet.of(TESTBED_2_URN_PREFIX)
-				)
-		)
-		);
-
-		final List<ChannelHandlerDescription> supportedChannelHandlersTestbed1 = newArrayList(
-				buildChannelHandlerDescription("filter1", "option11", "option12"),
-				buildChannelHandlerDescription("filter2", "option21", "option22"),
-				buildChannelHandlerDescription("filter3", "option31")
-		);
-
-		final List<ChannelHandlerDescription> supportedChannelHandlersTestbed2 = newArrayList(
-				buildChannelHandlerDescription("filter2", "option21"),
-				buildChannelHandlerDescription("filter3", "option31"),
-				buildChannelHandlerDescription("filter4")
-		);
-
-		when(testbed1WSN.getSupportedChannelHandlers()).thenReturn(supportedChannelHandlersTestbed1);
-		when(testbed2WSN.getSupportedChannelHandlers()).thenReturn(supportedChannelHandlersTestbed2);
-
-		final List<ChannelHandlerDescription> supportedChannelHandlers = federatorWSN.getSupportedChannelHandlers();
-
-		verify(testbed1WSN).getSupportedChannelHandlers();
-		verify(testbed2WSN).getSupportedChannelHandlers();
-
-		assertEquals(1, supportedChannelHandlers.size());
-		assertEquals("filter3", supportedChannelHandlers.get(0).getName());
-		assertEquals(1, supportedChannelHandlers.get(0).getConfigurationOptions().size());
-		assertEquals("option31", supportedChannelHandlers.get(0).getConfigurationOptions().get(0).getKey());
-	}
-
-	private ChannelHandlerDescription buildChannelHandlerDescription(final String filterName,
-																	 final String... optionNames) {
-
-		ChannelHandlerDescription chd = new ChannelHandlerDescription();
-		chd.setName(filterName);
-		for (String optionName : optionNames) {
-			final KeyValuePair keyValuePair = new KeyValuePair();
-			keyValuePair.setKey(optionName);
-			keyValuePair.setValue("");
-			chd.getConfigurationOptions().add(keyValuePair);
-		}
-		return chd;
 	}
 
 	private List<ChannelHandlerConfiguration> buildSomeArbitraryChannelPipeline() {

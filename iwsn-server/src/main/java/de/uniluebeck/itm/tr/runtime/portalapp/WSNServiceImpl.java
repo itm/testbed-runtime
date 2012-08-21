@@ -510,26 +510,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
-	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-
-		HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
-		try {
-			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		final List<ChannelHandlerDescription> channelHandlerDescriptions = newArrayList();
-
-		for (HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription : handlerFactoryRegistry
-				.getChannelHandlerDescriptions()) {
-			channelHandlerDescriptions.add(convert(handlerDescription));
-		}
-
-		return channelHandlerDescriptions;
-	}
-
-	@Override
 	public List<String> getSupportedVirtualLinkFilters() {
 		log.debug("WSNServiceImpl.getFilters()");
 		throw new java.lang.UnsupportedOperationException("Method is not yet implemented.");
@@ -899,20 +879,4 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			deliveryManager.receiveUnknownNodeUrnRequestStatus(e.getNodeUrns(), e.getMessage(), requestId);
 		}
 	}
-
-	private ChannelHandlerDescription convert(
-			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
-
-		ChannelHandlerDescription target = new ChannelHandlerDescription();
-		target.setDescription(handlerDescription.getDescription());
-		target.setName(handlerDescription.getName());
-		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
-			final KeyValuePair keyValuePair = new KeyValuePair();
-			keyValuePair.setKey(entry.getKey());
-			keyValuePair.setValue(entry.getValue());
-			target.getConfigurationOptions().add(keyValuePair);
-		}
-		return target;
-	}
-
 }

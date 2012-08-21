@@ -1,16 +1,16 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.v3.wsn.ChannelHandlerDescription;
-import eu.wisebed.api.v3.wsn.WSN;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.SessionManagement;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public class GetSupportedChannelHandlersCallable implements Callable<List<ChannelHandlerDescription>> {
 
-	private final WSN endpoint;
+	private final SessionManagement endpoint;
 
-	public GetSupportedChannelHandlersCallable(WSN endpoint) {
+	public GetSupportedChannelHandlersCallable(final SessionManagement endpoint) {
 		this.endpoint = endpoint;
 	}
 

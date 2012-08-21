@@ -41,16 +41,12 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
-import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownReservationIdFault;
-import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
+import eu.wisebed.api.v3.sm.*;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
@@ -59,7 +55,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
 
 @WebService(
 		name = "SessionManagement",
@@ -81,11 +80,6 @@ public class FederatorSessionManagement implements SessionManagement {
 	private final ExecutorService executorService = Executors.newCachedThreadPool(
 			new ThreadFactoryBuilder().setNameFormat("FederatorSessionManagement-Thread %d").build()
 	);
-
-	/**
-	 * A mapping between the federator SessionManagement Endpoint URLs and the set of URN Prefixes they are serving.
-	 */
-	private final BiMap<String, Set<String>> sessionManagementEndpointUrlPrefixSet = HashBiMap.create();
 
 	/**
 	 * wsnInstanceHash (see {@link de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper#calculateWSNInstanceHash(java.util.List)}
@@ -119,24 +113,18 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	private final Random requestIdGenerator = new Random();
 
-	public FederatorSessionManagement(final FederatorWSNConfig config) {
+	private final FederationManager<SessionManagement> federationManager;
 
+	public FederatorSessionManagement(
+			final FederationManager<SessionManagement> federationManager,
+			final SessionManagementPreconditions preconditions,
+			final FederatorController federatorController,
+			final FederatorWSNConfig config) {
+
+		this.federationManager = federationManager;
+		this.preconditions = preconditions;
+		this.federatorController = federatorController;
 		this.config = config;
-
-		for (FederatorWSNTestbedConfig testbedConfig : config.getFederates()) {
-			sessionManagementEndpointUrlPrefixSet.put(
-					testbedConfig.getSmEndpointUrl().toString(),
-					testbedConfig.getUrnPrefixes()
-			);
-		}
-
-		this.preconditions = new SessionManagementPreconditions();
-		for (Set<String> endpointPrefixSet : sessionManagementEndpointUrlPrefixSet.values()) {
-			this.preconditions.addServedUrnPrefixes(endpointPrefixSet);
-		}
-
-		this.federatorController = new FederatorController(createRandomControllerEndpointUrl());
-
 	}
 
 	public void start() throws Exception {
@@ -233,6 +221,101 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	}
 
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+
+		log.debug("getSupportedChannelHandlers() called...");
+
+		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
+		final Map<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>>
+				entryToResultMapping = Maps.newHashMap();
+
+		// fork calls to endpoints
+		for (final FederationManager.Entry<SessionManagement> entry : entries) {
+			final Future<List<ChannelHandlerDescription>> future = executorService.submit(
+					new GetSupportedChannelHandlersCallable(entry.endpoint)
+			);
+			entryToResultMapping.put(entry, future);
+		}
+
+		final Set<ChannelHandlerDescription> commonHandlers = newTreeSet(CHANNEL_HANDLER_DESCRIPTION_COMPARATOR);
+
+		for (Map.Entry<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> outerEntry : entryToResultMapping
+				.entrySet()) {
+
+			try {
+
+				List<ChannelHandlerDescription> outerChannelHandlers = outerEntry.getValue().get();
+
+				for (ChannelHandlerDescription outerChannelHandler : outerChannelHandlers) {
+
+					boolean containedInAllOthers = true;
+
+					for (Map.Entry<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> innerEntry : entryToResultMapping
+							.entrySet()) {
+
+						if (innerEntry != outerEntry) {
+
+							boolean outerContainedInInnerEntry = false;
+
+							final List<ChannelHandlerDescription> innerChannelHandlers = innerEntry.getValue().get();
+							for (ChannelHandlerDescription innerChannelHandler : innerChannelHandlers) {
+								if (equals(outerChannelHandler, innerChannelHandler)) {
+									outerContainedInInnerEntry = true;
+									break;
+								}
+							}
+
+							if (!outerContainedInInnerEntry) {
+								containedInAllOthers = false;
+								break;
+							}
+						}
+					}
+
+					if (containedInAllOthers) {
+						commonHandlers.add(outerChannelHandler);
+					}
+				}
+
+			} catch (Exception e) {
+				log.error("Error while calling getFilters() on federated WSN endpoint \"{}\". Ignoring this endpoint.",
+						outerEntry.getKey()
+				);
+			}
+		}
+
+		return newArrayList(commonHandlers);
+	}
+
+	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR =
+			new Comparator<ChannelHandlerDescription>() {
+				@Override
+				public int compare(final ChannelHandlerDescription o1, final ChannelHandlerDescription o2) {
+					return FederatorSessionManagement.equals(o1, o2) ? 0 : -1;
+				}
+			};
+
+	private static boolean equals(final ChannelHandlerDescription outerChannelHandler,
+								  final ChannelHandlerDescription innerChannelHandler) {
+
+		if (!outerChannelHandler.getName().equals(innerChannelHandler.getName())) {
+			return false;
+		}
+
+		Set<String> outerConfigurationKeys = newHashSet();
+		Set<String> innerConfigurationKeys = newHashSet();
+
+		for (KeyValuePair keyValuePair : outerChannelHandler.getConfigurationOptions()) {
+			outerConfigurationKeys.add(keyValuePair.getKey());
+		}
+
+		for (KeyValuePair keyValuePair : innerChannelHandler.getConfigurationOptions()) {
+			innerConfigurationKeys.add(keyValuePair.getKey());
+		}
+
+		return Sets.symmetricDifference(outerConfigurationKeys, innerConfigurationKeys).size() == 0;
+	}
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
@@ -425,30 +508,28 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * Checks for a given list of {@link SecretReservationKey} instances which federated Session Management endpoints are
 	 * responsible for which set of URN prefixes.
 	 *
-	 * @param secretReservationKeys
+	 * @param srks
 	 * 		the list of {@link SecretReservationKey} instances as passed in as parameter e.g. to
 	 * 		{@link de.uniluebeck.itm.tr.wsn.federator.FederatorSessionManagement#getInstance(java.util.List)}
 	 *
 	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they
 	 *         serve
 	 */
-	private Map<String, List<SecretReservationKey>> getServiceMapping(
-			List<SecretReservationKey> secretReservationKeys) {
+	private Map<String, List<SecretReservationKey>> getServiceMapping(final List<SecretReservationKey> srks) {
 
 		HashMap<String, List<SecretReservationKey>> map = new HashMap<String, List<SecretReservationKey>>();
 
-		for (Map.Entry<String, Set<String>> entry : sessionManagementEndpointUrlPrefixSet.entrySet()) {
-			for (String urnPrefix : entry.getValue()) {
-				for (SecretReservationKey srk : secretReservationKeys) {
+		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
+		for (FederationManager.Entry<SessionManagement> entry : entries) {
+			for (String urnPrefix : entry.urnPrefixes) {
+				for (SecretReservationKey srk : srks) {
 					if (urnPrefix.equals(srk.getUrnPrefix())) {
-
-						List<SecretReservationKey> secretReservationKeyList = map.get(entry.getKey());
+						List<SecretReservationKey> secretReservationKeyList = map.get(entry.endpointUrl);
 						if (secretReservationKeyList == null) {
 							secretReservationKeyList = new ArrayList<SecretReservationKey>();
-							map.put(entry.getKey(), secretReservationKeyList);
+							map.put(entry.endpointUrl, secretReservationKeyList);
 						}
 						secretReservationKeyList.add(srk);
-
 					}
 				}
 			}
@@ -458,7 +539,8 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public void areNodesAlive(final long clientRequest, final List<String> nodeUrns, final String controllerEndpointUrl) {
+	public void areNodesAlive(final long clientRequest, final List<String> nodeUrns,
+							  final String controllerEndpointUrl) {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodeUrns, controllerEndpointUrl);
 
@@ -494,38 +576,27 @@ public class FederatorSessionManagement implements SessionManagement {
 	 * @return see above
 	 */
 	private Map<String, Set<String>> createSessionManagementEndpointUrlToNodeUrnMapping(final List<String> nodeUrns) {
-
-		Map<String, Set<String>> map = Maps.newHashMap();
-
-		for (Map.Entry<String, Set<String>> entry : sessionManagementEndpointUrlPrefixSet.entrySet()) {
-
-			final String remoteSessionManagementEndpointUrl = entry.getKey();
-			final Set<String> remoteNodeUrnsServed = entry.getValue();
-
+		final Map<String, Set<String>> map = Maps.newHashMap();
+		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
+		for (FederationManager.Entry<SessionManagement> entry : entries) {
 			for (String nodeUrn : nodeUrns) {
-
-				if (remoteNodeUrnsServed.contains(nodeUrn)) {
-					Set<String> remoteNodeUrnsToInclude = map.get(remoteSessionManagementEndpointUrl);
+				if (entry.urnPrefixes.contains(nodeUrn)) {
+					Set<String> remoteNodeUrnsToInclude = map.get(entry.endpointUrl);
 					if (remoteNodeUrnsToInclude == null) {
 						remoteNodeUrnsToInclude = Sets.newHashSet();
-						map.put(remoteSessionManagementEndpointUrl, remoteNodeUrnsToInclude);
+						map.put(entry.endpointUrl, remoteNodeUrnsToInclude);
 					}
 					remoteNodeUrnsToInclude.add(nodeUrn);
 				}
 			}
-
 		}
-
 		return map;
 	}
 
 	@Override
 	public String getNetwork() {
-
 		final BiMap<String, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
-		final Set<String> endpointUrls = sessionManagementEndpointUrlPrefixSet.keySet();
-
-		for (final String endpointUrl : endpointUrls) {
+		for (final String endpointUrl : federationManager.getEndpointUrls()) {
 			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {
@@ -534,7 +605,6 @@ public class FederatorSessionManagement implements SessionManagement {
 			}
 			);
 		}
-
 		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
 
 	}
@@ -548,14 +618,6 @@ public class FederatorSessionManagement implements SessionManagement {
 		snaaEndpointUrl.value = config.getFederatorSnaaEndpointUrl().toString();
 	}
 
-	private String createRandomControllerEndpointUrl() {
-		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
-		return federatorSmEndpointURL.getScheme() + "://" +
-				federatorSmEndpointURL.getHost() + ":" +
-				federatorSmEndpointURL.getPort() + "/" +
-				secureIdGenerator.getNextId() + "/controller";
-	}
-
 	private String createRandomWsnEndpointUrl() {
 		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
 		return federatorSmEndpointURL.getScheme() + "://" +
@@ -564,5 +626,11 @@ public class FederatorSessionManagement implements SessionManagement {
 				secureIdGenerator.getNextId() + "/wsn";
 	}
 
-
+	private String createRandomControllerEndpointUrl() {
+		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
+		return federatorSmEndpointURL.getScheme() + "://" +
+				federatorSmEndpointURL.getHost() + ":" +
+				federatorSmEndpointURL.getPort() + "/" +
+				secureIdGenerator.getNextId() + "/controller";
+	}
 }

@@ -23,16 +23,27 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.sm.SessionManagement;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
+import java.util.Set;
 
 
 public class Federator {
@@ -87,7 +98,40 @@ public class Federator {
 		}
 
 		final FederatorWSNConfig config = FederatorWSNConfig.parse(properties);
-		final FederatorSessionManagement federatorSessionManagement = new FederatorSessionManagement(config);
+
+		final ImmutableMap.Builder<String, ImmutableSet<String>> smEndpointUrlPrefixSetBuilder = ImmutableMap.builder();
+		for (FederatorWSNTestbedConfig testbedConfig : config.getFederates()) {
+			smEndpointUrlPrefixSetBuilder.put(
+					testbedConfig.getSmEndpointUrl().toString(),
+					testbedConfig.getUrnPrefixes()
+			);
+		}
+
+		final ImmutableMap<String, ImmutableSet<String>> smEndpointUrlPrefixSet = smEndpointUrlPrefixSetBuilder.build();
+
+		final FederationManager<SessionManagement> federationManager =
+				new FederationManager<SessionManagement>(new Function<String, SessionManagement>() {
+					@Override
+					public SessionManagement apply(@Nullable final String s) {
+						return WisebedServiceHelper.getSessionManagementService(s);
+					}
+				}, smEndpointUrlPrefixSet
+				);
+
+		final SessionManagementPreconditions preconditions = new SessionManagementPreconditions();
+		for (Set<String> endpointPrefixSet : smEndpointUrlPrefixSet.values()) {
+			preconditions.addServedUrnPrefixes(endpointPrefixSet);
+		}
+
+		final String randomControllerEndpointUrl = createRandomControllerEndpointUrl(config);
+		final FederatorController federatorController = new FederatorController(randomControllerEndpointUrl);
+
+		final FederatorSessionManagement federatorSessionManagement = new FederatorSessionManagement(
+				federationManager,
+				preconditions,
+				federatorController,
+				config
+		);
 
 		log.info("Starting with config: {}", config);
 		federatorSessionManagement.start();
@@ -106,6 +150,15 @@ public class Federator {
 		}
 		);
 
+	}
+
+	private static String createRandomControllerEndpointUrl(final FederatorWSNConfig config) {
+		final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
+		return federatorSmEndpointURL.getScheme() + "://" +
+				federatorSmEndpointURL.getHost() + ":" +
+				federatorSmEndpointURL.getPort() + "/" +
+				secureIdGenerator.getNextId() + "/controller";
 	}
 
 	private static void usage(Options options) {

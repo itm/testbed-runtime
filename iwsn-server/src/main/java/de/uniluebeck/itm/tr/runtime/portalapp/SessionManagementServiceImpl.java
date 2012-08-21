@@ -26,6 +26,8 @@ package de.uniluebeck.itm.tr.runtime.portalapp;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
@@ -37,11 +39,13 @@ import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import org.joda.time.DateTime;
@@ -59,6 +63,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createUnknownReservationIdException;
 
@@ -242,6 +247,41 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	public WSNServiceHandle getWsnServiceHandle(@Nonnull final String secretReservationKey) {
 		checkNotNull(secretReservationKey);
 		return wsnInstances.get(secretReservationKey);
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+
+		HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
+		try {
+			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		final List<ChannelHandlerDescription> channelHandlerDescriptions = newArrayList();
+
+		for (HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription : handlerFactoryRegistry
+				.getChannelHandlerDescriptions()) {
+			channelHandlerDescriptions.add(convert(handlerDescription));
+		}
+
+		return channelHandlerDescriptions;
+	}
+
+	private ChannelHandlerDescription convert(
+			final HandlerFactoryRegistry.ChannelHandlerDescription handlerDescription) {
+
+		ChannelHandlerDescription target = new ChannelHandlerDescription();
+		target.setDescription(handlerDescription.getDescription());
+		target.setName(handlerDescription.getName());
+		for (Map.Entry<String, String> entry : handlerDescription.getConfigurationOptions().entries()) {
+			final KeyValuePair keyValuePair = new KeyValuePair();
+			keyValuePair.setKey(entry.getKey());
+			keyValuePair.setValue(entry.getValue());
+			target.getConfigurationOptions().add(keyValuePair);
+		}
+		return target;
 	}
 
 	@Override

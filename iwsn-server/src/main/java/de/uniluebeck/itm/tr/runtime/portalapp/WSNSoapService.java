@@ -173,11 +173,6 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-		return wsn.getSupportedChannelHandlers();
-	}
-
-	@Override
 	public List<String> getSupportedVirtualLinkFilters() {
 		return wsn.getSupportedVirtualLinkFilters();
 	}

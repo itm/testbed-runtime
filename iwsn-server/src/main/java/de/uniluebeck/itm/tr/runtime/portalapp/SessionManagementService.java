@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.Service;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
@@ -48,4 +49,6 @@ public interface SessionManagementService extends Service {
 
 	@Nullable
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);
+
+	List<ChannelHandlerDescription> getSupportedChannelHandlers();
 }

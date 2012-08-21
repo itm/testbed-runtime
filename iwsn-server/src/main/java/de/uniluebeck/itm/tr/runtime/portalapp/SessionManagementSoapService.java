@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
@@ -131,5 +132,10 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	@Override
 	public String getNetwork() {
 		return WiseMLHelper.prettyPrintWiseML(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return sm.getSupportedChannelHandlers();
 	}
 }

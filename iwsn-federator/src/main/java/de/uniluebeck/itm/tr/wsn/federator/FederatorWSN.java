@@ -27,22 +27,21 @@ import com.google.common.collect.*;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
-import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.collect.Sets.newTreeSet;
 
 
 @WebService(
@@ -129,13 +128,13 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void send(final long federatorRequestId, final List<String> nodeUrns, final byte[] message) {
+	public void send(final long federatorRequestId, final List<String> nodeUrns, final byte[] messageBytes) {
 
-		wsnPreconditions.checkSendArguments(nodeUrns, message);
+		wsnPreconditions.checkSendArguments(nodeUrns, messageBytes);
 
 		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
-		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeUrns, message, map.keySet()});
+		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeUrns, messageBytes, map.keySet()});
 		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
@@ -148,7 +147,7 @@ public class FederatorWSN implements WSN {
 					federatedRequestId,
 					federatorRequestId,
 					nodeIdSubset,
-					message
+					messageBytes
 			)
 			);
 		}
@@ -422,73 +421,6 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-
-		log.debug("getSupportedChannelHandlers() called...");
-
-		final ImmutableSet<FederationManager.Entry<WSN>> entries = federationManager.getEntries();
-		final Map<FederationManager.Entry<WSN>, Future<List<ChannelHandlerDescription>>> entryToResultMapping =
-				Maps.newHashMap();
-
-		// fork calls to endpoints
-		for (final FederationManager.Entry<WSN> entry : entries) {
-			final Future<List<ChannelHandlerDescription>> future = executorService.submit(
-					new GetSupportedChannelHandlersCallable(entry.endpoint)
-			);
-			entryToResultMapping.put(entry, future);
-		}
-
-		final Set<ChannelHandlerDescription> commonHandlers = newTreeSet(CHANNEL_HANDLER_DESCRIPTION_COMPARATOR);
-
-		for (Map.Entry<FederationManager.Entry<WSN>, Future<List<ChannelHandlerDescription>>> outerEntry : entryToResultMapping
-				.entrySet()) {
-
-			try {
-
-				List<ChannelHandlerDescription> outerChannelHandlers = outerEntry.getValue().get();
-
-				for (ChannelHandlerDescription outerChannelHandler : outerChannelHandlers) {
-
-					boolean containedInAllOthers = true;
-
-					for (Map.Entry<FederationManager.Entry<WSN>, Future<List<ChannelHandlerDescription>>> innerEntry : entryToResultMapping
-							.entrySet()) {
-
-						if (innerEntry != outerEntry) {
-
-							boolean outerContainedInInnerEntry = false;
-
-							final List<ChannelHandlerDescription> innerChannelHandlers = innerEntry.getValue().get();
-							for (ChannelHandlerDescription innerChannelHandler : innerChannelHandlers) {
-								if (equals(outerChannelHandler, innerChannelHandler)) {
-									outerContainedInInnerEntry = true;
-									break;
-								}
-							}
-
-							if (!outerContainedInInnerEntry) {
-								containedInAllOthers = false;
-								break;
-							}
-						}
-					}
-
-					if (containedInAllOthers) {
-						commonHandlers.add(outerChannelHandler);
-					}
-				}
-
-			} catch (Exception e) {
-				log.error("Error while calling getFilters() on federated WSN endpoint \"{}\". Ignoring this endpoint.",
-						outerEntry.getKey()
-				);
-			}
-		}
-
-		return newArrayList(commonHandlers);
-	}
-
-	@Override
 	public List<String> getSupportedVirtualLinkFilters() {
 
 		ImmutableSet<String> endpointUrls = federationManager.getEndpointUrls();
@@ -530,35 +462,6 @@ public class FederatorWSN implements WSN {
 		}
 
 		return Lists.newArrayList(intersectedFilters);
-	}
-
-	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR =
-			new Comparator<ChannelHandlerDescription>() {
-				@Override
-				public int compare(final ChannelHandlerDescription o1, final ChannelHandlerDescription o2) {
-					return FederatorWSN.equals(o1, o2) ? 0 : -1;
-				}
-			};
-
-	private static boolean equals(final ChannelHandlerDescription outerChannelHandler,
-								  final ChannelHandlerDescription innerChannelHandler) {
-
-		if (!outerChannelHandler.getName().equals(innerChannelHandler.getName())) {
-			return false;
-		}
-
-		Set<String> outerConfigurationKeys = newHashSet();
-		Set<String> innerConfigurationKeys = newHashSet();
-
-		for (KeyValuePair keyValuePair : outerChannelHandler.getConfigurationOptions()) {
-			outerConfigurationKeys.add(keyValuePair.getKey());
-		}
-
-		for (KeyValuePair keyValuePair : innerChannelHandler.getConfigurationOptions()) {
-			innerConfigurationKeys.add(keyValuePair.getKey());
-		}
-
-		return Sets.symmetricDifference(outerConfigurationKeys, innerConfigurationKeys).size() == 0;
 	}
 
 	@Override
