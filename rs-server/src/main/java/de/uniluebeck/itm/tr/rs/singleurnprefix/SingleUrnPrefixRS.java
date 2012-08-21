@@ -369,6 +369,7 @@ public class SingleUrnPrefixRS implements RS {
 			log.warn(msg);
 			ReservationConflictFault exception = new ReservationConflictFault();
 			exception.setMessage(msg);
+			exception.getReservedNodeUrns().addAll(intersection);
 			throw new ReservationConflictFault_Exception(msg, exception);
 		}
 	}
