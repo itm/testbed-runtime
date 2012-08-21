@@ -17,6 +17,7 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,7 +79,7 @@ public class WSNAppBenchmark {
 		}
 
 		@Override
-		public synchronized void receive(final byte[] bytes, final String sourceNodeId, final String timestamp) {
+		public synchronized void receive(final byte[] bytes, final String sourceNodeId, final DateTime timestamp) {
 
 			if (log.isTraceEnabled()) {
 				log.trace("Decoding received bytes: {}", StringUtils.toHexString(bytes));

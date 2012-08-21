@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -48,8 +47,8 @@ public class SingleUrnPrefixRS implements RS {
 	private List<SecretReservationKey> makeReservationInternal(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
 			final List<String> nodeUrns,
-			final XMLGregorianCalendar from,
-			final XMLGregorianCalendar to) throws RSFault_Exception {
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(from);
@@ -130,8 +129,8 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<String> nodeUrns,
-													  final XMLGregorianCalendar from,
-													  final XMLGregorianCalendar to)
+													  final DateTime from,
+													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		checkArgumentValid(nodeUrns, from, to);
@@ -152,7 +151,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(XMLGregorianCalendar from, XMLGregorianCalendar to)
+	public List<PublicReservationData> getReservations(DateTime from, DateTime to)
 			throws RSFault_Exception {
 
 		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
@@ -170,8 +169,8 @@ public class SingleUrnPrefixRS implements RS {
 	@AuthorizationRequired("RS_GET_RESERVATIONS")
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			List<SecretAuthenticationKey> secretAuthenticationKey,
-			XMLGregorianCalendar from,
-			XMLGregorianCalendar to)
+			DateTime from,
+			DateTime to)
 			throws RSFault_Exception {
 
 		checkNotNull(from, "Parameter from is null!");
@@ -290,8 +289,8 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkArgumentValid(final List<String> nodeUrns,
-									final XMLGregorianCalendar fromArg,
-									final XMLGregorianCalendar toArg) throws RSFault_Exception {
+									final DateTime fromArg,
+									final DateTime toArg) throws RSFault_Exception {
 
 		try {
 
@@ -339,8 +338,8 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkNodesAvailable(final List<String> nodeUrns,
-									 final XMLGregorianCalendar from,
-									 final XMLGregorianCalendar to)
+									 final DateTime from,
+									 final DateTime to)
 			throws ReservationConflictFault_Exception, RSFault_Exception {
 
 		List<String> requestedNodeUrns = transform(nodeUrns, StringUtils.STRING_TO_LOWER_CASE);
@@ -364,7 +363,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkArgumentValid(final XMLGregorianCalendar from, final XMLGregorianCalendar to)
+	private void checkArgumentValid(final DateTime from, final DateTime to)
 			throws RSFault_Exception {
 
 		if (from == null || to == null) {

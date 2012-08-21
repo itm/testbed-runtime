@@ -28,7 +28,10 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -37,10 +40,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -54,19 +53,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FederatorTest {
 
-	private static final DatatypeFactory datatypeFactory;
-
 	private static final String URN_PREFIX_TESTBED_1 = "urn:wisebed:testbed1";
 
 	private static final String URN_PREFIX_TESTBED_2 = "urn:wisebed:testbed2";
-
-	static {
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	@Mock
 	private RS testbed1RS;
@@ -178,11 +167,8 @@ public class FederatorTest {
 
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final GregorianCalendar now = new DateTime().toGregorianCalendar();
-			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
-
-			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
-			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
 
 			federatorRS.makeReservation(authData, newArrayList("urn:not:served"), from, to);
 			fail("Should have raised an RSFault_Exception");
@@ -197,11 +183,8 @@ public class FederatorTest {
 
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final GregorianCalendar now = new DateTime().toGregorianCalendar();
-			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
-
-			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
-			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
 
 			federatorRS.makeReservation(authData, newArrayList("urn:wisebed1:testbed1"), from, to);
 			fail("Should have raised an RSFault_Exception");
@@ -215,11 +198,8 @@ public class FederatorTest {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final GregorianCalendar now = new DateTime().toGregorianCalendar();
-			final GregorianCalendar then = new DateTime().plusHours(1).toGregorianCalendar();
-
-			XMLGregorianCalendar from = datatypeFactory.newXMLGregorianCalendar(now);
-			XMLGregorianCalendar to = datatypeFactory.newXMLGregorianCalendar(then);
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
 
 			federatorRS.makeReservation(authData, Lists.<String>newArrayList(), from, to);
 			fail();
@@ -240,9 +220,8 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getReservations(javax.xml.datatype.XMLGregorianCalendar,
-	 * javax.xml.datatype.XMLGregorianCalendar)} is made on all federated RS instances and the results are merged
-	 * correctly.
+	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime)} is made on all
+	 * federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -253,8 +232,8 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, javax.xml.datatype.XMLGregorianCalendar,
-	 * javax.xml.datatype.XMLGregorianCalendar)} is made on all federated RS instances and the results are merged correctly.
+	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
+	 * org.joda.time.DateTime)} is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong

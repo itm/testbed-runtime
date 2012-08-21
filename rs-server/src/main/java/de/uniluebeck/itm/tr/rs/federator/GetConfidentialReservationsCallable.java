@@ -1,18 +1,18 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import org.joda.time.DateTime;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public class GetConfidentialReservationsCallable implements Callable<List<ConfidentialReservationData>> {
 
-	private final XMLGregorianCalendar from;
+	private final DateTime from;
 
-	private final XMLGregorianCalendar to;
+	private final DateTime to;
 
 	private final List<SecretAuthenticationKey> secretAuthenticationKeys;
 
@@ -20,7 +20,7 @@ public class GetConfidentialReservationsCallable implements Callable<List<Confid
 
 	public GetConfidentialReservationsCallable(final RS rs,
 											   final List<SecretAuthenticationKey> secretAuthenticationKeys,
-											   final XMLGregorianCalendar from, final XMLGregorianCalendar to) {
+											   final DateTime from, final DateTime to) {
 		this.rs = rs;
 		this.from = from;
 		this.to = to;

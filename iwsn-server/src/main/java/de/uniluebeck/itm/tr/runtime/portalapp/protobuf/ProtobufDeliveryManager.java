@@ -216,7 +216,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 		WisebedMessages.UpstreamMessage.Builder upstreamMessageBuilder = WisebedMessages.UpstreamMessage.newBuilder()
 				.setMessageBytes(ByteString.copyFrom(message.getBinaryData()))
 				.setSourceNodeUrn(message.getSourceNodeUrn())
-				.setTimestamp(message.getTimestamp().toXMLFormat());
+				.setTimestamp(message.getTimestamp().toString());
 
 		return WisebedMessages.Envelope.newBuilder()
 				.setMessageType(WisebedMessages.MessageType.UPSTREAM_MESSAGE)

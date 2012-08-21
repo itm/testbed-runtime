@@ -24,9 +24,11 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 
+import org.joda.time.DateTime;
+
 public interface WSNNodeMessageReceiver {
 
-	void receive(byte[] bytes, String sourceNodeId, String timestamp);
+	void receive(byte[] bytes, String sourceNodeId, DateTime timestamp);
 
 	void receiveNotification(WSNAppMessages.Notification notification);
 

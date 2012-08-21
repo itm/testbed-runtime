@@ -24,17 +24,16 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -97,14 +96,10 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	}
 
 	private ConfidentialReservationData createConfidentialReservationData() throws DatatypeConfigurationException {
+
 		final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-		final XMLGregorianCalendar xmlGregorianCalendar
-				= DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2011, 6, 25, 0);
-		confidentialReservationData.setFrom(xmlGregorianCalendar);
-		xmlGregorianCalendar.add(
-				DatatypeFactory.newInstance().newDuration(1000 * 60 * 30)
-		); // 30 minutes
-		confidentialReservationData.setTo(xmlGregorianCalendar);
+		confidentialReservationData.setFrom(DateTime.now());
+		confidentialReservationData.setTo(DateTime.now().plusMinutes(30));
 
 		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
 		data.setSecretReservationKey("SECRET12345");

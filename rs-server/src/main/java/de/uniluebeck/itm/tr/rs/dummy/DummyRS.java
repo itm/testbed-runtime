@@ -26,9 +26,9 @@ package de.uniluebeck.itm.tr.rs.dummy;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,8 +47,8 @@ public class DummyRS implements RS {
 	private Random r = new SecureRandom();
 
 	@Override
-	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
-													   final XMLGregorianCalendar to) throws RSFault_Exception {
+	public List<PublicReservationData> getReservations(final DateTime from,
+													   final DateTime to) throws RSFault_Exception {
 		return Collections.emptyList();
 
 	}
@@ -56,8 +56,8 @@ public class DummyRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final XMLGregorianCalendar from,
-			final XMLGregorianCalendar to) throws RSFault_Exception {
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		return Collections.emptyList();
 	}
@@ -83,8 +83,8 @@ public class DummyRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<String> nodeUrns,
-													  final XMLGregorianCalendar from,
-													  final XMLGregorianCalendar to)
+													  final DateTime from,
+													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(secretAuthenticationKeys.size());

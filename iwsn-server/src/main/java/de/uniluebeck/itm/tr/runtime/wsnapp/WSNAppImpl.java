@@ -242,7 +242,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 				final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(message.getMessageBytes().toByteArray());
 
 				final Map<String, Object> userContext = Maps.newHashMap();
-				userContext.put("timestamp", message.getTimestamp());
+				userContext.put("timestamp", new DateTime(message.getTimestamp()));
 
 				final WisebedMulticastAddress sourceAddress = new WisebedMulticastAddress(
 						newHashSet(message.getSourceNodeUrn()),
@@ -305,7 +305,8 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 
 			if (e instanceof ExceptionEvent) {
 
-				@SuppressWarnings("ThrowableResultOfMethodCallIgnored") Throwable cause = ((ExceptionEvent) e).getCause();
+				@SuppressWarnings("ThrowableResultOfMethodCallIgnored") Throwable cause =
+						((ExceptionEvent) e).getCause();
 				String notificationString = "The pipeline seems to be wrongly configured. A(n) " +
 						cause.getClass().getSimpleName() +
 						" was caught and contained the following message: " +
@@ -445,7 +446,7 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			channelBuffer.readBytes(bytes);
 
 			String sourceNodeId = ((WisebedMulticastAddress) socketAddress).getNodeUrns().iterator().next();
-			String timestamp = (String) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
+			DateTime timestamp = (DateTime) ((WisebedMulticastAddress) socketAddress).getUserContext().get("timestamp");
 
 			if (log.isTraceEnabled()) {
 				log.trace(

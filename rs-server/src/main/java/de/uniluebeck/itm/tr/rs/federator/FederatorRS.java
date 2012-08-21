@@ -31,11 +31,11 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -117,14 +117,14 @@ public class FederatorRS implements RS {
 
 		public Set<String> nodeUrns;
 
-		public XMLGregorianCalendar from;
+		public DateTime from;
 
-		public XMLGregorianCalendar to;
+		public DateTime to;
 
 		private MakeReservationArguments(final Set<SecretAuthenticationKey> secretAuthenticationKeys,
 										 final Set<String> nodeUrns,
-										 final XMLGregorianCalendar from,
-										 final XMLGregorianCalendar to) {
+										 final DateTime from,
+										 final DateTime to) {
 			this.secretAuthenticationKeys = secretAuthenticationKeys;
 			this.nodeUrns = nodeUrns;
 			this.from = from;
@@ -135,8 +135,8 @@ public class FederatorRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<String> nodeUrns,
-													  final XMLGregorianCalendar from,
-													  final XMLGregorianCalendar to)
+													  final DateTime from,
+													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		try {
@@ -247,8 +247,8 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from,
-													   final XMLGregorianCalendar to) throws RSFault_Exception {
+	public List<PublicReservationData> getReservations(final DateTime from,
+													   final DateTime to) throws RSFault_Exception {
 
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
@@ -277,8 +277,8 @@ public class FederatorRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final XMLGregorianCalendar from,
-			final XMLGregorianCalendar to) throws RSFault_Exception {
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		//check for null
 		if (from == null || to == null) {

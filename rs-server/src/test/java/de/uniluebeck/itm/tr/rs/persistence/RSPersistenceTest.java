@@ -24,10 +24,10 @@
 package de.uniluebeck.itm.tr.rs.persistence;
 
 import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
-import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
@@ -35,9 +35,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -94,15 +95,7 @@ public abstract class RSPersistenceTest {
 	 */
 	private static final List<IntervalData> intervals = new ArrayList<IntervalData>();
 
-	private static final DatatypeFactory datatypeFactory;
-
 	static {
-
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
 
 		String description;
 
@@ -164,13 +157,9 @@ public abstract class RSPersistenceTest {
 	public void setUp() throws RSFault_Exception {
 		Logging.setLoggingDefaults();
 		for (int i = 0; i < RESERVATION_COUNT; i++) {
-			XMLGregorianCalendar from =
-					datatypeFactory.newXMLGregorianCalendar(reservationStartingTime.toGregorianCalendar());
-			XMLGregorianCalendar to =
-					datatypeFactory.newXMLGregorianCalendar(reservationEndingTime.toGregorianCalendar());
 			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-			confidentialReservationData.setFrom(from);
-			confidentialReservationData.setTo(to);
+			confidentialReservationData.setFrom(reservationStartingTime);
+			confidentialReservationData.setTo(reservationEndingTime);
 			reservationDataMap.put(i, confidentialReservationData);
 		}
 	}

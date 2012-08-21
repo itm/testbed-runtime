@@ -28,9 +28,9 @@ import de.uniluebeck.itm.tr.rs.NonWS;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 
 /**
@@ -73,15 +73,15 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<String> nodeUrns,
-													  final XMLGregorianCalendar from,
-													  final XMLGregorianCalendar to)
+													  final DateTime from,
+													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(final XMLGregorianCalendar from, final XMLGregorianCalendar to)
+	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to)
 			throws RSFault_Exception {
 
 		return reservationSystem.getReservations(from, to);
@@ -90,8 +90,8 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final XMLGregorianCalendar from,
-			final XMLGregorianCalendar to) throws RSFault_Exception {
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to);
 	}

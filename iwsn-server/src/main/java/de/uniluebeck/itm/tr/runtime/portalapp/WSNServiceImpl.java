@@ -51,16 +51,12 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -85,18 +81,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		private static final byte WISELIB_VIRTUAL_LINK_MESSAGE = 11;
 
-		private DatatypeFactory datatypeFactory;
-
-		private WSNNodeMessageReceiverInternal() {
-			try {
-				datatypeFactory = DatatypeFactory.newInstance();
-			} catch (DatatypeConfigurationException e) {
-				throw propagate(e);
-			}
-		}
-
 		@Override
-		public void receive(final byte[] bytes, final String sourceNodeUrn, final String timestamp) {
+		public void receive(final byte[] bytes, final String sourceNodeUrn, final DateTime timestamp) {
 
 			/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
 			 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
@@ -205,14 +191,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			return buffer.getLong(5);
 		}
 
-		private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes, final String sourceNodeUrn,
-															   final String timestamp) {
+		private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes,
+															   final String sourceNodeUrn,
+															   final DateTime timestamp) {
 
-			XMLGregorianCalendar xmlTimestamp = datatypeFactory.newXMLGregorianCalendar(timestamp);
+			final Message message = new Message();
 
-			Message message = new Message();
 			message.setSourceNodeUrn(sourceNodeUrn);
-			message.setTimestamp(xmlTimestamp);
+			message.setTimestamp(timestamp);
 			message.setBinaryData(bytes);
 
 			deliveryManager.receive(message);
@@ -227,8 +213,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			final Notification wsNotification = new Notification();
 			wsNotification.setMsg(notification.getMsg());
 			wsNotification.setNodeUrn(notification.getNodeUrn());
-			final DateTime timestamp = ISODateTimeFormat.dateTimeParser().parseDateTime(notification.getTimestamp());
-			wsNotification.setTimestamp(datatypeFactory.newXMLGregorianCalendar(timestamp.toGregorianCalendar()));
+			wsNotification.setTimestamp(ISODateTimeFormat.dateTimeParser().parseDateTime(notification.getTimestamp()));
 			return wsNotification;
 		}
 	}

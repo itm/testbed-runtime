@@ -1,11 +1,10 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.RS;
+import org.joda.time.DateTime;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -17,15 +16,15 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	private final List<String> nodeUrns;
 
-	private final XMLGregorianCalendar from;
+	private final DateTime from;
 
-	private final XMLGregorianCalendar to;
+	private final DateTime to;
 
 	public MakeReservationCallable(final RS rs,
 								   final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								   final List<String> nodeUrns,
-								   final XMLGregorianCalendar from,
-								   final XMLGregorianCalendar to) {
+								   final DateTime from,
+								   final DateTime to) {
 		this.rs = rs;
 		this.secretAuthenticationKeys = secretAuthenticationKeys;
 		this.nodeUrns = nodeUrns;
@@ -37,20 +36,8 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 		return rs;
 	}
 
-	public List<SecretAuthenticationKey> getSecretAuthenticationKeys() {
-		return secretAuthenticationKeys;
-	}
-
-	public XMLGregorianCalendar getFrom() {
-		return from;
-	}
-
 	public List<String> getNodeUrns() {
 		return nodeUrns;
-	}
-
-	public XMLGregorianCalendar getTo() {
-		return to;
 	}
 
 	@Override

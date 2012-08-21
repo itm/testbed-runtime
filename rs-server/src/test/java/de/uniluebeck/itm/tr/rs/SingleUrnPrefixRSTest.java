@@ -26,9 +26,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,16 +39,6 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SingleUrnPrefixRSTest {
-
-	static {
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			fail();
-		}
-	}
-
-	private static DatatypeFactory datatypeFactory;
 
 	private static final String URN_PREFIX = "urn:local:";
 
@@ -166,12 +153,9 @@ public class SingleUrnPrefixRSTest {
 	@Test
 	public void throwExceptionWhenTryingToDeleteReservationThatAlreadyStarted() throws Exception {
 
-		final DateTime from = new DateTime().minusSeconds(1);
-		final DateTime to = from.plusHours(1);
-
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
-		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
+		crd.setFrom(DateTime.now().minusSeconds(1));
+		crd.setTo(DateTime.now().minusSeconds(1).plusHours(1));
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
@@ -203,12 +187,9 @@ public class SingleUrnPrefixRSTest {
 	@Test
 	public void throwNoExceptionWhenTryingToDeleteReservationInTheFuture() throws Exception {
 
-		final DateTime from = new DateTime().plusHours(1);
-		final DateTime to = from.plusHours(1);
-
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
-		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
+		crd.setFrom(DateTime.now().plusHours(1));
+		crd.setTo(DateTime.now().plusHours(2));
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
@@ -276,11 +257,9 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
-		final XMLGregorianCalendar fromXml = datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar());
-		final XMLGregorianCalendar toXml = datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar());
 		try {
 
-			rs.makeReservation(user1Saks, newArrayList("urn:local:0xCBE4"), fromXml, toXml);
+			rs.makeReservation(user1Saks, newArrayList("urn:local:0xCBE4"), from, to);
 
 			fail();
 		} catch (AuthorizationFault_Exception e) {
@@ -292,7 +271,7 @@ public class SingleUrnPrefixRSTest {
 
 		// try to reserve in lowercase
 		try {
-			rs.makeReservation(user1Saks, newArrayList("urn:local:0xcbe4"), fromXml, toXml);
+			rs.makeReservation(user1Saks, newArrayList("urn:local:0xcbe4"), from, to);
 			fail();
 		} catch (AuthorizationFault_Exception e) {
 			fail();
@@ -305,9 +284,8 @@ public class SingleUrnPrefixRSTest {
 
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
-	 * user
-	 * when {@link RS#getConfidentialReservations(java.util.List, javax.xml.datatype.XMLGregorianCalendar,
-	 * javax.xml.datatype.XMLGregorianCalendar)}  is called.
+	 * user when {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime, org.joda.time.DateTime)}
+	 * is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -350,21 +328,13 @@ public class SingleUrnPrefixRSTest {
 				newArrayList(reservation1, reservation2)
 		);
 
-		final List<ConfidentialReservationData> user1Reservations = rs.getConfidentialReservations(
-				user1Saks,
-				datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()),
-				datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar())
-		);
+		final List<ConfidentialReservationData> user1Reservations = rs.getConfidentialReservations(user1Saks, from, to);
 
 		assertEquals(1, user1Reservations.size());
 		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
 		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
-		final List<ConfidentialReservationData> user2Reservations = rs.getConfidentialReservations(
-				user2Saks,
-				datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()),
-				datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar())
-		);
+		final List<ConfidentialReservationData> user2Reservations = rs.getConfidentialReservations(user2Saks, from, to);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
@@ -375,10 +345,10 @@ public class SingleUrnPrefixRSTest {
 																		 final String username,
 																		 final String secretReservationKey,
 																		 final String... nodeUrns) {
-		final ConfidentialReservationData crd = new ConfidentialReservationData();
 
-		crd.setFrom(datatypeFactory.newXMLGregorianCalendar(from.toGregorianCalendar()));
-		crd.setTo(datatypeFactory.newXMLGregorianCalendar(to.toGregorianCalendar()));
+		final ConfidentialReservationData crd = new ConfidentialReservationData();
+		crd.setFrom(from);
+		crd.setTo(to);
 
 		for (String nodeUrn : nodeUrns) {
 			crd.getNodeUrns().add(nodeUrn);
