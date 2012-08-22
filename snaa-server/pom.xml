@@ -40,6 +40,11 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.federator-utils</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>eu.wisebed</groupId>
 			<artifactId>api</artifactId>
 		</dependency>

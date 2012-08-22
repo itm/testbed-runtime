@@ -4,6 +4,7 @@ package de.uniluebeck.itm.tr.iwsn.common;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
@@ -60,12 +61,12 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The queue that contains all nodesAttached events to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<List<String>> nodesAttachedQueue;
+	private final Deque<List<NodeUrn>> nodesAttachedQueue;
 
 	/**
 	 * The queue that contains all nodesDetached events to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<List<String>> nodesDetachedQueue;
+	private final Deque<List<NodeUrn>> nodesDetachedQueue;
 
 	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
@@ -94,8 +95,8 @@ class DeliveryWorker implements Runnable {
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
 						  final Deque<Notification> notificationQueue,
-						  final Deque<List<String>> nodesAttachedQueue,
-						  final Deque<List<String>> nodesDetachedQueue,
+						  final Deque<List<NodeUrn>> nodesAttachedQueue,
+						  final Deque<List<NodeUrn>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.endpointUrl = checkNotNull(endpointUrl);
@@ -327,7 +328,7 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNodesAttached() {
 
-		final List<String> nodeUrns;
+		final List<NodeUrn> nodeUrns;
 
 		lock.lock();
 		try {
@@ -363,7 +364,7 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNodesDetached() {
 
-		final List<String> nodeUrns;
+		final List<NodeUrn> nodeUrns;
 
 		lock.lock();
 		try {
@@ -466,7 +467,7 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void nodesAttached(final List<String> nodeUrns) {
+	public void nodesAttached(final List<NodeUrn> nodeUrns) {
 		lock.lock();
 		try {
 			nodesAttachedQueue.add(nodeUrns);
@@ -476,7 +477,7 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void nodesDetached(final List<String> nodeUrns) {
+	public void nodesDetached(final List<NodeUrn> nodeUrns) {
 		lock.lock();
 		try {
 			nodesDetachedQueue.add(nodeUrns);

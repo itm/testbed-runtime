@@ -28,15 +28,16 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,13 +74,13 @@ public class FederatorController extends AbstractService implements Service, Con
 	private final TimedCache<Long, LinkedList<RequestStatus>> pendingRequestStatus =
 			new TimedCache<Long, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
 
-	private final String controllerEndpointUrl;
+	private final URI controllerEndpointUrl;
 
 	private final DeliveryManager deliveryManager;
 
 	private Endpoint controllerEndpoint;
 
-	public FederatorController(String controllerEndpointUrl) {
+	public FederatorController(URI controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
 		this.deliveryManager = new DeliveryManager();
 	}
@@ -115,7 +116,7 @@ public class FederatorController extends AbstractService implements Service, Con
 
 			log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
 
-			controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
+			controllerEndpoint = Endpoint.publish(controllerEndpointUrl.toString(), this);
 			deliveryManager.startAndWait();
 
 			log.debug("Started federator controller on {}!", controllerEndpointUrl);
@@ -231,12 +232,12 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
-	public void nodesAttached(@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+	public void nodesAttached(final List<NodeUrn> nodeUrns) {
 		deliveryManager.nodesAttached(nodeUrns);
 	}
 
 	@Override
-	public void nodesDetached(@WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns) {
+	public void nodesDetached(final List<NodeUrn> nodeUrns) {
 		deliveryManager.nodesDetached(nodeUrns);
 	}
 
@@ -251,7 +252,7 @@ public class FederatorController extends AbstractService implements Service, Con
 		deliveryManager.reservationEnded();
 	}
 
-	String getControllerEndpointUrl() {
+	URI getControllerEndpointUrl() {
 		return controllerEndpointUrl;
 	}
 }

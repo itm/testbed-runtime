@@ -25,21 +25,23 @@ package de.uniluebeck.itm.tr.snaa;
 
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.util.WisebedConversionHelper;
-
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.directory.InvalidAttributesException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.directory.InvalidAttributesException;
+import static eu.wisebed.api.v3.util.WisebedConversionHelper.convertToUsernameNodeUrnsMap;
 
 public class SNAAClient {
 
@@ -63,16 +65,11 @@ public class SNAAClient {
 
 	private static final String defaultSecretAuthenticationKey = "dummy-secret-key";
 
-	/**
-	 * @param args
-	 *
-	 * @throws Exception
-	 */
 	public static void main(String[] args) {
 		URL url = null;
 		String username = null;
 		String password = null;
-		String urnPrefix = null;
+		NodeUrnPrefix urnPrefix = null;
 		String action = null;
 		Operation operation = null;
 		String secretAuthenticationKey = null;
@@ -109,7 +106,7 @@ public class SNAAClient {
 			}
 
 			url = new URL(getOptionalArgument(line, 'l', defaultSnaaUrl));
-			urnPrefix = getOptionalArgument(line, 'x', defaultUrnPrefix);
+			urnPrefix = new NodeUrnPrefix(getOptionalArgument(line, 'x', defaultUrnPrefix));
 			username = getMandatoryArgument(line, 'u');
 			password = getMandatoryArgument(line, 'p');
 			action = getOptionalArgument(line, 'a', defaultAction);
@@ -162,15 +159,20 @@ public class SNAAClient {
 			saks.add(sak);
 
 			try {
-				Action actionObj = Action.valueOf(action);
-				AuthorizationResponse authorized = port.isAuthorized(WisebedConversionHelper.convertToUsernameNodeUrnsMap(saks, new LinkedList<String>()), actionObj);
-				System.out.println("Authorization " + (authorized.isAuthorized() ? "suceeded" : "failed"));
+
+				final Action actionObj = Action.valueOf(action);
+				final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList = convertToUsernameNodeUrnsMap(
+						saks, new LinkedList<NodeUrn>()
+				);
+
+				AuthorizationResponse response = port.isAuthorized(usernameNodeUrnsMapList, actionObj);
+				System.out.println("Authorization " + (response.isAuthorized() ? "suceeded" : "failed"));
 
 			} catch (SNAAFault_Exception e) {
 				System.out.println("Authorization failed, server reported error [" + e + "]");
 				e.printStackTrace();
 			} catch (InvalidAttributesException e) {
-				log.error("Authorization failed, server reported error [" + e + "]",e);
+				log.error("Authorization failed, server reported error [" + e + "]", e);
 			}
 
 		}

@@ -23,10 +23,13 @@
 
 package de.uniluebeck.itm.tr.snaa.wisebed;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -38,6 +41,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 @WebService(
 		name = "SNAA",
@@ -54,19 +59,19 @@ public class WisebedSnaaFederator implements SNAA {
 
 	private ShibbolethSNAAImpl authenticationSnaa;
 
-	public WisebedSnaaFederator(Map<String, Set<String>> prefixSet, String secretAuthenticationKeyUrl,
+	public WisebedSnaaFederator(FederationManager<SNAA> federationManager, String secretAuthenticationKeyUrl,
 								Injector injector, ShibbolethProxy shibbolethProxy) {
 
-		//Authentication is performed for the union of all prefixes by a ShibbolethSNAA
-		Set<String> urnPrefixUnion = new HashSet<String>();
-		for (Set<String> urnPrefixes : prefixSet.values()) {
-			urnPrefixUnion.addAll(urnPrefixes);
-		}
-		authenticationSnaa =
-				new ShibbolethSNAAImpl(urnPrefixUnion, secretAuthenticationKeyUrl, null, injector, shibbolethProxy);
+		authenticationSnaa = new ShibbolethSNAAImpl(
+				federationManager.getUrnPrefixes(),
+				secretAuthenticationKeyUrl,
+				null,
+				injector,
+				shibbolethProxy
+		);
 
-		//Authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
-		authorizationFederator = new FederatorSNAA(prefixSet);
+		// authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
+		authorizationFederator = new FederatorSNAA(federationManager);
 	}
 
 	@Override

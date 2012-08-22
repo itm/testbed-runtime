@@ -7,6 +7,8 @@ import de.uniluebeck.itm.tr.runtime.portalapp.WSNServiceHandle;
 import de.uniluebeck.itm.tr.runtime.wsnapp.UnknownNodeUrnsException;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppMessages;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import org.jboss.netty.channel.*;
@@ -15,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
@@ -93,7 +95,11 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 		final WisebedMessages.DownstreamMessage message = envelope.getDownstreamMessage();
 
 
-		final HashSet<String> nodeUrns = Sets.newHashSet(message.getTargetNodeUrnsList());
+		final Set<NodeUrn> nodeUrns = Sets.newHashSet();
+		for (String nodeUrnString : message.getTargetNodeUrnsList()) {
+			nodeUrns.add(new NodeUrn(nodeUrnString));
+		}
+
 		final byte[] bytes = message.getMessageBytes().toByteArray();
 
 		try {
@@ -221,7 +227,7 @@ public class ProtobufControllerServerHandler extends SimpleChannelUpstreamHandle
 
 	private SecretReservationKey convert(WisebedMessages.SecretReservationKeys.SecretReservationKey key) {
 		SecretReservationKey retKey = new SecretReservationKey();
-		retKey.setUrnPrefix(key.getUrnPrefix());
+		retKey.setUrnPrefix(new NodeUrnPrefix(key.getUrnPrefix()));
 		retKey.setSecretReservationKey(key.getKey());
 		return retKey;
 	}

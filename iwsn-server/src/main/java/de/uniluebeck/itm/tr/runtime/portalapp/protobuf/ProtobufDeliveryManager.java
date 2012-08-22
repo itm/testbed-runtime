@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.Status;
@@ -103,7 +104,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receiveFailureStatusMessages(final List<String> nodeUrns, final long requestId, final Exception e,
+	public void receiveFailureStatusMessages(final List<NodeUrn> nodeUrns, final long requestId, final Exception e,
 											 final int statusValue) {
 
 		if (channels.size() > 0) {
@@ -111,7 +112,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
-			for (String nodeId : nodeUrns) {
+			for (NodeUrn nodeId : nodeUrns) {
 				Status status = new Status();
 				status.setNodeUrn(nodeId);
 				status.setValue(statusValue);
@@ -161,17 +162,17 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 	}
 
 	@Override
-	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
+	public void receiveUnknownNodeUrnRequestStatus(final Set<NodeUrn> nodeUrns, final String msg,
 												   final long requestId) {
 		if (channels.size() > 0) {
 
 			WisebedMessages.RequestStatus.Builder requestStatusBuilder = WisebedMessages.RequestStatus.newBuilder()
 					.setRequestId(requestId);
 
-			for (String nodeUrn : nodeUrns) {
+			for (NodeUrn nodeUrn : nodeUrns) {
 				WisebedMessages.RequestStatus.Status.Builder statusBuilder =
 						WisebedMessages.RequestStatus.Status.newBuilder()
-								.setNodeUrn(nodeUrn)
+								.setNodeUrn(nodeUrn.toString())
 								.setMessage(msg)
 								.setValue(-1);
 				requestStatusBuilder.addStatus(statusBuilder);
@@ -201,8 +202,8 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 				.setTimestamp(new DateTime(notification.getTimestamp().toGregorianCalendar()).toString())
 				.setMsg(notification.getMsg());
 
-		if (notification.getNodeUrn() != null && !"".equals(notification.getNodeUrn())) {
-			notificationBuilder.setNodeUrn(notification.getNodeUrn());
+		if (notification.getNodeUrn() != null) {
+			notificationBuilder.setNodeUrn(notification.getNodeUrn().toString());
 		}
 
 		return WisebedMessages.Envelope.newBuilder()
@@ -215,7 +216,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 
 		WisebedMessages.UpstreamMessage.Builder upstreamMessageBuilder = WisebedMessages.UpstreamMessage.newBuilder()
 				.setMessageBytes(ByteString.copyFrom(message.getBinaryData()))
-				.setSourceNodeUrn(message.getSourceNodeUrn())
+				.setSourceNodeUrn(message.getSourceNodeUrn().toString())
 				.setTimestamp(message.getTimestamp().toString());
 
 		return WisebedMessages.Envelope.newBuilder()
@@ -233,7 +234,7 @@ public class ProtobufDeliveryManager extends DeliveryManager {
 			requestStatusBuilder.addStatus(WisebedMessages.RequestStatus.Status.newBuilder()
 					.setValue(status.getValue())
 					.setMessage(status.getMsg())
-					.setNodeUrn(status.getNodeUrn())
+					.setNodeUrn(status.getNodeUrn().toString())
 			);
 		}
 

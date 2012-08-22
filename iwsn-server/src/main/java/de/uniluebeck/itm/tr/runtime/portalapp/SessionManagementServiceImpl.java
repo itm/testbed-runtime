@@ -40,6 +40,7 @@ import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
@@ -62,8 +63,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.createExperimentNotRunningException;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createUnknownReservationIdException;
 
@@ -317,16 +320,17 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 			// reservationEndpointUrl is not null)
 			List<ConfidentialReservationData> confidentialReservationDataList;
 			String requestingUser = null;
-			Set<String> reservedNodes = null;
+			Set<NodeUrn> reservedNodes = null;
 			if (config.getReservationEndpointUrl() != null) {
 
 				// integrate reservation system
 				List<SecretReservationKey> keys = generateSecretReservationKeyList(secretReservationKey);
 				confidentialReservationDataList = getReservationDataFromRS(keys);
-				reservedNodes = new HashSet<String>();
+				reservedNodes = newHashSet();
 
 				// since only one secret reservation key is allowed only one piece of confidential reservation data is expected 
-				com.google.common.base.Preconditions.checkArgument(confidentialReservationDataList.size() == 1,
+				checkArgument(
+						confidentialReservationDataList.size() == 1,
 						"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
 				);
 
@@ -336,8 +340,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				ConfidentialReservationData data = confidentialReservationDataList.get(0);
 
 				// convert all node URNs to lower case so that we can do easy string-based comparisons
-				for (String nodeURN : data.getNodeUrns()) {
-					reservedNodes.add(nodeURN.toLowerCase());
+				for (NodeUrn nodeURN : data.getNodeUrns()) {
+					reservedNodes.add(nodeURN);
 				}
 
 
@@ -373,9 +377,9 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				throw new RuntimeException(e);
 			}
 
-			final ImmutableSet<String> reservedNodesSet = reservedNodes == null ?
-					null :
-					ImmutableSet.<String>builder().add(reservedNodes.toArray(new String[reservedNodes.size()])).build();
+			final ImmutableSet<NodeUrn> reservedNodesSet = reservedNodes != null ?
+					ImmutableSet.copyOf(reservedNodes) :
+					null;
 
 			final ProtobufDeliveryManager protobufDeliveryManager =
 					new ProtobufDeliveryManager(config.getMaximumDeliveryQueueSize());
@@ -427,12 +431,12 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	 * @param reservedNodes
 	 * 		the set of reserved node URNs
 	 */
-	private void assertNodesInTestbed(Set<String> reservedNodes) {
+	private void assertNodesInTestbed(Set<NodeUrn> reservedNodes) {
 
-		for (String node : reservedNodes) {
+		for (NodeUrn node : reservedNodes) {
 
-			boolean isLocal = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().contains(node);
-			boolean isRemote = testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node);
+			boolean isLocal = testbedRuntime.getLocalNodeNameManager().getLocalNodeNames().contains(node.toString());
+			boolean isRemote = testbedRuntime.getRoutingTableService().getEntries().keySet().contains(node.toString());
 
 			if (!isLocal && !isRemote) {
 				throw new RuntimeException("Node URN " + node + " unknown to testbed runtime environment.");
@@ -441,7 +445,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 	}
 
 	@Override
-	public void areNodesAlive(final long requestId, final List<String> nodes, final String controllerEndpointUrl) {
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodes, final String controllerEndpointUrl) {
 
 		preconditions.checkAreNodesAliveArguments(nodes, controllerEndpointUrl);
 
@@ -450,7 +454,7 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 		this.deliveryManager.addController(controllerEndpointUrl);
 
 		try {
-			wsnApp.areNodesAliveSm(new HashSet<String>(nodes), new WSNApp.Callback() {
+			wsnApp.areNodesAliveSm(new HashSet<NodeUrn>(nodes), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(TypeConverter.convert(requestStatus, requestId));

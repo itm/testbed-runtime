@@ -26,6 +26,8 @@ package de.uniluebeck.itm.tr.rs.federator;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.RS;
@@ -53,9 +55,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FederatorTest {
 
-	private static final String URN_PREFIX_TESTBED_1 = "urn:wisebed:testbed1";
+	private static final NodeUrnPrefix URN_PREFIX_TESTBED_1 = new NodeUrnPrefix("urn:wisebed:testbed1:");
 
-	private static final String URN_PREFIX_TESTBED_2 = "urn:wisebed:testbed2";
+	private static final NodeUrnPrefix URN_PREFIX_TESTBED_2 = new NodeUrnPrefix("urn:wisebed:testbed2:");
 
 	@Mock
 	private RS testbed1RS;
@@ -170,7 +172,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList("urn:not:served"), from, to);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -186,7 +188,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList("urn:wisebed1:testbed1"), from, to);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -201,7 +203,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, Lists.<String>newArrayList(), from, to);
+			federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to);
 			fail();
 
 		} catch (RSFault_Exception expected) {

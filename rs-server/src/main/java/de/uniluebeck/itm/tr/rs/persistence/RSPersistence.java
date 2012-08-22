@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
@@ -33,7 +34,7 @@ import java.util.List;
 
 public interface RSPersistence {
 
-	SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) throws Exception;
+	SecretReservationKey addReservation(ConfidentialReservationData reservationData, NodeUrnPrefix urnPrefix) throws Exception;
 
 	List<ConfidentialReservationData> getReservations(Interval interval) throws RSFault_Exception;
 

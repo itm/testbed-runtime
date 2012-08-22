@@ -25,6 +25,8 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.Link;
@@ -45,13 +47,13 @@ public class WSNPreconditions {
 
 	private CommonPreconditions commonPreconditions;
 
-	public WSNPreconditions(Iterable<String> servedUrnPrefixes, Iterable<String> reservedNodeUrns) {
+	public WSNPreconditions(Iterable<NodeUrnPrefix> servedUrnPrefixes, Iterable<NodeUrn> reservedNodeUrns) {
 		this.commonPreconditions = new CommonPreconditions();
 		this.commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 		this.commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
 	}
 
-	public void checkAreNodesAliveArguments(Collection<String> nodes) {
+	public void checkAreNodesAliveArguments(Collection<NodeUrn> nodes) {
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
@@ -68,7 +70,7 @@ public class WSNPreconditions {
 
 			commonPreconditions.checkNodesKnown(flashProgramsConfiguration.getNodeUrns());
 
-			final Set<String> configNodeUrns = newHashSet(flashProgramsConfiguration.getNodeUrns());
+			final Set<NodeUrn> configNodeUrns = newHashSet(flashProgramsConfiguration.getNodeUrns());
 
 			checkArgument(
 					Sets.intersection(nodeUrns, configNodeUrns).isEmpty(),
@@ -93,7 +95,7 @@ public class WSNPreconditions {
 
 	}
 
-	public void checkSendArguments(List<String> nodeIds, byte[] message) {
+	public void checkSendArguments(List<NodeUrn> nodeIds, byte[] message) {
 
 		checkNotNull(nodeIds);
 		checkNotNull(message, "A message to a node must not be null!");
@@ -101,7 +103,7 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesKnown(nodeIds);
 	}
 
-	public void checkResetNodesArguments(List<String> nodes) {
+	public void checkResetNodesArguments(List<NodeUrn> nodes) {
 		checkNotNull(nodes);
 		commonPreconditions.checkNodesKnown(nodes);
 	}
@@ -111,8 +113,8 @@ public class WSNPreconditions {
 
 		for (VirtualLink link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 			final String remoteServiceInstance = link.getRemoteServiceInstance();
 
 			checkNotNull(sourceNodeUrn);
@@ -149,11 +151,11 @@ public class WSNPreconditions {
 		}
 	}
 
-	public void checkDisableNodeArguments(List<String> nodeUrns) {
+	public void checkDisableNodeArguments(List<NodeUrn> nodeUrns) {
 		checkNodeUrnsArgument(nodeUrns);
 	}
 
-	private void checkNodeUrnsArgument(final List<String> nodeUrns) {
+	private void checkNodeUrnsArgument(final List<NodeUrn> nodeUrns) {
 		checkNotNull(nodeUrns, "The set of node URNs must not be null");
 		checkArgument(!nodeUrns.isEmpty(), "The set of node URNs to disable must not be empty");
 		commonPreconditions.checkNodesKnown(nodeUrns);
@@ -163,7 +165,7 @@ public class WSNPreconditions {
 		checkLinkArguments(links, true);
 	}
 
-	public void checkEnableNodeArguments(List<String> nodeUrns) {
+	public void checkEnableNodeArguments(List<NodeUrn> nodeUrns) {
 		checkNodeUrnsArgument(nodeUrns);
 	}
 
@@ -171,7 +173,7 @@ public class WSNPreconditions {
 		checkLinkArguments(links, true);
 	}
 
-	public void checkSetChannelPipelineArguments(final List<String> nodes,
+	public void checkSetChannelPipelineArguments(final List<NodeUrn> nodes,
 												 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		checkNotNull(nodes);

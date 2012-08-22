@@ -24,14 +24,14 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 public class SessionManagementHelper {
@@ -40,14 +40,15 @@ public class SessionManagementHelper {
 	 * Calculates an instance hash based on the set of (secretReservationKey,urnPrefix)-tuples that are provided in {@code
 	 * secretReservationKeys}.
 	 *
-	 * @param secretReservationKeys the list of {@link eu.wisebed.api.v3.common.SecretReservationKey} instances that
-	 *                              contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
+	 * @param secretReservationKeys
+	 * 		the list of {@link eu.wisebed.api.v3.common.SecretReservationKey} instances that
+	 * 		contain the (secretReservationKey,urnPrefix)-tuples used for the calculation
 	 *
 	 * @return an instance hash
 	 */
 	public static String calculateWSNInstanceHash(List<SecretReservationKey> secretReservationKeys) {
 		// secretReservationKey -> urnPrefix
-		Map<String, String> map = new TreeMap<String, String>();
+		Map<String, NodeUrnPrefix> map = new TreeMap<String, NodeUrnPrefix>();
 		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
 			map.put(secretReservationKey.getSecretReservationKey(), secretReservationKey.getUrnPrefix());
 		}
@@ -57,7 +58,7 @@ public class SessionManagementHelper {
 	public static ExperimentNotRunningFault_Exception createExperimentNotRunningException(
 			final String secretReservationKey) {
 
-		String msg = "Experiment with secret reservation key \""+secretReservationKey+"\" either does not exist "
+		String msg = "Experiment with secret reservation key \"" + secretReservationKey + "\" either does not exist "
 				+ "or is currently not running.";
 
 		ExperimentNotRunningFault exception = new ExperimentNotRunningFault();

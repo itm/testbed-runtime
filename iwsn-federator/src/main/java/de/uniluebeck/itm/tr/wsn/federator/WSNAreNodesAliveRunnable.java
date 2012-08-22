@@ -23,19 +23,20 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
 class WSNAreNodesAliveRunnable extends AbstractRequestRunnable {
 
-	private final List<String> nodes;
+	private final List<NodeUrn> nodes;
 
 	WSNAreNodesAliveRunnable(final FederatorController federatorController,
 							 final WSN wsnEndpoint,
 							 final long federatedRequestId,
 							 final long federatorRequestId,
-							 final List<String> nodes) {
+							 final List<NodeUrn> nodes) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 

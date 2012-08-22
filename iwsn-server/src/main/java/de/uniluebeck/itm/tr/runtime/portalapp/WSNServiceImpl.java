@@ -41,6 +41,7 @@ import de.uniluebeck.itm.tr.util.NetworkUtils;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.wsn.*;
 import eu.wisebed.wiseml.WiseMLHelper;
@@ -59,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.runtime.portalapp.TypeConverter.convert;
 
 public class WSNServiceImpl extends AbstractService implements WSNService {
@@ -83,7 +85,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		private static final byte WISELIB_VIRTUAL_LINK_MESSAGE = 11;
 
 		@Override
-		public void receive(final byte[] bytes, final String sourceNodeUrn, final DateTime timestamp) {
+		public void receive(final byte[] bytes, final NodeUrn sourceNodeUrn, final DateTime timestamp) {
 
 			/* this is a message that was received from a sensor node. we now have to check if this is a virtual link
 			 * message. in that case we will deliver it to the destination node if there's a virtual link currently.
@@ -106,17 +108,18 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			}
 		}
 
-		private void deliverVirtualLinkMessage(final byte[] bytes, final String sourceNodeUrn) {
+		private void deliverVirtualLinkMessage(final byte[] bytes, final NodeUrn sourceNodeUrn) {
 
-			Map<String, WSN> recipients = getVirtualLinkMessageRecipients(sourceNodeUrn, readDestinationNodeUrn(bytes));
+			Map<NodeUrn, WSN> recipients =
+					getVirtualLinkMessageRecipients(sourceNodeUrn, readDestinationNodeUrn(bytes));
 
 			if (recipients.size() > 0) {
 
 				final byte[] virtualLinkMessage = constructOutboundVirtualLinkMessage(bytes);
 
-				for (Map.Entry<String, WSN> recipient : recipients.entrySet()) {
+				for (Map.Entry<NodeUrn, WSN> recipient : recipients.entrySet()) {
 
-					String targetNodeUrn = recipient.getKey();
+					NodeUrn targetNodeUrn = recipient.getKey();
 					WSN recipientEndpointProxy = recipient.getValue();
 
 					executorService.execute(new DeliverVirtualLinkMessageRunnable(
@@ -155,30 +158,30 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			return outboundVirtualLinkMessageBinaryData;
 		}
 
-		private Map<String, WSN> getVirtualLinkMessageRecipients(final String sourceNodeUrn,
-																 final long destinationNodeMac) {
+		private Map<NodeUrn, WSN> getVirtualLinkMessageRecipients(final NodeUrn sourceNodeUrn,
+																  final long destinationNodeMac) {
 
 			// check if message is a broadcast or unicast message
 			boolean isBroadcast = destinationNodeMac == 0xFFFF;
 
 			// send virtual link message to all recipients
-			Map<String, WSN> recipients = new HashMap<String, WSN>();
+			Map<NodeUrn, WSN> recipients = new HashMap<NodeUrn, WSN>();
 
 			if (isBroadcast) {
 
-				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeUrn);
+				ImmutableMap<NodeUrn, WSN> map = virtualLinksMap.get(sourceNodeUrn);
 				if (map != null) {
-					for (Map.Entry<String, WSN> entry : map.entrySet()) {
+					for (Map.Entry<NodeUrn, WSN> entry : map.entrySet()) {
 						recipients.put(entry.getKey(), entry.getValue());
 					}
 				}
 
 			} else {
 
-				ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeUrn);
-				for (String targetNodeUrn : map.keySet()) {
+				ImmutableMap<NodeUrn, WSN> map = virtualLinksMap.get(sourceNodeUrn);
+				for (NodeUrn targetNodeUrn : map.keySet()) {
 
-					if (StringUtils.parseHexOrDecLongFromUrn(targetNodeUrn) == destinationNodeMac) {
+					if (StringUtils.parseHexOrDecLongFromUrn(targetNodeUrn.getSuffix()) == destinationNodeMac) {
 						recipients.put(targetNodeUrn, map.get(targetNodeUrn));
 					}
 				}
@@ -193,7 +196,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		}
 
 		private void deliverNonVirtualLinkMessageToControllers(final byte[] bytes,
-															   final String sourceNodeUrn,
+															   final NodeUrn sourceNodeUrn,
 															   final DateTime timestamp) {
 
 			final Message message = new Message();
@@ -213,7 +216,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		private Notification convert(final WSNAppMessages.Notification notification) {
 			final Notification wsNotification = new Notification();
 			wsNotification.setMsg(notification.getMsg());
-			wsNotification.setNodeUrn(notification.getNodeUrn());
+			wsNotification.setNodeUrn(new NodeUrn(notification.getNodeUrn()));
 			wsNotification.setTimestamp(ISODateTimeFormat.dateTimeParser().parseDateTime(notification.getTimestamp()));
 			return wsNotification;
 		}
@@ -224,9 +227,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	 */
 	private class DeliverVirtualLinkMessageRunnable implements Runnable {
 
-		private final String sourceNodeUrn;
+		private final NodeUrn sourceNodeUrn;
 
-		private final String targetNodeUrn;
+		private final NodeUrn targetNodeUrn;
 
 		private final WSN recipient;
 
@@ -234,8 +237,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		private int tries = 0;
 
-		public DeliverVirtualLinkMessageRunnable(final String sourceNodeUrn,
-												 final String targetNodeUrn,
+		public DeliverVirtualLinkMessageRunnable(final NodeUrn sourceNodeUrn,
+												 final NodeUrn targetNodeUrn,
 												 final WSN recipient,
 												 final byte[] message) {
 			this.sourceNodeUrn = sourceNodeUrn;
@@ -404,7 +407,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_SEND")
-	public void send(final long requestId, final List<String> nodeUrns, final byte[] message) {
+	public void send(final long requestId, final List<NodeUrn> nodeUrns, final byte[] message) {
 
 		preconditions.checkSendArguments(nodeUrns, message);
 
@@ -413,7 +416,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		try {
 
 			wsnApp.send(
-					new HashSet<String>(nodeUrns),
+					new HashSet<NodeUrn>(nodeUrns),
 					message,
 					new WSNApp.Callback() {
 
@@ -448,7 +451,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	@AuthorizationRequired("WSN_SET_CHANNEL_PIPELINE")
 	public void setChannelPipeline(final long requestId,
-								   final List<String> nodeUrn,
+								   final List<NodeUrn> nodeUrn,
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		preconditions.checkSetChannelPipelineArguments(nodeUrn, channelHandlerConfigurations);
@@ -458,7 +461,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		final long start = System.currentTimeMillis();
 
 		try {
-			wsnApp.setChannelPipeline(new HashSet<String>(nodeUrn), channelHandlerConfigurations,
+			wsnApp.setChannelPipeline(new HashSet<NodeUrn>(nodeUrn), channelHandlerConfigurations,
 					new WSNApp.Callback() {
 
 						@Override
@@ -491,8 +494,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			try {
 
-				final String sourceNodeUrn = link.getSourceNodeUrn();
-				final String targetNodeUrn = link.getTargetNodeUrn();
+				final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+				final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 				final String remoteServiceInstance = link.getRemoteServiceInstance();
 
 				wsnApp.setVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
@@ -521,14 +524,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_ARE_NODES_ALIVE")
-	public void areNodesAlive(final long requestId, final List<String> nodeUrns) {
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		preconditions.checkAreNodesAliveArguments(nodeUrns);
 
 		log.debug("WSNServiceImpl.checkAreNodesAlive({})", nodeUrns);
 
 		try {
-			wsnApp.areNodesAlive(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
+			wsnApp.areNodesAlive(newHashSet(nodeUrns), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(convert(requestStatus, requestId));
@@ -555,8 +558,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		for (Link link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			try {
 
@@ -591,13 +594,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_DISABLE_NODE")
-	public void disableNodes(final long requestId, final List<String> nodeUrns) {
+	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		log.debug("WSNServiceImpl.disableNodes({}, {})", requestId, nodeUrns);
 
 		preconditions.checkDisableNodeArguments(nodeUrns);
 
-		for (final String nodeUrn : nodeUrns) {
+		for (final NodeUrn nodeUrn : nodeUrns) {
 
 			try {
 
@@ -630,8 +633,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		for (Link link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			try {
 
@@ -655,7 +658,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(final List<String> strings) {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
@@ -667,14 +670,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_RESET_NODES")
-	public void resetNodes(final long requestId, final List<String> nodeUrns) {
+	public void resetNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		preconditions.checkResetNodesArguments(nodeUrns);
 
 		log.debug("WSNServiceImpl.resetNodes({})", nodeUrns);
 
 		try {
-			wsnApp.resetNodes(new HashSet<String>(nodeUrns), new WSNApp.Callback() {
+			wsnApp.resetNodes(newHashSet(nodeUrns), new WSNApp.Callback() {
 				@Override
 				public void receivedRequestStatus(WSNAppMessages.RequestStatus requestStatus) {
 					deliveryManager.receiveStatus(convert(requestStatus, requestId));
@@ -694,9 +697,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	/**
 	 * Map: (Source Node URN) -> (Map: (Target Node URN) -> (WSN endpoint instance))
 	 */
-	private ImmutableMap<String, ImmutableMap<String, WSN>> virtualLinksMap = ImmutableMap.of();
+	private ImmutableMap<NodeUrn, ImmutableMap<NodeUrn, WSN>> virtualLinksMap = ImmutableMap.of();
 
-	private void addVirtualLink(String sourceNodeUrn, String targetNodeUrn, String remoteServiceInstance) {
+	private void addVirtualLink(NodeUrn sourceNodeUrn, NodeUrn targetNodeUrn, String remoteServiceInstance) {
 
 		if (!containsVirtualLink(sourceNodeUrn, targetNodeUrn)) {
 
@@ -705,7 +708,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			WSN remoteServiceEndpoint = WisebedServiceHelper.getWSNService(remoteServiceInstance);
 
 			//Create a new immutable map with this sourceNodeUrn and all existing <targetNodeUrn, WSN> mappings
-			ImmutableMap.Builder<String, WSN> targetNodeMapBuilder = ImmutableMap.builder();
+			ImmutableMap.Builder<NodeUrn, WSN> targetNodeMapBuilder = ImmutableMap.builder();
 
 			//Add potentially existing <targetNodeUrn, WSN> mappings for this source node to the new list
 			if (virtualLinksMap.get(sourceNodeUrn) != null) {
@@ -714,12 +717,12 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			//Add the new <targetNodeUrn, WSN> mapping to this new list
 			targetNodeMapBuilder.put(targetNodeUrn, remoteServiceEndpoint);
 
-			ImmutableMap.Builder<String, ImmutableMap<String, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
+			ImmutableMap.Builder<NodeUrn, ImmutableMap<NodeUrn, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
 
 			//We now add all existing source nodes to the map except for the current source node
 			//It looks a bit strange but we cannot use putAll and then overwrite an existing key
 			//because the ImmutableMapBuilder forbids duplicate keys
-			for (String existingSourceNode : virtualLinksMap.keySet()) {
+			for (NodeUrn existingSourceNode : virtualLinksMap.keySet()) {
 				if (!existingSourceNode.equals(sourceNodeUrn)) {
 					virtualLinksMapBuilder.put(existingSourceNode, virtualLinksMap.get(existingSourceNode));
 				}
@@ -736,22 +739,22 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	}
 
-	private void removeVirtualLink(final String sourceNodeUrn, final String targetNodeUrn) {
+	private void removeVirtualLink(final NodeUrn sourceNodeUrn, final NodeUrn targetNodeUrn) {
 
 		if (containsVirtualLink(sourceNodeUrn, targetNodeUrn)) {
 
 			log.debug("--- Removing virtual link from {} to {}", sourceNodeUrn, targetNodeUrn);
 
-			ImmutableMap.Builder<String, WSN> targetNodeMapBuilder = ImmutableMap.builder();
-			for (Map.Entry<String, WSN> oldEntry : virtualLinksMap.get(sourceNodeUrn).entrySet()) {
+			ImmutableMap.Builder<NodeUrn, WSN> targetNodeMapBuilder = ImmutableMap.builder();
+			for (Map.Entry<NodeUrn, WSN> oldEntry : virtualLinksMap.get(sourceNodeUrn).entrySet()) {
 				if (!targetNodeUrn.equals(oldEntry.getKey())) {
 					targetNodeMapBuilder.put(oldEntry.getKey(), oldEntry.getValue());
 				}
 			}
 
-			ImmutableMap.Builder<String, ImmutableMap<String, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
+			ImmutableMap.Builder<NodeUrn, ImmutableMap<NodeUrn, WSN>> virtualLinksMapBuilder = ImmutableMap.builder();
 
-			for (String existingSourceNode : virtualLinksMap.keySet()) {
+			for (NodeUrn existingSourceNode : virtualLinksMap.keySet()) {
 				if (!existingSourceNode.equals(sourceNodeUrn)) {
 					virtualLinksMapBuilder.put(existingSourceNode, virtualLinksMap.get(existingSourceNode));
 				}
@@ -765,8 +768,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	}
 
-	private boolean containsVirtualLink(String sourceNodeUrn, String targetNodeUrn) {
-		ImmutableMap<String, WSN> map = virtualLinksMap.get(sourceNodeUrn);
+	private boolean containsVirtualLink(NodeUrn sourceNodeUrn, NodeUrn targetNodeUrn) {
+		ImmutableMap<NodeUrn, WSN> map = virtualLinksMap.get(sourceNodeUrn);
 		return map != null && map.containsKey(targetNodeUrn);
 	}
 
@@ -782,13 +785,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@AuthorizationRequired("WSN_ENABLE_NODE")
-	public void enableNodes(final long requestId, final List<String> nodeUrns) {
+	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		log.debug("WSNServiceImpl.enableNodes({}, {})", requestId, nodeUrns);
 
 		preconditions.checkEnableNodeArguments(nodeUrns);
 
-		for (final String nodeUrn : nodeUrns) {
+		for (final NodeUrn nodeUrn : nodeUrns) {
 
 			try {
 
@@ -823,8 +826,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 			try {
 
-				final String sourceNodeUrn = link.getSourceNodeUrn();
-				final String targetNodeUrn = link.getTargetNodeUrn();
+				final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+				final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 				wsnApp.enablePhysicalLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
 					@Override
@@ -854,10 +857,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 		try {
 
-			final Map<String, byte[]> map = newHashMap();
+			final Map<NodeUrn, byte[]> map = newHashMap();
 
 			for (FlashProgramsConfiguration configuration : configurations) {
-				for (String nodeUrn : configuration.getNodeUrns()) {
+				for (NodeUrn nodeUrn : configuration.getNodeUrns()) {
 					map.put(nodeUrn, configuration.getProgram());
 				}
 			}

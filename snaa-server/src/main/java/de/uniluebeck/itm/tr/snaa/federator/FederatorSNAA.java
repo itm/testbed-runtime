@@ -23,9 +23,9 @@
 
 package de.uniluebeck.itm.tr.snaa.federator;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import eu.wisebed.api.v3.WisebedServiceHelper;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
@@ -34,9 +34,12 @@ import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebService;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAFault;
 
 @WebService(
@@ -50,199 +53,147 @@ public class FederatorSNAA implements SNAA {
 
 	protected static class AuthenticationCallable implements Callable<List<SecretAuthenticationKey>> {
 
-		private List<AuthenticationTriple> authenticationTriples;
+		private final SNAA snaa;
 
-		private String wsEndpointUrl;
+		private final List<AuthenticationTriple> authenticationTriples;
 
-		public AuthenticationCallable(String wsEndpointUrl, List<AuthenticationTriple> authenticationTriples) {
-			super();
+		public AuthenticationCallable(SNAA snaa, List<AuthenticationTriple> authenticationTriples) {
+			this.snaa = snaa;
 			this.authenticationTriples = authenticationTriples;
-			this.wsEndpointUrl = wsEndpointUrl;
 		}
 
 		@Override
 		public List<SecretAuthenticationKey> call() throws Exception {
-			SNAA federatorSNAA = WisebedServiceHelper.getSNAAService(wsEndpointUrl);
-			return federatorSNAA.authenticate(authenticationTriples);
+			return snaa.authenticate(authenticationTriples);
 		}
 	}
 
-
 	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
 
-		private List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps;
+		private final SNAA snaa;
 
-		private Action action;
+		private final List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps;
 
-		private String wsEndpointUrl;
+		private final Action action;
 
-
-		public IsAuthorizedCallable(String wsEndpointUrl, List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps,
-									Action action) {
-			super();
-			this.wsEndpointUrl = wsEndpointUrl;
+		public IsAuthorizedCallable(final SNAA snaa,
+									final List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps,
+									final Action action) {
+			this.snaa = snaa;
 			this.userNamesNodeUrnsMaps = userNamesNodeUrnsMaps;
 			this.action = action;
 		}
 
 		@Override
 		public AuthorizationResponse call() throws Exception {
-			return WisebedServiceHelper.getSNAAService(wsEndpointUrl).isAuthorized(userNamesNodeUrnsMaps, action);
+			return snaa.isAuthorized(userNamesNodeUrnsMaps, action);
 		}
-
 	}
 
 	protected static class IsValidCallable implements Callable<ValidationResult> {
 
-		private SecretAuthenticationKey secretAuthenticationKey;
+		private final SNAA snaa;
 
-		public IsValidCallable(SecretAuthenticationKey secretAuthenticationKey) {
-			super();
+		private final SecretAuthenticationKey secretAuthenticationKey;
+
+		public IsValidCallable(final SNAA snaa, final SecretAuthenticationKey secretAuthenticationKey) {
+			this.snaa = snaa;
 			this.secretAuthenticationKey = secretAuthenticationKey;
 		}
 
 		@Override
 		public ValidationResult call() throws Exception {
-			return WisebedServiceHelper.getSNAAService(secretAuthenticationKey.getUrnPrefix())
-					.isValid(secretAuthenticationKey);
+			return snaa.isValid(secretAuthenticationKey);
 		}
-
 	}
 
+	private final FederationManager<SNAA> federationManager;
 
-	/**
-	 * Web Service Endpoint URL -> Set<URN Prefixes>
-	 */
-	protected Map<String, Set<String>> prefixSet;
+	protected final ExecutorService executorService = Executors
+			.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("FederatorSNAA-Thread %d").build());
 
-	protected ExecutorService executorService = Executors.newCachedThreadPool(
-			new ThreadFactoryBuilder().setNameFormat("FederatorSNAA-Thread %d").build()
-	);
-
-	public FederatorSNAA(Map<String, Set<String>> prefixSet) {
-		super();
-		this.prefixSet = prefixSet;
+	public FederatorSNAA(final FederationManager<SNAA> federationManager) {
+		this.federationManager = federationManager;
 	}
 
-	protected Map<String, Set<AuthenticationTriple>> getIntersectionPrefixSetAT(
+	protected Map<SNAA, Set<AuthenticationTriple>> getIntersectionPrefixSetAT(
 			List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
 
-		if (authenticationData == null) {
-			throw createSNAAFault("Argument authenticationData must not be null!");
-		}
+		checkNotNull(authenticationData, "Parameter authenticationData must not be null!");
 
-		// WS Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
-		Map<String, Set<AuthenticationTriple>> intersectionPrefixSet = new HashMap<String, Set<AuthenticationTriple>>();
+		// SNAA Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = newHashMap();
 
-		for (AuthenticationTriple authenticationTriple : authenticationData) {
-
-			for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
-				if (entry.getValue().contains(authenticationTriple.getUrnPrefix())) {
-					Set<AuthenticationTriple> set = intersectionPrefixSet.get(authenticationTriple.getUrnPrefix());
-					if (set == null) {
-						set = new HashSet<AuthenticationTriple>();
-						intersectionPrefixSet.put(entry.getKey(), set);
-					}
-					set.add(authenticationTriple);
-				}
-			}
+		for (AuthenticationTriple at : authenticationData) {
 
 			// check if federator federates the urn prefix found in the authentication triple
-			boolean found = false;
-			for (Set<AuthenticationTriple> triples : intersectionPrefixSet.values()) {
-				for (AuthenticationTriple triple : triples) {
-					if (triple.getUrnPrefix().equals(authenticationTriple.getUrnPrefix())) {
-						found = true;
-					}
-				}
+			if (!federationManager.servesUrnPrefix(at.getUrnPrefix())) {
+				throw createSNAAFault("No endpoint known for URN prefix " + at.getUrnPrefix());
 			}
 
-			if (!found) {
-				throw createSNAAFault("No endpoint known for URN prefix " + authenticationTriple.getUrnPrefix());
-			}
+			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(at.getUrnPrefix());
 
+			Set<AuthenticationTriple> set = intersectionPrefixSet.get(endpoint);
+			if (set == null) {
+				set = newHashSet();
+				intersectionPrefixSet.put(endpoint, set);
+			}
+			set.add(at);
 		}
 
 		return intersectionPrefixSet;
 	}
 
-	protected Map<String, Set<SecretAuthenticationKey>> getIntersectionPrefixSetSAK(
+	protected Map<SNAA, Set<SecretAuthenticationKey>> getIntersectionPrefixSetSAK(
 			List<SecretAuthenticationKey> authenticationKeys) throws SNAAFault_Exception {
 
-		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
-		// authenticationData
-		Map<String, Set<SecretAuthenticationKey>> intersectionPrefixSet =
-				new HashMap<String, Set<SecretAuthenticationKey>>();
+		checkNotNull(authenticationKeys, "Parameter authenticationKeys must not be null!");
 
-		for (SecretAuthenticationKey secretAuthenticationKey : authenticationKeys) {
+		// WS Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
+		Map<SNAA, Set<SecretAuthenticationKey>> intersectionPrefixSet = newHashMap();
 
-			for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
-				if (entry.getValue().contains(secretAuthenticationKey.getUrnPrefix())) {
-					Set<SecretAuthenticationKey> set = intersectionPrefixSet
-							.get(secretAuthenticationKey.getUrnPrefix());
-					if (set == null) {
-						set = new HashSet<SecretAuthenticationKey>();
-						intersectionPrefixSet.put(secretAuthenticationKey.getUrnPrefix(), set);
-					}
-					set.add(secretAuthenticationKey);
-				}
-			}
+		for (SecretAuthenticationKey sak : authenticationKeys) {
 
 			// check if federator federates the urn prefix found in the authentication triple
-			boolean found = false;
-			for (Set<SecretAuthenticationKey> triples : intersectionPrefixSet.values()) {
-				for (SecretAuthenticationKey triple : triples) {
-					if (triple.getUrnPrefix().equals(secretAuthenticationKey.getUrnPrefix())) {
-						found = true;
-					}
-				}
+			if (!federationManager.servesUrnPrefix(sak.getUrnPrefix())) {
+				throw createSNAAFault("No endpoint known for URN prefix " + sak.getUrnPrefix());
 			}
 
-			if (!found) {
-				throw createSNAAFault("No endpoint known for URN prefix " + secretAuthenticationKey.getUrnPrefix());
-			}
+			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(sak.getUrnPrefix());
 
+			Set<SecretAuthenticationKey> set = intersectionPrefixSet.get(endpoint);
+			if (set == null) {
+				set = newHashSet();
+				intersectionPrefixSet.put(endpoint, set);
+			}
+			set.add(sak);
 		}
 
 		return intersectionPrefixSet;
 	}
 
-	protected Map<String, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
+	protected Map<SNAA, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
 			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAFault_Exception {
 
 		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
 		// authenticationData
-		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
-				new HashMap<String, Set<UsernameUrnPrefixPair>>();
+		Map<SNAA, Set<UsernameUrnPrefixPair>> intersectionPrefixSet = newHashMap();
 
-		for (UsernameUrnPrefixPair usernameURNPrefixPair : usernameURNPrefixPairs) {
-
-			for (Entry<String, Set<String>> entry : prefixSet.entrySet()) {
-				if (entry.getValue().contains(usernameURNPrefixPair.getUrnPrefix())) {
-					Set<UsernameUrnPrefixPair> set = intersectionPrefixSet
-							.get(usernameURNPrefixPair.getUrnPrefix());
-					if (set == null) {
-						set = new HashSet<UsernameUrnPrefixPair>();
-						intersectionPrefixSet.put(usernameURNPrefixPair.getUrnPrefix(), set);
-					}
-					set.add(usernameURNPrefixPair);
-				}
-			}
+		for (UsernameUrnPrefixPair pair : usernameURNPrefixPairs) {
 
 			// check if federator federates the urn prefix found in the authentication triple
-			boolean found = false;
-			for (Set<UsernameUrnPrefixPair> triples : intersectionPrefixSet.values()) {
-				for (UsernameUrnPrefixPair triple : triples) {
-					if (triple.getUrnPrefix().equals(usernameURNPrefixPair.getUrnPrefix())) {
-						found = true;
-					}
-				}
+			if (!federationManager.servesUrnPrefix(pair.getUrnPrefix())) {
+				throw createSNAAFault("No endpoint known for URN prefix " + pair.getUrnPrefix());
 			}
 
-			if (!found) {
-				throw createSNAAFault("No endpoint known for URN prefix " + usernameURNPrefixPair.getUrnPrefix());
-			}
+			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(pair.getUrnPrefix());
 
+			Set<UsernameUrnPrefixPair> set = intersectionPrefixSet.get(endpoint);
+			if (set == null) {
+				set = newHashSet();
+				intersectionPrefixSet.put(endpoint, set);
+			}
+			set.add(pair);
 		}
 
 		return intersectionPrefixSet;
@@ -252,28 +203,24 @@ public class FederatorSNAA implements SNAA {
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
-		Map<String, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
 
 		Set<Future<List<SecretAuthenticationKey>>> futures = new HashSet<Future<List<SecretAuthenticationKey>>>();
 
-		for (String wsEndpointUrl : intersectionPrefixSet.keySet()) {
-			AuthenticationCallable authenticationCallable = new AuthenticationCallable(wsEndpointUrl,
-					new ArrayList<AuthenticationTriple>(intersectionPrefixSet.get(wsEndpointUrl))
-			);
-			Future<List<SecretAuthenticationKey>> future = executorService.submit(authenticationCallable);
-			futures.add(future);
+		for (SNAA snaa : intersectionPrefixSet.keySet()) {
+
+			final ArrayList<AuthenticationTriple> atList = newArrayList(intersectionPrefixSet.get(snaa));
+			final AuthenticationCallable callable = new AuthenticationCallable(snaa, atList);
+
+			futures.add(executorService.submit(callable));
 		}
 
-		List<SecretAuthenticationKey> resultSet = new LinkedList<SecretAuthenticationKey>();
+		final List<SecretAuthenticationKey> resultSet = newArrayList();
 
 		for (Future<List<SecretAuthenticationKey>> future : futures) {
 			try {
 				resultSet.addAll(future.get());
-			} catch (InterruptedException e) {
-				SNAAFault exception = new SNAAFault();
-				exception.setMessage(e.getMessage());
-				throw new SNAAFault_Exception(e.getMessage(), exception, e);
-			} catch (ExecutionException e) {
+			} catch (Exception e) {
 				SNAAFault exception = new SNAAFault();
 				exception.setMessage(e.getMessage());
 				throw new SNAAFault_Exception(e.getMessage(), exception, e);
@@ -302,12 +249,13 @@ public class FederatorSNAA implements SNAA {
 		Set<Future<AuthorizationResponse>> futures = new HashSet<Future<AuthorizationResponse>>();
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
-			IsAuthorizedCallable authenticationCallable =
-					new IsAuthorizedCallable(getWsnUrlFromUrnPrefix(usernameNodeUrnsMap.getUsername().getUrnPrefix()),
-							Lists.newArrayList(usernameNodeUrnsMap), action
-					);
-			Future<AuthorizationResponse> future = executorService.submit(authenticationCallable);
-			futures.add(future);
+
+			final NodeUrnPrefix urnPrefix = usernameNodeUrnsMap.getUsername().getUrnPrefix();
+			final SNAA snaa = federationManager.getEndpointByUrnPrefix(urnPrefix);
+
+			IsAuthorizedCallable callable = new IsAuthorizedCallable(snaa, newArrayList(usernameNodeUrnsMap), action);
+
+			futures.add(executorService.submit(callable));
 		}
 
 		for (Future<AuthorizationResponse> future : futures) {
@@ -325,31 +273,20 @@ public class FederatorSNAA implements SNAA {
 		return response;
 	}
 
-	private String getWsnUrlFromUrnPrefix(String urnPrefix) {
-		for (String url : prefixSet.keySet()) {
-			if (prefixSet.get(url).contains(urnPrefix)) {
-				return url;
-			}
-		}
-		return null;
-	}
-
 	@Override
-	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
-
-		if (secretAuthenticationKey == null) {
-			throw createSNAAFault("SecretAuthenticationKey must not be null!");
-		}
+	public ValidationResult isValid(final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
 
 		try {
-			Future<ValidationResult> future = executorService.submit(new IsValidCallable(secretAuthenticationKey));
-			return future.get();
-		} catch (InterruptedException e) {
-			throw createSNAAFault(e.getMessage());
-		} catch (ExecutionException e) {
+
+			checkNotNull(secretAuthenticationKey, "SecretAuthenticationKey must not be null!");
+
+			final SNAA snaa = federationManager.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+			final IsValidCallable callable = new IsValidCallable(snaa, secretAuthenticationKey);
+
+			return executorService.submit(callable).get();
+
+		} catch (Exception e) {
 			throw createSNAAFault(e.getMessage());
 		}
 	}
-
 }

@@ -2,12 +2,14 @@ package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
@@ -22,7 +24,7 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.transform;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Testbed Runtime internal implementation of the interface which defines the reservation system
@@ -34,7 +36,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Inject
 	@Named("SingleUrnPrefixSOAPRS.urnPrefix")
-	private String urnPrefix;
+	private NodeUrnPrefix urnPrefix;
 
 	@Inject
 	private RSPersistence persistence;
@@ -42,11 +44,11 @@ public class SingleUrnPrefixRS implements RS {
 	@Inject
 	@Nullable
 	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
-	private Provider<String[]> servedNodeUrns;
+	private Provider<NodeUrn[]> servedNodeUrns;
 
 	private List<SecretReservationKey> makeReservationInternal(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final List<String> nodeUrns,
+			final List<NodeUrn> nodeUrns,
 			final DateTime from,
 			final DateTime to) throws RSFault_Exception {
 
@@ -128,7 +130,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
-													  final List<String> nodeUrns,
+													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
@@ -136,7 +138,7 @@ public class SingleUrnPrefixRS implements RS {
 		checkArgumentValid(nodeUrns, from, to);
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkNodesServed(nodeUrns);
-		checkNodesAvailable(nodeUrns, from, to);
+		checkNodesAvailable(newHashSet(nodeUrns), from, to);
 		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to);
 	}
 
@@ -235,11 +237,11 @@ public class SingleUrnPrefixRS implements RS {
 		return publicReservationData;
 	}
 
-	private void checkNodesServed(List<String> nodeUrns) throws RSFault_Exception {
+	private void checkNodesServed(List<NodeUrn> nodeUrns) throws RSFault_Exception {
 
 		// Check if we serve all node urns by urnPrefix
-		for (String nodeUrn : nodeUrns) {
-			if (!nodeUrn.startsWith(urnPrefix)) {
+		for (NodeUrn nodeUrn : nodeUrns) {
+			if (!nodeUrn.belongsTo(urnPrefix)) {
 				throw createRSFault_Exception(
 						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
 				);
@@ -251,22 +253,22 @@ public class SingleUrnPrefixRS implements RS {
 		// and check if the individual node urns of the reservation are existing
 		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
 
-			String[] networkNodes;
+			NodeUrn[] networkNodes;
 			try {
 				networkNodes = servedNodeUrns.get();
 			} catch (Exception e) {
 				throw createRSFault_Exception(e.getMessage());
 			}
 
-			List<String> unservedNodes = new LinkedList<String>();
+			List<NodeUrn> unservedNodes = newArrayList();
 
 			boolean contained;
-			for (String nodeUrn : nodeUrns) {
+			for (NodeUrn nodeUrn : nodeUrns) {
 
 				contained = false;
 
-				for (String networkNode : networkNodes) {
-					if (networkNode.equalsIgnoreCase(nodeUrn)) {
+				for (NodeUrn networkNode : networkNodes) {
+					if (networkNode.equals(nodeUrn)) {
 						contained = true;
 					}
 				}
@@ -288,7 +290,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private void checkArgumentValid(final List<String> nodeUrns,
+	private void checkArgumentValid(final List<NodeUrn> nodeUrns,
 									final DateTime fromArg,
 									final DateTime toArg) throws RSFault_Exception {
 
@@ -337,24 +339,21 @@ public class SingleUrnPrefixRS implements RS {
 		}
 	}
 
-	private void checkNodesAvailable(final List<String> nodeUrns,
+	private void checkNodesAvailable(final Set<NodeUrn> nodeUrns,
 									 final DateTime from,
 									 final DateTime to)
 			throws ReservationConflictFault_Exception, RSFault_Exception {
 
-		List<String> requestedNodeUrns = transform(nodeUrns, StringUtils.STRING_TO_LOWER_CASE);
-		Set<String> reservedNodeUrns = new HashSet<String>();
-
+		Set<NodeUrn> reservedNodeUrns = newHashSet();
 		for (PublicReservationData res : getReservations(from, to)) {
-			reservedNodeUrns.addAll(transform(res.getNodeUrns(), StringUtils.STRING_TO_LOWER_CASE));
+			reservedNodeUrns.addAll(res.getNodeUrns());
 		}
 
-		Set<String> intersection = new HashSet<String>(reservedNodeUrns);
-		intersection.retainAll(requestedNodeUrns);
+		final Sets.SetView<NodeUrn> intersection = Sets.intersection(reservedNodeUrns, nodeUrns);
 
-		if (intersection.size() > 0) {
-			String msg = "Some of the nodes are reserved during the requested time (" + Arrays
-					.toString(intersection.toArray()) + ")";
+		if (!intersection.isEmpty()) {
+			final String reservedNodesString = Arrays.toString(intersection.toArray());
+			final String msg = "Some of the nodes are reserved during the requested time (" + reservedNodesString + ")";
 			log.warn(msg);
 			ReservationConflictFault exception = new ReservationConflictFault();
 			exception.setMessage(msg);

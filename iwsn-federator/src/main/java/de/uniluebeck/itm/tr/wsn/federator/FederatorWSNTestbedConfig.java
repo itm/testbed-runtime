@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.ImmutableSet;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -9,9 +10,9 @@ public class FederatorWSNTestbedConfig {
 
 	private final URI smEndpointUrl;
 
-	private final ImmutableSet<String> urnPrefixes;
+	private final ImmutableSet<NodeUrnPrefix> urnPrefixes;
 
-	public FederatorWSNTestbedConfig(final URI smEndpointUrl, final ImmutableSet<String> urnPrefixes) {
+	public FederatorWSNTestbedConfig(final URI smEndpointUrl, final ImmutableSet<NodeUrnPrefix> urnPrefixes) {
 
 		try {
 			smEndpointUrl.toURL();
@@ -27,7 +28,7 @@ public class FederatorWSNTestbedConfig {
 		return smEndpointUrl;
 	}
 
-	public ImmutableSet<String> getUrnPrefixes() {
+	public ImmutableSet<NodeUrnPrefix> getUrnPrefixes() {
 		return urnPrefixes;
 	}
 

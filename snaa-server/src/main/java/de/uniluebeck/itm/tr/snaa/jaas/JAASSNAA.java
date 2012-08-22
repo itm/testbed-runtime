@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -37,7 +38,6 @@ import javax.jws.WebService;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class JAASSNAA implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(JAASSNAA.class);
 
-	private String urnPrefix;
+	private NodeUrnPrefix urnPrefix;
 
 	private String jaasLoginModuleName;
 
@@ -87,7 +87,7 @@ public class JAASSNAA implements SNAA {
 	 */
 	private TimedCache<String, AuthData> authenticatedSessions = new TimedCache<String, AuthData>(30, TimeUnit.MINUTES);
 
-	public JAASSNAA(String urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
+	public JAASSNAA(NodeUrnPrefix urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
 		this.urnPrefix = urnPrefix;
 		this.jaasLoginModuleName = jaasLoginModuleName;
 		this.authorization = authorization;

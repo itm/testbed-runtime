@@ -30,11 +30,13 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -130,18 +132,18 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void send(final long federatorRequestId, final List<String> nodeUrns, final byte[] messageBytes) {
+	public void send(final long federatorRequestId, final List<NodeUrn> nodeUrns, final byte[] messageBytes) {
 
 		wsnPreconditions.checkSendArguments(nodeUrns, messageBytes);
 
-		Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
+		Map<WSN, List<NodeUrn>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeUrns, messageBytes, map.keySet()});
-		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
+		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = entry.getKey();
-			final List<String> nodeIdSubset = entry.getValue();
+			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
 			executorService.submit(new SendRunnable(
 					federatorController,
@@ -161,18 +163,18 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void areNodesAlive(final long federatorRequestId, final List<String> nodeUrns) {
+	public void areNodesAlive(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
 
 		wsnPreconditions.checkAreNodesAliveArguments(nodeUrns);
 
-		final Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
+		final Map<WSN, List<NodeUrn>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking areNodesAlive({}) on {}", nodeUrns, map.keySet());
-		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
+		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = entry.getKey();
-			final List<String> nodeUrnSubset = entry.getValue();
+			final List<NodeUrn> nodeUrnSubset = entry.getValue();
 
 			executorService.submit(new WSNAreNodesAliveRunnable(
 					federatorController,
@@ -186,17 +188,17 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(final List<String> nodeUrns) {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
 	public String getNetwork() {
 
-		final BiMap<String, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
-		final Set<String> endpointUrls = federationManager.getEndpointUrls();
+		final BiMap<URI, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
+		final Set<URI> endpointUrls = federationManager.getEndpointUrls();
 
-		for (final String endpointUrl : endpointUrls) {
+		for (final URI endpointUrl : endpointUrls) {
 			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {
@@ -210,18 +212,18 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void resetNodes(final long federatorRequestId, final List<String> nodeUrns) {
+	public void resetNodes(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
 
 		wsnPreconditions.checkResetNodesArguments(nodeUrns);
 
-		final Map<WSN, List<String>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
+		final Map<WSN, List<NodeUrn>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking resetNodes({}) on {}", nodeUrns, map.keySet());
-		for (Map.Entry<WSN, List<String>> entry : map.entrySet()) {
+		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = entry.getKey();
-			final List<String> nodeIdSubset = entry.getValue();
+			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
 			executorService.submit(new ResetNodesRunnable(
 					federatorController,
@@ -244,8 +246,8 @@ public class FederatorWSN implements WSN {
 
 		for (VirtualLink link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 			final String remoteServiceInstance = link.getRemoteServiceInstance();
 			final List<String> parameters = link.getParameters();
 			final List<String> filters = link.getFilters();
@@ -281,8 +283,8 @@ public class FederatorWSN implements WSN {
 
 		for (Link link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
@@ -306,13 +308,13 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disableNodes(final long requestId, final List<String> nodeUrns) {
+	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		log.debug("FederatorWSN.disableNodes({}, {})", requestId, nodeUrns);
 
 		wsnPreconditions.checkDisableNodeArguments(nodeUrns);
 
-		for (String nodeUrn : nodeUrns) {
+		for (NodeUrn nodeUrn : nodeUrns) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
@@ -340,8 +342,8 @@ public class FederatorWSN implements WSN {
 
 		for (Link link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
@@ -374,14 +376,13 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void enableNodes(final long requestId, final List<String> nodeUrns) {
+	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 
 		log.debug("FederatorWSN.enableNodes({}, {})", requestId, nodeUrns);
 
 		wsnPreconditions.checkEnableNodeArguments(nodeUrns);
 
-		for (String nodeUrn : nodeUrns) {
-
+		for (NodeUrn nodeUrn : nodeUrns) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
@@ -408,8 +409,8 @@ public class FederatorWSN implements WSN {
 
 		for (Link link : links) {
 
-			final String sourceNodeUrn = link.getSourceNodeUrn();
-			final String targetNodeUrn = link.getTargetNodeUrn();
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
@@ -441,11 +442,11 @@ public class FederatorWSN implements WSN {
 
 		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
 
-			final Map<WSN, List<String>> endpointToNodeUrnMap = federationManager.getEndpointToNodeUrnMap(
+			final Map<WSN, List<NodeUrn>> endpointToNodeUrnMap = federationManager.getEndpointToNodeUrnMap(
 					flashProgramsConfiguration.getNodeUrns()
 			);
 
-			for (Map.Entry<WSN, List<String>> entry : endpointToNodeUrnMap.entrySet()) {
+			for (Map.Entry<WSN, List<NodeUrn>> entry : endpointToNodeUrnMap.entrySet()) {
 
 				final FlashProgramsConfiguration federatedConfiguration = new FlashProgramsConfiguration();
 				federatedConfiguration.setProgram(flashProgramsConfiguration.getProgram());
@@ -472,12 +473,12 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public void setChannelPipeline(final long federatorRequestId,
-								   final List<String> nodeUrns,
+								   final List<NodeUrn> nodeUrns,
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		log.debug("setChannelPipeline({}, {}) called...", nodeUrns, channelHandlerConfigurations);
 
-		final Map<WSN, List<String>> endpointToNodesMapping = constructEndpointToNodesMapping(nodeUrns);
+		final Map<WSN, List<NodeUrn>> endpointToNodesMapping = constructEndpointToNodesMapping(nodeUrns);
 
 		for (WSN wsnEndpoint : endpointToNodesMapping.keySet()) {
 
@@ -494,21 +495,20 @@ public class FederatorWSN implements WSN {
 		}
 	}
 
-	private Map<WSN, List<String>> constructEndpointToNodesMapping(final List<String> nodeUrns) {
+	private Map<WSN, List<NodeUrn>> constructEndpointToNodesMapping(final List<NodeUrn> nodeUrns) {
 
-		final Map<WSN, List<String>> mapping = newHashMap();
+		final Map<WSN, List<NodeUrn>> mapping = newHashMap();
 
-		for (String nodeUrn : nodeUrns) {
+		for (NodeUrn nodeUrn : nodeUrns) {
 
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(nodeUrn);
 
-			List<String> filteredNodeUrns = mapping.get(endpoint);
+			List<NodeUrn> filteredNodeUrns = mapping.get(endpoint);
 			if (filteredNodeUrns == null) {
 				filteredNodeUrns = newArrayList();
 				mapping.put(endpoint, filteredNodeUrns);
 			}
 			filteredNodeUrns.add(nodeUrn);
-
 		}
 
 		return mapping;

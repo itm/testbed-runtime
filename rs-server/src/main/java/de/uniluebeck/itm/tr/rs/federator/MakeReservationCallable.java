@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.RS;
@@ -14,7 +15,7 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	private final List<SecretAuthenticationKey> secretAuthenticationKeys;
 
-	private final List<String> nodeUrns;
+	private final List<NodeUrn> nodeUrns;
 
 	private final DateTime from;
 
@@ -22,7 +23,7 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	public MakeReservationCallable(final RS rs,
 								   final List<SecretAuthenticationKey> secretAuthenticationKeys,
-								   final List<String> nodeUrns,
+								   final List<NodeUrn> nodeUrns,
 								   final DateTime from,
 								   final DateTime to) {
 		this.rs = rs;
@@ -36,7 +37,7 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 		return rs;
 	}
 
-	public List<String> getNodeUrns() {
+	public List<NodeUrn> getNodeUrns() {
 		return nodeUrns;
 	}
 

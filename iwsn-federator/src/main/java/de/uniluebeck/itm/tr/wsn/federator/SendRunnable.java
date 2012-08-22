@@ -23,14 +23,14 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
 class SendRunnable extends AbstractRequestRunnable {
 
-	private final List<String> nodeIds;
+	private final List<NodeUrn> nodeUrns;
 
 	private final byte[] message;
 
@@ -38,17 +38,17 @@ class SendRunnable extends AbstractRequestRunnable {
 				 final WSN wsnEndpoint,
 				 final long federatedRequestId,
 				 final long federatorRequestId,
-				 final List<String> nodeIds,
+				 final List<NodeUrn> nodeUrns,
 				 final byte[] message) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeIds = nodeIds;
+		this.nodeUrns = nodeUrns;
 		this.message = message;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.send(federatedRequestId, nodeIds, message);
+		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
 	}
 }

@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.Link;
 import eu.wisebed.api.v3.wsn.WSN;
 
@@ -30,16 +31,16 @@ import static com.google.common.collect.Lists.newArrayList;
 
 class DisablePhysicalLinkRunnable extends AbstractRequestRunnable {
 
-	private final String sourceNodeUrn;
+	private final NodeUrn sourceNodeUrn;
 
-	private final String targetNodeUrn;
+	private final NodeUrn targetNodeUrn;
 
 	DisablePhysicalLinkRunnable(final FederatorController federatorController,
 								final WSN wsnEndpoint,
 								final long federatedRequestId,
 								final long federatorRequestId,
-								final String sourceNodeUrn,
-								final String targetNodeUrn) {
+								final NodeUrn sourceNodeUrn,
+								final NodeUrn targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 

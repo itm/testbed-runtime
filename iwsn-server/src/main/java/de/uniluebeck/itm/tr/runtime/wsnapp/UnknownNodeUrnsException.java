@@ -1,17 +1,21 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
+import eu.wisebed.api.v3.common.NodeUrn;
+
 import java.util.*;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 public class UnknownNodeUrnsException extends Exception {
 
-	private Set<String> nodeUrns;
+	private Set<NodeUrn> nodeUrns;
 
-	public UnknownNodeUrnsException(Collection<String> nodeUrns, String message) {
+	public UnknownNodeUrnsException(Collection<NodeUrn> nodeUrns, String message) {
 		super(message);
-		this.nodeUrns = new HashSet<String>(nodeUrns);
+		this.nodeUrns = newHashSet(nodeUrns);
 	}
 
-	public Set<String> getNodeUrns() {
+	public Set<NodeUrn> getNodeUrns() {
 		return nodeUrns;
 	}
 }

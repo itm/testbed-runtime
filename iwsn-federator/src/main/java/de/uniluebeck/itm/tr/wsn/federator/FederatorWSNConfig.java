@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -31,10 +32,16 @@ public class FederatorWSNConfig {
 		final List<FederatorWSNTestbedConfig> testbedConfigs = newArrayList();
 		for (String federate : federates) {
 
-			FederatorWSNTestbedConfig testbedConfig = new FederatorWSNTestbedConfig(
-					URI.create((String) properties.get(federate + FED_SM_ENDPOINT_URL)),
-					ImmutableSet.<String>copyOf(splitter.split((String) properties.get(federate + FED_URN_PREFIXES)))
-			);
+			final Iterable<String> nodeUrnPrefixesStrings =
+					splitter.split((String) properties.get(federate + FED_URN_PREFIXES));
+
+			final URI smEndpointUrl = URI.create((String) properties.get(federate + FED_SM_ENDPOINT_URL));
+			final ImmutableSet.Builder<NodeUrnPrefix> urnPrefixesBuilder = ImmutableSet.builder();
+			for (String nodeUrnPrefixesString : nodeUrnPrefixesStrings) {
+				urnPrefixesBuilder.add(new NodeUrnPrefix(nodeUrnPrefixesString));
+			}
+			final ImmutableSet<NodeUrnPrefix> urnPrefixes = urnPrefixesBuilder.build();
+			final FederatorWSNTestbedConfig testbedConfig = new FederatorWSNTestbedConfig(smEndpointUrl, urnPrefixes);
 
 			testbedConfigs.add(testbedConfig);
 		}

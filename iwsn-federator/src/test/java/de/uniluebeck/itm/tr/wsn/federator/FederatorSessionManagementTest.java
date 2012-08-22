@@ -5,6 +5,7 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -27,13 +29,13 @@ public class FederatorSessionManagementTest {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final String TESTBED_1_URN_PREFIX = "urn:testbed1:";
+	private static final NodeUrnPrefix TESTBED_1_URN_PREFIX = new NodeUrnPrefix("urn:testbed1:");
 
-	private static final String TESTBED_2_URN_PREFIX = "urn:testbed2:";
+	private static final NodeUrnPrefix TESTBED_2_URN_PREFIX = new NodeUrnPrefix("urn:testbed2:");
 
-	private static final String TESTBED_1_ENDPOINT_URL = "http://localhost:1234/";
+	private static final URI TESTBED_1_ENDPOINT_URL = URI.create("http://localhost:1234/");
 
-	private static final String TESTBED_2_ENDPOINT_URL = "http://localhost:2345/";
+	private static final URI TESTBED_2_ENDPOINT_URL = URI.create("http://localhost:2345/");
 
 	@Mock
 	private SessionManagement testbed1SM;

@@ -10,6 +10,8 @@ import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNAppModule;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.WiseMLHelper;
 import eu.wisebed.wiseml.Wiseml;
@@ -22,10 +24,10 @@ public class WSNServiceHandleFactory {
 
 	public static WSNServiceHandle create(String secretReservationKey,
 										  TestbedRuntime testbedRuntime,
-										  String urnPrefix,
+										  NodeUrnPrefix urnPrefix,
 										  URL wsnServiceEndpointURL,
 										  String wiseMLFilename,
-										  ImmutableSet<String> reservedNodes,
+										  ImmutableSet<NodeUrn> reservedNodes,
 										  final ProtobufDeliveryManager protobufDeliveryManager,
 										  ProtobufControllerServer protobufControllerServer,
 										  SessionManagementServiceConfig sessionManagementServiceConfig,
@@ -38,18 +40,22 @@ public class WSNServiceHandleFactory {
 
 		while (nodeIterator.hasNext()) {
 			Setup.Node currentNode = nodeIterator.next();
-			if (!reservedNodes.contains(currentNode.getId())) {
+			if (!reservedNodes.contains(new NodeUrn(currentNode.getId()))) {
 				nodeIterator.remove();
 			}
 		}
 
-		final ImmutableSet<String> servedUrnPrefixes = ImmutableSet.<String>builder().add(urnPrefix).build();
+		final ImmutableSet<NodeUrnPrefix> servedUrnPrefixes = ImmutableSet
+				.<NodeUrnPrefix>builder()
+				.add(urnPrefix)
+				.build();
+
 		final WSNServiceConfig config = new WSNServiceConfig(reservedNodes, wsnServiceEndpointURL, wiseML);
 		final WSNPreconditions preconditions = new WSNPreconditions(servedUrnPrefixes, reservedNodes);
 
 		final Injector injector = Guice.createInjector(new WSNAppModule());
 		final WSNApp wsnApp = injector.getInstance(WSNAppFactory.class).create(testbedRuntime, reservedNodes);
-		
+
 		final Injector wsnServiceInjector = Guice.createInjector(new WSNServiceModule(sessionManagementServiceConfig,authorizedUser));
 		final WSNService wsnService = wsnServiceInjector.getInstance(WSNServiceFactory.class)
 				.create(config, protobufDeliveryManager, preconditions, wsnApp);

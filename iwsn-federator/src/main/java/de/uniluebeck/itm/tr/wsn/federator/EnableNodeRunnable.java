@@ -23,19 +23,20 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 class EnableNodeRunnable extends AbstractRequestRunnable {
 
-	private final String nodeUrn;
+	private final NodeUrn nodeUrn;
 
 	EnableNodeRunnable(final FederatorController federatorController,
-							  final WSN wsnEndpoint,
-							  final long federatedRequestId,
-							  final long federatorRequestId,
-							  final String nodeUrn) {
+					   final WSN wsnEndpoint,
+					   final long federatedRequestId,
+					   final long federatorRequestId,
+					   final NodeUrn nodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 

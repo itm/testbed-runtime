@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.Endpoint;
-import java.net.URL;
+import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -14,13 +14,13 @@ public class WebservicePublisher<T> extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WebservicePublisher.class);
 
-	private final URL endpointUrl;
+	private final URI endpointUrl;
 
 	private T implementer;
 
 	private Endpoint endpoint;
 
-	public WebservicePublisher(final URL endpointUrl) {
+	public WebservicePublisher(final URI endpointUrl) {
 		this.endpointUrl = endpointUrl;
 	}
 
@@ -40,7 +40,9 @@ public class WebservicePublisher<T> extends AbstractService implements Service {
 			checkState(implementer != null, "Implementer must be set before calling start()!");
 
 			if (log.isInfoEnabled()) {
-				log.info("Started {} endpoint using endpoint URL {}", implementer.getClass().getSimpleName(), endpointUrl);
+				log.info("Started {} endpoint using endpoint URL {}", implementer.getClass().getSimpleName(),
+						endpointUrl
+				);
 			}
 
 			endpoint = Endpoint.publish(endpointUrl.toString(), implementer);
@@ -71,7 +73,7 @@ public class WebservicePublisher<T> extends AbstractService implements Service {
 		}
 	}
 
-	public URL getEndpointUrl() {
+	public URI getEndpointUrl() {
 		return endpointUrl;
 	}
 }

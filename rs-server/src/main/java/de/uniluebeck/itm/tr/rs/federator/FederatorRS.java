@@ -28,6 +28,8 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
@@ -115,14 +117,14 @@ public class FederatorRS implements RS {
 
 		public Set<SecretAuthenticationKey> secretAuthenticationKeys;
 
-		public Set<String> nodeUrns;
+		public Set<NodeUrn> nodeUrns;
 
 		public DateTime from;
 
 		public DateTime to;
 
 		private MakeReservationArguments(final Set<SecretAuthenticationKey> secretAuthenticationKeys,
-										 final Set<String> nodeUrns,
+										 final Set<NodeUrn> nodeUrns,
 										 final DateTime from,
 										 final DateTime to) {
 			this.secretAuthenticationKeys = secretAuthenticationKeys;
@@ -134,7 +136,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
-													  final List<String> nodeUrns,
+													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
@@ -161,7 +163,7 @@ public class FederatorRS implements RS {
 
 		BiMap<RS, MakeReservationArguments> map = HashBiMap.create(federationManager.getEndpoints().size());
 
-		for (String nodeUrn : nodeUrns) {
+		for (NodeUrn nodeUrn : nodeUrns) {
 
 			RS rs = federationManager.getEndpointByNodeUrn(nodeUrn);
 
@@ -233,9 +235,9 @@ public class FederatorRS implements RS {
 		return res;
 	}
 
-	private SecretAuthenticationKey getSAKByNodeUrn(final List<SecretAuthenticationKey> saks, final String nodeUrn) {
+	private SecretAuthenticationKey getSAKByNodeUrn(final List<SecretAuthenticationKey> saks, final NodeUrn nodeUrn) {
 
-		final ImmutableSet<String> urnPrefixes = federationManager.getUrnPrefixesByNodeUrn(nodeUrn);
+		final ImmutableSet<NodeUrnPrefix> urnPrefixes = federationManager.getUrnPrefixesByNodeUrn(nodeUrn);
 
 		for (SecretAuthenticationKey secretAuthenticationKey : saks) {
 			if (urnPrefixes.contains(secretAuthenticationKey.getUrnPrefix())) {
@@ -404,13 +406,12 @@ public class FederatorRS implements RS {
 	 * @throws RSFault_Exception
 	 * 		if one of the node URNs is not served by this instance
 	 */
-	private void assertUrnsServed(List<String> nodeUrns) throws RSFault_Exception {
+	private void assertUrnsServed(List<NodeUrn> nodeUrns) throws RSFault_Exception {
 
-		List<String> notServed = new LinkedList<String>();
+		List<NodeUrn> notServed = new LinkedList<NodeUrn>();
 
-		for (String nodeURN : nodeUrns) {
-			String endpointUrlForNodeURN = federationManager.getEndpointUrlByNodeUrn(nodeURN);
-			if (endpointUrlForNodeURN == null) {
+		for (NodeUrn nodeURN : nodeUrns) {
+			if (federationManager.getEndpointUrlByNodeUrn(nodeURN) == null) {
 				notServed.add(nodeURN);
 			}
 		}

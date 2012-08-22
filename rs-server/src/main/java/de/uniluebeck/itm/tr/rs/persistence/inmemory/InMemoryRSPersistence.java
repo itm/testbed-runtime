@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
@@ -78,7 +79,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public SecretReservationKey addReservation(ConfidentialReservationData reservationData, String urnPrefix) {
+	public SecretReservationKey addReservation(ConfidentialReservationData reservationData, NodeUrnPrefix urnPrefix) {
 
 		// construct the return object
 		SecretReservationKey secretReservationKey = new SecretReservationKey();

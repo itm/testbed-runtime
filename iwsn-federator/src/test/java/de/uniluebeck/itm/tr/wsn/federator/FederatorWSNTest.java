@@ -9,7 +9,8 @@ import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.WSN;
@@ -30,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -41,29 +41,25 @@ public class FederatorWSNTest {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final String TESTBED_1_URN_PREFIX = "urn:testbed1:";
+	private static final NodeUrnPrefix TESTBED_1_URN_PREFIX = new NodeUrnPrefix("urn:testbed1:");
 
-	private static final String TESTBED_2_URN_PREFIX = "urn:testbed2:";
+	private static final NodeUrnPrefix TESTBED_2_URN_PREFIX = new NodeUrnPrefix("urn:testbed2:");
 
-	private static final String TESTBED_3_URN_PREFIX = "urn:testbed3:";
+	private static final NodeUrnPrefix TESTBED_3_URN_PREFIX = new NodeUrnPrefix("urn:testbed3:");
 
-	private static final String TESTBED_1_NODE_1 = TESTBED_1_URN_PREFIX + "0x0001";
+	private static final NodeUrn TESTBED_1_NODE_1 = new NodeUrn(TESTBED_1_URN_PREFIX + "0x0001");
 
-	private static final String TESTBED_1_NODE_2 = TESTBED_1_URN_PREFIX + "0x0002";
+	private static final NodeUrn TESTBED_1_NODE_2 = new NodeUrn(TESTBED_1_URN_PREFIX + "0x0002");
 
-	private static final String TESTBED_2_NODE_1 = TESTBED_2_URN_PREFIX + "0x0001";
+	private static final NodeUrn TESTBED_2_NODE_1 = new NodeUrn(TESTBED_2_URN_PREFIX + "0x0001");
 
-	private static final String TESTBED_2_NODE_2 = TESTBED_2_URN_PREFIX + "0x0002";
+	private static final NodeUrn TESTBED_2_NODE_2 = new NodeUrn(TESTBED_2_URN_PREFIX + "0x0002");
 
-	private static final String TESTBED_2_NODE_3 = TESTBED_2_URN_PREFIX + "0x0003";
+	private static final NodeUrn TESTBED_2_NODE_3 = new NodeUrn(TESTBED_2_URN_PREFIX + "0x0003");
 
-	private static final String TESTBED_3_NODE_1 = TESTBED_3_URN_PREFIX + "0x0001";
+	private static final NodeUrn TESTBED_3_NODE_1 = new NodeUrn(TESTBED_3_URN_PREFIX + "0x0001");
 
-	private static final String TESTBED_3_NODE_2 = TESTBED_3_URN_PREFIX + "0x0002";
-
-	private static final String TESTBED_1_ENDPOINT_URL = "http://localhost:1234/";
-
-	private static final String TESTBED_2_ENDPOINT_URL = "http://localhost:2345/";
+	private static final NodeUrn TESTBED_3_NODE_2 = new NodeUrn(TESTBED_3_URN_PREFIX + "0x0002");
 
 	private final Random requestIdGenerator = new Random();
 
@@ -169,13 +165,13 @@ public class FederatorWSNTest {
 		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
 
 		when(federationManager.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
-				ImmutableMap.<WSN, List<String>>of(
+				ImmutableMap.<WSN, List<NodeUrn>>of(
 						testbed1WSN, newArrayList(TESTBED_1_NODE_1),
 						testbed2WSN, newArrayList(TESTBED_2_NODE_1, TESTBED_2_NODE_2)
 				)
 		);
 		when(federationManager.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
-				ImmutableMap.<WSN, List<String>>of(
+				ImmutableMap.<WSN, List<NodeUrn>>of(
 						testbed1WSN, newArrayList(TESTBED_1_NODE_2),
 						testbed2WSN, newArrayList(TESTBED_2_NODE_3)
 				)
@@ -225,7 +221,7 @@ public class FederatorWSNTest {
 	@Test
 	public void testSetChannelPipelineCalledOnInvolvedTestbeds() throws Exception {
 
-		final List<String> nodes = newArrayList(
+		final List<NodeUrn> nodes = newArrayList(
 				TESTBED_1_NODE_1,
 				TESTBED_1_NODE_2,
 				TESTBED_3_NODE_1
@@ -249,7 +245,7 @@ public class FederatorWSNTest {
 		);
 		verify(testbed2WSN, never()).setChannelPipeline(
 				anyLong(),
-				Matchers.<List<String>>any(),
+				Matchers.<List<NodeUrn>>any(),
 				Matchers.<List<ChannelHandlerConfiguration>>any()
 		);
 		verify(testbed3WSN).setChannelPipeline(

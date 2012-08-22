@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
@@ -115,8 +116,8 @@ public class DeliveryManager extends AbstractService implements Service {
 		final Deque<Message> messageQueue = new LinkedList<Message>();
 		final Deque<Notification> notificationQueue = new LinkedList<Notification>();
 		final Deque<RequestStatus> statusQueue = new LinkedList<RequestStatus>();
-		final Deque<List<String>> nodesAttachedQueue = new LinkedList<List<String>>();
-		final Deque<List<String>> nodesDetachedQueue = new LinkedList<List<String>>();
+		final Deque<List<NodeUrn>> nodesAttachedQueue = new LinkedList<List<NodeUrn>>();
+		final Deque<List<NodeUrn>> nodesDetachedQueue = new LinkedList<List<NodeUrn>>();
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
@@ -183,7 +184,7 @@ public class DeliveryManager extends AbstractService implements Service {
 		}
 	}
 
-	public void nodesAttached(final List<String> nodeUrns) {
+	public void nodesAttached(final List<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.nodesAttached(nodeUrns);
@@ -192,7 +193,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	}
 
 
-	public void nodesDetached(final List<String> nodeUrns) {
+	public void nodesDetached(final List<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.nodesDetached(nodeUrns);
@@ -309,14 +310,14 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param statusValue
 	 * 		the Integer value that should be sent to the controllers
 	 */
-	public void receiveFailureStatusMessages(List<String> nodeUrns, long requestId, Exception e, int statusValue) {
+	public void receiveFailureStatusMessages(List<NodeUrn> nodeUrns, long requestId, Exception e, int statusValue) {
 
 		if (isRunning()) {
 
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
-			for (String nodeUrn : nodeUrns) {
+			for (NodeUrn nodeUrn : nodeUrns) {
 				Status status = new Status();
 				status.setNodeUrn(nodeUrn);
 				status.setValue(statusValue);
@@ -339,7 +340,7 @@ public class DeliveryManager extends AbstractService implements Service {
 	 * @param requestId
 	 * 		the requestId
 	 */
-	public void receiveUnknownNodeUrnRequestStatus(final Set<String> nodeUrns, final String msg,
+	public void receiveUnknownNodeUrnRequestStatus(final Set<NodeUrn> nodeUrns, final String msg,
 												   final long requestId) {
 
 		if (isRunning()) {
@@ -347,7 +348,7 @@ public class DeliveryManager extends AbstractService implements Service {
 			RequestStatus requestStatus = new RequestStatus();
 			requestStatus.setRequestId(requestId);
 
-			for (String nodeUrn : nodeUrns) {
+			for (NodeUrn nodeUrn : nodeUrns) {
 
 				Status status = new Status();
 				status.setMsg(msg);

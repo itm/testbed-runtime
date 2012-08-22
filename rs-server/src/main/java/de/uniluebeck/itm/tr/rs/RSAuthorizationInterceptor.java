@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.rs;
 
 import com.google.inject.Inject;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
@@ -12,7 +13,6 @@ import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
-import eu.wisebed.api.v3.util.WisebedConversionHelper;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
@@ -23,6 +23,9 @@ import javax.naming.directory.InvalidAttributesException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import static eu.wisebed.api.v3.util.WisebedConversionHelper.convert;
+import static eu.wisebed.api.v3.util.WisebedConversionHelper.convertToUsernameNodeUrnsMap;
 
 /**
  * Instances of this class intercept calls to methods which are annotated in a way that indicate
@@ -145,7 +148,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		 */
 
 		List<UsernameUrnPrefixPair> usernamePrefixPairs = null;
-		List<String> nodeURNs = null;
+		List<NodeUrn> nodeURNs = null;
 		List<SecretAuthenticationKey> secretAuthenticationKeys = null;
 
 		Object[] arguments = invocation.getArguments();
@@ -158,7 +161,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 				if (list.size() > 0 && list.get(0) instanceof SecretAuthenticationKey) {
 					secretAuthenticationKeys = (List<SecretAuthenticationKey>) list;
 					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(
-							WisebedConversionHelper.convert((List<SecretAuthenticationKey>) list)
+							convert((List<SecretAuthenticationKey>) list)
 					);
 				}
 			} else if (object instanceof ConfidentialReservationData) {
@@ -189,8 +192,11 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 		if (requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 
-			AuthorizationResponse isAuthorized =
-					checkMakeReservationAuthorization(usernamePrefixPairs, requestedAction, nodeURNs);
+			AuthorizationResponse isAuthorized = checkMakeReservationAuthorization(
+					usernamePrefixPairs,
+					requestedAction,
+					nodeURNs
+			);
 
 			if (!isAuthorized.isAuthorized()) {
 				log.warn(
@@ -257,13 +263,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	@Nonnull
 	private AuthorizationResponse checkMakeReservationAuthorization(final List<UsernameUrnPrefixPair> upp,
 																	final Action action,
-																	Collection<String> nodeURNs)
+																	final Collection<NodeUrn> nodeURNs)
 			throws RSFault_Exception {
 
 		try {
 
-			final List<UsernameNodeUrnsMap> mapList =
-					WisebedConversionHelper.convertToUsernameNodeUrnsMap(upp, nodeURNs);
+			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
 			AuthorizationResponse authorizationResponse = snaa.isAuthorized(mapList, action);
 			log.debug("Authorization result: " + authorizationResponse);
 			if (authorizationResponse == null) {

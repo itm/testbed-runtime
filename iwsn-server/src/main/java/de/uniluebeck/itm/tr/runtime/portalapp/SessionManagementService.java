@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.util.concurrent.Service;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -45,7 +46,7 @@ public interface SessionManagementService extends Service {
 	/**
 	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(long, java.util.List, String)}
 	 */
-	void areNodesAlive(final long requestId, final List<String> nodes, final String controllerEndpointUrl);
+	void areNodesAlive(final long requestId, final List<NodeUrn> nodes, final String controllerEndpointUrl);
 
 	@Nullable
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);

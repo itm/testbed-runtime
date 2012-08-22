@@ -24,6 +24,7 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
@@ -78,7 +79,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 		final SecretReservationKey secretReservationKey = persistence.addReservation(
 				confidentialReservationData,
-				"urn:smartsantander:testbed:"
+				new NodeUrnPrefix("urn:smartsantander:testbed:")
 		);
 
 		final ConfidentialReservationData result = persistence.getReservation(secretReservationKey);
@@ -103,7 +104,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
 		data.setSecretReservationKey("SECRET12345");
-		data.setUrnPrefix("urn:smartsantander:testbed:");
+		data.setUrnPrefix(new NodeUrnPrefix("urn:smartsantander:testbed:"));
 		data.setUsername("test-user");
 		confidentialReservationData.getKeys().add(data);
 

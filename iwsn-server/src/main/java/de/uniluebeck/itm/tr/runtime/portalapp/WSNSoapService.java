@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.UrlUtils;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void areNodesAlive(final long requestId, final List<String> nodeUrns) {
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns) {
 		wsn.areNodesAlive(requestId, nodeUrns);
 	}
 
@@ -128,7 +129,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void disableNodes(final long requestId, final List<String> nodeUrns) {
+	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		wsn.disableNodes(requestId, nodeUrns);
 	}
 
@@ -148,7 +149,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void enableNodes(final long requestId, final List<String> nodeUrns) {
+	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		wsn.enableNodes(requestId, nodeUrns);
 	}
 
@@ -163,7 +164,7 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(final List<String> nodeUrns) {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
@@ -183,18 +184,18 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 	}
 
 	@Override
-	public void resetNodes(final long requestId, final List<String> nodeUrns) {
+	public void resetNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		wsn.resetNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void send(final long requestId, final List<String> nodeUrns, final byte[] message) {
+	public void send(final long requestId, final List<NodeUrn> nodeUrns, final byte[] message) {
 		wsn.send(requestId, nodeUrns, message);
 	}
 
 	@Override
 	public void setChannelPipeline(final long requestId,
-								   final List<String> nodeUrns,
+								   final List<NodeUrn> nodeUrns,
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		wsn.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);

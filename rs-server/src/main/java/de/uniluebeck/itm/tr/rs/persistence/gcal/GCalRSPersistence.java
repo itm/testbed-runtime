@@ -38,6 +38,7 @@ import com.google.gdata.util.ServiceException;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
 import org.joda.time.Interval;
@@ -94,7 +95,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
-											   String urnPrefix)
+											   NodeUrnPrefix urnPrefix)
 			throws RSFault_Exception {
 		try {
 
@@ -106,7 +107,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 			ReservationData reservationData = new ReservationData(
 					confidentialReservationData,
-					urnPrefix,
+					urnPrefix.toString(),
 					secretReservationKeyString
 			);
 

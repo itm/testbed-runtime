@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Injector;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -50,7 +51,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
-	protected Set<String> urnPrefixes;
+	protected Set<NodeUrnPrefix> urnPrefixes;
 
 	protected String secretAuthenticationKeyUrl;
 
@@ -60,9 +61,9 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	private ShibbolethProxy proxy;
 
-	public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl,
+	public ShibbolethSNAAImpl(Set<NodeUrnPrefix> urnPrefixes, String secretAuthenticationKeyUrl,
 							  IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
-		this.urnPrefixes = new HashSet<String>(urnPrefixes);
+		this.urnPrefixes = urnPrefixes;
 		this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
 		this.authorization = authorization;
 		this.injector = injector;
@@ -81,7 +82,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 		for (AuthenticationTriple triple : authenticationData) {
 			IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-			String urn = triple.getUrnPrefix();
+			NodeUrnPrefix urn = triple.getUrnPrefix();
 
 			try {
 
@@ -152,7 +153,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 		saks.add(secretAuthenticationKey);
 
 		// Check if we serve all URNs
-		assertAllSAKUrnPrefixesServed(urnPrefixes, saks);
+		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes, saks);
 
 		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
 		return null;

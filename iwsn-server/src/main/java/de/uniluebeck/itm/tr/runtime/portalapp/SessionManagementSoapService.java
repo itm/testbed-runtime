@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
@@ -13,9 +14,7 @@ import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import java.net.MalformedURLException;
@@ -96,11 +95,7 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public void areNodesAlive(@WebParam(name = "requestId", targetNamespace = "") final long requestId,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<String> nodeUrns,
-							  @WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-							  String controllerEndpointUrl) {
-
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns, final String controllerEndpointUrl) {
 		sm.areNodesAlive(requestId, nodeUrns, controllerEndpointUrl);
 	}
 
