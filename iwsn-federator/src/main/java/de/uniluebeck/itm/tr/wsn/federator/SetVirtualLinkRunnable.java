@@ -37,7 +37,7 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 
 	private final NodeUrn targetNodeUrn;
 
-	private final String remoteServiceInstance;
+	private final String remoteWSNServiceEndpointUrl;
 
 	private final List<String> parameters;
 
@@ -49,7 +49,7 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 						   final long federatorRequestId,
 						   final NodeUrn sourceNodeUrn,
 						   final NodeUrn targetNodeUrn,
-						   final String remoteServiceInstance,
+						   final String remoteWSNServiceEndpointUrl,
 						   final List<String> parameters,
 						   final List<String> filters) {
 
@@ -57,7 +57,7 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 
 		this.sourceNodeUrn = sourceNodeUrn;
 		this.targetNodeUrn = targetNodeUrn;
-		this.remoteServiceInstance = remoteServiceInstance;
+		this.remoteWSNServiceEndpointUrl = remoteWSNServiceEndpointUrl;
 		this.parameters = parameters;
 		this.filters = filters;
 	}
@@ -65,7 +65,7 @@ class SetVirtualLinkRunnable extends AbstractRequestRunnable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
 		final VirtualLink virtualLink = new VirtualLink();
-		virtualLink.setRemoteServiceInstance(remoteServiceInstance);
+		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
 		virtualLink.setSourceNodeUrn(sourceNodeUrn);
 		virtualLink.setTargetNodeUrn(targetNodeUrn);
 		virtualLink.getParameters().addAll(parameters);

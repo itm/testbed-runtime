@@ -496,7 +496,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 				final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
 				final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
-				final String remoteServiceInstance = link.getRemoteServiceInstance();
+				final String remoteWSNServiceEndpointUrl = link.getRemoteWSNServiceEndpointUrl();
 
 				wsnApp.setVirtualLink(sourceNodeUrn, targetNodeUrn, new WSNApp.Callback() {
 
@@ -506,7 +506,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						deliveryManager.receiveStatus(convert(requestStatus, requestId));
 
 						if (requestStatus.getStatus().getValue() == 1) {
-							addVirtualLink(sourceNodeUrn, targetNodeUrn, remoteServiceInstance);
+							addVirtualLink(sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl);
 						}
 					}
 

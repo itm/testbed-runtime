@@ -115,19 +115,19 @@ public class WSNPreconditions {
 
 			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
 			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
-			final String remoteServiceInstance = link.getRemoteServiceInstance();
+			final String remoteWSNServiceEndpointUrl = link.getRemoteWSNServiceEndpointUrl();
 
 			checkNotNull(sourceNodeUrn);
 			checkNotNull(targetNodeUrn);
-			checkNotNull(remoteServiceInstance);
+			checkNotNull(remoteWSNServiceEndpointUrl);
 
 			commonPreconditions.checkNodesKnown(sourceNodeUrn);
 
 			try {
-				new URL(remoteServiceInstance);
+				new URL(remoteWSNServiceEndpointUrl);
 			} catch (MalformedURLException e) {
 				throw new IllegalArgumentException(
-						"The remoteServiceInstance argument (\"" + remoteServiceInstance + "\") is not a valid URL!"
+						"The remoteServiceInstance argument (\"" + remoteWSNServiceEndpointUrl + "\") is not a valid URL!"
 				);
 			}
 		}

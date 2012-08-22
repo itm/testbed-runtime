@@ -248,7 +248,7 @@ public class FederatorWSN implements WSN {
 
 			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
 			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
-			final String remoteServiceInstance = link.getRemoteServiceInstance();
+			final String remoteWSNServiceEndpointUrl = link.getRemoteWSNServiceEndpointUrl();
 			final List<String> parameters = link.getParameters();
 			final List<String> filters = link.getFilters();
 
@@ -256,7 +256,9 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug("Invoking setVirtualLink({}, {}, {}, {}, {}) on {}",
-					new Object[]{sourceNodeUrn, targetNodeUrn, remoteServiceInstance, parameters, filters, endpoint}
+					new Object[]{
+							sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
+					}
 			);
 
 			executorService.submit(new SetVirtualLinkRunnable(
@@ -266,7 +268,7 @@ public class FederatorWSN implements WSN {
 					requestId,
 					sourceNodeUrn,
 					targetNodeUrn,
-					remoteServiceInstance,
+					remoteWSNServiceEndpointUrl,
 					parameters,
 					filters
 			)
