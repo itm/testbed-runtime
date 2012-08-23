@@ -10,6 +10,7 @@ import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import java.net.MalformedURLException;
@@ -199,6 +200,11 @@ public class WSNSoapService extends AbstractService implements WSN, Service {
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		wsn.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);
+	}
+
+	@Override
+	public void setSerialPortParameters(final List<NodeUrn> nodeUrns, final SerialPortParameters parameters) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override

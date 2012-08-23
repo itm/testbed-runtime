@@ -35,6 +35,7 @@ import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.net.URI;
 import java.util.List;
@@ -495,6 +496,11 @@ public class FederatorWSN implements WSN {
 			)
 			);
 		}
+	}
+
+	@Override
+	public void setSerialPortParameters(final List<NodeUrn> nodeUrns, final SerialPortParameters parameters) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	private Map<WSN, List<NodeUrn>> constructEndpointToNodesMapping(final List<NodeUrn> nodeUrns) {
