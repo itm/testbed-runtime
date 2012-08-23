@@ -459,29 +459,7 @@
 		</extensions>
 	</build>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>onejar-maven-plugin-itm-patch</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<repositories>
-		<repository>
-			<id>google-maven-repository</id>
-			<name>Google Maven Repository</name>
-			<url>http://google-maven-repository.googlecode.com/svn/repository/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>itm-maven-repository-releases</id>
 			<url>http://maven.itm.uni-luebeck.de/content/repositories/releases/</url>
@@ -503,26 +481,6 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>repository.tu-bs.de</id>
-			<url>http://www.ibr.cs.tu-bs.de/maven/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven 2</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-		<repository>
 			<id>wisebed-maven-repository-releases</id>
 			<url>http://wisebed.eu/maven/releases/</url>
 			<releases>
@@ -540,6 +498,27 @@
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jboss-public</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven 2</name>
+			<url>http://download.java.net/maven/2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
