@@ -48,6 +48,7 @@ import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -603,6 +604,25 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 	}
 
+	@Override
+	public void getConfiguration(
+			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> rsEndpointUrl,
+			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "servedUrnPrefixes", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
+			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<KeyValuePair>> options) {
+
+		rsEndpointUrl.value = config.getFederatorRsEndpointURL().toString();
+		snaaEndpointUrl.value = config.getFederatorSnaaEndpointUrl().toString();
+		servedUrnPrefixes.value = newArrayList();
+		for (FederatorWSNTestbedConfig federatorWSNTestbedConfig : config.getFederates()) {
+			servedUrnPrefixes.value.addAll(federatorWSNTestbedConfig.getUrnPrefixes());
+		}
+	}
+
 	/**
 	 * Returns a {@link Map} that maps Session Management Endpoint URLs to the subset of node URNs of {@code nodeUrns} for
 	 * which each map entry is responsible.
@@ -648,15 +668,6 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
 
-	}
-
-	@Override
-	public void getConfiguration(final Holder<String> rsEndpointUrl,
-								 final Holder<String> snaaEndpointUrl,
-								 final Holder<List<KeyValuePair>> options) {
-
-		rsEndpointUrl.value = config.getFederatorRsEndpointURL().toString();
-		snaaEndpointUrl.value = config.getFederatorSnaaEndpointUrl().toString();
 	}
 
 	private URI createRandomWsnEndpointUrl() {

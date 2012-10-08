@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
@@ -14,6 +15,7 @@ import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
@@ -21,6 +23,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
 @WebService(
 		name = "SessionManagement",
@@ -100,9 +103,15 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 	}
 
 	@Override
-	public void getConfiguration(final Holder<String> rsEndpointUrl,
-								 final Holder<String> snaaEndpointUrl,
-								 final Holder<List<KeyValuePair>> options) {
+	public void getConfiguration(
+			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> rsEndpointUrl,
+			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "servedUrnPrefixes", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
+			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<KeyValuePair>> options) {
 
 		if (config.getReservationEndpointUrl() != null) {
 			rsEndpointUrl.value = config.getReservationEndpointUrl().toString();
@@ -115,6 +124,9 @@ public class SessionManagementSoapService extends AbstractService implements Ser
 		} else {
 			snaaEndpointUrl.value = "";
 		}
+
+		servedUrnPrefixes.value = newArrayList();
+		servedUrnPrefixes.value.add(config.getUrnPrefix());
 	}
 
 	@Override
