@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Injector;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -134,13 +135,23 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	@Deprecated
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
+
 		authorized.setAuthorized(true);
 		authorized.setMessage("ShibbolethSNAAImpl is used for authentication only and always return 'true'");
+
+		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
+			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
+				PerNodeUrnAuthorizationResponse perNodeUrnAuthorizationResponse = new PerNodeUrnAuthorizationResponse();
+				perNodeUrnAuthorizationResponse.setNodeUrn(nodeUrn);
+				perNodeUrnAuthorizationResponse.setAuthorized(true);
+				authorized.getPerNodeUrnAuthorizationResponses().add(perNodeUrnAuthorizationResponse);
+			}
+		}
+
 		return authorized;
 
 	}

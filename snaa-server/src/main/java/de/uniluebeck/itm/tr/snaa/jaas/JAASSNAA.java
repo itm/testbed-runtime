@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -137,14 +138,24 @@ public class JAASSNAA implements SNAA {
 	}
 
 	@Override
-	@Deprecated
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
+
 		authorized.setAuthorized(true);
 		authorized.setMessage("JAASSNAA is used for authentication only and always return 'true'");
+
+		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
+			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
+				PerNodeUrnAuthorizationResponse perNodeUrnAuthorizationResponse = new PerNodeUrnAuthorizationResponse();
+				perNodeUrnAuthorizationResponse.setNodeUrn(nodeUrn);
+				perNodeUrnAuthorizationResponse.setAuthorized(true);
+				authorized.getPerNodeUrnAuthorizationResponses().add(perNodeUrnAuthorizationResponse);
+			}
+		}
+
 		return authorized;
 	}
 

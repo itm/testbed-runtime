@@ -23,6 +23,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -155,16 +156,15 @@ public class SingleUrnPrefixRSTest {
 		crd.setFrom(DateTime.now().minusSeconds(1));
 		crd.setTo(DateTime.now().minusSeconds(1).plusHours(1));
 
-		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
-		successfulAuthorizationResponse.setAuthorized(true);
+		final AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+		authorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
 				convert(user1Saks),
 				Lists.<NodeUrn>newArrayList()
 		);
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
-				.thenReturn(successfulAuthorizationResponse);
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(authorizationResponse);
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
 		try {

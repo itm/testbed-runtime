@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.rs;
 
+import com.google.common.base.Objects;
 import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -8,17 +9,13 @@ import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.AuthorizationResponse;
+import eu.wisebed.api.v3.snaa.*;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
-import eu.wisebed.api.v3.snaa.SNAA;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -178,45 +175,59 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		if (requestedAction.equals(Action.RS_GET_RESERVATIONS)) {
 			AuthorizationResponse isAuthorized = checkRSGetReservationsAuthorization(secretAuthenticationKeys);
 			if (!isAuthorized.isAuthorized()) {
-				log.warn(
-						"The user was NOT authorized to perform the action \"" + requestedAction + "\".\r\n" + isAuthorized
-								.getMessage()
+
+				final String msg = String.format("The user was NOT authorized to perform the action \"%s:\" %s",
+						requestedAction,
+						isAuthorized.getMessage()
 				);
-				throw getAuthorizationFailedException(
-						"The user was NOT authorized to perform the action \"" + requestedAction + "\".\r\n"
-								+ isAuthorized.getMessage()
-				);
+				log.warn(msg);
+				throw createAuthorizationFailedException(msg);
 			}
 			return invocation.proceed();
 		}
 
 		if (requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 
-			AuthorizationResponse isAuthorized = checkMakeReservationAuthorization(
+			final List<PerNodeUrnAuthorizationResponse> authorizationResponses = isAuthorizedToMakeReservation(
 					usernamePrefixPairs,
 					requestedAction,
 					nodeURNs
 			);
 
-			if (!isAuthorized.isAuthorized()) {
-				log.warn(
-						"The user was NOT authorized to perform the action \"" + requestedAction + "\".\r\n" + isAuthorized
-								.getMessage()
-				);
-				throw getAuthorizationFailedException(
-						"The user was NOT authorized to perform the action \"" + requestedAction + "\".\r\n"
-								+ isAuthorized.getMessage()
-				);
+			boolean isAuthorized = true;
+			for (PerNodeUrnAuthorizationResponse authorizationResponse : authorizationResponses) {
+				isAuthorized = isAuthorized && authorizationResponse.isAuthorized();
 			}
 
-			log.debug("The user was authorized to perform the action \"" + requestedAction + "\".");
+			if (!isAuthorized) {
+				final String authorizationResponsesString = createAuthorizationResponsesString(authorizationResponses);
+				final String msg = String.format("The user was NOT authorized to perform the action \"%s\": %s",
+						requestedAction,
+						authorizationResponsesString
+				);
+				log.warn(msg);
+				throw createAuthorizationFailedException(msg);
+			}
+
+			log.debug("The user was authorized to perform the action \"{}\"", requestedAction);
 			return invocation.proceed();
 		}
 
-		throw getAuthorizationFailedException(
+		throw createAuthorizationFailedException(
 				"The requested Action '" + authorizationAnnotation.value() + "' is unknown."
 		);
+	}
 
+	private String createAuthorizationResponsesString(final List<PerNodeUrnAuthorizationResponse> authorizationResponses) {
+		final Objects.ToStringHelper toStringHelper = Objects.toStringHelper("");
+		for (PerNodeUrnAuthorizationResponse authorizationResponse : authorizationResponses) {
+			final String authorizationMsg = authorizationResponse.getMessage();
+			toStringHelper.add(
+					authorizationResponse.getNodeUrn().toString(),
+					authorizationResponse.isAuthorized() + (authorizationMsg != null ? " (" + authorizationMsg + ")" : "")
+			);
+		}
+		return toStringHelper.toString();
 	}
 
 	private AuthorizationResponse checkRSGetReservationsAuthorization(
@@ -260,21 +271,20 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @throws RSFault_Exception
 	 * 		Thrown if an exception is thrown in the reservation system
 	 */
-	@Nonnull
-	private AuthorizationResponse checkMakeReservationAuthorization(final List<UsernameUrnPrefixPair> upp,
-																	final Action action,
-																	final Collection<NodeUrn> nodeURNs)
+	private List<PerNodeUrnAuthorizationResponse> isAuthorizedToMakeReservation(final List<UsernameUrnPrefixPair> upp,
+												  final Action action,
+												  final Collection<NodeUrn> nodeURNs)
 			throws RSFault_Exception {
 
 		try {
 
 			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
-			AuthorizationResponse authorizationResponse = snaa.isAuthorized(mapList, action);
-			log.debug("Authorization result: " + authorizationResponse);
-			if (authorizationResponse == null) {
+			List<PerNodeUrnAuthorizationResponse> authorizationResponses = snaa.isAuthorized(mapList, action).getPerNodeUrnAuthorizationResponses();
+			log.debug("Authorization result: {}", authorizationResponses);
+			if (authorizationResponses == null) {
 				throw createRSFault("Authorization result was null");
 			}
-			return authorizationResponse;
+			return authorizationResponses;
 
 		} catch (SNAAFault_Exception e) {
 			throw createRSFault(e.getMessage());
@@ -298,9 +308,8 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * @param message
 	 * 		States the cause of the authorization failure.
 	 */
-	private RSFault_Exception getAuthorizationFailedException(final String message) {
+	private RSFault_Exception createAuthorizationFailedException(final String message) {
 		RSFault e = new RSFault();
-
 		String msg = "Authorization failed" + ((message != null && message.length() > 0) ? ": " + message : "");
 		e.setMessage(msg);
 		log.warn(msg, e);

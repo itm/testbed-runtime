@@ -263,6 +263,9 @@ public class FederatorSNAA implements SNAA {
 				AuthorizationResponse authorizationResponse = future.get();
 				response.setMessage(response.getMessage() + "; " + authorizationResponse.getMessage());
 				response.setAuthorized(response.isAuthorized() && authorizationResponse.isAuthorized());
+				response.getPerNodeUrnAuthorizationResponses().addAll(
+						authorizationResponse.getPerNodeUrnAuthorizationResponses()
+				);
 			} catch (InterruptedException e) {
 				throw createSNAAFault(e.getMessage());
 			} catch (ExecutionException e) {
