@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>tr</artifactId>
 		<groupId>de.uniluebeck.itm</groupId>
-		<version>0.10-SNAPSHOT</version>
+		<version>0.9-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
