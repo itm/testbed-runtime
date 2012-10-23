@@ -35,7 +35,7 @@ public interface UnreliableMessagingService extends Service {
 
 	public static final int PRIORITY_LOW = 2;
 
-	ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] msg, int priority);
+	ListenableFuture<Void> sendAsync(String from, Iterable<String> to, String msgType, byte[] msg, int priority);
 
 	ListenableFuture<Void> sendAsync(Messages.Msg message);
 }

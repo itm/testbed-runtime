@@ -27,7 +27,7 @@ option java_outer_classname = "Messages";
 
 message Msg {
 
-    required string to         = 1;
+    repeated string to         = 1;
     required string from       = 2;
     required string msgType    = 3;
     required uint32 priority   = 4;

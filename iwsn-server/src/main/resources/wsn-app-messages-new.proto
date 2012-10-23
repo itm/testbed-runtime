@@ -1,0 +1,217 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2012, Institute of Telematics, University of Luebeck                                                //
+// All rights reserved.                                                                                              //
+//                                                                                                                   //
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the  //
+// following conditions are met:                                                                                     //
+//                                                                                                                   //
+// - Redistributions of source code must retain the above copyright notice, this list of conditions and the following//
+//   disclaimer.                                                                                                     //
+// - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the       //
+//   following disclaimer in the documentation and/or other materials provided with the distribution.                //
+// - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or       //
+//   promote products derived from this software without specific prior written permission.                          //
+//                                                                                                                   //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,//
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE     //
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,        //
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE//
+// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF   //
+// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY  //
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package de.uniluebeck.itm.tr.iwsn.messages;
+
+option java_outer_classname = "Messages";
+option java_multiple_files = true;
+
+/////////////////////// REQUESTS /////////////////////// 
+
+message Link {
+	required string sourceNodeUrn = 1;
+	required string targetNodeUrn = 2;
+}
+
+message AreNodesAliveRequest {
+	repeated string nodeUrns = 1;
+}
+
+message AreNodesConnectedRequest {
+	repeated string nodeUrns = 1;
+}
+
+message FlashImageRequest {
+	repeated string nodeUrns = 1;
+	required bytes image     = 2;
+}
+
+message FlashDefaultImageRequest {
+	repeated string nodeUrns = 1;
+}
+
+message ResetNodesRequest {
+	repeated string nodeUrns = 1;
+}
+
+message SetVirtualLinksRequest {
+	repeated Link links = 1;
+}
+
+message DestroyVirtualLinksRequest {
+	repeated Link links = 1;
+}
+
+message DisableNodesRequest {
+	repeated string nodeUrns = 1;
+}
+
+message EnableNodesRequest {
+	repeated string nodeUrns = 1;
+}
+
+message DisablePhysicalLinksRequest {
+	repeated Link links = 1;
+}
+
+message EnablePhysicalLinksRequest {
+	repeated Link links = 1;
+}
+
+message SendDownstreamMessageRequest {
+	repeated string targetNodeUrns = 1;
+	required bytes  messageBytes   = 2;
+}
+
+message SetChannelPipelineRequest {
+	message ChannelHandlerConfiguration {
+		message KeyValuePair {
+			required string key = 1;
+			required string value = 2;
+		}
+		required string name = 1;
+		repeated KeyValuePair configuration = 2;
+	}
+	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
+}
+
+message SetDefaultChannelPipelineRequest {
+}
+
+message Request {
+
+	enum Type {
+		ARE_NODES_ALIVE              = 1;
+		ARE_NODES_CONNECTED          = 2;
+		DESTROY_VIRTUAL_LINK         = 3;
+		DISABLE_NODE                 = 4;
+		DISABLE_PHYSICAL_LINK        = 5;
+		ENABLE_NODE                  = 6;
+		ENABLE_PHYSICAL_LINK         = 7;
+		FLASH_DEFAULT_IMAGE          = 8;
+		FLASH_PROGRAMS               = 9;
+		RESET_NODES                  = 10;
+		SEND_DOWNSTREAM_MESSAGE      = 11;
+		SET_CHANNEL_PIPELINE         = 12;
+		SET_DEFAULT_CHANNEL_PIPELINE = 13;
+		SET_VIRTUAL_LINK             = 14;
+	}
+
+	required int64                            requestId                        = 1;
+	required Type                             type                             = 2;
+
+	optional AreNodesAliveRequest             areNodesAliveRequest             = 101;
+	optional AreNodesConnectedRequest         areNodesConnectedRequest         = 102;
+	optional DestroyVirtualLinksRequest       destroyVirtualLinksRequest       = 103;
+	optional DisableNodesRequest              disableNodesRequest              = 104;
+	optional DisablePhysicalLinksRequest      disablePhysicalLinksRequest      = 105;
+	optional EnableNodesRequest               enableNodesRequest               = 106;
+	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 107;
+	optional FlashDefaultImageRequest         flashDefaultImageRequest         = 108;
+	optional FlashImageRequest                flashImageRequest                = 109;
+	optional ResetNodesRequest                resetNodesRequest                = 110;
+	optional SendDownstreamMessageRequest     sendDownstreamMessageRequest     = 111;
+	optional SetChannelPipelineRequest        setChannelPipelineRequest        = 112;
+	optional SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest = 113;
+	optional SetVirtualLinksRequest           setVirtualLinksRequest           = 114;
+}
+
+message SingleNodeProgress {
+	required int64  requestId         = 1;
+	required string nodeUrn           = 2;
+	required uint32 progressInPercent = 3;
+}
+
+message SingleNodeResponse {
+	required int64  requestId    = 1;
+	required string nodeUrn      = 2;
+	optional int32  errorCode    = 3;
+	optional string errorMessage = 4;
+}
+
+/////////////////////// EVENTS /////////////////////// 
+
+message UpstreamMessageEvent {
+	required string sourceNodeUrn = 1;
+	required uint64 timestamp     = 2;
+	required bytes  messageBytes  = 3;
+}
+
+message DevicesAttachedEvent {
+	repeated string nodeUrns  = 1;
+	required uint64 timestamp = 2;
+}
+
+message DevicesDetachedEvent {
+	repeated string nodeUrns  = 1;
+	required uint64 timestamp = 2;
+}
+
+message NotificationEvent {
+	optional string nodeUrn   = 1;
+	required uint64 timestamp = 2;
+    required string message   = 3;
+}
+
+message Event {
+
+	enum Type {
+		UPSTREAM_MESSAGE   = 1;
+		DEVICES_ATTACHED   = 2;
+        DEVICES_DETACHED   = 3;
+		NOTIFICATION       = 4;
+	}
+
+	required int64                  eventId                = 1;
+	required Type                   type                   = 2;
+
+	optional UpstreamMessageEvent   upstreamMessageEvent   = 101;
+	optional DevicesAttachedEvent   devicesAttachedEvent   = 102;
+	optional DevicesDetachedEvent   devicesDetachedEvent   = 103;
+	optional NotificationEvent      notificationEvent      = 104;
+}
+
+message EventAck {
+	required int64 eventId = 1;
+}
+
+/////////////////////// MESSAGE ENVELOPE /////////////////////// 
+
+message Message {
+
+	enum Type {
+		REQUEST   = 1;
+		PROGRESS  = 2;
+		RESPONSE  = 3;
+		EVENT     = 4;
+		EVENT_ACK = 5;
+	}
+
+	required Type               type     = 1;
+
+	optional Request            request  = 101;
+	optional SingleNodeProgress progress = 102;
+	optional SingleNodeResponse response = 103;
+	optional Event              event    = 104;
+	optional EventAck           eventAck = 105;
+}

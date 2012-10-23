@@ -35,12 +35,17 @@ public final class Messages {
       return de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_overlay_messaging_Msg_fieldAccessorTable;
     }
     
-    // required string to = 1;
+    // repeated string to = 1;
     public static final int TO_FIELD_NUMBER = 1;
-    private boolean hasTo;
-    private java.lang.String to_ = "";
-    public boolean hasTo() { return hasTo; }
-    public java.lang.String getTo() { return to_; }
+    private java.util.List<java.lang.String> to_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getToList() {
+      return to_;
+    }
+    public int getToCount() { return to_.size(); }
+    public java.lang.String getTo(int index) {
+      return to_.get(index);
+    }
     
     // required string from = 2;
     public static final int FROM_FIELD_NUMBER = 2;
@@ -87,7 +92,6 @@ public final class Messages {
     private void initFields() {
     }
     public final boolean isInitialized() {
-      if (!hasTo) return false;
       if (!hasFrom) return false;
       if (!hasMsgType) return false;
       if (!hasPriority) return false;
@@ -97,8 +101,8 @@ public final class Messages {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasTo()) {
-        output.writeString(1, getTo());
+      for (java.lang.String element : getToList()) {
+        output.writeString(1, element);
       }
       if (hasFrom()) {
         output.writeString(2, getFrom());
@@ -127,9 +131,14 @@ public final class Messages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasTo()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getTo());
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getToList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getToList().size();
       }
       if (hasFrom()) {
         size += com.google.protobuf.CodedOutputStream
@@ -297,6 +306,10 @@ public final class Messages {
           throw new IllegalStateException(
             "build() has already been called on this Builder.");
         }
+        if (result.to_ != java.util.Collections.EMPTY_LIST) {
+          result.to_ =
+            java.util.Collections.unmodifiableList(result.to_);
+        }
         de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg returnMe = result;
         result = null;
         return returnMe;
@@ -313,8 +326,11 @@ public final class Messages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg other) {
         if (other == de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages.Msg.getDefaultInstance()) return this;
-        if (other.hasTo()) {
-          setTo(other.getTo());
+        if (!other.to_.isEmpty()) {
+          if (result.to_.isEmpty()) {
+            result.to_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.to_.addAll(other.to_);
         }
         if (other.hasFrom()) {
           setFrom(other.getFrom());
@@ -360,7 +376,7 @@ public final class Messages {
               break;
             }
             case 10: {
-              setTo(input.readString());
+              addTo(input.readString());
               break;
             }
             case 18: {
@@ -392,24 +408,43 @@ public final class Messages {
       }
       
       
-      // required string to = 1;
-      public boolean hasTo() {
-        return result.hasTo();
+      // repeated string to = 1;
+      public java.util.List<java.lang.String> getToList() {
+        return java.util.Collections.unmodifiableList(result.to_);
       }
-      public java.lang.String getTo() {
-        return result.getTo();
+      public int getToCount() {
+        return result.getToCount();
       }
-      public Builder setTo(java.lang.String value) {
+      public java.lang.String getTo(int index) {
+        return result.getTo(index);
+      }
+      public Builder setTo(int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  result.hasTo = true;
-        result.to_ = value;
+  result.to_.set(index, value);
+        return this;
+      }
+      public Builder addTo(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.to_.isEmpty()) {
+          result.to_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.to_.add(value);
+        return this;
+      }
+      public Builder addAllTo(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.to_.isEmpty()) {
+          result.to_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.to_);
         return this;
       }
       public Builder clearTo() {
-        result.hasTo = false;
-        result.to_ = getDefaultInstance().getTo();
+        result.to_ = java.util.Collections.emptyList();
         return this;
       }
       
@@ -1236,7 +1271,7 @@ public final class Messages {
     java.lang.String[] descriptorData = {
       "\n)src/main/resources/overlay-messages.pr" +
       "oto\022+de.uniluebeck.itm.tr.iwsn.overlay.m" +
-      "essaging\"w\n\003Msg\022\n\n\002to\030\001 \002(\t\022\014\n\004from\030\002 \002(" +
+      "essaging\"w\n\003Msg\022\n\n\002to\030\001 \003(\t\022\014\n\004from\030\002 \002(" +
       "\t\022\017\n\007msgType\030\003 \002(\t\022\020\n\010priority\030\004 \002(\r\022\017\n\007" +
       "payload\030\005 \001(\014\022\021\n\treplyWith\030\006 \001(\t\022\017\n\007repl" +
       "yTo\030\007 \001(\t\"J\n$SingleRequestMultipleRespon" +

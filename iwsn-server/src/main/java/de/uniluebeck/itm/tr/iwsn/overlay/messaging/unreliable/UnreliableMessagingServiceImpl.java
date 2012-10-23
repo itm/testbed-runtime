@@ -23,6 +23,8 @@
 
 package de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -133,9 +135,11 @@ class UnreliableMessagingServiceImpl extends AbstractService implements Unreliab
 				final Messages.Msg msg = messageCacheEntry.msg;
 
 				// try to get a connection
-				Connection connection = getConnection(msg);
+				Connection connection = getConnections(msg);
 
-				log.debug("UnreliableMessagingService.DispatcherRunnable.dispatchMessages(): got connection {}", connection);
+				log.debug("UnreliableMessagingService.DispatcherRunnable.dispatchMessages(): got connection {}",
+						connection
+				);
 
 				final String to = msg.getTo();
 
@@ -170,7 +174,7 @@ class UnreliableMessagingServiceImpl extends AbstractService implements Unreliab
 					// in case the remote host got e.g. restarted it may be that the current connection is
 					// broken. give it a second try here by creating a new connection and only assume sending
 					// failed if this doesn't work now
-					connection = getConnection(msg);
+					connection = getConnections(msg);
 
 					if (connection == null) {
 						String warningMsg = "No connection to " + to + ".";
@@ -208,31 +212,40 @@ class UnreliableMessagingServiceImpl extends AbstractService implements Unreliab
 
 		}
 
-		/**
-		 * Returns a connection to the next hop of the messages' recipient address.
-		 *
-		 * @param msg
-		 * 		the message containing the recipients' address
-		 *
-		 * @return a {@link Connection} object for the message {@code msg} or
-		 *         {@code null} if no connection can be established
-		 */
 		@Nullable
-		private Connection getConnection(Messages.Msg msg) {
+		private Multimap<Connection, String> getConnections(Messages.Msg msg) {
+
+			final HashMultimap<Connection, String> map = HashMultimap.create();
 
 			try {
 
-				return connectionService.getConnection(msg.getTo());
+				for (String recipient : msg.getToList()) {
+
+					boolean foundConnection = false;
+
+					final Connection connection = connectionService.getConnection(recipient);
+
+					if (connection != null) {
+						map.put(connection, recipient);
+						foundConnection = true;
+					}
+
+					if (!foundConnection) {
+						return null;
+					}
+				}
+
+				return map;
 
 			} catch (ConnectionInvalidAddressException e1) {
 				log.warn("Invalid address: {}. Dropping message: {}. Cause: {}",
-						new Object[]{e1.getAddress(), msg, e1}
+						e1.getAddress(), msg, e1
 				);
 			} catch (ConnectionTypeUnavailableException e1) {
 				return null;
 			} catch (IOException e1) {
 				log.warn("IOException while creating connection to: {}. Dropping message: {}. Cause: {}",
-						new Object[]{msg.getTo(), msg, e1}
+						msg.getToList(), msg, e1
 				);
 			}
 
@@ -269,7 +282,7 @@ class UnreliableMessagingServiceImpl extends AbstractService implements Unreliab
 	/**
 	 * A reference to the message cache. It is used to process messages
 	 * asynchronously. The calling thread of
-	 * {@link UnreliableMessagingService#sendAsync(String, String, String, byte[], int)}
+	 * {@link UnreliableMessagingService#sendAsync(String, Iterable, String, byte[], int)}
 	 * returns immediately after placing the message to be send into the message
 	 * cache. The dispatcher threads will later on pick up messages from the
 	 * cache and send them to the appropriate recipients.
@@ -316,11 +329,12 @@ class UnreliableMessagingServiceImpl extends AbstractService implements Unreliab
 	}
 
 	@Override
-	public ListenableFuture<Void> sendAsync(String from, String to, String msgType, byte[] payload, int priority) {
+	public ListenableFuture<Void> sendAsync(String from, Iterable<String> to, String msgType, byte[] payload,
+											int priority) {
 
 		Messages.Msg.Builder builder = Messages.Msg.newBuilder()
 				.setFrom(from)
-				.setTo(to)
+				.addAllTo(to)
 				.setMsgType(msgType)
 				.setPriority(priority);
 
