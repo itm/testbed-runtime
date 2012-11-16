@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.net.HostAndPort;
-import de.uniluebeck.itm.tr.iwsn.util.Log4JLevelOptionHandler;
+import de.uniluebeck.itm.tr.iwsn.config.Log4JLevelOptionHandler;
 import org.apache.log4j.Level;
 import org.kohsuke.args4j.Option;
 

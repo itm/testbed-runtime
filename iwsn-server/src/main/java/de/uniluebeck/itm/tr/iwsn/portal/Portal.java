@@ -6,7 +6,7 @@ import de.uniluebeck.itm.tr.util.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.ConfigHelper.parseConfigOrPrintHelpAndExit;
+import static de.uniluebeck.itm.tr.iwsn.config.ConfigHelper.parseConfigOrPrintHelpAndExit;
 
 public class Portal {
 
