@@ -3,8 +3,11 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
-import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GatewayModule extends AbstractModule {
 

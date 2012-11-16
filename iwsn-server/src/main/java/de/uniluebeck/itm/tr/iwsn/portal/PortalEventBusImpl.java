@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.gateway;
+package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.AbstractService;
@@ -9,14 +9,14 @@ import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 
-class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
+class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
-	private final GatewayConfig config;
+	private final PortalConfig config;
 
 	private final EventBus eventBus;
 
 	@Inject
-	GatewayEventBusImpl(final GatewayConfig config, final EventBus eventBus) {
+	public PortalEventBusImpl(final PortalConfig config, final EventBus eventBus) {
 		this.config = config;
 		this.eventBus = eventBus;
 	}
