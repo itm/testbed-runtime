@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsndeviceobserver;
+package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DeviceRequest {
+public class GatewayDeviceObserverRequest {
 
 
     private final DeviceType deviceType;
@@ -21,9 +21,9 @@ public class DeviceRequest {
     
     private DeviceInfo response;
 
-    public DeviceRequest(final DeviceType deviceType,
-                         @Nullable final MacAddress macAddress,
-                         @Nullable final String reference) {
+    public GatewayDeviceObserverRequest(final DeviceType deviceType,
+										@Nullable final MacAddress macAddress,
+										@Nullable final String reference) {
 
         checkNotNull(deviceType);
 

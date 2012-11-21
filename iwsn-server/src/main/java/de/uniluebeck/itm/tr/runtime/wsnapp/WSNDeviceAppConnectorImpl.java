@@ -37,12 +37,12 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceObserverRequest;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
-import de.uniluebeck.itm.tr.runtime.wsndeviceobserver.DeviceRequest;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
@@ -293,7 +293,8 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 				MacAddress macAddress = new MacAddress(StringUtils.getUrnSuffix(nodeUrn));
 				String nodeUSBChipID = configuration.getNodeUSBChipID();
 
-				DeviceRequest deviceRequest = new DeviceRequest(deviceType, macAddress, nodeUSBChipID);
+				GatewayDeviceObserverRequest
+						deviceRequest = new GatewayDeviceObserverRequest(deviceType, macAddress, nodeUSBChipID);
 
 				deviceObserverEventBus.post(deviceRequest);
 

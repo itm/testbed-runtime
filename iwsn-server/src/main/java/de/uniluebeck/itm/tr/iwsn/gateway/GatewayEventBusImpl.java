@@ -3,9 +3,6 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.messages.Event;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -32,19 +29,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 	}
 
 	@Override
-	public void post(final Event event) {
-		assertConnectedToPortal();
-		throw new RuntimeException("IMPLEMENT ME!");
-	}
-
-	@Override
-	public void post(final SingleNodeProgress progress) {
-		assertConnectedToPortal();
-		throw new RuntimeException("IMPLEMENT ME!");
-	}
-
-	@Override
-	public void post(final SingleNodeResponse response) {
+	public void post(final Object object) {
 		assertConnectedToPortal();
 		throw new RuntimeException("IMPLEMENT ME!");
 	}
