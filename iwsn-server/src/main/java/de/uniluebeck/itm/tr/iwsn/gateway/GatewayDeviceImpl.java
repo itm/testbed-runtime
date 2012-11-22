@@ -27,29 +27,24 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.util.*;
-import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
-import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -65,15 +60,14 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.io.Closeables.closeQuietly;
 import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
@@ -84,13 +78,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	private static final Logger log = LoggerFactory.getLogger(GatewayDevice.class);
 
-	private final ListenerManager<GatewayDevice.NodeOutputListener> listenerManager;
-
-	private final GatewayDeviceConfiguration configuration;
-
-	private final EventBus deviceObserverEventBus;
-
-	private final AsyncEventBus deviceObserverAsyncEventBus;
+	private final DeviceConfig deviceConfig;
 
 	private final RateLimiter maximumMessageRateLimiter;
 
@@ -111,11 +99,6 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	 */
 	private ExecutorService nodeApiExecutor;
 
-	/**
-	 * A scheduler that is used by the device drivers to schedule operations and communications with the device.
-	 */
-	private ExecutorService deviceDriverExecutorService;
-
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
 	private final HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
@@ -129,7 +112,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 				if (log.isDebugEnabled()) {
 					log.debug(
 							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
-							configuration.getNodeUrn(),
+							deviceConfig.getNodeUrn(),
 							toPrintableString(packet.array(), 200)
 					);
 				}
@@ -147,49 +130,36 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		}
 	};
 
-	private Device device;
+	private final Device device;
 
 	private final Lock deviceLock = new ReentrantLock();
-
-	private ScheduledFuture<?> assureConnectivityRunnableSchedule;
 
 	private final AbovePipelineLogger abovePipelineLogger;
 
 	private final BelowPipelineLogger belowPipelineLogger;
 
-	private ScheduledExecutorService assureConnectivityScheduler;
-
-	@Nonnull
-	private final DeviceFactory deviceFactory;
+	private final GatewayEventBus gatewayEventBus;
 
 	@Inject
-	public GatewayDeviceImpl(@Assisted @Nonnull final GatewayDeviceConfiguration configuration,
-							 @Assisted @Nonnull final DeviceFactory deviceFactory,
-							 @Assisted @Nonnull final EventBus deviceObserverEventBus,
-							 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus,
-							 @Nonnull ListenerManager<NodeOutputListener> listenerManager) {
+	public GatewayDeviceImpl(@Assisted final DeviceConfig deviceConfig,
+							 @Assisted final Device device,
+							 final GatewayEventBus gatewayEventBus) {
 
-		checkNotNull(configuration);
-		checkNotNull(deviceFactory);
-		checkNotNull(deviceObserverEventBus);
-		checkNotNull(deviceObserverAsyncEventBus);
-		checkNotNull(listenerManager);
+		this.deviceConfig = checkNotNull(deviceConfig);
+		this.device = checkNotNull(device);
+		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 
-		this.configuration = configuration;
-		this.deviceFactory = deviceFactory;
-		this.deviceObserverEventBus = deviceObserverEventBus;
-		this.deviceObserverAsyncEventBus = deviceObserverAsyncEventBus;
-		this.listenerManager = listenerManager;
+		checkState(device.isConnected());
 
 		this.nodeApi = new NodeApi(
-				configuration.getNodeUrn(),
+				deviceConfig.getNodeUrn(),
 				nodeApiDeviceAdapter,
-				configuration.getTimeoutNodeApiMillis(),
+				deviceConfig.getTimeoutNodeApiMillis(),
 				TimeUnit.MILLISECONDS
 		);
 
 		this.maximumMessageRateLimiter = new RateLimiterImpl(
-				configuration.getMaximumMessageRate(),
+				deviceConfig.getMaximumMessageRate(),
 				1,
 				TimeUnit.SECONDS
 		);
@@ -200,139 +170,48 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			throw new RuntimeException(e);
 		}
 
-		abovePipelineLogger = new AbovePipelineLogger(this.configuration.getNodeUrn());
-		belowPipelineLogger = new BelowPipelineLogger(this.configuration.getNodeUrn());
+		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn());
+		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn());
 	}
 
-	@Subscribe
-	public synchronized void onDeviceObserverEvent(DeviceEvent deviceEvent) {
+	private void sendNotification(final String nodeUrn, final String msg) {
 
-		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
-		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
+		final NotificationEvent notificationEvent = NotificationEvent.newBuilder()
+				.setNodeUrn(nodeUrn)
+				.setMessage(msg)
+				.setTimestamp(new DateTime().getMillis())
+				.build();
 
-		final MacAddress macAddress = deviceEvent.getDeviceInfo().getMacAddress();
-		boolean eventHasSameMac = nodeMacAddress.equals(macAddress);
-		final String nodeUSBChipID = configuration.getNodeUSBChipID();
-		boolean eventHasSameUSBChipId = nodeUSBChipID != null &&
-				nodeUSBChipID.equals(deviceEvent.getDeviceInfo().getReference());
-
-		if (eventHasSameMac || eventHasSameUSBChipId) {
-
-			log.info("{} => Received {}", configuration.getNodeUrn(), deviceEvent);
-
-			switch (deviceEvent.getType()) {
-				case ATTACHED:
-					if (!isConnected()) {
-						tryToConnect(
-								deviceEvent.getDeviceInfo().getType(),
-								deviceEvent.getDeviceInfo().getPort(),
-								configuration.getNodeConfiguration()
-						);
-					}
-					break;
-				case REMOVED:
-					sendNotification(configuration.getNodeUrn(),
-							"Device " + configuration.getNodeUrn() + " was detached from the gateway."
-					);
-					disconnect();
-					break;
-			}
-		}
-
+		gatewayEventBus.post(notificationEvent);
 	}
-
-	private void sendNotification(@Nullable final String nodeUrn, final String msg) {
-		for (NodeOutputListener listener : listenerManager.getListeners()) {
-			listener.receiveNotification(nodeUrn, new DateTime(), msg);
-		}
-	}
-
-	private final Runnable assureConnectivityRunnable = new Runnable() {
-		@Override
-		public void run() {
-
-			if (isConnected()) {
-				return;
-			}
-
-			String nodeType = configuration.getNodeType();
-			String nodeSerialInterface = configuration.getNodeSerialInterface();
-			String nodeUrn = configuration.getNodeUrn();
-			Map<String, String> nodeConfiguration = configuration.getNodeConfiguration();
-
-			boolean isMockDevice = DeviceType.MOCK.toString().equalsIgnoreCase(nodeType);
-			boolean hasSerialInterface = nodeSerialInterface != null;
-
-			if (isMockDevice || hasSerialInterface) {
-
-				if (!tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
-					log.warn("{} => Unable to connect to {} device at {}. Retrying in 30 seconds.",
-							nodeUrn, nodeType, nodeSerialInterface
-					);
-				}
-
-			} else {
-
-				DeviceType deviceType = DeviceType.fromString(nodeType);
-				MacAddress macAddress = new MacAddress(StringUtils.getUrnSuffix(nodeUrn));
-				String nodeUSBChipID = configuration.getNodeUSBChipID();
-
-				GatewayDeviceObserverRequest
-						deviceRequest = new GatewayDeviceObserverRequest(deviceType, macAddress, nodeUSBChipID);
-
-				deviceObserverEventBus.post(deviceRequest);
-
-				if (deviceRequest.getResponse() != null && deviceRequest.getResponse().getMacAddress() != null) {
-					try {
-						tryToConnect(
-								deviceRequest.getResponse().getType(),
-								deviceRequest.getResponse().getPort(),
-								configuration.getNodeConfiguration()
-						);
-					} catch (Exception e) {
-						log.warn("{} => {}. Retrying in 30 seconds at the same serial interface.",
-								configuration.getNodeUrn(),
-								e.getMessage()
-						);
-					}
-				} else {
-					log.warn("{} => Could not retrieve serial interface from device observer for device. Retrying "
-							+ "again in 30 seconds.",
-							configuration.getNodeUrn()
-					);
-				}
-			}
-		}
-	};
 
 	@Override
 	protected void doStart() {
 
 		try {
 
-			log.debug("{} => Starting {} device connector", configuration.getNodeUrn(), configuration.getNodeType());
+			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
 
-			deviceObserverEventBus.register(this);
-			deviceObserverAsyncEventBus.register(this);
+			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
+			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+				@Override
+				public ChannelPipeline getPipeline() throws Exception {
+					return setPipeline(pipeline(), createPipelineHandlers(createDefaultInnerPipelineHandlers()));
+				}
+			}
+			);
+
+			final IOStreamAddress address = new IOStreamAddress(device.getInputStream(), device.getOutputStream());
+			final ChannelFuture connectFuture = bootstrap.connect(address);
+
+			try {
+				deviceChannel = connectFuture.await().getChannel();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 
 			nodeApiExecutor = Executors.newCachedThreadPool();
 			nodeApi.start();
-
-			deviceDriverExecutorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
-					.setNameFormat("[" + configuration.getNodeUrn() + "]-Driver %d")
-					.build()
-			);
-
-			assureConnectivityScheduler = Executors.newScheduledThreadPool(1,
-					new ThreadFactoryBuilder().setNameFormat("[" + configuration.getNodeUrn() + "]-Connectivity %d")
-							.build()
-			);
-
-			assureConnectivityRunnableSchedule = assureConnectivityScheduler.scheduleAtFixedRate(
-					assureConnectivityRunnable, 30, 30, TimeUnit.SECONDS
-			);
-
-			assureConnectivityRunnable.run();
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -346,19 +225,12 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		try {
 
-			log.debug("{} => Shutting down {} device connector", configuration.getNodeUrn(),
-					configuration.getNodeType()
+			log.debug("{} => Shutting down {} device connector",
+					deviceConfig.getNodeUrn(),
+					deviceConfig.getNodeType()
 			);
 
-			assureConnectivityRunnableSchedule.cancel(false);
-			ExecutorUtils.shutdown(assureConnectivityScheduler, 1, TimeUnit.SECONDS);
-
-			deviceObserverAsyncEventBus.unregister(this);
-			deviceObserverEventBus.unregister(this);
-
-			disconnect();
-			ExecutorUtils.shutdown(deviceDriverExecutorService, 1, TimeUnit.SECONDS);
-
+			shutdownDeviceChannel();
 			nodeApi.stop();
 			ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
 
@@ -369,22 +241,10 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		notifyStopped();
 	}
 
-	private void disconnect() {
-		deviceLock.lock();
-		try {
-			shutdownDeviceChannel();
-			closeQuietly(device);
-			device = null;
-			deviceChannel = null;
-		} finally {
-			deviceLock.unlock();
-		}
-	}
-
 	@Override
 	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.destroyVirtualLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.destroyVirtualLink()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -403,7 +263,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void disableNode(final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.disableNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.disableNode()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -422,7 +282,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void disablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -441,7 +301,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void enableNode(final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.enableNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.enableNode()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -459,7 +319,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void enablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.enablePhysicalLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.enablePhysicalLink()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -478,14 +338,14 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	public void flashProgram(final byte[] binaryImage,
 							 final FlashProgramCallback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.executeFlashPrograms()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.executeFlashPrograms()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 
 			if (flashOperationRunningOrEnqueued) {
 
 				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
-				log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+				log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 				listener.failure((byte) -1, msg.getBytes());
 
 			} else {
@@ -494,7 +354,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 				deviceLock.lock();
 				try {
-					device.program(binaryImage, configuration.getTimeoutFlashMillis(),
+					device.program(binaryImage, deviceConfig.getTimeoutFlashMillis(),
 							new OperationAdapter<Void>() {
 
 								private int lastProgress = -1;
@@ -510,7 +370,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 								public void onCancel() {
 
 									String msg = "Flash operation was canceled.";
-									log.error("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+									log.error("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
 									listener.failure((byte) -1, msg.getBytes());
 								}
@@ -526,7 +386,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 										msg = "Failed flashing node. Reason: " + throwable;
 									}
 
-									log.warn("{} => flashProgram: {}", configuration.getNodeUrn(), msg);
+									log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
 									listener.failure((byte) -3, msg.getBytes());
 								}
@@ -539,7 +399,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 									if (newProgress > lastProgress) {
 
 										log.debug("{} => Flashing progress: {}%.",
-												configuration.getNodeUrn(),
+												deviceConfig.getNodeUrn(),
 												newProgress
 										);
 										listener.progress(fraction);
@@ -550,7 +410,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 								@Override
 								public void onSuccess(final Void result) {
 
-									log.debug("{} => Done flashing node.", configuration.getNodeUrn());
+									log.debug("{} => Done flashing node.", deviceConfig.getNodeUrn());
 									flashOperationRunningOrEnqueued = false;
 									listener.success(null);
 								}
@@ -564,7 +424,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		} else {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
-			log.warn("{} => {}", configuration.getNodeUrn(), msg);
+			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
 			listener.failure((byte) -2, msg.getBytes());
 		}
 
@@ -573,13 +433,13 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.isNodeAlive()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.isNodeAlive()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 
 			deviceLock.lock();
 			try {
-				device.isNodeAlive(configuration.getTimeoutCheckAliveMillis(), new OperationAdapter<Boolean>() {
+				device.isNodeAlive(deviceConfig.getTimeoutCheckAliveMillis(), new OperationAdapter<Boolean>() {
 
 					@Override
 					public void onExecute() {
@@ -588,7 +448,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 					@Override
 					public void onSuccess(final Boolean result) {
-						log.debug("{} => Done checking node alive (result={}).", configuration.getNodeUrn(), result);
+						log.debug("{} => Done checking node alive (result={}).", deviceConfig.getNodeUrn(), result);
 						listener.success(null);
 					}
 
@@ -600,7 +460,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed checking if node is alive. Reason: " + throwable;
-						log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
+						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
 						listener.failure((byte) -1, msg.getBytes());
 					}
 				}
@@ -612,7 +472,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		} else {
 
 			String msg = "Failed checking if node is alive. Reason: Device is not connected.";
-			log.warn("{} => {}", configuration.getNodeUrn(), msg);
+			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
 			listener.failure((byte) 0, msg.getBytes());
 		}
 	}
@@ -620,7 +480,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void isNodeAliveSm(final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.isNodeAliveSm()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.isNodeAliveSm()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			listener.success(null);
@@ -632,13 +492,13 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void resetNode(final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.resetNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.resetNode()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 
 			deviceLock.lock();
 			try {
-				device.reset(configuration.getTimeoutResetMillis(), new OperationAdapter<Void>() {
+				device.reset(deviceConfig.getTimeoutResetMillis(), new OperationAdapter<Void>() {
 
 					@Override
 					public void onExecute() {
@@ -647,7 +507,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 					@Override
 					public void onSuccess(final Void result) {
-						log.debug("{} => Done resetting node.", configuration.getNodeUrn());
+						log.debug("{} => Done resetting node.", deviceConfig.getNodeUrn());
 						listener.success(null);
 					}
 
@@ -659,7 +519,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed resetting node. Reason: " + throwable;
-						log.warn("{} => resetNode(): {}", configuration.getNodeUrn(), msg);
+						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
 						listener.failure((byte) -1, msg.getBytes());
 					}
 				}
@@ -671,7 +531,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		} else {
 
 			String msg = "Failed resetting node. Reason: Device is not connected.";
-			log.warn("{} => {}", configuration.getNodeUrn(), msg);
+			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
 			listener.failure((byte) 0, msg.getBytes());
 		}
 
@@ -680,7 +540,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void sendMessage(final byte[] messageBytes, final Callback callback) {
 
-		log.debug("{} => GatewayDeviceImpl.sendMessage()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.sendMessage()", deviceConfig.getNodeUrn());
 
 		if (!isConnected()) {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
@@ -691,7 +551,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		if (log.isDebugEnabled()) {
 			log.debug("{} => Delivering message: ",
-					configuration.getNodeUrn(),
+					deviceConfig.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
 		}
@@ -708,14 +568,14 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 				} else if (future.isCancelled()) {
 
 					String msg = "Sending message was canceled.";
-					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
 					callback.failure((byte) -3, msg.getBytes());
 
 				} else {
 
 					@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 					String msg = "Failed sending message. Reason: " + future.getCause();
-					log.warn("{} => sendMessage(): {}", configuration.getNodeUrn(), msg);
+					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
 					callback.failure((byte) -2, msg.getBytes());
 				}
 			}
@@ -731,7 +591,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
 			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
-			log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
+			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
 
 			if (callback != null) {
 				callback.success(null);
@@ -760,21 +620,21 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 			try {
 
-				log.debug("{} => Setting channel pipeline using configuration: {}", configuration.getNodeUrn(),
+				log.debug("{} => Setting channel pipeline using configuration: {}", deviceConfig.getNodeUrn(),
 						channelHandlerConfigurations
 				);
 
 				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigurations);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
-				log.debug("{} => Channel pipeline now set to: {}", configuration.getNodeUrn(), innerPipelineHandlers);
+				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
 
 				callback.success(null);
 
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
-						configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
+						deviceConfig.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
 				);
 
 				callback.failure(
@@ -782,7 +642,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
 				);
 
-				log.warn("{} => Resetting channel pipeline to default pipeline.", configuration.getNodeUrn());
+				log.warn("{} => Resetting channel pipeline to default pipeline.", deviceConfig.getNodeUrn());
 
 				setDefaultChannelPipeline(null);
 			}
@@ -818,7 +678,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
 				throws Exception {
 
-			log.warn("{} => Exception in pipeline: {}", configuration.getNodeUrn(), e);
+			log.warn("{} => Exception in pipeline: {}", deviceConfig.getNodeUrn(), e);
 
 			@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 			String notification = "The pipeline seems to be wrongly configured. A(n) " +
@@ -829,74 +689,6 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			sendPipelineMisconfigurationIfNotificationRateAllows(notification);
 		}
 	};
-
-	private boolean tryToConnect(String deviceType, String deviceSerialInterface,
-								 @Nullable Map<String, String> deviceConfiguration) {
-
-		deviceLock.lock();
-
-		try {
-
-			try {
-				device = deviceFactory.create(deviceDriverExecutorService, deviceType, deviceConfiguration);
-			} catch (Exception e) {
-				log.error("{}", e);
-				throw new RuntimeException(e);
-			}
-
-			try {
-
-				device.connect(deviceSerialInterface);
-
-			} catch (Exception e) {
-				log.warn("{} => Could not connect to {} device at {}.",
-						configuration.getNodeUrn(), deviceType, deviceSerialInterface
-				);
-				return false;
-			}
-
-			if (!device.isConnected()) {
-				log.warn("{} => Could not connect to {} device at {}.",
-						configuration.getNodeUrn(), deviceType, deviceSerialInterface
-				);
-				return false;
-			}
-
-			log.info("{} => Successfully connected to {} device on serial port {}",
-					configuration.getNodeUrn(), deviceType, deviceSerialInterface
-			);
-
-			sendNotification(
-					configuration.getNodeUrn(),
-					"Device " + configuration.getNodeUrn() + " was attached to the gateway."
-			);
-
-			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
-			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-				@Override
-				public ChannelPipeline getPipeline() throws Exception {
-					return setPipeline(pipeline(), createPipelineHandlers(createDefaultInnerPipelineHandlers()));
-				}
-			}
-			);
-
-			final ChannelFuture connectFuture = bootstrap.connect(
-					new IOStreamAddress(device.getInputStream(), device.getOutputStream())
-			);
-
-			try {
-				deviceChannel = connectFuture.await().getChannel();
-			} catch (InterruptedException e) {
-				throw new RuntimeException();
-			}
-
-			return true;
-
-		} finally {
-			deviceLock.unlock();
-		}
-
-	}
 
 	@VisibleForTesting
 	void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
@@ -912,7 +704,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		if (log.isTraceEnabled()) {
 			log.trace("{} => GatewayDeviceImpl.onBytesReceivedFromDevice: {}",
-					configuration.getNodeUrn(),
+					deviceConfig.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
 		}
@@ -921,9 +713,14 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		byte[] bytes = new byte[buffer.readableBytes()];
 		buffer.getBytes(0, bytes);
 
-		for (NodeOutputListener listener : listenerManager.getListeners()) {
-			listener.receivedPacket(bytes);
-		}
+		final de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent event =
+				de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder()
+						.setMessageBytes(ByteString.copyFrom(bytes))
+						.setSourceNodeUrn(deviceConfig.getNodeUrn())
+						.setTimestamp(new DateTime().getMillis())
+						.build();
+
+		gatewayEventBus.post(event);
 
 		// additionally pass to Node API in case it awaits a response
 		boolean isWiselibUpstream =
@@ -945,7 +742,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 			if (isConsumedByNodeApi && log.isDebugEnabled()) {
 				log.debug("{} => Received WISELIB_UPSTREAM packet with content: {}",
-						configuration.getNodeUrn(),
+						deviceConfig.getNodeUrn(),
 						ChannelBufferTools.toPrintableString(buffer, 200)
 				);
 			}
@@ -954,13 +751,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	}
 
 	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
-
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-
-			for (NodeOutputListener listener : listenerManager.getListeners()) {
-				listener.receiveNotification(configuration.getNodeUrn(), new DateTime(), notification);
-			}
-
+			sendNotification(deviceConfig.getNodeUrn(), notification);
 			pipelineMisconfigurationTimeDiff.touch();
 		}
 	}
@@ -972,14 +764,12 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		if (packetsDroppedTimeDiff.isTimeout()) {
 
 			String notification =
-					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + configuration.getNodeUrn() +
+					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + deviceConfig.getNodeUrn() +
 							" in the last " + packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes "
 							+ "more packets to the serial interface per second than allowed (" +
-							configuration.getMaximumMessageRate() + " per second).";
+							deviceConfig.getMaximumMessageRate() + " per second).";
 
-			for (NodeOutputListener listener : listenerManager.getListeners()) {
-				listener.receiveNotification(configuration.getNodeUrn(), new DateTime(), notification);
-			}
+			sendNotification(deviceConfig.getNodeUrn(), notification);
 
 			packetsDroppedSinceLastNotification = 0;
 			packetsDroppedTimeDiff.touch();
@@ -1016,7 +806,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlers() {
 
 		boolean defaultChannelPipelineConfigurationFileExists =
-				configuration.getDefaultChannelPipelineConfigurationFile() != null;
+				deviceConfig.getDefaultChannelPipelineConfigurationFile() != null;
 
 		return defaultChannelPipelineConfigurationFileExists ?
 				createDefaultInnerPipelineHandlersFromConfigurationFile() :
@@ -1026,13 +816,13 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlersFromConfigurationFile() {
 
 		try {
-			return handlerFactoryRegistry.create(configuration.getDefaultChannelPipelineConfigurationFile());
+			return handlerFactoryRegistry.create(deviceConfig.getDefaultChannelPipelineConfigurationFile());
 		} catch (Exception e) {
 			log.warn(
 					"Exception while creating default channel pipeline from configuration file ({}). "
 							+ "Using empty pipeline as default pipeline. "
 							+ "Error message: {}. Stack trace: {}",
-					configuration.getDefaultChannelPipelineConfigurationFile(),
+					deviceConfig.getDefaultChannelPipelineConfigurationFile(),
 					e.getMessage(),
 					Throwables.getStackTraceAsString(e)
 			);
@@ -1043,7 +833,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public void setVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => GatewayDeviceImpl.setVirtualLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.setVirtualLink()", deviceConfig.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -1059,15 +849,11 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	}
 
 	private void shutdownDeviceChannel() {
-
 		if (deviceChannel != null && deviceChannel.isConnected()) {
-
 			try {
-
 				deviceChannel.close().await();
-
 			} catch (Exception e) {
-				log.warn("{} => Exception while closing DeviceConnection!", configuration.getNodeUrn(), e);
+				log.warn("{} => Exception while closing DeviceConnection!", deviceConfig.getNodeUrn(), e);
 			}
 		}
 	}
@@ -1084,11 +870,11 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			}
 
 		} catch (InterruptedException e) {
-			log.error("{} => InterruptedException while reading Node API call result.", configuration.getNodeUrn());
+			log.error("{} => InterruptedException while reading Node API call result.", deviceConfig.getNodeUrn());
 			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
 		} catch (ExecutionException e) {
 			if (e.getCause() instanceof TimeoutException) {
-				log.debug("{} => Call to Node API timed out.", configuration.getNodeUrn());
+				log.debug("{} => Call to Node API timed out.", deviceConfig.getNodeUrn());
 				listener.timeout();
 			} else {
 				log.error("" + e, e);
@@ -1104,15 +890,5 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		} finally {
 			deviceLock.unlock();
 		}
-	}
-
-	@Override
-	public void addListener(final NodeOutputListener listener) {
-		listenerManager.addListener(listener);
-	}
-
-	@Override
-	public void removeListener(final NodeOutputListener listener) {
-		listenerManager.removeListener(listener);
 	}
 }

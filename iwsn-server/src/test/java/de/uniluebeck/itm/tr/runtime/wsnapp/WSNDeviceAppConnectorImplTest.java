@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.WSNDeviceAppConnectorImpl;
 import de.uniluebeck.itm.tr.util.ListenerManager;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
@@ -27,7 +27,7 @@ public class WSNDeviceAppConnectorImplTest {
 	private WSNDeviceAppConnectorImpl connector;
 
 	@Mock
-	private GatewayDeviceConfiguration configuration;
+	private DeviceConfig deviceConfig;
 
 	@Mock
 	private DeviceFactory deviceFactory;
@@ -47,13 +47,13 @@ public class WSNDeviceAppConnectorImplTest {
 	@Before
 	public void setUp() throws Exception {
 
-		when(configuration.getNodeUrn()).thenReturn("urn:local:0x1234");
-		when(configuration.getTimeoutNodeApiMillis()).thenReturn(100);
-		when(configuration.getMaximumMessageRate()).thenReturn(Integer.MAX_VALUE);
+		when(deviceConfig.getNodeUrn()).thenReturn("urn:local:0x1234");
+		when(deviceConfig.getTimeoutNodeApiMillis()).thenReturn(100);
+		when(deviceConfig.getMaximumMessageRate()).thenReturn(Integer.MAX_VALUE);
 		when(listenerManager.getListeners()).thenReturn(ImmutableList.of(listener));
 
 		connector = new WSNDeviceAppConnectorImpl(
-				configuration,
+				deviceConfig,
 				deviceFactory,
 				deviceObserverEventBus,
 				deviceObserverAsyncEventBus,

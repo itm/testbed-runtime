@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.gateway;
+package de.uniluebeck.itm.tr.iwsn.devicedb;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class GatewayDeviceConfiguration {
+public class DeviceConfig {
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
 
@@ -49,7 +49,7 @@ public class GatewayDeviceConfiguration {
 	@Nullable
 	private final Integer timeoutCheckAliveMillis;
 
-	public GatewayDeviceConfiguration(
+	public DeviceConfig(
 			final String nodeUrn,
 			final String nodeType,
 			@Nullable final String nodeSerialInterface,

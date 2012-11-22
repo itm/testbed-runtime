@@ -31,8 +31,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
@@ -63,7 +63,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 	private final GatewayDeviceFactory gatewayDeviceFactory;
 
-	private final GatewayDeviceConfiguration gatewayDeviceConfiguration;
+	private final DeviceConfig deviceConfig;
 
 	@Nonnull
 	private final DeviceFactory deviceFactory;
@@ -284,14 +284,14 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							@Assisted @Nonnull final DeviceFactory deviceFactory,
 							@Assisted @Nonnull final WSNDeviceAppConfiguration wsnDeviceAppConfiguration,
 							@Assisted @Nonnull
-							final GatewayDeviceConfiguration gatewayDeviceConfiguration,
+							final DeviceConfig deviceConfig,
 							@Nonnull final GatewayDeviceFactory gatewayDeviceFactory) {
 
 		this.testbedRuntime = checkNotNull(testbedRuntime);
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.wsnDeviceAppConfiguration = checkNotNull(wsnDeviceAppConfiguration);
 		this.gatewayDeviceFactory = checkNotNull(gatewayDeviceFactory);
-		this.gatewayDeviceConfiguration = checkNotNull(gatewayDeviceConfiguration);
+		this.deviceConfig = checkNotNull(deviceConfig);
 	}
 
 	/**
@@ -648,7 +648,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 			// connect to device
 			connector = gatewayDeviceFactory.create(
-					gatewayDeviceConfiguration,
+					deviceConfig,
 					deviceFactory,
 					testbedRuntime.getEventBus(),
 					testbedRuntime.getAsyncEventBus()

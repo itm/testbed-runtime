@@ -25,22 +25,12 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
-import de.uniluebeck.itm.tr.util.Listenable;
 import de.uniluebeck.itm.tr.util.Tuple;
-import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface GatewayDevice extends Listenable<GatewayDevice.NodeOutputListener>, Service {
-
-	public static interface NodeOutputListener {
-
-		void receivedPacket(byte[] bytes);
-
-		void receiveNotification(@Nullable String nodeUrn, DateTime timestamp, String msg);
-
-	}
+public interface GatewayDevice extends Service {
 
 	public static interface Callback {
 

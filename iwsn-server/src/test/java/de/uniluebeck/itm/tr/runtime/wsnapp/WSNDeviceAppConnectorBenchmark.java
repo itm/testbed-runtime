@@ -7,8 +7,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
@@ -76,7 +76,7 @@ public class WSNDeviceAppConnectorBenchmark {
 	@Before
 	public void setUp() throws Exception {
 
-		final GatewayDeviceConfiguration connectorConfiguration = new GatewayDeviceConfiguration(
+		final DeviceConfig deviceConfig = new DeviceConfig(
 				NODE_URN,
 				DeviceType.ISENSE.toString(),
 				"/dev/tty.usbserial-001213FD",
@@ -94,7 +94,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		final GatewayDeviceFactory factory = injector.getInstance(GatewayDeviceFactory.class);
 		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
-		connector = factory.create(connectorConfiguration, deviceFactory, eventBus, asyncEventBus);
+		connector = factory.create(deviceConfig, deviceFactory, eventBus, asyncEventBus);
 		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
 		connector.startAndWait();
 
