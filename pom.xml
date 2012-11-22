@@ -35,7 +35,6 @@
 	<modules>
 
 		<module>iwsn-common</module>
-        <module>iwsn-csv2config</module>
         <module>iwsn-federator</module>
         <module>iwsn-server</module>
 		<module>rs-server</module>
@@ -328,11 +327,6 @@
 				<groupId>jtidy</groupId>
 				<artifactId>jtidy</artifactId>
 				<version>4aug2000r7-dev</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.opencsv</groupId>
-				<artifactId>opencsv</artifactId>
-				<version>2.0</version>
 			</dependency>
 
 			<!-- Servlet API -->
