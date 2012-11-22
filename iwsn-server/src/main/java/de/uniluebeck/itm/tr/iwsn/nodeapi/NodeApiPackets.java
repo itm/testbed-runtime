@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import static com.google.common.base.Preconditions.checkArgument;
 
 
-public class Packets {
+class NodeApiPackets {
 
 	public static class Interaction {
 
@@ -37,7 +37,6 @@ public class Packets {
 		 * single virtual ID or the reserved broadcast ID. The RSSI and LQI values are simulated in an earlier step or set
 		 * default to 0.
 		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId   the request ID
 		 * @param RSSI		the simulated rssi for this message
@@ -46,7 +45,7 @@ public class Packets {
 		 * @param source	  source of the message
 		 * @param payload	 payload of the virtual message
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, byte RSSI, byte LQI, long destination,
 															 long source,
@@ -55,7 +54,7 @@ public class Packets {
 			checkArgument(payload.length >= 0 && payload.length <= 256);
 
 			ByteBuffer bb = ByteBuffer.allocate(payload.length + 21);
-			bb.put(MessageType.VL_MESSAGE);
+			bb.put(NodeApiMessageType.VL_MESSAGE);
 			bb.put((byte) requestId);
 			bb.put(RSSI);
 			bb.put(LQI);
@@ -67,34 +66,15 @@ public class Packets {
 
 		}
 
-		/**
-		 * // TODO documentation
-		 *
-		 * @param requestId   the request ID
-		 * @param destination
-		 * @param source
-		 * @param payload
-		 *
-		 * @return
-		 */
 		public static ByteBuffer newVirtualLinkMessagePacket(int requestId, long destination, long source,
 															 byte[] payload) {
 			return newVirtualLinkMessagePacket(requestId, (byte) 0, (byte) 0, destination, source, payload);
 		}
 
-		/**
-		 * // TODO documentation
-		 *
-		 * @param requestId  the request ID
-		 * @param binaryType
-		 * @param payload
-		 *
-		 * @return
-		 */
 		public static ByteBuffer newByteMessagePacket(int requestId, byte binaryType, byte[] payload) {
 
 			ByteBuffer bb = ByteBuffer.allocate(payload.length + 4);
-			bb.put(MessageType.BYTE_MESSAGE);
+			bb.put(NodeApiMessageType.BYTE_MESSAGE);
 			bb.put((byte) requestId);
 			bb.put(binaryType);
 			bb.put((byte) payload.length);
@@ -103,18 +83,10 @@ public class Packets {
 
 		}
 
-		/**
-		 * // TODO documentation
-		 *
-		 * @param requestId the request ID
-		 * @param payload
-		 *
-		 * @return
-		 */
 		public static ByteBuffer newFlashProgramPacket(int requestId, byte[] payload) {
 
 			ByteBuffer bb = ByteBuffer.allocate(payload.length + 3);
-			bb.put(MessageType.FLASH_MESSAGE);
+			bb.put(NodeApiMessageType.FLASH_MESSAGE);
 			bb.put((byte) requestId);
 			bb.put((byte) payload.length);
 			bb.put(payload);
@@ -123,13 +95,11 @@ public class Packets {
 		}
 
 		public static boolean isInteractionPacket(ByteBuffer bb) {
-			if (bb.array().length == 0) {
-				return false;
-			}
-			return bb.get(0) == MessageType.DEBUG_MESSAGE ||
-					bb.get(0) == MessageType.VL_MESSAGE ||
-					bb.get(0) == MessageType.BYTE_MESSAGE ||
-					bb.get(0) == MessageType.FLASH_MESSAGE;
+			return bb.array().length != 0 &&
+					bb.get(0) == NodeApiMessageType.DEBUG_MESSAGE ||
+					bb.get(0) == NodeApiMessageType.VL_MESSAGE ||
+					bb.get(0) == NodeApiMessageType.BYTE_MESSAGE ||
+					bb.get(0) == NodeApiMessageType.FLASH_MESSAGE;
 		}
 
 	}
@@ -139,18 +109,16 @@ public class Packets {
 		/**
 		 * Set up a virtual link between the two nodes identified by the unique this node and destinationNode. The reserved
 		 * broadcast ID is not allowed as parameter.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newSetVirtualLinkPacket(int requestId, long destinationNode) {
 
 			ByteBuffer bb = ByteBuffer.allocate(10);
-			bb.put(MessageType.SET_VIRTUAL_LINK);
+			bb.put(NodeApiMessageType.SET_VIRTUAL_LINK);
 			bb.put((byte) requestId);
 			bb.putLong(destinationNode);
 
@@ -161,18 +129,16 @@ public class Packets {
 		/**
 		 * Destroy a virtual link between this node and destinationNode. The reserved broadcast ID is not allowed as
 		 * parameter.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId	   the request ID
 		 * @param destinationNode end point of the virtual link
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newDestroyVirtualLinkPacket(int requestId, long destinationNode) {
 
 			ByteBuffer bb = ByteBuffer.allocate(10);
-			bb.put(MessageType.DESTROY_VIRTUAL_LINK);
+			bb.put(NodeApiMessageType.DESTROY_VIRTUAL_LINK);
 			bb.put((byte) requestId);
 			bb.putLong(destinationNode);
 			return bb;
@@ -182,18 +148,16 @@ public class Packets {
 		/**
 		 * Enable the physical radio link between this node and nodeB (if possible). The reserved broadcast ID is not allowed
 		 * as parameter.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newEnablePhysicalLinkPacket(int requestId, long nodeB) {
 
 			ByteBuffer bb = ByteBuffer.allocate(10);
-			bb.put(MessageType.ENABLE_PHYSICAL_LINK);
+			bb.put(NodeApiMessageType.ENABLE_PHYSICAL_LINK);
 			bb.put((byte) requestId);
 			bb.putLong(nodeB);
 			return bb;
@@ -203,18 +167,16 @@ public class Packets {
 		/**
 		 * Disable the physical radio link between this node and nodeB. The reserved broadcast ID is not allowed as
 		 * parameter.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 * @param nodeB	 end point of the link
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newDisablePhysicalLinkPacket(int requestId, long nodeB) {
 
 			ByteBuffer bb = ByteBuffer.allocate(10);
-			bb.put(MessageType.DISABLE_PHYSICAL_LINK);
+			bb.put(NodeApiMessageType.DISABLE_PHYSICAL_LINK);
 			bb.put((byte) requestId);
 			bb.putLong(nodeB);
 			return bb;
@@ -222,14 +184,12 @@ public class Packets {
 		}
 
 		public static boolean isLinkControlPacket(ByteBuffer bb) {
-			if (bb.array().length == 0) {
-				return false;
-			}
-			return bb.get(0) == MessageType.SET_VIRTUAL_LINK ||
-					bb.get(0) == MessageType.DESTROY_VIRTUAL_LINK ||
-					bb.get(0) == MessageType.ENABLE_PHYSICAL_LINK ||
-					bb.get(0) == MessageType.DISABLE_PHYSICAL_LINK ||
-					bb.get(0) == MessageType.SEND_VIRTUAL_LINK_MESSAGE;
+			return bb.array().length != 0 &&
+					bb.get(0) == NodeApiMessageType.SET_VIRTUAL_LINK ||
+					bb.get(0) == NodeApiMessageType.DESTROY_VIRTUAL_LINK ||
+					bb.get(0) == NodeApiMessageType.ENABLE_PHYSICAL_LINK ||
+					bb.get(0) == NodeApiMessageType.DISABLE_PHYSICAL_LINK ||
+					bb.get(0) == NodeApiMessageType.SEND_VIRTUAL_LINK_MESSAGE;
 		}
 
 	}
@@ -238,18 +198,16 @@ public class Packets {
 
 		/**
 		 * Request this Node for a special property value
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 * @param property  request the property specified by this value
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newGetPropertyValuePacket(int requestId, byte property) {
 
 			ByteBuffer bb = ByteBuffer.allocate(3);
-			bb.put(MessageType.GET_PROPERTY_VALUE);
+			bb.put(NodeApiMessageType.GET_PROPERTY_VALUE);
 			bb.put((byte) requestId);
 			bb.put(property);
 			return bb;
@@ -257,29 +215,25 @@ public class Packets {
 		}
 
 		/**
-		 * Request a Neighborhoodlist from this node
-		 * <p/>
-		 * // TODO documentation
+		 * Request a neighborhood list from this node
 		 *
 		 * @param requestId the request ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newGetNeighborhoodPacket(int requestId) {
 
 			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.put(MessageType.GET_NEIGHBORHOOD);
+			bb.put(NodeApiMessageType.GET_NEIGHBORHOOD);
 			bb.put((byte) requestId);
 			return bb;
 
 		}
 
 		public static boolean isNetworkDescriptionPacket(ByteBuffer bb) {
-			if (bb.array().length == 0) {
-				return false;
-			}
-			return bb.get(0) == MessageType.GET_PROPERTY_VALUE ||
-					bb.get(0) == MessageType.GET_NEIGHBORHOOD;
+			return bb.array().length != 0 &&
+					bb.get(0) == NodeApiMessageType.GET_PROPERTY_VALUE ||
+					bb.get(0) == NodeApiMessageType.GET_NEIGHBORHOOD;
 		}
 
 	}
@@ -288,17 +242,15 @@ public class Packets {
 
 		/**
 		 * Enables this node. The node is reactivating the radio and start interacting with the environment.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newEnableNodePacket(int requestId) {
 
 			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.put(MessageType.ENABLE_NODE);
+			bb.put(NodeApiMessageType.ENABLE_NODE);
 			bb.put((byte) requestId);
 			return bb;
 
@@ -307,17 +259,15 @@ public class Packets {
 		/**
 		 * Disable this node. The node does not longer send out messages or interact with the environment (e.g. a mobile node
 		 * or via an actuator).
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newDisableNodePacket(int requestId) {
 
 			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.put(MessageType.DISABLE_NODE);
+			bb.put(NodeApiMessageType.DISABLE_NODE);
 			bb.put((byte) requestId);
 			return bb;
 
@@ -325,18 +275,16 @@ public class Packets {
 
 		/**
 		 * Reset this node in time milliseconds
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
-		 * @param time
+		 * @param time time in milliseconds
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newResetNodePacket(int requestId, int time) {
 
 			ByteBuffer bb = ByteBuffer.allocate(6);
-			bb.put(MessageType.RESET_NODE);
+			bb.put(NodeApiMessageType.RESET_NODE);
 			bb.put((byte) requestId);
 			bb.putInt(time);
 			return bb;
@@ -344,19 +292,17 @@ public class Packets {
 		}
 
 		/**
-		 * Sets the starttime of the nodes de.uniluebeck.itm.tr.wisebed.app to in time milliseconds
-		 * <p/>
-		 * // TODO documentation
+		 * Sets the start time of the nodes de.uniluebeck.itm.tr.wisebed.app to in time milliseconds
 		 *
 		 * @param requestId the request ID
-		 * @param time
+		 * @param time time in milliseconds
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newSetStartTimePacket(int requestId, int time) {
 
 			ByteBuffer bb = ByteBuffer.allocate(6);
-			bb.put(MessageType.SET_START_TIME);
+			bb.put(NodeApiMessageType.SET_START_TIME);
 			bb.put((byte) requestId);
 			bb.putInt(time);
 			return bb;
@@ -365,18 +311,16 @@ public class Packets {
 
 		/**
 		 * Sets a new virtualNodeID. In default virtualID == natural nodeID
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId	 the request ID
-		 * @param virtualNodeID
+		 * @param virtualNodeID the virtual node ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newSetVirtualIDPacket(int requestId, long virtualNodeID) {
 
 			ByteBuffer bb = ByteBuffer.allocate(10);
-			bb.put(MessageType.SET_VIRTUAL_ID);
+			bb.put(NodeApiMessageType.SET_VIRTUAL_ID);
 			bb.put((byte) requestId);
 			bb.putLong(virtualNodeID);
 			return bb;
@@ -385,17 +329,15 @@ public class Packets {
 
 		/**
 		 * Asks the connected node for its ID. In default virtualID == natural nodeID
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newGetIDPacket(int requestId) {
 
 			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.put(MessageType.GET_ID);
+			bb.put(NodeApiMessageType.GET_ID);
 			bb.put((byte) requestId);
 			return bb;
 
@@ -403,32 +345,28 @@ public class Packets {
 
 		/**
 		 * Check if this node is alive.
-		 * <p/>
-		 * // TODO documentation
 		 *
 		 * @param requestId the request ID
 		 *
-		 * @return
+		 * @return a ByteBuffer instance containing the packet
 		 */
 		public static ByteBuffer newAreNodesAlivePacket(int requestId) {
 
 			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.put(MessageType.IS_NODE_ALIVE);
+			bb.put(NodeApiMessageType.IS_NODE_ALIVE);
 			bb.put((byte) requestId);
 			return bb;
 
 		}
 
 		public static boolean isNodeControlPacket(ByteBuffer bb) {
-			if (bb.array().length == 0) {
-				return false;
-			}
-			return bb.get(0) == MessageType.ENABLE_NODE ||
-					bb.get(0) == MessageType.DISABLE_NODE ||
-					bb.get(0) == MessageType.RESET_NODE ||
-					bb.get(0) == MessageType.SET_START_TIME ||
-					bb.get(0) == MessageType.SET_VIRTUAL_ID ||
-					bb.get(0) == MessageType.IS_NODE_ALIVE;
+			return bb.array().length != 0 &&
+					bb.get(0) == NodeApiMessageType.ENABLE_NODE ||
+					bb.get(0) == NodeApiMessageType.DISABLE_NODE ||
+					bb.get(0) == NodeApiMessageType.RESET_NODE ||
+					bb.get(0) == NodeApiMessageType.SET_START_TIME ||
+					bb.get(0) == NodeApiMessageType.SET_VIRTUAL_ID ||
+					bb.get(0) == NodeApiMessageType.IS_NODE_ALIVE;
 		}
 
 	}

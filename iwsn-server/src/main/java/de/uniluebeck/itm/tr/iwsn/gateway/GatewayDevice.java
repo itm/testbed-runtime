@@ -24,54 +24,40 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
+import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
+import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public interface GatewayDevice extends Service {
 
-	public static interface Callback {
+	ListenableFuture<NodeApiCallResult> enableNode();
 
-		void success(@Nullable byte[] replyPayload);
+	ListenableFuture<NodeApiCallResult> enablePhysicalLink(MacAddress targetMacAddress);
 
-		void failure(byte responseType, byte[] replyPayload);
+	ListenableFuture<NodeApiCallResult> destroyVirtualLink(MacAddress targetMacAddress);
 
-		void timeout();
+	ListenableFuture<NodeApiCallResult> disableNode();
 
-	}
+	ListenableFuture<NodeApiCallResult> disablePhysicalLink(MacAddress targetMacAddress);
 
-	public static interface FlashProgramCallback extends Callback {
+	ProgressListenableFuture<Void> flashProgram(byte[] binaryImage);
 
-		void progress(float percentage);
+	ListenableFuture<Boolean> isNodeAlive();
 
-	}
+	ListenableFuture<Boolean> isNodeConnected();
 
-	void enableNode(Callback listener);
+	ListenableFuture<Void> resetNode();
 
-	void enablePhysicalLink(long nodeB, Callback listener);
+	ListenableFuture<Void> sendMessage(byte[] messageBytes);
 
-	void destroyVirtualLink(long targetNode, Callback listener);
+	ListenableFuture<NodeApiCallResult> setVirtualLink(MacAddress targetMacAddress);
 
-	void disableNode(Callback listener);
+	ListenableFuture<Void> setDefaultChannelPipeline();
 
-	void disablePhysicalLink(long nodeB, Callback listener);
-
-	void flashProgram(byte[] binaryImage, FlashProgramCallback listener);
-
-	void isNodeAlive(Callback listener);
-
-	void isNodeAliveSm(Callback callback);
-
-	void resetNode(Callback listener);
-
-	void sendMessage(byte[] binaryMessage, Callback listener);
-
-	void setVirtualLink(long targetNode, Callback listener);
-
-	void setDefaultChannelPipeline(Callback callback);
-
-	void setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
-							Callback callback);
+	ListenableFuture<Void> setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
 }

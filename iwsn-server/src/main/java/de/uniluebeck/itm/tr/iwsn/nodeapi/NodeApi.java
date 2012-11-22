@@ -23,269 +23,129 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import com.google.common.util.concurrent.SettableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.Service;
 
 
-public class NodeApi {
+public interface NodeApi extends Service {
 
-	private static final Logger log = LoggerFactory.getLogger(NodeApi.class);
+	ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source,
+													 byte payload[]);
 
-	private TimeUnit defaultTimeUnit;
+	ListenableFuture<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte payload[]);
 
-	private int defaultTimeout;
+	ListenableFuture<NodeApiCallResult> sendByteMessage(byte binaryType, byte payload[]);
 
-	private final String nodeUrn;
-
-	private static class Job {
-
-		public final int requestId;
-
-		public final SettableFuture<NodeApiCallResult> future;
-
-		public final ByteBuffer buffer;
-
-		public Job(final int requestId, final SettableFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
-			this.requestId = requestId;
-			this.future = future;
-			this.buffer = buffer;
-		}
-	}
-
-	private int lastRequestID = 0;
-
-	private final Interaction interaction;
-
-	private final LinkControl linkControl;
-
-	private final NetworkDescription networkDescription;
-
-	private final NodeControl nodeControl;
-
-	private final NodeApiDeviceAdapter deviceAdapter;
-
-	private final BlockingDeque<Job> jobQueue = new LinkedBlockingDeque<Job>();
-
-	private final ReentrantLock currentJobLock = new ReentrantLock(true);
-
-	private Job currentJob;
-
-	private NodeApiCallResult currentJobResult;
-
-	private final Thread jobExecutorThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (!Thread.interrupted()) {
-
-				// waiting blocking for next job to execute
-				try {
-					currentJob = jobQueue.take();
-				} catch (InterruptedException e) {
-					log.trace("{} => Interrupted while waiting for job to be done."
-							+ " This is probably OK as it should only happen during shutdown.",
-							nodeUrn
-					);
-					continue;
-				}
-
-				currentJobLock.lock();
-
-				try {
-
-					// execute job
-					if (log.isDebugEnabled()) {
-						log.debug("{} => Sending to node with request ID {}: {}",
-								new Object[]{
-										nodeUrn,
-										currentJob.requestId,
-										toPrintableString(currentJob.buffer.array(), 200)
-								}
-						);
-					}
-
-					deviceAdapter.sendToNode(currentJob.buffer);
-
-					log.debug("{} => Waiting for node to answer to job with request ID {}", nodeUrn,
-							currentJob.requestId
-					);
-					boolean timeout = !currentJobDone.await(defaultTimeout, defaultTimeUnit);
-					log.debug("{} => Job with request ID {} done (timeout={}, success={}).",
-							new Object[]{
-									nodeUrn,
-									currentJob.requestId,
-									!timeout,
-									currentJobResult != null && currentJobResult.isSuccessful()
-							}
-					);
-
-					if (timeout) {
-						currentJob.future.setException(new TimeoutException());
-					} else {
-						currentJob.future.set(currentJobResult);
-					}
-
-				} catch (InterruptedException e) {
-
-					log.trace("{} => Interrupted while waiting for job to be done."
-							+ " This is probably OK as it should only happen during shutdown.",
-							nodeUrn
-					);
-
-				} finally {
-
-					currentJobLock.unlock();
-				}
-			}
-		}
-	}, "Node API JobExecutorThread"
-	);
-
-	private final Condition currentJobDone = currentJobLock.newCondition();
-
-	public NodeApi(final String nodeUrn, final NodeApiDeviceAdapter deviceAdapter, final int defaultTimeout,
-				   final TimeUnit defaultTimeUnit) {
-
-		checkNotNull(nodeUrn);
-		checkNotNull(deviceAdapter);
-		checkNotNull(defaultTimeout);
-		checkNotNull(defaultTimeUnit);
-
-		this.nodeUrn = nodeUrn;
-		this.defaultTimeout = defaultTimeout;
-		this.defaultTimeUnit = defaultTimeUnit;
-
-		this.deviceAdapter = deviceAdapter;
-		this.deviceAdapter.setNodeApi(this);
-
-		this.interaction = new InteractionImpl(nodeUrn, this);
-		this.linkControl = new LinkControlImpl(nodeUrn, this);
-		this.networkDescription = new NetworkDescriptionImpl(nodeUrn, this);
-		this.nodeControl = new NodeControlImpl(nodeUrn, this);
-	}
-
-	public Interaction getInteraction() {
-		return interaction;
-	}
-
-	public LinkControl getLinkControl() {
-		return linkControl;
-	}
-
-	public NetworkDescription getNetworkDescription() {
-		return networkDescription;
-	}
-
-	public NodeControl getNodeControl() {
-		return nodeControl;
-	}
-
-	public NodeApiDeviceAdapter getDeviceAdapter() {
-		return deviceAdapter;
-	}
+	ListenableFuture<NodeApiCallResult> flashProgram(byte payload[]);
 
 	/**
-	 * Creates a requestId in a thread-safe manner.
+	 * Set up a virtual link between the two nodes identified by the unique this node and destNode. The reserved broadcast
+	 * ID is not allowed as parameter.
 	 *
-	 * @return a newly created request ID between 0 and 255
+	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
 	 */
-	synchronized int nextRequestId() {
-		return lastRequestID >= 255 ? (lastRequestID = 0) : ++lastRequestID;
-	}
+	ListenableFuture<NodeApiCallResult> setVirtualLink(long destNode);
 
-	void sendToNode(final int requestId, final SettableFuture<NodeApiCallResult> future, final ByteBuffer buffer) {
+	/**
+	 * Destroy a virtual link between this node and destNode. The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param destNode end point of the virtual link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> destroyVirtualLink(long destNode);
 
-		if (log.isDebugEnabled()) {
-			log.debug("{} => Enqueueing job to node with request ID {}: {}",
-					new Object[]{
-							nodeUrn,
-							requestId,
-							toPrintableString(buffer.array(), 200)
-					}
-			);
-		}
+	/**
+	 * Enable the physical radio link between this node and nodeB (if possible). The reserved broadcast ID is not allowed
+	 * as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> enablePhysicalLink(long nodeB);
 
-		jobQueue.add(new Job(requestId, future, buffer));
+	/**
+	 * Disable the physical radio link between this node and nodeB. The reserved broadcast ID is not allowed as parameter.
+	 *
+	 * @param nodeB end point of the link
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> disablePhysicalLink(long nodeB);
 
-	}
+	/**
+	 * Request this Node for a special property value
+	 *
+	 * @param property request the property specified by this value
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> getPropertyValue(byte property);
 
-	boolean receiveFromNode(ByteBuffer packet) {
+	/**
+	 * Request a Neighborhoodlist from this node
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> getNeighborhood();
 
-		checkNotNull(packet);
+	/**
+	 * Enables this node. The node is reactivating the radio and start interacting with the environment.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> enableNode();
 
-		byte[] packetBytes = packet.array();
+	/**
+	 * Disable this node. The node does not longer send out messages or interact with the environment (e.g. a mobile node
+	 * or via an actuator).
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> disableNode();
 
-		boolean isNodeAPIPacket =
-				Packets.Interaction.isInteractionPacket(packet) ||
-						Packets.LinkControl.isLinkControlPacket(packet) ||
-						Packets.NetworkDescription.isNetworkDescriptionPacket(packet) ||
-						Packets.NodeControl.isNodeControlPacket(packet);
+	/**
+	 * Reset this node in time milliseconds
+	 *
+	 * @param time the time in milliseconds after which to reset the node
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> resetNode(int time);
 
-		if (!isNodeAPIPacket) {
-			return false;
-		}
+	/**
+	 * Sets the starttime of the nodes app to in time milliseconds
+	 *
+	 * @param time the time in milliseconds after which to start
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> setStartTime(int time);
 
-		if (packetBytes.length < 3) {
-			return false;
-		}
+	/**
+	 * Sets a new virtualNodeID. In default virtualID == natural nodeID
+	 *
+	 * @param virtualNodeID the nodes' new virtualNodeId
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> setVirtualID(long virtualNodeID);
 
-		int requestId = (packetBytes[1] & 0xFF);
-		byte responseCode = packetBytes[2];
-		byte[] responsePayload = null;
+	/**
+	 * Asks the connected node for its ID. In default virtualID == natural nodeID
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> getVirtualID();
 
-		if (packetBytes.length > 3) {
-			responsePayload = new byte[packetBytes.length - 3];
-			System.arraycopy(packetBytes, 3, responsePayload, 0, packetBytes.length - 3);
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug("{} => Received from node with request ID {} and response code {}: {}",
-					new Object[]{nodeUrn, requestId, responseCode, responsePayload}
-			);
-		}
-
-		try {
-
-			currentJobLock.lock();
-
-			if (currentJob != null && currentJob.requestId == requestId) {
-
-				currentJobResult = new NodeApiCallResultImpl(requestId, responseCode, responsePayload);
-
-				log.debug("{} => Signalling that current job is done (response received).", nodeUrn);
-				currentJobDone.signal();
-
-			} else if (log.isDebugEnabled()) {
-				log.debug("{} => Received message for unknown requestId: {}", nodeUrn, requestId);
-			}
-
-		} finally {
-			currentJobLock.unlock();
-		}
-
-		return true;
-
-	}
-
-	public void start() {
-		log.debug("{} => Starting Node API JobExecutorThread", nodeUrn);
-		jobExecutorThread.start();
-	}
-
-	public void stop() {
-		log.debug("{} => Stopping Node API JobExecutorThread", nodeUrn);
-		jobExecutorThread.interrupt();
-	}
+	/**
+	 * Check if this node is alive.
+	 *
+	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
+	 */
+	ListenableFuture<NodeApiCallResult> areNodesAlive();
 
 }

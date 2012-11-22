@@ -320,7 +320,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 				log.trace("{} => WSNDeviceAppImpl.executeOperation --> checkAreNodesAliveSm()",
 						wsnDeviceAppConfiguration.getNodeUrn()
 				);
-				connector.isNodeAliveSm(callback);
+				connector.isNodeConnected(callback);
 				break;
 
 			case DESTROY_VIRTUAL_LINK:

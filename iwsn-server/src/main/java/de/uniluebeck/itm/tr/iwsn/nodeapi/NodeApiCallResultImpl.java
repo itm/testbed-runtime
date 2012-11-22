@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class NodeApiCallResultImpl implements NodeApiCallResult {
+class NodeApiCallResultImpl implements NodeApiCallResult {
 
 	private static final Logger log = LoggerFactory.getLogger(NodeApiCallResult.class);
 
@@ -17,7 +17,7 @@ public class NodeApiCallResultImpl implements NodeApiCallResult {
 		this.responseType = responseType;
 		this.responsePayload = responsePayload;
 
-		if (responseType == ResponseType.COMMAND_SUCCESS) {
+		if (responseType == NodeApiResponseTypes.COMMAND_SUCCESS) {
 			log.debug("Invoking callback.success() for request ID {}", requestId);
 		} else {
 			log.debug("Invoking callback.failure() for request ID {}", requestId);
@@ -27,7 +27,7 @@ public class NodeApiCallResultImpl implements NodeApiCallResult {
 
 	@Override
 	public boolean isSuccessful() {
-		return responseType == ResponseType.COMMAND_SUCCESS;
+		return responseType == NodeApiResponseTypes.COMMAND_SUCCESS;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
 
 public class GatewayModule extends AbstractModule {
 
@@ -20,6 +21,7 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Singleton.class);
 
+		install(new NodeApiModule());
 		install(new FactoryModuleBuilder()
 				.implement(GatewayDevice.class, GatewayDeviceImpl.class)
 				.build(GatewayDeviceFactory.class)

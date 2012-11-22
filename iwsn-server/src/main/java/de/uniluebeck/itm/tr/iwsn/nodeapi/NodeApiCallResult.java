@@ -5,7 +5,7 @@ public interface NodeApiCallResult {
 
 	/**
 	 * Returns {@code true} if a reply from the sensor node with a result value of {@link
-	 * de.uniluebeck.itm.tr.iwsn.nodeapi.ResponseType#COMMAND_SUCCESS} was received, {@code false} otherwise.
+	 * NodeApiResponseTypes#COMMAND_SUCCESS} was received, {@code false} otherwise.
 	 *
 	 * @return see above
 	 */

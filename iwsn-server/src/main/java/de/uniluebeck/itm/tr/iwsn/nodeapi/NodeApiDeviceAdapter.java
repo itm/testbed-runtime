@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 
 public abstract class NodeApiDeviceAdapter {
 
-	private NodeApi nodeApi;
+	private NodeApiImpl nodeApi;
 
 	/**
 	 * Sends the message contained in {@code packet} to the node.
@@ -54,7 +54,7 @@ public abstract class NodeApiDeviceAdapter {
 	 *
 	 * @param nodeApi the Node API instance for this adapter
 	 */
-	public void setNodeApi(final NodeApi nodeApi) {
+	public void setNodeApi(final NodeApiImpl nodeApi) {
 		this.nodeApi = nodeApi;
 	}
 }

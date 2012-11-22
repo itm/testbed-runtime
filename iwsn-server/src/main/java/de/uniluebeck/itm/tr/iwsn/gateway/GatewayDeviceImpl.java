@@ -28,6 +28,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
@@ -39,10 +42,12 @@ import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
+import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
+import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -56,11 +61,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -85,10 +91,6 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
-
-	private int resetCount = 0;
-
-	private int flashCount = 0;
 
 	private Channel deviceChannel;
 
@@ -143,6 +145,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Inject
 	public GatewayDeviceImpl(@Assisted final DeviceConfig deviceConfig,
 							 @Assisted final Device device,
+							 final NodeApiFactory nodeApiFactory,
 							 final GatewayEventBus gatewayEventBus) {
 
 		this.deviceConfig = checkNotNull(deviceConfig);
@@ -151,7 +154,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		checkState(device.isConnected());
 
-		this.nodeApi = new NodeApi(
+		this.nodeApi = nodeApiFactory.create(
 				deviceConfig.getNodeUrn(),
 				nodeApiDeviceAdapter,
 				deviceConfig.getTimeoutNodeApiMillis(),
@@ -242,103 +245,41 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	}
 
 	@Override
-	public void destroyVirtualLink(final long targetNode, final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> destroyVirtualLink(final MacAddress targetMacAddress) {
 		log.debug("{} => GatewayDeviceImpl.destroyVirtualLink()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().destroyVirtualLink(targetNode), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
+		return nodeApi.destroyVirtualLink(targetMacAddress.toLong());
 	}
 
 	@Override
-	public void disableNode(final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> disableNode() {
 		log.debug("{} => GatewayDeviceImpl.disableNode()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().disableNode(), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
+		return nodeApi.disableNode();
 	}
 
 	@Override
-	public void disablePhysicalLink(final long nodeB, final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> disablePhysicalLink(final MacAddress targetMacAddress) {
 		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().disablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
-
+		return nodeApi.disablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
-	public void enableNode(final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> enableNode() {
 		log.debug("{} => GatewayDeviceImpl.enableNode()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getNodeControl().enableNode(), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
+		return nodeApi.enableNode();
 	}
 
 	@Override
-	public void enablePhysicalLink(final long nodeB, final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> enablePhysicalLink(final MacAddress targetMacAddress) {
 		log.debug("{} => GatewayDeviceImpl.enablePhysicalLink()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().enablePhysicalLink(nodeB), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
+		return nodeApi.enablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
-	public void flashProgram(final byte[] binaryImage,
-							 final FlashProgramCallback listener) {
+	public ProgressListenableFuture<Void> flashProgram(final byte[] binaryImage) {
 
 		log.debug("{} => GatewayDeviceImpl.executeFlashPrograms()", deviceConfig.getNodeUrn());
+
+		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
 
 		if (isConnected()) {
 
@@ -346,7 +287,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 				String msg = "There's a flash operation running or enqueued currently. Please try again later.";
 				log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
-				listener.failure((byte) -1, msg.getBytes());
+				future.setException(new RuntimeException(msg));
+				return future;
 
 			} else {
 
@@ -361,9 +303,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 								@Override
 								public void onExecute() {
-									flashCount = (flashCount % Integer.MAX_VALUE) == 0 ? 0 : flashCount++;
 									lastProgress = 0;
-									listener.progress(0f);
+									future.setProgress(0f);
 								}
 
 								@Override
@@ -372,7 +313,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 									String msg = "Flash operation was canceled.";
 									log.error("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
-									listener.failure((byte) -1, msg.getBytes());
+									future.setException(new RuntimeException(msg));
 								}
 
 								@Override
@@ -388,7 +329,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 									log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
-									listener.failure((byte) -3, msg.getBytes());
+									future.setException(new RuntimeException(msg));
 								}
 
 								@Override
@@ -402,7 +343,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 												deviceConfig.getNodeUrn(),
 												newProgress
 										);
-										listener.progress(fraction);
+										future.setProgress(fraction);
 										lastProgress = newProgress;
 									}
 								}
@@ -412,7 +353,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 									log.debug("{} => Done flashing node.", deviceConfig.getNodeUrn());
 									flashOperationRunningOrEnqueued = false;
-									listener.success(null);
+									future.set(null);
 								}
 							}
 					);
@@ -425,15 +366,18 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		} else {
 			String msg = "Failed flashing node. Reason: Node is not connected.";
 			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
-			listener.failure((byte) -2, msg.getBytes());
+			future.setException(new RuntimeException(msg));
 		}
 
+		return future;
 	}
 
 	@Override
-	public void isNodeAlive(final Callback listener) {
+	public ListenableFuture<Boolean> isNodeAlive() {
 
 		log.debug("{} => GatewayDeviceImpl.isNodeAlive()", deviceConfig.getNodeUrn());
+
+		final SettableFuture<Boolean> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -443,25 +387,27 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 					@Override
 					public void onExecute() {
-						resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+						// nothing to do
 					}
 
 					@Override
 					public void onSuccess(final Boolean result) {
 						log.debug("{} => Done checking node alive (result={}).", deviceConfig.getNodeUrn(), result);
-						listener.success(null);
+						future.set(result);
 					}
 
 					@Override
 					public void onCancel() {
-						listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+						final String msg = "Operation was cancelled.";
+						log.warn("{} => isNodeAlive(): {}", deviceConfig.getNodeUrn(), msg);
+						future.setException(new RuntimeException(msg));
 					}
 
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed checking if node is alive. Reason: " + throwable;
 						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
-						listener.failure((byte) -1, msg.getBytes());
+						future.setException(new RuntimeException(msg));
 					}
 				}
 				);
@@ -473,26 +419,23 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 			String msg = "Failed checking if node is alive. Reason: Device is not connected.";
 			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
-			listener.failure((byte) 0, msg.getBytes());
+			future.setException(new RuntimeException(msg));
 		}
+
+		return future;
 	}
 
 	@Override
-	public void isNodeAliveSm(final Callback listener) {
-
-		log.debug("{} => GatewayDeviceImpl.isNodeAliveSm()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			listener.success(null);
-		} else {
-			listener.failure((byte) 0, "Device is not connected.".getBytes());
-		}
+	public ListenableFuture<Boolean> isNodeConnected() {
+		log.debug("{} => GatewayDeviceImpl.isNodeConnected()", deviceConfig.getNodeUrn());
+		return Futures.immediateFuture(isConnected());
 	}
 
 	@Override
-	public void resetNode(final Callback listener) {
+	public ListenableFuture<Void> resetNode() {
 
 		log.debug("{} => GatewayDeviceImpl.resetNode()", deviceConfig.getNodeUrn());
+		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -502,25 +445,27 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 					@Override
 					public void onExecute() {
-						resetCount = (resetCount % Integer.MAX_VALUE) == 0 ? 0 : resetCount++;
+						// nothing to do
 					}
 
 					@Override
 					public void onSuccess(final Void result) {
 						log.debug("{} => Done resetting node.", deviceConfig.getNodeUrn());
-						listener.success(null);
+						future.set(null);
 					}
 
 					@Override
 					public void onCancel() {
-						listener.failure((byte) -1, "Operation was cancelled.".getBytes());
+						final String msg = "Operation was cancelled.";
+						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
+						future.setException(new RuntimeException(msg));
 					}
 
 					@Override
 					public void onFailure(final Throwable throwable) {
 						String msg = "Failed resetting node. Reason: " + throwable;
 						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
-						listener.failure((byte) -1, msg.getBytes());
+						future.setException(new RuntimeException(msg));
 					}
 				}
 				);
@@ -532,19 +477,23 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 			String msg = "Failed resetting node. Reason: Device is not connected.";
 			log.warn("{} => {}", deviceConfig.getNodeUrn(), msg);
-			listener.failure((byte) 0, msg.getBytes());
+			future.setException(new RuntimeException(msg));
 		}
 
+		return future;
 	}
 
 	@Override
-	public void sendMessage(final byte[] messageBytes, final Callback callback) {
+	public ListenableFuture<Void> sendMessage(final byte[] messageBytes) {
 
 		log.debug("{} => GatewayDeviceImpl.sendMessage()", deviceConfig.getNodeUrn());
+		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (!isConnected()) {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
-			return;
+
+			final String msg = "Node is not connected.";
+			log.warn("{} => sendMessage(): ", deviceConfig.getNodeUrn(), msg);
+			future.setException(new RuntimeException(msg));
 		}
 
 		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
@@ -559,60 +508,50 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
 
 			@Override
-			public void operationComplete(final ChannelFuture future) throws Exception {
+			public void operationComplete(final ChannelFuture channelFuture) throws Exception {
 
-				if (future.isSuccess()) {
+				if (channelFuture.isSuccess()) {
 
-					callback.success(null);
+					future.set(null);
 
-				} else if (future.isCancelled()) {
+				} else if (channelFuture.isCancelled()) {
 
-					String msg = "Sending message was canceled.";
+					final String msg = "Sending message was canceled.";
 					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
-					callback.failure((byte) -3, msg.getBytes());
+					future.setException(new RuntimeException(msg));
 
 				} else {
 
-					@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-					String msg = "Failed sending message. Reason: " + future.getCause();
+					final Throwable cause = channelFuture.getCause();
+					final String msg = "Failed sending message. Reason: " + cause;
 					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
-					callback.failure((byte) -2, msg.getBytes());
+					future.setException(new RuntimeException(cause));
 				}
 			}
 		}
 		);
+
+		return future;
 	}
 
 	@Override
-	public void setDefaultChannelPipeline(@Nullable final Callback callback) {
-
+	public ListenableFuture<Void> setDefaultChannelPipeline() {
 		try {
-
 			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
 			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
-
 			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
-
-			if (callback != null) {
-				callback.success(null);
-			}
-
+			return Futures.immediateFuture(null);
 		} catch (Exception e) {
-
 			log.warn("Exception while setting default channel pipeline: {}", e);
-
-			if (callback != null) {
-				callback.failure(
-						(byte) -1,
-						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
-				);
-			}
+			return Futures.immediateFailedFuture(new RuntimeException(e));
 		}
 	}
 
 	@Override
-	public void setChannelPipeline(final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations,
-								   final Callback callback) {
+	public ListenableFuture<Void> setChannelPipeline(
+			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs) {
+
+		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (isConnected()) {
 
@@ -621,35 +560,33 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			try {
 
 				log.debug("{} => Setting channel pipeline using configuration: {}", deviceConfig.getNodeUrn(),
-						channelHandlerConfigurations
+						channelHandlerConfigs
 				);
 
-				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigurations);
+				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigs);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
-
-				callback.success(null);
+				future.set(null);
 
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
 						deviceConfig.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
 				);
-
-				callback.failure(
-						(byte) -1,
-						("Exception while setting channel pipeline: " + e.getMessage()).getBytes()
-				);
+				future.setException(new RuntimeException(e));
 
 				log.warn("{} => Resetting channel pipeline to default pipeline.", deviceConfig.getNodeUrn());
-
-				setDefaultChannelPipeline(null);
+				setDefaultChannelPipeline();
 			}
 
 		} else {
-			callback.failure((byte) -1, "Node is not connected.".getBytes());
+			final String msg = "Node is not connected.";
+			log.warn("{} => setChannelPipeline(): {}", deviceConfig.getNodeUrn(), msg);
+			future.setException(new RuntimeException(msg));
 		}
+
+		return future;
 	}
 
 	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
@@ -831,21 +768,9 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	}
 
 	@Override
-	public void setVirtualLink(final long targetNode, final Callback listener) {
-
+	public ListenableFuture<NodeApiCallResult> setVirtualLink(final MacAddress targetMacAddress) {
 		log.debug("{} => GatewayDeviceImpl.setVirtualLink()", deviceConfig.getNodeUrn());
-
-		if (isConnected()) {
-			nodeApiExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					callCallback(nodeApi.getLinkControl().setVirtualLink(targetNode), listener);
-				}
-			}
-			);
-		} else {
-			listener.failure((byte) -1, "Node is not connected.".getBytes());
-		}
+		return nodeApi.setVirtualLink(targetMacAddress.toLong());
 	}
 
 	private void shutdownDeviceChannel() {
@@ -858,35 +783,10 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		}
 	}
 
-	private void callCallback(final Future<NodeApiCallResult> future, final Callback listener) {
-		try {
-
-			NodeApiCallResult result = future.get();
-
-			if (result.isSuccessful()) {
-				listener.success(result.getResponse());
-			} else {
-				listener.failure(result.getResponseType(), result.getResponse());
-			}
-
-		} catch (InterruptedException e) {
-			log.error("{} => InterruptedException while reading Node API call result.", deviceConfig.getNodeUrn());
-			listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
-		} catch (ExecutionException e) {
-			if (e.getCause() instanceof TimeoutException) {
-				log.debug("{} => Call to Node API timed out.", deviceConfig.getNodeUrn());
-				listener.timeout();
-			} else {
-				log.error("" + e, e);
-				listener.failure((byte) 127, "Unknown error in testbed back-end occurred!".getBytes());
-			}
-		}
-	}
-
 	private boolean isConnected() {
 		deviceLock.lock();
 		try {
-			return device != null && device.isConnected();
+			return device.isConnected();
 		} finally {
 			deviceLock.unlock();
 		}

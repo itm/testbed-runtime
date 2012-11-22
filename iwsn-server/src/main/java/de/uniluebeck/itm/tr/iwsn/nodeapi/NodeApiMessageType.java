@@ -23,49 +23,105 @@
 
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
-import java.util.concurrent.Future;
+class NodeApiMessageType {
 
+	public final static byte DEBUG_MESSAGE = 10;
 
-public interface Interaction {
+	public final static byte VL_MESSAGE = 11;
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param RSSI
-	 * @param LQI
-	 * @param destination
-	 * @param source
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendVirtualLinkMessage(byte RSSI, byte LQI, long destination, long source,
-													 byte payload[]);
+	public final static byte BYTE_MESSAGE = 12;
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param destination
-	 * @param source
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendVirtualLinkMessage(long destination, long source, byte payload[]);
+	public final static byte FLASH_MESSAGE = 13;
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param binaryType
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> sendByteMessage(byte binaryType, byte payload[]);
+	public final static byte ENABLE_NODE = 20;
 
-	/**
-	 * // TODO documentation
-	 *
-	 * @param payload
-	 * @return a {@link java.util.concurrent.Future} instance indicating the result of the call
-	 */
-	Future<NodeApiCallResult> flashProgram(byte payload[]);
+	public final static byte DISABLE_NODE = 21;
+
+	public final static byte RESET_NODE = 22;
+
+	public final static byte SET_START_TIME = 23;
+
+	public final static byte SET_VIRTUAL_ID = 24;
+
+	public final static byte IS_NODE_ALIVE = 25;
+
+	public final static byte GET_ID = 26;
+
+	public final static byte SET_VIRTUAL_LINK = 30;
+
+	public final static byte DESTROY_VIRTUAL_LINK = 31;
+
+	public final static byte ENABLE_PHYSICAL_LINK = 32;
+
+	public final static byte DISABLE_PHYSICAL_LINK = 33;
+
+	public final static byte SEND_VIRTUAL_LINK_MESSAGE = 34;
+
+	public final static byte GET_PROPERTY_VALUE = 40;
+
+	public final static byte GET_NEIGHBORHOOD = 41;
+
+	public static boolean isMessageTypeLegal(byte messageType) {
+		return !toString(messageType).startsWith("Error");
+	}
+
+	public static String toString(byte mt) {
+		switch (mt) {
+			case DEBUG_MESSAGE: {
+				return "DEBUG_MESSAGE";
+			}
+			case VL_MESSAGE: {
+				return "VL_MESSAGE";
+			}
+			case BYTE_MESSAGE: {
+				return "BYTE_MESSAGE";
+			}
+			case FLASH_MESSAGE: {
+				return "FLASH_MESSAGE";
+			}
+			case ENABLE_NODE: {
+				return "ENABLE_NODE";
+			}
+			case DISABLE_NODE: {
+				return "DISABLE_NODE";
+			}
+			case RESET_NODE: {
+				return "RESET_NODE";
+			}
+			case SET_START_TIME: {
+				return "SET_START_TIME";
+			}
+			case SET_VIRTUAL_ID: {
+				return "SET_VIRTUAL_ID";
+			}
+			case IS_NODE_ALIVE: {
+				return "IS_NODE_ALIVE";
+			}
+			case SET_VIRTUAL_LINK: {
+				return "SET_VIRTUAL_LINK";
+			}
+			case DESTROY_VIRTUAL_LINK: {
+				return "DESTROY_VIRTUAL_LINK";
+			}
+			case ENABLE_PHYSICAL_LINK: {
+				return "ENABLE_PHYSICAL_LINK";
+			}
+			case DISABLE_PHYSICAL_LINK: {
+				return "DISABLE_PHYSICAL_LINK";
+			}
+			case SEND_VIRTUAL_LINK_MESSAGE: {
+				return "SEND_VIRTUAL_LINK_MESSAGE";
+			}
+			case GET_PROPERTY_VALUE: {
+				return "GET_PROPERTY_VALUE";
+			}
+			case GET_NEIGHBORHOOD: {
+				return "GET_NEIGHBORHOOD";
+			}
+			default: {
+				return "Error " + mt + " is not a valid packet type";
+			}
+		}
+	}
 
 }

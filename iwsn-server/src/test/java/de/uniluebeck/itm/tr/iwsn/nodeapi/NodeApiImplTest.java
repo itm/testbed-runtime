@@ -16,30 +16,30 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
-public class NodeApiTest {
+public class NodeApiImplTest {
 
-	private static final Logger log = LoggerFactory.getLogger(NodeApiTest.class);
+	private static final Logger log = LoggerFactory.getLogger(NodeApiImplTest.class);
 
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
 	private NodeApiDeviceAdapter workingDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
 		public void sendToNode(final ByteBuffer packet) {
-			log.debug("NodeApiTest.workingDeviceAdapter.sendToNode");
+			log.debug("NodeApiImplTest.workingDeviceAdapter.sendToNode");
 			executorService.schedule(new Runnable() {
 				@Override
 				public void run() {
 
-					log.debug("NodeApiTest.workingDeviceAdapter.run");
+					log.debug("NodeApiImplTest.workingDeviceAdapter.run");
 
-					if (Packets.Interaction.isInteractionPacket(packet)) {
-						workingNodeApi.receiveFromNode(Packets.buildResponse(packet, (byte) 0, new byte[]{}));
-					} else if (Packets.LinkControl.isLinkControlPacket(packet)) {
-						workingNodeApi.receiveFromNode(Packets.buildResponse(packet, (byte) 0, new byte[]{}));
-					} else if (Packets.NetworkDescription.isNetworkDescriptionPacket(packet)) {
-						workingNodeApi.receiveFromNode(Packets.buildResponse(packet, (byte) 0, new byte[]{}));
-					} else if (Packets.NodeControl.isNodeControlPacket(packet)) {
-						workingNodeApi.receiveFromNode(Packets.buildResponse(packet, (byte) 0, new byte[]{}));
+					if (NodeApiPackets.Interaction.isInteractionPacket(packet)) {
+						workingNodeApi.receiveFromNode(NodeApiPackets.buildResponse(packet, (byte) 0, new byte[]{}));
+					} else if (NodeApiPackets.LinkControl.isLinkControlPacket(packet)) {
+						workingNodeApi.receiveFromNode(NodeApiPackets.buildResponse(packet, (byte) 0, new byte[]{}));
+					} else if (NodeApiPackets.NetworkDescription.isNetworkDescriptionPacket(packet)) {
+						workingNodeApi.receiveFromNode(NodeApiPackets.buildResponse(packet, (byte) 0, new byte[]{}));
+					} else if (NodeApiPackets.NodeControl.isNodeControlPacket(packet)) {
+						workingNodeApi.receiveFromNode(NodeApiPackets.buildResponse(packet, (byte) 0, new byte[]{}));
 					}
 
 				}
@@ -52,21 +52,21 @@ public class NodeApiTest {
 	private NodeApiDeviceAdapter timeoutDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
 		public void sendToNode(final ByteBuffer packet) {
-			log.debug("NodeApiTest.timeoutDeviceAdapter.sendToNode");
+			log.debug("NodeApiImplTest.timeoutDeviceAdapter.sendToNode");
 		}
 	};
 
-	private NodeApi workingNodeApi;
+	private NodeApiImpl workingNodeApi;
 
-	private NodeApi timeoutNodeApi;
+	private NodeApiImpl timeoutNodeApi;
 
 	@Before
 	public void setup() {
 
 		Logging.setLoggingDefaults();
 
-		workingNodeApi = new NodeApi("testNode", workingDeviceAdapter, 1000, TimeUnit.MILLISECONDS);
-		timeoutNodeApi = new NodeApi("testNode", timeoutDeviceAdapter, 5, TimeUnit.MILLISECONDS);
+		workingNodeApi = new NodeApiImpl("testNode", workingDeviceAdapter, 1000, TimeUnit.MILLISECONDS);
+		timeoutNodeApi = new NodeApiImpl("testNode", timeoutDeviceAdapter, 5, TimeUnit.MILLISECONDS);
 
 		workingNodeApi.start();
 		timeoutNodeApi.start();
