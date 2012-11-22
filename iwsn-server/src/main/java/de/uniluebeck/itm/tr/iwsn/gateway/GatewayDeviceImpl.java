@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
@@ -37,12 +37,11 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceObserverRequest;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
+import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
+import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
@@ -75,34 +74,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.io.Closeables.closeQuietly;
-import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.setPipeline;
+import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
+import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
-class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppConnector {
+class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
-	private static final Logger log = LoggerFactory.getLogger(WSNDeviceAppConnector.class);
+	private static final Logger log = LoggerFactory.getLogger(GatewayDevice.class);
 
-	static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+	private final ListenerManager<GatewayDevice.NodeOutputListener> listenerManager;
 
-	static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
-
-	static final byte NODE_OUTPUT_TEXT = 50;
-
-	static final byte NODE_OUTPUT_BYTE = 51;
-
-	static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
-
-	static final byte VIRTUAL_LINK_MESSAGE = 11;
-
-	private static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
-
-	private static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
-
-	private final ListenerManager<WSNDeviceAppConnector.NodeOutputListener> listenerManager;
-
-	private final WSNDeviceAppConnectorConfiguration configuration;
+	private final GatewayDeviceConfiguration configuration;
 
 	private final EventBus deviceObserverEventBus;
 
@@ -179,11 +163,11 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	private final DeviceFactory deviceFactory;
 
 	@Inject
-	public WSNDeviceAppConnectorImpl(@Assisted @Nonnull final WSNDeviceAppConnectorConfiguration configuration,
-									 @Assisted @Nonnull final DeviceFactory deviceFactory,
-									 @Assisted @Nonnull final EventBus deviceObserverEventBus,
-									 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus,
-									 @Nonnull ListenerManager<NodeOutputListener> listenerManager) {
+	public GatewayDeviceImpl(@Assisted @Nonnull final GatewayDeviceConfiguration configuration,
+							 @Assisted @Nonnull final DeviceFactory deviceFactory,
+							 @Assisted @Nonnull final EventBus deviceObserverEventBus,
+							 @Assisted @Nonnull final AsyncEventBus deviceObserverAsyncEventBus,
+							 @Nonnull ListenerManager<NodeOutputListener> listenerManager) {
 
 		checkNotNull(configuration);
 		checkNotNull(deviceFactory);
@@ -283,7 +267,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 				if (!tryToConnect(nodeType, nodeSerialInterface, nodeConfiguration)) {
 					log.warn("{} => Unable to connect to {} device at {}. Retrying in 30 seconds.",
-							new Object[]{nodeUrn, nodeType, nodeSerialInterface}
+							nodeUrn, nodeType, nodeSerialInterface
 					);
 				}
 
@@ -400,7 +384,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void destroyVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.destroyVirtualLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.destroyVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -419,7 +403,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void disableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.disableNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.disableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -438,7 +422,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void disablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.disablePhysicalLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -457,7 +441,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void enableNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.enableNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.enableNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -475,7 +459,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void enablePhysicalLink(final long nodeB, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.enablePhysicalLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.enablePhysicalLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {
@@ -494,7 +478,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	public void flashProgram(final byte[] binaryImage,
 							 final FlashProgramCallback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.executeFlashPrograms()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.executeFlashPrograms()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
@@ -589,7 +573,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void isNodeAlive(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAlive()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.isNodeAlive()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
@@ -636,7 +620,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void isNodeAliveSm(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.isNodeAliveSm()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.isNodeAliveSm()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			listener.success(null);
@@ -648,7 +632,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void resetNode(final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.resetNode()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.resetNode()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 
@@ -696,7 +680,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void sendMessage(final byte[] messageBytes, final Callback callback) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.sendMessage()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.sendMessage()", configuration.getNodeUrn());
 
 		if (!isConnected()) {
 			callback.failure((byte) -1, "Node is not connected.".getBytes());
@@ -790,7 +774,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			} catch (Exception e) {
 
 				log.warn("{} => {} while setting channel pipeline: {}",
-						new Object[]{configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()}
+						configuration.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
 				);
 
 				callback.failure(
@@ -866,20 +850,20 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 			} catch (Exception e) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+						configuration.getNodeUrn(), deviceType, deviceSerialInterface
 				);
 				return false;
 			}
 
 			if (!device.isConnected()) {
 				log.warn("{} => Could not connect to {} device at {}.",
-						new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+						configuration.getNodeUrn(), deviceType, deviceSerialInterface
 				);
 				return false;
 			}
 
 			log.info("{} => Successfully connected to {} device on serial port {}",
-					new Object[]{configuration.getNodeUrn(), deviceType, deviceSerialInterface}
+					configuration.getNodeUrn(), deviceType, deviceSerialInterface
 			);
 
 			sendNotification(
@@ -927,7 +911,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 		}
 
 		if (log.isTraceEnabled()) {
-			log.trace("{} => WSNDeviceAppConnectorImpl.onBytesReceivedFromDevice: {}",
+			log.trace("{} => GatewayDeviceImpl.onBytesReceivedFromDevice: {}",
 					configuration.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
@@ -1048,11 +1032,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 					"Exception while creating default channel pipeline from configuration file ({}). "
 							+ "Using empty pipeline as default pipeline. "
 							+ "Error message: {}. Stack trace: {}",
-					new Object[]{
-							configuration.getDefaultChannelPipelineConfigurationFile(),
-							e.getMessage(),
-							Throwables.getStackTraceAsString(e)
-					}
+					configuration.getDefaultChannelPipelineConfigurationFile(),
+					e.getMessage(),
+					Throwables.getStackTraceAsString(e)
 			);
 			return newArrayList();
 		}
@@ -1061,7 +1043,7 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Override
 	public void setVirtualLink(final long targetNode, final Callback listener) {
 
-		log.debug("{} => WSNDeviceAppConnectorImpl.setVirtualLink()", configuration.getNodeUrn());
+		log.debug("{} => GatewayDeviceImpl.setVirtualLink()", configuration.getNodeUrn());
 
 		if (isConnected()) {
 			nodeApiExecutor.execute(new Runnable() {

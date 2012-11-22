@@ -42,10 +42,10 @@ import de.uniluebeck.itm.tr.iwsn.overlay.messaging.event.MessageEventListener;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.srmr.SingleRequestMultiResponseCallback;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnknownNameException;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.unreliable.UnreliableMessagingService;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.AbovePipelineLogger;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.BelowPipelineLogger;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannel;
-import de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.EmbeddedChannelSink;
+import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
+import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
+import de.uniluebeck.itm.tr.iwsn.pipeline.EmbeddedChannel;
+import de.uniluebeck.itm.tr.iwsn.pipeline.EmbeddedChannelSink;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
@@ -70,7 +70,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.runtime.wsnapp.pipeline.PipelineHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.*;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.future;
 import static org.jboss.netty.channel.Channels.pipeline;
@@ -452,12 +452,10 @@ class WSNAppImpl extends AbstractService implements WSNApp {
 			if (log.isTraceEnabled()) {
 				log.trace(
 						"Received {} bytes from {}: {}. Current listeners: {}",
-						new Object[]{
-								bytes.length,
-								sourceNodeId,
-								StringUtils.toHexString(bytes),
-								wsnNodeMessageReceivers
-						}
+						bytes.length,
+						sourceNodeId,
+						StringUtils.toHexString(bytes),
+						wsnNodeMessageReceivers
 				);
 			}
 

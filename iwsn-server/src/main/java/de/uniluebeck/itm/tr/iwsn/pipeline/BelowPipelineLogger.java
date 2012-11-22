@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
+package de.uniluebeck.itm.tr.iwsn.pipeline;
 
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import org.jboss.netty.buffer.ChannelBuffer;

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntimeModule;
 import de.uniluebeck.itm.tr.iwsn.overlay.naming.NamingEntry;
@@ -441,7 +442,7 @@ public class WSNAppBenchmark {
 			nodeConfiguration.put("ECHO", "true");
 
 			final WSNDeviceAppConfiguration configuration = new WSNDeviceAppConfiguration(nodeUrn.toString(), null);
-			final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+			final GatewayDeviceConfiguration connectorConfiguration = new GatewayDeviceConfiguration(
 					nodeUrn.toString(),
 					DeviceType.MOCK.toString(),
 					null, null, nodeConfiguration, null, null, null, null, null, null

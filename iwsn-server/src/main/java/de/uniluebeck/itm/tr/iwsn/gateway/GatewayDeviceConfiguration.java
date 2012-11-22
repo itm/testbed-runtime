@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class WSNDeviceAppConnectorConfiguration {
+public class GatewayDeviceConfiguration {
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
 
@@ -49,7 +49,7 @@ public class WSNDeviceAppConnectorConfiguration {
 	@Nullable
 	private final Integer timeoutCheckAliveMillis;
 
-	public WSNDeviceAppConnectorConfiguration(
+	public GatewayDeviceConfiguration(
 			final String nodeUrn,
 			final String nodeType,
 			@Nullable final String nodeSerialInterface,

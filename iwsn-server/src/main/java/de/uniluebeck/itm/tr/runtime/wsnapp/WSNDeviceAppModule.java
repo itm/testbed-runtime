@@ -3,6 +3,9 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
+import de.uniluebeck.itm.tr.iwsn.gateway.WSNDeviceAppConnectorImpl;
 import de.uniluebeck.itm.tr.util.ListenerManager;
 import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 
@@ -11,9 +14,9 @@ public class WSNDeviceAppModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		bind(new TypeLiteral<ListenerManager<WSNDeviceAppConnector.NodeOutputListener>>() {
+		bind(new TypeLiteral<ListenerManager<GatewayDevice.NodeOutputListener>>() {
 		}
-		).to(new TypeLiteral<ListenerManagerImpl<WSNDeviceAppConnector.NodeOutputListener>>() {
+		).to(new TypeLiteral<ListenerManagerImpl<GatewayDevice.NodeOutputListener>>() {
 		}
 		);
 
@@ -23,8 +26,8 @@ public class WSNDeviceAppModule extends AbstractModule {
 		);
 
 		install(new FactoryModuleBuilder()
-				.implement(WSNDeviceAppConnector.class, WSNDeviceAppConnectorImpl.class)
-				.build(WSNDeviceAppConnectorFactory.class)
+				.implement(GatewayDevice.class, WSNDeviceAppConnectorImpl.class)
+				.build(GatewayDeviceFactory.class)
 		);
 	}
 }

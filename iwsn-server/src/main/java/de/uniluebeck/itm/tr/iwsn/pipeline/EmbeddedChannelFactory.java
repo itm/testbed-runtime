@@ -13,20 +13,30 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
+package de.uniluebeck.itm.tr.iwsn.pipeline;
 
-import java.net.SocketAddress;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelPipeline;
 
 /**
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
  * @author <a href="http://gleamynode.net/">Trustin Lee</a>
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  */
-public class EmbeddedSocketAddress extends SocketAddress {
+public class EmbeddedChannelFactory implements ChannelFactory {
 
-    private static final long serialVersionUID = 1400788804624980619L;
+    static final ChannelFactory INSTANCE = new EmbeddedChannelFactory();
 
-    EmbeddedSocketAddress() {
+    private EmbeddedChannelFactory() {
         super();
+    }
+
+    public Channel newChannel(ChannelPipeline pipeline) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void releaseExternalResources() {
+        // No external resources
     }
 }

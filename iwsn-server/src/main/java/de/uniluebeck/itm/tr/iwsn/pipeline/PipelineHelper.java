@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
+package de.uniluebeck.itm.tr.iwsn.pipeline;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;

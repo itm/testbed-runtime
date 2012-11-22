@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplicationFactory;
 import de.uniluebeck.itm.tr.runtime.wsnapp.xml.Configuration;
@@ -70,7 +71,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				final Injector injector = Guice.createInjector(wsnDeviceAppModule, deviceFactoryModule);
 
 				WSNDeviceAppConfiguration configuration = createConfiguration(wsnDevice);
-				WSNDeviceAppConnectorConfiguration connectorConfiguration = createConnectorConfiguration(wsnDevice);
+				GatewayDeviceConfiguration connectorConfiguration = createConnectorConfiguration(wsnDevice);
 
 				DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
@@ -87,7 +88,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 		}
 	}
 
-	private WSNDeviceAppConnectorConfiguration createConnectorConfiguration(final WsnDevice wsnDevice)
+	private GatewayDeviceConfiguration createConnectorConfiguration(final WsnDevice wsnDevice)
 			throws Exception {
 
 		File defaultChannelPipelineConfigurationFile = null;
@@ -131,7 +132,7 @@ public class WSNDeviceAppFactory implements TestbedApplicationFactory {
 				wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getNodeapi() : null;
 		final Integer timeoutResetMillis = wsnDevice.getTimeouts() != null ? wsnDevice.getTimeouts().getReset() : null;
 
-		return new WSNDeviceAppConnectorConfiguration(
+		return new GatewayDeviceConfiguration(
 				wsnDevice.getUrn(),
 				wsnDevice.getType(),
 				wsnDevice.getSerialinterface(),

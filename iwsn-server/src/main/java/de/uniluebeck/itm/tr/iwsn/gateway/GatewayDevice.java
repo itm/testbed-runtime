@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.runtime.wsnapp;
+package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
@@ -32,7 +32,7 @@ import org.joda.time.DateTime;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface WSNDeviceAppConnector extends Listenable<WSNDeviceAppConnector.NodeOutputListener>, Service {
+public interface GatewayDevice extends Listenable<GatewayDevice.NodeOutputListener>, Service {
 
 	public static interface NodeOutputListener {
 

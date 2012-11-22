@@ -8,5 +8,5 @@ public interface GatewayEventBus extends Service {
 
 	void unregister(Object object);
 
-	void post(Object object);
+	void post(Object event);
 }

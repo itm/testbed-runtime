@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
+package de.uniluebeck.itm.tr.iwsn.pipeline;
 
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelPipeline;

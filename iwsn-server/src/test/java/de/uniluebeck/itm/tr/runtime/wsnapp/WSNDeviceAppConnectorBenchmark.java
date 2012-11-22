@@ -7,6 +7,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -38,7 +41,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final WSNDeviceAppConnector.Callback NULL_CALLBACK = new WSNDeviceAppConnector.Callback() {
+	private static final GatewayDevice.Callback NULL_CALLBACK = new GatewayDevice.Callback() {
 		@Override
 		public void success(@Nullable final byte[] replyPayload) {
 			// nothing to do
@@ -66,21 +69,21 @@ public class WSNDeviceAppConnectorBenchmark {
 	@Mock
 	private AsyncEventBus asyncEventBus;
 
-	private WSNDeviceAppConnector connector;
+	private GatewayDevice connector;
 
 	private BenchmarkHelper helper;
 
 	@Before
 	public void setUp() throws Exception {
 
-		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		final GatewayDeviceConfiguration connectorConfiguration = new GatewayDeviceConfiguration(
 				NODE_URN,
 				DeviceType.ISENSE.toString(),
 				"/dev/tty.usbserial-001213FD",
 				null, null, null, null, null, null, null, null
 		);
 
-		/*final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		/*final GatewayDeviceConfiguration connectorConfiguration = new GatewayDeviceConfiguration(
 				NODE_URN,
 				DeviceType.MOCK.toString(),
 				NODE_URN + ",10,SECONDS",
@@ -88,7 +91,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		);*/
 
 		final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
-		final WSNDeviceAppConnectorFactory factory = injector.getInstance(WSNDeviceAppConnectorFactory.class);
+		final GatewayDeviceFactory factory = injector.getInstance(GatewayDeviceFactory.class);
 		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
 		connector = factory.create(connectorConfiguration, deviceFactory, eventBus, asyncEventBus);
@@ -117,7 +120,7 @@ public class WSNDeviceAppConnectorBenchmark {
 			message.writeByte(10 & 0xFF);
 			message.writeInt(messageNumber);
 
-			final WSNDeviceAppConnector.NodeOutputListener listener = new WSNDeviceAppConnector.NodeOutputListener() {
+			final GatewayDevice.NodeOutputListener listener = new GatewayDevice.NodeOutputListener() {
 
 				@Override
 				public void receivedPacket(final byte[] bytes) {

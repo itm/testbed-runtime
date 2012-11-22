@@ -4,10 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class GatewayModule extends AbstractModule {
 
@@ -19,8 +16,14 @@ public class GatewayModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Singleton.class);
+
+		install(new FactoryModuleBuilder()
+				.implement(GatewayDevice.class, GatewayDeviceImpl.class)
+				.build(GatewayDeviceFactory.class)
+		);
 	}
 
 	@Provides

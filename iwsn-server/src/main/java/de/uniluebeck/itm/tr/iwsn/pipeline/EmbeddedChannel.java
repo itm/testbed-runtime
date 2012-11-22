@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package de.uniluebeck.itm.tr.runtime.wsnapp.pipeline;
+package de.uniluebeck.itm.tr.iwsn.pipeline;
 
 import org.jboss.netty.channel.*;
 

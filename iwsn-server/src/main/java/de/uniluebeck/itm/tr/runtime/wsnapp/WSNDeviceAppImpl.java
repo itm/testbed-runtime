@@ -31,6 +31,9 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConfiguration;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.MessageTools;
 import de.uniluebeck.itm.tr.iwsn.overlay.messaging.Messages;
@@ -58,9 +61,9 @@ import static com.google.common.collect.Lists.newArrayList;
 
 class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
-	private final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory;
+	private final GatewayDeviceFactory gatewayDeviceFactory;
 
-	private final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration;
+	private final GatewayDeviceConfiguration gatewayDeviceConfiguration;
 
 	@Nonnull
 	private final DeviceFactory deviceFactory;
@@ -68,7 +71,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	/**
 	 * A callback that answers the result of an operation invocation to the invoking overlay node.
 	 */
-	private class ReplyingNodeApiCallback implements WSNDeviceAppConnector.Callback {
+	private class ReplyingNodeApiCallback implements GatewayDevice.Callback {
 
 		private Messages.Msg invocationMsg;
 
@@ -193,8 +196,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 		}
 	};
 
-	private WSNDeviceAppConnector.NodeOutputListener nodeOutputListener =
-			new WSNDeviceAppConnector.NodeOutputListener() {
+	private GatewayDevice.NodeOutputListener nodeOutputListener =
+			new GatewayDevice.NodeOutputListener() {
 
 				@Override
 				public void receivedPacket(final byte[] bytes) {
@@ -267,7 +270,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 	 * The connector to the actual sensor node. May be local (i.e. attached to a serial port) or remote (i.e. (multi-hop)
 	 * through remote-UART.
 	 */
-	private WSNDeviceAppConnector connector;
+	private GatewayDevice connector;
 
 	private WSNDeviceAppConfiguration wsnDeviceAppConfiguration;
 
@@ -281,18 +284,18 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							@Assisted @Nonnull final DeviceFactory deviceFactory,
 							@Assisted @Nonnull final WSNDeviceAppConfiguration wsnDeviceAppConfiguration,
 							@Assisted @Nonnull
-							final WSNDeviceAppConnectorConfiguration wsnDeviceAppConnectorConfiguration,
-							@Nonnull final WSNDeviceAppConnectorFactory wsnDeviceAppConnectorFactory) {
+							final GatewayDeviceConfiguration gatewayDeviceConfiguration,
+							@Nonnull final GatewayDeviceFactory gatewayDeviceFactory) {
 
 		this.testbedRuntime = checkNotNull(testbedRuntime);
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.wsnDeviceAppConfiguration = checkNotNull(wsnDeviceAppConfiguration);
-		this.wsnDeviceAppConnectorFactory = checkNotNull(wsnDeviceAppConnectorFactory);
-		this.wsnDeviceAppConnectorConfiguration = checkNotNull(wsnDeviceAppConnectorConfiguration);
+		this.gatewayDeviceFactory = checkNotNull(gatewayDeviceFactory);
+		this.gatewayDeviceConfiguration = checkNotNull(gatewayDeviceConfiguration);
 	}
 
 	/**
-	 * Parses incoming operation invocation and dispatches it to the corresponding method in the WSNDeviceAppConnector
+	 * Parses incoming operation invocation and dispatches it to the corresponding method in the GatewayDevice
 	 * instance.
 	 *
 	 * @param invocation
@@ -588,7 +591,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 		log.debug("{} => WSNDeviceAppImpl.executeFlashPrograms()", wsnDeviceAppConfiguration.getNodeUrn());
 
-		connector.flashProgram(binaryImage, new WSNDeviceAppConnector.FlashProgramCallback() {
+		connector.flashProgram(binaryImage, new GatewayDevice.FlashProgramCallback() {
 			@Override
 			public void progress(final float percentage) {
 				log.debug("{} => WSNDeviceApp.flashProgram.progress({})", wsnDeviceAppConfiguration.getNodeUrn(),
@@ -644,8 +647,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 			log.debug("{} => WSNDeviceAppImpl.start()", wsnDeviceAppConfiguration.getNodeUrn());
 
 			// connect to device
-			connector = wsnDeviceAppConnectorFactory.create(
-					wsnDeviceAppConnectorConfiguration,
+			connector = gatewayDeviceFactory.create(
+					gatewayDeviceConfiguration,
 					deviceFactory,
 					testbedRuntime.getEventBus(),
 					testbedRuntime.getAsyncEventBus()

@@ -29,7 +29,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 	}
 
 	@Override
-	public void post(final Object object) {
+	public void post(final Object event) {
 		assertConnectedToPortal();
 		throw new RuntimeException("IMPLEMENT ME!");
 	}
