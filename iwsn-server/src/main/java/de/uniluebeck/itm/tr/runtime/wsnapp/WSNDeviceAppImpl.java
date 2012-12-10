@@ -146,6 +146,8 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 
 					WSNAppMessages.ListenerManagement management = WSNAppMessages.ListenerManagement
 							.newBuilder()
+                                                        .setNodeName(wsnDeviceAppConfiguration.getNodeUrn())
+                                                        .setOperation(WSNAppMessages.ListenerManagement.Operation.REGISTER)
 							.mergeFrom(msg.getPayload())
 							.build();
 
@@ -223,6 +225,7 @@ class WSNDeviceAppImpl extends AbstractService implements WSNDeviceApp {
 							}
 							);
 						}
+                                                
 
 						testbedRuntime.getUnreliableMessagingService().sendAsync(
 								wsnDeviceAppConfiguration.getNodeUrn(),
