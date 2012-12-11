@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.netty;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
@@ -16,6 +17,7 @@ public class NettyServerModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		install(new FactoryModuleBuilder().build(NettyServerFactory.class));
 	}
 
 	@Provides

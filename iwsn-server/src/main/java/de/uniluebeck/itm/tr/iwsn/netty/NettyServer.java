@@ -3,14 +3,14 @@ package de.uniluebeck.itm.tr.iwsn.netty;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.codec.http.HttpServerCodec;
 
 import java.net.SocketAddress;
 
-class NettyServer extends AbstractIdleService {
+public class NettyServer extends AbstractIdleService {
 
 	private final ChannelGroup allChannels;
 
@@ -20,23 +20,26 @@ class NettyServer extends AbstractIdleService {
 
 	private final ServerBootstrap bootstrap;
 
-	private final Provider<NettyServerHandler> handler;
+	private final Provider<ChannelHandler[]> handlers;
 
 	@Inject
-	NettyServer(ChannelFactory factory, ChannelGroup allChannels, SocketAddress address,
-				Provider<NettyServerHandler> handler) {
+	NettyServer(final ChannelFactory factory,
+				final ChannelGroup allChannels,
+				@Assisted final SocketAddress address,
+				@Assisted final Provider<ChannelHandler[]> handlers) {
+
 		this.factory = factory;
+		this.handlers = handlers;
 		this.bootstrap = new ServerBootstrap(factory);
 		this.allChannels = allChannels;
 		this.address = address;
-		this.handler = handler;
 	}
 
 	@Override
 	protected void startUp() throws Exception {
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpServerCodec(), handler.get());
+				return Channels.pipeline(handlers.get());
 			}
 		}
 		);

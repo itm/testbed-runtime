@@ -4,10 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import de.uniluebeck.itm.tr.iwsn.netty.NettyServerModule;
 
 public class PortalModule extends AbstractModule {
 
@@ -19,8 +16,11 @@ public class PortalModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+
 		bind(PortalConfig.class).toInstance(portalConfig);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
+
+		install(new NettyServerModule());
 	}
 
 	@Provides
