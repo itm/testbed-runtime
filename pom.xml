@@ -36,6 +36,8 @@
 
 		<module>iwsn-common</module>
         <module>iwsn-federator</module>
+		<module>iwsn-portal</module>
+		<module>iwsn-gateway</module>
         <module>iwsn-server</module>
 		<module>rs-server</module>
 		<module>snaa-server</module>
