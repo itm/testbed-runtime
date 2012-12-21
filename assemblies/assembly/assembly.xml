@@ -94,6 +94,9 @@
 			<includes>
 				<include>bin/*</include>
 			</includes>
+			<excludes>
+				<exclude>bin/README-RS</exclude>
+			</excludes>
 			<fileMode>0750</fileMode>
 		</fileSet>
 		<fileSet>
@@ -102,7 +105,35 @@
 			<includes>
 				<include>bin/*</include>
 			</includes>
+			<excludes>
+				<exclude>bin/README-SNAA</exclude>
+			</excludes>
 			<fileMode>0750</fileMode>
+		</fileSet>
+		
+		<fileSet>
+			<directory>../iwsn-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/README-IWSN</include>
+			</includes>
+			<fileMode>0440</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>../rs-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/README-RS</include>
+			</includes>
+			<fileMode>0440</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>../snaa-assembly/src/main/assembly/</directory>
+			<outputDirectory>.</outputDirectory>
+			<includes>
+				<include>bin/README-SNAA</include>
+			</includes>
+			<fileMode>0440</fileMode>
 		</fileSet>
 		
 	</fileSets>
