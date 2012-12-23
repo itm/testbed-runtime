@@ -55,13 +55,13 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	protected void doStart() {
 		try {
 
-			final InetSocketAddress portalAddress = new InetSocketAddress(
-					config.portalAddress.getHostText(),
-					config.portalAddress.getPort()
+			final InetSocketAddress overlayAddress = new InetSocketAddress(
+					config.overlayAddress.getHostText(),
+					config.overlayAddress.getPort()
 			);
 
 			nettyServer = nettyServerFactory.create(
-					portalAddress,
+					overlayAddress,
 					new ProtobufVarint32FrameDecoder(),
 					new ProtobufDecoder(Message.getDefaultInstance()),
 					new ProtobufVarint32LengthFieldPrepender(),

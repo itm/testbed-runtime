@@ -1,14 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
+import com.google.common.base.Function;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.messages.Event;
-import de.uniluebeck.itm.tr.iwsn.messages.EventAck;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -16,6 +13,17 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.base.Predicates.in;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.jboss.netty.channel.Channels.write;
 
 public class PortalChannelHandler extends SimpleChannelHandler {
@@ -24,14 +32,121 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private final PortalEventBus portalEventBus;
 
-	private final BiMap<NodeUrn, ChannelHandlerContext> nodeToContextMap =
-			Maps.synchronizedBiMap(HashBiMap.<NodeUrn, ChannelHandlerContext>create());
+	private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
 
 	private final ChannelGroup allChannels = new DefaultChannelGroup();
+
+	private static final Function<String, NodeUrn> STRING_TO_NODE_URN = new Function<String, NodeUrn>() {
+		@Nullable
+		@Override
+		public NodeUrn apply(@Nullable final String input) {
+			return new NodeUrn(input);
+		}
+	};
 
 	@Inject
 	public PortalChannelHandler(final PortalEventBus portalEventBus) {
 		this.portalEventBus = portalEventBus;
+	}
+
+	@Subscribe
+	public void onRequest(final Request request) {
+
+		switch (request.getType()) {
+			case ARE_NODES_ALIVE:
+
+				final List<String> nodeUrnsList = request.getAreNodesAliveRequest().getNodeUrnsList();
+				final Multimap<ChannelHandlerContext, NodeUrn> mapping = getMulticastMapping(nodeUrnsList);
+
+				final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent = newHashMap();
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final AreNodesAliveRequest.Builder areNodesAliveRequestBuilder = AreNodesAliveRequest.newBuilder()
+							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setType(Request.Type.ARE_NODES_ALIVE)
+							.setAreNodesAliveRequest(areNodesAliveRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
+
+			case ARE_NODES_CONNECTED:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case DESTROY_VIRTUAL_LINK:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case DISABLE_NODE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case DISABLE_PHYSICAL_LINK:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case ENABLE_NODE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case ENABLE_PHYSICAL_LINK:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case FLASH_DEFAULT_IMAGE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case FLASH_PROGRAMS:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case RESET_NODES:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case SEND_DOWNSTREAM_MESSAGE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case SET_CHANNEL_PIPELINE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case SET_DEFAULT_CHANNEL_PIPELINE:
+				throw new RuntimeException("TODO: not yet implemented");
+
+			case SET_VIRTUAL_LINK:
+				throw new RuntimeException("TODO: not yet implemented");
+		}
+	}
+
+	private void sendRequests(final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent) {
+		for (Map.Entry<ChannelHandlerContext, Request.Builder> entry : requestsToBeSent.entrySet()) {
+			final ChannelHandlerContext ctx = entry.getKey();
+			final Request.Builder requestBuilder = entry.getValue();
+			final Message message = Message.newBuilder()
+					.setType(Message.Type.REQUEST)
+					.setRequest(requestBuilder)
+					.build();
+			Channels.write(ctx, new DefaultChannelFuture(ctx.getChannel(), true), message);
+		}
+	}
+
+	private Multimap<ChannelHandlerContext, NodeUrn> getMulticastMapping(
+			final List<String> nodeUrnsList) {
+		final Set<NodeUrn> requestNodeUrns = newHashSet(
+				transform(
+						nodeUrnsList,
+						STRING_TO_NODE_URN
+				)
+		);
+		final Multimap<ChannelHandlerContext, NodeUrn> mapping = HashMultimap.create();
+		synchronized (contextToNodeUrnsMap) {
+			for (ChannelHandlerContext ctx : contextToNodeUrnsMap.keySet()) {
+				mapping.putAll(
+						ctx,
+						filter(
+								contextToNodeUrnsMap.get(ctx),
+								in(requestNodeUrns)
+						)
+				);
+			}
+		}
+		return mapping;
 	}
 
 	@Override
@@ -63,13 +178,17 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	private void processEvent(final ChannelHandlerContext ctx, final Event event) {
 		switch (event.getType()) {
 			case DEVICES_ATTACHED:
-				for (String nodeUrnString : event.getDevicesAttachedEvent().getNodeUrnsList()) {
-					nodeToContextMap.put(new NodeUrn(nodeUrnString), ctx);
+				synchronized (contextToNodeUrnsMap) {
+					for (String nodeUrnString : event.getDevicesAttachedEvent().getNodeUrnsList()) {
+						contextToNodeUrnsMap.put(ctx, new NodeUrn(nodeUrnString));
+					}
 				}
 				break;
 			case DEVICES_DETACHED:
-				for (String nodeUrnString : event.getDevicesDetachedEvent().getNodeUrnsList()) {
-					nodeToContextMap.remove(new NodeUrn(nodeUrnString));
+				synchronized (contextToNodeUrnsMap) {
+					for (String nodeUrnString : event.getDevicesDetachedEvent().getNodeUrnsList()) {
+						contextToNodeUrnsMap.get(ctx).remove(new NodeUrn(nodeUrnString));
+					}
 				}
 				break;
 		}
@@ -95,12 +214,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			portalEventBus.unregister(this);
 		}
 		super.channelDisconnected(ctx, e);
-	}
-
-	@Subscribe
-	public void onRequest(final Request request) {
-		// TODO implement
-		throw new RuntimeException("TODO implement multicast request handling");
 	}
 
 	private void sendEventAck(final ChannelHandlerContext ctx, final Event event) {

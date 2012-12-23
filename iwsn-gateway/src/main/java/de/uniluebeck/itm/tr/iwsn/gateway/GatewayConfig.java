@@ -7,10 +7,12 @@ import org.kohsuke.args4j.Option;
 
 public class GatewayConfig extends ConfigWithLogging {
 
-	@Option(name = "--portalAddress", usage = "Hostname and port of the portal server (e.g. portal:1234)",
+	@Option(name = "--portalOverlayAddress",
+			usage = "Hostname and port on which the portal server listens for the internal overlay network "
+					+ "(default $PORTAL_HOSTNAME:8888)",
 			required = true,
 			handler = HostAndPortOptionHandler.class
 	)
-	public HostAndPort portalAddress;
+	public HostAndPort portalOverlayAddress;
 
 }
