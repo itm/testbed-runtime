@@ -41,13 +41,9 @@ message AreNodesConnectedRequest {
 	repeated string nodeUrns = 1;
 }
 
-message FlashImageRequest {
+message FlashImagesRequest {
 	repeated string nodeUrns = 1;
 	required bytes image     = 2;
-}
-
-message FlashDefaultImageRequest {
-	repeated string nodeUrns = 1;
 }
 
 message ResetNodesRequest {
@@ -78,12 +74,12 @@ message EnablePhysicalLinksRequest {
 	repeated Link links = 1;
 }
 
-message SendDownstreamMessageRequest {
+message SendDownstreamMessagesRequest {
 	repeated string targetNodeUrns = 1;
 	required bytes  messageBytes   = 2;
 }
 
-message SetChannelPipelineRequest {
+message SetChannelPipelinesRequest {
 	message ChannelHandlerConfiguration {
 		message KeyValuePair {
 			required string key = 1;
@@ -92,29 +88,25 @@ message SetChannelPipelineRequest {
 		required string name = 1;
 		repeated KeyValuePair configuration = 2;
 	}
-	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 1;
-}
-
-message SetDefaultChannelPipelineRequest {
+	repeated string                      nodeUrns                     = 1
+	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 2;
 }
 
 message Request {
 
 	enum Type {
-		ARE_NODES_ALIVE              = 1;
-		ARE_NODES_CONNECTED          = 2;
-		DESTROY_VIRTUAL_LINK         = 3;
-		DISABLE_NODE                 = 4;
-		DISABLE_PHYSICAL_LINK        = 5;
-		ENABLE_NODE                  = 6;
-		ENABLE_PHYSICAL_LINK         = 7;
-		FLASH_DEFAULT_IMAGE          = 8;
-		FLASH_PROGRAMS               = 9;
-		RESET_NODES                  = 10;
-		SEND_DOWNSTREAM_MESSAGE      = 11;
-		SET_CHANNEL_PIPELINE         = 12;
-		SET_DEFAULT_CHANNEL_PIPELINE = 13;
-		SET_VIRTUAL_LINK             = 14;
+		ARE_NODES_ALIVE         = 1;
+		ARE_NODES_CONNECTED     = 2;
+		DESTROY_VIRTUAL_LINKS   = 3;
+		DISABLE_NODES           = 4;
+		DISABLE_PHYSICAL_LINKS  = 5;
+		ENABLE_NODES            = 6;
+		ENABLE_PHYSICAL_LINKS   = 7;
+		FLASH_IMAGES            = 8;
+		RESET_NODES             = 9;
+		SEND_DOWNSTREAM_MESSAGE = 10;
+		SET_CHANNEL_PIPELINES   = 11;
+		SET_VIRTUAL_LINKS       = 12;
 	}
 
 	required int64                            requestId                        = 1;
@@ -127,13 +119,11 @@ message Request {
 	optional DisablePhysicalLinksRequest      disablePhysicalLinksRequest      = 105;
 	optional EnableNodesRequest               enableNodesRequest               = 106;
 	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 107;
-	optional FlashDefaultImageRequest         flashDefaultImageRequest         = 108;
-	optional FlashImageRequest                flashImageRequest                = 109;
-	optional ResetNodesRequest                resetNodesRequest                = 110;
-	optional SendDownstreamMessageRequest     sendDownstreamMessageRequest     = 111;
-	optional SetChannelPipelineRequest        setChannelPipelineRequest        = 112;
-	optional SetDefaultChannelPipelineRequest setDefaultChannelPipelineRequest = 113;
-	optional SetVirtualLinksRequest           setVirtualLinksRequest           = 114;
+	optional FlashImagesRequest               flashImagesRequest               = 108;
+	optional ResetNodesRequest                resetNodesRequest                = 109;
+	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 110;
+	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 111;
+	optional SetVirtualLinksRequest           setVirtualLinksRequest           = 112;
 }
 
 message SingleNodeProgress {
@@ -145,7 +135,7 @@ message SingleNodeProgress {
 message SingleNodeResponse {
 	required int64  requestId    = 1;
 	required string nodeUrn      = 2;
-	optional int32  errorCode    = 3;
+	optional int32  statusCode   = 3;
 	optional string errorMessage = 4;
 }
 

@@ -13,8 +13,6 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepend
 
 import java.net.InetSocketAddress;
 
-import static com.google.common.base.Preconditions.checkState;
-
 class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final PortalConfig config;
@@ -50,8 +48,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	@Override
 	public void post(final Object event) {
-		assertConnectedToPortal();
-		throw new RuntimeException("IMPLEMENT ME!");
+		eventBus.post(event);
 	}
 
 	@Override
@@ -72,8 +69,8 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 					portalChannelHandler
 			);
 			nettyServer.startAndWait();
-
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -87,9 +84,5 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
-	}
-
-	private void assertConnectedToPortal() {
-		checkState(isRunning(), "Not connected to portal server!");
 	}
 }

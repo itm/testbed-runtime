@@ -28,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Predicates.in;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -96,7 +99,7 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	}
 
 	@Subscribe
-	public void onDeviceEvent(final DeviceEvent event) {
+	public void onEventFromDeviceObserver(final DeviceEvent event) {
 		switch (event.getType()) {
 			case ATTACHED:
 				onDeviceAttached(event.getDeviceInfo());
@@ -165,7 +168,7 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 			if (devices.containsKey(nodeUrn)) {
 
 				devices.remove(nodeUrn).stopAndWait();
-				postDevicesAttachedEvent(nodeUrn);
+				postDevicesDetachedEvent(nodeUrn);
 			}
 		}
 	}
@@ -200,7 +203,7 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 		gatewayEventBus.post(DevicesAttachedEvent
 				.newBuilder()
 				.addAllNodeUrns(transform(nodeUrns, toStringFunction()))
-				.setTimestamp(now())
+				.setTimestamp(new DateTime().getMillis())
 				.build()
 		);
 	}
@@ -209,12 +212,42 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 		gatewayEventBus.post(DevicesDetachedEvent
 				.newBuilder()
 				.addAllNodeUrns(transform(nodeUrns, toStringFunction()))
-				.setTimestamp(now())
+				.setTimestamp(new DateTime().getMillis())
 				.build()
 		);
 	}
 
-	private long now() {
-		return new DateTime().getMillis();
+	@Override
+	public boolean isConnected(final NodeUrn nodeUrn) {
+		synchronized (devices) {
+			return devices.containsKey(nodeUrn);
+		}
+	}
+
+	@Nullable
+	@Override
+	public GatewayDevice getDevice(final NodeUrn nodeUrn) {
+		return devices.get(nodeUrn);
+	}
+
+	@Override
+	public Map<NodeUrn, GatewayDevice> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
+		Map<NodeUrn, GatewayDevice> map = newHashMap();
+		synchronized (devices) {
+			for (NodeUrn nodeUrn : nodeUrns) {
+				final GatewayDevice device = devices.get(nodeUrn);
+				if (device != null) {
+					map.put(nodeUrn, device);
+				}
+			}
+		}
+		return map;
+	}
+
+	@Override
+	public Iterable<NodeUrn> getUnconnectedSubset(final Iterable<NodeUrn> nodeUrns) {
+		synchronized (devices) {
+			return filter(nodeUrns, not(in(devices.keySet())));
+		}
 	}
 }

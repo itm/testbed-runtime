@@ -74,6 +74,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
@@ -428,7 +429,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public ListenableFuture<Boolean> isNodeConnected() {
 		log.debug("{} => GatewayDeviceImpl.isNodeConnected()", deviceConfig.getNodeUrn());
-		return Futures.immediateFuture(isConnected());
+		return immediateFuture(isConnected());
 	}
 
 	@Override
@@ -540,7 +541,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
 			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
-			return Futures.immediateFuture(null);
+			return immediateFuture(null);
 		} catch (Exception e) {
 			log.warn("Exception while setting default channel pipeline: {}", e);
 			return Futures.immediateFailedFuture(new RuntimeException(e));
