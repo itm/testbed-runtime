@@ -50,8 +50,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 	@Override
 	public void post(final Object event) {
-		assertConnectedToPortal();
-		throw new RuntimeException("IMPLEMENT ME!");
+		eventBus.post(event);
 	}
 
 	@Override
@@ -59,8 +58,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		try {
 
 			final InetSocketAddress portalAddress = new InetSocketAddress(
-					config.portalAddress.getHostText(),
-					config.portalAddress.getPort()
+					config.portalOverlayAddress.getHostText(),
+					config.portalOverlayAddress.getPort()
 			);
 
 			nettyClient = nettyClientFactory.create(

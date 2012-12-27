@@ -34,6 +34,7 @@
 
 	<modules>
 
+		<module>iwsn-integration-tests</module>
 		<module>iwsn-common</module>
         <module>iwsn-federator</module>
 		<module>iwsn-portal</module>
@@ -75,6 +76,16 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.iwsn-portal</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.iwsn-gateway</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -88,7 +88,7 @@ message SetChannelPipelinesRequest {
 		required string name = 1;
 		repeated KeyValuePair configuration = 2;
 	}
-	repeated string                      nodeUrns                     = 1
+	repeated string                      nodeUrns                     = 1;
 	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 2;
 }
 

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,19 +53,26 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Subscribe
 	public void onRequest(final Request request) {
 
+		final List<String> nodeUrnsList;
+		final Set<NodeUrn> nodeUrns;
+		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
+		final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent = newHashMap();
+
 		switch (request.getType()) {
+
 			case ARE_NODES_ALIVE:
 
-				final List<String> nodeUrnsList = request.getAreNodesAliveRequest().getNodeUrnsList();
-				final Multimap<ChannelHandlerContext, NodeUrn> mapping = getMulticastMapping(nodeUrnsList);
+				nodeUrnsList = request.getAreNodesAliveRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
 
-				final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent = newHashMap();
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 
 					final AreNodesAliveRequest.Builder areNodesAliveRequestBuilder = AreNodesAliveRequest.newBuilder()
 							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
 
 					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
 							.setType(Request.Type.ARE_NODES_ALIVE)
 							.setAreNodesAliveRequest(areNodesAliveRequestBuilder);
 
@@ -74,40 +82,137 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ARE_NODES_CONNECTED:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getAreNodesConnectedRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final AreNodesConnectedRequest.Builder areNodesConnectedRequestBuilder = AreNodesConnectedRequest
+							.newBuilder()
+							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
+							.setType(Request.Type.ARE_NODES_CONNECTED)
+							.setAreNodesConnectedRequest(areNodesConnectedRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
 
 			case DESTROY_VIRTUAL_LINK:
 				throw new RuntimeException("TODO: not yet implemented");
 
 			case DISABLE_NODE:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getDisableNodesRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final DisableNodesRequest.Builder disableNodesRequestBuilder = DisableNodesRequest
+							.newBuilder()
+							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
+							.setType(Request.Type.DISABLE_NODE)
+							.setDisableNodesRequest(disableNodesRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
 
 			case DISABLE_PHYSICAL_LINK:
 				throw new RuntimeException("TODO: not yet implemented");
 
 			case ENABLE_NODE:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getEnableNodesRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final EnableNodesRequest.Builder enableNodesRequestBuilder = EnableNodesRequest
+							.newBuilder()
+							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
+							.setType(Request.Type.ENABLE_NODE)
+							.setEnableNodesRequest(enableNodesRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
 
 			case ENABLE_PHYSICAL_LINK:
 				throw new RuntimeException("TODO: not yet implemented");
 
 			case FLASH_DEFAULT_IMAGE:
-				throw new RuntimeException("TODO: not yet implemented");
+				throw new RuntimeException("TODO: remove");
 
 			case FLASH_PROGRAMS:
 				throw new RuntimeException("TODO: not yet implemented");
 
 			case RESET_NODES:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getResetNodesRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final ResetNodesRequest.Builder resetNodesRequestBuilder = ResetNodesRequest
+							.newBuilder()
+							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
+							.setType(Request.Type.ENABLE_NODE)
+							.setResetNodesRequest(resetNodesRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
 
 			case SEND_DOWNSTREAM_MESSAGE:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getSendDownstreamMessageRequest().getTargetNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final SendDownstreamMessageRequest.Builder sendDownstreamMessageRequestBuilder =
+							SendDownstreamMessageRequest
+									.newBuilder()
+									.addAllTargetNodeUrns(transform(mapping.get(ctx), toStringFunction()))
+									.setMessageBytes(request.getSendDownstreamMessageRequest().getMessageBytes());
+
+					final Request.Builder requestBuilder = Request.newBuilder()
+							.setRequestId(request.getRequestId())
+							.setType(Request.Type.SEND_DOWNSTREAM_MESSAGE)
+							.setSendDownstreamMessageRequest(sendDownstreamMessageRequestBuilder);
+
+					requestsToBeSent.put(ctx, requestBuilder);
+				}
+				sendRequests(requestsToBeSent);
+				break;
 
 			case SET_CHANNEL_PIPELINE:
 				throw new RuntimeException("TODO: not yet implemented");
 
 			case SET_DEFAULT_CHANNEL_PIPELINE:
-				throw new RuntimeException("TODO: not yet implemented");
+				throw new RuntimeException("TODO: remove");
 
 			case SET_VIRTUAL_LINK:
 				throw new RuntimeException("TODO: not yet implemented");
@@ -126,27 +231,27 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		}
 	}
 
-	private Multimap<ChannelHandlerContext, NodeUrn> getMulticastMapping(
-			final List<String> nodeUrnsList) {
-		final Set<NodeUrn> requestNodeUrns = newHashSet(
-				transform(
-						nodeUrnsList,
-						STRING_TO_NODE_URN
-				)
-		);
+	private Multimap<ChannelHandlerContext, NodeUrn> getMulticastMapping(final Set<NodeUrn> nodeUrnsList) {
+
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping = HashMultimap.create();
 		synchronized (contextToNodeUrnsMap) {
 			for (ChannelHandlerContext ctx : contextToNodeUrnsMap.keySet()) {
 				mapping.putAll(
 						ctx,
-						filter(
-								contextToNodeUrnsMap.get(ctx),
-								in(requestNodeUrns)
-						)
+						filter(contextToNodeUrnsMap.get(ctx), in(nodeUrnsList))
 				);
 			}
 		}
 		return mapping;
+	}
+
+	private HashSet<NodeUrn> toNodeUrnSet(final List<String> nodeUrnsList) {
+		return newHashSet(
+				transform(
+						nodeUrnsList,
+						STRING_TO_NODE_URN
+				)
+		);
 	}
 
 	@Override
