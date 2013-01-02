@@ -1,10 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import de.uniluebeck.itm.tr.iwsn.messages.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.Event;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +31,6 @@ import static org.mockito.Mockito.*;
  * DESTROY_VIRTUAL_LINK
  * DISABLE_PHYSICAL_LINK
  * ENABLE_PHYSICAL_LINK
- * FLASH_PROGRAMS
  * SET_CHANNEL_PIPELINE
  * SET_VIRTUAL_LINK
  */
@@ -61,6 +63,21 @@ public class PortalChannelHandlerTest {
 			GATEWAY2_NODE1.toString(),
 			GATEWAY2_NODE2.toString()
 	);
+
+	private static final Multimap<String, String> VIRTUAL_LINKS_GW1 = HashMultimap.create();
+	private static final Multimap<String, String> VIRTUAL_LINKS_GW2 = HashMultimap.create();
+	private static final Multimap<String, String> VIRTUAL_LINKS = HashMultimap.create();
+
+	static {
+
+		VIRTUAL_LINKS_GW1.put(GATEWAY1_NODE1.toString(), GATEWAY2_NODE1.toString());
+
+		VIRTUAL_LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY1_NODE1.toString());
+		VIRTUAL_LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY2_NODE2.toString());
+
+		VIRTUAL_LINKS.putAll(VIRTUAL_LINKS_GW1);
+		VIRTUAL_LINKS.putAll(VIRTUAL_LINKS_GW2);
+	}
 
 	@Mock
 	private PortalEventBus portalEventBus;
@@ -254,6 +271,21 @@ public class PortalChannelHandlerTest {
 
 		final Message expectedMessage1 = newFlashImagesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, imageBytes);
 		final Message expectedMessage2 = newFlashImagesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, imageBytes);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfDestroyVirtualLinksRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newDestroyVirtualLinksRequest(requestId, VIRTUAL_LINKS));
+
+		final Message expectedMessage1 = newDestroyVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
+		final Message expectedMessage2 = newDestroyVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));

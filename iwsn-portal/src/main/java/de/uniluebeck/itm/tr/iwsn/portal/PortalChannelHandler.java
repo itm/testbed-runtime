@@ -2,14 +2,12 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
-import de.uniluebeck.itm.tr.iwsn.messages.Event;
-import de.uniluebeck.itm.tr.iwsn.messages.EventAck;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -27,6 +25,7 @@ import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
@@ -95,7 +94,29 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case DESTROY_VIRTUAL_LINKS:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				final List<Link> links = request.getDestroyVirtualLinksRequest().getLinksList();
+
+				nodeUrnsList = newArrayList();
+				for (Link link : links) {
+					nodeUrnsList.add(link.getSourceNodeUrn());
+				}
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					for (Link link : links) {
+						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
+							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						}
+					}
+					requestsToBeSent.put(ctx, newDestroyVirtualLinksRequest(requestId, subRequestLinks));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
 
 			case DISABLE_NODES:
 

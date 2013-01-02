@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
+import com.google.common.collect.Multimap;
 import com.google.protobuf.ByteString;
 
 public abstract class MessagesHelper {
@@ -120,6 +121,28 @@ public abstract class MessagesHelper {
 													   final Iterable<String> nodeUrns,
 													   final byte[] imageBytes) {
 		return newMessage(newFlashImagesRequest(requestId, nodeUrns, ByteString.copyFrom(imageBytes)));
+	}
+
+	public static Request newDestroyVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
+
+		final DestroyVirtualLinksRequest.Builder builder = DestroyVirtualLinksRequest.newBuilder();
+
+		for (String sourceNodeUrn : links.keySet()) {
+			for (String targetNodeUrn : links.get(sourceNodeUrn)) {
+				builder.addLinks(Link.newBuilder().setSourceNodeUrn(sourceNodeUrn).setTargetNodeUrn(targetNodeUrn));
+			}
+		}
+
+		return Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.DESTROY_VIRTUAL_LINKS)
+				.setDestroyVirtualLinksRequest(builder.build())
+				.build();
+	}
+
+	public static Message newDestroyVirtualLinksRequestMessage(final long requestId,
+															   final Multimap<String, String> links) {
+		return newMessage(newDestroyVirtualLinksRequest(requestId, links));
 	}
 
 	public static Message newMessage(Request request) {
