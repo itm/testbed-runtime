@@ -38,16 +38,16 @@ public class DeviceConfig {
 	private final Integer maximumMessageRate;
 
 	@Nullable
-	private final Integer timeoutNodeApiMillis;
+	private final Long timeoutNodeApiMillis;
 
 	@Nullable
-	private final Integer timeoutResetMillis;
+	private final Long timeoutResetMillis;
 
 	@Nullable
-	private final Integer timeoutFlashMillis;
+	private final Long timeoutFlashMillis;
 
 	@Nullable
-	private final Integer timeoutCheckAliveMillis;
+	private final Long timeoutCheckAliveMillis;
 
 	public DeviceConfig(
 			final String nodeUrn,
@@ -57,10 +57,10 @@ public class DeviceConfig {
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final File defaultChannelPipelineConfigurationFile,
 			@Nullable final Integer maximumMessageRate,
-			@Nullable final Integer timeoutCheckAliveMillis,
-			@Nullable final Integer timeoutFlashMillis,
-			@Nullable final Integer timeoutNodeApiMillis,
-			@Nullable final Integer timeoutResetMillis) {
+			@Nullable final Long timeoutCheckAliveMillis,
+			@Nullable final Long timeoutFlashMillis,
+			@Nullable final Long timeoutNodeApiMillis,
+			@Nullable final Long timeoutResetMillis) {
 
 		this.nodeUrn = nodeUrn;
 		this.nodeType = nodeType;
@@ -147,19 +147,19 @@ public class DeviceConfig {
 		return nodeUSBChipID;
 	}
 
-	public int getTimeoutFlashMillis() {
+	public long getTimeoutFlashMillis() {
 		return timeoutFlashMillis != null ? timeoutFlashMillis : DEFAULT_TIMEOUT_FLASH_MILLIS;
 	}
 
-	public int getTimeoutNodeApiMillis() {
+	public long getTimeoutNodeApiMillis() {
 		return timeoutNodeApiMillis != null ? timeoutNodeApiMillis : DEFAULT_TIMEOUT_NODE_API_MILLIS;
 	}
 
-	public int getTimeoutResetMillis() {
+	public long getTimeoutResetMillis() {
 		return timeoutResetMillis != null ? timeoutResetMillis : DEFAULT_TIMEOUT_RESET_MILLIS;
 	}
 
-	public int getTimeoutCheckAliveMillis() {
+	public long getTimeoutCheckAliveMillis() {
 		return timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis : DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS;
 	}
 

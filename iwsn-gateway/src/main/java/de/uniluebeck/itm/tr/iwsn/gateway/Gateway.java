@@ -21,15 +21,29 @@ public class Gateway extends AbstractService {
 
 	private final GatewayEventBus gatewayEventBus;
 
+	private final GatewayDeviceManager gatewayDeviceManager;
+
+	private final GatewayDeviceObserver gatewayDeviceObserver;
+
 	@Inject
-	public Gateway(final GatewayEventBus gatewayEventBus) {
+	public Gateway(final GatewayEventBus gatewayEventBus,
+				   final GatewayDeviceManager gatewayDeviceManager,
+				   final GatewayDeviceObserver gatewayDeviceObserver) {
+
 		this.gatewayEventBus = gatewayEventBus;
+		this.gatewayDeviceManager = gatewayDeviceManager;
+		this.gatewayDeviceObserver = gatewayDeviceObserver;
 	}
 
 	@Override
 	protected void doStart() {
+
+		log.trace("Gateway.doStart()");
+
 		try {
 			gatewayEventBus.startAndWait();
+			gatewayDeviceManager.startAndWait();
+			gatewayDeviceObserver.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -38,7 +52,12 @@ public class Gateway extends AbstractService {
 
 	@Override
 	protected void doStop() {
+
+		log.trace("Gateway.doStop()");
+
 		try {
+			gatewayDeviceObserver.stopAndWait();
+			gatewayDeviceManager.stopAndWait();
 			gatewayEventBus.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {

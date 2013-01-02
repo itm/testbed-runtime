@@ -10,7 +10,11 @@ import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
+import java.util.Random;
+
 public class GatewayModule extends AbstractModule {
+
+	private final Random eventIdGenerator = new Random();
 
 	private final GatewayConfig gatewayConfig;
 
@@ -24,6 +28,7 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(GatewayDeviceManager.class).to(GatewayDeviceManagerImpl.class).in(Scopes.SINGLETON);
+		bind(GatewayEventIdProvider.class).to(GatewayRandomEventIdProvider.class).in(Scopes.SINGLETON);
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());

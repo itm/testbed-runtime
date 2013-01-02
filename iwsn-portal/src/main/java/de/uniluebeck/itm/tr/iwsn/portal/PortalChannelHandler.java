@@ -340,18 +340,27 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 		final Message message = (Message) e.getMessage();
 		switch (message.getType()) {
+
 			case EVENT:
 				final Event event = message.getEvent();
+				log.trace("PortalChannelHandler.messageReceived(event={})", event);
 				portalEventBus.post(event);
 				sendEventAck(ctx, event);
 				processEvent(ctx, event);
 				break;
+
 			case PROGRESS:
-				portalEventBus.post(message.getProgress());
+				final SingleNodeProgress progress = message.getProgress();
+				log.trace("PortalChannelHandler.messageReceived(progress={})", progress);
+				portalEventBus.post(progress);
 				break;
+
 			case RESPONSE:
-				portalEventBus.post(message.getResponse());
+				final SingleNodeResponse response = message.getResponse();
+				log.trace("PortalChannelHandler.messageReceived({})", response);
+				portalEventBus.post(response);
 				break;
+
 			default:
 				throw new RuntimeException("Unexpected message type: " + message.getType());
 		}
@@ -378,7 +387,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	@Override
 	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-		log.debug("Channel connected: {}", e);
+		log.trace("PortalChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
 		if (allChannels.isEmpty()) {
 			log.debug("Subscribing to the event bus.");
 			portalEventBus.register(this);
@@ -389,7 +398,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	@Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-		log.debug("Channel disconnected: {}", e);
+		log.trace("PortalChannelHandler.channelDisconnected(ctx={}, event={})", ctx, e);
 		allChannels.remove(e.getChannel());
 		if (allChannels.isEmpty()) {
 			log.debug("Unsubscribing from the event bus.");

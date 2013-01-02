@@ -54,7 +54,7 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 
 	private TimeUnit defaultTimeUnit;
 
-	private int defaultTimeout;
+	private long defaultTimeout;
 
 	private final String nodeUrn;
 
@@ -154,7 +154,7 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 	@Inject
 	public NodeApiImpl(@Assisted final String nodeUrn,
 					   @Assisted final NodeApiDeviceAdapter deviceAdapter,
-					   @Assisted final int defaultTimeout,
+					   @Assisted final long defaultTimeout,
 					   @Assisted final TimeUnit defaultTimeUnit) {
 
 		this.nodeUrn = checkNotNull(nodeUrn);

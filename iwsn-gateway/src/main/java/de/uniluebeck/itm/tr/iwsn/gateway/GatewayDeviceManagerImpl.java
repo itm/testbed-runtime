@@ -65,6 +65,9 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	@Override
 	protected void doStart() {
+
+		log.trace("GatewayDeviceManagerImpl.doStart()");
+
 		try {
 			final ThreadFactory tf = new ThreadFactoryBuilder().setNameFormat("DeviceDriverExecutor %d").build();
 			deviceDriverExecutorService = Executors.newCachedThreadPool(tf);
@@ -77,6 +80,9 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	@Override
 	protected void doStop() {
+
+		log.trace("GatewayDeviceManagerImpl.doStop()");
+
 		try {
 			shutdownAllDevices();
 			ExecutorUtils.shutdown(deviceDriverExecutorService, 10, TimeUnit.SECONDS);

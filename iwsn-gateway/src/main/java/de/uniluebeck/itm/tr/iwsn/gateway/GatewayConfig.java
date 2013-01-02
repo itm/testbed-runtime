@@ -9,7 +9,7 @@ public class GatewayConfig extends ConfigWithLogging {
 
 	@Option(name = "--portalOverlayAddress",
 			usage = "Hostname and port on which the portal server listens for the internal overlay network "
-					+ "(default $PORTAL_HOSTNAME:8888)",
+					+ "(usually $PORTAL_HOSTNAME:8880)",
 			required = true,
 			handler = HostAndPortOptionHandler.class
 	)

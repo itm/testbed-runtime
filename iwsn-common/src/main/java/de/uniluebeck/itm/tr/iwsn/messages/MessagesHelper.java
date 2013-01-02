@@ -211,6 +211,43 @@ public abstract class MessagesHelper {
 				.build();
 	}
 
+	public static Message newMessage(final SingleNodeProgress progress) {
+		return Message.newBuilder()
+				.setType(Message.Type.PROGRESS)
+				.setProgress(progress)
+				.build();
+	}
+
+	public static Message newMessage(final SingleNodeResponse response) {
+		return Message.newBuilder()
+				.setType(Message.Type.RESPONSE)
+				.setResponse(response)
+				.build();
+	}
+
+	public static Message newMessage(final Event event) {
+		return Message.newBuilder()
+				.setType(Message.Type.EVENT)
+				.setEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final DevicesAttachedEvent devicesAttachedEvent) {
+		return Event.newBuilder()
+				.setEventId(eventId)
+				.setType(Event.Type.DEVICES_ATTACHED)
+				.setDevicesAttachedEvent(devicesAttachedEvent)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final DevicesDetachedEvent devicesDetachedEvent) {
+		return Event.newBuilder()
+				.setEventId(eventId)
+				.setType(Event.Type.DEVICES_DETACHED)
+				.setDevicesDetachedEvent(devicesDetachedEvent)
+				.build();
+	}
+
 	private static Iterable<Link> toLinks(final Multimap<String, String> linkMap) {
 		List<Link> links = newArrayList();
 		for (String sourceNodeUrn : linkMap.keySet()) {

@@ -4,5 +4,5 @@ import java.util.concurrent.TimeUnit;
 
 public interface NodeApiFactory {
 
-	NodeApi create(String nodeUrn, NodeApiDeviceAdapter deviceAdapter, int defaultTimeout, TimeUnit defaultTimeUnit);
+	NodeApi create(String nodeUrn, NodeApiDeviceAdapter deviceAdapter, long defaultTimeout, TimeUnit defaultTimeUnit);
 }
