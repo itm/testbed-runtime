@@ -206,6 +206,20 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		}
 	}
 
+	@Subscribe
+	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
+		if (reservedNodeUrns.contains(new NodeUrn(progress.getNodeUrn()))) {
+			eventBus.post(progress);
+		}
+	}
+
+	@Subscribe
+	public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+		if (reservedNodeUrns.contains(new NodeUrn(response.getNodeUrn()))) {
+			eventBus.post(response);
+		}
+	}
+
 	@Override
 	protected void doStart() {
 		try {

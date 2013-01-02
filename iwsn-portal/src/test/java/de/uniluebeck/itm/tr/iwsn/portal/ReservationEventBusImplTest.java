@@ -290,6 +290,67 @@ public class ReservationEventBusImplTest {
 	}
 
 	@Test
+	public void testSingleNodeProgressShouldBeForwardedIfNodePartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : RESERVED_NODES) {
+			final SingleNodeProgress progress = MessagesHelper.newSingleNodeProgress(RANDOM.nextLong(), nodeUrn, 37);
+			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
+			verify(eventBus).post(eq(progress));
+		}
+	}
+
+	@Test
+	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
+			final SingleNodeProgress progress = newSingleNodeProgress(RANDOM.nextLong(), nodeUrn, 37);
+			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
+			verify(eventBus, never()).post(eq(progress));
+		}
+	}
+
+	@Test
+	public void testSingleNodeResponseShouldBeForwardedIfNodePartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : RESERVED_NODES) {
+			final SingleNodeResponse response = newSingleNodeResponse(RANDOM.nextLong(), nodeUrn, 37, null);
+			reservationEventBus.onSingleNodeResponseFromPortalEventBus(response);
+			verify(eventBus).post(eq(response));
+		}
+	}
+
+	@Test
+	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
+			final SingleNodeResponse response = newSingleNodeResponse(RANDOM.nextLong(), nodeUrn, 37, null);
+			reservationEventBus.onSingleNodeResponseFromPortalEventBus(response);
+			verify(eventBus, never()).post(eq(response));
+		}
+	}
+
+	@Test
+	public void testNotificationShouldBeForwardedIfNoNodeIsSet() throws Exception {
+		final NotificationEvent event = newNotificationEvent("hello");
+		reservationEventBus.onNotificationEventFromPortalEventBus(event);
+		verify(eventBus).post(eq(event));
+	}
+
+	@Test
+	public void testNotificationShouldBeForwardedIfNodeIsPartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : RESERVED_NODES) {
+			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
+			reservationEventBus.onNotificationEventFromPortalEventBus(event);
+			verify(eventBus).post(eq(event));
+		}
+	}
+
+	@Test
+	public void testNotificationShouldNotBeForwardedIfNodeIsNotPartOfReservation() throws Exception {
+		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
+			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
+			reservationEventBus.onNotificationEventFromPortalEventBus(event);
+			verify(eventBus, never()).post(eq(event));
+		}
+	}
+
+	@Test
 	public void testDevicesDetachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
 			final DevicesDetachedEvent event = newDevicesDetachedEvent(nodeUrn);
@@ -317,31 +378,6 @@ public class ReservationEventBusImplTest {
 		final ArgumentCaptor<DevicesDetachedEvent> captor = ArgumentCaptor.forClass(DevicesDetachedEvent.class);
 		verify(eventBus, times(1)).post(captor.capture());
 		assertTrue(MessagesHelper.equals(captor.getValue(), newDevicesDetachedEvent(timestamp, RESERVED_NODES)));
-	}
-
-	@Test
-	public void testNotificationShouldBeForwardedIfNoNodeIsSet() throws Exception {
-		final NotificationEvent event = newNotificationEvent("hello");
-		reservationEventBus.onNotificationEventFromPortalEventBus(event);
-		verify(eventBus).post(eq(event));
-	}
-
-	@Test
-	public void testNotificationShouldBeForwardedIfNodeIsPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onNotificationEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
-	}
-
-	@Test
-	public void testNotificationShouldNotBeForwardedIfNodeIsNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onNotificationEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
 	}
 
 	private UpstreamMessageEvent newUpstreamMessageEvent(final NodeUrn sourceNodeUrn, final String message) {

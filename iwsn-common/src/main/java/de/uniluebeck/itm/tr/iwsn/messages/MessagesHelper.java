@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -372,5 +373,36 @@ public abstract class MessagesHelper {
 
 	public static NotificationEvent newNotificationEvent(final String message) {
 		return newNotificationEvent(null, new DateTime().getMillis(), message);
+	}
+
+	public static SingleNodeProgress newSingleNodeProgress(final long requestId,
+														   final NodeUrn nodeUrn,
+														   final int progressInPercent) {
+		checkArgument(
+				progressInPercent >= 0 && progressInPercent <= 100,
+				"A progress in percent can only be between 0 and 100 (actual value: " + progressInPercent + ")"
+		);
+
+		return SingleNodeProgress.newBuilder()
+				.setRequestId(requestId)
+				.setNodeUrn(nodeUrn.toString())
+				.setProgressInPercent(progressInPercent)
+				.build();
+	}
+
+	public static SingleNodeResponse newSingleNodeResponse(final long requestId,
+														   final NodeUrn nodeUrn,
+														   final int statusCode,
+														   @Nullable final String errorMessage) {
+		final SingleNodeResponse.Builder builder = SingleNodeResponse.newBuilder()
+				.setRequestId(requestId)
+				.setNodeUrn(nodeUrn.toString())
+				.setStatusCode(statusCode);
+
+		if (errorMessage != null) {
+			builder.setErrorMessage(errorMessage);
+		}
+
+		return builder.build();
 	}
 }
