@@ -176,7 +176,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 					final Request.Builder requestBuilder = Request.newBuilder()
 							.setRequestId(request.getRequestId())
-							.setType(Request.Type.ENABLE_NODE)
+							.setType(Request.Type.RESET_NODES)
 							.setResetNodesRequest(resetNodesRequestBuilder);
 
 					requestsToBeSent.put(ctx, requestBuilder);

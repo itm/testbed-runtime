@@ -10,30 +10,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Random;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesAliveRequest;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;
 
 /**
  * DESTROY_VIRTUAL_LINK
- * DISABLE_NODE
  * DISABLE_PHYSICAL_LINK
- * ENABLE_NODE
  * ENABLE_PHYSICAL_LINK
  * FLASH_PROGRAMS
- * RESET_NODES
- * SEND_DOWNSTREAM_MESSAGE
  * SET_CHANNEL_PIPELINE
- * SET_DEFAULT_CHANNEL_PIPELINE
  * SET_VIRTUAL_LINK
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -47,11 +43,13 @@ public class PortalChannelHandlerTest {
 
 	private static final NodeUrn GATEWAY1_NODE1 = new NodeUrn("urn:unittest:0x0011");
 
-	private static final HashSet<String> GATEWAY1_NODE_URN_STRINGS = newHashSet(GATEWAY1_NODE1.toString());
-
 	private static final NodeUrn GATEWAY2_NODE1 = new NodeUrn("urn:unittest:0x0021");
 
 	private static final NodeUrn GATEWAY2_NODE2 = new NodeUrn("urn:unittest:0x0022");
+
+	private static final HashSet<String> GATEWAY1_NODE_URN_STRINGS = newHashSet(
+			GATEWAY1_NODE1.toString()
+	);
 
 	private static final HashSet<String> GATEWAY2_NODE_URN_STRINGS = newHashSet(
 			GATEWAY2_NODE1.toString(),
@@ -153,7 +151,111 @@ public class PortalChannelHandlerTest {
 		setUpGatewayAndChannelMockBehavior();
 	}
 
+	@Test
+	public void testIfAreNodesAliveRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newAreNodesAliveRequest(requestId, ALL_NODE_URNS));
+
+		final Message expectedMessage1 = newAreNodesAliveRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 = newAreNodesAliveRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfAreNodesConnectedRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newAreNodesConnectedRequest(requestId, ALL_NODE_URNS));
+
+		final Message expectedMessage1 = newAreNodesConnectedRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 = newAreNodesConnectedRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfDisableNodesRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newDisableNodesRequest(requestId, ALL_NODE_URNS));
+
+		final Message expectedMessage1 = newDisableNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 = newDisableNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfEnableNodesRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newEnableNodesRequest(requestId, ALL_NODE_URNS));
+
+		final Message expectedMessage1 = newEnableNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 = newEnableNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfResetNodesRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newResetNodesRequest(requestId, ALL_NODE_URNS));
+
+		final Message expectedMessage1 = newResetNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 = newResetNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfSendDownstreamMessageRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+		final byte[] bytes = "Hello, World!".getBytes(Charset.defaultCharset());
+
+		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(requestId, ALL_NODE_URNS, bytes));
+
+		final Message expectedMessage1 =
+				newSendDownstreamMessageRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, bytes);
+		final Message expectedMessage2 =
+				newSendDownstreamMessageRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, bytes);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	private Message verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
+
+		ArgumentCaptor<DownstreamMessageEvent> captor = ArgumentCaptor.forClass(DownstreamMessageEvent.class);
+		verify(context).sendDownstream(captor.capture());
+		assertSame(channel, captor.getValue().getChannel());
+		assertSame(null, captor.getValue().getRemoteAddress());
+
+		return (Message) captor.getValue().getMessage();
+	}
+
 	private void setUpGatewayAndChannelMockBehavior() {
+
 		when(gateway1Channel.getId()).thenReturn(1);
 		when(gateway2Channel.getId()).thenReturn(2);
 		when(gateway3Channel.getId()).thenReturn(3);
@@ -165,59 +267,5 @@ public class PortalChannelHandlerTest {
 		when(gateway1Context.getChannel()).thenReturn(gateway1Channel);
 		when(gateway2Context.getChannel()).thenReturn(gateway2Channel);
 		when(gateway3Context.getChannel()).thenReturn(gateway3Channel);
-	}
-
-	@Test
-	public void testIfAreNodesAliveRequestIsCorrectlyDistributed() throws Exception {
-
-		final long requestId = RANDOM.nextLong();
-
-		portalChannelHandler.onRequest(Request.newBuilder()
-				.setType(Request.Type.ARE_NODES_ALIVE)
-				.setRequestId(requestId)
-				.setAreNodesAliveRequest(AreNodesAliveRequest.newBuilder().addAllNodeUrns(ALL_NODE_URNS))
-				.build()
-		);
-
-		final Message expectedMessage1 = newAreNodesAliveRequest(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newAreNodesAliveRequest(requestId, GATEWAY2_NODE_URN_STRINGS);
-
-		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
-		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
-	}
-
-	@Test
-	public void testIfAreNodesConnectedRequestIsCorrectlyDistributed() throws Exception {
-
-		final long requestId = RANDOM.nextLong();
-
-		portalChannelHandler.onRequest(Request.newBuilder()
-				.setType(Request.Type.ARE_NODES_CONNECTED)
-				.setRequestId(requestId)
-				.setAreNodesConnectedRequest(AreNodesConnectedRequest.newBuilder().addAllNodeUrns(ALL_NODE_URNS))
-				.build()
-		);
-
-		final Message expectedMessage1 = newAreNodesConnectedRequest(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newAreNodesConnectedRequest(requestId, GATEWAY2_NODE_URN_STRINGS);
-
-		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
-		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
-	}
-
-	@Test
-	public void testIfDisableNodesRequestIsCorrectlyDistributed() throws Exception {
-
-
-	}
-
-	private Message verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
-
-		ArgumentCaptor<DownstreamMessageEvent> captor = ArgumentCaptor.forClass(DownstreamMessageEvent.class);
-		verify(context).sendDownstream(captor.capture());
-		assertSame(channel, captor.getValue().getChannel());
-		assertSame(null, captor.getValue().getRemoteAddress());
-
-		return (Message) captor.getValue().getMessage();
 	}
 }
