@@ -3,6 +3,10 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 import com.google.common.collect.Multimap;
 import com.google.protobuf.ByteString;
 
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+
 public abstract class MessagesHelper {
 
 	public static Message newAreNodesAliveRequestMessage(final long requestId,
@@ -124,19 +128,12 @@ public abstract class MessagesHelper {
 	}
 
 	public static Request newDisableVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
-
-		final DisableVirtualLinksRequest.Builder builder = DisableVirtualLinksRequest.newBuilder();
-
-		for (String sourceNodeUrn : links.keySet()) {
-			for (String targetNodeUrn : links.get(sourceNodeUrn)) {
-				builder.addLinks(Link.newBuilder().setSourceNodeUrn(sourceNodeUrn).setTargetNodeUrn(targetNodeUrn));
-			}
-		}
-
 		return Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.DISABLE_VIRTUAL_LINKS)
-				.setDisableVirtualLinksRequest(builder.build())
+				.setDisableVirtualLinksRequest(
+						DisableVirtualLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
+				)
 				.build();
 	}
 
@@ -146,24 +143,17 @@ public abstract class MessagesHelper {
 	}
 
 	public static Request newEnableVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
-
-		final EnableVirtualLinksRequest.Builder builder = EnableVirtualLinksRequest.newBuilder();
-
-		for (String sourceNodeUrn : links.keySet()) {
-			for (String targetNodeUrn : links.get(sourceNodeUrn)) {
-				builder.addLinks(Link.newBuilder().setSourceNodeUrn(sourceNodeUrn).setTargetNodeUrn(targetNodeUrn));
-			}
-		}
-
 		return Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ENABLE_VIRTUAL_LINKS)
-				.setEnableVirtualLinksRequest(builder.build())
+				.setEnableVirtualLinksRequest(
+						EnableVirtualLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
+				)
 				.build();
 	}
 
 	public static Message newEnableVirtualLinksRequestMessage(final long requestId,
-														   final Multimap<String, String> links) {
+															  final Multimap<String, String> links) {
 		return newMessage(newEnableVirtualLinksRequest(requestId, links));
 	}
 
@@ -172,5 +162,15 @@ public abstract class MessagesHelper {
 				.setType(Message.Type.REQUEST)
 				.setRequest(request)
 				.build();
+	}
+
+	private static Iterable<Link> toLinks(final Multimap<String, String> linkMap) {
+		List<Link> links = newArrayList();
+		for (String sourceNodeUrn : linkMap.keySet()) {
+			for (String targetNodeUrn : linkMap.get(sourceNodeUrn)) {
+				links.add(Link.newBuilder().setSourceNodeUrn(sourceNodeUrn).setTargetNodeUrn(targetNodeUrn).build());
+			}
+		}
+		return links;
 	}
 }
