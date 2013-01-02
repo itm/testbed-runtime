@@ -172,6 +172,21 @@ public abstract class MessagesHelper {
 		return newMessage(newDisablePhysicalLinksRequest(requestId, links));
 	}
 
+	public static Request newEnablePhysicalLinksRequest(final long requestId, final Multimap<String, String> links) {
+		return Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.ENABLE_PHYSICAL_LINKS)
+				.setEnablePhysicalLinksRequest(
+						EnablePhysicalLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
+				)
+				.build();
+	}
+
+	public static Message newEnablePhysicalLinksRequestMessage(final long requestId,
+															   final Multimap<String, String> links) {
+		return newMessage(newEnablePhysicalLinksRequest(requestId, links));
+	}
+
 	public static Message newMessage(Request request) {
 		return Message.newBuilder()
 				.setType(Message.Type.REQUEST)

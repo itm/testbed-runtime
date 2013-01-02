@@ -62,7 +62,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		final Set<NodeUrn> nodeUrns;
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
 		final Map<ChannelHandlerContext, Request> requestsToBeSent = newHashMap();
-		final List<Link> physicalLinks;
+		final List<Link> links;
 
 		switch (request.getType()) {
 
@@ -110,10 +110,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case DISABLE_PHYSICAL_LINKS:
 
-				physicalLinks = request.getDisablePhysicalLinksRequest().getLinksList();
+				links = request.getDisablePhysicalLinksRequest().getLinksList();
 
 				nodeUrnsList = newArrayList();
-				for (Link link : physicalLinks) {
+				for (Link link : links) {
 					nodeUrnsList.add(link.getSourceNodeUrn());
 				}
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
@@ -122,7 +122,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : physicalLinks) {
+					for (Link link : links) {
 						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
 							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
 						}
@@ -135,10 +135,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case DISABLE_VIRTUAL_LINKS:
 
-				physicalLinks = request.getDisableVirtualLinksRequest().getLinksList();
+				links = request.getDisableVirtualLinksRequest().getLinksList();
 
 				nodeUrnsList = newArrayList();
-				for (Link link : physicalLinks) {
+				for (Link link : links) {
 					nodeUrnsList.add(link.getSourceNodeUrn());
 				}
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
@@ -147,7 +147,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : physicalLinks) {
+					for (Link link : links) {
 						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
 							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
 						}
@@ -173,14 +173,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ENABLE_PHYSICAL_LINKS:
-				throw new RuntimeException("TODO: not yet implemented");
 
-			case ENABLE_VIRTUAL_LINKS:
-
-				physicalLinks = request.getEnableVirtualLinksRequest().getLinksList();
+				links = request.getEnablePhysicalLinksRequest().getLinksList();
 
 				nodeUrnsList = newArrayList();
-				for (Link link : physicalLinks) {
+				for (Link link : links) {
 					nodeUrnsList.add(link.getSourceNodeUrn());
 				}
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
@@ -189,7 +186,32 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : physicalLinks) {
+					for (Link link : links) {
+						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
+							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						}
+					}
+					requestsToBeSent.put(ctx, newEnablePhysicalLinksRequest(requestId, subRequestLinks));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
+
+			case ENABLE_VIRTUAL_LINKS:
+
+				links = request.getEnableVirtualLinksRequest().getLinksList();
+
+				nodeUrnsList = newArrayList();
+				for (Link link : links) {
+					nodeUrnsList.add(link.getSourceNodeUrn());
+				}
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					for (Link link : links) {
 						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
 							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
 						}

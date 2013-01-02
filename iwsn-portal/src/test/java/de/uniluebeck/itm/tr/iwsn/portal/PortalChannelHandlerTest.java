@@ -322,6 +322,21 @@ public class PortalChannelHandlerTest {
 		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
 	}
 
+	@Test
+	public void testIfEnablePhysicalLinksRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newEnablePhysicalLinksRequest(requestId, LINKS));
+
+		final Message expectedMessage1 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW1);
+		final Message expectedMessage2 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW2);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
 	private Message verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
 
 		ArgumentCaptor<DownstreamMessageEvent> captor = ArgumentCaptor.forClass(DownstreamMessageEvent.class);
