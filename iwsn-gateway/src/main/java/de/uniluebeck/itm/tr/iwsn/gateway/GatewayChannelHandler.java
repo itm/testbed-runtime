@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,16 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 		gatewayEventBus.unregister(this);
 		channel = null;
 		super.channelDisconnected(ctx, e);
+	}
+
+	@Subscribe
+	public void onUpstreamMessageEvent(UpstreamMessageEvent upstreamMessageEvent) {
+		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), upstreamMessageEvent)));
+	}
+
+	@Subscribe
+	public void onNotificationEvent(NotificationEvent notificationEvent) {
+		sendToPortal(newMessage(MessagesHelper.newEvent(gatewayEventIdProvider.get(), notificationEvent)));
 	}
 
 	@Subscribe

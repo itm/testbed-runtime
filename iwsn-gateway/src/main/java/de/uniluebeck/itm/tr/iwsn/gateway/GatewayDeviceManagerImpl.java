@@ -146,6 +146,7 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 					);
 
 					final GatewayDevice gatewayDevice = gatewayDeviceFactory.create(deviceConfig, device);
+					gatewayDevice.startAndWait();
 					devices.put(nodeUrn, gatewayDevice);
 
 					postDevicesAttachedEvent(nodeUrn);

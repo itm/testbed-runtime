@@ -248,6 +248,22 @@ public abstract class MessagesHelper {
 				.build();
 	}
 
+	public static Event newEvent(final long eventId, final UpstreamMessageEvent upstreamMessageEvent) {
+		return Event.newBuilder()
+				.setEventId(eventId)
+				.setType(Event.Type.UPSTREAM_MESSAGE)
+				.setUpstreamMessageEvent(upstreamMessageEvent)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final NotificationEvent notificationEvent) {
+		return Event.newBuilder()
+				.setEventId(eventId)
+				.setType(Event.Type.NOTIFICATION)
+				.setNotificationEvent(notificationEvent)
+				.build();
+	}
+
 	private static Iterable<Link> toLinks(final Multimap<String, String> linkMap) {
 		List<Link> links = newArrayList();
 		for (String sourceNodeUrn : linkMap.keySet()) {

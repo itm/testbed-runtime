@@ -27,10 +27,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
@@ -46,6 +43,7 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.tr.util.RateLimiter;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -97,11 +95,6 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	private int packetsDroppedSinceLastNotification = 0;
 
-	/**
-	 * Used to execute calls on the Node API as calls to it will currently block the thread executing the call.
-	 */
-	private ExecutorService nodeApiExecutor;
-
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
 	private final HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
@@ -142,6 +135,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	private final BelowPipelineLogger belowPipelineLogger;
 
 	private final GatewayEventBus gatewayEventBus;
+
+	private ExecutorService deviceExecutor;
 
 	@Inject
 	public GatewayDeviceImpl(@Assisted final DeviceConfig deviceConfig,
@@ -194,9 +189,13 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 		try {
 
+			deviceExecutor = Executors.newCachedThreadPool(
+					new ThreadFactoryBuilder().setNameFormat("GatewayDevice-" + deviceConfig.getNodeUrn()).build()
+			);
+
 			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
 
-			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(nodeApiExecutor));
+			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(deviceExecutor));
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
@@ -214,7 +213,6 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 				throw new RuntimeException(e);
 			}
 
-			nodeApiExecutor = Executors.newCachedThreadPool();
 			nodeApi.start();
 
 		} catch (Exception e) {
@@ -236,7 +234,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 			shutdownDeviceChannel();
 			nodeApi.stop();
-			ExecutorUtils.shutdown(nodeApiExecutor, 1, TimeUnit.SECONDS);
+			ExecutorUtils.shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -592,8 +590,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {
 		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e)
-				throws Exception {
+		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
 			if (e.getMessage() instanceof ChannelBuffer) {
 
