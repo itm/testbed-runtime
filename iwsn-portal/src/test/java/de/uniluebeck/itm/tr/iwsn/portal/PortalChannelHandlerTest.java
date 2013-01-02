@@ -29,9 +29,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;
 
-/**
- * SET_CHANNEL_PIPELINE
- */
 @RunWith(MockitoJUnitRunner.class)
 public class PortalChannelHandlerTest {
 
@@ -47,33 +44,33 @@ public class PortalChannelHandlerTest {
 
 	private static final NodeUrn GATEWAY2_NODE2 = new NodeUrn("urn:unit-test:0x0022");
 
-	private static final HashSet<String> GATEWAY1_NODE_URN_STRINGS = newHashSet(
-			GATEWAY1_NODE1.toString()
+	private static final HashSet<NodeUrn> GATEWAY1_NODE_URN_STRINGS = newHashSet(
+			GATEWAY1_NODE1
 	);
 
-	private static final HashSet<String> GATEWAY2_NODE_URN_STRINGS = newHashSet(
-			GATEWAY2_NODE1.toString(),
-			GATEWAY2_NODE2.toString()
+	private static final HashSet<NodeUrn> GATEWAY2_NODE_URN_STRINGS = newHashSet(
+			GATEWAY2_NODE1,
+			GATEWAY2_NODE2
 	);
 
-	private static final Iterable<String> ALL_NODE_URNS = newHashSet(
-			GATEWAY1_NODE1.toString(),
-			GATEWAY2_NODE1.toString(),
-			GATEWAY2_NODE2.toString()
+	private static final Iterable<NodeUrn> ALL_NODE_URNS = newHashSet(
+			GATEWAY1_NODE1,
+			GATEWAY2_NODE1,
+			GATEWAY2_NODE2
 	);
 
-	private static final Multimap<String, String> LINKS_GW1 = HashMultimap.create();
+	private static final Multimap<NodeUrn, NodeUrn> LINKS_GW1 = HashMultimap.create();
 
-	private static final Multimap<String, String> LINKS_GW2 = HashMultimap.create();
+	private static final Multimap<NodeUrn, NodeUrn> LINKS_GW2 = HashMultimap.create();
 
-	private static final Multimap<String, String> LINKS = HashMultimap.create();
+	private static final Multimap<NodeUrn, NodeUrn> LINKS = HashMultimap.create();
 
 	static {
 
-		LINKS_GW1.put(GATEWAY1_NODE1.toString(), GATEWAY2_NODE1.toString());
+		LINKS_GW1.put(GATEWAY1_NODE1, GATEWAY2_NODE1);
 
-		LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY1_NODE1.toString());
-		LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY2_NODE2.toString());
+		LINKS_GW2.put(GATEWAY2_NODE1, GATEWAY1_NODE1);
+		LINKS_GW2.put(GATEWAY2_NODE1, GATEWAY2_NODE2);
 
 		LINKS.putAll(LINKS_GW1);
 		LINKS.putAll(LINKS_GW2);

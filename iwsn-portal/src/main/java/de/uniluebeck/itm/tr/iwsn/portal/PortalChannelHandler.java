@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
@@ -73,8 +72,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newAreNodesAliveRequest(requestId, subRequestNodeUrns));
+					requestsToBeSent.put(ctx, newAreNodesAliveRequest(requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -87,8 +85,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newAreNodesConnectedRequest(requestId, subRequestNodeUrns));
+					requestsToBeSent.put(ctx, newAreNodesConnectedRequest(requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -101,8 +98,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newDisableNodesRequest(requestId, subRequestNodeUrns));
+					requestsToBeSent.put(ctx, newDisableNodesRequest(requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -120,11 +116,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					final Multimap<NodeUrn, NodeUrn> subRequestLinks = HashMultimap.create();
 					for (Link link : links) {
-						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
-							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						if (Iterables.contains(mapping.get(ctx), new NodeUrn(link.getSourceNodeUrn()))) {
+							subRequestLinks.put(
+									new NodeUrn(link.getSourceNodeUrn()),
+									new NodeUrn(link.getTargetNodeUrn())
+							);
 						}
 					}
 					requestsToBeSent.put(ctx, newDisablePhysicalLinksRequest(requestId, subRequestLinks));
@@ -145,11 +143,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					final Multimap<NodeUrn, NodeUrn> subRequestLinks = HashMultimap.create();
 					for (Link link : links) {
-						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
-							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						if (Iterables.contains(mapping.get(ctx), new NodeUrn(link.getSourceNodeUrn()))) {
+							subRequestLinks.put(
+									new NodeUrn(link.getSourceNodeUrn()),
+									new NodeUrn(link.getTargetNodeUrn())
+							);
 						}
 					}
 					requestsToBeSent.put(ctx, newDisableVirtualLinksRequest(requestId, subRequestLinks));
@@ -165,8 +165,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newEnableNodesRequest(requestId, subRequestNodeUrns));
+					requestsToBeSent.put(ctx, newEnableNodesRequest(requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -184,11 +183,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					final Multimap<NodeUrn, NodeUrn> subRequestLinks = HashMultimap.create();
 					for (Link link : links) {
-						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
-							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						if (Iterables.contains(mapping.get(ctx), new NodeUrn(link.getSourceNodeUrn()))) {
+							subRequestLinks.put(
+									new NodeUrn(link.getSourceNodeUrn()),
+									new NodeUrn(link.getTargetNodeUrn())
+							);
 						}
 					}
 					requestsToBeSent.put(ctx, newEnablePhysicalLinksRequest(requestId, subRequestLinks));
@@ -209,11 +210,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					final Multimap<NodeUrn, NodeUrn> subRequestLinks = HashMultimap.create();
 					for (Link link : links) {
-						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
-							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						if (Iterables.contains(mapping.get(ctx), new NodeUrn(link.getSourceNodeUrn()))) {
+							subRequestLinks.put(
+									new NodeUrn(link.getSourceNodeUrn()),
+									new NodeUrn(link.getTargetNodeUrn())
+							);
 						}
 					}
 					requestsToBeSent.put(ctx, newEnableVirtualLinksRequest(requestId, subRequestLinks));
@@ -229,9 +232,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final ByteString imageBytes = request.getFlashImagesRequest().getImage();
-					requestsToBeSent.put(ctx, newFlashImagesRequest(requestId, subRequestNodeUrns, imageBytes));
+					requestsToBeSent.put(ctx, newFlashImagesRequest(requestId, mapping.get(ctx), imageBytes));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -244,8 +246,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newResetNodesRequest(requestId, subRequestNodeUrns));
+					requestsToBeSent.put(ctx, newResetNodesRequest(requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -258,14 +259,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newSendDownstreamMessageRequest(
-							requestId,
-							subRequestNodeUrns,
-							request.getSendDownstreamMessagesRequest().getMessageBytes()
-					)
-					);
+					final ByteString bytes = request.getSendDownstreamMessagesRequest().getMessageBytes();
+					requestsToBeSent.put(ctx, newSendDownstreamMessageRequest(requestId, mapping.get(ctx), bytes));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -278,14 +273,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					requestsToBeSent.put(ctx, newSetChannelPipelinesRequest(
-							requestId,
-							subRequestNodeUrns,
-							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList()
-					)
-					);
+					final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs =
+							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
+					requestsToBeSent.put(ctx, newSetChannelPipelinesRequest(requestId, mapping.get(ctx), configs));
 				}
 
 				sendRequests(requestsToBeSent);

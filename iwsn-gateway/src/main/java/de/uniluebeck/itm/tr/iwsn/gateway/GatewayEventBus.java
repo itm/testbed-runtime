@@ -1,12 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
-import com.google.common.util.concurrent.Service;
+import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 
-public interface GatewayEventBus extends Service {
+public interface GatewayEventBus extends EventBusService {
 
-	void register(Object object);
-
-	void unregister(Object object);
-
-	void post(Object event);
 }
