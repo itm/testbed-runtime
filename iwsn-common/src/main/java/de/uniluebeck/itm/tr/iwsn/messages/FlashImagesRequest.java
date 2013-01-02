@@ -2,32 +2,32 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public  final class DevicesDetachedEvent extends
+public  final class FlashImagesRequest extends
     com.google.protobuf.GeneratedMessage
-    implements DevicesDetachedEventOrBuilder {
-  // Use DevicesDetachedEvent.newBuilder() to construct.
-  private DevicesDetachedEvent(Builder builder) {
+    implements FlashImagesRequestOrBuilder {
+  // Use FlashImagesRequest.newBuilder() to construct.
+  private FlashImagesRequest(Builder builder) {
     super(builder);
   }
-  private DevicesDetachedEvent(boolean noInit) {}
+  private FlashImagesRequest(boolean noInit) {}
   
-  private static final DevicesDetachedEvent defaultInstance;
-  public static DevicesDetachedEvent getDefaultInstance() {
+  private static final FlashImagesRequest defaultInstance;
+  public static FlashImagesRequest getDefaultInstance() {
     return defaultInstance;
   }
   
-  public DevicesDetachedEvent getDefaultInstanceForType() {
+  public FlashImagesRequest getDefaultInstanceForType() {
     return defaultInstance;
   }
   
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DevicesDetachedEvent_descriptor;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_FlashImagesRequest_descriptor;
   }
   
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DevicesDetachedEvent_fieldAccessorTable;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_FlashImagesRequest_fieldAccessorTable;
   }
   
   private int bitField0_;
@@ -45,26 +45,26 @@ public  final class DevicesDetachedEvent extends
     return nodeUrns_.get(index);
   }
   
-  // required uint64 timestamp = 2;
-  public static final int TIMESTAMP_FIELD_NUMBER = 2;
-  private long timestamp_;
-  public boolean hasTimestamp() {
+  // required bytes image = 2;
+  public static final int IMAGE_FIELD_NUMBER = 2;
+  private com.google.protobuf.ByteString image_;
+  public boolean hasImage() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public long getTimestamp() {
-    return timestamp_;
+  public com.google.protobuf.ByteString getImage() {
+    return image_;
   }
   
   private void initFields() {
     nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    timestamp_ = 0L;
+    image_ = com.google.protobuf.ByteString.EMPTY;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
-    if (!hasTimestamp()) {
+    if (!hasImage()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -79,7 +79,7 @@ public  final class DevicesDetachedEvent extends
       output.writeBytes(1, nodeUrns_.getByteString(i));
     }
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeUInt64(2, timestamp_);
+      output.writeBytes(2, image_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -101,7 +101,7 @@ public  final class DevicesDetachedEvent extends
     }
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt64Size(2, timestamp_);
+        .computeBytesSize(2, image_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -115,41 +115,41 @@ public  final class DevicesDetachedEvent extends
     return super.writeReplace();
   }
   
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(byte[] data)
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseDelimitedFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     Builder builder = newBuilder();
     if (builder.mergeDelimitedFrom(input)) {
@@ -158,7 +158,7 @@ public  final class DevicesDetachedEvent extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseDelimitedFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -169,12 +169,12 @@ public  final class DevicesDetachedEvent extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -184,7 +184,7 @@ public  final class DevicesDetachedEvent extends
   
   public static Builder newBuilder() { return Builder.create(); }
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent prototype) {
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest prototype) {
     return newBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() { return newBuilder(this); }
@@ -197,18 +197,18 @@ public  final class DevicesDetachedEvent extends
   }
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder {
+     implements de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DevicesDetachedEvent_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_FlashImagesRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DevicesDetachedEvent_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_FlashImagesRequest_fieldAccessorTable;
     }
     
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.newBuilder()
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -229,7 +229,7 @@ public  final class DevicesDetachedEvent extends
       super.clear();
       nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000001);
-      timestamp_ = 0L;
+      image_ = com.google.protobuf.ByteString.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
@@ -240,24 +240,24 @@ public  final class DevicesDetachedEvent extends
     
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDescriptor();
+      return de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDescriptor();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent getDefaultInstanceForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent build() {
-      de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent result = buildPartial();
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest build() {
+      de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
     
-    private de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent buildParsed()
+    private de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent result = buildPartial();
+      de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
@@ -265,8 +265,8 @@ public  final class DevicesDetachedEvent extends
       return result;
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent buildPartial() {
-      de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent result = new de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent(this);
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest result = new de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -278,23 +278,23 @@ public  final class DevicesDetachedEvent extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.timestamp_ = timestamp_;
+      result.image_ = image_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent) {
-        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent)other);
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
     
-    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent other) {
-      if (other == de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance()) return this;
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance()) return this;
       if (!other.nodeUrns_.isEmpty()) {
         if (nodeUrns_.isEmpty()) {
           nodeUrns_ = other.nodeUrns_;
@@ -305,15 +305,15 @@ public  final class DevicesDetachedEvent extends
         }
         onChanged();
       }
-      if (other.hasTimestamp()) {
-        setTimestamp(other.getTimestamp());
+      if (other.hasImage()) {
+        setImage(other.getImage());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
     
     public final boolean isInitialized() {
-      if (!hasTimestamp()) {
+      if (!hasImage()) {
         
         return false;
       }
@@ -348,9 +348,9 @@ public  final class DevicesDetachedEvent extends
             nodeUrns_.add(input.readBytes());
             break;
           }
-          case 16: {
+          case 18: {
             bitField0_ |= 0x00000002;
-            timestamp_ = input.readUInt64();
+            image_ = input.readBytes();
             break;
           }
         }
@@ -415,35 +415,38 @@ public  final class DevicesDetachedEvent extends
       onChanged();
     }
     
-    // required uint64 timestamp = 2;
-    private long timestamp_ ;
-    public boolean hasTimestamp() {
+    // required bytes image = 2;
+    private com.google.protobuf.ByteString image_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasImage() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-    public long getTimestamp() {
-      return timestamp_;
+    public com.google.protobuf.ByteString getImage() {
+      return image_;
     }
-    public Builder setTimestamp(long value) {
-      bitField0_ |= 0x00000002;
-      timestamp_ = value;
+    public Builder setImage(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+      image_ = value;
       onChanged();
       return this;
     }
-    public Builder clearTimestamp() {
+    public Builder clearImage() {
       bitField0_ = (bitField0_ & ~0x00000002);
-      timestamp_ = 0L;
+      image_ = getDefaultInstance().getImage();
       onChanged();
       return this;
     }
     
-    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent)
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest)
   }
   
   static {
-    defaultInstance = new DevicesDetachedEvent(true);
+    defaultInstance = new FlashImagesRequest(true);
     defaultInstance.initFields();
   }
   
-  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent)
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest)
 }
 

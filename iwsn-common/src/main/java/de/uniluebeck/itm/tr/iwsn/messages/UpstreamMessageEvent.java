@@ -3,10 +3,11 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 public  final class UpstreamMessageEvent extends
-    com.google.protobuf.GeneratedMessage {
+    com.google.protobuf.GeneratedMessage
+    implements UpstreamMessageEventOrBuilder {
   // Use UpstreamMessageEvent.newBuilder() to construct.
-  private UpstreamMessageEvent() {
-    initFields();
+  private UpstreamMessageEvent(Builder builder) {
+    super(builder);
   }
   private UpstreamMessageEvent(boolean noInit) {}
   
@@ -29,47 +30,96 @@ public  final class UpstreamMessageEvent extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_fieldAccessorTable;
   }
   
+  private int bitField0_;
   // required string sourceNodeUrn = 1;
   public static final int SOURCENODEURN_FIELD_NUMBER = 1;
-  private boolean hasSourceNodeUrn;
-  private java.lang.String sourceNodeUrn_ = "";
-  public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
-  public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
+  private java.lang.Object sourceNodeUrn_;
+  public boolean hasSourceNodeUrn() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public String getSourceNodeUrn() {
+    java.lang.Object ref = sourceNodeUrn_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        sourceNodeUrn_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getSourceNodeUrnBytes() {
+    java.lang.Object ref = sourceNodeUrn_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      sourceNodeUrn_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
   
   // required uint64 timestamp = 2;
   public static final int TIMESTAMP_FIELD_NUMBER = 2;
-  private boolean hasTimestamp;
-  private long timestamp_ = 0L;
-  public boolean hasTimestamp() { return hasTimestamp; }
-  public long getTimestamp() { return timestamp_; }
+  private long timestamp_;
+  public boolean hasTimestamp() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public long getTimestamp() {
+    return timestamp_;
+  }
   
   // required bytes messageBytes = 3;
   public static final int MESSAGEBYTES_FIELD_NUMBER = 3;
-  private boolean hasMessageBytes;
-  private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
-  public boolean hasMessageBytes() { return hasMessageBytes; }
-  public com.google.protobuf.ByteString getMessageBytes() { return messageBytes_; }
+  private com.google.protobuf.ByteString messageBytes_;
+  public boolean hasMessageBytes() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  public com.google.protobuf.ByteString getMessageBytes() {
+    return messageBytes_;
+  }
   
   private void initFields() {
+    sourceNodeUrn_ = "";
+    timestamp_ = 0L;
+    messageBytes_ = com.google.protobuf.ByteString.EMPTY;
   }
+  private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
-    if (!hasSourceNodeUrn) return false;
-    if (!hasTimestamp) return false;
-    if (!hasMessageBytes) return false;
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+    
+    if (!hasSourceNodeUrn()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasTimestamp()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasMessageBytes()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    memoizedIsInitialized = 1;
     return true;
   }
   
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    if (hasSourceNodeUrn()) {
-      output.writeString(1, getSourceNodeUrn());
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      output.writeBytes(1, getSourceNodeUrnBytes());
     }
-    if (hasTimestamp()) {
-      output.writeUInt64(2, getTimestamp());
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeUInt64(2, timestamp_);
     }
-    if (hasMessageBytes()) {
-      output.writeBytes(3, getMessageBytes());
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeBytes(3, messageBytes_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -80,21 +130,28 @@ public  final class UpstreamMessageEvent extends
     if (size != -1) return size;
   
     size = 0;
-    if (hasSourceNodeUrn()) {
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeStringSize(1, getSourceNodeUrn());
+        .computeBytesSize(1, getSourceNodeUrnBytes());
     }
-    if (hasTimestamp()) {
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt64Size(2, getTimestamp());
+        .computeUInt64Size(2, timestamp_);
     }
-    if (hasMessageBytes()) {
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(3, getMessageBytes());
+        .computeBytesSize(3, messageBytes_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
+  }
+  
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
   }
   
   public static de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent parseFrom(
@@ -171,34 +228,55 @@ public  final class UpstreamMessageEvent extends
   }
   public Builder toBuilder() { return newBuilder(this); }
   
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder> {
-    private de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent result;
-    
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder()
-    private Builder() {}
-    
-    private static Builder create() {
-      Builder builder = new Builder();
-      builder.result = new de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent();
-      return builder;
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_descriptor;
     }
     
-    protected de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent internalGetResult() {
-      return result;
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_fieldAccessorTable;
+    }
+    
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+    
+    private Builder(BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+      }
+    }
+    private static Builder create() {
+      return new Builder();
     }
     
     public Builder clear() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "Cannot call clear() after build().");
-      }
-      result = new de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent();
+      super.clear();
+      sourceNodeUrn_ = "";
+      bitField0_ = (bitField0_ & ~0x00000001);
+      timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
     public Builder clone() {
-      return create().mergeFrom(result);
+      return create().mergeFrom(buildPartial());
     }
     
     public com.google.protobuf.Descriptors.Descriptor
@@ -210,33 +288,43 @@ public  final class UpstreamMessageEvent extends
       return de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance();
     }
     
-    public boolean isInitialized() {
-      return result.isInitialized();
-    }
     public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent build() {
-      if (result != null && !isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
-      return buildPartial();
+      return result;
     }
     
     private de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      if (!isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
       }
-      return buildPartial();
+      return result;
     }
     
     public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent buildPartial() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "build() has already been called on this Builder.");
+      de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent result = new de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        to_bitField0_ |= 0x00000001;
       }
-      de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent returnMe = result;
-      result = null;
-      return returnMe;
+      result.sourceNodeUrn_ = sourceNodeUrn_;
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.timestamp_ = timestamp_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
+      result.messageBytes_ = messageBytes_;
+      result.bitField0_ = to_bitField0_;
+      onBuilt();
+      return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -263,6 +351,22 @@ public  final class UpstreamMessageEvent extends
       return this;
     }
     
+    public final boolean isInitialized() {
+      if (!hasSourceNodeUrn()) {
+        
+        return false;
+      }
+      if (!hasTimestamp()) {
+        
+        return false;
+      }
+      if (!hasMessageBytes()) {
+        
+        return false;
+      }
+      return true;
+    }
+    
     public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -275,89 +379,116 @@ public  final class UpstreamMessageEvent extends
         switch (tag) {
           case 0:
             this.setUnknownFields(unknownFields.build());
+            onChanged();
             return this;
           default: {
             if (!parseUnknownField(input, unknownFields,
                                    extensionRegistry, tag)) {
               this.setUnknownFields(unknownFields.build());
+              onChanged();
               return this;
             }
             break;
           }
           case 10: {
-            setSourceNodeUrn(input.readString());
+            bitField0_ |= 0x00000001;
+            sourceNodeUrn_ = input.readBytes();
             break;
           }
           case 16: {
-            setTimestamp(input.readUInt64());
+            bitField0_ |= 0x00000002;
+            timestamp_ = input.readUInt64();
             break;
           }
           case 26: {
-            setMessageBytes(input.readBytes());
+            bitField0_ |= 0x00000004;
+            messageBytes_ = input.readBytes();
             break;
           }
         }
       }
     }
     
+    private int bitField0_;
     
     // required string sourceNodeUrn = 1;
+    private java.lang.Object sourceNodeUrn_ = "";
     public boolean hasSourceNodeUrn() {
-      return result.hasSourceNodeUrn();
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public java.lang.String getSourceNodeUrn() {
-      return result.getSourceNodeUrn();
+    public String getSourceNodeUrn() {
+      java.lang.Object ref = sourceNodeUrn_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        sourceNodeUrn_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
     }
-    public Builder setSourceNodeUrn(java.lang.String value) {
+    public Builder setSourceNodeUrn(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.hasSourceNodeUrn = true;
-      result.sourceNodeUrn_ = value;
+  bitField0_ |= 0x00000001;
+      sourceNodeUrn_ = value;
+      onChanged();
       return this;
     }
     public Builder clearSourceNodeUrn() {
-      result.hasSourceNodeUrn = false;
-      result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
+      bitField0_ = (bitField0_ & ~0x00000001);
+      sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
+      onChanged();
       return this;
+    }
+    void setSourceNodeUrn(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000001;
+      sourceNodeUrn_ = value;
+      onChanged();
     }
     
     // required uint64 timestamp = 2;
+    private long timestamp_ ;
     public boolean hasTimestamp() {
-      return result.hasTimestamp();
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public long getTimestamp() {
-      return result.getTimestamp();
+      return timestamp_;
     }
     public Builder setTimestamp(long value) {
-      result.hasTimestamp = true;
-      result.timestamp_ = value;
+      bitField0_ |= 0x00000002;
+      timestamp_ = value;
+      onChanged();
       return this;
     }
     public Builder clearTimestamp() {
-      result.hasTimestamp = false;
-      result.timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      timestamp_ = 0L;
+      onChanged();
       return this;
     }
     
     // required bytes messageBytes = 3;
+    private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
     public boolean hasMessageBytes() {
-      return result.hasMessageBytes();
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public com.google.protobuf.ByteString getMessageBytes() {
-      return result.getMessageBytes();
+      return messageBytes_;
     }
     public Builder setMessageBytes(com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.hasMessageBytes = true;
-      result.messageBytes_ = value;
+  bitField0_ |= 0x00000004;
+      messageBytes_ = value;
+      onChanged();
       return this;
     }
     public Builder clearMessageBytes() {
-      result.hasMessageBytes = false;
-      result.messageBytes_ = getDefaultInstance().getMessageBytes();
+      bitField0_ = (bitField0_ & ~0x00000004);
+      messageBytes_ = getDefaultInstance().getMessageBytes();
+      onChanged();
       return this;
     }
     
@@ -366,7 +497,6 @@ public  final class UpstreamMessageEvent extends
   
   static {
     defaultInstance = new UpstreamMessageEvent(true);
-    de.uniluebeck.itm.tr.iwsn.messages.Messages.internalForceInit();
     defaultInstance.initFields();
   }
   

@@ -3,10 +3,11 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 public  final class DisableNodesRequest extends
-    com.google.protobuf.GeneratedMessage {
+    com.google.protobuf.GeneratedMessage
+    implements DisableNodesRequestOrBuilder {
   // Use DisableNodesRequest.newBuilder() to construct.
-  private DisableNodesRequest() {
-    initFields();
+  private DisableNodesRequest(Builder builder) {
+    super(builder);
   }
   private DisableNodesRequest(boolean noInit) {}
   
@@ -31,27 +32,35 @@ public  final class DisableNodesRequest extends
   
   // repeated string nodeUrns = 1;
   public static final int NODEURNS_FIELD_NUMBER = 1;
-  private java.util.List<java.lang.String> nodeUrns_ =
-    java.util.Collections.emptyList();
-  public java.util.List<java.lang.String> getNodeUrnsList() {
+  private com.google.protobuf.LazyStringList nodeUrns_;
+  public java.util.List<String>
+      getNodeUrnsList() {
     return nodeUrns_;
   }
-  public int getNodeUrnsCount() { return nodeUrns_.size(); }
-  public java.lang.String getNodeUrns(int index) {
+  public int getNodeUrnsCount() {
+    return nodeUrns_.size();
+  }
+  public String getNodeUrns(int index) {
     return nodeUrns_.get(index);
   }
   
   private void initFields() {
+    nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
   }
+  private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+    
+    memoizedIsInitialized = 1;
     return true;
   }
   
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    for (java.lang.String element : getNodeUrnsList()) {
-      output.writeString(1, element);
+    for (int i = 0; i < nodeUrns_.size(); i++) {
+      output.writeBytes(1, nodeUrns_.getByteString(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -64,9 +73,9 @@ public  final class DisableNodesRequest extends
     size = 0;
     {
       int dataSize = 0;
-      for (java.lang.String element : getNodeUrnsList()) {
+      for (int i = 0; i < nodeUrns_.size(); i++) {
         dataSize += com.google.protobuf.CodedOutputStream
-          .computeStringSizeNoTag(element);
+          .computeBytesSizeNoTag(nodeUrns_.getByteString(i));
       }
       size += dataSize;
       size += 1 * getNodeUrnsList().size();
@@ -74,6 +83,13 @@ public  final class DisableNodesRequest extends
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
+  }
+  
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
   }
   
   public static de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest parseFrom(
@@ -150,34 +166,51 @@ public  final class DisableNodesRequest extends
   }
   public Builder toBuilder() { return newBuilder(this); }
   
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder> {
-    private de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest result;
-    
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.newBuilder()
-    private Builder() {}
-    
-    private static Builder create() {
-      Builder builder = new Builder();
-      builder.result = new de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest();
-      return builder;
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableNodesRequest_descriptor;
     }
     
-    protected de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest internalGetResult() {
-      return result;
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableNodesRequest_fieldAccessorTable;
+    }
+    
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+    
+    private Builder(BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+      }
+    }
+    private static Builder create() {
+      return new Builder();
     }
     
     public Builder clear() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "Cannot call clear() after build().");
-      }
-      result = new de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest();
+      super.clear();
+      nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000001);
       return this;
     }
     
     public Builder clone() {
-      return create().mergeFrom(result);
+      return create().mergeFrom(buildPartial());
     }
     
     public com.google.protobuf.Descriptors.Descriptor
@@ -189,37 +222,35 @@ public  final class DisableNodesRequest extends
       return de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
     }
     
-    public boolean isInitialized() {
-      return result.isInitialized();
-    }
     public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest build() {
-      if (result != null && !isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
-      return buildPartial();
+      return result;
     }
     
     private de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      if (!isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
       }
-      return buildPartial();
+      return result;
     }
     
     public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest buildPartial() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "build() has already been called on this Builder.");
+      de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest result = new de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest(this);
+      int from_bitField0_ = bitField0_;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        nodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(
+            nodeUrns_);
+        bitField0_ = (bitField0_ & ~0x00000001);
       }
-      if (result.nodeUrns_ != java.util.Collections.EMPTY_LIST) {
-        result.nodeUrns_ =
-          java.util.Collections.unmodifiableList(result.nodeUrns_);
-      }
-      de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest returnMe = result;
-      result = null;
-      return returnMe;
+      result.nodeUrns_ = nodeUrns_;
+      onBuilt();
+      return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -234,13 +265,21 @@ public  final class DisableNodesRequest extends
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance()) return this;
       if (!other.nodeUrns_.isEmpty()) {
-        if (result.nodeUrns_.isEmpty()) {
-          result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        if (nodeUrns_.isEmpty()) {
+          nodeUrns_ = other.nodeUrns_;
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          ensureNodeUrnsIsMutable();
+          nodeUrns_.addAll(other.nodeUrns_);
         }
-        result.nodeUrns_.addAll(other.nodeUrns_);
+        onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
+    }
+    
+    public final boolean isInitialized() {
+      return true;
     }
     
     public Builder mergeFrom(
@@ -255,62 +294,82 @@ public  final class DisableNodesRequest extends
         switch (tag) {
           case 0:
             this.setUnknownFields(unknownFields.build());
+            onChanged();
             return this;
           default: {
             if (!parseUnknownField(input, unknownFields,
                                    extensionRegistry, tag)) {
               this.setUnknownFields(unknownFields.build());
+              onChanged();
               return this;
             }
             break;
           }
           case 10: {
-            addNodeUrns(input.readString());
+            ensureNodeUrnsIsMutable();
+            nodeUrns_.add(input.readBytes());
             break;
           }
         }
       }
     }
     
+    private int bitField0_;
     
     // repeated string nodeUrns = 1;
-    public java.util.List<java.lang.String> getNodeUrnsList() {
-      return java.util.Collections.unmodifiableList(result.nodeUrns_);
+    private com.google.protobuf.LazyStringList nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    private void ensureNodeUrnsIsMutable() {
+      if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        nodeUrns_ = new com.google.protobuf.LazyStringArrayList(nodeUrns_);
+        bitField0_ |= 0x00000001;
+       }
+    }
+    public java.util.List<String>
+        getNodeUrnsList() {
+      return java.util.Collections.unmodifiableList(nodeUrns_);
     }
     public int getNodeUrnsCount() {
-      return result.getNodeUrnsCount();
+      return nodeUrns_.size();
     }
-    public java.lang.String getNodeUrns(int index) {
-      return result.getNodeUrns(index);
+    public String getNodeUrns(int index) {
+      return nodeUrns_.get(index);
     }
-    public Builder setNodeUrns(int index, java.lang.String value) {
+    public Builder setNodeUrns(
+        int index, String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.nodeUrns_.set(index, value);
+  ensureNodeUrnsIsMutable();
+      nodeUrns_.set(index, value);
+      onChanged();
       return this;
     }
-    public Builder addNodeUrns(java.lang.String value) {
+    public Builder addNodeUrns(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  if (result.nodeUrns_.isEmpty()) {
-        result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
-      }
-      result.nodeUrns_.add(value);
+  ensureNodeUrnsIsMutable();
+      nodeUrns_.add(value);
+      onChanged();
       return this;
     }
     public Builder addAllNodeUrns(
-        java.lang.Iterable<? extends java.lang.String> values) {
-      if (result.nodeUrns_.isEmpty()) {
-        result.nodeUrns_ = new java.util.ArrayList<java.lang.String>();
-      }
-      super.addAll(values, result.nodeUrns_);
+        java.lang.Iterable<String> values) {
+      ensureNodeUrnsIsMutable();
+      super.addAll(values, nodeUrns_);
+      onChanged();
       return this;
     }
     public Builder clearNodeUrns() {
-      result.nodeUrns_ = java.util.Collections.emptyList();
+      nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      onChanged();
       return this;
+    }
+    void addNodeUrns(com.google.protobuf.ByteString value) {
+      ensureNodeUrnsIsMutable();
+      nodeUrns_.add(value);
+      onChanged();
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest)
@@ -318,7 +377,6 @@ public  final class DisableNodesRequest extends
   
   static {
     defaultInstance = new DisableNodesRequest(true);
-    de.uniluebeck.itm.tr.iwsn.messages.Messages.internalForceInit();
     defaultInstance.initFields();
   }
   

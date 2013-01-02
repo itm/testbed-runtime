@@ -3,10 +3,11 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 public  final class EnablePhysicalLinksRequest extends
-    com.google.protobuf.GeneratedMessage {
+    com.google.protobuf.GeneratedMessage
+    implements EnablePhysicalLinksRequestOrBuilder {
   // Use EnablePhysicalLinksRequest.newBuilder() to construct.
-  private EnablePhysicalLinksRequest() {
-    initFields();
+  private EnablePhysicalLinksRequest(Builder builder) {
+    super(builder);
   }
   private EnablePhysicalLinksRequest(boolean noInit) {}
   
@@ -31,30 +32,48 @@ public  final class EnablePhysicalLinksRequest extends
   
   // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;
   public static final int LINKS_FIELD_NUMBER = 1;
-  private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> links_ =
-    java.util.Collections.emptyList();
+  private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> links_;
   public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> getLinksList() {
     return links_;
   }
-  public int getLinksCount() { return links_.size(); }
+  public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder> 
+      getLinksOrBuilderList() {
+    return links_;
+  }
+  public int getLinksCount() {
+    return links_.size();
+  }
   public de.uniluebeck.itm.tr.iwsn.messages.Link getLinks(int index) {
+    return links_.get(index);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder getLinksOrBuilder(
+      int index) {
     return links_.get(index);
   }
   
   private void initFields() {
+    links_ = java.util.Collections.emptyList();
   }
+  private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
-    for (de.uniluebeck.itm.tr.iwsn.messages.Link element : getLinksList()) {
-      if (!element.isInitialized()) return false;
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+    
+    for (int i = 0; i < getLinksCount(); i++) {
+      if (!getLinks(i).isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
     }
+    memoizedIsInitialized = 1;
     return true;
   }
   
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    for (de.uniluebeck.itm.tr.iwsn.messages.Link element : getLinksList()) {
-      output.writeMessage(1, element);
+    for (int i = 0; i < links_.size(); i++) {
+      output.writeMessage(1, links_.get(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -65,13 +84,20 @@ public  final class EnablePhysicalLinksRequest extends
     if (size != -1) return size;
   
     size = 0;
-    for (de.uniluebeck.itm.tr.iwsn.messages.Link element : getLinksList()) {
+    for (int i = 0; i < links_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1, element);
+        .computeMessageSize(1, links_.get(i));
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
+  }
+  
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
   }
   
   public static de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest parseFrom(
@@ -148,34 +174,56 @@ public  final class EnablePhysicalLinksRequest extends
   }
   public Builder toBuilder() { return newBuilder(this); }
   
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder> {
-    private de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest result;
-    
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.newBuilder()
-    private Builder() {}
-    
-    private static Builder create() {
-      Builder builder = new Builder();
-      builder.result = new de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest();
-      return builder;
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_EnablePhysicalLinksRequest_descriptor;
     }
     
-    protected de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest internalGetResult() {
-      return result;
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_EnablePhysicalLinksRequest_fieldAccessorTable;
+    }
+    
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+    
+    private Builder(BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getLinksFieldBuilder();
+      }
+    }
+    private static Builder create() {
+      return new Builder();
     }
     
     public Builder clear() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "Cannot call clear() after build().");
+      super.clear();
+      if (linksBuilder_ == null) {
+        links_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+      } else {
+        linksBuilder_.clear();
       }
-      result = new de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest();
       return this;
     }
     
     public Builder clone() {
-      return create().mergeFrom(result);
+      return create().mergeFrom(buildPartial());
     }
     
     public com.google.protobuf.Descriptors.Descriptor
@@ -187,37 +235,38 @@ public  final class EnablePhysicalLinksRequest extends
       return de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
     }
     
-    public boolean isInitialized() {
-      return result.isInitialized();
-    }
     public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest build() {
-      if (result != null && !isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
-      return buildPartial();
+      return result;
     }
     
     private de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      if (!isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
       }
-      return buildPartial();
+      return result;
     }
     
     public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest buildPartial() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "build() has already been called on this Builder.");
+      de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest result = new de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest(this);
+      int from_bitField0_ = bitField0_;
+      if (linksBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          links_ = java.util.Collections.unmodifiableList(links_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.links_ = links_;
+      } else {
+        result.links_ = linksBuilder_.build();
       }
-      if (result.links_ != java.util.Collections.EMPTY_LIST) {
-        result.links_ =
-          java.util.Collections.unmodifiableList(result.links_);
-      }
-      de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest returnMe = result;
-      result = null;
-      return returnMe;
+      onBuilt();
+      return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -231,14 +280,44 @@ public  final class EnablePhysicalLinksRequest extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance()) return this;
-      if (!other.links_.isEmpty()) {
-        if (result.links_.isEmpty()) {
-          result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>();
+      if (linksBuilder_ == null) {
+        if (!other.links_.isEmpty()) {
+          if (links_.isEmpty()) {
+            links_ = other.links_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureLinksIsMutable();
+            links_.addAll(other.links_);
+          }
+          onChanged();
         }
-        result.links_.addAll(other.links_);
+      } else {
+        if (!other.links_.isEmpty()) {
+          if (linksBuilder_.isEmpty()) {
+            linksBuilder_.dispose();
+            linksBuilder_ = null;
+            links_ = other.links_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+            linksBuilder_ = 
+              com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                 getLinksFieldBuilder() : null;
+          } else {
+            linksBuilder_.addAllMessages(other.links_);
+          }
+        }
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
+    }
+    
+    public final boolean isInitialized() {
+      for (int i = 0; i < getLinksCount(); i++) {
+        if (!getLinks(i).isInitialized()) {
+          
+          return false;
+        }
+      }
+      return true;
     }
     
     public Builder mergeFrom(
@@ -253,11 +332,13 @@ public  final class EnablePhysicalLinksRequest extends
         switch (tag) {
           case 0:
             this.setUnknownFields(unknownFields.build());
+            onChanged();
             return this;
           default: {
             if (!parseUnknownField(input, unknownFields,
                                    extensionRegistry, tag)) {
               this.setUnknownFields(unknownFields.build());
+              onChanged();
               return this;
             }
             break;
@@ -272,56 +353,192 @@ public  final class EnablePhysicalLinksRequest extends
       }
     }
     
+    private int bitField0_;
     
     // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;
+    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> links_ =
+      java.util.Collections.emptyList();
+    private void ensureLinksIsMutable() {
+      if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>(links_);
+        bitField0_ |= 0x00000001;
+       }
+    }
+    
+    private com.google.protobuf.RepeatedFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.Link, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder, de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder> linksBuilder_;
+    
     public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> getLinksList() {
-      return java.util.Collections.unmodifiableList(result.links_);
+      if (linksBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(links_);
+      } else {
+        return linksBuilder_.getMessageList();
+      }
     }
     public int getLinksCount() {
-      return result.getLinksCount();
+      if (linksBuilder_ == null) {
+        return links_.size();
+      } else {
+        return linksBuilder_.getCount();
+      }
     }
     public de.uniluebeck.itm.tr.iwsn.messages.Link getLinks(int index) {
-      return result.getLinks(index);
-    }
-    public Builder setLinks(int index, de.uniluebeck.itm.tr.iwsn.messages.Link value) {
-      if (value == null) {
-        throw new NullPointerException();
+      if (linksBuilder_ == null) {
+        return links_.get(index);
+      } else {
+        return linksBuilder_.getMessage(index);
       }
-      result.links_.set(index, value);
+    }
+    public Builder setLinks(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.Link value) {
+      if (linksBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureLinksIsMutable();
+        links_.set(index, value);
+        onChanged();
+      } else {
+        linksBuilder_.setMessage(index, value);
+      }
       return this;
     }
-    public Builder setLinks(int index, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder builderForValue) {
-      result.links_.set(index, builderForValue.build());
+    public Builder setLinks(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder builderForValue) {
+      if (linksBuilder_ == null) {
+        ensureLinksIsMutable();
+        links_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        linksBuilder_.setMessage(index, builderForValue.build());
+      }
       return this;
     }
     public Builder addLinks(de.uniluebeck.itm.tr.iwsn.messages.Link value) {
-      if (value == null) {
-        throw new NullPointerException();
+      if (linksBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureLinksIsMutable();
+        links_.add(value);
+        onChanged();
+      } else {
+        linksBuilder_.addMessage(value);
       }
-      if (result.links_.isEmpty()) {
-        result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>();
-      }
-      result.links_.add(value);
       return this;
     }
-    public Builder addLinks(de.uniluebeck.itm.tr.iwsn.messages.Link.Builder builderForValue) {
-      if (result.links_.isEmpty()) {
-        result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>();
+    public Builder addLinks(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.Link value) {
+      if (linksBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureLinksIsMutable();
+        links_.add(index, value);
+        onChanged();
+      } else {
+        linksBuilder_.addMessage(index, value);
       }
-      result.links_.add(builderForValue.build());
+      return this;
+    }
+    public Builder addLinks(
+        de.uniluebeck.itm.tr.iwsn.messages.Link.Builder builderForValue) {
+      if (linksBuilder_ == null) {
+        ensureLinksIsMutable();
+        links_.add(builderForValue.build());
+        onChanged();
+      } else {
+        linksBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    public Builder addLinks(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder builderForValue) {
+      if (linksBuilder_ == null) {
+        ensureLinksIsMutable();
+        links_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        linksBuilder_.addMessage(index, builderForValue.build());
+      }
       return this;
     }
     public Builder addAllLinks(
         java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.Link> values) {
-      if (result.links_.isEmpty()) {
-        result.links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>();
+      if (linksBuilder_ == null) {
+        ensureLinksIsMutable();
+        super.addAll(values, links_);
+        onChanged();
+      } else {
+        linksBuilder_.addAllMessages(values);
       }
-      super.addAll(values, result.links_);
       return this;
     }
     public Builder clearLinks() {
-      result.links_ = java.util.Collections.emptyList();
+      if (linksBuilder_ == null) {
+        links_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+      } else {
+        linksBuilder_.clear();
+      }
       return this;
+    }
+    public Builder removeLinks(int index) {
+      if (linksBuilder_ == null) {
+        ensureLinksIsMutable();
+        links_.remove(index);
+        onChanged();
+      } else {
+        linksBuilder_.remove(index);
+      }
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.Link.Builder getLinksBuilder(
+        int index) {
+      return getLinksFieldBuilder().getBuilder(index);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder getLinksOrBuilder(
+        int index) {
+      if (linksBuilder_ == null) {
+        return links_.get(index);  } else {
+        return linksBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder> 
+         getLinksOrBuilderList() {
+      if (linksBuilder_ != null) {
+        return linksBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(links_);
+      }
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.Link.Builder addLinksBuilder() {
+      return getLinksFieldBuilder().addBuilder(
+          de.uniluebeck.itm.tr.iwsn.messages.Link.getDefaultInstance());
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.Link.Builder addLinksBuilder(
+        int index) {
+      return getLinksFieldBuilder().addBuilder(
+          index, de.uniluebeck.itm.tr.iwsn.messages.Link.getDefaultInstance());
+    }
+    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link.Builder> 
+         getLinksBuilderList() {
+      return getLinksFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.Link, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder, de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder> 
+        getLinksFieldBuilder() {
+      if (linksBuilder_ == null) {
+        linksBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.Link, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder, de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder>(
+                links_,
+                ((bitField0_ & 0x00000001) == 0x00000001),
+                getParentForChildren(),
+                isClean());
+        links_ = null;
+      }
+      return linksBuilder_;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest)
@@ -329,7 +546,6 @@ public  final class EnablePhysicalLinksRequest extends
   
   static {
     defaultInstance = new EnablePhysicalLinksRequest(true);
-    de.uniluebeck.itm.tr.iwsn.messages.Messages.internalForceInit();
     defaultInstance.initFields();
   }
   

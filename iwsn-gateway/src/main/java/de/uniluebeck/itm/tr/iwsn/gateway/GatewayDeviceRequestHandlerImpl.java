@@ -70,34 +70,34 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 			case ARE_NODES_CONNECTED:
 				onAreNodesConnectedRequest(request);
 				break;
-			case DESTROY_VIRTUAL_LINK:
+			case DESTROY_VIRTUAL_LINKS:
 				onDestroyVirtualLinksRequest(request);
 				break;
-			case DISABLE_NODE:
+			case DISABLE_NODES:
 				onDisableNodesRequest(request);
 				break;
-			case DISABLE_PHYSICAL_LINK:
+			case DISABLE_PHYSICAL_LINKS:
 				onDisablePhysicalLinksRequest(request);
 				break;
-			case ENABLE_NODE:
+			case ENABLE_NODES:
 				onEnablesNodeRequest(request);
 				break;
-			case ENABLE_PHYSICAL_LINK:
+			case ENABLE_PHYSICAL_LINKS:
 				onEnablePhysicalLinksRequest(request);
 				break;
-			case FLASH_PROGRAMS:
+			case FLASH_IMAGES:
 				onFlashImagesRequest(request);
 				break;
 			case RESET_NODES:
 				onResetNodesRequest(request);
 				break;
-			case SEND_DOWNSTREAM_MESSAGE:
+			case SEND_DOWNSTREAM_MESSAGES:
 				onSendDownstreamMessagesRequest(request);
 				break;
-			case SET_CHANNEL_PIPELINE:
+			case SET_CHANNEL_PIPELINES:
 				onSetChannelPipelinesRequest(request);
 				break;
-			case SET_VIRTUAL_LINK:
+			case SET_VIRTUAL_LINKS:
 				onSetVirtualLinksRequest(request);
 				break;
 			default:
@@ -202,7 +202,7 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 		gatewayEventBus.post(SingleNodeResponse.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
-				.setErrorCode(statusCode)
+				.setStatusCode(statusCode)
 				.build()
 		);
 	}
@@ -211,7 +211,7 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 		gatewayEventBus.post(SingleNodeResponse.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
-				.setErrorCode(-2)
+				.setStatusCode(-2)
 				.setErrorMessage(Throwables.getStackTraceAsString(e))
 				.build()
 		);
@@ -222,7 +222,7 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 			gatewayEventBus.post(SingleNodeResponse.newBuilder()
 					.setRequestId(requestId)
 					.setNodeUrn(nodeUrn.toString())
-					.setErrorCode(-1)
+					.setStatusCode(-1)
 					.setErrorMessage("Node \"" + nodeUrn + "\" is not connected.")
 					.build()
 			);

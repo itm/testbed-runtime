@@ -3,10 +3,11 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 public  final class NotificationEvent extends
-    com.google.protobuf.GeneratedMessage {
+    com.google.protobuf.GeneratedMessage
+    implements NotificationEventOrBuilder {
   // Use NotificationEvent.newBuilder() to construct.
-  private NotificationEvent() {
-    initFields();
+  private NotificationEvent(Builder builder) {
+    super(builder);
   }
   private NotificationEvent(boolean noInit) {}
   
@@ -29,46 +30,114 @@ public  final class NotificationEvent extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_fieldAccessorTable;
   }
   
+  private int bitField0_;
   // optional string nodeUrn = 1;
   public static final int NODEURN_FIELD_NUMBER = 1;
-  private boolean hasNodeUrn;
-  private java.lang.String nodeUrn_ = "";
-  public boolean hasNodeUrn() { return hasNodeUrn; }
-  public java.lang.String getNodeUrn() { return nodeUrn_; }
+  private java.lang.Object nodeUrn_;
+  public boolean hasNodeUrn() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public String getNodeUrn() {
+    java.lang.Object ref = nodeUrn_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        nodeUrn_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getNodeUrnBytes() {
+    java.lang.Object ref = nodeUrn_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      nodeUrn_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
   
   // required uint64 timestamp = 2;
   public static final int TIMESTAMP_FIELD_NUMBER = 2;
-  private boolean hasTimestamp;
-  private long timestamp_ = 0L;
-  public boolean hasTimestamp() { return hasTimestamp; }
-  public long getTimestamp() { return timestamp_; }
+  private long timestamp_;
+  public boolean hasTimestamp() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public long getTimestamp() {
+    return timestamp_;
+  }
   
   // required string message = 3;
   public static final int MESSAGE_FIELD_NUMBER = 3;
-  private boolean hasMessage;
-  private java.lang.String message_ = "";
-  public boolean hasMessage() { return hasMessage; }
-  public java.lang.String getMessage() { return message_; }
+  private java.lang.Object message_;
+  public boolean hasMessage() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  public String getMessage() {
+    java.lang.Object ref = message_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        message_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getMessageBytes() {
+    java.lang.Object ref = message_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      message_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
   
   private void initFields() {
+    nodeUrn_ = "";
+    timestamp_ = 0L;
+    message_ = "";
   }
+  private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
-    if (!hasTimestamp) return false;
-    if (!hasMessage) return false;
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+    
+    if (!hasTimestamp()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasMessage()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    memoizedIsInitialized = 1;
     return true;
   }
   
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    if (hasNodeUrn()) {
-      output.writeString(1, getNodeUrn());
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      output.writeBytes(1, getNodeUrnBytes());
     }
-    if (hasTimestamp()) {
-      output.writeUInt64(2, getTimestamp());
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeUInt64(2, timestamp_);
     }
-    if (hasMessage()) {
-      output.writeString(3, getMessage());
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeBytes(3, getMessageBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -79,21 +148,28 @@ public  final class NotificationEvent extends
     if (size != -1) return size;
   
     size = 0;
-    if (hasNodeUrn()) {
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeStringSize(1, getNodeUrn());
+        .computeBytesSize(1, getNodeUrnBytes());
     }
-    if (hasTimestamp()) {
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt64Size(2, getTimestamp());
+        .computeUInt64Size(2, timestamp_);
     }
-    if (hasMessage()) {
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeStringSize(3, getMessage());
+        .computeBytesSize(3, getMessageBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
+  }
+  
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
   }
   
   public static de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent parseFrom(
@@ -170,34 +246,55 @@ public  final class NotificationEvent extends
   }
   public Builder toBuilder() { return newBuilder(this); }
   
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder> {
-    private de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent result;
-    
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.newBuilder()
-    private Builder() {}
-    
-    private static Builder create() {
-      Builder builder = new Builder();
-      builder.result = new de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent();
-      return builder;
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_descriptor;
     }
     
-    protected de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent internalGetResult() {
-      return result;
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_fieldAccessorTable;
+    }
+    
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+    
+    private Builder(BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+      }
+    }
+    private static Builder create() {
+      return new Builder();
     }
     
     public Builder clear() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "Cannot call clear() after build().");
-      }
-      result = new de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent();
+      super.clear();
+      nodeUrn_ = "";
+      bitField0_ = (bitField0_ & ~0x00000001);
+      timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      message_ = "";
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
     public Builder clone() {
-      return create().mergeFrom(result);
+      return create().mergeFrom(buildPartial());
     }
     
     public com.google.protobuf.Descriptors.Descriptor
@@ -209,33 +306,43 @@ public  final class NotificationEvent extends
       return de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
     }
     
-    public boolean isInitialized() {
-      return result.isInitialized();
-    }
     public de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent build() {
-      if (result != null && !isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
-      return buildPartial();
+      return result;
     }
     
     private de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      if (!isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
       }
-      return buildPartial();
+      return result;
     }
     
     public de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent buildPartial() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "build() has already been called on this Builder.");
+      de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent result = new de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        to_bitField0_ |= 0x00000001;
       }
-      de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent returnMe = result;
-      result = null;
-      return returnMe;
+      result.nodeUrn_ = nodeUrn_;
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.timestamp_ = timestamp_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
+      result.message_ = message_;
+      result.bitField0_ = to_bitField0_;
+      onBuilt();
+      return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -262,6 +369,18 @@ public  final class NotificationEvent extends
       return this;
     }
     
+    public final boolean isInitialized() {
+      if (!hasTimestamp()) {
+        
+        return false;
+      }
+      if (!hasMessage()) {
+        
+        return false;
+      }
+      return true;
+    }
+    
     public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -274,90 +393,129 @@ public  final class NotificationEvent extends
         switch (tag) {
           case 0:
             this.setUnknownFields(unknownFields.build());
+            onChanged();
             return this;
           default: {
             if (!parseUnknownField(input, unknownFields,
                                    extensionRegistry, tag)) {
               this.setUnknownFields(unknownFields.build());
+              onChanged();
               return this;
             }
             break;
           }
           case 10: {
-            setNodeUrn(input.readString());
+            bitField0_ |= 0x00000001;
+            nodeUrn_ = input.readBytes();
             break;
           }
           case 16: {
-            setTimestamp(input.readUInt64());
+            bitField0_ |= 0x00000002;
+            timestamp_ = input.readUInt64();
             break;
           }
           case 26: {
-            setMessage(input.readString());
+            bitField0_ |= 0x00000004;
+            message_ = input.readBytes();
             break;
           }
         }
       }
     }
     
+    private int bitField0_;
     
     // optional string nodeUrn = 1;
+    private java.lang.Object nodeUrn_ = "";
     public boolean hasNodeUrn() {
-      return result.hasNodeUrn();
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public java.lang.String getNodeUrn() {
-      return result.getNodeUrn();
+    public String getNodeUrn() {
+      java.lang.Object ref = nodeUrn_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        nodeUrn_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
     }
-    public Builder setNodeUrn(java.lang.String value) {
+    public Builder setNodeUrn(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.hasNodeUrn = true;
-      result.nodeUrn_ = value;
+  bitField0_ |= 0x00000001;
+      nodeUrn_ = value;
+      onChanged();
       return this;
     }
     public Builder clearNodeUrn() {
-      result.hasNodeUrn = false;
-      result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+      bitField0_ = (bitField0_ & ~0x00000001);
+      nodeUrn_ = getDefaultInstance().getNodeUrn();
+      onChanged();
       return this;
+    }
+    void setNodeUrn(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000001;
+      nodeUrn_ = value;
+      onChanged();
     }
     
     // required uint64 timestamp = 2;
+    private long timestamp_ ;
     public boolean hasTimestamp() {
-      return result.hasTimestamp();
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public long getTimestamp() {
-      return result.getTimestamp();
+      return timestamp_;
     }
     public Builder setTimestamp(long value) {
-      result.hasTimestamp = true;
-      result.timestamp_ = value;
+      bitField0_ |= 0x00000002;
+      timestamp_ = value;
+      onChanged();
       return this;
     }
     public Builder clearTimestamp() {
-      result.hasTimestamp = false;
-      result.timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      timestamp_ = 0L;
+      onChanged();
       return this;
     }
     
     // required string message = 3;
+    private java.lang.Object message_ = "";
     public boolean hasMessage() {
-      return result.hasMessage();
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-    public java.lang.String getMessage() {
-      return result.getMessage();
+    public String getMessage() {
+      java.lang.Object ref = message_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        message_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
     }
-    public Builder setMessage(java.lang.String value) {
+    public Builder setMessage(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.hasMessage = true;
-      result.message_ = value;
+  bitField0_ |= 0x00000004;
+      message_ = value;
+      onChanged();
       return this;
     }
     public Builder clearMessage() {
-      result.hasMessage = false;
-      result.message_ = getDefaultInstance().getMessage();
+      bitField0_ = (bitField0_ & ~0x00000004);
+      message_ = getDefaultInstance().getMessage();
+      onChanged();
       return this;
+    }
+    void setMessage(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000004;
+      message_ = value;
+      onChanged();
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent)
@@ -365,7 +523,6 @@ public  final class NotificationEvent extends
   
   static {
     defaultInstance = new NotificationEvent(true);
-    de.uniluebeck.itm.tr.iwsn.messages.Messages.internalForceInit();
     defaultInstance.initFields();
   }
   

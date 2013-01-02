@@ -41,11 +41,11 @@ public class PortalChannelHandlerTest {
 
 	private static final Random RANDOM = new Random();
 
-	private static final NodeUrn GATEWAY1_NODE1 = new NodeUrn("urn:unittest:0x0011");
+	private static final NodeUrn GATEWAY1_NODE1 = new NodeUrn("urn:unit-test:0x0011");
 
-	private static final NodeUrn GATEWAY2_NODE1 = new NodeUrn("urn:unittest:0x0021");
+	private static final NodeUrn GATEWAY2_NODE1 = new NodeUrn("urn:unit-test:0x0021");
 
-	private static final NodeUrn GATEWAY2_NODE2 = new NodeUrn("urn:unittest:0x0022");
+	private static final NodeUrn GATEWAY2_NODE2 = new NodeUrn("urn:unit-test:0x0022");
 
 	private static final HashSet<String> GATEWAY1_NODE_URN_STRINGS = newHashSet(
 			GATEWAY1_NODE1.toString()
@@ -56,7 +56,7 @@ public class PortalChannelHandlerTest {
 			GATEWAY2_NODE2.toString()
 	);
 
-	private static final Iterable<? extends String> ALL_NODE_URNS = newHashSet(
+	private static final Iterable<String> ALL_NODE_URNS = newHashSet(
 			GATEWAY1_NODE1.toString(),
 			GATEWAY2_NODE1.toString(),
 			GATEWAY2_NODE2.toString()
@@ -238,6 +238,22 @@ public class PortalChannelHandlerTest {
 				newSendDownstreamMessageRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, bytes);
 		final Message expectedMessage2 =
 				newSendDownstreamMessageRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, bytes);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfFlashImagesRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+		final byte[] imageBytes = "Hello, World!".getBytes(Charset.defaultCharset());
+
+		portalChannelHandler.onRequest(newFlashImagesRequest(requestId, ALL_NODE_URNS, imageBytes));
+
+		final Message expectedMessage1 = newFlashImagesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, imageBytes);
+		final Message expectedMessage2 = newFlashImagesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, imageBytes);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));

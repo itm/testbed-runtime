@@ -5,7 +5,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.messages.*;
+import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.tr.iwsn.messages.Event;
+import de.uniluebeck.itm.tr.iwsn.messages.EventAck;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -25,6 +29,7 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static org.jboss.netty.channel.Channels.write;
 
 public class PortalChannelHandler extends SimpleChannelHandler {
@@ -53,10 +58,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Subscribe
 	public void onRequest(final Request request) {
 
+		final long requestId = request.getRequestId();
 		final List<String> nodeUrnsList;
 		final Set<NodeUrn> nodeUrns;
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
-		final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent = newHashMap();
+		final Map<ChannelHandlerContext, Request> requestsToBeSent = newHashMap();
 
 		switch (request.getType()) {
 
@@ -67,17 +73,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final AreNodesAliveRequest.Builder areNodesAliveRequestBuilder = AreNodesAliveRequest.newBuilder()
-							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.ARE_NODES_ALIVE)
-							.setAreNodesAliveRequest(areNodesAliveRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newAreNodesAliveRequest(requestId, subRequestNodeUrns));
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
@@ -88,79 +87,64 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final AreNodesConnectedRequest.Builder areNodesConnectedRequestBuilder = AreNodesConnectedRequest
-							.newBuilder()
-							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.ARE_NODES_CONNECTED)
-							.setAreNodesConnectedRequest(areNodesConnectedRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newAreNodesConnectedRequest(requestId, subRequestNodeUrns));
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
-			case DESTROY_VIRTUAL_LINK:
+			case DESTROY_VIRTUAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
 
-			case DISABLE_NODE:
+			case DISABLE_NODES:
 
 				nodeUrnsList = request.getDisableNodesRequest().getNodeUrnsList();
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final DisableNodesRequest.Builder disableNodesRequestBuilder = DisableNodesRequest
-							.newBuilder()
-							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.DISABLE_NODE)
-							.setDisableNodesRequest(disableNodesRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newDisableNodesRequest(requestId, subRequestNodeUrns));
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
-			case DISABLE_PHYSICAL_LINK:
+			case DISABLE_PHYSICAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
 
-			case ENABLE_NODE:
+			case ENABLE_NODES:
 
 				nodeUrnsList = request.getEnableNodesRequest().getNodeUrnsList();
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final EnableNodesRequest.Builder enableNodesRequestBuilder = EnableNodesRequest
-							.newBuilder()
-							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.ENABLE_NODE)
-							.setEnableNodesRequest(enableNodesRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newEnableNodesRequest(requestId, subRequestNodeUrns));
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
-			case ENABLE_PHYSICAL_LINK:
+			case ENABLE_PHYSICAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
 
-			case FLASH_DEFAULT_IMAGE:
-				throw new RuntimeException("TODO: remove");
+			case FLASH_IMAGES:
 
-			case FLASH_PROGRAMS:
-				throw new RuntimeException("TODO: not yet implemented");
+				nodeUrnsList = request.getFlashImagesRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final ByteString imageBytes = request.getFlashImagesRequest().getImage();
+					requestsToBeSent.put(ctx, newFlashImagesRequest(requestId, subRequestNodeUrns, imageBytes));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
 
 			case RESET_NODES:
 
@@ -169,60 +153,45 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-
-					final ResetNodesRequest.Builder resetNodesRequestBuilder = ResetNodesRequest
-							.newBuilder()
-							.addAllNodeUrns(transform(mapping.get(ctx), toStringFunction()));
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.RESET_NODES)
-							.setResetNodesRequest(resetNodesRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newResetNodesRequest(requestId, subRequestNodeUrns));
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
-			case SEND_DOWNSTREAM_MESSAGE:
+			case SEND_DOWNSTREAM_MESSAGES:
 
-				nodeUrnsList = request.getSendDownstreamMessageRequest().getTargetNodeUrnsList();
+				nodeUrnsList = request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList();
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 
-					final SendDownstreamMessageRequest.Builder sendDownstreamMessageRequestBuilder =
-							SendDownstreamMessageRequest
-									.newBuilder()
-									.addAllTargetNodeUrns(transform(mapping.get(ctx), toStringFunction()))
-									.setMessageBytes(request.getSendDownstreamMessageRequest().getMessageBytes());
-
-					final Request.Builder requestBuilder = Request.newBuilder()
-							.setRequestId(request.getRequestId())
-							.setType(Request.Type.SEND_DOWNSTREAM_MESSAGE)
-							.setSendDownstreamMessageRequest(sendDownstreamMessageRequestBuilder);
-
-					requestsToBeSent.put(ctx, requestBuilder);
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newSendDownstreamMessageRequest(
+							requestId,
+							subRequestNodeUrns,
+							request.getSendDownstreamMessagesRequest().getMessageBytes()
+					)
+					);
 				}
+
 				sendRequests(requestsToBeSent);
 				break;
 
-			case SET_CHANNEL_PIPELINE:
+			case SET_CHANNEL_PIPELINES:
 				throw new RuntimeException("TODO: not yet implemented");
 
-			case SET_DEFAULT_CHANNEL_PIPELINE:
-				throw new RuntimeException("TODO: remove");
-
-			case SET_VIRTUAL_LINK:
+			case SET_VIRTUAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
 		}
 	}
 
-	private void sendRequests(final Map<ChannelHandlerContext, Request.Builder> requestsToBeSent) {
-		for (Map.Entry<ChannelHandlerContext, Request.Builder> entry : requestsToBeSent.entrySet()) {
+	private void sendRequests(final Map<ChannelHandlerContext, Request> requestsToBeSent) {
+		for (Map.Entry<ChannelHandlerContext, Request> entry : requestsToBeSent.entrySet()) {
 			final ChannelHandlerContext ctx = entry.getKey();
-			final Request.Builder requestBuilder = entry.getValue();
+			final Request requestBuilder = entry.getValue();
 			final Message message = Message.newBuilder()
 					.setType(Message.Type.REQUEST)
 					.setRequest(requestBuilder)

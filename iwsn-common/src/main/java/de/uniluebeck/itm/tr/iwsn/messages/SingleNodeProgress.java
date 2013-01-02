@@ -3,10 +3,11 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 public  final class SingleNodeProgress extends
-    com.google.protobuf.GeneratedMessage {
+    com.google.protobuf.GeneratedMessage
+    implements SingleNodeProgressOrBuilder {
   // Use SingleNodeProgress.newBuilder() to construct.
-  private SingleNodeProgress() {
-    initFields();
+  private SingleNodeProgress(Builder builder) {
+    super(builder);
   }
   private SingleNodeProgress(boolean noInit) {}
   
@@ -29,47 +30,96 @@ public  final class SingleNodeProgress extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_fieldAccessorTable;
   }
   
+  private int bitField0_;
   // required int64 requestId = 1;
   public static final int REQUESTID_FIELD_NUMBER = 1;
-  private boolean hasRequestId;
-  private long requestId_ = 0L;
-  public boolean hasRequestId() { return hasRequestId; }
-  public long getRequestId() { return requestId_; }
+  private long requestId_;
+  public boolean hasRequestId() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public long getRequestId() {
+    return requestId_;
+  }
   
   // required string nodeUrn = 2;
   public static final int NODEURN_FIELD_NUMBER = 2;
-  private boolean hasNodeUrn;
-  private java.lang.String nodeUrn_ = "";
-  public boolean hasNodeUrn() { return hasNodeUrn; }
-  public java.lang.String getNodeUrn() { return nodeUrn_; }
+  private java.lang.Object nodeUrn_;
+  public boolean hasNodeUrn() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public String getNodeUrn() {
+    java.lang.Object ref = nodeUrn_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        nodeUrn_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getNodeUrnBytes() {
+    java.lang.Object ref = nodeUrn_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      nodeUrn_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
   
   // required uint32 progressInPercent = 3;
   public static final int PROGRESSINPERCENT_FIELD_NUMBER = 3;
-  private boolean hasProgressInPercent;
-  private int progressInPercent_ = 0;
-  public boolean hasProgressInPercent() { return hasProgressInPercent; }
-  public int getProgressInPercent() { return progressInPercent_; }
+  private int progressInPercent_;
+  public boolean hasProgressInPercent() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  public int getProgressInPercent() {
+    return progressInPercent_;
+  }
   
   private void initFields() {
+    requestId_ = 0L;
+    nodeUrn_ = "";
+    progressInPercent_ = 0;
   }
+  private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
-    if (!hasRequestId) return false;
-    if (!hasNodeUrn) return false;
-    if (!hasProgressInPercent) return false;
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+    
+    if (!hasRequestId()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasNodeUrn()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasProgressInPercent()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    memoizedIsInitialized = 1;
     return true;
   }
   
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    if (hasRequestId()) {
-      output.writeInt64(1, getRequestId());
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      output.writeInt64(1, requestId_);
     }
-    if (hasNodeUrn()) {
-      output.writeString(2, getNodeUrn());
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeBytes(2, getNodeUrnBytes());
     }
-    if (hasProgressInPercent()) {
-      output.writeUInt32(3, getProgressInPercent());
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeUInt32(3, progressInPercent_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -80,21 +130,28 @@ public  final class SingleNodeProgress extends
     if (size != -1) return size;
   
     size = 0;
-    if (hasRequestId()) {
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, getRequestId());
+        .computeInt64Size(1, requestId_);
     }
-    if (hasNodeUrn()) {
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeStringSize(2, getNodeUrn());
+        .computeBytesSize(2, getNodeUrnBytes());
     }
-    if (hasProgressInPercent()) {
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt32Size(3, getProgressInPercent());
+        .computeUInt32Size(3, progressInPercent_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
+  }
+  
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
   }
   
   public static de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress parseFrom(
@@ -171,34 +228,55 @@ public  final class SingleNodeProgress extends
   }
   public Builder toBuilder() { return newBuilder(this); }
   
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
   public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder> {
-    private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress result;
-    
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.newBuilder()
-    private Builder() {}
-    
-    private static Builder create() {
-      Builder builder = new Builder();
-      builder.result = new de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress();
-      return builder;
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgressOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_descriptor;
     }
     
-    protected de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress internalGetResult() {
-      return result;
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_fieldAccessorTable;
+    }
+    
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+    
+    private Builder(BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+      }
+    }
+    private static Builder create() {
+      return new Builder();
     }
     
     public Builder clear() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "Cannot call clear() after build().");
-      }
-      result = new de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress();
+      super.clear();
+      requestId_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      nodeUrn_ = "";
+      bitField0_ = (bitField0_ & ~0x00000002);
+      progressInPercent_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
     public Builder clone() {
-      return create().mergeFrom(result);
+      return create().mergeFrom(buildPartial());
     }
     
     public com.google.protobuf.Descriptors.Descriptor
@@ -210,33 +288,43 @@ public  final class SingleNodeProgress extends
       return de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.getDefaultInstance();
     }
     
-    public boolean isInitialized() {
-      return result.isInitialized();
-    }
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress build() {
-      if (result != null && !isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
-      return buildPartial();
+      return result;
     }
     
     private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      if (!isInitialized()) {
+      de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress result = buildPartial();
+      if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
       }
-      return buildPartial();
+      return result;
     }
     
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress buildPartial() {
-      if (result == null) {
-        throw new IllegalStateException(
-          "build() has already been called on this Builder.");
+      de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress result = new de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        to_bitField0_ |= 0x00000001;
       }
-      de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress returnMe = result;
-      result = null;
-      return returnMe;
+      result.requestId_ = requestId_;
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.nodeUrn_ = nodeUrn_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
+      result.progressInPercent_ = progressInPercent_;
+      result.bitField0_ = to_bitField0_;
+      onBuilt();
+      return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -263,6 +351,22 @@ public  final class SingleNodeProgress extends
       return this;
     }
     
+    public final boolean isInitialized() {
+      if (!hasRequestId()) {
+        
+        return false;
+      }
+      if (!hasNodeUrn()) {
+        
+        return false;
+      }
+      if (!hasProgressInPercent()) {
+        
+        return false;
+      }
+      return true;
+    }
+    
     public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -275,86 +379,113 @@ public  final class SingleNodeProgress extends
         switch (tag) {
           case 0:
             this.setUnknownFields(unknownFields.build());
+            onChanged();
             return this;
           default: {
             if (!parseUnknownField(input, unknownFields,
                                    extensionRegistry, tag)) {
               this.setUnknownFields(unknownFields.build());
+              onChanged();
               return this;
             }
             break;
           }
           case 8: {
-            setRequestId(input.readInt64());
+            bitField0_ |= 0x00000001;
+            requestId_ = input.readInt64();
             break;
           }
           case 18: {
-            setNodeUrn(input.readString());
+            bitField0_ |= 0x00000002;
+            nodeUrn_ = input.readBytes();
             break;
           }
           case 24: {
-            setProgressInPercent(input.readUInt32());
+            bitField0_ |= 0x00000004;
+            progressInPercent_ = input.readUInt32();
             break;
           }
         }
       }
     }
     
+    private int bitField0_;
     
     // required int64 requestId = 1;
+    private long requestId_ ;
     public boolean hasRequestId() {
-      return result.hasRequestId();
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     public long getRequestId() {
-      return result.getRequestId();
+      return requestId_;
     }
     public Builder setRequestId(long value) {
-      result.hasRequestId = true;
-      result.requestId_ = value;
+      bitField0_ |= 0x00000001;
+      requestId_ = value;
+      onChanged();
       return this;
     }
     public Builder clearRequestId() {
-      result.hasRequestId = false;
-      result.requestId_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      requestId_ = 0L;
+      onChanged();
       return this;
     }
     
     // required string nodeUrn = 2;
+    private java.lang.Object nodeUrn_ = "";
     public boolean hasNodeUrn() {
-      return result.hasNodeUrn();
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-    public java.lang.String getNodeUrn() {
-      return result.getNodeUrn();
+    public String getNodeUrn() {
+      java.lang.Object ref = nodeUrn_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        nodeUrn_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
     }
-    public Builder setNodeUrn(java.lang.String value) {
+    public Builder setNodeUrn(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  result.hasNodeUrn = true;
-      result.nodeUrn_ = value;
+  bitField0_ |= 0x00000002;
+      nodeUrn_ = value;
+      onChanged();
       return this;
     }
     public Builder clearNodeUrn() {
-      result.hasNodeUrn = false;
-      result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+      bitField0_ = (bitField0_ & ~0x00000002);
+      nodeUrn_ = getDefaultInstance().getNodeUrn();
+      onChanged();
       return this;
+    }
+    void setNodeUrn(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000002;
+      nodeUrn_ = value;
+      onChanged();
     }
     
     // required uint32 progressInPercent = 3;
+    private int progressInPercent_ ;
     public boolean hasProgressInPercent() {
-      return result.hasProgressInPercent();
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public int getProgressInPercent() {
-      return result.getProgressInPercent();
+      return progressInPercent_;
     }
     public Builder setProgressInPercent(int value) {
-      result.hasProgressInPercent = true;
-      result.progressInPercent_ = value;
+      bitField0_ |= 0x00000004;
+      progressInPercent_ = value;
+      onChanged();
       return this;
     }
     public Builder clearProgressInPercent() {
-      result.hasProgressInPercent = false;
-      result.progressInPercent_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      progressInPercent_ = 0;
+      onChanged();
       return this;
     }
     
@@ -363,7 +494,6 @@ public  final class SingleNodeProgress extends
   
   static {
     defaultInstance = new SingleNodeProgress(true);
-    de.uniluebeck.itm.tr.iwsn.messages.Messages.internalForceInit();
     defaultInstance.initFields();
   }
   
