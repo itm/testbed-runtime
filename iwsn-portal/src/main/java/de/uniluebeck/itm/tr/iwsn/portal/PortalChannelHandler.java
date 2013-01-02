@@ -62,7 +62,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		final Set<NodeUrn> nodeUrns;
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
 		final Map<ChannelHandlerContext, Request> requestsToBeSent = newHashMap();
-		final List<Link> virtualLinks;
+		final List<Link> physicalLinks;
 
 		switch (request.getType()) {
 
@@ -109,14 +109,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case DISABLE_PHYSICAL_LINKS:
-				throw new RuntimeException("TODO: not yet implemented");
 
-			case DISABLE_VIRTUAL_LINKS:
-
-				virtualLinks = request.getDisableVirtualLinksRequest().getLinksList();
+				physicalLinks = request.getDisablePhysicalLinksRequest().getLinksList();
 
 				nodeUrnsList = newArrayList();
-				for (Link link : virtualLinks) {
+				for (Link link : physicalLinks) {
 					nodeUrnsList.add(link.getSourceNodeUrn());
 				}
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
@@ -125,7 +122,32 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : virtualLinks) {
+					for (Link link : physicalLinks) {
+						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
+							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						}
+					}
+					requestsToBeSent.put(ctx, newDisablePhysicalLinksRequest(requestId, subRequestLinks));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
+
+			case DISABLE_VIRTUAL_LINKS:
+
+				physicalLinks = request.getDisableVirtualLinksRequest().getLinksList();
+
+				nodeUrnsList = newArrayList();
+				for (Link link : physicalLinks) {
+					nodeUrnsList.add(link.getSourceNodeUrn());
+				}
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					for (Link link : physicalLinks) {
 						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
 							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
 						}
@@ -155,10 +177,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case ENABLE_VIRTUAL_LINKS:
 
-				virtualLinks = request.getEnableVirtualLinksRequest().getLinksList();
+				physicalLinks = request.getEnableVirtualLinksRequest().getLinksList();
 
 				nodeUrnsList = newArrayList();
-				for (Link link : virtualLinks) {
+				for (Link link : physicalLinks) {
 					nodeUrnsList.add(link.getSourceNodeUrn());
 				}
 				nodeUrns = toNodeUrnSet(nodeUrnsList);
@@ -167,7 +189,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
 					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : virtualLinks) {
+					for (Link link : physicalLinks) {
 						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
 							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
 						}

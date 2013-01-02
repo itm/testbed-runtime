@@ -64,19 +64,19 @@ public class PortalChannelHandlerTest {
 			GATEWAY2_NODE2.toString()
 	);
 
-	private static final Multimap<String, String> VIRTUAL_LINKS_GW1 = HashMultimap.create();
-	private static final Multimap<String, String> VIRTUAL_LINKS_GW2 = HashMultimap.create();
-	private static final Multimap<String, String> VIRTUAL_LINKS = HashMultimap.create();
+	private static final Multimap<String, String> LINKS_GW1 = HashMultimap.create();
+	private static final Multimap<String, String> LINKS_GW2 = HashMultimap.create();
+	private static final Multimap<String, String> LINKS = HashMultimap.create();
 
 	static {
 
-		VIRTUAL_LINKS_GW1.put(GATEWAY1_NODE1.toString(), GATEWAY2_NODE1.toString());
+		LINKS_GW1.put(GATEWAY1_NODE1.toString(), GATEWAY2_NODE1.toString());
 
-		VIRTUAL_LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY1_NODE1.toString());
-		VIRTUAL_LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY2_NODE2.toString());
+		LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY1_NODE1.toString());
+		LINKS_GW2.put(GATEWAY2_NODE1.toString(), GATEWAY2_NODE2.toString());
 
-		VIRTUAL_LINKS.putAll(VIRTUAL_LINKS_GW1);
-		VIRTUAL_LINKS.putAll(VIRTUAL_LINKS_GW2);
+		LINKS.putAll(LINKS_GW1);
+		LINKS.putAll(LINKS_GW2);
 	}
 
 	@Mock
@@ -282,10 +282,10 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(requestId, VIRTUAL_LINKS));
+		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(requestId, LINKS));
 
-		final Message expectedMessage1 = newDisableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
-		final Message expectedMessage2 = newDisableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
+		final Message expectedMessage1 = newDisableVirtualLinksRequestMessage(requestId, LINKS_GW1);
+		final Message expectedMessage2 = newDisableVirtualLinksRequestMessage(requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -297,10 +297,25 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(requestId, VIRTUAL_LINKS));
+		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(requestId, LINKS));
 
-		final Message expectedMessage1 = newEnableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
-		final Message expectedMessage2 = newEnableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
+		final Message expectedMessage1 = newEnableVirtualLinksRequestMessage(requestId, LINKS_GW1);
+		final Message expectedMessage2 = newEnableVirtualLinksRequestMessage(requestId, LINKS_GW2);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfDisablePhysicalLinksRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newDisablePhysicalLinksRequest(requestId, LINKS));
+
+		final Message expectedMessage1 = newDisablePhysicalLinksRequestMessage(requestId, LINKS_GW1);
+		final Message expectedMessage2 = newDisablePhysicalLinksRequestMessage(requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
