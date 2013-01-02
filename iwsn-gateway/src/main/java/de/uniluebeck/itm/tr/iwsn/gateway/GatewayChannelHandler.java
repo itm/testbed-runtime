@@ -67,4 +67,9 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	public void onProgress(SingleNodeProgress singleNodeProgress) {
 		Channels.write(channel, singleNodeProgress);
 	}
+
+	@Override
+	public String toString() {
+		return "GatewayChannelHandler";
+	}
 }

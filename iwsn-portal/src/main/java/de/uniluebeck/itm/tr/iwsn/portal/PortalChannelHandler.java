@@ -406,4 +406,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 		write(ctx, channelFuture, message);
 	}
+
+	@Override
+	public String toString() {
+		return "PortalChannelHandler";
+	}
 }

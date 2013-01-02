@@ -7,10 +7,14 @@ import com.google.inject.assistedinject.Assisted;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 
 public class NettyServer extends AbstractIdleService {
+
+	private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
 
 	private final ChannelGroup allChannels;
 
@@ -20,7 +24,7 @@ public class NettyServer extends AbstractIdleService {
 
 	private final ServerBootstrap bootstrap;
 
-	private final Provider<ChannelHandler[]> handlers;
+	private final ChannelHandler[] handlers;
 
 	@Inject
 	NettyServer(final ChannelFactory factory,
@@ -31,7 +35,7 @@ public class NettyServer extends AbstractIdleService {
 		this.factory = factory;
 		this.allChannels = allChannels;
 		this.address = address;
-		this.handlers = handlers;
+		this.handlers = handlers.get();
 
 		this.bootstrap = new ServerBootstrap(factory);
 	}
@@ -39,7 +43,9 @@ public class NettyServer extends AbstractIdleService {
 	@Override
 	protected void startUp() throws Exception {
 
-		bootstrap.setPipelineFactory(pipelineFactory(handlers.get()));
+		log.trace("NettyServer.startUp(address={}, handlers={})", address, handlers);
+
+		bootstrap.setPipelineFactory(pipelineFactory(handlers));
 		bootstrap.setOption("child.tcpNoDelay", true);
 		bootstrap.setOption("child.keepAlive", true);
 		Channel channel = bootstrap.bind(address);
@@ -48,6 +54,9 @@ public class NettyServer extends AbstractIdleService {
 
 	@Override
 	protected void shutDown() throws Exception {
+
+		log.trace("NettyServer.shutDown(address={}, handlers={})", address, handlers);
+
 		allChannels.close().awaitUninterruptibly();
 		factory.releaseExternalResources();
 	}

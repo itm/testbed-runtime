@@ -7,6 +7,8 @@ import com.google.inject.assistedinject.Assisted;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -15,13 +17,15 @@ import static com.google.common.base.Throwables.propagate;
 
 public class NettyClient extends AbstractIdleService {
 
+	private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
+
 	private final ChannelFactory factory;
 
 	private final ChannelGroup allChannels;
 
 	private final SocketAddress remoteAddress;
 
-	private final Provider<ChannelHandler[]> handlers;
+	private final ChannelHandler[] handlers;
 
 	private final ClientBootstrap bootstrap;
 
@@ -34,7 +38,7 @@ public class NettyClient extends AbstractIdleService {
 		this.factory = factory;
 		this.allChannels = allChannels;
 		this.remoteAddress = remoteAddress;
-		this.handlers = handlers;
+		this.handlers = handlers.get();
 
 		this.bootstrap = new ClientBootstrap(factory);
 	}
@@ -42,7 +46,9 @@ public class NettyClient extends AbstractIdleService {
 	@Override
 	protected void startUp() throws Exception {
 
-		bootstrap.setPipelineFactory(pipelineFactory(handlers.get()));
+		log.trace("NettyClient.startUp(remoteAddress={}, handlers={})", remoteAddress, handlers);
+
+		bootstrap.setPipelineFactory(pipelineFactory(handlers));
 		bootstrap.setOption("child.tcpNoDelay", true);
 		bootstrap.setOption("child.keepAlive", true);
 
@@ -58,6 +64,9 @@ public class NettyClient extends AbstractIdleService {
 
 	@Override
 	protected void shutDown() throws Exception {
+
+		log.trace("NettyClient.shutDown(remoteAddress={}, handlers={})", remoteAddress, handlers);
+
 		allChannels.close().awaitUninterruptibly();
 		factory.releaseExternalResources();
 	}
