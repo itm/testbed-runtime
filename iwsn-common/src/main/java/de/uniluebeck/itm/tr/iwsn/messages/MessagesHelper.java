@@ -187,6 +187,23 @@ public abstract class MessagesHelper {
 		return newMessage(newEnablePhysicalLinksRequest(requestId, links));
 	}
 
+	public static Request newSetChannelPipelinesRequest(final long requestId, final Iterable<String> nodeUrns,
+														final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.SET_CHANNEL_PIPELINES)
+				.setSetChannelPipelinesRequest(SetChannelPipelinesRequest.newBuilder()
+						.addAllNodeUrns(nodeUrns)
+						.addAllChannelHandlerConfigurations(channelHandlerConfigurations)
+				)
+				.build();
+	}
+
+	public static Message newSetChannelPipelinesRequestMessage(final long requestId, final Iterable<String> nodeUrns,
+															   final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return newMessage(newSetChannelPipelinesRequest(requestId, nodeUrns, channelHandlerConfigurations));
+	}
+
 	public static Message newMessage(Request request) {
 		return Message.newBuilder()
 				.setType(Message.Type.REQUEST)

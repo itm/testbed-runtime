@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.Event;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
@@ -21,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Random;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static org.junit.Assert.assertEquals;
@@ -28,11 +30,7 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;
 
 /**
- * DESTROY_VIRTUAL_LINK
- * DISABLE_PHYSICAL_LINK
- * ENABLE_PHYSICAL_LINK
  * SET_CHANNEL_PIPELINE
- * SET_VIRTUAL_LINK
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PortalChannelHandlerTest {
@@ -65,7 +63,9 @@ public class PortalChannelHandlerTest {
 	);
 
 	private static final Multimap<String, String> LINKS_GW1 = HashMultimap.create();
+
 	private static final Multimap<String, String> LINKS_GW2 = HashMultimap.create();
+
 	private static final Multimap<String, String> LINKS = HashMultimap.create();
 
 	static {
@@ -78,6 +78,26 @@ public class PortalChannelHandlerTest {
 		LINKS.putAll(LINKS_GW1);
 		LINKS.putAll(LINKS_GW2);
 	}
+
+	private static final Iterable<SetChannelPipelinesRequest.ChannelHandlerConfiguration> CHANNEL_HANDLER_CONFIGS =
+			newArrayList(
+					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
+							.setName("n1")
+							.addConfiguration(
+									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
+											.setKey("k1").setValue("v1")
+							).build(),
+					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
+							.setName("n2")
+							.addConfiguration(
+									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
+											.setKey("n2k1").setValue("n2v1")
+							)
+							.addConfiguration(
+									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
+											.setKey("n2k2").setValue("n2v2")
+							).build()
+			);
 
 	@Mock
 	private PortalEventBus portalEventBus;
@@ -331,6 +351,25 @@ public class PortalChannelHandlerTest {
 
 		final Message expectedMessage1 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW1);
 		final Message expectedMessage2 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW2);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfSetChannelPipelinesRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(
+				newSetChannelPipelinesRequest(requestId, ALL_NODE_URNS, CHANNEL_HANDLER_CONFIGS)
+		);
+
+		final Message expectedMessage1 =
+				newSetChannelPipelinesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
+		final Message expectedMessage2 =
+				newSetChannelPipelinesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));

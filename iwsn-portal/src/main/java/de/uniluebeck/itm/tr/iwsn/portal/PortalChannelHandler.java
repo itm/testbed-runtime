@@ -272,7 +272,24 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case SET_CHANNEL_PIPELINES:
-				throw new RuntimeException("TODO: not yet implemented");
+
+				nodeUrnsList = request.getSetChannelPipelinesRequest().getNodeUrnsList();
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					requestsToBeSent.put(ctx, newSetChannelPipelinesRequest(
+							requestId,
+							subRequestNodeUrns,
+							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList()
+					)
+					);
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
 
 			default:
 				throw new RuntimeException("Unknown request type received!");
