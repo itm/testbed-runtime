@@ -23,15 +23,15 @@ public interface RequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest getAreNodesConnectedRequest();
   de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder getAreNodesConnectedRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest destroyVirtualLinksRequest = 103;
-  boolean hasDestroyVirtualLinksRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest getDestroyVirtualLinksRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequestOrBuilder getDestroyVirtualLinksRequestOrBuilder();
-  
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest = 104;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest = 103;
   boolean hasDisableNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest getDisableNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder getDisableNodesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest = 104;
+  boolean hasDisableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest getDisableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder getDisableVirtualLinksRequestOrBuilder();
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 105;
   boolean hasDisablePhysicalLinksRequest();
@@ -48,28 +48,28 @@ public interface RequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest();
   de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder getEnablePhysicalLinksRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest = 108;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest = 108;
+  boolean hasEnableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest getEnableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder getEnableVirtualLinksRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest = 109;
   boolean hasFlashImagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getFlashImagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder getFlashImagesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 109;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 110;
   boolean hasResetNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder getResetNodesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 110;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 111;
   boolean hasSendDownstreamMessagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder getSendDownstreamMessagesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 111;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 112;
   boolean hasSetChannelPipelinesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder();
-  
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetVirtualLinksRequest setVirtualLinksRequest = 112;
-  boolean hasSetVirtualLinksRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.SetVirtualLinksRequest getSetVirtualLinksRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.SetVirtualLinksRequestOrBuilder getSetVirtualLinksRequestOrBuilder();
 }

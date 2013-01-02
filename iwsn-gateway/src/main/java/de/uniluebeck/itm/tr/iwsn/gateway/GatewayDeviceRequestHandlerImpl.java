@@ -70,20 +70,23 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 			case ARE_NODES_CONNECTED:
 				onAreNodesConnectedRequest(request);
 				break;
-			case DESTROY_VIRTUAL_LINKS:
-				onDestroyVirtualLinksRequest(request);
-				break;
 			case DISABLE_NODES:
 				onDisableNodesRequest(request);
 				break;
 			case DISABLE_PHYSICAL_LINKS:
 				onDisablePhysicalLinksRequest(request);
 				break;
+			case DISABLE_VIRTUAL_LINKS:
+				onDisableVirtualLinksRequest(request);
+				break;
 			case ENABLE_NODES:
 				onEnablesNodeRequest(request);
 				break;
 			case ENABLE_PHYSICAL_LINKS:
 				onEnablePhysicalLinksRequest(request);
+				break;
+			case ENABLE_VIRTUAL_LINKS:
+				onEnableVirtualLinksRequest(request);
 				break;
 			case FLASH_IMAGES:
 				onFlashImagesRequest(request);
@@ -97,15 +100,12 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 			case SET_CHANNEL_PIPELINES:
 				onSetChannelPipelinesRequest(request);
 				break;
-			case SET_VIRTUAL_LINKS:
-				onSetVirtualLinksRequest(request);
-				break;
 			default:
 				throw new RuntimeException("Unknown request type received!");
 		}
 	}
 
-	private void onSetVirtualLinksRequest(final Request request) {
+	private void onEnableVirtualLinksRequest(final Request request) {
 		// TODO implement
 	}
 
@@ -141,7 +141,7 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 		// TODO implement
 	}
 
-	private void onDestroyVirtualLinksRequest(final Request request) {
+	private void onDisableVirtualLinksRequest(final Request request) {
 		// TODO implement
 	}
 

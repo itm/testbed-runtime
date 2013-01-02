@@ -62,6 +62,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		final Set<NodeUrn> nodeUrns;
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
 		final Map<ChannelHandlerContext, Request> requestsToBeSent = newHashMap();
+		final List<Link> virtualLinks;
 
 		switch (request.getType()) {
 
@@ -93,31 +94,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				sendRequests(requestsToBeSent);
 				break;
 
-			case DESTROY_VIRTUAL_LINKS:
-
-				final List<Link> links = request.getDestroyVirtualLinksRequest().getLinksList();
-
-				nodeUrnsList = newArrayList();
-				for (Link link : links) {
-					nodeUrnsList.add(link.getSourceNodeUrn());
-				}
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
-				mapping = getMulticastMapping(nodeUrns);
-
-				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
-					final Multimap<String, String> subRequestLinks = HashMultimap.create();
-					for (Link link : links) {
-						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
-							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
-						}
-					}
-					requestsToBeSent.put(ctx, newDestroyVirtualLinksRequest(requestId, subRequestLinks));
-				}
-
-				sendRequests(requestsToBeSent);
-				break;
-
 			case DISABLE_NODES:
 
 				nodeUrnsList = request.getDisableNodesRequest().getNodeUrnsList();
@@ -135,6 +111,31 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			case DISABLE_PHYSICAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
 
+			case DISABLE_VIRTUAL_LINKS:
+
+				virtualLinks = request.getDisableVirtualLinksRequest().getLinksList();
+
+				nodeUrnsList = newArrayList();
+				for (Link link : virtualLinks) {
+					nodeUrnsList.add(link.getSourceNodeUrn());
+				}
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					for (Link link : virtualLinks) {
+						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
+							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						}
+					}
+					requestsToBeSent.put(ctx, newDisableVirtualLinksRequest(requestId, subRequestLinks));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
+
 			case ENABLE_NODES:
 
 				nodeUrnsList = request.getEnableNodesRequest().getNodeUrnsList();
@@ -151,6 +152,31 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case ENABLE_PHYSICAL_LINKS:
 				throw new RuntimeException("TODO: not yet implemented");
+
+			case ENABLE_VIRTUAL_LINKS:
+
+				virtualLinks = request.getEnableVirtualLinksRequest().getLinksList();
+
+				nodeUrnsList = newArrayList();
+				for (Link link : virtualLinks) {
+					nodeUrnsList.add(link.getSourceNodeUrn());
+				}
+				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					final Iterable<String> subRequestNodeUrns = transform(mapping.get(ctx), toStringFunction());
+					final Multimap<String, String> subRequestLinks = HashMultimap.create();
+					for (Link link : virtualLinks) {
+						if (Iterables.contains(subRequestNodeUrns, link.getSourceNodeUrn())) {
+							subRequestLinks.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
+						}
+					}
+					requestsToBeSent.put(ctx, newEnableVirtualLinksRequest(requestId, subRequestLinks));
+				}
+
+				sendRequests(requestsToBeSent);
+				break;
 
 			case FLASH_IMAGES:
 
@@ -204,8 +230,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			case SET_CHANNEL_PIPELINES:
 				throw new RuntimeException("TODO: not yet implemented");
 
-			case SET_VIRTUAL_LINKS:
-				throw new RuntimeException("TODO: not yet implemented");
+			default:
+				throw new RuntimeException("Unknown request type received!");
 		}
 	}
 

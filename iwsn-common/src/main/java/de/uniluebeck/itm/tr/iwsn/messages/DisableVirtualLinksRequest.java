@@ -2,32 +2,32 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public  final class DestroyVirtualLinksRequest extends
+public  final class DisableVirtualLinksRequest extends
     com.google.protobuf.GeneratedMessage
-    implements DestroyVirtualLinksRequestOrBuilder {
-  // Use DestroyVirtualLinksRequest.newBuilder() to construct.
-  private DestroyVirtualLinksRequest(Builder builder) {
+    implements DisableVirtualLinksRequestOrBuilder {
+  // Use DisableVirtualLinksRequest.newBuilder() to construct.
+  private DisableVirtualLinksRequest(Builder builder) {
     super(builder);
   }
-  private DestroyVirtualLinksRequest(boolean noInit) {}
+  private DisableVirtualLinksRequest(boolean noInit) {}
   
-  private static final DestroyVirtualLinksRequest defaultInstance;
-  public static DestroyVirtualLinksRequest getDefaultInstance() {
+  private static final DisableVirtualLinksRequest defaultInstance;
+  public static DisableVirtualLinksRequest getDefaultInstance() {
     return defaultInstance;
   }
   
-  public DestroyVirtualLinksRequest getDefaultInstanceForType() {
+  public DisableVirtualLinksRequest getDefaultInstanceForType() {
     return defaultInstance;
   }
   
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DestroyVirtualLinksRequest_descriptor;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableVirtualLinksRequest_descriptor;
   }
   
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DestroyVirtualLinksRequest_fieldAccessorTable;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableVirtualLinksRequest_fieldAccessorTable;
   }
   
   // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;
@@ -100,41 +100,41 @@ public  final class DestroyVirtualLinksRequest extends
     return super.writeReplace();
   }
   
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(byte[] data)
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseDelimitedFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     Builder builder = newBuilder();
     if (builder.mergeDelimitedFrom(input)) {
@@ -143,7 +143,7 @@ public  final class DestroyVirtualLinksRequest extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseDelimitedFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -154,12 +154,12 @@ public  final class DestroyVirtualLinksRequest extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -169,7 +169,7 @@ public  final class DestroyVirtualLinksRequest extends
   
   public static Builder newBuilder() { return Builder.create(); }
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest prototype) {
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest prototype) {
     return newBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() { return newBuilder(this); }
@@ -182,18 +182,18 @@ public  final class DestroyVirtualLinksRequest extends
   }
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequestOrBuilder {
+     implements de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DestroyVirtualLinksRequest_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableVirtualLinksRequest_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DestroyVirtualLinksRequest_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisableVirtualLinksRequest_fieldAccessorTable;
     }
     
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest.newBuilder()
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -228,24 +228,24 @@ public  final class DestroyVirtualLinksRequest extends
     
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest.getDescriptor();
+      return de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDescriptor();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest getDefaultInstanceForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest.getDefaultInstance();
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest build() {
-      de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest result = buildPartial();
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest build() {
+      de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
     
-    private de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest buildParsed()
+    private de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest result = buildPartial();
+      de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
@@ -253,8 +253,8 @@ public  final class DestroyVirtualLinksRequest extends
       return result;
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest buildPartial() {
-      de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest result = new de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest(this);
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest result = new de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest(this);
       int from_bitField0_ = bitField0_;
       if (linksBuilder_ == null) {
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -270,16 +270,16 @@ public  final class DestroyVirtualLinksRequest extends
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest) {
-        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest)other);
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
     
-    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest other) {
-      if (other == de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest.getDefaultInstance()) return this;
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance()) return this;
       if (linksBuilder_ == null) {
         if (!other.links_.isEmpty()) {
           if (links_.isEmpty()) {
@@ -541,14 +541,14 @@ public  final class DestroyVirtualLinksRequest extends
       return linksBuilder_;
     }
     
-    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest)
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest)
   }
   
   static {
-    defaultInstance = new DestroyVirtualLinksRequest(true);
+    defaultInstance = new DisableVirtualLinksRequest(true);
     defaultInstance.initFields();
   }
   
-  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.DestroyVirtualLinksRequest)
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest)
 }
 

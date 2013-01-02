@@ -50,11 +50,11 @@ message ResetNodesRequest {
 	repeated string nodeUrns = 1;
 }
 
-message SetVirtualLinksRequest {
+message EnableVirtualLinksRequest {
 	repeated Link links = 1;
 }
 
-message DestroyVirtualLinksRequest {
+message DisableVirtualLinksRequest {
 	repeated Link links = 1;
 }
 
@@ -97,16 +97,16 @@ message Request {
 	enum Type {
 		ARE_NODES_ALIVE          = 1;
 		ARE_NODES_CONNECTED      = 2;
-		DESTROY_VIRTUAL_LINKS    = 3;
-		DISABLE_NODES            = 4;
+		DISABLE_NODES            = 3;
+		DISABLE_VIRTUAL_LINKS    = 4;
 		DISABLE_PHYSICAL_LINKS   = 5;
 		ENABLE_NODES             = 6;
 		ENABLE_PHYSICAL_LINKS    = 7;
-		FLASH_IMAGES             = 8;
-		RESET_NODES              = 9;
-		SEND_DOWNSTREAM_MESSAGES = 10;
-		SET_CHANNEL_PIPELINES    = 11;
-		SET_VIRTUAL_LINKS        = 12;
+		ENABLE_VIRTUAL_LINKS     = 8;
+		FLASH_IMAGES             = 9;
+		RESET_NODES              = 10;
+		SEND_DOWNSTREAM_MESSAGES = 11;
+		SET_CHANNEL_PIPELINES    = 12;
 	}
 
 	required int64                            requestId                        = 1;
@@ -114,16 +114,16 @@ message Request {
 
 	optional AreNodesAliveRequest             areNodesAliveRequest             = 101;
 	optional AreNodesConnectedRequest         areNodesConnectedRequest         = 102;
-	optional DestroyVirtualLinksRequest       destroyVirtualLinksRequest       = 103;
-	optional DisableNodesRequest              disableNodesRequest              = 104;
+	optional DisableNodesRequest              disableNodesRequest              = 103;
+	optional DisableVirtualLinksRequest       disableVirtualLinksRequest       = 104;
 	optional DisablePhysicalLinksRequest      disablePhysicalLinksRequest      = 105;
 	optional EnableNodesRequest               enableNodesRequest               = 106;
 	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 107;
-	optional FlashImagesRequest               flashImagesRequest               = 108;
-	optional ResetNodesRequest                resetNodesRequest                = 109;
-	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 110;
-	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 111;
-	optional SetVirtualLinksRequest           setVirtualLinksRequest           = 112;
+	optional EnableVirtualLinksRequest        enableVirtualLinksRequest        = 108;
+	optional FlashImagesRequest               flashImagesRequest               = 109;
+	optional ResetNodesRequest                resetNodesRequest                = 110;
+	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 111;
+	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 112;
 }
 
 message SingleNodeProgress {

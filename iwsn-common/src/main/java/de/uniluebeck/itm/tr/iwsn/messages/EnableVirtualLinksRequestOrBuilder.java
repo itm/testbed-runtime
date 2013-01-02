@@ -2,7 +2,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public interface SetVirtualLinksRequestOrBuilder
+public interface EnableVirtualLinksRequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
   // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;

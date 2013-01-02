@@ -282,10 +282,25 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDestroyVirtualLinksRequest(requestId, VIRTUAL_LINKS));
+		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(requestId, VIRTUAL_LINKS));
 
-		final Message expectedMessage1 = newDestroyVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
-		final Message expectedMessage2 = newDestroyVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
+		final Message expectedMessage1 = newDisableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
+		final Message expectedMessage2 = newDisableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
+
+		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
+		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfEnableVirtualLinksRequestIsCorrectlyDistributed() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(requestId, VIRTUAL_LINKS));
+
+		final Message expectedMessage1 = newEnableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW1);
+		final Message expectedMessage2 = newEnableVirtualLinksRequestMessage(requestId, VIRTUAL_LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));

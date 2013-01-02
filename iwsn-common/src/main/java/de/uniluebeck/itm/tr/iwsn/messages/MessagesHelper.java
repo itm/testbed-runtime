@@ -123,9 +123,9 @@ public abstract class MessagesHelper {
 		return newMessage(newFlashImagesRequest(requestId, nodeUrns, ByteString.copyFrom(imageBytes)));
 	}
 
-	public static Request newDestroyVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
+	public static Request newDisableVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
 
-		final DestroyVirtualLinksRequest.Builder builder = DestroyVirtualLinksRequest.newBuilder();
+		final DisableVirtualLinksRequest.Builder builder = DisableVirtualLinksRequest.newBuilder();
 
 		for (String sourceNodeUrn : links.keySet()) {
 			for (String targetNodeUrn : links.get(sourceNodeUrn)) {
@@ -135,14 +135,36 @@ public abstract class MessagesHelper {
 
 		return Request.newBuilder()
 				.setRequestId(requestId)
-				.setType(Request.Type.DESTROY_VIRTUAL_LINKS)
-				.setDestroyVirtualLinksRequest(builder.build())
+				.setType(Request.Type.DISABLE_VIRTUAL_LINKS)
+				.setDisableVirtualLinksRequest(builder.build())
 				.build();
 	}
 
-	public static Message newDestroyVirtualLinksRequestMessage(final long requestId,
+	public static Message newDisableVirtualLinksRequestMessage(final long requestId,
 															   final Multimap<String, String> links) {
-		return newMessage(newDestroyVirtualLinksRequest(requestId, links));
+		return newMessage(newDisableVirtualLinksRequest(requestId, links));
+	}
+
+	public static Request newEnableVirtualLinksRequest(final long requestId, final Multimap<String, String> links) {
+
+		final EnableVirtualLinksRequest.Builder builder = EnableVirtualLinksRequest.newBuilder();
+
+		for (String sourceNodeUrn : links.keySet()) {
+			for (String targetNodeUrn : links.get(sourceNodeUrn)) {
+				builder.addLinks(Link.newBuilder().setSourceNodeUrn(sourceNodeUrn).setTargetNodeUrn(targetNodeUrn));
+			}
+		}
+
+		return Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.ENABLE_VIRTUAL_LINKS)
+				.setEnableVirtualLinksRequest(builder.build())
+				.build();
+	}
+
+	public static Message newEnableVirtualLinksRequestMessage(final long requestId,
+														   final Multimap<String, String> links) {
+		return newMessage(newEnableVirtualLinksRequest(requestId, links));
 	}
 
 	public static Message newMessage(Request request) {
