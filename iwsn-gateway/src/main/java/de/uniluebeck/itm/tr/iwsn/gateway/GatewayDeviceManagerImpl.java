@@ -125,11 +125,9 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 			return;
 		}
 
-		final NodeUrn nodeUrn = new NodeUrn(deviceConfig.getNodeUrn());
-
 		synchronized (devices) {
 
-			if (!devices.containsKey(nodeUrn)) {
+			if (!devices.containsKey(deviceConfig.getNodeUrn())) {
 
 				try {
 
@@ -142,14 +140,14 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 					device.connect(deviceInfo.getPort());
 
 					log.info("{} => Successfully connected to {} device on serial port {}",
-							nodeUrn, deviceConfig.getNodeType(), deviceInfo.getPort()
+							deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), deviceInfo.getPort()
 					);
 
 					final GatewayDevice gatewayDevice = gatewayDeviceFactory.create(deviceConfig, device);
 					gatewayDevice.startAndWait();
-					devices.put(nodeUrn, gatewayDevice);
+					devices.put(deviceConfig.getNodeUrn(), gatewayDevice);
 
-					postDevicesAttachedEvent(nodeUrn);
+					postDevicesAttachedEvent(deviceConfig.getNodeUrn());
 
 				} catch (Exception e) {
 					log.error("{} => Could not connect to {} device at {}.", e);
@@ -168,14 +166,12 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 			return;
 		}
 
-		final NodeUrn nodeUrn = new NodeUrn(deviceConfig.getNodeUrn());
-
 		synchronized (devices) {
 
-			if (devices.containsKey(nodeUrn)) {
+			if (devices.containsKey(deviceConfig.getNodeUrn())) {
 
-				devices.remove(nodeUrn).stopAndWait();
-				postDevicesDetachedEvent(nodeUrn);
+				devices.remove(deviceConfig.getNodeUrn()).stopAndWait();
+				postDevicesDetachedEvent(deviceConfig.getNodeUrn());
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.devicedb;
 
+import eu.wisebed.api.v3.common.NodeUrn;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Map;
@@ -18,7 +20,7 @@ public class DeviceConfig {
 
 	private static final int DEFAULT_MAXIMUM_MESSAGE_RATE = Integer.MAX_VALUE;
 
-	private final String nodeUrn;
+	private final NodeUrn nodeUrn;
 
 	private final String nodeType;
 
@@ -50,7 +52,7 @@ public class DeviceConfig {
 	private final Long timeoutCheckAliveMillis;
 
 	public DeviceConfig(
-			final String nodeUrn,
+			final NodeUrn nodeUrn,
 			final String nodeType,
 			@Nullable final String nodeSerialInterface,
 			@Nullable final String nodeUSBChipID,
@@ -138,7 +140,7 @@ public class DeviceConfig {
 		return nodeType;
 	}
 
-	public String getNodeUrn() {
+	public NodeUrn getNodeUrn() {
 		return nodeUrn;
 	}
 

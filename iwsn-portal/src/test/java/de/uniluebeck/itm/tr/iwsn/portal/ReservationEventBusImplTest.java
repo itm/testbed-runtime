@@ -27,14 +27,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * PROGRESS
- * RESPONSE
- * NOTIFICATION_EVENT
- * MESSAGE_UPSTREAM_EVENT
- * DEVICES_ATTACHED_EVENT
- * DEVICES_DETACHED_EVENT
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationEventBusImplTest {
 
