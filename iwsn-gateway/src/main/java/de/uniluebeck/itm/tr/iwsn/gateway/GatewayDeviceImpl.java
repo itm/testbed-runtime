@@ -35,7 +35,6 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
@@ -59,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,6 +74,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
@@ -151,7 +152,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		checkState(device.isConnected());
 
 		this.nodeApi = nodeApiFactory.create(
-				deviceConfig.getNodeUrn(),
+				deviceConfig.getNodeUrn().toString(),
 				nodeApiDeviceAdapter,
 				deviceConfig.getTimeoutNodeApiMillis(),
 				TimeUnit.MILLISECONDS
@@ -169,19 +170,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			throw new RuntimeException(e);
 		}
 
-		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn());
-		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn());
-	}
-
-	private void sendNotification(final String nodeUrn, final String msg) {
-
-		final NotificationEvent notificationEvent = NotificationEvent.newBuilder()
-				.setNodeUrn(nodeUrn)
-				.setMessage(msg)
-				.setTimestamp(new DateTime().getMillis())
-				.build();
-
-		gatewayEventBus.post(notificationEvent);
+		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
 	}
 
 	@Override
@@ -233,6 +223,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			);
 
 			shutdownDeviceChannel();
+			device.close();
 			nodeApi.stop();
 			ExecutorUtils.shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
 
@@ -613,15 +604,23 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e)
 				throws Exception {
 
-			log.warn("{} => Exception in pipeline: {}", deviceConfig.getNodeUrn(), e);
+			//noinspection ThrowableResultOfMethodCallIgnored
+			if (e.getCause() instanceof IOException && "Pipe broken".equals(e.getCause().getMessage())) {
 
-			@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-			String notification = "The pipeline seems to be wrongly configured. A(n) " +
-					e.getCause().getClass().getSimpleName() +
-					" was caught and contained the following message: " +
-					e.getCause().getMessage();
+				log.trace("{} => Expected exception in pipeline: {}", deviceConfig.getNodeUrn(), e);
 
-			sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+			} else {
+
+				log.warn("{} => Exception in pipeline: {}", deviceConfig.getNodeUrn(), e);
+
+				@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+				String notification = "The pipeline seems to be wrongly configured. A(n) " +
+						e.getCause().getClass().getSimpleName() +
+						" was caught and contained the following message: " +
+						e.getCause().getMessage();
+
+				sendPipelineMisconfigurationIfNotificationRateAllows(notification);
+			}
 		}
 	};
 
@@ -651,7 +650,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		final de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent event =
 				de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder()
 						.setMessageBytes(ByteString.copyFrom(bytes))
-						.setSourceNodeUrn(deviceConfig.getNodeUrn())
+						.setSourceNodeUrn(deviceConfig.getNodeUrn().toString())
 						.setTimestamp(new DateTime().getMillis())
 						.build();
 
@@ -687,7 +686,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-			sendNotification(deviceConfig.getNodeUrn(), notification);
+			gatewayEventBus.post(newNotificationEvent(deviceConfig.getNodeUrn(), notification));
 			pipelineMisconfigurationTimeDiff.touch();
 		}
 	}
@@ -704,7 +703,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 							+ "more packets to the serial interface per second than allowed (" +
 							deviceConfig.getMaximumMessageRate() + " per second).";
 
-			sendNotification(deviceConfig.getNodeUrn(), notification);
+			gatewayEventBus.post(newNotificationEvent(deviceConfig.getNodeUrn(), notification));
 
 			packetsDroppedSinceLastNotification = 0;
 			packetsDroppedTimeDiff.touch();

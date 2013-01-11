@@ -118,6 +118,8 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	private void onDeviceAttached(final DeviceInfo deviceInfo) {
 
+		log.trace("GatewayDeviceManagerImpl.onDeviceAttached({})", deviceInfo);
+
 		DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
 
 		if (deviceConfig == null) {
@@ -158,6 +160,8 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	}
 
 	private void onDeviceDetached(final DeviceInfo deviceInfo) {
+
+		log.trace("GatewayDeviceManagerImpl.onDeviceDetached({})", deviceInfo);
 
 		final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
 
