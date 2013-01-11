@@ -15,4 +15,16 @@ public class GatewayConfig extends ConfigWithLogging {
 	)
 	public HostAndPort portalOverlayAddress;
 
+	@Option(name = "--restAPI",
+			usage = "If set a REST API is started (default: false)",
+			required = false
+	)
+	public boolean restAPI = false;
+
+	@Option(name = "--restAPIPort",
+			usage = "The port for the REST API to run on (only used when --restAPI is set, default: 8080)",
+			required = false
+	)
+	public int restAPIPort = 8080;
+
 }

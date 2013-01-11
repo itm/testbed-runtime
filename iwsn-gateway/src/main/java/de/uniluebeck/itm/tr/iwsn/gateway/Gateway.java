@@ -4,6 +4,11 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import de.uniluebeck.itm.tr.iwsn.gateway.rest.GatewayRestApplication;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,20 +24,29 @@ public class Gateway extends AbstractService {
 		Logging.setLoggingDefaults();
 	}
 
+	private final GatewayConfig gatewayConfig;
+
 	private final GatewayEventBus gatewayEventBus;
 
 	private final GatewayDeviceManager gatewayDeviceManager;
 
 	private final GatewayDeviceObserver gatewayDeviceObserver;
 
-	@Inject
-	public Gateway(final GatewayEventBus gatewayEventBus,
-				   final GatewayDeviceManager gatewayDeviceManager,
-				   final GatewayDeviceObserver gatewayDeviceObserver) {
+	private final GatewayRestApplication gatewayRestApplication;
 
+	private ServicePublisher servicePublisher;
+
+	@Inject
+	public Gateway(final GatewayConfig gatewayConfig,
+				   final GatewayEventBus gatewayEventBus,
+				   final GatewayDeviceManager gatewayDeviceManager,
+				   final GatewayDeviceObserver gatewayDeviceObserver,
+				   final GatewayRestApplication gatewayRestApplication) {
+		this.gatewayConfig = gatewayConfig;
 		this.gatewayEventBus = gatewayEventBus;
 		this.gatewayDeviceManager = gatewayDeviceManager;
 		this.gatewayDeviceObserver = gatewayDeviceObserver;
+		this.gatewayRestApplication = gatewayRestApplication;
 	}
 
 	@Override
@@ -44,6 +58,20 @@ public class Gateway extends AbstractService {
 			gatewayEventBus.startAndWait();
 			gatewayDeviceManager.startAndWait();
 			gatewayDeviceObserver.startAndWait();
+
+			if (gatewayConfig.restAPI) {
+
+				final ServicePublisherConfig config = new ServicePublisherConfig(
+						gatewayConfig.restAPIPort,
+						ServicePublisherJettyMetroJerseyModule.class,
+						this.getClass().getResource("/").toString()
+				);
+
+				servicePublisher = ServicePublisherFactory.create(config);
+				servicePublisher.createJaxRsService("/", gatewayRestApplication);
+				servicePublisher.startAndWait();
+			}
+
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -56,6 +84,11 @@ public class Gateway extends AbstractService {
 		log.trace("Gateway.doStop()");
 
 		try {
+
+			if (gatewayConfig.restAPI && servicePublisher != null) {
+				servicePublisher.stopAndWait();
+			}
+
 			gatewayDeviceObserver.stopAndWait();
 			gatewayDeviceManager.stopAndWait();
 			gatewayEventBus.stopAndWait();

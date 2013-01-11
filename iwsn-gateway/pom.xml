@@ -49,6 +49,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-jetty-metro-jersey</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>

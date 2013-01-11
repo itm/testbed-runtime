@@ -30,10 +30,13 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
+import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.List;
 
 public interface GatewayDevice extends Service {
+
+	NodeUrn getNodeUrn();
 
 	ListenableFuture<NodeApiCallResult> enableNode();
 

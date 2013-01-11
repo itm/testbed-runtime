@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.collect.Iterables;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -235,6 +236,11 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	@Override
 	public GatewayDevice getDevice(final NodeUrn nodeUrn) {
 		return devices.get(nodeUrn);
+	}
+
+	@Override
+	public Iterable<GatewayDevice> getDevices() {
+		return Iterables.unmodifiableIterable(devices.values());
 	}
 
 	@Override

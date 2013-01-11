@@ -22,7 +22,6 @@ public interface GatewayDeviceManager extends Service {
 	 * Returns the device with the node URN {@code nodeUrn} or {@code null} if there is no such device currently
 	 * connected.
 	 *
-	 *
 	 * @param nodeUrn
 	 * 		the node URN of the device to get
 	 *
@@ -32,8 +31,14 @@ public interface GatewayDeviceManager extends Service {
 	GatewayDevice getDevice(NodeUrn nodeUrn);
 
 	/**
-	 * Returns a mapping between node URNs and the device driver interfaces of the nodes that are currently connected.
+	 * Returns all currently connected devices.
 	 *
+	 * @return all currently connected devices
+	 */
+	Iterable<GatewayDevice> getDevices();
+
+	/**
+	 * Returns a mapping between node URNs and the device driver interfaces of the nodes that are currently connected.
 	 *
 	 * @param nodeUrns
 	 * 		the node URNs for which to get the device interfaces

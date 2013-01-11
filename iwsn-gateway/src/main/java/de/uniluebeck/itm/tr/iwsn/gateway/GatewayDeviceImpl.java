@@ -47,6 +47,7 @@ import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
+import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -250,6 +251,11 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	public ListenableFuture<NodeApiCallResult> disablePhysicalLink(final MacAddress targetMacAddress) {
 		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", deviceConfig.getNodeUrn());
 		return nodeApi.disablePhysicalLink(targetMacAddress.toLong());
+	}
+
+	@Override
+	public NodeUrn getNodeUrn() {
+		return deviceConfig.getNodeUrn();
 	}
 
 	@Override
