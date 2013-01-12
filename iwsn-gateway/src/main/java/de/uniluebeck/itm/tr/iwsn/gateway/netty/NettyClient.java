@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.netty;
 
-import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Throwables.propagate;
-
-public class NettyClient extends AbstractIdleService {
+public class NettyClient extends AbstractService {
 
 	private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
 
@@ -43,39 +41,53 @@ public class NettyClient extends AbstractIdleService {
 		this.bootstrap = new ClientBootstrap(factory);
 	}
 
-	@Override
-	protected void startUp() throws Exception {
-
-		log.trace("NettyClient.startUp(remoteAddress={}, handlers={})", remoteAddress, handlers);
-
-		bootstrap.setPipelineFactory(pipelineFactory(handlers));
-		bootstrap.setOption("child.tcpNoDelay", true);
-		bootstrap.setOption("child.keepAlive", true);
-
-		final ChannelFuture future = bootstrap.connect(remoteAddress);
-		future.await(30, TimeUnit.SECONDS);
-
-		if (future.isSuccess()) {
-			allChannels.add(future.getChannel());
-		} else {
-			throw propagate(future.getCause());
-		}
-	}
-
-	@Override
-	protected void shutDown() throws Exception {
-
-		log.trace("NettyClient.shutDown(remoteAddress={}, handlers={})", remoteAddress, handlers);
-
-		allChannels.close().awaitUninterruptibly();
-		factory.releaseExternalResources();
-	}
-
 	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
 		return new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(handlers);
 			}
 		};
+	}
+
+	@Override
+	protected void doStart() {
+
+		log.trace("NettyClient.startUp(remoteAddress={}, handlers={})", remoteAddress, handlers);
+
+		try {
+
+			bootstrap.setPipelineFactory(pipelineFactory(handlers));
+			bootstrap.setOption("child.tcpNoDelay", true);
+			bootstrap.setOption("child.keepAlive", true);
+
+			final ChannelFuture future = bootstrap.connect(remoteAddress);
+			future.await(30, TimeUnit.SECONDS);
+
+			if (future.isSuccess()) {
+				allChannels.add(future.getChannel());
+				notifyStarted();
+			} else {
+				notifyFailed(future.getCause());
+			}
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+
+		log.trace("NettyClient.shutDown(remoteAddress={}, handlers={})", remoteAddress, handlers);
+
+		try {
+
+			allChannels.close().awaitUninterruptibly();
+			factory.releaseExternalResources();
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 }

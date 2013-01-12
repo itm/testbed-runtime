@@ -10,6 +10,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.GatewayRestApplication;
 import de.uniluebeck.itm.tr.util.Logging;
+import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,9 @@ public class Gateway extends AbstractService {
 
 	static {
 		Logging.setLoggingDefaults();
+		org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
+		org.apache.log4j.Logger.getLogger("de.uniluebeck.itm.wsn.drivers").setLevel(Level.WARN);
+		org.apache.log4j.Logger.getLogger("de.uniluebeck.itm.wsn.deviceutils").setLevel(Level.WARN);
 	}
 
 	private final GatewayConfig gatewayConfig;
@@ -68,7 +72,7 @@ public class Gateway extends AbstractService {
 				);
 
 				servicePublisher = ServicePublisherFactory.create(config);
-				servicePublisher.createJaxRsService("/", gatewayRestApplication);
+				servicePublisher.createJaxRsService("/devices/*", gatewayRestApplication);
 				servicePublisher.startAndWait();
 			}
 

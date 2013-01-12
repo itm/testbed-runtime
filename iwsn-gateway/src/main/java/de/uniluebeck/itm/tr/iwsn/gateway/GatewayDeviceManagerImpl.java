@@ -240,7 +240,16 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	@Override
 	public Iterable<GatewayDevice> getDevices() {
-		return Iterables.unmodifiableIterable(devices.values());
+		synchronized (devices) {
+			return Iterables.unmodifiableIterable(devices.values());
+		}
+	}
+
+	@Override
+	public Iterable<NodeUrn> getDeviceUrns() {
+		synchronized (devices) {
+			return Iterables.unmodifiableIterable(devices.keySet());
+		}
 	}
 
 	@Override

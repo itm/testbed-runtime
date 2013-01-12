@@ -38,6 +38,13 @@ public interface GatewayDeviceManager extends Service {
 	Iterable<GatewayDevice> getDevices();
 
 	/**
+	 * Returns the node URNs of all currently connected devices.
+	 *
+	 * @return the node URNs of all currently connected devices
+	 */
+	Iterable<NodeUrn> getDeviceUrns();
+
+	/**
 	 * Returns a mapping between node URNs and the device driver interfaces of the nodes that are currently connected.
 	 *
 	 * @param nodeUrns

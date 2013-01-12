@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.netty;
 
-import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 
-public class NettyServer extends AbstractIdleService {
+public class NettyServer extends AbstractService {
 
 	private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
 
@@ -40,33 +40,47 @@ public class NettyServer extends AbstractIdleService {
 		this.bootstrap = new ServerBootstrap(factory);
 	}
 
-	@Override
-	protected void startUp() throws Exception {
-
-		log.trace("NettyServer.startUp(address={}, handlers={})", address, handlers);
-
-		bootstrap.setPipelineFactory(pipelineFactory(handlers));
-		bootstrap.setOption("child.tcpNoDelay", true);
-		bootstrap.setOption("child.keepAlive", true);
-		Channel channel = bootstrap.bind(address);
-		allChannels.add(channel);
-	}
-
-	@Override
-	protected void shutDown() throws Exception {
-
-		log.trace("NettyServer.shutDown(address={}, handlers={})", address, handlers);
-
-		allChannels.close().awaitUninterruptibly();
-		factory.releaseExternalResources();
-	}
-
 	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
 		return new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-
 				return Channels.pipeline(handlers);
 			}
 		};
+	}
+
+	@Override
+	protected void doStart() {
+
+		log.trace("NettyServer.startUp(address={}, handlers={})", address, handlers);
+
+		try {
+
+			bootstrap.setPipelineFactory(pipelineFactory(handlers));
+			bootstrap.setOption("child.tcpNoDelay", true);
+			bootstrap.setOption("child.keepAlive", true);
+
+			Channel channel = bootstrap.bind(address);
+			allChannels.add(channel);
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+
+		log.trace("NettyServer.shutDown(address={}, handlers={})", address, handlers);
+
+		try {
+
+			allChannels.close().awaitUninterruptibly();
+			factory.releaseExternalResources();
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Gateway <%= request.getServerName() %>
+	</title>
+	<link rel="stylesheet" href="bootstrap-2.2.2.css"/>
+	<script src="bootstrap-2.2.2.js"></script>
+	<script src="jquery-1.8.3.js"></script>
+	<script>
+
+		function reset(nodeUrn, resetButton) {
+			resetButton.toggleClass('disabled');
+			$.get("/devices/" + encodeURIComponent(nodeUrn) + "/reset", function() {
+				resetButton.toggleClass('disabled');
+			});
+		}
+
+		$(document).ready(function() {
+			$.get("/devices", function(data) {
+				$(data.nodeUrns).each(function(index, nodeUrn) {
+					var row = $('<div class="row"/>');
+					var nodeUrnDiv = $('<div class="span3">' + nodeUrn + '</div>');
+					var resetButton = $('<button class="btn">Reset</button>');
+					var resetButtonDiv = $('<div class="span2"/>');
+					resetButtonDiv.append(resetButton);
+					resetButton.bind('click', function() {
+						reset(nodeUrn, resetButton);
+					});
+					row.append(nodeUrnDiv);
+					row.append(resetButtonDiv);
+					$('#connectedDevicesDiv').append(row);
+				});
+			}, "json")
+		});
+	</script>
+</head>
+<body>
+<div class="container">
+	<h1>Gateway <%= request.getServerName() %>
+	</h1>
+
+	<h3>Currently connected devices</h3>
+
+	<div id="connectedDevicesDiv"></div>
+</div>
+</body>
+</html>

@@ -76,7 +76,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 		try {
 			try {
-				tryToConnectToPortalRunnable.run();
+				gatewayScheduler.execute(tryToConnectToPortalRunnable);
 			} catch (Exception e) {
 				// automatically handled
 			}
@@ -110,7 +110,11 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				gatewayChannelHandler
 		);
 
-		nettyClient.startAndWait();
+		try {
+			nettyClient.start().get();
+		} catch (Exception e) {
+			nettyClient = null;
+		}
 	}
 
 	private ChannelHandler channelObserver = new SimpleChannelUpstreamHandler() {

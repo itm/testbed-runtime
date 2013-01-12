@@ -55,7 +55,12 @@ public class Portal extends AbstractService {
 		final Injector injector = Guice.createInjector(portalModule);
 		final Portal portal = injector.getInstance(Portal.class);
 
-		portal.startAndWait();
+		try {
+			portal.start().get();
+		} catch (Exception e) {
+			log.error("Could not start iWSN portal: {}", e.getMessage());
+			System.exit(1);
+		}
 
 		log.info("iWSN Portal started!");
 
