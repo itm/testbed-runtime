@@ -21,7 +21,7 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 
-public class GatewayDeviceRequestHandlerI extends AbstractService implements GatewayDeviceRequestHandler {
+public class GatewayDeviceRequestHandlerImpl extends AbstractService implements GatewayDeviceRequestHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceRequestHandler.class);
 
@@ -40,8 +40,8 @@ public class GatewayDeviceRequestHandlerI extends AbstractService implements Gat
 
 	private final GatewayEventBus gatewayEventBus;
 
-	public GatewayDeviceRequestHandlerI(final GatewayDeviceManager gatewayDeviceManager,
-										final GatewayEventBus gatewayEventBus) {
+	public GatewayDeviceRequestHandlerImpl(final GatewayDeviceManager gatewayDeviceManager,
+										   final GatewayEventBus gatewayEventBus) {
 		this.gatewayDeviceManager = gatewayDeviceManager;
 		this.gatewayEventBus = gatewayEventBus;
 	}
