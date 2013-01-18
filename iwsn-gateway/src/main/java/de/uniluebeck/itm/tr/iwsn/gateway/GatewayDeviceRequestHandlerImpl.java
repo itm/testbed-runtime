@@ -2,19 +2,23 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.util.ListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 
 public class GatewayDeviceRequestHandlerImpl extends AbstractService implements GatewayDeviceRequestHandler {
@@ -29,6 +33,8 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 					return new NodeUrn(nodeUrnString);
 				}
 			};
+
+	private static final ListeningExecutorService SAME_THREAD_EXECUTOR = sameThreadExecutor();
 
 	private final GatewayDeviceManager gatewayDeviceManager;
 
@@ -146,21 +152,21 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 	}
 
 	private void onAreNodesConnectedRequest(final Request request) {
-		final Iterable<NodeUrn> nodeUrns =
-				transform(request.getAreNodesAliveRequest().getNodeUrnsList(), STRING_TO_NODE_URN);
+
+		final long requestId = request.getRequestId();
+		final Iterable<NodeUrn> nodeUrns = transform(
+				request.getAreNodesAliveRequest().getNodeUrnsList(),
+				STRING_TO_NODE_URN
+		);
 
 		postNodeNotConnectedResponse(request.getRequestId(), gatewayDeviceManager.getUnconnectedSubset(nodeUrns));
 
-		for (Map.Entry<NodeUrn, GatewayDevice> entry : gatewayDeviceManager.getConnectedSubset(nodeUrns)
-				.entrySet()) {
+		final Multimap<GatewayDeviceAdapter,NodeUrn> connectedMap = gatewayDeviceManager.getConnectedSubset(nodeUrns);
 
-			final GatewayDevice device = entry.getValue();
-			final NodeUrn nodeUrn = entry.getKey();
-
-			final ListenableFuture<Boolean> future = device.isNodeConnected();
-			future.addListener(createBoolOperationListener(request.getRequestId(), nodeUrn, future),
-					sameThreadExecutor()
-			);
+		for (GatewayDeviceAdapter deviceAdapter : connectedMap.keySet()) {
+			final Set<NodeUrn> adapterNodeUrns = newHashSet(connectedMap.get(deviceAdapter));
+			final ListenableFutureMap<NodeUrn, Boolean> future = deviceAdapter.areNodesConnected(adapterNodeUrns);
+			addBoolOperationListeners(requestId, future);
 		}
 	}
 
@@ -174,13 +180,21 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 
 		postNodeNotConnectedResponse(requestId, gatewayDeviceManager.getUnconnectedSubset(nodeUrns));
 
-		for (Map.Entry<NodeUrn, GatewayDevice> entry : gatewayDeviceManager.getConnectedSubset(nodeUrns).entrySet()) {
+		final Multimap<GatewayDeviceAdapter,NodeUrn> connectedMap = gatewayDeviceManager.getConnectedSubset(nodeUrns);
 
-			final GatewayDevice device = entry.getValue();
-			final NodeUrn nodeUrn = entry.getKey();
+		for (GatewayDeviceAdapter deviceAdapter : connectedMap.keySet()) {
+			final Set<NodeUrn> adapterNodeUrns = newHashSet(connectedMap.get(deviceAdapter));
+			final ListenableFutureMap<NodeUrn, Boolean> future = deviceAdapter.areNodesAlive(adapterNodeUrns);
+			addBoolOperationListeners(requestId, future);
+		}
+	}
 
-			final ListenableFuture<Boolean> future = device.isNodeAlive();
-			future.addListener(createBoolOperationListener(requestId, nodeUrn, future), sameThreadExecutor());
+	private void addBoolOperationListeners(final long requestId, final ListenableFutureMap<NodeUrn, Boolean> future) {
+		for (NodeUrn nodeUrn : future.keySet()) {
+			future.get(nodeUrn).addListener(
+					createBoolOperationListener(requestId, nodeUrn, future.get(nodeUrn)),
+					SAME_THREAD_EXECUTOR
+			);
 		}
 	}
 

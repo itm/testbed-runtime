@@ -24,10 +24,11 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
@@ -42,12 +43,10 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.tr.util.*;
-import de.uniluebeck.itm.tr.util.RateLimiter;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
-import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -59,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -71,7 +71,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
@@ -81,9 +80,9 @@ import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
-class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
+class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayDevice.class);
+	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceAdapter.class);
 
 	private final DeviceConfig deviceConfig;
 
@@ -141,10 +140,11 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	private ExecutorService deviceExecutor;
 
 	@Inject
-	public GatewayDeviceImpl(@Assisted final DeviceConfig deviceConfig,
-							 @Assisted final Device device,
-							 final NodeApiFactory nodeApiFactory,
-							 final GatewayEventBus gatewayEventBus) {
+	public GatewaySingleDeviceAdapterImpl(@Assisted final DeviceConfig deviceConfig,
+										  @Assisted final Device device,
+										  final NodeApiFactory nodeApiFactory,
+										  final GatewayEventBus gatewayEventBus) {
+		super(deviceConfig.getNodeUrn());
 
 		this.deviceConfig = checkNotNull(deviceConfig);
 		this.device = checkNotNull(device);
@@ -181,7 +181,8 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		try {
 
 			deviceExecutor = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat("GatewayDevice-" + deviceConfig.getNodeUrn()).build()
+					new ThreadFactoryBuilder().setNameFormat("GatewayDeviceAdapter-" + deviceConfig.getNodeUrn())
+							.build()
 			);
 
 			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
@@ -190,7 +191,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
-					return setPipeline(pipeline(), createPipelineHandlers(createDefaultInnerPipelineHandlers()));
+					return setPipeline(pipeline(), createPipelineHandlers(deviceConfig.getDefaultChannelPipeline()));
 				}
 			}
 			);
@@ -236,44 +237,39 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	}
 
 	@Override
-	public ListenableFuture<NodeApiCallResult> destroyVirtualLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewayDeviceImpl.destroyVirtualLink()", deviceConfig.getNodeUrn());
+	public ListenableFuture<NodeApiCallResult> disableVirtualLink(final MacAddress targetMacAddress) {
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.disableVirtualLink()", deviceConfig.getNodeUrn());
 		return nodeApi.destroyVirtualLink(targetMacAddress.toLong());
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> disableNode() {
-		log.debug("{} => GatewayDeviceImpl.disableNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.disableNode()", deviceConfig.getNodeUrn());
 		return nodeApi.disableNode();
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> disablePhysicalLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewayDeviceImpl.disablePhysicalLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.disablePhysicalLink()", deviceConfig.getNodeUrn());
 		return nodeApi.disablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
-	public NodeUrn getNodeUrn() {
-		return deviceConfig.getNodeUrn();
-	}
-
-	@Override
 	public ListenableFuture<NodeApiCallResult> enableNode() {
-		log.debug("{} => GatewayDeviceImpl.enableNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.enableNode()", deviceConfig.getNodeUrn());
 		return nodeApi.enableNode();
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> enablePhysicalLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewayDeviceImpl.enablePhysicalLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.enablePhysicalLink()", deviceConfig.getNodeUrn());
 		return nodeApi.enablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
 	public ProgressListenableFuture<Void> flashProgram(final byte[] binaryImage) {
 
-		log.debug("{} => GatewayDeviceImpl.executeFlashPrograms()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.executeFlashPrograms()", deviceConfig.getNodeUrn());
 
 		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
 
@@ -371,7 +367,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public ListenableFuture<Boolean> isNodeAlive() {
 
-		log.debug("{} => GatewayDeviceImpl.isNodeAlive()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.isNodeAlive()", deviceConfig.getNodeUrn());
 
 		final SettableFuture<Boolean> future = SettableFuture.create();
 
@@ -423,14 +419,14 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	@Override
 	public ListenableFuture<Boolean> isNodeConnected() {
-		log.debug("{} => GatewayDeviceImpl.isNodeConnected()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.isNodeConnected()", deviceConfig.getNodeUrn());
 		return immediateFuture(isConnected());
 	}
 
 	@Override
 	public ListenableFuture<Void> resetNode() {
 
-		log.debug("{} => GatewayDeviceImpl.resetNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.resetNode()", deviceConfig.getNodeUrn());
 		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (isConnected()) {
@@ -482,7 +478,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 	@Override
 	public ListenableFuture<Void> sendMessage(final byte[] messageBytes) {
 
-		log.debug("{} => GatewayDeviceImpl.sendMessage()", deviceConfig.getNodeUrn());
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.sendMessage()", deviceConfig.getNodeUrn());
 		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (!isConnected()) {
@@ -530,10 +526,9 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		return future;
 	}
 
-	@Override
 	public ListenableFuture<Void> setDefaultChannelPipeline() {
 		try {
-			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = createDefaultInnerPipelineHandlers();
+			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = deviceConfig.getDefaultChannelPipeline();
 			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
 			return immediateFuture(null);
@@ -643,7 +638,7 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 		}
 
 		if (log.isTraceEnabled()) {
-			log.trace("{} => GatewayDeviceImpl.onBytesReceivedFromDevice: {}",
+			log.trace("{} => GatewaySingleDeviceAdapterImpl.onBytesReceivedFromDevice: {}",
 					deviceConfig.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
@@ -718,23 +713,25 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	@Nonnull
 	private List<Tuple<String, ChannelHandler>> createPipelineHandlers(
-			@Nonnull List<Tuple<String, ChannelHandler>> innerHandlers) {
+			@Nullable List<Tuple<String, ChannelHandler>> innerHandlers) {
 
 		LinkedList<Tuple<String, ChannelHandler>> handlers = newLinkedList();
 
 		handlers.addFirst(new Tuple<String, ChannelHandler>("forwardingHandler", forwardingHandler));
 
-		boolean doLogging = log.isTraceEnabled() && !innerHandlers.isEmpty();
+		final boolean innerHandlersExist = innerHandlers != null && !innerHandlers.isEmpty();
 
-		if (doLogging) {
+		if (log.isTraceEnabled() && innerHandlersExist) {
 			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
 		}
 
-		for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
-			handlers.addFirst(innerHandler);
+		if (innerHandlersExist) {
+			for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
+				handlers.addFirst(innerHandler);
+			}
 		}
 
-		if (doLogging) {
+		if (log.isTraceEnabled() && innerHandlersExist) {
 			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
 		}
 
@@ -742,37 +739,9 @@ class GatewayDeviceImpl extends AbstractService implements GatewayDevice {
 
 	}
 
-	@Nonnull
-	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlers() {
-
-		boolean defaultChannelPipelineConfigurationFileExists =
-				deviceConfig.getDefaultChannelPipelineConfigurationFile() != null;
-
-		return defaultChannelPipelineConfigurationFileExists ?
-				createDefaultInnerPipelineHandlersFromConfigurationFile() :
-				Lists.<Tuple<String, ChannelHandler>>newArrayList();
-	}
-
-	private List<Tuple<String, ChannelHandler>> createDefaultInnerPipelineHandlersFromConfigurationFile() {
-
-		try {
-			return handlerFactoryRegistry.create(deviceConfig.getDefaultChannelPipelineConfigurationFile());
-		} catch (Exception e) {
-			log.warn(
-					"Exception while creating default channel pipeline from configuration file ({}). "
-							+ "Using empty pipeline as default pipeline. "
-							+ "Error message: {}. Stack trace: {}",
-					deviceConfig.getDefaultChannelPipelineConfigurationFile(),
-					e.getMessage(),
-					Throwables.getStackTraceAsString(e)
-			);
-			return newArrayList();
-		}
-	}
-
 	@Override
-	public ListenableFuture<NodeApiCallResult> setVirtualLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewayDeviceImpl.setVirtualLink()", deviceConfig.getNodeUrn());
+	public ListenableFuture<NodeApiCallResult> enableVirtualLink(final MacAddress targetMacAddress) {
+		log.debug("{} => GatewaySingleDeviceAdapterImpl.enableVirtualLink()", deviceConfig.getNodeUrn());
 		return nodeApi.setVirtualLink(targetMacAddress.toLong());
 	}
 

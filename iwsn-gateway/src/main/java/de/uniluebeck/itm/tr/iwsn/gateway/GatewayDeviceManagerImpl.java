@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -40,13 +42,13 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceManager.class);
 
-	private final Map<NodeUrn, GatewayDevice> devices = newHashMap();
+	private final Map<NodeUrn, GatewayDeviceAdapter> deviceAdapters = newHashMap();
 
 	private final GatewayEventBus gatewayEventBus;
 
 	private final DeviceConfigDB deviceConfigDB;
 
-	private final GatewayDeviceFactory gatewayDeviceFactory;
+	private final GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory;
 
 	private final DeviceFactory deviceFactory;
 
@@ -55,12 +57,12 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	@Inject
 	public GatewayDeviceManagerImpl(final GatewayEventBus gatewayEventBus,
 									final DeviceConfigDB deviceConfigDB,
-									final GatewayDeviceFactory gatewayDeviceFactory,
+									final GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory,
 									final DeviceFactory deviceFactory) {
 
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
-		this.gatewayDeviceFactory = checkNotNull(gatewayDeviceFactory);
+		this.gatewayDeviceAdapterFactory = checkNotNull(gatewayDeviceAdapterFactory);
 		this.deviceFactory = checkNotNull(deviceFactory);
 	}
 
@@ -95,12 +97,12 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	}
 
 	private void shutdownAllDevices() {
-		synchronized (devices) {
-			for (GatewayDevice gatewayDevice : devices.values()) {
-				gatewayDevice.stopAndWait();
+		synchronized (deviceAdapters) {
+			for (GatewayDeviceAdapter gatewayDeviceAdapter : deviceAdapters.values()) {
+				gatewayDeviceAdapter.stopAndWait();
 			}
-			final Set<NodeUrn> detachedDevices = devices.keySet();
-			devices.clear();
+			final Set<NodeUrn> detachedDevices = deviceAdapters.keySet();
+			deviceAdapters.clear();
 			postDevicesDetachedEvent(detachedDevices);
 		}
 	}
@@ -128,9 +130,9 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 			return;
 		}
 
-		synchronized (devices) {
+		synchronized (deviceAdapters) {
 
-			if (!devices.containsKey(deviceConfig.getNodeUrn())) {
+			if (!deviceAdapters.containsKey(deviceConfig.getNodeUrn())) {
 
 				try {
 
@@ -146,9 +148,9 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 							deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), deviceInfo.getPort()
 					);
 
-					final GatewayDevice gatewayDevice = gatewayDeviceFactory.create(deviceConfig, device);
-					gatewayDevice.startAndWait();
-					devices.put(deviceConfig.getNodeUrn(), gatewayDevice);
+					final GatewayDeviceAdapter gatewayDeviceAdapter = gatewayDeviceAdapterFactory.create(deviceConfig, device);
+					gatewayDeviceAdapter.startAndWait();
+					deviceAdapters.put(deviceConfig.getNodeUrn(), gatewayDeviceAdapter);
 
 					postDevicesAttachedEvent(deviceConfig.getNodeUrn());
 
@@ -171,11 +173,11 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 			return;
 		}
 
-		synchronized (devices) {
+		synchronized (deviceAdapters) {
 
-			if (devices.containsKey(deviceConfig.getNodeUrn())) {
+			if (deviceAdapters.containsKey(deviceConfig.getNodeUrn())) {
 
-				devices.remove(deviceConfig.getNodeUrn()).stopAndWait();
+				deviceAdapters.remove(deviceConfig.getNodeUrn()).stopAndWait();
 				postDevicesDetachedEvent(deviceConfig.getNodeUrn());
 			}
 		}
@@ -225,41 +227,34 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 		);
 	}
 
-	@Override
-	public boolean isConnected(final NodeUrn nodeUrn) {
-		synchronized (devices) {
-			return devices.containsKey(nodeUrn);
-		}
-	}
-
 	@Nullable
 	@Override
-	public GatewayDevice getDevice(final NodeUrn nodeUrn) {
-		return devices.get(nodeUrn);
+	public GatewayDeviceAdapter getDeviceAdapter(final NodeUrn nodeUrn) {
+		return deviceAdapters.get(nodeUrn);
 	}
 
 	@Override
-	public Iterable<GatewayDevice> getDevices() {
-		synchronized (devices) {
-			return Iterables.unmodifiableIterable(devices.values());
+	public Iterable<GatewayDeviceAdapter> getDeviceAdapters() {
+		synchronized (deviceAdapters) {
+			return Iterables.unmodifiableIterable(deviceAdapters.values());
 		}
 	}
 
 	@Override
-	public Iterable<NodeUrn> getDeviceUrns() {
-		synchronized (devices) {
-			return Iterables.unmodifiableIterable(devices.keySet());
+	public Iterable<NodeUrn> getCurrentlyConnectedNodeUrns() {
+		synchronized (deviceAdapters) {
+			return Iterables.unmodifiableIterable(deviceAdapters.keySet());
 		}
 	}
 
 	@Override
-	public Map<NodeUrn, GatewayDevice> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
-		Map<NodeUrn, GatewayDevice> map = newHashMap();
-		synchronized (devices) {
+	public Multimap<GatewayDeviceAdapter, NodeUrn> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
+		Multimap<GatewayDeviceAdapter, NodeUrn> map = HashMultimap.create();
+		synchronized (deviceAdapters) {
 			for (NodeUrn nodeUrn : nodeUrns) {
-				final GatewayDevice device = devices.get(nodeUrn);
-				if (device != null) {
-					map.put(nodeUrn, device);
+				final GatewayDeviceAdapter deviceAdapter = deviceAdapters.get(nodeUrn);
+				if (deviceAdapter != null) {
+					map.put(deviceAdapter, nodeUrn);
 				}
 			}
 		}
@@ -268,8 +263,8 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	@Override
 	public Iterable<NodeUrn> getUnconnectedSubset(final Iterable<NodeUrn> nodeUrns) {
-		synchronized (devices) {
-			return filter(nodeUrns, not(in(devices.keySet())));
+		synchronized (deviceAdapters) {
+			return filter(nodeUrns, not(in(deviceAdapters.keySet())));
 		}
 	}
 }

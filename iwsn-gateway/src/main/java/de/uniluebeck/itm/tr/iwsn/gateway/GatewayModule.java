@@ -38,8 +38,8 @@ public class GatewayModule extends AbstractModule {
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new FactoryModuleBuilder()
-				.implement(GatewayDevice.class, GatewayDeviceImpl.class)
-				.build(GatewayDeviceFactory.class)
+				.implement(GatewayDeviceAdapter.class, GatewaySingleDeviceAdapterImpl.class)
+				.build(GatewayDeviceAdapterFactory.class)
 		);
 	}
 

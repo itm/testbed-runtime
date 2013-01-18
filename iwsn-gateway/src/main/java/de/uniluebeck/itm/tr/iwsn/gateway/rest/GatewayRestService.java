@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.rest;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceManager;
 import eu.wisebed.api.v3.common.NodeUrn;
 
@@ -11,10 +11,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 @Path("/")
 public class GatewayRestService {
@@ -29,33 +31,48 @@ public class GatewayRestService {
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public DeviceList getDevices() {
-		return new DeviceList(newArrayList(transform(gatewayDeviceManager.getDeviceUrns(), toStringFunction())));
+		return new DeviceList(newArrayList(transform(
+				gatewayDeviceManager.getCurrentlyConnectedNodeUrns(),
+				toStringFunction()
+		)));
 	}
 
 	@GET
 	@Path("{nodeUrn}")
 	public Response getDeviceState(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
-		final GatewayDevice device = getGatewayDevice(nodeUrnString);
-		if (device == null) {
+
+		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
+		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getDeviceAdapter(nodeUrn);
+
+		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-		return Response.ok(new DeviceState(device.isNodeAlive().get(), device.isNodeConnected().get())).build();
+
+		final Set<NodeUrn> nodeUrnSet = newHashSet(nodeUrn);
+		return Response.ok(new DeviceState(
+				deviceAdapter.areNodesAlive(nodeUrnSet).get(nodeUrn).get(),
+				deviceAdapter.areNodesConnected(nodeUrnSet).get(nodeUrn).get()
+		)).build();
 	}
 
 	@GET
 	@Path("{nodeUrn}/reset")
 	public Response reset(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
-		final GatewayDevice device = getGatewayDevice(nodeUrnString);
-		if (device == null) {
+
+		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
+		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getDeviceAdapter(nodeUrn);
+
+		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-		device.resetNode().get();
-		return Response.ok().build();
-	}
 
-	private GatewayDevice getGatewayDevice(final String nodeUrnString) {
-		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		return this.gatewayDeviceManager.getDevice(nodeUrn);
+		final Set<NodeUrn> nodeUrnSet = newHashSet(nodeUrn);
+		try {
+			deviceAdapter.resetNodes(nodeUrnSet).get(nodeUrn).get();
+			return Response.ok().build();
+		} catch (Exception e) {
+			return Response.serverError().build();
+		}
 	}
 
 }

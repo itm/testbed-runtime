@@ -24,43 +24,44 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
+import de.uniluebeck.itm.tr.util.ListenableFutureMap;
+import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
 import de.uniluebeck.itm.tr.util.Tuple;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public interface GatewayDevice extends Service {
+public interface GatewayDeviceAdapter extends Service {
 
-	NodeUrn getNodeUrn();
+	Set<NodeUrn> getNodeUrns();
 
-	ListenableFuture<NodeApiCallResult> enableNode();
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(Set<NodeUrn> nodeUrns);
 
-	ListenableFuture<NodeApiCallResult> enablePhysicalLink(MacAddress targetMacAddress);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enablePhysicalLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
 
-	ListenableFuture<NodeApiCallResult> destroyVirtualLink(MacAddress targetMacAddress);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableVirtualLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
 
-	ListenableFuture<NodeApiCallResult> disableNode();
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(Set<NodeUrn> nodeUrns);
 
-	ListenableFuture<NodeApiCallResult> disablePhysicalLink(MacAddress targetMacAddress);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disablePhysicalLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
 
-	ProgressListenableFuture<Void> flashProgram(byte[] binaryImage);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
 
-	ListenableFuture<Boolean> isNodeAlive();
+	ProgressListenableFutureMap<NodeUrn, Void> flashProgram(Map<NodeUrn, byte[]> binaryImageMap);
 
-	ListenableFuture<Boolean> isNodeConnected();
+	ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(Set<NodeUrn> nodeUrns);
 
-	ListenableFuture<Void> resetNode();
+	ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(Set<NodeUrn> nodeUrns);
 
-	ListenableFuture<Void> sendMessage(byte[] messageBytes);
+	ListenableFutureMap<NodeUrn, Void> resetNodes(Set<NodeUrn> nodeUrns);
 
-	ListenableFuture<NodeApiCallResult> setVirtualLink(MacAddress targetMacAddress);
+	ListenableFutureMap<NodeUrn, Void> sendMessage(Set<NodeUrn> nodeUrns, byte[] messageBytes);
 
-	ListenableFuture<Void> setDefaultChannelPipeline();
-
-	ListenableFuture<Void> setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
+	ListenableFutureMap<NodeUrn, Void> setChannelPipelines(Set<NodeUrn> nodeUrns,
+														   List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
 }

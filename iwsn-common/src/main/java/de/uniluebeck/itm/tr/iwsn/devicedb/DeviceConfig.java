@@ -1,12 +1,15 @@
 package de.uniluebeck.itm.tr.iwsn.devicedb;
 
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
-import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DeviceConfig {
 
@@ -34,7 +37,7 @@ public class DeviceConfig {
 	private final Map<String, String> nodeConfiguration;
 
 	@Nullable
-	private final File defaultChannelPipelineConfigurationFile;
+	private final List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
 
 	@Nullable
 	private final Integer maximumMessageRate;
@@ -57,34 +60,19 @@ public class DeviceConfig {
 			@Nullable final String nodeSerialInterface,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
-			@Nullable final File defaultChannelPipelineConfigurationFile,
+			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
 			@Nullable final Integer maximumMessageRate,
 			@Nullable final Long timeoutCheckAliveMillis,
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
 			@Nullable final Long timeoutResetMillis) {
 
-		this.nodeUrn = nodeUrn;
-		this.nodeType = nodeType;
+		this.nodeUrn = checkNotNull(nodeUrn);
+		this.nodeType = checkNotNull(nodeType);
 		this.nodeSerialInterface = nodeSerialInterface;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration;
-
-		// defaultChannelPipelineConfigurationFile
-		final boolean defaultChannelPipelineConfigurationFileNullOrReadableFile =
-				defaultChannelPipelineConfigurationFile == null ||
-						(
-								defaultChannelPipelineConfigurationFile.exists() &&
-										defaultChannelPipelineConfigurationFile.isFile() &&
-										defaultChannelPipelineConfigurationFile.canRead()
-						);
-		checkArgument(defaultChannelPipelineConfigurationFileNullOrReadableFile,
-				"The default channel pipeline configuration file for " + nodeUrn +
-						" (\"" + (defaultChannelPipelineConfigurationFile != null ?
-						defaultChannelPipelineConfigurationFile.getAbsolutePath() : "") + "\") "
-						+ "either does not exists, is not a file or is not readable!"
-		);
-		this.defaultChannelPipelineConfigurationFile = defaultChannelPipelineConfigurationFile;
+		this.defaultChannelPipeline = defaultChannelPipeline;
 
 		// maximumMessageRate
 		checkArgument((maximumMessageRate == null || maximumMessageRate > 0),
@@ -102,7 +90,7 @@ public class DeviceConfig {
 		);
 		this.timeoutCheckAliveMillis = timeoutCheckAliveMillis;
 
-		// timeoutFlashMilis
+		// timeoutFlashMillis
 		checkArgument((timeoutFlashMillis == null || timeoutFlashMillis > 0),
 				"The timeout value for the flash operation must either be omitted (null) to use the default "
 						+ "value of " + DEFAULT_TIMEOUT_FLASH_MILLIS + " ms or be larger than 0 (zero). Configured "
@@ -171,8 +159,8 @@ public class DeviceConfig {
 	}
 
 	@Nullable
-	public File getDefaultChannelPipelineConfigurationFile() {
-		return defaultChannelPipelineConfigurationFile;
+	public List<Tuple<String, ChannelHandler>> getDefaultChannelPipeline() {
+		return defaultChannelPipeline;
 	}
 
 }
