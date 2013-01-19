@@ -58,23 +58,25 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 		try {
 
-			deviceObserverExecutor = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat(DeviceObserver.class.getSimpleName() + " %d").build()
-			);
+			final ThreadFactory deviceObserverThreadFactory = new ThreadFactoryBuilder()
+					.setNameFormat(DeviceObserver.class.getSimpleName() + " %d")
+					.build();
+			deviceObserverExecutor = Executors.newCachedThreadPool(deviceObserverThreadFactory);
 
-			deviceObserver = Guice
-					.createInjector(new DeviceUtilsModule(deviceObserverExecutor, null))
-					.getInstance(DeviceObserver.class);
+			final DeviceUtilsModule module = new DeviceUtilsModule(deviceObserverExecutor, null);
+			deviceObserver = Guice.createInjector(module).getInstance(DeviceObserver.class);
 			deviceObserver.addListener(this);
-			scheduler = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
+
+			final ThreadFactory schedulerThreadFactory = new ThreadFactoryBuilder()
 					.setNameFormat(DeviceObserverWrapper.class.getSimpleName() + " %d")
-					.build()
-			);
+					.build();
+			scheduler = Executors.newScheduledThreadPool(1, schedulerThreadFactory);
 			deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 1, TimeUnit.SECONDS);
 
-			deviceDriverExecutorService = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat(Device.class.getSimpleName() + " %d").build()
-			);
+			final ThreadFactory deviceDriverExecutorThreadFactory = new ThreadFactoryBuilder()
+					.setNameFormat(Device.class.getSimpleName() + " %d")
+					.build();
+			deviceDriverExecutorService = Executors.newCachedThreadPool(deviceDriverExecutorThreadFactory);
 
 		} catch (Exception e) {
 			notifyFailed(e);
