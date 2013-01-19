@@ -12,8 +12,24 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class NettyServerModule extends AbstractModule {
+
+	private final ThreadFactory bossExecutorThreadFactory;
+
+	private final ThreadFactory workerExecutorThreadFactory;
+
+	public NettyServerModule() {
+		this.bossExecutorThreadFactory = Executors.defaultThreadFactory();
+		this.workerExecutorThreadFactory = Executors.defaultThreadFactory();
+	}
+
+	public NettyServerModule(final ThreadFactory bossExecutorThreadFactory,
+							 final ThreadFactory workerExecutorThreadFactory) {
+		this.bossExecutorThreadFactory = bossExecutorThreadFactory;
+		this.workerExecutorThreadFactory = workerExecutorThreadFactory;
+	}
 
 	@Override
 	protected void configure() {
@@ -34,7 +50,8 @@ public class NettyServerModule extends AbstractModule {
 	@Provides
 	ChannelFactory provideChannelFactory() {
 		return new NioServerSocketChannelFactory(
-				Executors.newCachedThreadPool(), Executors.newCachedThreadPool()
+				Executors.newCachedThreadPool(bossExecutorThreadFactory),
+				Executors.newCachedThreadPool(workerExecutorThreadFactory)
 		);
 	}
 }

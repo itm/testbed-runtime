@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -23,7 +24,11 @@ public class PortalModule extends AbstractModule {
 		bind(PortalConfig.class).toInstance(portalConfig);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
 
-		install(new NettyServerModule());
+		install(new NettyServerModule(
+				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
+				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
+		));
+
 		install(new FactoryModuleBuilder()
 				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
 				.build(ReservationEventBusFactory.class)
