@@ -92,8 +92,6 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	public static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
 
-	public static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
-
 	public static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
 	private static final HandlerFactoryRegistry HANDLER_FACTORY_REGISTRY = new HandlerFactoryRegistry();

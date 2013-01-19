@@ -27,7 +27,8 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
-		bind(EventIdProvider.class).to(RandomEventIdProvider.class).in(Scopes.SINGLETON);
+		bind(EventIdProvider.class).to(IncrementalEventIdProvider.class).in(Scopes.SINGLETON);
+		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);
 		bind(GatewayScheduler.class).to(GatewaySchedulerImpl.class).in(Scopes.SINGLETON);
 
 		Multibinder<DeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =

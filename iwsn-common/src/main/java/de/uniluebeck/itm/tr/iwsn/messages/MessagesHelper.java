@@ -8,7 +8,10 @@ import org.joda.time.DateTime;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -295,8 +298,9 @@ public abstract class MessagesHelper {
 	}
 
 	public static DevicesAttachedEvent newDevicesAttachedEvent(final long timestamp, final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(!isEmpty(nodeUrns));
 		return DevicesAttachedEvent.newBuilder()
-				.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
+				.addAllNodeUrns(transform(nodeUrns, toStringFunction()))
 				.setTimestamp(timestamp)
 				.build();
 	}
@@ -305,19 +309,23 @@ public abstract class MessagesHelper {
 		return newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrns);
 	}
 
-	public static DevicesAttachedEvent newDevicesAttachedEvent(final long timestamp, final NodeUrn... nodeUrns) {
+	public static DevicesAttachedEvent newDevicesAttachedEvent(final long timestamp, final NodeUrn nodeUrn,
+															   final NodeUrn... nodeUrns) {
+		checkNotNull(nodeUrn);
 		final DevicesAttachedEvent.Builder builder = DevicesAttachedEvent.newBuilder();
-		for (NodeUrn nodeUrn : nodeUrns) {
-			builder.addNodeUrns(nodeUrn.toString());
+		builder.addNodeUrns(nodeUrn.toString());
+		for (NodeUrn anotherNodeUrn : nodeUrns) {
+			builder.addNodeUrns(anotherNodeUrn.toString());
 		}
 		return builder.setTimestamp(timestamp).build();
 	}
 
-	public static DevicesAttachedEvent newDevicesAttachedEvent(final NodeUrn... nodeUrns) {
-		return newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrns);
+	public static DevicesAttachedEvent newDevicesAttachedEvent(final NodeUrn nodeUrn, final NodeUrn... nodeUrns) {
+		return newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrn, nodeUrns);
 	}
 
 	public static DevicesDetachedEvent newDevicesDetachedEvent(final long timestamp, final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(!isEmpty(nodeUrns));
 		return DevicesDetachedEvent.newBuilder()
 				.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
 				.setTimestamp(timestamp)
@@ -328,16 +336,19 @@ public abstract class MessagesHelper {
 		return newDevicesDetachedEvent(new DateTime().getMillis(), nodeUrns);
 	}
 
-	public static DevicesDetachedEvent newDevicesDetachedEvent(final long timestamp, final NodeUrn... nodeUrns) {
+	public static DevicesDetachedEvent newDevicesDetachedEvent(final long timestamp, final NodeUrn nodeUrn,
+															   final NodeUrn... nodeUrns) {
+		checkNotNull(nodeUrn);
 		final DevicesDetachedEvent.Builder builder = DevicesDetachedEvent.newBuilder();
-		for (NodeUrn nodeUrn : nodeUrns) {
-			builder.addNodeUrns(nodeUrn.toString());
+		builder.addNodeUrns(nodeUrn.toString());
+		for (NodeUrn anotherNodeUrn : nodeUrns) {
+			builder.addNodeUrns(anotherNodeUrn.toString());
 		}
 		return builder.setTimestamp(timestamp).build();
 	}
 
-	public static DevicesDetachedEvent newDevicesDetachedEvent(final NodeUrn... nodeUrns) {
-		return newDevicesDetachedEvent(new DateTime().getMillis(), nodeUrns);
+	public static DevicesDetachedEvent newDevicesDetachedEvent(final NodeUrn nodeUrn, final NodeUrn... nodeUrns) {
+		return newDevicesDetachedEvent(new DateTime().getMillis(), nodeUrn, nodeUrns);
 	}
 
 	public static boolean equals(final DevicesAttachedEvent event1, final DevicesAttachedEvent event2) {

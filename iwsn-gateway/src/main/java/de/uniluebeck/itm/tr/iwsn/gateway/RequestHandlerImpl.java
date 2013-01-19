@@ -7,6 +7,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.util.ListenableFutureMap;
@@ -40,6 +41,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	private final GatewayEventBus gatewayEventBus;
 
+	@Inject
 	public RequestHandlerImpl(final DeviceManager deviceManager,
 							  final GatewayEventBus gatewayEventBus) {
 		this.deviceManager = deviceManager;
@@ -48,6 +50,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	@Override
 	protected void doStart() {
+		log.trace("RequestHandlerImpl.doStart()");
 		try {
 			gatewayEventBus.register(this);
 			notifyStarted();
@@ -58,6 +61,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	@Override
 	protected void doStop() {
+		log.trace("RequestHandlerImpl.doStop()");
 		try {
 			gatewayEventBus.unregister(this);
 			notifyStopped();
@@ -112,46 +116,58 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 	}
 
 	private void onEnableVirtualLinksRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onEnableVirtualLinksRequest({})", request);
 		// TODO implement
 	}
 
 	private void onSetChannelPipelinesRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onSetChannelPipelinesRequest({})", request);
 		// TODO implement
 	}
 
 	private void onSendDownstreamMessagesRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onSendDownstreamMessagesRequest({})", request);
 		// TODO implement
 	}
 
 	private void onResetNodesRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onResetNodesRequest({})", request);
 		// TODO implement
 	}
 
 	private void onFlashImagesRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onFlashImagesRequest({})", request);
 		// TODO implement
 	}
 
 	private void onEnablePhysicalLinksRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onEnablePhysicalLinksRequest({)", request);
 		// TODO implement
 	}
 
 	private void onEnablesNodeRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onEnablesNodeRequest({})", request);
 		// TODO implement
 	}
 
 	private void onDisablePhysicalLinksRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onDisablePhysicalLinksRequest({})", request);
 		// TODO implement
 	}
 
 	private void onDisableNodesRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onDisableNodesRequest({})", request);
 		// TODO implement
 	}
 
 	private void onDisableVirtualLinksRequest(final Request request) {
+		log.trace("RequestHandlerImpl.onDisableVirtualLinksRequest({})", request);
 		// TODO implement
 	}
 
 	private void onAreNodesConnectedRequest(final Request request) {
+
+		log.trace("RequestHandlerImpl.onAreNodesConnectedRequest({})", request);
 
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
@@ -171,6 +187,8 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 	}
 
 	private void onAreNodesAliveRequest(final Request request) {
+
+		log.trace("RequestHandlerImpl.onAreNodesAliveRequest({})", request);
 
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(

@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
@@ -117,7 +118,7 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 
 	@Override
 	public Set<NodeUrn> getNodeUrns() {
-		return newHashSet(nodeUrn);
+		return isRunning() ? newHashSet(nodeUrn) : Sets.<NodeUrn>newHashSet();
 	}
 
 	@Override

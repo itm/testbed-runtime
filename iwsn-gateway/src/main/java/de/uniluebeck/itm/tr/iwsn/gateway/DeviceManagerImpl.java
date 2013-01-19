@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -66,6 +67,26 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 		} catch (Exception e) {
 			notifyFailed(e);
+		}
+	}
+
+	@Subscribe
+	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
+		log.trace("DeviceManagerImpl.onDevicesAttachedEvent({})", event);
+		synchronized (deviceAdapters) {
+			if (!deviceAdapters.contains(event.getDeviceAdapter())) {
+				deviceAdapters.add(event.getDeviceAdapter());
+			}
+		}
+	}
+
+	@Subscribe
+	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
+		log.trace("DeviceManagerImpl.onDevicesDetachedEvent({})", event);
+		if (event.getDeviceAdapter().getNodeUrns().isEmpty()) {
+			synchronized (deviceAdapters) {
+				deviceAdapters.remove(event.getDeviceAdapter());
+			}
 		}
 	}
 

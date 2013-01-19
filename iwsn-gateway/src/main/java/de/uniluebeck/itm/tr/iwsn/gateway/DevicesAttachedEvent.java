@@ -23,4 +23,12 @@ public class DevicesAttachedEvent {
 	public Set<NodeUrn> getNodeUrns() {
 		return nodeUrns;
 	}
+
+	@Override
+	public String toString() {
+		return "DevicesAttachedEvent{" +
+				"deviceAdapter=" + deviceAdapter +
+				", nodeUrns=" + nodeUrns +
+				'}';
+	}
 }

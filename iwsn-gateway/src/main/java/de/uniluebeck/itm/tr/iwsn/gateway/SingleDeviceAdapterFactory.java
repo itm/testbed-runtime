@@ -25,7 +25,7 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public boolean canHandle(final DeviceConfig deviceConfig) {
-		if (!deviceConfig.isGatewayNode()) {
+		if (deviceConfig.isGatewayNode()) {
 			return false;
 		}
 		try {

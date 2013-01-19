@@ -38,6 +38,8 @@ public class Gateway extends AbstractService {
 
 	private final RestApplication restApplication;
 
+	private final RequestHandler requestHandler;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
@@ -45,12 +47,15 @@ public class Gateway extends AbstractService {
 				   final GatewayEventBus gatewayEventBus,
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
-				   final RestApplication restApplication) {
+				   final RestApplication restApplication,
+				   final RequestHandler requestHandler) {
+
 		this.gatewayConfig = gatewayConfig;
 		this.gatewayEventBus = gatewayEventBus;
 		this.deviceManager = deviceManager;
 		this.deviceObserverWrapper = deviceObserverWrapper;
 		this.restApplication = restApplication;
+		this.requestHandler = requestHandler;
 	}
 
 	@Override
@@ -59,7 +64,9 @@ public class Gateway extends AbstractService {
 		log.trace("Gateway.doStart()");
 
 		try {
+
 			gatewayEventBus.startAndWait();
+			requestHandler.startAndWait();
 			deviceManager.startAndWait();
 			deviceObserverWrapper.startAndWait();
 
@@ -77,6 +84,7 @@ public class Gateway extends AbstractService {
 			}
 
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -95,8 +103,11 @@ public class Gateway extends AbstractService {
 
 			deviceObserverWrapper.stopAndWait();
 			deviceManager.stopAndWait();
+			requestHandler.stopAndWait();
 			gatewayEventBus.stopAndWait();
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

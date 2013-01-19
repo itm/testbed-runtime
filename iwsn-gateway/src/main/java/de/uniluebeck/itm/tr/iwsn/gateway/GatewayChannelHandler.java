@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 
 public class GatewayChannelHandler extends SimpleChannelHandler {
 
@@ -22,13 +21,18 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	private final EventIdProvider eventIdProvider;
 
+	private final DeviceManager deviceManager;
+
 	private Channel channel;
 
 	@Inject
 	public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
-								 final EventIdProvider eventIdProvider) {
+								 final EventIdProvider eventIdProvider,
+								 final DeviceManager deviceManager) {
+
 		this.gatewayEventBus = gatewayEventBus;
 		this.eventIdProvider = eventIdProvider;
+		this.deviceManager = deviceManager;
 	}
 
 	@Override
@@ -53,9 +57,19 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	@Override
 	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+
 		log.trace("GatewayChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
+
 		channel = e.getChannel();
 		gatewayEventBus.register(this);
+
+		sendToPortal(newMessage(newEvent(
+				eventIdProvider.get(),
+				newDevicesAttachedEvent(deviceManager.getCurrentlyConnectedNodeUrns())
+		)
+		)
+		);
+
 		super.channelConnected(ctx, e);
 	}
 
@@ -74,18 +88,18 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	@Subscribe
 	public void onNotificationEvent(NotificationEvent notificationEvent) {
-		sendToPortal(newMessage(MessagesHelper.newEvent(eventIdProvider.get(), notificationEvent)));
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), notificationEvent)));
 	}
 
 	@Subscribe
 	public void onGatewayDevicesAttachedEvent(DevicesAttachedEvent event) {
 
-		final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
-				dae = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
-				.newBuilder()
-				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
-				.setTimestamp(new DateTime().getMillis())
-				.build();
+		final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent dae =
+				de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
+						.newBuilder()
+						.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+						.setTimestamp(now())
+						.build();
 
 		sendToPortal(newMessage(newEvent(eventIdProvider.get(), dae)));
 	}
@@ -93,12 +107,12 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	@Subscribe
 	public void onGatewayDevicesDetachedEvent(DevicesDetachedEvent event) {
 
-		final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
-				dde = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
-				.newBuilder()
-				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
-				.setTimestamp(new DateTime().getMillis())
-				.build();
+		final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent dde =
+				de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
+						.newBuilder()
+						.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+						.setTimestamp(now())
+						.build();
 
 		sendToPortal(newMessage(newEvent(eventIdProvider.get(), dde)));
 	}
@@ -136,5 +150,9 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	private void sendToPortal(final Message message) {
 		log.trace("GatewayChannelHandler.sendToPortal(\nmessage={})", message);
 		Channels.write(channel, message);
+	}
+
+	private long now() {
+		return new DateTime().getMillis();
 	}
 }

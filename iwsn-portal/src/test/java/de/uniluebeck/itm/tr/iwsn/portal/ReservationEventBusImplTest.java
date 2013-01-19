@@ -254,7 +254,7 @@ public class ReservationEventBusImplTest {
 	@Test
 	public void testDevicesAttachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final DevicesAttachedEvent event = newDevicesAttachedEvent(nodeUrn);
+			final DevicesAttachedEvent event = newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrn);
 			reservationEventBus.onDevicesAttachedEventFromPortalEventBus(event);
 			verify(eventBus).post(eq(event));
 		}
@@ -263,7 +263,7 @@ public class ReservationEventBusImplTest {
 	@Test
 	public void testDevicesAttachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesAttachedEvent event = newDevicesAttachedEvent(nodeUrn);
+			final DevicesAttachedEvent event = newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrn);
 			reservationEventBus.onDevicesAttachedEventFromPortalEventBus(event);
 			verify(eventBus, never()).post(eq(event));
 		}

@@ -107,7 +107,6 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	@Override
 	public void deviceEvent(final DeviceEvent event) {
-		log.debug("DeviceObserverWrapper.deviceEvent({})", event);
 		switch (event.getType()) {
 			case ATTACHED:
 				onDeviceAttached(event.getDeviceInfo());
@@ -120,7 +119,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private void onDeviceAttached(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceManagerImpl.onDeviceAttached({})", deviceInfo);
+		log.trace("DeviceObserverWrapper.onDeviceAttached({})", deviceInfo);
 
 		final boolean deviceAlreadyConnected;
 		synchronized (currentlyConnectedDevices) {
@@ -164,7 +163,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private void onDeviceDetached(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceManagerImpl.onDeviceDetached({})", deviceInfo);
+		log.trace("DeviceObserverWrapper.onDeviceDetached({})", deviceInfo);
 
 		final DeviceAdapter deviceAdapter = currentlyConnectedDevices.get(deviceInfo.getPort());
 
