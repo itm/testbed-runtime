@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface GatewayDeviceAdapter extends Service {
+public interface DeviceAdapter extends Service {
 
 	Set<NodeUrn> getNodeUrns();
 

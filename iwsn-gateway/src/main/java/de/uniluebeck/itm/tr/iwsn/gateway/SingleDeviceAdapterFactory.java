@@ -6,7 +6,7 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 
-public class GatewaySingleDeviceAdapterFactory implements GatewayDeviceAdapterFactory {
+public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	private final GatewayEventBus gatewayEventBus;
 
@@ -15,9 +15,9 @@ public class GatewaySingleDeviceAdapterFactory implements GatewayDeviceAdapterFa
 	private final DeviceFactory deviceFactory;
 
 	@Inject
-	public GatewaySingleDeviceAdapterFactory(final DeviceFactory deviceFactory,
-											 final GatewayEventBus gatewayEventBus,
-											 final NodeApiFactory nodeApiFactory) {
+	public SingleDeviceAdapterFactory(final DeviceFactory deviceFactory,
+									  final GatewayEventBus gatewayEventBus,
+									  final NodeApiFactory nodeApiFactory) {
 		this.deviceFactory = deviceFactory;
 		this.gatewayEventBus = gatewayEventBus;
 		this.nodeApiFactory = nodeApiFactory;
@@ -37,7 +37,7 @@ public class GatewaySingleDeviceAdapterFactory implements GatewayDeviceAdapterFa
 	}
 
 	@Override
-	public GatewayDeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new GatewaySingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, gatewayEventBus);
+	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
+		return new SingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, gatewayEventBus);
 	}
 }

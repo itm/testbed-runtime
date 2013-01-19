@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
+@SuppressWarnings("NullableProblems")
 class GatewaySchedulerImpl implements GatewayScheduler {
 
 	private final ScheduledExecutorService scheduledExecutorService;

@@ -27,15 +27,15 @@ import java.util.concurrent.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class GatewayDeviceObserver extends AbstractService implements DeviceObserverListener {
+public class DeviceObserverWrapper extends AbstractService implements DeviceObserverListener {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceObserver.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceObserverWrapper.class);
 
-	private final Map<String, GatewayDeviceAdapter> currentlyConnectedDevices = newHashMap();
+	private final Map<String, DeviceAdapter> currentlyConnectedDevices = newHashMap();
 
 	private final DeviceConfigDB deviceConfigDB;
 
-	private final Set<GatewayDeviceAdapterFactory> gatewayDeviceAdapterFactories;
+	private final Set<DeviceAdapterFactory> gatewayDeviceAdapterFactories;
 
 	private DeviceObserver deviceObserver;
 
@@ -48,8 +48,8 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 	private ExecutorService deviceDriverExecutorService;
 
 	@Inject
-	public GatewayDeviceObserver(final DeviceConfigDB deviceConfigDB,
-								 final Set<GatewayDeviceAdapterFactory> gatewayDeviceAdapterFactories) {
+	public DeviceObserverWrapper(final DeviceConfigDB deviceConfigDB,
+								 final Set<DeviceAdapterFactory> gatewayDeviceAdapterFactories) {
 		this.gatewayDeviceAdapterFactories = gatewayDeviceAdapterFactories;
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 	}
@@ -57,7 +57,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 	@Override
 	protected void doStart() {
 
-		log.trace("GatewayDeviceObserver.doStart()");
+		log.trace("DeviceObserverWrapper.doStart()");
 
 		try {
 
@@ -70,7 +70,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 					.getInstance(DeviceObserver.class);
 			deviceObserver.addListener(this);
 			scheduler = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
-					.setNameFormat(GatewayDeviceObserver.class.getSimpleName() + " %d")
+					.setNameFormat(DeviceObserverWrapper.class.getSimpleName() + " %d")
 					.build()
 			);
 			deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 1, TimeUnit.SECONDS);
@@ -89,7 +89,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 	@Override
 	protected void doStop() {
 
-		log.trace("GatewayDeviceObserver.doStop()");
+		log.trace("DeviceObserverWrapper.doStop()");
 
 		try {
 
@@ -108,7 +108,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 	@Override
 	public void deviceEvent(final DeviceEvent event) {
-		log.debug("GatewayDeviceObserver.deviceEvent({})", event);
+		log.debug("DeviceObserverWrapper.deviceEvent({})", event);
 		switch (event.getType()) {
 			case ATTACHED:
 				onDeviceAttached(event.getDeviceInfo());
@@ -120,9 +120,9 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 	}
 
 	@Subscribe
-	public void onDeviceRequest(final GatewayDeviceObserverRequest request) {
+	public void onDeviceRequest(final DeviceObserverWrapperRequest request) {
 
-		log.debug("GatewayDeviceObserver.onDeviceRequest({})", request);
+		log.debug("DeviceObserverWrapper.onDeviceRequest({})", request);
 
 		ImmutableMap<String, DeviceInfo> currentState = deviceObserver.getCurrentState();
 
@@ -135,7 +135,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 					deviceInfo.getReference().equals(request.getReference());
 
 			if (sameType && (sameMAC || sameReference)) {
-				log.debug("GatewayDeviceObserver.onDeviceRequest({}) -> {}", request, deviceInfo);
+				log.debug("DeviceObserverWrapper.onDeviceRequest({}) -> {}", request, deviceInfo);
 				request.setResponse(deviceInfo);
 			}
 		}
@@ -143,7 +143,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 	private void onDeviceAttached(final DeviceInfo deviceInfo) {
 
-		log.trace("GatewayDeviceManagerImpl.onDeviceAttached({})", deviceInfo);
+		log.trace("DeviceManagerImpl.onDeviceAttached({})", deviceInfo);
 
 		final boolean deviceAlreadyConnected;
 		synchronized (currentlyConnectedDevices) {
@@ -161,19 +161,19 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 			try {
 
-				for (GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory : gatewayDeviceAdapterFactories) {
+				for (DeviceAdapterFactory deviceAdapterFactory : gatewayDeviceAdapterFactories) {
 
-					if (gatewayDeviceAdapterFactory.canHandle(deviceConfig)) {
+					if (deviceAdapterFactory.canHandle(deviceConfig)) {
 
-						final GatewayDeviceAdapter gatewayDeviceAdapter = gatewayDeviceAdapterFactory.create(
+						final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
 								deviceInfo.getPort(),
 								deviceConfig
 						);
 
-						gatewayDeviceAdapter.startAndWait();
+						deviceAdapter.startAndWait();
 
 						synchronized (currentlyConnectedDevices) {
-							currentlyConnectedDevices.put(deviceInfo.getPort(), gatewayDeviceAdapter);
+							currentlyConnectedDevices.put(deviceInfo.getPort(), deviceAdapter);
 						}
 					}
 				}
@@ -187,12 +187,12 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 	private void onDeviceDetached(final DeviceInfo deviceInfo) {
 
-		log.trace("GatewayDeviceManagerImpl.onDeviceDetached({})", deviceInfo);
+		log.trace("DeviceManagerImpl.onDeviceDetached({})", deviceInfo);
 
-		final GatewayDeviceAdapter gatewayDeviceAdapter = currentlyConnectedDevices.get(deviceInfo.getPort());
+		final DeviceAdapter deviceAdapter = currentlyConnectedDevices.get(deviceInfo.getPort());
 
-		if (gatewayDeviceAdapter != null) {
-			gatewayDeviceAdapter.stopAndWait();
+		if (deviceAdapter != null) {
+			deviceAdapter.stopAndWait();
 			synchronized (currentlyConnectedDevices) {
 				currentlyConnectedDevices.remove(deviceInfo.getPort());
 			}

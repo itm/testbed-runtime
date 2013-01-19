@@ -26,14 +26,14 @@ public class GatewayModule extends AbstractModule {
 
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
-		bind(GatewayDeviceManager.class).to(GatewayDeviceManagerImpl.class).in(Scopes.SINGLETON);
-		bind(GatewayEventIdProvider.class).to(GatewayRandomEventIdProvider.class).in(Scopes.SINGLETON);
+		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
+		bind(EventIdProvider.class).to(RandomEventIdProvider.class).in(Scopes.SINGLETON);
 		bind(GatewayScheduler.class).to(GatewaySchedulerImpl.class).in(Scopes.SINGLETON);
 
-		Multibinder<GatewayDeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =
-				Multibinder.newSetBinder(binder(), GatewayDeviceAdapterFactory.class);
+		Multibinder<DeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =
+				Multibinder.newSetBinder(binder(), DeviceAdapterFactory.class);
 
-		gatewayDeviceAdapterFactoryMultibinder.addBinding().to(GatewaySingleDeviceAdapterFactory.class);
+		gatewayDeviceAdapterFactoryMultibinder.addBinding().to(SingleDeviceAdapterFactory.class);
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());

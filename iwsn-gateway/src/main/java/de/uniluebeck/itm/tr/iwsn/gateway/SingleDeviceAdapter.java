@@ -30,7 +30,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
@@ -75,14 +74,27 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
-import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
-class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
+class SingleDeviceAdapter extends SingleDeviceAdapterBase {
+
+	public static final int MESSAGE_TYPE_WISELIB_DOWNSTREAM = 10;
+
+	public static final int MESSAGE_TYPE_WISELIB_UPSTREAM = 105;
+
+	public static final byte NODE_OUTPUT_TEXT = 50;
+
+	public static final byte NODE_OUTPUT_BYTE = 51;
+
+	public static final byte NODE_OUTPUT_VIRTUAL_LINK = 52;
+
+	public static final int PACKETS_DROPPED_NOTIFICATION_RATE = 1000;
+
+	public static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
 	private static final HandlerFactoryRegistry HANDLER_FACTORY_REGISTRY = new HandlerFactoryRegistry();
 
@@ -94,7 +106,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 		}
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceAdapter.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceAdapter.class);
 
 	private final DeviceConfig deviceConfig;
 
@@ -151,11 +163,11 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 	private ExecutorService deviceExecutor;
 
 	@Inject
-	public GatewaySingleDeviceAdapter(final String port,
-									  final DeviceConfig deviceConfig,
-									  final DeviceFactory deviceFactory,
-									  final NodeApiFactory nodeApiFactory,
-									  final GatewayEventBus gatewayEventBus) {
+	public SingleDeviceAdapter(final String port,
+							   final DeviceConfig deviceConfig,
+							   final DeviceFactory deviceFactory,
+							   final NodeApiFactory nodeApiFactory,
+							   final GatewayEventBus gatewayEventBus) {
 
 		super(deviceConfig.getNodeUrn());
 
@@ -177,7 +189,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
 
 			deviceExecutor = Executors.newCachedThreadPool(
-					new ThreadFactoryBuilder().setNameFormat("GatewayDeviceAdapter-" + deviceConfig.getNodeUrn())
+					new ThreadFactoryBuilder().setNameFormat("DeviceAdapter-" + deviceConfig.getNodeUrn())
 							.build()
 			);
 
@@ -220,7 +232,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 
 			nodeApi.start();
 
-			gatewayEventBus.post(new GatewayDevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			gatewayEventBus.post(new DevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -234,7 +246,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 
 		try {
 
-			gatewayEventBus.post(new GatewayDevicesDetachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			gatewayEventBus.post(new DevicesDetachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
 
 			log.debug("{} => Shutting down {} device connector",
 					deviceConfig.getNodeUrn(),
@@ -255,38 +267,38 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> disableVirtualLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewaySingleDeviceAdapter.disableVirtualLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.disableVirtualLink()", deviceConfig.getNodeUrn());
 		return nodeApi.destroyVirtualLink(targetMacAddress.toLong());
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> disableNode() {
-		log.debug("{} => GatewaySingleDeviceAdapter.disableNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.disableNode()", deviceConfig.getNodeUrn());
 		return nodeApi.disableNode();
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> disablePhysicalLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewaySingleDeviceAdapter.disablePhysicalLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.disablePhysicalLink()", deviceConfig.getNodeUrn());
 		return nodeApi.disablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> enableNode() {
-		log.debug("{} => GatewaySingleDeviceAdapter.enableNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.enableNode()", deviceConfig.getNodeUrn());
 		return nodeApi.enableNode();
 	}
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> enablePhysicalLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewaySingleDeviceAdapter.enablePhysicalLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.enablePhysicalLink()", deviceConfig.getNodeUrn());
 		return nodeApi.enablePhysicalLink(targetMacAddress.toLong());
 	}
 
 	@Override
 	public ProgressListenableFuture<Void> flashProgram(final byte[] binaryImage) {
 
-		log.debug("{} => GatewaySingleDeviceAdapter.executeFlashPrograms()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.executeFlashPrograms()", deviceConfig.getNodeUrn());
 
 		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
 
@@ -384,7 +396,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 	@Override
 	public ListenableFuture<Boolean> isNodeAlive() {
 
-		log.debug("{} => GatewaySingleDeviceAdapter.isNodeAlive()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.isNodeAlive()", deviceConfig.getNodeUrn());
 
 		final SettableFuture<Boolean> future = SettableFuture.create();
 
@@ -436,14 +448,14 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 
 	@Override
 	public ListenableFuture<Boolean> isNodeConnected() {
-		log.debug("{} => GatewaySingleDeviceAdapter.isNodeConnected()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.isNodeConnected()", deviceConfig.getNodeUrn());
 		return immediateFuture(isConnected());
 	}
 
 	@Override
 	public ListenableFuture<Void> resetNode() {
 
-		log.debug("{} => GatewaySingleDeviceAdapter.resetNode()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.resetNode()", deviceConfig.getNodeUrn());
 		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (isConnected()) {
@@ -495,7 +507,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 	@Override
 	public ListenableFuture<Void> sendMessage(final byte[] messageBytes) {
 
-		log.debug("{} => GatewaySingleDeviceAdapter.sendMessage()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.sendMessage()", deviceConfig.getNodeUrn());
 		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (!isConnected()) {
@@ -646,7 +658,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 	void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
 
 		if (log.isTraceEnabled()) {
-			log.trace("{} => GatewaySingleDeviceAdapter.onBytesReceivedFromDevice: {}",
+			log.trace("{} => SingleDeviceAdapter.onBytesReceivedFromDevice: {}",
 					deviceConfig.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
@@ -730,7 +742,7 @@ class GatewaySingleDeviceAdapter extends GatewaySingleDeviceAdapterBase {
 
 	@Override
 	public ListenableFuture<NodeApiCallResult> enableVirtualLink(final MacAddress targetMacAddress) {
-		log.debug("{} => GatewaySingleDeviceAdapter.enableVirtualLink()", deviceConfig.getNodeUrn());
+		log.debug("{} => SingleDeviceAdapter.enableVirtualLink()", deviceConfig.getNodeUrn());
 		return nodeApi.setVirtualLink(targetMacAddress.toLong());
 	}
 

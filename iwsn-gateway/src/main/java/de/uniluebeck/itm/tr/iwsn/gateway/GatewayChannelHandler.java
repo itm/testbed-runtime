@@ -20,15 +20,15 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	private final GatewayEventBus gatewayEventBus;
 
-	private final GatewayEventIdProvider gatewayEventIdProvider;
+	private final EventIdProvider eventIdProvider;
 
 	private Channel channel;
 
 	@Inject
 	public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
-								 final GatewayEventIdProvider gatewayEventIdProvider) {
+								 final EventIdProvider eventIdProvider) {
 		this.gatewayEventBus = gatewayEventBus;
-		this.gatewayEventIdProvider = gatewayEventIdProvider;
+		this.eventIdProvider = eventIdProvider;
 	}
 
 	@Override
@@ -69,46 +69,48 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	@Subscribe
 	public void onUpstreamMessageEvent(UpstreamMessageEvent upstreamMessageEvent) {
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), upstreamMessageEvent)));
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), upstreamMessageEvent)));
 	}
 
 	@Subscribe
 	public void onNotificationEvent(NotificationEvent notificationEvent) {
-		sendToPortal(newMessage(MessagesHelper.newEvent(gatewayEventIdProvider.get(), notificationEvent)));
+		sendToPortal(newMessage(MessagesHelper.newEvent(eventIdProvider.get(), notificationEvent)));
 	}
 
 	@Subscribe
-	public void onGatewayDevicesAttachedEvent(GatewayDevicesAttachedEvent event) {
+	public void onGatewayDevicesAttachedEvent(DevicesAttachedEvent event) {
 
-		final DevicesAttachedEvent dae = DevicesAttachedEvent
+		final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
+				dae = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
 				.newBuilder()
 				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
 				.setTimestamp(new DateTime().getMillis())
 				.build();
 
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), dae)));
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), dae)));
 	}
 
 	@Subscribe
-	public void onGatewayDevicesDetachedEvent(GatewayDevicesDetachedEvent event) {
+	public void onGatewayDevicesDetachedEvent(DevicesDetachedEvent event) {
 
-		final DevicesDetachedEvent dde = DevicesDetachedEvent
+		final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
+				dde = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
 				.newBuilder()
 				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
 				.setTimestamp(new DateTime().getMillis())
 				.build();
 
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), dde)));
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), dde)));
 	}
 
 	@Subscribe
-	public void onDevicesAttachedEvent(DevicesAttachedEvent devicesAttachedEvent) {
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), devicesAttachedEvent)));
+	public void onDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent) {
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), devicesAttachedEvent)));
 	}
 
 	@Subscribe
-	public void onDevicesDetachedEvent(DevicesDetachedEvent devicesDetachedEvent) {
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), devicesDetachedEvent)));
+	public void onDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent) {
+		sendToPortal(newMessage(newEvent(eventIdProvider.get(), devicesDetachedEvent)));
 	}
 
 	@Subscribe

@@ -21,9 +21,9 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 
-public class GatewayDeviceRequestHandlerImpl extends AbstractService implements GatewayDeviceRequestHandler {
+public class RequestHandlerImpl extends AbstractService implements RequestHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceRequestHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
 	private static final Function<? super String, ? extends NodeUrn> STRING_TO_NODE_URN =
 			new Function<String, NodeUrn>() {
@@ -36,13 +36,13 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 
 	private static final ListeningExecutorService SAME_THREAD_EXECUTOR = sameThreadExecutor();
 
-	private final GatewayDeviceManager gatewayDeviceManager;
+	private final DeviceManager deviceManager;
 
 	private final GatewayEventBus gatewayEventBus;
 
-	public GatewayDeviceRequestHandlerImpl(final GatewayDeviceManager gatewayDeviceManager,
-										   final GatewayEventBus gatewayEventBus) {
-		this.gatewayDeviceManager = gatewayDeviceManager;
+	public RequestHandlerImpl(final DeviceManager deviceManager,
+							  final GatewayEventBus gatewayEventBus) {
+		this.deviceManager = deviceManager;
 		this.gatewayEventBus = gatewayEventBus;
 	}
 
@@ -159,11 +159,11 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 				STRING_TO_NODE_URN
 		);
 
-		postNodeNotConnectedResponse(request.getRequestId(), gatewayDeviceManager.getUnconnectedSubset(nodeUrns));
+		postNodeNotConnectedResponse(request.getRequestId(), deviceManager.getUnconnectedSubset(nodeUrns));
 
-		final Multimap<GatewayDeviceAdapter,NodeUrn> connectedMap = gatewayDeviceManager.getConnectedSubset(nodeUrns);
+		final Multimap<DeviceAdapter,NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		for (GatewayDeviceAdapter deviceAdapter : connectedMap.keySet()) {
+		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 			final Set<NodeUrn> adapterNodeUrns = newHashSet(connectedMap.get(deviceAdapter));
 			final ListenableFutureMap<NodeUrn, Boolean> future = deviceAdapter.areNodesConnected(adapterNodeUrns);
 			addBoolOperationListeners(requestId, future);
@@ -178,11 +178,11 @@ public class GatewayDeviceRequestHandlerImpl extends AbstractService implements 
 				STRING_TO_NODE_URN
 		);
 
-		postNodeNotConnectedResponse(requestId, gatewayDeviceManager.getUnconnectedSubset(nodeUrns));
+		postNodeNotConnectedResponse(requestId, deviceManager.getUnconnectedSubset(nodeUrns));
 
-		final Multimap<GatewayDeviceAdapter,NodeUrn> connectedMap = gatewayDeviceManager.getConnectedSubset(nodeUrns);
+		final Multimap<DeviceAdapter,NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		for (GatewayDeviceAdapter deviceAdapter : connectedMap.keySet()) {
+		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 			final Set<NodeUrn> adapterNodeUrns = newHashSet(connectedMap.get(deviceAdapter));
 			final ListenableFutureMap<NodeUrn, Boolean> future = deviceAdapter.areNodesAlive(adapterNodeUrns);
 			addBoolOperationListeners(requestId, future);

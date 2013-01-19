@@ -7,7 +7,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import javax.annotation.Nullable;
 import java.util.Set;
 
-public interface GatewayDeviceManager extends Service {
+public interface DeviceManager extends Service {
 
 	/**
 	 * Returns the device adapter with the node URN {@code nodeUrn} or {@code null} if there is no such device currently
@@ -19,14 +19,14 @@ public interface GatewayDeviceManager extends Service {
 	 * @return the device or {@code null} if not connected
 	 */
 	@Nullable
-	GatewayDeviceAdapter getGatewayDeviceAdapter(NodeUrn nodeUrn);
+	DeviceAdapter getGatewayDeviceAdapter(NodeUrn nodeUrn);
 
 	/**
 	 * Returns all currently connected devices.
 	 *
 	 * @return all currently connected devices
 	 */
-	Iterable<GatewayDeviceAdapter> getGatewayDeviceAdapters();
+	Iterable<DeviceAdapter> getDeviceAdapters();
 
 	/**
 	 * Returns the node URNs of all currently connected devices.
@@ -43,7 +43,7 @@ public interface GatewayDeviceManager extends Service {
 	 *
 	 * @return a mapping between node URNs and the device driver interfaces
 	 */
-	Multimap<GatewayDeviceAdapter, NodeUrn> getConnectedSubset(Iterable<NodeUrn> nodeUrns);
+	Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(Iterable<NodeUrn> nodeUrns);
 
 	/**
 	 * Returns the subset of nodes from {@code nodeUrns} that are currently not connected.

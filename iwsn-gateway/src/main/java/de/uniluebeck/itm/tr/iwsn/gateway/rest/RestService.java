@@ -1,8 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.rest;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceAdapter;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceManager;
+import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter;
+import de.uniluebeck.itm.tr.iwsn.gateway.DeviceManager;
+import de.uniluebeck.itm.tr.iwsn.gateway.rest.dto.DeviceList;
+import de.uniluebeck.itm.tr.iwsn.gateway.rest.dto.DeviceState;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.ws.rs.GET;
@@ -19,20 +21,20 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
 @Path("/")
-public class GatewayRestService {
+public class RestService {
 
-	private final GatewayDeviceManager gatewayDeviceManager;
+	private final DeviceManager deviceManager;
 
 	@Inject
-	public GatewayRestService(final GatewayDeviceManager gatewayDeviceManager) {
-		this.gatewayDeviceManager = gatewayDeviceManager;
+	public RestService(final DeviceManager deviceManager) {
+		this.deviceManager = deviceManager;
 	}
 
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public DeviceList getDevices() {
 		return new DeviceList(newArrayList(transform(
-				gatewayDeviceManager.getCurrentlyConnectedNodeUrns(),
+				deviceManager.getCurrentlyConnectedNodeUrns(),
 				toStringFunction()
 		)));
 	}
@@ -42,7 +44,7 @@ public class GatewayRestService {
 	public Response getDeviceState(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
 
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getGatewayDeviceAdapter(nodeUrn);
+		final DeviceAdapter deviceAdapter = deviceManager.getGatewayDeviceAdapter(nodeUrn);
 
 		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -60,7 +62,7 @@ public class GatewayRestService {
 	public Response reset(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
 
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getGatewayDeviceAdapter(nodeUrn);
+		final DeviceAdapter deviceAdapter = deviceManager.getGatewayDeviceAdapter(nodeUrn);
 
 		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();

@@ -21,23 +21,23 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
-class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceManager {
+class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceManager.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceManager.class);
 
-	private final List<GatewayDeviceAdapter> gatewayDeviceAdapters = newArrayList();
+	private final List<DeviceAdapter> deviceAdapters = newArrayList();
 
 	private final GatewayEventBus gatewayEventBus;
 
 	@Inject
-	public GatewayDeviceManagerImpl(final GatewayEventBus gatewayEventBus) {
+	public DeviceManagerImpl(final GatewayEventBus gatewayEventBus) {
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 	}
 
 	@Override
 	protected void doStart() {
 
-		log.trace("GatewayDeviceManagerImpl.doStart()");
+		log.trace("DeviceManagerImpl.doStart()");
 
 		try {
 			gatewayEventBus.register(this);
@@ -50,15 +50,15 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	@Override
 	protected void doStop() {
 
-		log.trace("GatewayDeviceManagerImpl.doStop()");
+		log.trace("DeviceManagerImpl.doStop()");
 
 		try {
 
-			synchronized (gatewayDeviceAdapters) {
-				for (GatewayDeviceAdapter gatewayDeviceAdapter : gatewayDeviceAdapters) {
-					gatewayDeviceAdapter.stopAndWait();
+			synchronized (deviceAdapters) {
+				for (DeviceAdapter deviceAdapter : deviceAdapters) {
+					deviceAdapter.stopAndWait();
 				}
-				gatewayDeviceAdapters.clear();
+				deviceAdapters.clear();
 			}
 
 			gatewayEventBus.unregister(this);
@@ -71,11 +71,11 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 
 	@Nullable
 	@Override
-	public GatewayDeviceAdapter getGatewayDeviceAdapter(final NodeUrn nodeUrn) {
-		synchronized (gatewayDeviceAdapters) {
-			for (GatewayDeviceAdapter gatewayDeviceAdapter : gatewayDeviceAdapters) {
-				if (gatewayDeviceAdapter.getNodeUrns().contains(nodeUrn)) {
-					return gatewayDeviceAdapter;
+	public DeviceAdapter getGatewayDeviceAdapter(final NodeUrn nodeUrn) {
+		synchronized (deviceAdapters) {
+			for (DeviceAdapter deviceAdapter : deviceAdapters) {
+				if (deviceAdapter.getNodeUrns().contains(nodeUrn)) {
+					return deviceAdapter;
 				}
 			}
 		}
@@ -83,40 +83,40 @@ class GatewayDeviceManagerImpl extends AbstractService implements GatewayDeviceM
 	}
 
 	@Override
-	public Iterable<GatewayDeviceAdapter> getGatewayDeviceAdapters() {
-		synchronized (gatewayDeviceAdapters) {
-			return Iterables.unmodifiableIterable(gatewayDeviceAdapters);
+	public Iterable<DeviceAdapter> getDeviceAdapters() {
+		synchronized (deviceAdapters) {
+			return Iterables.unmodifiableIterable(deviceAdapters);
 		}
 	}
 
 	@Override
 	public Set<NodeUrn> getCurrentlyConnectedNodeUrns() {
-		synchronized (gatewayDeviceAdapters) {
+		synchronized (deviceAdapters) {
 			final ImmutableSet.Builder<NodeUrn> nodeUrns = ImmutableSet.builder();
-			for (GatewayDeviceAdapter gatewayDeviceAdapter : gatewayDeviceAdapters) {
-				nodeUrns.addAll(gatewayDeviceAdapter.getNodeUrns());
+			for (DeviceAdapter deviceAdapter : deviceAdapters) {
+				nodeUrns.addAll(deviceAdapter.getNodeUrns());
 			}
 			return nodeUrns.build();
 		}
 	}
 
 	@Override
-	public Multimap<GatewayDeviceAdapter, NodeUrn> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
+	public Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
 
 		final Set<NodeUrn> requestedNodeUrns = newHashSet(nodeUrns);
-		final Multimap<GatewayDeviceAdapter, NodeUrn> map = HashMultimap.create();
+		final Multimap<DeviceAdapter, NodeUrn> map = HashMultimap.create();
 
-		synchronized (gatewayDeviceAdapters) {
+		synchronized (deviceAdapters) {
 
-			for (GatewayDeviceAdapter gatewayDeviceAdapter : gatewayDeviceAdapters) {
+			for (DeviceAdapter deviceAdapter : deviceAdapters) {
 
 				final Iterable<NodeUrn> filtered = filter(
-						gatewayDeviceAdapter.getNodeUrns(),
+						deviceAdapter.getNodeUrns(),
 						in(requestedNodeUrns)
 				);
 
 				if (!Iterables.isEmpty(filtered)) {
-					map.putAll(gatewayDeviceAdapter, filtered);
+					map.putAll(deviceAdapter, filtered);
 				}
 			}
 		}

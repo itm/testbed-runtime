@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.gateway.rest;
+package de.uniluebeck.itm.tr.iwsn.gateway.rest.dto;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

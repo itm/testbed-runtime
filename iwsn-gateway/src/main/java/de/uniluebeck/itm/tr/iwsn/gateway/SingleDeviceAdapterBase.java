@@ -39,11 +39,11 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 
-public abstract class GatewaySingleDeviceAdapterBase extends AbstractService implements GatewayDeviceAdapter {
+public abstract class SingleDeviceAdapterBase extends AbstractService implements DeviceAdapter {
 
 	protected final NodeUrn nodeUrn;
 
-	protected GatewaySingleDeviceAdapterBase(final NodeUrn nodeUrn) {
+	protected SingleDeviceAdapterBase(final NodeUrn nodeUrn) {
 		this.nodeUrn = nodeUrn;
 	}
 

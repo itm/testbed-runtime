@@ -8,7 +8,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
-import de.uniluebeck.itm.tr.iwsn.gateway.rest.GatewayRestApplication;
+import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
@@ -32,25 +32,25 @@ public class Gateway extends AbstractService {
 
 	private final GatewayEventBus gatewayEventBus;
 
-	private final GatewayDeviceManager gatewayDeviceManager;
+	private final DeviceManager deviceManager;
 
-	private final GatewayDeviceObserver gatewayDeviceObserver;
+	private final DeviceObserverWrapper deviceObserverWrapper;
 
-	private final GatewayRestApplication gatewayRestApplication;
+	private final RestApplication restApplication;
 
 	private ServicePublisher servicePublisher;
 
 	@Inject
 	public Gateway(final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
-				   final GatewayDeviceManager gatewayDeviceManager,
-				   final GatewayDeviceObserver gatewayDeviceObserver,
-				   final GatewayRestApplication gatewayRestApplication) {
+				   final DeviceManager deviceManager,
+				   final DeviceObserverWrapper deviceObserverWrapper,
+				   final RestApplication restApplication) {
 		this.gatewayConfig = gatewayConfig;
 		this.gatewayEventBus = gatewayEventBus;
-		this.gatewayDeviceManager = gatewayDeviceManager;
-		this.gatewayDeviceObserver = gatewayDeviceObserver;
-		this.gatewayRestApplication = gatewayRestApplication;
+		this.deviceManager = deviceManager;
+		this.deviceObserverWrapper = deviceObserverWrapper;
+		this.restApplication = restApplication;
 	}
 
 	@Override
@@ -60,8 +60,8 @@ public class Gateway extends AbstractService {
 
 		try {
 			gatewayEventBus.startAndWait();
-			gatewayDeviceManager.startAndWait();
-			gatewayDeviceObserver.startAndWait();
+			deviceManager.startAndWait();
+			deviceObserverWrapper.startAndWait();
 
 			if (gatewayConfig.restAPI) {
 
@@ -72,7 +72,7 @@ public class Gateway extends AbstractService {
 				);
 
 				servicePublisher = ServicePublisherFactory.create(config);
-				servicePublisher.createJaxRsService("/devices/*", gatewayRestApplication);
+				servicePublisher.createJaxRsService("/devices/*", restApplication);
 				servicePublisher.startAndWait();
 			}
 
@@ -93,8 +93,8 @@ public class Gateway extends AbstractService {
 				servicePublisher.stopAndWait();
 			}
 
-			gatewayDeviceObserver.stopAndWait();
-			gatewayDeviceManager.stopAndWait();
+			deviceObserverWrapper.stopAndWait();
+			deviceManager.stopAndWait();
 			gatewayEventBus.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {

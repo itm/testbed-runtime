@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class GatewayDeviceObserverRequest {
+public class DeviceObserverWrapperRequest {
 
 
     private final DeviceType deviceType;
@@ -21,7 +21,7 @@ public class GatewayDeviceObserverRequest {
     
     private DeviceInfo response;
 
-    public GatewayDeviceObserverRequest(final DeviceType deviceType,
+    public DeviceObserverWrapperRequest(final DeviceType deviceType,
 										@Nullable final MacAddress macAddress,
 										@Nullable final String reference) {
 
