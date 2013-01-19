@@ -81,7 +81,7 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 					.setNameFormat(GatewayDeviceObserver.class.getSimpleName() + " %d")
 					.build()
 			);
-			deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 5, TimeUnit.SECONDS);
+			deviceObserverSchedule = scheduler.scheduleAtFixedRate(deviceObserver, 0, 1, TimeUnit.SECONDS);
 
 			deviceDriverExecutorService = Executors.newCachedThreadPool(
 					new ThreadFactoryBuilder().setNameFormat(Device.class.getSimpleName() + " %d").build()
@@ -169,21 +169,9 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 			try {
 
-				final Device device = deviceFactory.create(
-						deviceDriverExecutorService,
-						deviceConfig.getNodeType(),
-						deviceConfig.getNodeConfiguration()
-				);
-
-				device.connect(deviceInfo.getPort());
-
-				log.info("{} => Successfully connected to {} device on serial port {}",
-						deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), deviceInfo.getPort()
-				);
-
 				final GatewayDeviceAdapter gatewayDeviceAdapter = gatewayDeviceAdapterFactory.create(
-						deviceConfig,
-						device
+						deviceInfo.getPort(),
+						deviceConfig
 				);
 
 				gatewayDeviceAdapter.startAndWait();
@@ -207,6 +195,9 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 		if (gatewayDeviceAdapter != null) {
 			gatewayDeviceAdapter.stopAndWait();
+			synchronized (currentlyConnectedDevices) {
+				currentlyConnectedDevices.remove(deviceInfo.getPort());
+			}
 		}
 	}
 

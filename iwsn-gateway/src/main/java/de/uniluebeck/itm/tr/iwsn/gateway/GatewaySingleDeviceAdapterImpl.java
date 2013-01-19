@@ -47,6 +47,7 @@ import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -70,7 +71,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
@@ -83,19 +84,31 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
+	private static final HandlerFactoryRegistry HANDLER_FACTORY_REGISTRY = new HandlerFactoryRegistry();
+
+	static {
+		try {
+			ProtocolCollection.registerProtocols(HANDLER_FACTORY_REGISTRY);
+		} catch (Exception e) {
+			throw propagate(e);
+		}
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(GatewayDeviceAdapter.class);
 
 	private final DeviceConfig deviceConfig;
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
+	private final String port;
+
+	private final DeviceFactory deviceFactory;
+
+	private final NodeApiFactory nodeApiFactory;
+
 	private Channel deviceChannel;
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
-
-	private final HandlerFactoryRegistry handlerFactoryRegistry = new HandlerFactoryRegistry();
-
-	private final NodeApi nodeApi;
 
 	private final NodeApiDeviceAdapter nodeApiDeviceAdapter = new NodeApiDeviceAdapter() {
 		@Override
@@ -123,8 +136,6 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 		}
 	};
 
-	private final Device device;
-
 	private final Lock deviceLock = new ReentrantLock();
 
 	private final AbovePipelineLogger abovePipelineLogger;
@@ -133,33 +144,25 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
 	private final GatewayEventBus gatewayEventBus;
 
+	private NodeApi nodeApi;
+
+	private Device device;
+
 	private ExecutorService deviceExecutor;
 
 	@Inject
-	public GatewaySingleDeviceAdapterImpl(@Assisted final DeviceConfig deviceConfig,
-										  @Assisted final Device device,
+	public GatewaySingleDeviceAdapterImpl(@Assisted final String port,
+										  @Assisted final DeviceConfig deviceConfig,
+										  final DeviceFactory deviceFactory,
 										  final NodeApiFactory nodeApiFactory,
 										  final GatewayEventBus gatewayEventBus) {
 		super(deviceConfig.getNodeUrn());
 
+		this.port = port;
+		this.deviceFactory = deviceFactory;
+		this.nodeApiFactory = nodeApiFactory;
 		this.deviceConfig = checkNotNull(deviceConfig);
-		this.device = checkNotNull(device);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
-
-		checkState(device.isConnected());
-
-		this.nodeApi = nodeApiFactory.create(
-				deviceConfig.getNodeUrn().toString(),
-				nodeApiDeviceAdapter,
-				deviceConfig.getTimeoutNodeApiMillis(),
-				TimeUnit.MILLISECONDS
-		);
-
-		try {
-			ProtocolCollection.registerProtocols(handlerFactoryRegistry);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 
 		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
 		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
@@ -170,12 +173,31 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
 		try {
 
+			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
+
 			deviceExecutor = Executors.newCachedThreadPool(
 					new ThreadFactoryBuilder().setNameFormat("GatewayDeviceAdapter-" + deviceConfig.getNodeUrn())
 							.build()
 			);
 
-			log.debug("{} => Starting {} device connector", deviceConfig.getNodeUrn(), deviceConfig.getNodeType());
+			device = deviceFactory.create(
+					deviceExecutor,
+					deviceConfig.getNodeType(),
+					deviceConfig.getNodeConfiguration()
+			);
+
+			device.connect(port);
+
+			log.info("{} => Successfully connected to {} device on serial port {}",
+					deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), port
+			);
+
+			this.nodeApi = nodeApiFactory.create(
+					deviceConfig.getNodeUrn().toString(),
+					nodeApiDeviceAdapter,
+					deviceConfig.getTimeoutNodeApiMillis(),
+					TimeUnit.MILLISECONDS
+			);
 
 			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(deviceExecutor));
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -548,7 +570,7 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 						channelHandlerConfigs
 				);
 
-				innerPipelineHandlers = handlerFactoryRegistry.create(channelHandlerConfigs);
+				innerPipelineHandlers = HANDLER_FACTORY_REGISTRY.create(channelHandlerConfigs);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
