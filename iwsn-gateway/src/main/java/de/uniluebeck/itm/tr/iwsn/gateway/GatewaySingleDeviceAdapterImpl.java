@@ -72,6 +72,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceConstants.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
@@ -100,6 +101,7 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 		@Override
 		public void sendToNode(final ByteBuffer packet) {
 			try {
+
 				if (log.isDebugEnabled()) {
 					log.debug(
 							"{} => Sending a WISELIB_DOWNSTREAM packet: {}",
@@ -195,6 +197,8 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
 			nodeApi.start();
 
+			gatewayEventBus.post(new GatewayDevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -206,6 +210,8 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 	protected void doStop() {
 
 		try {
+
+			gatewayEventBus.post(new GatewayDevicesDetachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
 
 			log.debug("{} => Shutting down {} device connector",
 					deviceConfig.getNodeUrn(),

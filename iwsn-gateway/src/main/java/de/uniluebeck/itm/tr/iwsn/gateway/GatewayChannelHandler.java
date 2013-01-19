@@ -5,9 +5,12 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import org.jboss.netty.channel.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
 
@@ -75,13 +78,37 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	public void onDevicesDetachedEvent(DevicesDetachedEvent devicesDetachedEvent) {
-		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), devicesDetachedEvent)));
+	public void onGatewayDevicesAttachedEvent(GatewayDevicesAttachedEvent event) {
+
+		final DevicesAttachedEvent dae = DevicesAttachedEvent
+				.newBuilder()
+				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+				.setTimestamp(new DateTime().getMillis())
+				.build();
+
+		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), dae)));
 	}
 
 	@Subscribe
-	public void onDevicesDetachedEvent(DevicesAttachedEvent devicesAttachedEvent) {
+	public void onGatewayDevicesDetachedEvent(GatewayDevicesDetachedEvent event) {
+
+		final DevicesDetachedEvent dde = DevicesDetachedEvent
+				.newBuilder()
+				.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+				.setTimestamp(new DateTime().getMillis())
+				.build();
+
+		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), dde)));
+	}
+
+	@Subscribe
+	public void onDevicesAttachedEvent(DevicesAttachedEvent devicesAttachedEvent) {
 		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), devicesAttachedEvent)));
+	}
+
+	@Subscribe
+	public void onDevicesDetachedEvent(DevicesDetachedEvent devicesDetachedEvent) {
+		sendToPortal(newMessage(newEvent(gatewayEventIdProvider.get(), devicesDetachedEvent)));
 	}
 
 	@Subscribe
