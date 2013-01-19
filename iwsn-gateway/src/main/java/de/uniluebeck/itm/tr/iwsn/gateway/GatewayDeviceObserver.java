@@ -15,13 +15,13 @@ import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserverListener;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -33,13 +33,9 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 	private final Map<String, GatewayDeviceAdapter> currentlyConnectedDevices = newHashMap();
 
-	private final GatewayEventBus gatewayEventBus;
-
-	private final DeviceFactory deviceFactory;
-
 	private final DeviceConfigDB deviceConfigDB;
 
-	private final GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory;
+	private final Set<GatewayDeviceAdapterFactory> gatewayDeviceAdapterFactories;
 
 	private DeviceObserver deviceObserver;
 
@@ -52,13 +48,9 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 	private ExecutorService deviceDriverExecutorService;
 
 	@Inject
-	public GatewayDeviceObserver(final GatewayEventBus gatewayEventBus,
-								 final DeviceFactory deviceFactory,
-								 final DeviceConfigDB deviceConfigDB,
-								 final GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory) {
-		this.gatewayDeviceAdapterFactory = gatewayDeviceAdapterFactory;
-		this.gatewayEventBus = checkNotNull(gatewayEventBus);
-		this.deviceFactory = checkNotNull(deviceFactory);
+	public GatewayDeviceObserver(final DeviceConfigDB deviceConfigDB,
+								 final Set<GatewayDeviceAdapterFactory> gatewayDeviceAdapterFactories) {
+		this.gatewayDeviceAdapterFactories = gatewayDeviceAdapterFactories;
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 	}
 
@@ -169,15 +161,21 @@ public class GatewayDeviceObserver extends AbstractService implements DeviceObse
 
 			try {
 
-				final GatewayDeviceAdapter gatewayDeviceAdapter = gatewayDeviceAdapterFactory.create(
-						deviceInfo.getPort(),
-						deviceConfig
-				);
+				for (GatewayDeviceAdapterFactory gatewayDeviceAdapterFactory : gatewayDeviceAdapterFactories) {
 
-				gatewayDeviceAdapter.startAndWait();
+					if (gatewayDeviceAdapterFactory.canHandle(deviceConfig)) {
 
-				synchronized (currentlyConnectedDevices) {
-					currentlyConnectedDevices.put(deviceInfo.getPort(), gatewayDeviceAdapter);
+						final GatewayDeviceAdapter gatewayDeviceAdapter = gatewayDeviceAdapterFactory.create(
+								deviceInfo.getPort(),
+								deviceConfig
+						);
+
+						gatewayDeviceAdapter.startAndWait();
+
+						synchronized (currentlyConnectedDevices) {
+							currentlyConnectedDevices.put(deviceInfo.getPort(), gatewayDeviceAdapter);
+						}
+					}
 				}
 
 			} catch (Exception e) {

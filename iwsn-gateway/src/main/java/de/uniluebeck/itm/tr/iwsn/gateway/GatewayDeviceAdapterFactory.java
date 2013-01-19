@@ -4,6 +4,8 @@ import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 
 public interface GatewayDeviceAdapterFactory {
 
+	boolean canHandle(final DeviceConfig deviceConfig);
+
 	GatewayDeviceAdapter create(final String port, final DeviceConfig deviceConfig);
 
 }

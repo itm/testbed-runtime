@@ -15,6 +15,7 @@ public class DeviceConfigDBImpl implements DeviceConfigDB {
 	private static final DeviceConfig DEVELOPMENT_DEVICE_CONFIG = new DeviceConfig(
 			DEVELOPMENT_DEVICE_NODE_URN,
 			"isense48",
+			false,
 			null,
 			null,
 			null,

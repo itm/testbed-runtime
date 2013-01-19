@@ -25,6 +25,8 @@ public class DeviceConfig {
 
 	private final String nodeType;
 
+	private final boolean gatewayNode;
+
 	@Nullable
 	private final String nodeUSBChipID;
 
@@ -49,6 +51,7 @@ public class DeviceConfig {
 	public DeviceConfig(
 			final NodeUrn nodeUrn,
 			final String nodeType,
+			final boolean gatewayNode,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
@@ -59,6 +62,7 @@ public class DeviceConfig {
 
 		this.nodeUrn = checkNotNull(nodeUrn);
 		this.nodeType = checkNotNull(nodeType);
+		this.gatewayNode = gatewayNode;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
@@ -131,4 +135,7 @@ public class DeviceConfig {
 		return defaultChannelPipeline;
 	}
 
+	public boolean isGatewayNode() {
+		return gatewayNode;
+	}
 }
