@@ -1,7 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
@@ -15,7 +13,6 @@ import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserverListener;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,28 +113,6 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 			case REMOVED:
 				onDeviceDetached(event.getDeviceInfo());
 				break;
-		}
-	}
-
-	@Subscribe
-	public void onDeviceRequest(final DeviceObserverWrapperRequest request) {
-
-		log.debug("DeviceObserverWrapper.onDeviceRequest({})", request);
-
-		ImmutableMap<String, DeviceInfo> currentState = deviceObserver.getCurrentState();
-
-		for (DeviceInfo deviceInfo : currentState.values()) {
-
-			boolean sameType = DeviceType.fromString(deviceInfo.getType()) == request.getDeviceType();
-			boolean sameMAC = deviceInfo.getMacAddress() != null &&
-					deviceInfo.getMacAddress().equals(request.getMacAddress());
-			boolean sameReference = deviceInfo.getReference() != null &&
-					deviceInfo.getReference().equals(request.getReference());
-
-			if (sameType && (sameMAC || sameReference)) {
-				log.debug("DeviceObserverWrapper.onDeviceRequest({}) -> {}", request, deviceInfo);
-				request.setResponse(deviceInfo);
-			}
 		}
 	}
 
