@@ -94,10 +94,6 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 				try {
 					currentJob = jobQueue.take();
 				} catch (InterruptedException e) {
-					log.trace("{} => Interrupted while waiting for job to be done."
-							+ " This is probably OK as it should only happen during shutdown.",
-							nodeUrn
-					);
 					continue;
 				}
 
@@ -133,15 +129,9 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 						currentJob.future.set(currentJobResult);
 					}
 
-				} catch (InterruptedException e) {
-
-					log.trace("{} => Interrupted while waiting for job to be done."
-							+ " This is probably OK as it should only happen during shutdown.",
-							nodeUrn
-					);
-
+				} catch (InterruptedException expected) {
+					// do nothing as we're currently shutting down
 				} finally {
-
 					currentJobLock.unlock();
 				}
 			}
@@ -246,7 +236,6 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 	@Override
 	protected void doStart() {
 		try {
-			log.debug("{} => Starting Node API JobExecutorThread", nodeUrn);
 			jobExecutorThread.start();
 			notifyStarted();
 		} catch (Exception e) {
@@ -257,7 +246,6 @@ class NodeApiImpl extends AbstractService implements NodeApi {
 	@Override
 	protected void doStop() {
 		try {
-			log.debug("{} => Stopping Node API JobExecutorThread", nodeUrn);
 			jobExecutorThread.interrupt();
 			notifyStopped();
 		} catch (Exception e) {
