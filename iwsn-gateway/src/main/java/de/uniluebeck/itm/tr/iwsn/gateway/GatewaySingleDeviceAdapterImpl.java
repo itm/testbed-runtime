@@ -86,15 +86,9 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 
 	private final DeviceConfig deviceConfig;
 
-	private final RateLimiter maximumMessageRateLimiter;
-
-	private final TimeDiff packetsDroppedTimeDiff = new TimeDiff(PACKETS_DROPPED_NOTIFICATION_RATE);
-
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
 	private Channel deviceChannel;
-
-	private int packetsDroppedSinceLastNotification = 0;
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
 
@@ -157,12 +151,6 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 				nodeApiDeviceAdapter,
 				deviceConfig.getTimeoutNodeApiMillis(),
 				TimeUnit.MILLISECONDS
-		);
-
-		this.maximumMessageRateLimiter = new RateLimiterImpl(
-				deviceConfig.getMaximumMessageRate(),
-				1,
-				TimeUnit.SECONDS
 		);
 
 		try {
@@ -628,15 +616,6 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 	@VisibleForTesting
 	void onBytesReceivedFromDevice(final ChannelBuffer buffer) {
 
-		//if reaching maximum-message-rate do not send more then 1 message
-		if (!maximumMessageRateLimiter.checkIfInSlotAndCount()) {
-			int dismissedCount = maximumMessageRateLimiter.dismissedCount();
-			if (dismissedCount >= 1) {
-				sendPacketsDroppedWarningIfNotificationRateAllows(dismissedCount);
-			}
-			return;
-		}
-
 		if (log.isTraceEnabled()) {
 			log.trace("{} => GatewaySingleDeviceAdapterImpl.onBytesReceivedFromDevice: {}",
 					deviceConfig.getNodeUrn(),
@@ -689,25 +668,6 @@ class GatewaySingleDeviceAdapterImpl extends GatewaySingleDeviceAdapter {
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
 			gatewayEventBus.post(newNotificationEvent(deviceConfig.getNodeUrn(), notification));
 			pipelineMisconfigurationTimeDiff.touch();
-		}
-	}
-
-	private void sendPacketsDroppedWarningIfNotificationRateAllows(int packetsDropped) {
-
-		packetsDroppedSinceLastNotification += packetsDropped;
-
-		if (packetsDroppedTimeDiff.isTimeout()) {
-
-			String notification =
-					"Dropped " + packetsDroppedSinceLastNotification + " packets of " + deviceConfig.getNodeUrn() +
-							" in the last " + packetsDroppedTimeDiff.ms() + " milliseconds, because the node writes "
-							+ "more packets to the serial interface per second than allowed (" +
-							deviceConfig.getMaximumMessageRate() + " per second).";
-
-			gatewayEventBus.post(newNotificationEvent(deviceConfig.getNodeUrn(), notification));
-
-			packetsDroppedSinceLastNotification = 0;
-			packetsDroppedTimeDiff.touch();
 		}
 	}
 

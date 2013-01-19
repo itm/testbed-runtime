@@ -42,7 +42,7 @@ public class GatewayRestService {
 	public Response getDeviceState(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
 
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getDeviceAdapter(nodeUrn);
+		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getGatewayDeviceAdapter(nodeUrn);
 
 		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -60,7 +60,7 @@ public class GatewayRestService {
 	public Response reset(@PathParam("nodeUrn") String nodeUrnString) throws Exception {
 
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getDeviceAdapter(nodeUrn);
+		final GatewayDeviceAdapter deviceAdapter = gatewayDeviceManager.getGatewayDeviceAdapter(nodeUrn);
 
 		if (deviceAdapter == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();

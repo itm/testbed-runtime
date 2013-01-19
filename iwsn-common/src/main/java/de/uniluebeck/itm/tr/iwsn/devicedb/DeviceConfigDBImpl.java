@@ -18,8 +18,6 @@ public class DeviceConfigDBImpl implements DeviceConfigDB {
 			null,
 			null,
 			null,
-			null,
-			null,
 			TimeUnit.SECONDS.toMillis(1),
 			TimeUnit.MINUTES.toMillis(2),
 			TimeUnit.SECONDS.toMillis(5),

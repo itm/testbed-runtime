@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 public interface GatewayDeviceManager extends Service {
 
@@ -18,21 +19,21 @@ public interface GatewayDeviceManager extends Service {
 	 * @return the device or {@code null} if not connected
 	 */
 	@Nullable
-	GatewayDeviceAdapter getDeviceAdapter(NodeUrn nodeUrn);
+	GatewayDeviceAdapter getGatewayDeviceAdapter(NodeUrn nodeUrn);
 
 	/**
 	 * Returns all currently connected devices.
 	 *
 	 * @return all currently connected devices
 	 */
-	Iterable<GatewayDeviceAdapter> getDeviceAdapters();
+	Iterable<GatewayDeviceAdapter> getGatewayDeviceAdapters();
 
 	/**
 	 * Returns the node URNs of all currently connected devices.
 	 *
 	 * @return the node URNs of all currently connected devices
 	 */
-	Iterable<NodeUrn> getCurrentlyConnectedNodeUrns();
+	Set<NodeUrn> getCurrentlyConnectedNodeUrns();
 
 	/**
 	 * Returns a mapping between node URNs and the device driver interfaces of the nodes that are currently connected.

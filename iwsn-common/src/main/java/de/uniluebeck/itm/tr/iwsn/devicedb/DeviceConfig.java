@@ -21,14 +21,9 @@ public class DeviceConfig {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-	private static final int DEFAULT_MAXIMUM_MESSAGE_RATE = Integer.MAX_VALUE;
-
 	private final NodeUrn nodeUrn;
 
 	private final String nodeType;
-
-	@Nullable
-	private final String nodeSerialInterface;
 
 	@Nullable
 	private final String nodeUSBChipID;
@@ -38,9 +33,6 @@ public class DeviceConfig {
 
 	@Nullable
 	private final List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
-
-	@Nullable
-	private final Integer maximumMessageRate;
 
 	@Nullable
 	private final Long timeoutNodeApiMillis;
@@ -57,11 +49,9 @@ public class DeviceConfig {
 	public DeviceConfig(
 			final NodeUrn nodeUrn,
 			final String nodeType,
-			@Nullable final String nodeSerialInterface,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
-			@Nullable final Integer maximumMessageRate,
 			@Nullable final Long timeoutCheckAliveMillis,
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
@@ -69,20 +59,10 @@ public class DeviceConfig {
 
 		this.nodeUrn = checkNotNull(nodeUrn);
 		this.nodeType = checkNotNull(nodeType);
-		this.nodeSerialInterface = nodeSerialInterface;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
 
-		// maximumMessageRate
-		checkArgument((maximumMessageRate == null || maximumMessageRate > 0),
-				"The maximum number of messages per second must either be omitted (null) to use the default value "
-						+ "of " + DEFAULT_MAXIMUM_MESSAGE_RATE + " or be larger than 0 (zero). Configured value: "
-						+ maximumMessageRate
-		);
-		this.maximumMessageRate = maximumMessageRate;
-
-		// timeoutCheckAliveMillis
 		checkArgument((timeoutCheckAliveMillis == null || timeoutCheckAliveMillis > 0),
 				"The timeout value for the checkAlive operation must either be omitted (null) to use the default value "
 						+ "of " + DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS + " ms or be larger than 0 (zero). Configured "
@@ -90,7 +70,6 @@ public class DeviceConfig {
 		);
 		this.timeoutCheckAliveMillis = timeoutCheckAliveMillis;
 
-		// timeoutFlashMillis
 		checkArgument((timeoutFlashMillis == null || timeoutFlashMillis > 0),
 				"The timeout value for the flash operation must either be omitted (null) to use the default "
 						+ "value of " + DEFAULT_TIMEOUT_FLASH_MILLIS + " ms or be larger than 0 (zero). Configured "
@@ -98,7 +77,6 @@ public class DeviceConfig {
 		);
 		this.timeoutFlashMillis = timeoutFlashMillis;
 
-		// timeoutNodeApiMillis
 		checkArgument((timeoutNodeApiMillis == null || timeoutNodeApiMillis > 0),
 				"The timeout value for the Node API must either be omitted (null) to use the default value of " +
 						DEFAULT_TIMEOUT_NODE_API_MILLIS + " ms or be larger than 0 (zero). Configured value: " +
@@ -106,22 +84,12 @@ public class DeviceConfig {
 		);
 		this.timeoutNodeApiMillis = timeoutNodeApiMillis;
 
-		// timeoutResetMillis
 		checkArgument((timeoutResetMillis == null || timeoutResetMillis > 0),
 				"The timeout value for the reset operation must either be omitted (null) to use the default value "
 						+ "of " + DEFAULT_TIMEOUT_RESET_MILLIS + " ms or be larger than 0 (zero). Configured "
 						+ "value: " + timeoutResetMillis
 		);
 		this.timeoutResetMillis = timeoutResetMillis;
-	}
-
-	public int getMaximumMessageRate() {
-		return maximumMessageRate != null ? maximumMessageRate : DEFAULT_MAXIMUM_MESSAGE_RATE;
-	}
-
-	@Nullable
-	public String getNodeSerialInterface() {
-		return nodeSerialInterface;
 	}
 
 	public String getNodeType() {
