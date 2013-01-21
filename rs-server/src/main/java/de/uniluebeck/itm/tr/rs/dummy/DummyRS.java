@@ -23,76 +23,74 @@
 
 package de.uniluebeck.itm.tr.rs.dummy;
 
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "urn:RSService")
+@WebService(
+		name = "RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
+		portName = "RSPort",
+		serviceName = "RSService",
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
+)
 public class DummyRS implements RS {
 
 	private Random r = new SecureRandom();
 
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
-
+	public List<PublicReservationData> getReservations(final DateTime from,
+													   final DateTime to) throws RSFault_Exception {
 		return Collections.emptyList();
 
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKey,
-			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		return Collections.emptyList();
-
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		String msg = "Reservation not found (not implemented, this is the dummy implementation";
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		// nothing to do as this is a dummy
 	}
 
 	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservervationConflictExceptionException {
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
-		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(authenticationData.size());
+		List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>(secretAuthenticationKeys.size());
 
-		for (SecretAuthenticationKey key : authenticationData) {
+		for (SecretAuthenticationKey key : secretAuthenticationKeys) {
 			SecretReservationKey secretAuthenticationKey = new SecretReservationKey();
 			secretAuthenticationKey.setUrnPrefix(key.getUrnPrefix());
 			secretAuthenticationKey.setSecretReservationKey(Long.toString(r.nextLong()));
@@ -100,7 +98,5 @@ public class DummyRS implements RS {
 		}
 
 		return keys;
-
 	}
-
 }

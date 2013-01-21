@@ -1,31 +1,32 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class SetChannelPipelineRunnable extends AbstractRequestRunnable {
 
-	private final List<String> nodeUrns;
+	private final List<NodeUrn> nodeUrns;
 
-	private List<ChannelHandlerConfiguration> channelHandlerConfigurations;
+	private final List<ChannelHandlerConfiguration> channelHandlerConfigurations;
 
-	public SetChannelPipelineRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-									  final String federatorRequestId, final List<String> nodeUrns,
+	public SetChannelPipelineRunnable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId,
+									  final List<NodeUrn> nodeUrns,
 									  final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.nodeUrns = nodeUrns;
 		this.channelHandlerConfigurations = channelHandlerConfigurations;
 	}
 
 	@Override
-	public void run() {
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.setChannelPipeline(nodeUrns, channelHandlerConfigurations));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.setChannelPipeline(federatedRequestId, nodeUrns, channelHandlerConfigurations);
 	}
 }

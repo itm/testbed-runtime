@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>tr</artifactId>
 		<groupId>de.uniluebeck.itm</groupId>
-		<version>0.8.5</version>
+		<version>0.9-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
@@ -14,17 +14,18 @@
 	<name>TR :: Federator Utilities</name>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
 	</dependencies>
 
 </project>

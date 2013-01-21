@@ -23,29 +23,33 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.Notification;
+import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @WebService(
-		serviceName = "ControllerService",
-		targetNamespace = "urn:ControllerService",
+		name = "Controller",
+		endpointInterface = "eu.wisebed.api.v3.controller.Controller",
 		portName = "ControllerPort",
-		endpointInterface = "eu.wisebed.api.controller.Controller"
+		serviceName = "ControllerService",
+		targetNamespace = "http://wisebed.eu/api/v3/controller"
 )
-public class FederatorController implements Controller {
+public class FederatorController extends AbstractService implements Service, Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorController.class);
 
@@ -56,7 +60,7 @@ public class FederatorController implements Controller {
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
 	 */
-	private TimedCache<String, String> requestIdMappingCache = new TimedCache<String, String>(
+	private TimedCache<Long, Long> requestIdMappingCache = new TimedCache<Long, Long>(
 			CACHE_TIMEOUT,
 			CACHE_TIMEOUT_UNIT
 	);
@@ -67,21 +71,21 @@ public class FederatorController implements Controller {
 	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
 	 * update is received before the mapping is set using addRequestIdMapping.
 	 */
-	private TimedCache<String, LinkedList<RequestStatus>> pendingRequestStatus =
-			new TimedCache<String, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
+	private final TimedCache<Long, LinkedList<RequestStatus>> pendingRequestStatus =
+			new TimedCache<Long, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
 
-	private String controllerEndpointUrl;
+	private final URI controllerEndpointUrl;
+
+	private final DeliveryManager deliveryManager;
 
 	private Endpoint controllerEndpoint;
 
-	private DeliveryManager deliveryManager;
-
-	public FederatorController(String controllerEndpointUrl) {
+	public FederatorController(URI controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
 		this.deliveryManager = new DeliveryManager();
 	}
 
-	public void addRequestIdMapping(String federatedRequestId, String federatorRequestId) {
+	public void addRequestIdMapping(long federatedRequestId, long federatorRequestId) {
 
 		// Add the mapping to the list
 		log.debug("Mapping federatedRequestId {} to federatorRequestId {} = ", federatedRequestId, federatorRequestId);
@@ -105,37 +109,46 @@ public class FederatorController implements Controller {
 		}
 	}
 
-	/**
-	 * Starts the Controller Web Service endpoint.
-	 *
-	 * @throws Exception on failure
-	 */
-	public void start() throws Exception {
+	@Override
+	protected void doStart() {
 
-		log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
+		try {
 
-		controllerEndpoint = Endpoint.publish(controllerEndpointUrl, this);
-		deliveryManager.start();
+			log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
 
-		log.debug("Started federator controller on {}!", controllerEndpointUrl);
+			controllerEndpoint = Endpoint.publish(controllerEndpointUrl.toString(), this);
+			deliveryManager.startAndWait();
+
+			log.debug("Started federator controller on {}!", controllerEndpointUrl);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
-	/**
-	 * Stops the Controller Web Service endpoint.
-	 *
-	 * @throws Exception on failure
-	 */
-	public void stop() throws Exception {
+	@Override
+	protected void doStop() {
 
-		log.debug("Calling experimentEnded() on connected controllers...");
-		deliveryManager.experimentEnded();
+		try {
 
-		deliveryManager.stop();
+			log.debug("Calling reservationEnded() on connected controllers...");
+			deliveryManager.reservationEnded();
 
-		if (controllerEndpoint != null) {
-			log.info("Stopping federator controller at {}...", controllerEndpointUrl);
-			controllerEndpoint.stop();
+			deliveryManager.stopAndWait();
+
+			if (controllerEndpoint != null) {
+				log.info("Stopping federator controller at {}...", controllerEndpointUrl);
+				controllerEndpoint.stop();
+			}
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
+
 	}
 
 	public void addController(String controllerEndpointUrl) {
@@ -146,7 +159,7 @@ public class FederatorController implements Controller {
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
-	private void receive(@WebParam(name = "msg", targetNamespace = "") Message msg) {
+	private void receive(final Message msg) {
 		deliveryManager.receive(msg);
 	}
 
@@ -155,8 +168,6 @@ public class FederatorController implements Controller {
 	 * map caches received RequestStatus instances until the final mapping of federatedRequestID to federatorRequestId is
 	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
 	 * update is received before the mapping is set using addRequestIdMapping.
-	 *
-	 * @param status
 	 */
 	private void cacheRequestStatus(RequestStatus status) {
 		synchronized (pendingRequestStatus) {
@@ -177,18 +188,15 @@ public class FederatorController implements Controller {
 
 	/**
 	 * Change the incoming request ID to the request ID that was issued by the federator to its client.
-	 *
-	 * @param newRequestId
-	 * @param status
 	 */
-	private void changeIdAndDispatch(String newRequestId, RequestStatus status) {
+	private void changeIdAndDispatch(long newRequestId, RequestStatus status) {
 		status.setRequestId(newRequestId);
 		deliveryManager.receiveStatus(status);
 	}
 
-	private void receiveStatus(@WebParam(name = "status", targetNamespace = "") RequestStatus status) {
+	private void receiveStatus(final RequestStatus status) {
 
-		String federatorRequestId = requestIdMappingCache.get(status.getRequestId());
+		Long federatorRequestId = requestIdMappingCache.get(status.getRequestId());
 
 		if (federatorRequestId != null) {
 			// change the incoming request ID to the request ID that was issued
@@ -205,31 +213,46 @@ public class FederatorController implements Controller {
 	}
 
 	@Override
-	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> messageList) {
+	public void receive(final List<Message> messageList) {
 		for (Message message : messageList) {
 			receive(message);
 		}
 	}
 
 	@Override
-	public void receiveStatus(
-			@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> requestStatusList) {
+	public void receiveNotification(final List<Notification> notifications) {
+		deliveryManager.receiveNotification(notifications);
+	}
+
+	@Override
+	public void receiveStatus(final List<RequestStatus> requestStatusList) {
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
 	}
 
 	@Override
-	public void receiveNotification(@WebParam(name = "msg", targetNamespace = "") final List<String> notificationList) {
-		deliveryManager.receiveNotification(notificationList);
+	public void nodesAttached(final List<NodeUrn> nodeUrns) {
+		deliveryManager.nodesAttached(nodeUrns);
 	}
 
 	@Override
-	public void experimentEnded() {
-		deliveryManager.experimentEnded();
+	public void nodesDetached(final List<NodeUrn> nodeUrns) {
+		deliveryManager.nodesDetached(nodeUrns);
 	}
 
-	String getControllerEndpointUrl() {
+	@Override
+	public void reservationStarted() {
+		// TODO implement
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
+	public void reservationEnded() {
+		deliveryManager.reservationEnded();
+	}
+
+	URI getControllerEndpointUrl() {
 		return controllerEndpointUrl;
 	}
 }

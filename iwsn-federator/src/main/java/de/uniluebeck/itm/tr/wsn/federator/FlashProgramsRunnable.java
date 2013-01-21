@@ -23,36 +23,28 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import eu.wisebed.api.wsn.Program;
-import eu.wisebed.api.wsn.WSN;
+import java.util.List;
 
 class FlashProgramsRunnable extends AbstractRequestRunnable {
 
-	private List<String> nodeIds;
+	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	private List<Integer> programIndices;
+	FlashProgramsRunnable(final FederatorController federatorController,
+						  final WSN wsnEndpoint,
+						  final long federatedRequestId,
+						  final long federatorRequestId,
+						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
-	private List<Program> programs;
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-	FlashProgramsRunnable(FederatorController federatorController, WSN wsnEndpoint,
-								  String federatorRequestId,
-								  List<String> nodeIds, List<Integer> programIndices, List<Program> programs) {
-
-		super(federatorController, wsnEndpoint, federatorRequestId);
-
-		this.nodeIds = nodeIds;
-		this.programIndices = programIndices;
-		this.programs = programs;
+		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.flashPrograms(nodeIds, programIndices, programs));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
 	}
-
 }

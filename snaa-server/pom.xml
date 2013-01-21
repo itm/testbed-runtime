@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
-		<version>0.8.5</version>
+		<version>0.9-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
@@ -38,6 +38,11 @@
 	<name>TR :: SNAA Server</name>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.federator-utils</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.wisebed</groupId>

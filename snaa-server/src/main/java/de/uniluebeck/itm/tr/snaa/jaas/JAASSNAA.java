@@ -25,13 +25,16 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization.UserDetails;
-import eu.wisebed.api.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -43,12 +46,18 @@ import java.util.concurrent.TimeUnit;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(
+		name = "SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
+)
 public class JAASSNAA implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(JAASSNAA.class);
 
-	private String urnPrefix;
+	private NodeUrnPrefix urnPrefix;
 
 	private String jaasLoginModuleName;
 
@@ -79,16 +88,15 @@ public class JAASSNAA implements SNAA {
 	 */
 	private TimedCache<String, AuthData> authenticatedSessions = new TimedCache<String, AuthData>(30, TimeUnit.MINUTES);
 
-	public JAASSNAA(String urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
+	public JAASSNAA(NodeUrnPrefix urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
 		this.urnPrefix = urnPrefix;
 		this.jaasLoginModuleName = jaasLoginModuleName;
 		this.authorization = authorization;
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
 		assertUrnPrefixServed(urnPrefix, authenticationData);
@@ -121,46 +129,70 @@ public class JAASSNAA implements SNAA {
 
 		} catch (LoginException le) {
 			log.debug("LoginException: " + le, le);
-			throw createAuthenticationException("Authentication failed!");
+			throw createAuthenticationFault_Exception("Authentication failed!");
 		} catch (SecurityException se) {
 			log.debug("SecurityException: " + se, se);
-			throw createSNAAException("Internal Server Error");
+			throw createSNAAFault("Internal Server Error");
 		}
 
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
-		boolean authorized = false;
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAFault_Exception {
+
+
+		AuthorizationResponse authorized = new AuthorizationResponse();
+
+		authorized.setAuthorized(true);
+		authorized.setMessage("JAASSNAA is used for authentication only and always return 'true'");
+
+		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
+			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
+				PerNodeUrnAuthorizationResponse perNodeUrnAuthorizationResponse = new PerNodeUrnAuthorizationResponse();
+				perNodeUrnAuthorizationResponse.setNodeUrn(nodeUrn);
+				perNodeUrnAuthorizationResponse.setAuthorized(true);
+				authorized.getPerNodeUrnAuthorizationResponses().add(perNodeUrnAuthorizationResponse);
+			}
+		}
+
+		return authorized;
+	}
+
+	@Override
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
+
+		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
+		saks.add(secretAuthenticationKey);
 
 		// Check the supplied authentication keys
-		assertAuthenticationKeyCount(authenticationData, 1, 1);
-		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
-		assertSAKUrnPrefixServed(urnPrefix, authenticationData);
+		assertSAKUrnPrefixServed(urnPrefix, saks);
 
 		// Get the session from the cache of authenticated sessions
 		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
 
-		if (auth == null || auth.username == null || secretAuthenticationKey.getUsername() == null
-				|| !secretAuthenticationKey.getUsername().equals(auth.username)) {
-			log.warn("Authorization failed. Invalid parameters.");
-			return false;
+		ValidationResult result = new ValidationResult();
+
+		if (auth == null) {
+			result.setValid(false);
+			result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
+		} else if (secretAuthenticationKey.getUsername() == null) {
+			result.setValid(false);
+			result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");
+		} else if (auth.username == null) {
+			result.setValid(false);
+			result.setMessage("The user name which was provided by the original authentication is not known.");
+		} else if (!secretAuthenticationKey.getUsername().equals(auth.username)) {
+			result.setValid(false);
+			result.setMessage(
+					"The user name which was provided by the original authentication does not match the one in the secret authentication key."
+			);
+		} else {
+			result.setValid(true);
 		}
 
-		// Perform Authorization
-		if (authorization != null) {
-			IUserAuthorization.UserDetails details = new UserDetails();
-			details.setUsername(secretAuthenticationKey.getUsername());
-            List<Object> subjects = new LinkedList<Object>();
-            subjects.add(auth.subject);
-			details.getUserDetails().put("subject", subjects);
-			authorized = authorization.isAuthorized(action, details);
-			log.debug("Authorization result[" + authorized + "] for action[" + action + "], authdata[" + details + "]");
-		}
-
-		return authorized;
+		return result;
 	}
 
 }

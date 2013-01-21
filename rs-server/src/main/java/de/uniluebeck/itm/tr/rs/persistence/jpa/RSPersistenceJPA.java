@@ -28,7 +28,9 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +61,8 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
-											   String urnPrefix)
-			throws RSExceptionException {
+											   NodeUrnPrefix urnPrefix)
+			throws RSFault_Exception {
 
 		SecretReservationKeyInternal secretReservationKey = null;
 		String generatedSecretReservationKey = null;
@@ -72,7 +74,7 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			secretReservationKey = new SecretReservationKeyInternal();
 			secretReservationKey.setSecretReservationKey(generatedSecretReservationKey);
-			secretReservationKey.setUrnPrefix(urnPrefix);
+			secretReservationKey.setUrnPrefix(urnPrefix.toString());
 
 			try {
 
@@ -92,14 +94,14 @@ public class RSPersistenceJPA implements RSPersistence {
 			}
 		}
 
-		for (Data data : confidentialReservationData.getData()) {
+		for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
 			data.setSecretReservationKey(generatedSecretReservationKey);
 		}
 
 		ReservationDataInternal reservationData = new ReservationDataInternal(
 				secretReservationKey,
 				TypeConverter.convert(confidentialReservationData, localTimeZone),
-				urnPrefix
+				urnPrefix.toString()
 		);
 
 		try {
@@ -118,16 +120,16 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			String msg = "Could not add Reservation because of: " + e.getMessage();
 			log.error(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception, e);
+			throw new RSFault_Exception(msg, exception, e);
 
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
@@ -136,20 +138,20 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
 				.getSecretReservationKey()
@@ -158,8 +160,8 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservervationNotFoundExceptionException(("Reservation " + secretReservationKey + " not found"),
-					new ReservervationNotFoundException()
+			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
+					new ReservationNotFoundFault()
 			);
 		}
 		reservationData.delete();
@@ -170,13 +172,13 @@ public class RSPersistenceJPA implements RSPersistence {
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSExceptionException {
+	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSFault_Exception {
 
 		// transforming to default timezone
 		GregorianCalendar from = interval.getStart().toGregorianCalendar();
@@ -193,19 +195,7 @@ public class RSPersistenceJPA implements RSPersistence {
 					.getResultList(), this.localTimeZone
 			);
 		} catch (DatatypeConfigurationException e) {
-			throw new RSExceptionException(e.getMessage(), new RSException());
-		}
-	}
-
-	public void printPersistentReservationData() throws Exception {
-		System.out.println("ReservationTableEntries:\n----------");
-		for (Object entry : em.createQuery(
-				"SELECT data FROM ReservationDataInternal data WHERE data.deleted = false"
-		).getResultList()) {
-			ReservationDataInternal data = (ReservationDataInternal) entry;
-			System.out.println(data.getId() + ", " + data.getSecretReservationKey() + ", "
-					+ data.getConfidentialReservationData() + ", " + data.getUrnPrefix()
-			);
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
 }

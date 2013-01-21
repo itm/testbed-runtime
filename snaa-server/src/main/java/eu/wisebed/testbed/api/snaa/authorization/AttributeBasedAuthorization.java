@@ -24,8 +24,8 @@
 package eu.wisebed.testbed.api.snaa.authorization;
 
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
     }
 
     @Override
-    public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
+    public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
         String puid = null;
         //check if user is authorised in datasource
         try {
@@ -69,7 +69,7 @@ public class AttributeBasedAuthorization implements IUserAuthorization {
             }
 
             //check datasource
-            return dataSource.isAuthorized(puid, action.getAction());
+            return dataSource.isAuthorized(puid, action.toString());
         }
         catch (Exception e) {
             log.warn(e.getMessage());

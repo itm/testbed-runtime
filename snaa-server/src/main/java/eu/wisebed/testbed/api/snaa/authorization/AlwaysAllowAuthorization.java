@@ -23,13 +23,13 @@
 
 package eu.wisebed.testbed.api.snaa.authorization;
 
-import eu.wisebed.api.snaa.Action;
-import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
 public class AlwaysAllowAuthorization implements IUserAuthorization {
 
 	@Override
-	public boolean isAuthorized(Action action, UserDetails details) throws SNAAExceptionException {
+	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
 		return true;
 	}
 

@@ -23,42 +23,30 @@
 
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
-import java.util.List;
-
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
-
 import de.uniluebeck.itm.tr.rs.NonWS;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.GetReservations;
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
+
+import javax.jws.WebService;
+import java.util.List;
 
 /**
  * Implementation of the interface defines the reservation system (RS) for the WISEBED
  * experimental facilities.<br/>
  * This implementation is accessible via web services.
- * 
- *
  */
-@WebService(endpointInterface = "eu.wisebed.api.rs.RS", portName = "RSPort", serviceName = "RSService",
-		targetNamespace = "urn:RSService")
+@WebService(
+		name = "RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
+		portName = "RSPort",
+		serviceName = "RSService",
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
+)
 public class SingleUrnPrefixSOAPRS implements RS {
-
-	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixSOAPRS.class);
 
 	/**
 	 * Testbed runtime internal implementation of the reservation system's functionality.
@@ -68,52 +56,44 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@NonWS
 	private RS reservationSystem;
 
-	@WebResult(name = "secretReservationKey")
-	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
-
-		return reservationSystem.makeReservation(authenticationData, reservation);
-
-	}
-	
 	@Override
 	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey") List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			final List<SecretReservationKey> secretReservationKeys)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		return reservationSystem.getReservation(secretReservationKeys);
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public void deleteReservation(final List<SecretReservationKey> secretReservationKeys)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
-		reservationSystem.deleteReservation(authenticationData, secretReservationKeys);
+		reservationSystem.deleteReservation(secretReservationKeys);
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+
+		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
+	}
+
+	@Override
+	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to)
+			throws RSFault_Exception {
 
 		return reservationSystem.getReservations(from, to);
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			@WebParam(name = "period", targetNamespace = "") GetReservations period) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
-		return reservationSystem.getConfidentialReservations(secretAuthenticationKeys, period);
+		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to);
 	}
-
 }

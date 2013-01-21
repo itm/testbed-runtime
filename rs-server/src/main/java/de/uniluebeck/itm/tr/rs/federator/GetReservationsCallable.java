@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.v3.rs.PublicReservationData;
+import eu.wisebed.api.v3.rs.RS;
+import org.joda.time.DateTime;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -11,11 +11,11 @@ public class GetReservationsCallable implements Callable<List<PublicReservationD
 
 	private final RS rs;
 
-	private final XMLGregorianCalendar from;
+	private final DateTime from;
 
-	private final XMLGregorianCalendar to;
+	private final DateTime to;
 
-	public GetReservationsCallable(final RS rs, final XMLGregorianCalendar from, final XMLGregorianCalendar to) {
+	public GetReservationsCallable(final RS rs, final DateTime from, final DateTime to) {
 		this.rs = rs;
 		this.from = from;
 		this.to = to;

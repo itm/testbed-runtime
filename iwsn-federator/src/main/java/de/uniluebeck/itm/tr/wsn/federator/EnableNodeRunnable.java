@@ -23,27 +23,29 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.WSN;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 class EnableNodeRunnable extends AbstractRequestRunnable {
 
-	private final String nodeUrn;
+	private final NodeUrn nodeUrn;
 
-	public EnableNodeRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-							  final String federatorRequestId,
-							  final String nodeUrn) {
+	EnableNodeRunnable(final FederatorController federatorController,
+					   final WSN wsnEndpoint,
+					   final long federatedRequestId,
+					   final long federatorRequestId,
+					   final NodeUrn nodeUrn) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.enableNode(nodeUrn));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 
 }

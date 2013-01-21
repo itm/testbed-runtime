@@ -1,13 +1,17 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.util.Service;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.util.UrlUtils;
-import eu.wisebed.api.common.KeyValuePair;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
+import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,17 +19,20 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
 @WebService(
-		serviceName = "SessionManagementService",
-		targetNamespace = "urn:SessionManagementService",
+		name = "SessionManagement",
+		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement",
 		portName = "SessionManagementPort",
-		endpointInterface = "eu.wisebed.api.sm.SessionManagement"
+		serviceName = "SessionManagementService",
+		targetNamespace = "http://wisebed.eu/api/v3/sm"
 )
-public class SessionManagementSoapService implements Service, SessionManagement {
+public class SessionManagementSoapService extends AbstractService implements Service, SessionManagement {
 
 	private static final Logger log = LoggerFactory.getLogger(SessionManagementSoapService.class);
 
@@ -35,7 +42,8 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 
 	private Endpoint endpoint;
 
-	public SessionManagementSoapService(final SessionManagementService sm, final SessionManagementServiceConfig config) {
+	public SessionManagementSoapService(final SessionManagementService sm,
+										final SessionManagementServiceConfig config) {
 
 		checkNotNull(sm);
 		checkNotNull(config);
@@ -45,48 +53,53 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 	}
 
 	@Override
-	public void start() throws Exception {
+	protected void doStart() {
 
-		String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
-				config.getSessionManagementEndpointUrl().toString() :
-				UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
+		try {
 
-		log.info("Starting Session Management service on binding URL {} for endpoint URL {}",
-				bindAllInterfacesUrl,
-				config.getSessionManagementEndpointUrl().toString()
-		);
+			String bindAllInterfacesUrl = System.getProperty("disableBindAllInterfacesUrl") != null ?
+					config.getSessionManagementEndpointUrl().toString() :
+					UrlUtils.convertHostToZeros(config.getSessionManagementEndpointUrl().toString());
 
-		endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
-	}
+			log.info("Starting session management SOAP service on binding URL {} for endpoint URL {}",
+					bindAllInterfacesUrl,
+					config.getSessionManagementEndpointUrl().toString()
+			);
 
-	@Override
-	public void stop() {
+			endpoint = Endpoint.publish(bindAllInterfacesUrl, this);
 
-		if (endpoint != null) {
-			try {
-				endpoint.stop();
-			} catch (NullPointerException expectedWellKnownBug) {
-				// do nothing
-			}
-			log.info("Stopped Session Management service on {}", config.getSessionManagementEndpointUrl());
+			notifyStarted();
+
+		} catch (MalformedURLException e) {
+			notifyFailed(e);
 		}
 	}
 
 	@Override
-	public String areNodesAlive(@WebParam(name = "nodes", targetNamespace = "") final List<String> nodes,
-								@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final
-								String controllerEndpointUrl) {
+	protected void doStop() {
 
-		return sm.areNodesAlive(nodes, controllerEndpointUrl);
+		try {
+
+			if (endpoint != null) {
+				try {
+					endpoint.stop();
+				} catch (NullPointerException expectedWellKnownBug) {
+					// do nothing
+				}
+				log.info("Stopped session management SOAP service on {}", config.getSessionManagementEndpointUrl());
+			}
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	@Override
-	public void free(
-			@WebParam(name = "secretReservationKey", targetNamespace = "") final
-			List<SecretReservationKey> secretReservationKey)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
-
-		sm.free(secretReservationKey);
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns, final String controllerEndpointUrl) {
+		sm.areNodesAlive(requestId, nodeUrns, controllerEndpointUrl);
 	}
 
 	@Override
@@ -95,6 +108,8 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 			Holder<String> rsEndpointUrl,
 			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT) final
 			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "servedUrnPrefixes", targetNamespace = "", mode = WebParam.Mode.OUT) final
+			Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
 			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT) final
 			Holder<List<KeyValuePair>> options) {
 
@@ -109,20 +124,30 @@ public class SessionManagementSoapService implements Service, SessionManagement 
 		} else {
 			snaaEndpointUrl.value = "";
 		}
+
+		servedUrnPrefixes.value = newArrayList();
+		servedUrnPrefixes.value.add(config.getUrnPrefix());
 	}
 
 	@Override
-	public String getInstance(
-			@WebParam(name = "secretReservationKey", targetNamespace = "") final
-			List<SecretReservationKey> secretReservationKey,
-			@WebParam(name = "controller", targetNamespace = "") final String controller)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception {
+	public String getInstance(final List<SecretReservationKey> secretReservationKey)
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
 
-		return sm.getInstance(secretReservationKey, controller);
+		return sm.getInstance(secretReservationKey);
 	}
 
 	@Override
 	public String getNetwork() {
 		return WiseMLHelper.prettyPrintWiseML(WiseMLHelper.readWiseMLFromFile(config.getWiseMLFilename()));
+	}
+
+	@Override
+	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
+		return sm.getSupportedChannelHandlers();
+	}
+
+	@Override
+	public List<String> getSupportedVirtualLinkFilters() {
+		return sm.getSupportedVirtualLinkFilters();
 	}
 }

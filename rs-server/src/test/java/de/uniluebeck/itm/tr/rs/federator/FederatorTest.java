@@ -23,9 +23,17 @@
 
 package de.uniluebeck.itm.tr.rs.federator;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -34,9 +42,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,19 +55,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FederatorTest {
 
-	private static final DatatypeFactory datatypeFactory;
+	private static final NodeUrnPrefix URN_PREFIX_TESTBED_1 = new NodeUrnPrefix("urn:wisebed:testbed1:");
 
-	private static final String URN_PREFIX_TESTBED_1 = "urn:wisebed:testbed1";
-
-	private static final String URN_PREFIX_TESTBED_2 = "urn:wisebed:testbed2";
-
-	static {
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	private static final NodeUrnPrefix URN_PREFIX_TESTBED_2 = new NodeUrnPrefix("urn:wisebed:testbed2:");
 
 	@Mock
 	private RS testbed1RS;
@@ -95,8 +90,8 @@ public class FederatorTest {
 	public void testGetReservationsWithNullParameters() {
 		try {
 			federatorRS.getReservations(null, null);
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -104,8 +99,8 @@ public class FederatorTest {
 	public void testGetReservationWithNullParameters() throws Exception {
 		try {
 			federatorRS.getReservation(null);
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -117,8 +112,8 @@ public class FederatorTest {
 
 		try {
 			federatorRS.getReservation(newArrayList(new SecretReservationKey()));
-			fail("Should have raised RSException");
-		} catch (RSExceptionException expected) {
+			fail("Should have raised RSFault");
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -132,58 +127,71 @@ public class FederatorTest {
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new ReservervationNotFoundExceptionException("", new ReservervationNotFoundException())
+				new ReservationNotFoundFault_Exception("", new ReservationNotFoundFault())
 		);
 
 		try {
+
 			federatorRS.getReservation(secretReservationKeys);
-			fail("Should have raised ReservationNotFoundException");
-		} catch (ReservervationNotFoundExceptionException expected) {
+			fail("Should have raised ReservationNotFoundFault");
+
+		} catch (ReservationNotFoundFault_Exception expected) {
 		}
 	}
 
 	@Test
 	public void testMakeReservationWithNullParameters() throws Exception {
 		try {
-			federatorRS.makeReservation(null, null);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+
+			federatorRS.makeReservation(null, null, null, null);
+			fail("Should have raised an RSFault_Exception");
+
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
 	@Test
 	public void testMakeReservationWithInvalidParameters() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
-			federatorRS.makeReservation(data, null);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+
+			federatorRS.makeReservation(data, null, null, null);
+			fail("Should have raised an RSFault_Exception");
+
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
 	@Test
 	public void testMakeReservationWithNotServedUrn() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeURNs().add("urn:not:served");
-			federatorRS.makeReservation(authData, resData);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
+
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to);
+			fail("Should have raised an RSFault_Exception");
+
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
 	@Test
 	public void testMakeReservationWithInvalidAuthenticationData() throws Exception {
 		try {
+
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.setFrom(createXMLGregorianCalendar(1 * 60 * 1000));
-			resData.setTo(createXMLGregorianCalendar(5 * 60 * 1000));
-			resData.getNodeURNs().add("urn:wisebed1:testbed1");
-			federatorRS.makeReservation(authData, resData);
-			fail("Should have raised an RSExceptionException");
-		} catch (RSExceptionException expected) {
+
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
+
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to);
+			fail("Should have raised an RSFault_Exception");
+
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -191,11 +199,14 @@ public class FederatorTest {
 	public void testMakeReservationWithEmptyReservationAndAuthenticationDataReturnsEmptyList() throws Exception {
 		try {
 			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
-			ConfidentialReservationData resData = new ConfidentialReservationData();
-			resData.getNodeURNs();
-			federatorRS.makeReservation(authData, resData);
+
+			final DateTime from = DateTime.now();
+			final DateTime to = DateTime.now().plusHours(1);
+
+			federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to);
 			fail();
-		} catch (RSExceptionException expected) {
+
+		} catch (RSFault_Exception expected) {
 		}
 	}
 
@@ -211,9 +222,8 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getReservations(javax.xml.datatype.XMLGregorianCalendar,
-	 * javax.xml.datatype.XMLGregorianCalendar)} is made on all federated RS instances and the results are merged
-	 * correctly.
+	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime)} is made on all
+	 * federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -224,8 +234,8 @@ public class FederatorTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, eu.wisebed.api.rs.GetReservations)} is
-	 * made on all federated RS instances and the results are merged correctly.
+	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
+	 * org.joda.time.DateTime)} is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -233,10 +243,5 @@ public class FederatorTest {
 	@Test
 	public void testGetConfidentialReservations() throws Exception {
 		// TODO implement
-	}
-
-	private XMLGregorianCalendar createXMLGregorianCalendar(int msInFuture) {
-		DateTime dateTime = new DateTime(System.currentTimeMillis());
-		return datatypeFactory.newXMLGregorianCalendar(dateTime.plusMillis(msInFuture).toGregorianCalendar());
 	}
 }

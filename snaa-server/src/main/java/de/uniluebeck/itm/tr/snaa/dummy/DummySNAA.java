@@ -23,9 +23,11 @@
 
 package de.uniluebeck.itm.tr.snaa.dummy;
 
-import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -33,19 +35,19 @@ import java.util.List;
 import java.util.Random;
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.snaa.SNAA",
+		name = "SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
 		portName = "SNAAPort",
 		serviceName = "SNAAService",
-		targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/"
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
 public class DummySNAA implements SNAA {
 
 	private Random r = new SecureRandom();
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
 
@@ -61,11 +63,23 @@ public class DummySNAA implements SNAA {
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action)
-			throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action)
+			throws SNAAFault_Exception {
 
-		return true;
+		AuthorizationResponse response = new AuthorizationResponse();
+		response.setAuthorized(true);
+		response.setMessage("DummySNAA will always return true");
+		return response;
+	}
+
+	@Override
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey)
+			throws SNAAFault_Exception {
+
+		ValidationResult result = new ValidationResult();
+		result.setValid(true);
+		return result;
 	}
 }

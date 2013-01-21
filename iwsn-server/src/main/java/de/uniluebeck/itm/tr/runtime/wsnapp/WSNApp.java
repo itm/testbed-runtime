@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 import de.uniluebeck.itm.tr.iwsn.overlay.application.TestbedApplication;
-import de.uniluebeck.itm.tr.util.Service;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -56,32 +56,32 @@ public interface WSNApp extends TestbedApplication {
 
 	void addNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
-	void areNodesAlive(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
+	void areNodesAlive(Set<NodeUrn> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	void areNodesAliveSm(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
+	void areNodesAliveSm(Set<NodeUrn> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	void destroyVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback)
+	void destroyVirtualLink(NodeUrn sourceNodeUrn, NodeUrn targetNodeUrn, Callback callback)
 			throws UnknownNodeUrnsException;
 
-	void disableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
+	void disableNode(NodeUrn nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
-	void disablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
+	void disablePhysicalLink(NodeUrn nodeUrnA, NodeUrn nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
-	void enableNode(String nodeUrn, Callback callback) throws UnknownNodeUrnsException;
+	void enableNode(NodeUrn nodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
-	void enablePhysicalLink(String nodeUrnA, String nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
+	void enablePhysicalLink(NodeUrn nodeUrnA, NodeUrn nodeUrnB, Callback callback) throws UnknownNodeUrnsException;
 
-	void flashPrograms(Map<String, WSNAppMessages.Program> programs, Callback callback) throws UnknownNodeUrnsException;
+	void flashPrograms(Map<NodeUrn, byte[]> programs, Callback callback) throws UnknownNodeUrnsException;
 
 	void removeNodeMessageReceiver(WSNNodeMessageReceiver receiver);
 
-	void resetNodes(Set<String> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
+	void resetNodes(Set<NodeUrn> nodeUrns, Callback callback) throws UnknownNodeUrnsException;
 
-	void send(Set<String> nodeUrns, byte[] bytes, String sourceNodeId, String timestamp, Callback callback) throws UnknownNodeUrnsException;
+	void send(Set<NodeUrn> nodeUrns, byte[] bytes, Callback callback) throws UnknownNodeUrnsException;
 
-	void setChannelPipeline(Set<String> nodeUrn, List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+	void setChannelPipeline(Set<NodeUrn> nodeUrn, List<ChannelHandlerConfiguration> channelHandlerConfigurations,
 							Callback callback) throws UnknownNodeUrnsException;
 
-	void setVirtualLink(String sourceNodeUrn, String targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
+	void setVirtualLink(NodeUrn sourceNodeUrn, NodeUrn targetNodeUrn, Callback callback) throws UnknownNodeUrnsException;
 
 }

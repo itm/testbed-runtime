@@ -1,53 +1,34 @@
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.transform;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.xml.datatype.XMLGregorianCalendar;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
+import javax.annotation.Nullable;
+import java.util.*;
 
-import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
-import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import eu.wisebed.api.rs.AuthorizationException;
-import eu.wisebed.api.rs.AuthorizationExceptionException;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.rs.GetReservations;
-import eu.wisebed.api.rs.PublicReservationData;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSException;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationConflictException;
-import eu.wisebed.api.rs.ReservervationConflictExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
-import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Testbed Runtime internal implementation of the interface which defines the reservation system
- * (RS) for the WISEBED experimental facilities stripped of the Web Service accessibility. 
+ * (RS) for the WISEBED experimental facilities stripped of the Web Service accessibility.
  */
 public class SingleUrnPrefixRS implements RS {
 
@@ -55,7 +36,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Inject
 	@Named("SingleUrnPrefixSOAPRS.urnPrefix")
-	private String urnPrefix;
+	private NodeUrnPrefix urnPrefix;
 
 	@Inject
 	private RSPersistence persistence;
@@ -63,41 +44,24 @@ public class SingleUrnPrefixRS implements RS {
 	@Inject
 	@Nullable
 	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
-	private Provider<String[]> servedNodeUrns;
+	private Provider<NodeUrn[]> servedNodeUrns;
 
-	@Override
-	@AuthorizationRequired("MAKE_RESERVATION")
-	public List<SecretReservationKey> makeReservation(List<SecretAuthenticationKey> authenticationData, ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, ReservervationConflictExceptionException, RSExceptionException {
-
-		checkNotNull(reservation.getUserData() != null && !"".equals(reservation.getUserData()), "The field userData must be set!");
-
-		checkArgumentValid(reservation);
-		checkArgumentValidAuthentication(authenticationData);
-		checkNodesServed(reservation.getNodeURNs());
-
-		SecretAuthenticationKey secretAuthenticationKey = authenticationData.get(0);
-
-		checkNodesAvailable(reservation);
-
-		return makeReservationInternal(reservation, secretAuthenticationKey);
-
-	}
-
-	private List<SecretReservationKey> makeReservationInternal(final ConfidentialReservationData reservation,
-			final SecretAuthenticationKey secretAuthenticationKey) throws RSExceptionException {
+	private List<SecretReservationKey> makeReservationInternal(
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
+			final List<NodeUrn> nodeUrns,
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(reservation.getFrom());
-		crd.setTo(reservation.getTo());
-		crd.setUserData(reservation.getUserData());
-		crd.getNodeURNs().addAll(reservation.getNodeURNs());
+		crd.setFrom(from);
+		crd.setTo(to);
+		crd.getNodeUrns().addAll(nodeUrns);
 
-		Data data = new Data();
-		data.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-		data.setUsername(secretAuthenticationKey.getUsername());
+		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
+		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
+		data.setUsername(secretAuthenticationKeys.get(0).getUsername());
 
-		crd.getData().add(data);
+		crd.getKeys().add(data);
 
 		try {
 
@@ -110,13 +74,14 @@ public class SingleUrnPrefixRS implements RS {
 			return keys;
 
 		} catch (Exception e) {
-			throw createRSExceptionException(e.getMessage());
+			throw createRSFault_Exception(e.getMessage());
 		}
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys) throws RSExceptionException,
-			ReservervationNotFoundExceptionException {
+	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys)
+			throws RSFault_Exception,
+			ReservationNotFoundFault_Exception {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 		checkArgumentValidReservation(secretReservationKeys);
@@ -126,9 +91,9 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (reservation == null) {
 			String msg = "Reservation not found for key " + secretReservationKey;
-			ReservervationNotFoundException exception = new ReservervationNotFoundException();
+			ReservationNotFoundFault exception = new ReservationNotFoundFault();
 			exception.setMessage(msg);
-			throw new ReservervationNotFoundExceptionException(msg, exception);
+			throw new ReservationNotFoundFault_Exception(msg, exception);
 		}
 
 		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
@@ -137,11 +102,10 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("DELETE_RESERVATION")
-	public void deleteReservation(List<SecretAuthenticationKey> authenticationData, List<SecretReservationKey> secretReservationKeys)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	@AuthorizationRequired("RS_DELETE_RESERVATION")
+	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
-		checkNotNull(authenticationData, "Parameter authenticationData is null!");
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
 		checkArgumentValidReservation(secretReservationKeys);
@@ -150,8 +114,8 @@ public class SingleUrnPrefixRS implements RS {
 		// checkArgumentValidAuthentication(authenticationData);
 		// try {
 		// checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
-		// } catch (AuthorizationExceptionException e) {
-		// throwRSExceptionException(e);
+		// } catch (AuthorizationFault_Exception e) {
+		// throwRSFault_Exception(e);
 		// }
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
@@ -164,23 +128,39 @@ public class SingleUrnPrefixRS implements RS {
 		log.debug("Deleted reservation {}", reservationToDelete);
 	}
 
-	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSExceptionException {
+	@Override
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+
+		checkArgumentValid(nodeUrns, from, to);
+		checkArgumentValidAuthentication(secretAuthenticationKeys);
+		checkNodesServed(nodeUrns);
+		checkNodesAvailable(newHashSet(nodeUrns), from, to);
+		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to);
+	}
+
+	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
 
 		DateTime reservationFrom = new DateTime(reservation.getFrom().toGregorianCalendar());
 
 		if (reservationFrom.isBeforeNow()) {
 			final String msg = "You are not allowed to delete reservations that have already started.";
-			throw createRSExceptionException(msg);
+			throw createRSFault_Exception(msg);
 		}
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(XMLGregorianCalendar from, XMLGregorianCalendar to) throws RSExceptionException {
+	public List<PublicReservationData> getReservations(DateTime from, DateTime to)
+			throws RSFault_Exception {
 
 		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
 		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
 
-		Interval request = new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
+		Interval request =
+				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
 		List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
 
 		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
@@ -188,25 +168,31 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("GET_CONFIDENTIAL_RESERVATION")
-	public List<ConfidentialReservationData> getConfidentialReservations(List<SecretAuthenticationKey> secretAuthenticationKeys,
-			GetReservations period) throws RSExceptionException {
+	@AuthorizationRequired("RS_GET_RESERVATIONS")
+	public List<ConfidentialReservationData> getConfidentialReservations(
+			List<SecretAuthenticationKey> secretAuthenticationKey,
+			DateTime from,
+			DateTime to)
+			throws RSFault_Exception {
 
-		checkNotNull(period, "Parameter period is null!");
-		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
+		checkNotNull(from, "Parameter from is null!");
+		checkNotNull(to, "Parameter to is null!");
+		checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKeys is null!");
 
-		checkArgumentValid(period);
-		checkArgumentValidAuthentication(secretAuthenticationKeys);
+		checkArgumentValid(from, to);
+		checkArgumentValidAuthentication(secretAuthenticationKey);
 
-		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
+		SecretAuthenticationKey key = secretAuthenticationKey.get(0);
 
-		Interval interval = new Interval(new DateTime(period.getFrom().toGregorianCalendar()), new DateTime(period.getTo().toGregorianCalendar()));
+		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
+				new DateTime(to.toGregorianCalendar())
+		);
 
 		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
-			boolean sameUser = crd.getData().get(0).getUsername().equals(key.getUsername());
+			boolean sameUser = crd.getKeys().get(0).getUsername().equals(key.getUsername());
 			if (sameUser) {
 				reservationsOfAuthenticatedUserInInterval.add(crd);
 			}
@@ -215,56 +201,50 @@ public class SingleUrnPrefixRS implements RS {
 		return reservationsOfAuthenticatedUserInInterval;
 	}
 
-	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData) throws RSExceptionException {
+	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
+			throws RSFault_Exception {
 
 		// Check if authentication data has been supplied
 		if (authenticationData == null || authenticationData.size() != 1) {
 			String msg = "No or too much authentication data supplied -> error.";
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
 		if (!urnPrefix.equals(sak.getUrnPrefix())) {
 			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 	}
 
-	
-
-	private RSExceptionException createRSExceptionException(String message) {
-		RSException exception = new RSException();
+	private RSFault_Exception createRSFault_Exception(String message) {
+		RSFault exception = new RSFault();
 		exception.setMessage(message);
-		return new RSExceptionException(message, exception);
-	}
-
-	private AuthorizationExceptionException createAuthorizationExceptionException(AuthenticationExceptionException e) {
-		AuthorizationException exception = new AuthorizationException();
-		exception.setMessage(e.getMessage());
-		return new AuthorizationExceptionException(e.getMessage(), exception, e);
+		return new RSFault_Exception(message, exception);
 	}
 
 	private PublicReservationData convertToPublic(ConfidentialReservationData confidentialReservationData) {
 		PublicReservationData publicReservationData = new PublicReservationData();
 		publicReservationData.setFrom(confidentialReservationData.getFrom());
 		publicReservationData.setTo(confidentialReservationData.getTo());
-		publicReservationData.setUserData(confidentialReservationData.getUserData());
-		publicReservationData.getNodeURNs().addAll(confidentialReservationData.getNodeURNs());
+		publicReservationData.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
 		return publicReservationData;
 	}
 
-	private void checkNodesServed(List<String> nodeUrns) throws RSExceptionException {
+	private void checkNodesServed(List<NodeUrn> nodeUrns) throws RSFault_Exception {
 
 		// Check if we serve all node urns by urnPrefix
-		for (String nodeUrn : nodeUrns) {
-			if (!nodeUrn.startsWith(urnPrefix)) {
-				throw createRSExceptionException("Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix);
+		for (NodeUrn nodeUrn : nodeUrns) {
+			if (!nodeUrn.belongsTo(urnPrefix)) {
+				throw createRSFault_Exception(
+						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
+				);
 			}
 		}
 
@@ -273,22 +253,22 @@ public class SingleUrnPrefixRS implements RS {
 		// and check if the individual node urns of the reservation are existing
 		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
 
-			String[] networkNodes;
+			NodeUrn[] networkNodes;
 			try {
 				networkNodes = servedNodeUrns.get();
 			} catch (Exception e) {
-				throw createRSExceptionException(e.getMessage());
+				throw createRSFault_Exception(e.getMessage());
 			}
 
-			List<String> unservedNodes = new LinkedList<String>();
+			List<NodeUrn> unservedNodes = newArrayList();
 
 			boolean contained;
-			for (String nodeUrn : nodeUrns) {
+			for (NodeUrn nodeUrn : nodeUrns) {
 
 				contained = false;
 
-				for (String networkNode : networkNodes) {
-					if (networkNode.equalsIgnoreCase(nodeUrn)) {
+				for (NodeUrn networkNode : networkNodes) {
+					if (networkNode.equals(nodeUrn)) {
 						contained = true;
 					}
 				}
@@ -299,8 +279,9 @@ public class SingleUrnPrefixRS implements RS {
 			}
 
 			if (unservedNodes.size() > 0) {
-				throw createRSExceptionException("The node URNs " + Arrays.toString(unservedNodes.toArray())
-						+ " are unknown to the reservation system!");
+				throw createRSFault_Exception("The node URNs " + Arrays.toString(unservedNodes.toArray())
+						+ " are unknown to the reservation system!"
+				);
 			}
 
 		} else {
@@ -309,34 +290,32 @@ public class SingleUrnPrefixRS implements RS {
 
 	}
 
-	private void checkArgumentValid(PublicReservationData reservation) throws RSExceptionException {
-		String msg = null;
+	private void checkArgumentValid(final List<NodeUrn> nodeUrns,
+									final DateTime fromArg,
+									final DateTime toArg) throws RSFault_Exception {
 
-		if (reservation == null || reservation.getFrom() == null || reservation.getTo() == null) {
-			// if reservation-data is null
-			msg = "No reservation data supplied.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-			// if "to" of reservation-timestamp lies in the past
-			msg = "To time is in the past.";
-		} else if (reservation.getTo().toGregorianCalendar().getTimeInMillis() < reservation.getFrom().toGregorianCalendar().getTimeInMillis()) {
-			// if "from" is later then "to"
-			msg = "To is less than From time.";
+		try {
+
+			checkNotNull(fromArg, "Reservation start time parameter \"from\" is missing.");
+			checkNotNull(toArg, "Reservation end time parameter \"to\" is missing.");
+
+			final DateTime from = new DateTime(fromArg.toGregorianCalendar());
+			final DateTime to = new DateTime(toArg.toGregorianCalendar());
+
+			checkArgument(!to.isBeforeNow(), "Reservation end time parameter \"to\" lies in the past.");
+			checkArgument(!to.isBefore(from), "Reservation end time is before reservation start time.");
+			checkArgument(!nodeUrns.isEmpty(), "Empty reservation request! At least one node must be reserved.");
+
+		} catch (Exception e) {
+			log.debug(e.getMessage());
+			RSFault exception = new RSFault();
+			exception.setMessage(e.getMessage());
+			throw new RSFault_Exception(e.getMessage(), exception);
 		}
-
-		if (reservation == null || reservation.getNodeURNs() == null || reservation.getNodeURNs().size() == 0) {
-			msg = "Empty reservation request! At least one node URN must be reserved.";
-		}
-
-		if (msg != null) {
-			log.warn(msg);
-			RSException exception = new RSException();
-			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
-		}
-
 	}
 
-	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys) throws RSExceptionException {
+	private void checkArgumentValidReservation(List<SecretReservationKey> secretReservationKeys)
+			throws RSFault_Exception {
 
 		String msg = null;
 		SecretReservationKey srk;
@@ -354,51 +333,49 @@ public class SingleUrnPrefixRS implements RS {
 
 		if (msg != null) {
 			log.warn(msg);
-			RSException exception = new RSException();
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 	}
 
-	private void checkNodesAvailable(PublicReservationData reservation) throws ReservervationConflictExceptionException, RSExceptionException {
+	private void checkNodesAvailable(final Set<NodeUrn> nodeUrns,
+									 final DateTime from,
+									 final DateTime to)
+			throws ReservationConflictFault_Exception, RSFault_Exception {
 
-		List<String> requested = transform(reservation.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE);
-		Set<String> reserved = new HashSet<String>();
-
-		for (PublicReservationData res : getReservations(reservation.getFrom(), reservation.getTo())) {
-			reserved.addAll(transform(res.getNodeURNs(), StringUtils.STRING_TO_LOWER_CASE));
+		Set<NodeUrn> reservedNodeUrns = newHashSet();
+		for (PublicReservationData res : getReservations(from, to)) {
+			reservedNodeUrns.addAll(res.getNodeUrns());
 		}
 
-		Set<String> intersection = new HashSet<String>(reserved);
-		intersection.retainAll(requested);
+		final Sets.SetView<NodeUrn> intersection = Sets.intersection(reservedNodeUrns, nodeUrns);
 
-		if (intersection.size() > 0) {
-			String msg = "Some of the nodes are reserved during the requested time (" + Arrays.toString(intersection.toArray()) + ")";
+		if (!intersection.isEmpty()) {
+			final String reservedNodesString = Arrays.toString(intersection.toArray());
+			final String msg = "Some of the nodes are reserved during the requested time (" + reservedNodesString + ")";
 			log.warn(msg);
-			ReservervationConflictException exception = new ReservervationConflictException();
+			ReservationConflictFault exception = new ReservationConflictFault();
 			exception.setMessage(msg);
-			throw new ReservervationConflictExceptionException(msg, exception);
+			exception.getReservedNodeUrns().addAll(intersection);
+			throw new ReservationConflictFault_Exception(msg, exception);
 		}
 	}
 
-	private List<ConfidentialReservationData> throwRSExceptionException(final Exception cause) throws RSExceptionException {
-		RSException rse = new RSException();
-		log.warn(cause.getMessage());
-		rse.setMessage(cause.getMessage());
-		throw new RSExceptionException(cause.getMessage(), rse);
-	}
+	private void checkArgumentValid(final DateTime from, final DateTime to)
+			throws RSFault_Exception {
 
-	private void checkArgumentValid(final GetReservations period) throws RSExceptionException {
-		if (period == null || period.getFrom() == null || period.getTo() == null) {
+		if (from == null || to == null) {
 			String message = "Error on checking null for period. Either period, period.from or period.to is null.";
 			log.warn(message);
-			RSException rse = new RSException();
+			RSFault rse = new RSFault();
 			rse.setMessage(message);
-			throw new RSExceptionException(message, rse);
+			throw new RSFault_Exception(message, rse);
 		}
 	}
 
-	private List<PublicReservationData> convertToPublic(List<ConfidentialReservationData> confidentialReservationDataList) {
+	private List<PublicReservationData> convertToPublic(
+			List<ConfidentialReservationData> confidentialReservationDataList) {
 		List<PublicReservationData> publicReservationDataList = Lists.newArrayList();
 		for (ConfidentialReservationData confidentialReservationData : confidentialReservationDataList) {
 			publicReservationDataList.add(convertToPublic(confidentialReservationData));

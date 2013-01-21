@@ -6,8 +6,9 @@ import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.wiseml.WiseMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class ServedNodeUrnsProvider implements Provider<String[]> {
+public class ServedNodeUrnsProvider implements Provider<NodeUrn[]> {
 
 	private static final Logger log = LoggerFactory.getLogger(ServedNodeUrnsProvider.class);
 
@@ -24,11 +25,15 @@ public class ServedNodeUrnsProvider implements Provider<String[]> {
 
 	private final TimeLimiter timeLimiter;
 
-	private final Callable<String[]> fetchNodeUrnsFromSessionManagementCallable = new Callable<String[]>() {
+	private final Callable<NodeUrn[]> fetchNodeUrnsFromSessionManagementCallable = new Callable<NodeUrn[]>() {
 		@Override
-		public String[] call() throws Exception {
+		public NodeUrn[] call() throws Exception {
 			final List<String> nodeUrns = WiseMLHelper.getNodeUrns(sessionManagement.getNetwork());
-			return nodeUrns.toArray(new String[nodeUrns.size()]);
+			final NodeUrn[] array = new NodeUrn[nodeUrns.size()];
+			for (int i = 0; i < array.length; i++) {
+				array[i] = new NodeUrn(nodeUrns.get(i));
+			}
+			return array;
 		}
 	};
 
@@ -40,7 +45,7 @@ public class ServedNodeUrnsProvider implements Provider<String[]> {
 	}
 
 	@Override
-	public String[] get() {
+	public NodeUrn[] get() {
 		try {
 
 			log.debug("Retrieving node URNs from Session Management Service");

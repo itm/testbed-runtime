@@ -23,32 +23,32 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.WSN;
+import java.util.List;
 
 class SendRunnable extends AbstractRequestRunnable {
 
-	private List<String> nodeIds;
+	private final List<NodeUrn> nodeUrns;
 
-	private Message message;
+	private final byte[] message;
 
-	SendRunnable(FederatorController federatorController, WSN wsnEndpoint, String federatorRequestId,
-						 List<String> nodeIds, Message message) {
+	SendRunnable(final FederatorController federatorController,
+				 final WSN wsnEndpoint,
+				 final long federatedRequestId,
+				 final long federatorRequestId,
+				 final List<NodeUrn> nodeUrns,
+				 final byte[] message) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeIds = nodeIds;
+		this.nodeUrns = nodeUrns;
 		this.message = message;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.send(nodeIds, message));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
 	}
-
 }

@@ -8,6 +8,79 @@ public final class WisebedMessages {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
+  public enum MessageType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    UPSTREAM_MESSAGE(0, 1),
+    DOWNSTREAM_MESSAGE(1, 2),
+    NOTIFICATION(2, 3),
+    REQUEST_STATUS(3, 4),
+    SECRET_RESERVATION_KEYS(4, 5),
+    ;
+    
+    
+    public final int getNumber() { return value; }
+    
+    public static MessageType valueOf(int value) {
+      switch (value) {
+        case 1: return UPSTREAM_MESSAGE;
+        case 2: return DOWNSTREAM_MESSAGE;
+        case 3: return NOTIFICATION;
+        case 4: return REQUEST_STATUS;
+        case 5: return SECRET_RESERVATION_KEYS;
+        default: return null;
+      }
+    }
+    
+    public static com.google.protobuf.Internal.EnumLiteMap<MessageType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<MessageType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<MessageType>() {
+            public MessageType findValueByNumber(int number) {
+              return MessageType.valueOf(number)
+    ;        }
+          };
+    
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.getDescriptor().getEnumTypes().get(0);
+    }
+    
+    private static final MessageType[] VALUES = {
+      UPSTREAM_MESSAGE, DOWNSTREAM_MESSAGE, NOTIFICATION, REQUEST_STATUS, SECRET_RESERVATION_KEYS, 
+    };
+    public static MessageType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+    private final int index;
+    private final int value;
+    private MessageType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+    
+    static {
+      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.getDescriptor();
+    }
+    
+    // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.MessageType)
+  }
+  
   public static final class Envelope extends
       com.google.protobuf.GeneratedMessage {
     // Use Envelope.newBuilder() to construct.
@@ -35,113 +108,66 @@ public final class WisebedMessages {
       return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Envelope_fieldAccessorTable;
     }
     
-    public enum BodyType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      MESSAGE(0, 1),
-      REQUEST_STATUS(1, 2),
-      SECRET_RESERVATION_KEYS(2, 3),
-      ;
-      
-      
-      public final int getNumber() { return value; }
-      
-      public static BodyType valueOf(int value) {
-        switch (value) {
-          case 1: return MESSAGE;
-          case 2: return REQUEST_STATUS;
-          case 3: return SECRET_RESERVATION_KEYS;
-          default: return null;
-        }
-      }
-      
-      public static com.google.protobuf.Internal.EnumLiteMap<BodyType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static com.google.protobuf.Internal.EnumLiteMap<BodyType>
-          internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<BodyType>() {
-              public BodyType findValueByNumber(int number) {
-                return BodyType.valueOf(number)
-      ;        }
-            };
-      
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.getDescriptor().getEnumTypes().get(0);
-      }
-      
-      private static final BodyType[] VALUES = {
-        MESSAGE, REQUEST_STATUS, SECRET_RESERVATION_KEYS, 
-      };
-      public static BodyType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-      private final int index;
-      private final int value;
-      private BodyType(int index, int value) {
-        this.index = index;
-        this.value = value;
-      }
-      
-      static {
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.getDescriptor();
-      }
-      
-      // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Envelope.BodyType)
-    }
+    // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.MessageType message_type = 1;
+    public static final int MESSAGE_TYPE_FIELD_NUMBER = 1;
+    private boolean hasMessageType;
+    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType messageType_;
+    public boolean hasMessageType() { return hasMessageType; }
+    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType getMessageType() { return messageType_; }
     
-    // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Envelope.BodyType body_type = 1;
-    public static final int BODY_TYPE_FIELD_NUMBER = 1;
-    private boolean hasBodyType;
-    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType bodyType_;
-    public boolean hasBodyType() { return hasBodyType; }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType getBodyType() { return bodyType_; }
+    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.UpstreamMessage upstream_message = 2;
+    public static final int UPSTREAM_MESSAGE_FIELD_NUMBER = 2;
+    private boolean hasUpstreamMessage;
+    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage upstreamMessage_;
+    public boolean hasUpstreamMessage() { return hasUpstreamMessage; }
+    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage getUpstreamMessage() { return upstreamMessage_; }
     
-    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message message = 2;
-    public static final int MESSAGE_FIELD_NUMBER = 2;
-    private boolean hasMessage;
-    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message message_;
-    public boolean hasMessage() { return hasMessage; }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message getMessage() { return message_; }
+    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.DownstreamMessage downstream_message = 3;
+    public static final int DOWNSTREAM_MESSAGE_FIELD_NUMBER = 3;
+    private boolean hasDownstreamMessage;
+    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage downstreamMessage_;
+    public boolean hasDownstreamMessage() { return hasDownstreamMessage; }
+    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage getDownstreamMessage() { return downstreamMessage_; }
     
-    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus requestStatus = 3;
-    public static final int REQUESTSTATUS_FIELD_NUMBER = 3;
+    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Notification notification = 4;
+    public static final int NOTIFICATION_FIELD_NUMBER = 4;
+    private boolean hasNotification;
+    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification notification_;
+    public boolean hasNotification() { return hasNotification; }
+    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification getNotification() { return notification_; }
+    
+    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus requestStatus = 5;
+    public static final int REQUESTSTATUS_FIELD_NUMBER = 5;
     private boolean hasRequestStatus;
     private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus requestStatus_;
     public boolean hasRequestStatus() { return hasRequestStatus; }
     public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus getRequestStatus() { return requestStatus_; }
     
-    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.SecretReservationKeys secretReservationKeys = 4;
-    public static final int SECRETRESERVATIONKEYS_FIELD_NUMBER = 4;
+    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.SecretReservationKeys secretReservationKeys = 6;
+    public static final int SECRETRESERVATIONKEYS_FIELD_NUMBER = 6;
     private boolean hasSecretReservationKeys;
     private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys secretReservationKeys_;
     public boolean hasSecretReservationKeys() { return hasSecretReservationKeys; }
     public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys getSecretReservationKeys() { return secretReservationKeys_; }
     
     private void initFields() {
-      bodyType_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType.MESSAGE;
-      message_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDefaultInstance();
+      messageType_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType.UPSTREAM_MESSAGE;
+      upstreamMessage_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDefaultInstance();
+      downstreamMessage_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDefaultInstance();
+      notification_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance();
       requestStatus_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDefaultInstance();
       secretReservationKeys_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.getDefaultInstance();
     }
     public final boolean isInitialized() {
-      if (!hasBodyType) return false;
-      if (hasMessage()) {
-        if (!getMessage().isInitialized()) return false;
+      if (!hasMessageType) return false;
+      if (hasUpstreamMessage()) {
+        if (!getUpstreamMessage().isInitialized()) return false;
+      }
+      if (hasDownstreamMessage()) {
+        if (!getDownstreamMessage().isInitialized()) return false;
+      }
+      if (hasNotification()) {
+        if (!getNotification().isInitialized()) return false;
       }
       if (hasRequestStatus()) {
         if (!getRequestStatus().isInitialized()) return false;
@@ -155,17 +181,23 @@ public final class WisebedMessages {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (hasBodyType()) {
-        output.writeEnum(1, getBodyType().getNumber());
+      if (hasMessageType()) {
+        output.writeEnum(1, getMessageType().getNumber());
       }
-      if (hasMessage()) {
-        output.writeMessage(2, getMessage());
+      if (hasUpstreamMessage()) {
+        output.writeMessage(2, getUpstreamMessage());
+      }
+      if (hasDownstreamMessage()) {
+        output.writeMessage(3, getDownstreamMessage());
+      }
+      if (hasNotification()) {
+        output.writeMessage(4, getNotification());
       }
       if (hasRequestStatus()) {
-        output.writeMessage(3, getRequestStatus());
+        output.writeMessage(5, getRequestStatus());
       }
       if (hasSecretReservationKeys()) {
-        output.writeMessage(4, getSecretReservationKeys());
+        output.writeMessage(6, getSecretReservationKeys());
       }
       getUnknownFields().writeTo(output);
     }
@@ -176,21 +208,29 @@ public final class WisebedMessages {
       if (size != -1) return size;
     
       size = 0;
-      if (hasBodyType()) {
+      if (hasMessageType()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, getBodyType().getNumber());
+          .computeEnumSize(1, getMessageType().getNumber());
       }
-      if (hasMessage()) {
+      if (hasUpstreamMessage()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, getMessage());
+          .computeMessageSize(2, getUpstreamMessage());
+      }
+      if (hasDownstreamMessage()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getDownstreamMessage());
+      }
+      if (hasNotification()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getNotification());
       }
       if (hasRequestStatus()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, getRequestStatus());
+          .computeMessageSize(5, getRequestStatus());
       }
       if (hasSecretReservationKeys()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, getSecretReservationKeys());
+          .computeMessageSize(6, getSecretReservationKeys());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -350,11 +390,17 @@ public final class WisebedMessages {
       
       public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope other) {
         if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.getDefaultInstance()) return this;
-        if (other.hasBodyType()) {
-          setBodyType(other.getBodyType());
+        if (other.hasMessageType()) {
+          setMessageType(other.getMessageType());
         }
-        if (other.hasMessage()) {
-          mergeMessage(other.getMessage());
+        if (other.hasUpstreamMessage()) {
+          mergeUpstreamMessage(other.getUpstreamMessage());
+        }
+        if (other.hasDownstreamMessage()) {
+          mergeDownstreamMessage(other.getDownstreamMessage());
+        }
+        if (other.hasNotification()) {
+          mergeNotification(other.getNotification());
         }
         if (other.hasRequestStatus()) {
           mergeRequestStatus(other.getRequestStatus());
@@ -389,24 +435,42 @@ public final class WisebedMessages {
             }
             case 8: {
               int rawValue = input.readEnum();
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType value = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType.valueOf(rawValue);
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType value = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
-                setBodyType(value);
+                setMessageType(value);
               }
               break;
             }
             case 18: {
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.newBuilder();
-              if (hasMessage()) {
-                subBuilder.mergeFrom(getMessage());
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.newBuilder();
+              if (hasUpstreamMessage()) {
+                subBuilder.mergeFrom(getUpstreamMessage());
               }
               input.readMessage(subBuilder, extensionRegistry);
-              setMessage(subBuilder.buildPartial());
+              setUpstreamMessage(subBuilder.buildPartial());
               break;
             }
             case 26: {
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.newBuilder();
+              if (hasDownstreamMessage()) {
+                subBuilder.mergeFrom(getDownstreamMessage());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setDownstreamMessage(subBuilder.buildPartial());
+              break;
+            }
+            case 34: {
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.newBuilder();
+              if (hasNotification()) {
+                subBuilder.mergeFrom(getNotification());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setNotification(subBuilder.buildPartial());
+              break;
+            }
+            case 42: {
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.newBuilder();
               if (hasRequestStatus()) {
                 subBuilder.mergeFrom(getRequestStatus());
@@ -415,7 +479,7 @@ public final class WisebedMessages {
               setRequestStatus(subBuilder.buildPartial());
               break;
             }
-            case 34: {
+            case 50: {
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.newBuilder();
               if (hasSecretReservationKeys()) {
                 subBuilder.mergeFrom(getSecretReservationKeys());
@@ -429,65 +493,139 @@ public final class WisebedMessages {
       }
       
       
-      // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Envelope.BodyType body_type = 1;
-      public boolean hasBodyType() {
-        return result.hasBodyType();
+      // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.MessageType message_type = 1;
+      public boolean hasMessageType() {
+        return result.hasMessageType();
       }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType getBodyType() {
-        return result.getBodyType();
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType getMessageType() {
+        return result.getMessageType();
       }
-      public Builder setBodyType(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType value) {
+      public Builder setMessageType(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        result.hasBodyType = true;
-        result.bodyType_ = value;
+        result.hasMessageType = true;
+        result.messageType_ = value;
         return this;
       }
-      public Builder clearBodyType() {
-        result.hasBodyType = false;
-        result.bodyType_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.BodyType.MESSAGE;
+      public Builder clearMessageType() {
+        result.hasMessageType = false;
+        result.messageType_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.MessageType.UPSTREAM_MESSAGE;
         return this;
       }
       
-      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message message = 2;
-      public boolean hasMessage() {
-        return result.hasMessage();
+      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.UpstreamMessage upstream_message = 2;
+      public boolean hasUpstreamMessage() {
+        return result.hasUpstreamMessage();
       }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message getMessage() {
-        return result.getMessage();
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage getUpstreamMessage() {
+        return result.getUpstreamMessage();
       }
-      public Builder setMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message value) {
+      public Builder setUpstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        result.hasMessage = true;
-        result.message_ = value;
+        result.hasUpstreamMessage = true;
+        result.upstreamMessage_ = value;
         return this;
       }
-      public Builder setMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Builder builderForValue) {
-        result.hasMessage = true;
-        result.message_ = builderForValue.build();
+      public Builder setUpstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.Builder builderForValue) {
+        result.hasUpstreamMessage = true;
+        result.upstreamMessage_ = builderForValue.build();
         return this;
       }
-      public Builder mergeMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message value) {
-        if (result.hasMessage() &&
-            result.message_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDefaultInstance()) {
-          result.message_ =
-            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.newBuilder(result.message_).mergeFrom(value).buildPartial();
+      public Builder mergeUpstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage value) {
+        if (result.hasUpstreamMessage() &&
+            result.upstreamMessage_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDefaultInstance()) {
+          result.upstreamMessage_ =
+            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.newBuilder(result.upstreamMessage_).mergeFrom(value).buildPartial();
         } else {
-          result.message_ = value;
+          result.upstreamMessage_ = value;
         }
-        result.hasMessage = true;
+        result.hasUpstreamMessage = true;
         return this;
       }
-      public Builder clearMessage() {
-        result.hasMessage = false;
-        result.message_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDefaultInstance();
+      public Builder clearUpstreamMessage() {
+        result.hasUpstreamMessage = false;
+        result.upstreamMessage_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDefaultInstance();
         return this;
       }
       
-      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus requestStatus = 3;
+      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.DownstreamMessage downstream_message = 3;
+      public boolean hasDownstreamMessage() {
+        return result.hasDownstreamMessage();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage getDownstreamMessage() {
+        return result.getDownstreamMessage();
+      }
+      public Builder setDownstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasDownstreamMessage = true;
+        result.downstreamMessage_ = value;
+        return this;
+      }
+      public Builder setDownstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.Builder builderForValue) {
+        result.hasDownstreamMessage = true;
+        result.downstreamMessage_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeDownstreamMessage(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage value) {
+        if (result.hasDownstreamMessage() &&
+            result.downstreamMessage_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDefaultInstance()) {
+          result.downstreamMessage_ =
+            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.newBuilder(result.downstreamMessage_).mergeFrom(value).buildPartial();
+        } else {
+          result.downstreamMessage_ = value;
+        }
+        result.hasDownstreamMessage = true;
+        return this;
+      }
+      public Builder clearDownstreamMessage() {
+        result.hasDownstreamMessage = false;
+        result.downstreamMessage_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Notification notification = 4;
+      public boolean hasNotification() {
+        return result.hasNotification();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification getNotification() {
+        return result.getNotification();
+      }
+      public Builder setNotification(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasNotification = true;
+        result.notification_ = value;
+        return this;
+      }
+      public Builder setNotification(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.Builder builderForValue) {
+        result.hasNotification = true;
+        result.notification_ = builderForValue.build();
+        return this;
+      }
+      public Builder mergeNotification(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification value) {
+        if (result.hasNotification() &&
+            result.notification_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance()) {
+          result.notification_ =
+            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.newBuilder(result.notification_).mergeFrom(value).buildPartial();
+        } else {
+          result.notification_ = value;
+        }
+        result.hasNotification = true;
+        return this;
+      }
+      public Builder clearNotification() {
+        result.hasNotification = false;
+        result.notification_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance();
+        return this;
+      }
+      
+      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus requestStatus = 5;
       public boolean hasRequestStatus() {
         return result.hasRequestStatus();
       }
@@ -524,7 +662,7 @@ public final class WisebedMessages {
         return this;
       }
       
-      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.SecretReservationKeys secretReservationKeys = 4;
+      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.SecretReservationKeys secretReservationKeys = 6;
       public boolean hasSecretReservationKeys() {
         return result.hasSecretReservationKeys();
       }
@@ -571,6 +709,1863 @@ public final class WisebedMessages {
     }
     
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Envelope)
+  }
+  
+  public static final class UpstreamMessage extends
+      com.google.protobuf.GeneratedMessage {
+    // Use UpstreamMessage.newBuilder() to construct.
+    private UpstreamMessage() {
+      initFields();
+    }
+    private UpstreamMessage(boolean noInit) {}
+    
+    private static final UpstreamMessage defaultInstance;
+    public static UpstreamMessage getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public UpstreamMessage getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_fieldAccessorTable;
+    }
+    
+    // required string source_node_urn = 1;
+    public static final int SOURCE_NODE_URN_FIELD_NUMBER = 1;
+    private boolean hasSourceNodeUrn;
+    private java.lang.String sourceNodeUrn_ = "";
+    public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
+    public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
+    
+    // required string timestamp = 2;
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private boolean hasTimestamp;
+    private java.lang.String timestamp_ = "";
+    public boolean hasTimestamp() { return hasTimestamp; }
+    public java.lang.String getTimestamp() { return timestamp_; }
+    
+    // required bytes message_bytes = 3;
+    public static final int MESSAGE_BYTES_FIELD_NUMBER = 3;
+    private boolean hasMessageBytes;
+    private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasMessageBytes() { return hasMessageBytes; }
+    public com.google.protobuf.ByteString getMessageBytes() { return messageBytes_; }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasSourceNodeUrn) return false;
+      if (!hasTimestamp) return false;
+      if (!hasMessageBytes) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasSourceNodeUrn()) {
+        output.writeString(1, getSourceNodeUrn());
+      }
+      if (hasTimestamp()) {
+        output.writeString(2, getTimestamp());
+      }
+      if (hasMessageBytes()) {
+        output.writeBytes(3, getMessageBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasSourceNodeUrn()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(1, getSourceNodeUrn());
+      }
+      if (hasTimestamp()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getTimestamp());
+      }
+      if (hasMessageBytes()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getMessageBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage other) {
+        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.getDefaultInstance()) return this;
+        if (other.hasSourceNodeUrn()) {
+          setSourceNodeUrn(other.getSourceNodeUrn());
+        }
+        if (other.hasTimestamp()) {
+          setTimestamp(other.getTimestamp());
+        }
+        if (other.hasMessageBytes()) {
+          setMessageBytes(other.getMessageBytes());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              setSourceNodeUrn(input.readString());
+              break;
+            }
+            case 18: {
+              setTimestamp(input.readString());
+              break;
+            }
+            case 26: {
+              setMessageBytes(input.readBytes());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // required string source_node_urn = 1;
+      public boolean hasSourceNodeUrn() {
+        return result.hasSourceNodeUrn();
+      }
+      public java.lang.String getSourceNodeUrn() {
+        return result.getSourceNodeUrn();
+      }
+      public Builder setSourceNodeUrn(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasSourceNodeUrn = true;
+        result.sourceNodeUrn_ = value;
+        return this;
+      }
+      public Builder clearSourceNodeUrn() {
+        result.hasSourceNodeUrn = false;
+        result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
+        return this;
+      }
+      
+      // required string timestamp = 2;
+      public boolean hasTimestamp() {
+        return result.hasTimestamp();
+      }
+      public java.lang.String getTimestamp() {
+        return result.getTimestamp();
+      }
+      public Builder setTimestamp(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasTimestamp = true;
+        result.timestamp_ = value;
+        return this;
+      }
+      public Builder clearTimestamp() {
+        result.hasTimestamp = false;
+        result.timestamp_ = getDefaultInstance().getTimestamp();
+        return this;
+      }
+      
+      // required bytes message_bytes = 3;
+      public boolean hasMessageBytes() {
+        return result.hasMessageBytes();
+      }
+      public com.google.protobuf.ByteString getMessageBytes() {
+        return result.getMessageBytes();
+      }
+      public Builder setMessageBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMessageBytes = true;
+        result.messageBytes_ = value;
+        return this;
+      }
+      public Builder clearMessageBytes() {
+        result.hasMessageBytes = false;
+        result.messageBytes_ = getDefaultInstance().getMessageBytes();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.UpstreamMessage)
+    }
+    
+    static {
+      defaultInstance = new UpstreamMessage(true);
+      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.UpstreamMessage)
+  }
+  
+  public static final class DownstreamMessage extends
+      com.google.protobuf.GeneratedMessage {
+    // Use DownstreamMessage.newBuilder() to construct.
+    private DownstreamMessage() {
+      initFields();
+    }
+    private DownstreamMessage(boolean noInit) {}
+    
+    private static final DownstreamMessage defaultInstance;
+    public static DownstreamMessage getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public DownstreamMessage getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_fieldAccessorTable;
+    }
+    
+    // repeated string target_node_urns = 1;
+    public static final int TARGET_NODE_URNS_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.String> targetNodeUrns_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getTargetNodeUrnsList() {
+      return targetNodeUrns_;
+    }
+    public int getTargetNodeUrnsCount() { return targetNodeUrns_.size(); }
+    public java.lang.String getTargetNodeUrns(int index) {
+      return targetNodeUrns_.get(index);
+    }
+    
+    // required bytes message_bytes = 2;
+    public static final int MESSAGE_BYTES_FIELD_NUMBER = 2;
+    private boolean hasMessageBytes;
+    private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+    public boolean hasMessageBytes() { return hasMessageBytes; }
+    public com.google.protobuf.ByteString getMessageBytes() { return messageBytes_; }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasMessageBytes) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (java.lang.String element : getTargetNodeUrnsList()) {
+        output.writeString(1, element);
+      }
+      if (hasMessageBytes()) {
+        output.writeBytes(2, getMessageBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getTargetNodeUrnsList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getTargetNodeUrnsList().size();
+      }
+      if (hasMessageBytes()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getMessageBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.targetNodeUrns_ != java.util.Collections.EMPTY_LIST) {
+          result.targetNodeUrns_ =
+            java.util.Collections.unmodifiableList(result.targetNodeUrns_);
+        }
+        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage other) {
+        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.getDefaultInstance()) return this;
+        if (!other.targetNodeUrns_.isEmpty()) {
+          if (result.targetNodeUrns_.isEmpty()) {
+            result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.targetNodeUrns_.addAll(other.targetNodeUrns_);
+        }
+        if (other.hasMessageBytes()) {
+          setMessageBytes(other.getMessageBytes());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              addTargetNodeUrns(input.readString());
+              break;
+            }
+            case 18: {
+              setMessageBytes(input.readBytes());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // repeated string target_node_urns = 1;
+      public java.util.List<java.lang.String> getTargetNodeUrnsList() {
+        return java.util.Collections.unmodifiableList(result.targetNodeUrns_);
+      }
+      public int getTargetNodeUrnsCount() {
+        return result.getTargetNodeUrnsCount();
+      }
+      public java.lang.String getTargetNodeUrns(int index) {
+        return result.getTargetNodeUrns(index);
+      }
+      public Builder setTargetNodeUrns(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.targetNodeUrns_.set(index, value);
+        return this;
+      }
+      public Builder addTargetNodeUrns(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.targetNodeUrns_.isEmpty()) {
+          result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.targetNodeUrns_.add(value);
+        return this;
+      }
+      public Builder addAllTargetNodeUrns(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.targetNodeUrns_.isEmpty()) {
+          result.targetNodeUrns_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.targetNodeUrns_);
+        return this;
+      }
+      public Builder clearTargetNodeUrns() {
+        result.targetNodeUrns_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // required bytes message_bytes = 2;
+      public boolean hasMessageBytes() {
+        return result.hasMessageBytes();
+      }
+      public com.google.protobuf.ByteString getMessageBytes() {
+        return result.getMessageBytes();
+      }
+      public Builder setMessageBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMessageBytes = true;
+        result.messageBytes_ = value;
+        return this;
+      }
+      public Builder clearMessageBytes() {
+        result.hasMessageBytes = false;
+        result.messageBytes_ = getDefaultInstance().getMessageBytes();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.DownstreamMessage)
+    }
+    
+    static {
+      defaultInstance = new DownstreamMessage(true);
+      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.DownstreamMessage)
+  }
+  
+  public static final class Notification extends
+      com.google.protobuf.GeneratedMessage {
+    // Use Notification.newBuilder() to construct.
+    private Notification() {
+      initFields();
+    }
+    private Notification(boolean noInit) {}
+    
+    private static final Notification defaultInstance;
+    public static Notification getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Notification getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_fieldAccessorTable;
+    }
+    
+    // optional string nodeUrn = 1;
+    public static final int NODEURN_FIELD_NUMBER = 1;
+    private boolean hasNodeUrn;
+    private java.lang.String nodeUrn_ = "";
+    public boolean hasNodeUrn() { return hasNodeUrn; }
+    public java.lang.String getNodeUrn() { return nodeUrn_; }
+    
+    // required string timestamp = 2;
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private boolean hasTimestamp;
+    private java.lang.String timestamp_ = "";
+    public boolean hasTimestamp() { return hasTimestamp; }
+    public java.lang.String getTimestamp() { return timestamp_; }
+    
+    // required string msg = 3;
+    public static final int MSG_FIELD_NUMBER = 3;
+    private boolean hasMsg;
+    private java.lang.String msg_ = "";
+    public boolean hasMsg() { return hasMsg; }
+    public java.lang.String getMsg() { return msg_; }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasTimestamp) return false;
+      if (!hasMsg) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasNodeUrn()) {
+        output.writeString(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        output.writeString(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        output.writeString(3, getMsg());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasNodeUrn()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(1, getNodeUrn());
+      }
+      if (hasTimestamp()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getTimestamp());
+      }
+      if (hasMsg()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getMsg());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification other) {
+        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.getDefaultInstance()) return this;
+        if (other.hasNodeUrn()) {
+          setNodeUrn(other.getNodeUrn());
+        }
+        if (other.hasTimestamp()) {
+          setTimestamp(other.getTimestamp());
+        }
+        if (other.hasMsg()) {
+          setMsg(other.getMsg());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              setNodeUrn(input.readString());
+              break;
+            }
+            case 18: {
+              setTimestamp(input.readString());
+              break;
+            }
+            case 26: {
+              setMsg(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // optional string nodeUrn = 1;
+      public boolean hasNodeUrn() {
+        return result.hasNodeUrn();
+      }
+      public java.lang.String getNodeUrn() {
+        return result.getNodeUrn();
+      }
+      public Builder setNodeUrn(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasNodeUrn = true;
+        result.nodeUrn_ = value;
+        return this;
+      }
+      public Builder clearNodeUrn() {
+        result.hasNodeUrn = false;
+        result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+        return this;
+      }
+      
+      // required string timestamp = 2;
+      public boolean hasTimestamp() {
+        return result.hasTimestamp();
+      }
+      public java.lang.String getTimestamp() {
+        return result.getTimestamp();
+      }
+      public Builder setTimestamp(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasTimestamp = true;
+        result.timestamp_ = value;
+        return this;
+      }
+      public Builder clearTimestamp() {
+        result.hasTimestamp = false;
+        result.timestamp_ = getDefaultInstance().getTimestamp();
+        return this;
+      }
+      
+      // required string msg = 3;
+      public boolean hasMsg() {
+        return result.hasMsg();
+      }
+      public java.lang.String getMsg() {
+        return result.getMsg();
+      }
+      public Builder setMsg(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMsg = true;
+        result.msg_ = value;
+        return this;
+      }
+      public Builder clearMsg() {
+        result.hasMsg = false;
+        result.msg_ = getDefaultInstance().getMsg();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Notification)
+    }
+    
+    static {
+      defaultInstance = new Notification(true);
+      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Notification)
+  }
+  
+  public static final class RequestStatus extends
+      com.google.protobuf.GeneratedMessage {
+    // Use RequestStatus.newBuilder() to construct.
+    private RequestStatus() {
+      initFields();
+    }
+    private RequestStatus(boolean noInit) {}
+    
+    private static final RequestStatus defaultInstance;
+    public static RequestStatus getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public RequestStatus getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_fieldAccessorTable;
+    }
+    
+    public static final class Status extends
+        com.google.protobuf.GeneratedMessage {
+      // Use Status.newBuilder() to construct.
+      private Status() {
+        initFields();
+      }
+      private Status(boolean noInit) {}
+      
+      private static final Status defaultInstance;
+      public static Status getDefaultInstance() {
+        return defaultInstance;
+      }
+      
+      public Status getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+      
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_Status_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_Status_fieldAccessorTable;
+      }
+      
+      // required string node_urn = 1;
+      public static final int NODE_URN_FIELD_NUMBER = 1;
+      private boolean hasNodeUrn;
+      private java.lang.String nodeUrn_ = "";
+      public boolean hasNodeUrn() { return hasNodeUrn; }
+      public java.lang.String getNodeUrn() { return nodeUrn_; }
+      
+      // required int32 value = 2;
+      public static final int VALUE_FIELD_NUMBER = 2;
+      private boolean hasValue;
+      private int value_ = 0;
+      public boolean hasValue() { return hasValue; }
+      public int getValue() { return value_; }
+      
+      // optional string message = 3;
+      public static final int MESSAGE_FIELD_NUMBER = 3;
+      private boolean hasMessage;
+      private java.lang.String message_ = "";
+      public boolean hasMessage() { return hasMessage; }
+      public java.lang.String getMessage() { return message_; }
+      
+      private void initFields() {
+      }
+      public final boolean isInitialized() {
+        if (!hasNodeUrn) return false;
+        if (!hasValue) return false;
+        return true;
+      }
+      
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (hasNodeUrn()) {
+          output.writeString(1, getNodeUrn());
+        }
+        if (hasValue()) {
+          output.writeInt32(2, getValue());
+        }
+        if (hasMessage()) {
+          output.writeString(3, getMessage());
+        }
+        getUnknownFields().writeTo(output);
+      }
+      
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+      
+        size = 0;
+        if (hasNodeUrn()) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeStringSize(1, getNodeUrn());
+        }
+        if (hasValue()) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(2, getValue());
+        }
+        if (hasMessage()) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeStringSize(3, getMessage());
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+      
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return newBuilder().mergeFrom(data).buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return newBuilder().mergeFrom(data, extensionRegistry)
+                 .buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return newBuilder().mergeFrom(data).buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return newBuilder().mergeFrom(data, extensionRegistry)
+                 .buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return newBuilder().mergeFrom(input).buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return newBuilder().mergeFrom(input, extensionRegistry)
+                 .buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        Builder builder = newBuilder();
+        if (builder.mergeDelimitedFrom(input)) {
+          return builder.buildParsed();
+        } else {
+          return null;
+        }
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        Builder builder = newBuilder();
+        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+          return builder.buildParsed();
+        } else {
+          return null;
+        }
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return newBuilder().mergeFrom(input).buildParsed();
+      }
+      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return newBuilder().mergeFrom(input, extensionRegistry)
+                 .buildParsed();
+      }
+      
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+      
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> {
+        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status result;
+        
+        // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.newBuilder()
+        private Builder() {}
+        
+        private static Builder create() {
+          Builder builder = new Builder();
+          builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status();
+          return builder;
+        }
+        
+        protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status internalGetResult() {
+          return result;
+        }
+        
+        public Builder clear() {
+          if (result == null) {
+            throw new IllegalStateException(
+              "Cannot call clear() after build().");
+          }
+          result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status();
+          return this;
+        }
+        
+        public Builder clone() {
+          return create().mergeFrom(result);
+        }
+        
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDescriptor();
+        }
+        
+        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getDefaultInstanceForType() {
+          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDefaultInstance();
+        }
+        
+        public boolean isInitialized() {
+          return result.isInitialized();
+        }
+        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status build() {
+          if (result != null && !isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return buildPartial();
+        }
+        
+        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status buildParsed()
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          if (!isInitialized()) {
+            throw newUninitializedMessageException(
+              result).asInvalidProtocolBufferException();
+          }
+          return buildPartial();
+        }
+        
+        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status buildPartial() {
+          if (result == null) {
+            throw new IllegalStateException(
+              "build() has already been called on this Builder.");
+          }
+          de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status returnMe = result;
+          result = null;
+          return returnMe;
+        }
+        
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status) {
+            return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+        
+        public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status other) {
+          if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDefaultInstance()) return this;
+          if (other.hasNodeUrn()) {
+            setNodeUrn(other.getNodeUrn());
+          }
+          if (other.hasValue()) {
+            setValue(other.getValue());
+          }
+          if (other.hasMessage()) {
+            setMessage(other.getMessage());
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+        
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder(
+              this.getUnknownFields());
+          while (true) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  this.setUnknownFields(unknownFields.build());
+                  return this;
+                }
+                break;
+              }
+              case 10: {
+                setNodeUrn(input.readString());
+                break;
+              }
+              case 16: {
+                setValue(input.readInt32());
+                break;
+              }
+              case 26: {
+                setMessage(input.readString());
+                break;
+              }
+            }
+          }
+        }
+        
+        
+        // required string node_urn = 1;
+        public boolean hasNodeUrn() {
+          return result.hasNodeUrn();
+        }
+        public java.lang.String getNodeUrn() {
+          return result.getNodeUrn();
+        }
+        public Builder setNodeUrn(java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasNodeUrn = true;
+          result.nodeUrn_ = value;
+          return this;
+        }
+        public Builder clearNodeUrn() {
+          result.hasNodeUrn = false;
+          result.nodeUrn_ = getDefaultInstance().getNodeUrn();
+          return this;
+        }
+        
+        // required int32 value = 2;
+        public boolean hasValue() {
+          return result.hasValue();
+        }
+        public int getValue() {
+          return result.getValue();
+        }
+        public Builder setValue(int value) {
+          result.hasValue = true;
+          result.value_ = value;
+          return this;
+        }
+        public Builder clearValue() {
+          result.hasValue = false;
+          result.value_ = 0;
+          return this;
+        }
+        
+        // optional string message = 3;
+        public boolean hasMessage() {
+          return result.hasMessage();
+        }
+        public java.lang.String getMessage() {
+          return result.getMessage();
+        }
+        public Builder setMessage(java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasMessage = true;
+          result.message_ = value;
+          return this;
+        }
+        public Builder clearMessage() {
+          result.hasMessage = false;
+          result.message_ = getDefaultInstance().getMessage();
+          return this;
+        }
+        
+        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status)
+      }
+      
+      static {
+        defaultInstance = new Status(true);
+        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
+        defaultInstance.initFields();
+      }
+      
+      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status)
+    }
+    
+    // required sint64 request_id = 1;
+    public static final int REQUEST_ID_FIELD_NUMBER = 1;
+    private boolean hasRequestId;
+    private long requestId_ = 0L;
+    public boolean hasRequestId() { return hasRequestId; }
+    public long getRequestId() { return requestId_; }
+    
+    // repeated .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status status = 2;
+    public static final int STATUS_FIELD_NUMBER = 2;
+    private java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> status_ =
+      java.util.Collections.emptyList();
+    public java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> getStatusList() {
+      return status_;
+    }
+    public int getStatusCount() { return status_.size(); }
+    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getStatus(int index) {
+      return status_.get(index);
+    }
+    
+    private void initFields() {
+    }
+    public final boolean isInitialized() {
+      if (!hasRequestId) return false;
+      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
+        if (!element.isInitialized()) return false;
+      }
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasRequestId()) {
+        output.writeSInt64(1, getRequestId());
+      }
+      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
+        output.writeMessage(2, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasRequestId()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeSInt64Size(1, getRequestId());
+      }
+      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, element);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus result;
+      
+      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus();
+        return builder;
+      }
+      
+      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDescriptor();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.status_ != java.util.Collections.EMPTY_LIST) {
+          result.status_ =
+            java.util.Collections.unmodifiableList(result.status_);
+        }
+        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus) {
+          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus other) {
+        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDefaultInstance()) return this;
+        if (other.hasRequestId()) {
+          setRequestId(other.getRequestId());
+        }
+        if (!other.status_.isEmpty()) {
+          if (result.status_.isEmpty()) {
+            result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
+          }
+          result.status_.addAll(other.status_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 8: {
+              setRequestId(input.readSInt64());
+              break;
+            }
+            case 18: {
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addStatus(subBuilder.buildPartial());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // required sint64 request_id = 1;
+      public boolean hasRequestId() {
+        return result.hasRequestId();
+      }
+      public long getRequestId() {
+        return result.getRequestId();
+      }
+      public Builder setRequestId(long value) {
+        result.hasRequestId = true;
+        result.requestId_ = value;
+        return this;
+      }
+      public Builder clearRequestId() {
+        result.hasRequestId = false;
+        result.requestId_ = 0L;
+        return this;
+      }
+      
+      // repeated .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status status = 2;
+      public java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> getStatusList() {
+        return java.util.Collections.unmodifiableList(result.status_);
+      }
+      public int getStatusCount() {
+        return result.getStatusCount();
+      }
+      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getStatus(int index) {
+        return result.getStatus(index);
+      }
+      public Builder setStatus(int index, de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.status_.set(index, value);
+        return this;
+      }
+      public Builder setStatus(int index, de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder builderForValue) {
+        result.status_.set(index, builderForValue.build());
+        return this;
+      }
+      public Builder addStatus(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        if (result.status_.isEmpty()) {
+          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
+        }
+        result.status_.add(value);
+        return this;
+      }
+      public Builder addStatus(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder builderForValue) {
+        if (result.status_.isEmpty()) {
+          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
+        }
+        result.status_.add(builderForValue.build());
+        return this;
+      }
+      public Builder addAllStatus(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> values) {
+        if (result.status_.isEmpty()) {
+          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
+        }
+        super.addAll(values, result.status_);
+        return this;
+      }
+      public Builder clearStatus() {
+        result.status_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus)
+    }
+    
+    static {
+      defaultInstance = new RequestStatus(true);
+      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus)
   }
   
   public static final class SecretReservationKeys extends
@@ -1238,2019 +3233,26 @@ public final class WisebedMessages {
     // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.SecretReservationKeys)
   }
   
-  public static final class Message extends
-      com.google.protobuf.GeneratedMessage {
-    // Use Message.newBuilder() to construct.
-    private Message() {
-      initFields();
-    }
-    private Message(boolean noInit) {}
-    
-    private static final Message defaultInstance;
-    public static Message getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public Message getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_fieldAccessorTable;
-    }
-    
-    public enum Type
-        implements com.google.protobuf.ProtocolMessageEnum {
-      NODE_BINARY(0, 1),
-      BACKEND(1, 2),
-      ;
-      
-      
-      public final int getNumber() { return value; }
-      
-      public static Type valueOf(int value) {
-        switch (value) {
-          case 1: return NODE_BINARY;
-          case 2: return BACKEND;
-          default: return null;
-        }
-      }
-      
-      public static com.google.protobuf.Internal.EnumLiteMap<Type>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static com.google.protobuf.Internal.EnumLiteMap<Type>
-          internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<Type>() {
-              public Type findValueByNumber(int number) {
-                return Type.valueOf(number)
-      ;        }
-            };
-      
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDescriptor().getEnumTypes().get(0);
-      }
-      
-      private static final Type[] VALUES = {
-        NODE_BINARY, BACKEND, 
-      };
-      public static Type valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-      private final int index;
-      private final int value;
-      private Type(int index, int value) {
-        this.index = index;
-        this.value = value;
-      }
-      
-      static {
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.getDescriptor();
-      }
-      
-      // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Type)
-    }
-    
-    public static final class NodeBinary extends
-        com.google.protobuf.GeneratedMessage {
-      // Use NodeBinary.newBuilder() to construct.
-      private NodeBinary() {
-        initFields();
-      }
-      private NodeBinary(boolean noInit) {}
-      
-      private static final NodeBinary defaultInstance;
-      public static NodeBinary getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public NodeBinary getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_fieldAccessorTable;
-      }
-      
-      // required string source_node_urn = 1;
-      public static final int SOURCE_NODE_URN_FIELD_NUMBER = 1;
-      private boolean hasSourceNodeUrn;
-      private java.lang.String sourceNodeUrn_ = "";
-      public boolean hasSourceNodeUrn() { return hasSourceNodeUrn; }
-      public java.lang.String getSourceNodeUrn() { return sourceNodeUrn_; }
-      
-      // required bytes data = 2;
-      public static final int DATA_FIELD_NUMBER = 2;
-      private boolean hasData;
-      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
-      public boolean hasData() { return hasData; }
-      public com.google.protobuf.ByteString getData() { return data_; }
-      
-      // repeated string destination_node_urns = 3;
-      public static final int DESTINATION_NODE_URNS_FIELD_NUMBER = 3;
-      private java.util.List<java.lang.String> destinationNodeUrns_ =
-        java.util.Collections.emptyList();
-      public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
-        return destinationNodeUrns_;
-      }
-      public int getDestinationNodeUrnsCount() { return destinationNodeUrns_.size(); }
-      public java.lang.String getDestinationNodeUrns(int index) {
-        return destinationNodeUrns_.get(index);
-      }
-      
-      private void initFields() {
-      }
-      public final boolean isInitialized() {
-        if (!hasSourceNodeUrn) return false;
-        if (!hasData) return false;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (hasSourceNodeUrn()) {
-          output.writeString(1, getSourceNodeUrn());
-        }
-        if (hasData()) {
-          output.writeBytes(2, getData());
-        }
-        for (java.lang.String element : getDestinationNodeUrnsList()) {
-          output.writeString(3, element);
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (hasSourceNodeUrn()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(1, getSourceNodeUrn());
-        }
-        if (hasData()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getData());
-        }
-        {
-          int dataSize = 0;
-          for (java.lang.String element : getDestinationNodeUrnsList()) {
-            dataSize += com.google.protobuf.CodedOutputStream
-              .computeStringSizeNoTag(element);
-          }
-          size += dataSize;
-          size += 1 * getDestinationNodeUrnsList().size();
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> {
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary result;
-        
-        // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.newBuilder()
-        private Builder() {}
-        
-        private static Builder create() {
-          Builder builder = new Builder();
-          builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary();
-          return builder;
-        }
-        
-        protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary internalGetResult() {
-          return result;
-        }
-        
-        public Builder clear() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "Cannot call clear() after build().");
-          }
-          result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary();
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(result);
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary getDefaultInstanceForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDefaultInstance();
-        }
-        
-        public boolean isInitialized() {
-          return result.isInitialized();
-        }
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary build() {
-          if (result != null && !isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return buildPartial();
-        }
-        
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          if (!isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return buildPartial();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary buildPartial() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "build() has already been called on this Builder.");
-          }
-          if (result.destinationNodeUrns_ != java.util.Collections.EMPTY_LIST) {
-            result.destinationNodeUrns_ =
-              java.util.Collections.unmodifiableList(result.destinationNodeUrns_);
-          }
-          de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary returnMe = result;
-          result = null;
-          return returnMe;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary) {
-            return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary other) {
-          if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDefaultInstance()) return this;
-          if (other.hasSourceNodeUrn()) {
-            setSourceNodeUrn(other.getSourceNodeUrn());
-          }
-          if (other.hasData()) {
-            setData(other.getData());
-          }
-          if (!other.destinationNodeUrns_.isEmpty()) {
-            if (result.destinationNodeUrns_.isEmpty()) {
-              result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-            }
-            result.destinationNodeUrns_.addAll(other.destinationNodeUrns_);
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  return this;
-                }
-                break;
-              }
-              case 10: {
-                setSourceNodeUrn(input.readString());
-                break;
-              }
-              case 18: {
-                setData(input.readBytes());
-                break;
-              }
-              case 26: {
-                addDestinationNodeUrns(input.readString());
-                break;
-              }
-            }
-          }
-        }
-        
-        
-        // required string source_node_urn = 1;
-        public boolean hasSourceNodeUrn() {
-          return result.hasSourceNodeUrn();
-        }
-        public java.lang.String getSourceNodeUrn() {
-          return result.getSourceNodeUrn();
-        }
-        public Builder setSourceNodeUrn(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasSourceNodeUrn = true;
-          result.sourceNodeUrn_ = value;
-          return this;
-        }
-        public Builder clearSourceNodeUrn() {
-          result.hasSourceNodeUrn = false;
-          result.sourceNodeUrn_ = getDefaultInstance().getSourceNodeUrn();
-          return this;
-        }
-        
-        // required bytes data = 2;
-        public boolean hasData() {
-          return result.hasData();
-        }
-        public com.google.protobuf.ByteString getData() {
-          return result.getData();
-        }
-        public Builder setData(com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasData = true;
-          result.data_ = value;
-          return this;
-        }
-        public Builder clearData() {
-          result.hasData = false;
-          result.data_ = getDefaultInstance().getData();
-          return this;
-        }
-        
-        // repeated string destination_node_urns = 3;
-        public java.util.List<java.lang.String> getDestinationNodeUrnsList() {
-          return java.util.Collections.unmodifiableList(result.destinationNodeUrns_);
-        }
-        public int getDestinationNodeUrnsCount() {
-          return result.getDestinationNodeUrnsCount();
-        }
-        public java.lang.String getDestinationNodeUrns(int index) {
-          return result.getDestinationNodeUrns(index);
-        }
-        public Builder setDestinationNodeUrns(int index, java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.destinationNodeUrns_.set(index, value);
-          return this;
-        }
-        public Builder addDestinationNodeUrns(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  if (result.destinationNodeUrns_.isEmpty()) {
-            result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-          }
-          result.destinationNodeUrns_.add(value);
-          return this;
-        }
-        public Builder addAllDestinationNodeUrns(
-            java.lang.Iterable<? extends java.lang.String> values) {
-          if (result.destinationNodeUrns_.isEmpty()) {
-            result.destinationNodeUrns_ = new java.util.ArrayList<java.lang.String>();
-          }
-          super.addAll(values, result.destinationNodeUrns_);
-          return this;
-        }
-        public Builder clearDestinationNodeUrns() {
-          result.destinationNodeUrns_ = java.util.Collections.emptyList();
-          return this;
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.NodeBinary)
-      }
-      
-      static {
-        defaultInstance = new NodeBinary(true);
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.NodeBinary)
-    }
-    
-    public static final class Backend extends
-        com.google.protobuf.GeneratedMessage {
-      // Use Backend.newBuilder() to construct.
-      private Backend() {
-        initFields();
-      }
-      private Backend(boolean noInit) {}
-      
-      private static final Backend defaultInstance;
-      public static Backend getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public Backend getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_fieldAccessorTable;
-      }
-      
-      // required string text = 2;
-      public static final int TEXT_FIELD_NUMBER = 2;
-      private boolean hasText;
-      private java.lang.String text_ = "";
-      public boolean hasText() { return hasText; }
-      public java.lang.String getText() { return text_; }
-      
-      private void initFields() {
-      }
-      public final boolean isInitialized() {
-        if (!hasText) return false;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (hasText()) {
-          output.writeString(2, getText());
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (hasText()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(2, getText());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> {
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend result;
-        
-        // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.newBuilder()
-        private Builder() {}
-        
-        private static Builder create() {
-          Builder builder = new Builder();
-          builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend();
-          return builder;
-        }
-        
-        protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend internalGetResult() {
-          return result;
-        }
-        
-        public Builder clear() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "Cannot call clear() after build().");
-          }
-          result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend();
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(result);
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend getDefaultInstanceForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDefaultInstance();
-        }
-        
-        public boolean isInitialized() {
-          return result.isInitialized();
-        }
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend build() {
-          if (result != null && !isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return buildPartial();
-        }
-        
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          if (!isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return buildPartial();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend buildPartial() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "build() has already been called on this Builder.");
-          }
-          de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend returnMe = result;
-          result = null;
-          return returnMe;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend) {
-            return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend other) {
-          if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDefaultInstance()) return this;
-          if (other.hasText()) {
-            setText(other.getText());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  return this;
-                }
-                break;
-              }
-              case 18: {
-                setText(input.readString());
-                break;
-              }
-            }
-          }
-        }
-        
-        
-        // required string text = 2;
-        public boolean hasText() {
-          return result.hasText();
-        }
-        public java.lang.String getText() {
-          return result.getText();
-        }
-        public Builder setText(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasText = true;
-          result.text_ = value;
-          return this;
-        }
-        public Builder clearText() {
-          result.hasText = false;
-          result.text_ = getDefaultInstance().getText();
-          return this;
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Backend)
-      }
-      
-      static {
-        defaultInstance = new Backend(true);
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Backend)
-    }
-    
-    // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Type type = 1;
-    public static final int TYPE_FIELD_NUMBER = 1;
-    private boolean hasType;
-    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type type_;
-    public boolean hasType() { return hasType; }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type getType() { return type_; }
-    
-    // required string timestamp = 2;
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private boolean hasTimestamp;
-    private java.lang.String timestamp_ = "";
-    public boolean hasTimestamp() { return hasTimestamp; }
-    public java.lang.String getTimestamp() { return timestamp_; }
-    
-    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.NodeBinary node_binary = 3;
-    public static final int NODE_BINARY_FIELD_NUMBER = 3;
-    private boolean hasNodeBinary;
-    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary nodeBinary_;
-    public boolean hasNodeBinary() { return hasNodeBinary; }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary getNodeBinary() { return nodeBinary_; }
-    
-    // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Backend backend = 4;
-    public static final int BACKEND_FIELD_NUMBER = 4;
-    private boolean hasBackend;
-    private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend backend_;
-    public boolean hasBackend() { return hasBackend; }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend getBackend() { return backend_; }
-    
-    private void initFields() {
-      type_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type.NODE_BINARY;
-      nodeBinary_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDefaultInstance();
-      backend_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDefaultInstance();
-    }
-    public final boolean isInitialized() {
-      if (!hasType) return false;
-      if (!hasTimestamp) return false;
-      if (hasNodeBinary()) {
-        if (!getNodeBinary().isInitialized()) return false;
-      }
-      if (hasBackend()) {
-        if (!getBackend().isInitialized()) return false;
-      }
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (hasType()) {
-        output.writeEnum(1, getType().getNumber());
-      }
-      if (hasTimestamp()) {
-        output.writeString(2, getTimestamp());
-      }
-      if (hasNodeBinary()) {
-        output.writeMessage(3, getNodeBinary());
-      }
-      if (hasBackend()) {
-        output.writeMessage(4, getBackend());
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (hasType()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, getType().getNumber());
-      }
-      if (hasTimestamp()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(2, getTimestamp());
-      }
-      if (hasNodeBinary()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, getNodeBinary());
-      }
-      if (hasBackend()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, getBackend());
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message result;
-      
-      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.newBuilder()
-      private Builder() {}
-      
-      private static Builder create() {
-        Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message();
-        return builder;
-      }
-      
-      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message internalGetResult() {
-        return result;
-      }
-      
-      public Builder clear() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "Cannot call clear() after build().");
-        }
-        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message();
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(result);
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDescriptor();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDefaultInstance();
-      }
-      
-      public boolean isInitialized() {
-        return result.isInitialized();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message build() {
-        if (result != null && !isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return buildPartial();
-      }
-      
-      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        if (!isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return buildPartial();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message buildPartial() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "build() has already been called on this Builder.");
-        }
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message returnMe = result;
-        result = null;
-        return returnMe;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message other) {
-        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.getDefaultInstance()) return this;
-        if (other.hasType()) {
-          setType(other.getType());
-        }
-        if (other.hasTimestamp()) {
-          setTimestamp(other.getTimestamp());
-        }
-        if (other.hasNodeBinary()) {
-          mergeNodeBinary(other.getNodeBinary());
-        }
-        if (other.hasBackend()) {
-          mergeBackend(other.getBackend());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              }
-              break;
-            }
-            case 8: {
-              int rawValue = input.readEnum();
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type value = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(1, rawValue);
-              } else {
-                setType(value);
-              }
-              break;
-            }
-            case 18: {
-              setTimestamp(input.readString());
-              break;
-            }
-            case 26: {
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.newBuilder();
-              if (hasNodeBinary()) {
-                subBuilder.mergeFrom(getNodeBinary());
-              }
-              input.readMessage(subBuilder, extensionRegistry);
-              setNodeBinary(subBuilder.buildPartial());
-              break;
-            }
-            case 34: {
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.newBuilder();
-              if (hasBackend()) {
-                subBuilder.mergeFrom(getBackend());
-              }
-              input.readMessage(subBuilder, extensionRegistry);
-              setBackend(subBuilder.buildPartial());
-              break;
-            }
-          }
-        }
-      }
-      
-      
-      // required .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Type type = 1;
-      public boolean hasType() {
-        return result.hasType();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type getType() {
-        return result.getType();
-      }
-      public Builder setType(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        result.hasType = true;
-        result.type_ = value;
-        return this;
-      }
-      public Builder clearType() {
-        result.hasType = false;
-        result.type_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Type.NODE_BINARY;
-        return this;
-      }
-      
-      // required string timestamp = 2;
-      public boolean hasTimestamp() {
-        return result.hasTimestamp();
-      }
-      public java.lang.String getTimestamp() {
-        return result.getTimestamp();
-      }
-      public Builder setTimestamp(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasTimestamp = true;
-        result.timestamp_ = value;
-        return this;
-      }
-      public Builder clearTimestamp() {
-        result.hasTimestamp = false;
-        result.timestamp_ = getDefaultInstance().getTimestamp();
-        return this;
-      }
-      
-      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.NodeBinary node_binary = 3;
-      public boolean hasNodeBinary() {
-        return result.hasNodeBinary();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary getNodeBinary() {
-        return result.getNodeBinary();
-      }
-      public Builder setNodeBinary(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        result.hasNodeBinary = true;
-        result.nodeBinary_ = value;
-        return this;
-      }
-      public Builder setNodeBinary(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.Builder builderForValue) {
-        result.hasNodeBinary = true;
-        result.nodeBinary_ = builderForValue.build();
-        return this;
-      }
-      public Builder mergeNodeBinary(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary value) {
-        if (result.hasNodeBinary() &&
-            result.nodeBinary_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDefaultInstance()) {
-          result.nodeBinary_ =
-            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.newBuilder(result.nodeBinary_).mergeFrom(value).buildPartial();
-        } else {
-          result.nodeBinary_ = value;
-        }
-        result.hasNodeBinary = true;
-        return this;
-      }
-      public Builder clearNodeBinary() {
-        result.hasNodeBinary = false;
-        result.nodeBinary_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.getDefaultInstance();
-        return this;
-      }
-      
-      // optional .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message.Backend backend = 4;
-      public boolean hasBackend() {
-        return result.hasBackend();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend getBackend() {
-        return result.getBackend();
-      }
-      public Builder setBackend(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        result.hasBackend = true;
-        result.backend_ = value;
-        return this;
-      }
-      public Builder setBackend(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.Builder builderForValue) {
-        result.hasBackend = true;
-        result.backend_ = builderForValue.build();
-        return this;
-      }
-      public Builder mergeBackend(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend value) {
-        if (result.hasBackend() &&
-            result.backend_ != de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDefaultInstance()) {
-          result.backend_ =
-            de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.newBuilder(result.backend_).mergeFrom(value).buildPartial();
-        } else {
-          result.backend_ = value;
-        }
-        result.hasBackend = true;
-        return this;
-      }
-      public Builder clearBackend() {
-        result.hasBackend = false;
-        result.backend_ = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.getDefaultInstance();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message)
-    }
-    
-    static {
-      defaultInstance = new Message(true);
-      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.Message)
-  }
-  
-  public static final class RequestStatus extends
-      com.google.protobuf.GeneratedMessage {
-    // Use RequestStatus.newBuilder() to construct.
-    private RequestStatus() {
-      initFields();
-    }
-    private RequestStatus(boolean noInit) {}
-    
-    private static final RequestStatus defaultInstance;
-    public static RequestStatus getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public RequestStatus getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_fieldAccessorTable;
-    }
-    
-    public static final class Status extends
-        com.google.protobuf.GeneratedMessage {
-      // Use Status.newBuilder() to construct.
-      private Status() {
-        initFields();
-      }
-      private Status(boolean noInit) {}
-      
-      private static final Status defaultInstance;
-      public static Status getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public Status getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_Status_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_Status_fieldAccessorTable;
-      }
-      
-      // required string node_urn = 1;
-      public static final int NODE_URN_FIELD_NUMBER = 1;
-      private boolean hasNodeUrn;
-      private java.lang.String nodeUrn_ = "";
-      public boolean hasNodeUrn() { return hasNodeUrn; }
-      public java.lang.String getNodeUrn() { return nodeUrn_; }
-      
-      // required int32 value = 2;
-      public static final int VALUE_FIELD_NUMBER = 2;
-      private boolean hasValue;
-      private int value_ = 0;
-      public boolean hasValue() { return hasValue; }
-      public int getValue() { return value_; }
-      
-      // optional string message = 3;
-      public static final int MESSAGE_FIELD_NUMBER = 3;
-      private boolean hasMessage;
-      private java.lang.String message_ = "";
-      public boolean hasMessage() { return hasMessage; }
-      public java.lang.String getMessage() { return message_; }
-      
-      private void initFields() {
-      }
-      public final boolean isInitialized() {
-        if (!hasNodeUrn) return false;
-        if (!hasValue) return false;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (hasNodeUrn()) {
-          output.writeString(1, getNodeUrn());
-        }
-        if (hasValue()) {
-          output.writeInt32(2, getValue());
-        }
-        if (hasMessage()) {
-          output.writeString(3, getMessage());
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (hasNodeUrn()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(1, getNodeUrn());
-        }
-        if (hasValue()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(2, getValue());
-        }
-        if (hasMessage()) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(3, getMessage());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> {
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status result;
-        
-        // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.newBuilder()
-        private Builder() {}
-        
-        private static Builder create() {
-          Builder builder = new Builder();
-          builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status();
-          return builder;
-        }
-        
-        protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status internalGetResult() {
-          return result;
-        }
-        
-        public Builder clear() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "Cannot call clear() after build().");
-          }
-          result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status();
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(result);
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getDefaultInstanceForType() {
-          return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDefaultInstance();
-        }
-        
-        public boolean isInitialized() {
-          return result.isInitialized();
-        }
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status build() {
-          if (result != null && !isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return buildPartial();
-        }
-        
-        private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          if (!isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return buildPartial();
-        }
-        
-        public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status buildPartial() {
-          if (result == null) {
-            throw new IllegalStateException(
-              "build() has already been called on this Builder.");
-          }
-          de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status returnMe = result;
-          result = null;
-          return returnMe;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status) {
-            return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status other) {
-          if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.getDefaultInstance()) return this;
-          if (other.hasNodeUrn()) {
-            setNodeUrn(other.getNodeUrn());
-          }
-          if (other.hasValue()) {
-            setValue(other.getValue());
-          }
-          if (other.hasMessage()) {
-            setMessage(other.getMessage());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  return this;
-                }
-                break;
-              }
-              case 10: {
-                setNodeUrn(input.readString());
-                break;
-              }
-              case 16: {
-                setValue(input.readInt32());
-                break;
-              }
-              case 26: {
-                setMessage(input.readString());
-                break;
-              }
-            }
-          }
-        }
-        
-        
-        // required string node_urn = 1;
-        public boolean hasNodeUrn() {
-          return result.hasNodeUrn();
-        }
-        public java.lang.String getNodeUrn() {
-          return result.getNodeUrn();
-        }
-        public Builder setNodeUrn(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasNodeUrn = true;
-          result.nodeUrn_ = value;
-          return this;
-        }
-        public Builder clearNodeUrn() {
-          result.hasNodeUrn = false;
-          result.nodeUrn_ = getDefaultInstance().getNodeUrn();
-          return this;
-        }
-        
-        // required int32 value = 2;
-        public boolean hasValue() {
-          return result.hasValue();
-        }
-        public int getValue() {
-          return result.getValue();
-        }
-        public Builder setValue(int value) {
-          result.hasValue = true;
-          result.value_ = value;
-          return this;
-        }
-        public Builder clearValue() {
-          result.hasValue = false;
-          result.value_ = 0;
-          return this;
-        }
-        
-        // optional string message = 3;
-        public boolean hasMessage() {
-          return result.hasMessage();
-        }
-        public java.lang.String getMessage() {
-          return result.getMessage();
-        }
-        public Builder setMessage(java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasMessage = true;
-          result.message_ = value;
-          return this;
-        }
-        public Builder clearMessage() {
-          result.hasMessage = false;
-          result.message_ = getDefaultInstance().getMessage();
-          return this;
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status)
-      }
-      
-      static {
-        defaultInstance = new Status(true);
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status)
-    }
-    
-    // required string request_id = 1;
-    public static final int REQUEST_ID_FIELD_NUMBER = 1;
-    private boolean hasRequestId;
-    private java.lang.String requestId_ = "";
-    public boolean hasRequestId() { return hasRequestId; }
-    public java.lang.String getRequestId() { return requestId_; }
-    
-    // repeated .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status status = 2;
-    public static final int STATUS_FIELD_NUMBER = 2;
-    private java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> status_ =
-      java.util.Collections.emptyList();
-    public java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> getStatusList() {
-      return status_;
-    }
-    public int getStatusCount() { return status_.size(); }
-    public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getStatus(int index) {
-      return status_.get(index);
-    }
-    
-    private void initFields() {
-    }
-    public final boolean isInitialized() {
-      if (!hasRequestId) return false;
-      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
-        if (!element.isInitialized()) return false;
-      }
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (hasRequestId()) {
-        output.writeString(1, getRequestId());
-      }
-      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
-        output.writeMessage(2, element);
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (hasRequestId()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeStringSize(1, getRequestId());
-      }
-      for (de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status element : getStatusList()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, element);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> {
-      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus result;
-      
-      // Construct using de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.newBuilder()
-      private Builder() {}
-      
-      private static Builder create() {
-        Builder builder = new Builder();
-        builder.result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus();
-        return builder;
-      }
-      
-      protected de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus internalGetResult() {
-        return result;
-      }
-      
-      public Builder clear() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "Cannot call clear() after build().");
-        }
-        result = new de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus();
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(result);
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDescriptor();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDefaultInstance();
-      }
-      
-      public boolean isInitialized() {
-        return result.isInitialized();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus build() {
-        if (result != null && !isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return buildPartial();
-      }
-      
-      private de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        if (!isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return buildPartial();
-      }
-      
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus buildPartial() {
-        if (result == null) {
-          throw new IllegalStateException(
-            "build() has already been called on this Builder.");
-        }
-        if (result.status_ != java.util.Collections.EMPTY_LIST) {
-          result.status_ =
-            java.util.Collections.unmodifiableList(result.status_);
-        }
-        de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus returnMe = result;
-        result = null;
-        return returnMe;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus) {
-          return mergeFrom((de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus other) {
-        if (other == de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.getDefaultInstance()) return this;
-        if (other.hasRequestId()) {
-          setRequestId(other.getRequestId());
-        }
-        if (!other.status_.isEmpty()) {
-          if (result.status_.isEmpty()) {
-            result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
-          }
-          result.status_.addAll(other.status_);
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                return this;
-              }
-              break;
-            }
-            case 10: {
-              setRequestId(input.readString());
-              break;
-            }
-            case 18: {
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder subBuilder = de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.newBuilder();
-              input.readMessage(subBuilder, extensionRegistry);
-              addStatus(subBuilder.buildPartial());
-              break;
-            }
-          }
-        }
-      }
-      
-      
-      // required string request_id = 1;
-      public boolean hasRequestId() {
-        return result.hasRequestId();
-      }
-      public java.lang.String getRequestId() {
-        return result.getRequestId();
-      }
-      public Builder setRequestId(java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  result.hasRequestId = true;
-        result.requestId_ = value;
-        return this;
-      }
-      public Builder clearRequestId() {
-        result.hasRequestId = false;
-        result.requestId_ = getDefaultInstance().getRequestId();
-        return this;
-      }
-      
-      // repeated .de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus.Status status = 2;
-      public java.util.List<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> getStatusList() {
-        return java.util.Collections.unmodifiableList(result.status_);
-      }
-      public int getStatusCount() {
-        return result.getStatusCount();
-      }
-      public de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status getStatus(int index) {
-        return result.getStatus(index);
-      }
-      public Builder setStatus(int index, de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        result.status_.set(index, value);
-        return this;
-      }
-      public Builder setStatus(int index, de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder builderForValue) {
-        result.status_.set(index, builderForValue.build());
-        return this;
-      }
-      public Builder addStatus(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        if (result.status_.isEmpty()) {
-          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
-        }
-        result.status_.add(value);
-        return this;
-      }
-      public Builder addStatus(de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder builderForValue) {
-        if (result.status_.isEmpty()) {
-          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
-        }
-        result.status_.add(builderForValue.build());
-        return this;
-      }
-      public Builder addAllStatus(
-          java.lang.Iterable<? extends de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status> values) {
-        if (result.status_.isEmpty()) {
-          result.status_ = new java.util.ArrayList<de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status>();
-        }
-        super.addAll(values, result.status_);
-        return this;
-      }
-      public Builder clearStatus() {
-        result.status_ = java.util.Collections.emptyList();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus)
-    }
-    
-    static {
-      defaultInstance = new RequestStatus(true);
-      de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.internalForceInit();
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.runtime.portalapp.protobuf.RequestStatus)
-  }
-  
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Envelope_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Envelope_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor;
+    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_fieldAccessorTable;
+      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor;
   private static
@@ -3261,6 +3263,16 @@ public final class WisebedMessages {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_Status_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -3272,38 +3284,39 @@ public final class WisebedMessages {
     java.lang.String[] descriptorData = {
       "\n)src/main/resources/wisebed-messages.pr" +
       "oto\022/de.uniluebeck.itm.tr.runtime.portal" +
-      "app.protobuf\"\264\003\n\010Envelope\022U\n\tbody_type\030\001" +
-      " \002(\0162B.de.uniluebeck.itm.tr.runtime.port" +
-      "alapp.protobuf.Envelope.BodyType\022I\n\007mess" +
-      "age\030\002 \001(\01328.de.uniluebeck.itm.tr.runtime" +
-      ".portalapp.protobuf.Message\022U\n\rrequestSt" +
-      "atus\030\003 \001(\0132>.de.uniluebeck.itm.tr.runtim" +
-      "e.portalapp.protobuf.RequestStatus\022e\n\025se" +
-      "cretReservationKeys\030\004 \001(\0132F.de.uniluebec",
-      "k.itm.tr.runtime.portalapp.protobuf.Secr" +
-      "etReservationKeys\"H\n\010BodyType\022\013\n\007MESSAGE" +
-      "\020\001\022\022\n\016REQUEST_STATUS\020\002\022\033\n\027SECRET_RESERVA" +
-      "TION_KEYS\020\003\"\273\001\n\025SecretReservationKeys\022i\n" +
-      "\004keys\030\001 \003(\0132[.de.uniluebeck.itm.tr.runti" +
-      "me.portalapp.protobuf.SecretReservationK" +
-      "eys.SecretReservationKey\0327\n\024SecretReserv" +
-      "ationKey\022\022\n\nurn_prefix\030\001 \002(\t\022\013\n\003key\030\002 \002(" +
-      "\t\"\251\003\n\007Message\022K\n\004type\030\001 \002(\0162=.de.unilueb" +
-      "eck.itm.tr.runtime.portalapp.protobuf.Me",
-      "ssage.Type\022\021\n\ttimestamp\030\002 \002(\t\022X\n\013node_bi" +
-      "nary\030\003 \001(\0132C.de.uniluebeck.itm.tr.runtim" +
-      "e.portalapp.protobuf.Message.NodeBinary\022" +
-      "Q\n\007backend\030\004 \001(\0132@.de.uniluebeck.itm.tr." +
-      "runtime.portalapp.protobuf.Message.Backe" +
-      "nd\032R\n\nNodeBinary\022\027\n\017source_node_urn\030\001 \002(" +
-      "\t\022\014\n\004data\030\002 \002(\014\022\035\n\025destination_node_urns" +
-      "\030\003 \003(\t\032\027\n\007Backend\022\014\n\004text\030\002 \002(\t\"$\n\004Type\022" +
-      "\017\n\013NODE_BINARY\020\001\022\013\n\007BACKEND\020\002\"\266\001\n\rReques" +
-      "tStatus\022\022\n\nrequest_id\030\001 \002(\t\022U\n\006status\030\002 ",
-      "\003(\0132E.de.uniluebeck.itm.tr.runtime.porta" +
-      "lapp.protobuf.RequestStatus.Status\032:\n\006St" +
-      "atus\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005value\030\002 \002(\005\022\017\n" +
-      "\007message\030\003 \001(\t"
+      "app.protobuf\"\255\004\n\010Envelope\022R\n\014message_typ" +
+      "e\030\001 \002(\0162<.de.uniluebeck.itm.tr.runtime.p" +
+      "ortalapp.protobuf.MessageType\022Z\n\020upstrea" +
+      "m_message\030\002 \001(\0132@.de.uniluebeck.itm.tr.r" +
+      "untime.portalapp.protobuf.UpstreamMessag" +
+      "e\022^\n\022downstream_message\030\003 \001(\0132B.de.unilu" +
+      "ebeck.itm.tr.runtime.portalapp.protobuf." +
+      "DownstreamMessage\022S\n\014notification\030\004 \001(\0132",
+      "=.de.uniluebeck.itm.tr.runtime.portalapp" +
+      ".protobuf.Notification\022U\n\rrequestStatus\030" +
+      "\005 \001(\0132>.de.uniluebeck.itm.tr.runtime.por" +
+      "talapp.protobuf.RequestStatus\022e\n\025secretR" +
+      "eservationKeys\030\006 \001(\0132F.de.uniluebeck.itm" +
+      ".tr.runtime.portalapp.protobuf.SecretRes" +
+      "ervationKeys\"T\n\017UpstreamMessage\022\027\n\017sourc" +
+      "e_node_urn\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\t\022\025\n\rm" +
+      "essage_bytes\030\003 \002(\014\"D\n\021DownstreamMessage\022" +
+      "\030\n\020target_node_urns\030\001 \003(\t\022\025\n\rmessage_byt",
+      "es\030\002 \002(\014\"?\n\014Notification\022\017\n\007nodeUrn\030\001 \001(" +
+      "\t\022\021\n\ttimestamp\030\002 \002(\t\022\013\n\003msg\030\003 \002(\t\"\266\001\n\rRe" +
+      "questStatus\022\022\n\nrequest_id\030\001 \002(\022\022U\n\006statu" +
+      "s\030\002 \003(\0132E.de.uniluebeck.itm.tr.runtime.p" +
+      "ortalapp.protobuf.RequestStatus.Status\032:" +
+      "\n\006Status\022\020\n\010node_urn\030\001 \002(\t\022\r\n\005value\030\002 \002(" +
+      "\005\022\017\n\007message\030\003 \001(\t\"\273\001\n\025SecretReservation" +
+      "Keys\022i\n\004keys\030\001 \003(\0132[.de.uniluebeck.itm.t" +
+      "r.runtime.portalapp.protobuf.SecretReser" +
+      "vationKeys.SecretReservationKey\0327\n\024Secre",
+      "tReservationKey\022\022\n\nurn_prefix\030\001 \002(\t\022\013\n\003k" +
+      "ey\030\002 \002(\t*~\n\013MessageType\022\024\n\020UPSTREAM_MESS" +
+      "AGE\020\001\022\026\n\022DOWNSTREAM_MESSAGE\020\002\022\020\n\014NOTIFIC" +
+      "ATION\020\003\022\022\n\016REQUEST_STATUS\020\004\022\033\n\027SECRET_RE" +
+      "SERVATION_KEYS\020\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3315,51 +3328,35 @@ public final class WisebedMessages {
           internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Envelope_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Envelope_descriptor,
-              new java.lang.String[] { "BodyType", "Message", "RequestStatus", "SecretReservationKeys", },
+              new java.lang.String[] { "MessageType", "UpstreamMessage", "DownstreamMessage", "Notification", "RequestStatus", "SecretReservationKeys", },
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.class,
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Envelope.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor =
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_descriptor =
             getDescriptor().getMessageTypes().get(1);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_fieldAccessorTable = new
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor,
-              new java.lang.String[] { "Keys", },
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.class,
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor =
-            internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor.getNestedTypes().get(0);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor,
-              new java.lang.String[] { "UrnPrefix", "Key", },
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.SecretReservationKey.class,
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.SecretReservationKey.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor =
+              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_UpstreamMessage_descriptor,
+              new java.lang.String[] { "SourceNodeUrn", "Timestamp", "MessageBytes", },
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.class,
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.UpstreamMessage.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_descriptor =
             getDescriptor().getMessageTypes().get(2);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_fieldAccessorTable = new
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor,
-              new java.lang.String[] { "Type", "Timestamp", "NodeBinary", "Backend", },
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.class,
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_descriptor =
-            internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor.getNestedTypes().get(0);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_NodeBinary_descriptor,
-              new java.lang.String[] { "SourceNodeUrn", "Data", "DestinationNodeUrns", },
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.class,
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.NodeBinary.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_descriptor =
-            internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_descriptor.getNestedTypes().get(1);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Message_Backend_descriptor,
-              new java.lang.String[] { "Text", },
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.class,
-              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Message.Backend.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor =
+              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_DownstreamMessage_descriptor,
+              new java.lang.String[] { "TargetNodeUrns", "MessageBytes", },
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.class,
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.DownstreamMessage.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_descriptor =
             getDescriptor().getMessageTypes().get(3);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_Notification_descriptor,
+              new java.lang.String[] { "NodeUrn", "Timestamp", "Msg", },
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.class,
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.Notification.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor =
+            getDescriptor().getMessageTypes().get(4);
           internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_RequestStatus_descriptor,
@@ -3374,6 +3371,22 @@ public final class WisebedMessages {
               new java.lang.String[] { "NodeUrn", "Value", "Message", },
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.class,
               de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.RequestStatus.Status.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor =
+            getDescriptor().getMessageTypes().get(5);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor,
+              new java.lang.String[] { "Keys", },
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.class,
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor =
+            internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_descriptor.getNestedTypes().get(0);
+          internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_runtime_portalapp_protobuf_SecretReservationKeys_SecretReservationKey_descriptor,
+              new java.lang.String[] { "UrnPrefix", "Key", },
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.SecretReservationKey.class,
+              de.uniluebeck.itm.tr.runtime.portalapp.protobuf.WisebedMessages.SecretReservationKeys.SecretReservationKey.Builder.class);
           return null;
         }
       };

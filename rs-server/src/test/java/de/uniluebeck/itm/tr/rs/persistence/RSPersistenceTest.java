@@ -24,10 +24,11 @@
 package de.uniluebeck.itm.tr.rs.persistence;
 
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.ReservervationNotFoundExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
@@ -35,9 +36,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -62,7 +64,7 @@ public abstract class RSPersistenceTest {
 
 	protected static final int RESERVATION_COUNT = 5;
 
-	private static final String URN_PREFIX = "urn:unittest:testbed1:";
+	private static final NodeUrnPrefix URN_PREFIX = new NodeUrnPrefix("urn:unittest:testbed1:");
 
 	protected static class IntervalData {
 
@@ -94,15 +96,7 @@ public abstract class RSPersistenceTest {
 	 */
 	private static final List<IntervalData> intervals = new ArrayList<IntervalData>();
 
-	private static final DatatypeFactory datatypeFactory;
-
 	static {
-
-		try {
-			datatypeFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
 
 		String description;
 
@@ -161,16 +155,12 @@ public abstract class RSPersistenceTest {
 	}
 
 	@Before
-	public void setUp() throws RSExceptionException {
+	public void setUp() throws RSFault_Exception {
 		Logging.setLoggingDefaults();
 		for (int i = 0; i < RESERVATION_COUNT; i++) {
-			XMLGregorianCalendar from =
-					datatypeFactory.newXMLGregorianCalendar(reservationStartingTime.toGregorianCalendar());
-			XMLGregorianCalendar to =
-					datatypeFactory.newXMLGregorianCalendar(reservationEndingTime.toGregorianCalendar());
 			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-			confidentialReservationData.setFrom(from);
-			confidentialReservationData.setTo(to);
+			confidentialReservationData.setFrom(reservationStartingTime);
+			confidentialReservationData.setTo(reservationEndingTime);
 			reservationDataMap.put(i, confidentialReservationData);
 		}
 	}
@@ -180,7 +170,7 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-			} catch (ReservervationNotFoundExceptionException e) {
+			} catch (ReservationNotFoundFault_Exception ignored) {
 			}
 		}
 		reservationDataMap = null;
@@ -209,34 +199,30 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkGetReservationBeforeDeletion()
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
-
-			List<SecretReservationKey> tempKeyList = new LinkedList<SecretReservationKey>();
-			tempKeyList.add(reservationKeyMap.get(i));
 
 			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
 			ConfidentialReservationData receivedCRD = persistence.getReservation(reservationKeyMap.get(i));
 
-			assertEquals(rememberedCRD.getUserData(), receivedCRD.getUserData());
-			assertEquals(rememberedCRD.getNodeURNs(), receivedCRD.getNodeURNs());
+			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
 			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
 			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
 		}
 	}
 
-	public void checkGetReservationAfterDeletion() throws RSExceptionException {
+	public void checkGetReservationAfterDeletion() throws RSFault_Exception {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.getReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			} catch (ReservervationNotFoundExceptionException e) {
+				fail("Should have raised an ReservationNotFoundFault_Exception");
+			} catch (ReservationNotFoundFault_Exception ignored) {
 			}
 		}
 	}
 
 	/**
-	 * @throws RSExceptionException
+	 * @throws RSFault_Exception
 	 * @throws DatatypeConfigurationException
 	 */
 	@Test
@@ -251,23 +237,22 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkDeleteReservation()
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			ConfidentialReservationData actualData = persistence.deleteReservation(reservationKeyMap.get(i));
 			ConfidentialReservationData expectedData = reservationDataMap.get(i);
 			assertEquals(actualData.getFrom(), expectedData.getFrom());
 			assertEquals(actualData.getTo(), expectedData.getTo());
-			assertEquals(actualData.getNodeURNs(), expectedData.getNodeURNs());
-			assertEquals(actualData.getUserData(), expectedData.getUserData());
+			assertEquals(actualData.getNodeUrns(), expectedData.getNodeUrns());
 		}
 	}
 
-	public void checkDeleteReservationAfterDeletion() throws RSExceptionException {
+	public void checkDeleteReservationAfterDeletion() throws RSFault_Exception {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservervationNotFoundExceptionException");
-			} catch (ReservervationNotFoundExceptionException expected) {
+				fail("Should have raised an ReservationNotFoundFault_Exception");
+			} catch (ReservationNotFoundFault_Exception ignored) {
 			}
 		}
 	}

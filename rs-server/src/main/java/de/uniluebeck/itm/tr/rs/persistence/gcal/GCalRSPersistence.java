@@ -38,7 +38,9 @@ import com.google.gdata.util.ServiceException;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 	private CalendarService myService;
 
-	public GCalRSPersistence(String userName, String password) throws RSExceptionException {
+	public GCalRSPersistence(String userName, String password) throws RSFault_Exception {
 
 		myService = new CalendarService("GCal Persistence Service");
 
@@ -81,10 +83,10 @@ public class GCalRSPersistence implements RSPersistence {
 			myService.setUserCredentials(userName, password);
 		} catch (MalformedURLException e) {
 			log.error("Invalid URL: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		} catch (AuthenticationException e) {
 			log.error("Invalid username and password: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		}
 
 		log.debug("New GCal Persistence instance for calendar @ " + eventFeedUrl);
@@ -93,24 +95,24 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
-											   String urnPrefix)
-			throws RSExceptionException {
+											   NodeUrnPrefix urnPrefix)
+			throws RSFault_Exception {
 		try {
 
 			String secretReservationKeyString = secureIdGenerator.getNextId();
 
-			for (Data data : confidentialReservationData.getData()) {
+			for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
 				data.setSecretReservationKey(secretReservationKeyString);
 			}
 
 			ReservationData reservationData = new ReservationData(
 					confidentialReservationData,
-					urnPrefix,
+					urnPrefix.toString(),
 					secretReservationKeyString
 			);
 
 			String reservationDataXml = marshall(reservationData);
-			String eventTitle = confidentialReservationData.getNodeURNs().size() + " Node(s)";
+			String eventTitle = confidentialReservationData.getNodeUrns().size() + " Node(s)";
 
 			// Create a new calendar entry
 			CalendarEventEntry myEntry = new CalendarEventEntry();
@@ -153,13 +155,13 @@ public class GCalRSPersistence implements RSPersistence {
 						log.error("De-Marshalled contents do not match (maybe text was truncated)");
 						log.debug("---- Original : " + reservationDataXml);
 						log.debug("---- Text@Gcal: " + content);
-						throw new Exception("De-Marshalled contents do not match (maybe text was truncated)");
+						throw new Exception("Unmarshalled contents do not match (maybe text was truncated)");
 					}
 				}
 
 			} catch (Exception e) {
 				log.error("Error: " + e, e);
-				throw createRSException("Internal Server Error");
+				throw createRSFault("Internal Server Error");
 			}
 
 			SecretReservationKey key = new SecretReservationKey();
@@ -169,13 +171,13 @@ public class GCalRSPersistence implements RSPersistence {
 
 		} catch (JAXBException e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error!");
+			throw createRSFault("Internal Server Error!");
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 
 		Tuple<Entry, ReservationData> reservation = getReservation(secretReservationKey.getSecretReservationKey());
 		ConfidentialReservationData confidentialReservationData = reservation.getSecond().getReservation();
@@ -188,7 +190,7 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 		} catch (Exception e) {
 			log.error("Exception: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		}
 
 		return confidentialReservationData;
@@ -196,13 +198,13 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		return getReservation(secretReservationKey.getSecretReservationKey()).getSecond().getReservation();
 	}
 
 
 	@Override
-	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSExceptionException {
+	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSFault_Exception {
 
 		boolean fetchedAll = false;
 
@@ -232,7 +234,7 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	private void fetchReservations(final List<ConfidentialReservationData> reservations, final Interval interval,
-								   final int maxResults) throws RSExceptionException {
+								   final int maxResults) throws RSFault_Exception {
 
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 
@@ -271,7 +273,7 @@ public class GCalRSPersistence implements RSPersistence {
 						reservations.add(reservation);
 					}
 
-				} catch (RSExceptionException e) {
+				} catch (RSFault_Exception e) {
 					if (e.getCause() instanceof JAXBException) {
 						// ignore and just don't add to reservations, logging is done in create()
 					}
@@ -294,13 +296,13 @@ public class GCalRSPersistence implements RSPersistence {
 
 		} catch (IOException e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		} catch (ServiceException e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error");
-		} catch (RSExceptionException e) {
+			throw createRSFault("Internal Server Error");
+		} catch (RSFault_Exception e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		}
 
 	}
@@ -314,7 +316,7 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	private Tuple<Entry, ReservationData> getReservation(String secretReservationKey)
-			throws ReservervationNotFoundExceptionException, RSExceptionException {
+			throws ReservationNotFoundFault_Exception, RSFault_Exception {
 		// Do a full text search for the secretReservationKey and then iterate over the results
 		Query myQuery = new Query(eventFeedUrl);
 		myQuery.setFullTextQuery(secretReservationKey);
@@ -335,43 +337,43 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 		} catch (IOException e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		} catch (ServiceException e) {
 			log.error("Error: " + e, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		}
 
 		// If no reservation was found, throw an exception
 		if (reservationData == null) {
-			throw createReservationNotFoundException("Reservation " + secretReservationKey + " not found");
+			throw createReservationNotFoundFault("Reservation " + secretReservationKey + " not found");
 		}
 
 		// Reservation found, return it
 		return new Tuple<Entry, ReservationData>(reservationGcalEntry, reservationData);
 	}
 
-	private ReservationData convert(Entry entry) throws RSExceptionException {
+	private ReservationData convert(Entry entry) throws RSFault_Exception {
 		String content = entry.getPlainTextContent();
 		try {
 			return unmarshall(content);
 		} catch (JAXBException e) {
 			log.error("Could not unmarshal " + content, e);
-			throw createRSException("Internal Server Error");
+			throw createRSFault("Internal Server Error");
 		}
 	}
 
-	private ReservervationNotFoundExceptionException createReservationNotFoundException(String msg) {
+	private ReservationNotFoundFault_Exception createReservationNotFoundFault(String msg) {
 		log.warn(msg);
-		ReservervationNotFoundException exception = new ReservervationNotFoundException();
+		ReservationNotFoundFault exception = new ReservationNotFoundFault();
 		exception.setMessage(msg);
-		return new ReservervationNotFoundExceptionException(msg, exception);
+		return new ReservationNotFoundFault_Exception(msg, exception);
 	}
 
-	private RSExceptionException createRSException(String msg) {
+	private RSFault_Exception createRSFault(String msg) {
 		log.warn(msg);
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		return new RSExceptionException(msg, exception);
+		return new RSFault_Exception(msg, exception);
 	}
 
 	private String marshall(ReservationData reservationData) throws JAXBException {

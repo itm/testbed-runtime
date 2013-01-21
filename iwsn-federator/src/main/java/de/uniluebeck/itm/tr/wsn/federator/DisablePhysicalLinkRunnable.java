@@ -23,30 +23,36 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.WSN;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 class DisablePhysicalLinkRunnable extends AbstractRequestRunnable {
 
-	private final String nodeUrnA;
+	private final NodeUrn sourceNodeUrn;
 
-	private final String nodeUrnB;
+	private final NodeUrn targetNodeUrn;
 
-	public DisablePhysicalLinkRunnable(final FederatorController federatorController, final WSN wsnEndpoint,
-									   final String federatorRequestId,
-									   final String nodeUrnA, final String nodeUrnB) {
+	DisablePhysicalLinkRunnable(final FederatorController federatorController,
+								final WSN wsnEndpoint,
+								final long federatedRequestId,
+								final long federatorRequestId,
+								final NodeUrn sourceNodeUrn,
+								final NodeUrn targetNodeUrn) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeUrnA = nodeUrnA;
-		this.nodeUrnB = nodeUrnB;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.disablePhysicalLink(nodeUrnA, nodeUrnB));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
-
 }

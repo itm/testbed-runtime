@@ -7,6 +7,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDevice;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayDeviceFactory;
 import de.uniluebeck.itm.tr.iwsn.overlay.TestbedRuntime;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -15,6 +18,7 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +41,7 @@ public class WSNDeviceAppConnectorBenchmark {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final WSNDeviceAppConnector.Callback NULL_CALLBACK = new WSNDeviceAppConnector.Callback() {
+	private static final GatewayDevice.Callback NULL_CALLBACK = new GatewayDevice.Callback() {
 		@Override
 		public void success(@Nullable final byte[] replyPayload) {
 			// nothing to do
@@ -65,21 +69,21 @@ public class WSNDeviceAppConnectorBenchmark {
 	@Mock
 	private AsyncEventBus asyncEventBus;
 
-	private WSNDeviceAppConnector connector;
+	private GatewayDevice connector;
 
 	private BenchmarkHelper helper;
 
 	@Before
 	public void setUp() throws Exception {
 
-		final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		final DeviceConfig deviceConfig = new DeviceConfig(
 				NODE_URN,
 				DeviceType.ISENSE.toString(),
 				"/dev/tty.usbserial-001213FD",
 				null, null, null, null, null, null, null, null
 		);
 
-		/*final WSNDeviceAppConnectorConfiguration connectorConfiguration = new WSNDeviceAppConnectorConfiguration(
+		/*final GatewayDeviceConfiguration connectorConfiguration = new GatewayDeviceConfiguration(
 				NODE_URN,
 				DeviceType.MOCK.toString(),
 				NODE_URN + ",10,SECONDS",
@@ -87,10 +91,10 @@ public class WSNDeviceAppConnectorBenchmark {
 		);*/
 
 		final Injector injector = Guice.createInjector(new WSNDeviceAppModule(), new DeviceFactoryModule());
-		final WSNDeviceAppConnectorFactory factory = injector.getInstance(WSNDeviceAppConnectorFactory.class);
+		final GatewayDeviceFactory factory = injector.getInstance(GatewayDeviceFactory.class);
 		final DeviceFactory deviceFactory = injector.getInstance(DeviceFactory.class);
 
-		connector = factory.create(connectorConfiguration, deviceFactory, eventBus, asyncEventBus);
+		connector = factory.create(deviceConfig, deviceFactory, eventBus, asyncEventBus);
 		connector.setChannelPipeline(Lists.<Tuple<String, Multimap<String, String>>>newArrayList(), NULL_CALLBACK);
 		connector.startAndWait();
 
@@ -116,7 +120,7 @@ public class WSNDeviceAppConnectorBenchmark {
 			message.writeByte(10 & 0xFF);
 			message.writeInt(messageNumber);
 
-			final WSNDeviceAppConnector.NodeOutputListener listener = new WSNDeviceAppConnector.NodeOutputListener() {
+			final GatewayDevice.NodeOutputListener listener = new GatewayDevice.NodeOutputListener() {
 
 				@Override
 				public void receivedPacket(final byte[] bytes) {
@@ -132,7 +136,8 @@ public class WSNDeviceAppConnectorBenchmark {
 				}
 
 				@Override
-				public void receiveNotification(final String notification) {
+				public void receiveNotification(@Nullable final String nodeUrn, final DateTime timestamp,
+												final String msg) {
 					// don't care
 				}
 			};
