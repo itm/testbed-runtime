@@ -95,6 +95,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 	private void tryToConnectToPortal() {
 
+		log.debug("Trying to connect to portal server...");
+
 		final InetSocketAddress portalAddress = new InetSocketAddress(
 				config.portalOverlayAddress.getHostText(),
 				config.portalOverlayAddress.getPort()
@@ -112,6 +114,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 		try {
 			nettyClient.start().get();
+			log.info("Successfully connected to portal server.");
 		} catch (Exception e) {
 			nettyClient = null;
 		}
@@ -158,7 +161,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				try {
 					if (connectSchedule == null) {
 						connectSchedule = gatewayScheduler.scheduleWithFixedDelay(
-								tryToConnectToPortalRunnable, 30, 30, TimeUnit.SECONDS
+								tryToConnectToPortalRunnable, 10, 10, TimeUnit.SECONDS
 						);
 					}
 				} finally {

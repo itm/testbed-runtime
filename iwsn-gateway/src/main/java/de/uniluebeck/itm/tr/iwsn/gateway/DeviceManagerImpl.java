@@ -111,7 +111,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	}
 
 	@Override
-	public Set<NodeUrn> getCurrentlyConnectedNodeUrns() {
+	public Set<NodeUrn> getConnectedNodeUrns() {
 		synchronized (deviceAdapters) {
 			final ImmutableSet.Builder<NodeUrn> nodeUrns = ImmutableSet.builder();
 			for (DeviceAdapter deviceAdapter : deviceAdapters) {
@@ -146,6 +146,6 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Override
 	public Iterable<NodeUrn> getUnconnectedSubset(final Iterable<NodeUrn> nodeUrns) {
-		return filter(nodeUrns, not(in(getCurrentlyConnectedNodeUrns())));
+		return filter(nodeUrns, not(in(getConnectedNodeUrns())));
 	}
 }

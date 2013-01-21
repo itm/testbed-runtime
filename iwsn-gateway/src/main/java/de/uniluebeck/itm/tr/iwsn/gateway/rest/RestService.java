@@ -34,7 +34,7 @@ public class RestService {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public DeviceList getDevices() {
 		return new DeviceList(newArrayList(transform(
-				deviceManager.getCurrentlyConnectedNodeUrns(),
+				deviceManager.getConnectedNodeUrns(),
 				toStringFunction()
 		)));
 	}

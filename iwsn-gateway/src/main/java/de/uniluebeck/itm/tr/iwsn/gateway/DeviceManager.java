@@ -33,7 +33,7 @@ public interface DeviceManager extends Service {
 	 *
 	 * @return the node URNs of all currently connected devices
 	 */
-	Set<NodeUrn> getCurrentlyConnectedNodeUrns();
+	Set<NodeUrn> getConnectedNodeUrns();
 
 	/**
 	 * Returns a mapping between node URNs and the device driver interfaces of the nodes that are currently connected.
