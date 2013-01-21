@@ -4,10 +4,13 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
@@ -63,12 +66,11 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 		channel = e.getChannel();
 		gatewayEventBus.register(this);
 
-		sendToPortal(newMessage(newEvent(
-				eventIdProvider.get(),
-				newDevicesAttachedEvent(deviceManager.getCurrentlyConnectedNodeUrns())
-		)
-		)
-		);
+		final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
+
+		if (!connectedNodeUrns.isEmpty()) {
+			sendToPortal(newMessage(newEvent(eventIdProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));
+		}
 
 		super.channelConnected(ctx, e);
 	}
