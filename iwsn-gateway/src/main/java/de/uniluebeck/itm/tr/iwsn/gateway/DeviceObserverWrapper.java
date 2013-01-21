@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -28,11 +29,11 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceObserverWrapper.class);
 
-	private final Map<String, DeviceAdapter> currentlyConnectedDevices = newHashMap();
+	private final Map<String, DeviceAdapter> connectedDevices = newHashMap();
 
 	private final DeviceConfigDB deviceConfigDB;
 
-	private final Set<DeviceAdapterFactory> gatewayDeviceAdapterFactories;
+	private final Set<DeviceAdapterFactory> deviceAdapterFactories;
 
 	private DeviceObserver deviceObserver;
 
@@ -46,8 +47,9 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	@Inject
 	public DeviceObserverWrapper(final DeviceConfigDB deviceConfigDB,
-								 final Set<DeviceAdapterFactory> gatewayDeviceAdapterFactories) {
-		this.gatewayDeviceAdapterFactories = gatewayDeviceAdapterFactories;
+								 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
+		checkArgument(deviceAdapterFactories != null && !deviceAdapterFactories.isEmpty());
+		this.deviceAdapterFactories = deviceAdapterFactories;
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 	}
 
@@ -122,8 +124,8 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 		log.trace("DeviceObserverWrapper.onDeviceAttached({})", deviceInfo);
 
 		final boolean deviceAlreadyConnected;
-		synchronized (currentlyConnectedDevices) {
-			deviceAlreadyConnected = currentlyConnectedDevices.containsKey(deviceInfo.getPort());
+		synchronized (connectedDevices) {
+			deviceAlreadyConnected = connectedDevices.containsKey(deviceInfo.getPort());
 		}
 
 		if (!deviceAlreadyConnected) {
@@ -137,7 +139,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 			try {
 
-				for (DeviceAdapterFactory deviceAdapterFactory : gatewayDeviceAdapterFactories) {
+				for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
 
 					if (deviceAdapterFactory.canHandle(deviceConfig)) {
 
@@ -148,8 +150,8 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 						deviceAdapter.startAndWait();
 
-						synchronized (currentlyConnectedDevices) {
-							currentlyConnectedDevices.put(deviceInfo.getPort(), deviceAdapter);
+						synchronized (connectedDevices) {
+							connectedDevices.put(deviceInfo.getPort(), deviceAdapter);
 						}
 					}
 				}
@@ -165,12 +167,12 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 		log.trace("DeviceObserverWrapper.onDeviceDetached({})", deviceInfo);
 
-		final DeviceAdapter deviceAdapter = currentlyConnectedDevices.get(deviceInfo.getPort());
+		final DeviceAdapter deviceAdapter = connectedDevices.get(deviceInfo.getPort());
 
 		if (deviceAdapter != null) {
 			deviceAdapter.stopAndWait();
-			synchronized (currentlyConnectedDevices) {
-				currentlyConnectedDevices.remove(deviceInfo.getPort());
+			synchronized (connectedDevices) {
+				connectedDevices.remove(deviceInfo.getPort());
 			}
 		}
 	}
