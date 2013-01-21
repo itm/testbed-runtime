@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 #
 # Copyright (c) 1999, 2010 Tanuki Software, Ltd.
@@ -18,12 +18,19 @@
 # These settings can be modified to fit the needs of your application
 # Optimized for use with version 3.5.2 of the Wrapper.
 
+#Parameters
+WRAPPER_PARA=""
+WRAPPER_PARA="wrapper.logfile=../logs/tr.iwsn.$HOSTNAME.log"
+
+
 # Application
 APP_NAME="tr.iwsn"
 APP_LONG_NAME="Testbed Runtime iWSN"
 
 # Wrapper
-WRAPPER_CMD="../lib/wrapper"
+if [[ -z "$WRAPPER_CMD" ]] ; then  WRAPPER_CMD="../lib/wrapper"; fi
+
+
 WRAPPER_CONF="../conf/tr.iwsn.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
@@ -31,7 +38,7 @@ WRAPPER_CONF="../conf/tr.iwsn.conf"
 PRIORITY=
 
 # Location of the pid file.
-PIDDIR="."
+PIDDIR="/tmp"
 
 # If uncommented, causes the Wrapper to be shutdown using an anchor file.
 #  When launched with the 'start' command, it will also ignore all INT and
@@ -682,7 +689,7 @@ launchdinternal() {
     if [ "X$pid" = "X" ]
     then 
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $WRAPPER_PARA $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         eval echo  '$APP_LONG_NAME is already running.'
@@ -702,7 +709,7 @@ console() {
     then
         trap '' 3
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" $ANCHORPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" $WRAPPER_PARA $ANCHORPROP $STATUSPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         eval echo  '$APP_LONG_NAME is already running.'
@@ -803,7 +810,7 @@ start() {
     if [ "X$pid" = "X" ]
     then
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $WRAPPER_PARA $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         eval echo  '$APP_LONG_NAME is already running.'
