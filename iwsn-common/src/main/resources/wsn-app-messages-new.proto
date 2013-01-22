@@ -135,8 +135,9 @@ message SingleNodeProgress {
 message SingleNodeResponse {
 	required int64  requestId    = 1;
 	required string nodeUrn      = 2;
-	optional int32  statusCode   = 3;
-	optional string errorMessage = 4;
+	optional bytes  response     = 3;
+	optional int32  statusCode   = 4;
+	optional string errorMessage = 5;
 }
 
 /////////////////////// EVENTS /////////////////////// 

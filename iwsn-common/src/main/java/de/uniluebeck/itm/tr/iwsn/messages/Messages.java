@@ -212,43 +212,43 @@ public final class Messages {
       "\n\022\034\n\030SEND_DOWNSTREAM_MESSAGES\020\013\022\031\n\025SET_C" +
       "HANNEL_PIPELINES\020\014\"S\n\022SingleNodeProgress" +
       "\022\021\n\trequestId\030\001 \002(\003\022\017\n\007nodeUrn\030\002 \002(\t\022\031\n\021",
-      "progressInPercent\030\003 \002(\r\"b\n\022SingleNodeRes" +
+      "progressInPercent\030\003 \002(\r\"t\n\022SingleNodeRes" +
       "ponse\022\021\n\trequestId\030\001 \002(\003\022\017\n\007nodeUrn\030\002 \002(" +
-      "\t\022\022\n\nstatusCode\030\003 \001(\005\022\024\n\014errorMessage\030\004 " +
-      "\001(\t\"V\n\024UpstreamMessageEvent\022\025\n\rsourceNod" +
-      "eUrn\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\004\022\024\n\014message" +
-      "Bytes\030\003 \002(\014\";\n\024DevicesAttachedEvent\022\020\n\010n" +
-      "odeUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004\";\n\024Devi" +
-      "cesDetachedEvent\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\tti" +
-      "mestamp\030\002 \002(\004\"H\n\021NotificationEvent\022\017\n\007no" +
-      "deUrn\030\001 \001(\t\022\021\n\ttimestamp\030\002 \002(\004\022\017\n\007messag",
-      "e\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007eventId\030\001 \002(\003\022<\n\004ty" +
-      "pe\030\002 \002(\0162..de.uniluebeck.itm.tr.iwsn.mes" +
-      "sages.Event.Type\022V\n\024upstreamMessageEvent" +
-      "\030e \001(\01328.de.uniluebeck.itm.tr.iwsn.messa" +
-      "ges.UpstreamMessageEvent\022V\n\024devicesAttac" +
-      "hedEvent\030f \001(\01328.de.uniluebeck.itm.tr.iw" +
-      "sn.messages.DevicesAttachedEvent\022V\n\024devi" +
-      "cesDetachedEvent\030g \001(\01328.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.DevicesDetachedEvent" +
-      "\022P\n\021notificationEvent\030h \001(\01325.de.unilueb",
-      "eck.itm.tr.iwsn.messages.NotificationEve" +
-      "nt\"Z\n\004Type\022\024\n\020UPSTREAM_MESSAGE\020\001\022\024\n\020DEVI" +
-      "CES_ATTACHED\020\002\022\024\n\020DEVICES_DETACHED\020\003\022\020\n\014" +
-      "NOTIFICATION\020\004\"\033\n\010EventAck\022\017\n\007eventId\030\001 " +
-      "\002(\003\"\340\003\n\007Message\022>\n\004type\030\001 \002(\01620.de.unilu" +
-      "ebeck.itm.tr.iwsn.messages.Message.Type\022" +
-      "<\n\007request\030e \001(\0132+.de.uniluebeck.itm.tr." +
-      "iwsn.messages.Request\022H\n\010progress\030f \001(\0132" +
-      "6.de.uniluebeck.itm.tr.iwsn.messages.Sin" +
-      "gleNodeProgress\022H\n\010response\030g \001(\01326.de.u",
-      "niluebeck.itm.tr.iwsn.messages.SingleNod" +
-      "eResponse\0228\n\005event\030h \001(\0132).de.uniluebeck" +
-      ".itm.tr.iwsn.messages.Event\022>\n\010eventAck\030" +
-      "i \001(\0132,.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.EventAck\"I\n\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROG" +
-      "RESS\020\002\022\014\n\010RESPONSE\020\003\022\t\n\005EVENT\020\004\022\r\n\tEVENT" +
-      "_ACK\020\005B\014B\010MessagesP\001"
+      "\t\022\020\n\010response\030\003 \001(\014\022\022\n\nstatusCode\030\004 \001(\005\022" +
+      "\024\n\014errorMessage\030\005 \001(\t\"V\n\024UpstreamMessage" +
+      "Event\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttimestam" +
+      "p\030\002 \002(\004\022\024\n\014messageBytes\030\003 \002(\014\";\n\024Devices" +
+      "AttachedEvent\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimes" +
+      "tamp\030\002 \002(\004\";\n\024DevicesDetachedEvent\022\020\n\010no" +
+      "deUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004\"H\n\021Notif" +
+      "icationEvent\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimesta",
+      "mp\030\002 \002(\004\022\017\n\007message\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007e" +
+      "ventId\030\001 \002(\003\022<\n\004type\030\002 \002(\0162..de.uniluebe" +
+      "ck.itm.tr.iwsn.messages.Event.Type\022V\n\024up" +
+      "streamMessageEvent\030e \001(\01328.de.uniluebeck" +
+      ".itm.tr.iwsn.messages.UpstreamMessageEve" +
+      "nt\022V\n\024devicesAttachedEvent\030f \001(\01328.de.un" +
+      "iluebeck.itm.tr.iwsn.messages.DevicesAtt" +
+      "achedEvent\022V\n\024devicesDetachedEvent\030g \001(\013" +
+      "28.de.uniluebeck.itm.tr.iwsn.messages.De" +
+      "vicesDetachedEvent\022P\n\021notificationEvent\030",
+      "h \001(\01325.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.NotificationEvent\"Z\n\004Type\022\024\n\020UPSTREAM" +
+      "_MESSAGE\020\001\022\024\n\020DEVICES_ATTACHED\020\002\022\024\n\020DEVI" +
+      "CES_DETACHED\020\003\022\020\n\014NOTIFICATION\020\004\"\033\n\010Even" +
+      "tAck\022\017\n\007eventId\030\001 \002(\003\"\340\003\n\007Message\022>\n\004typ" +
+      "e\030\001 \002(\01620.de.uniluebeck.itm.tr.iwsn.mess" +
+      "ages.Message.Type\022<\n\007request\030e \001(\0132+.de." +
+      "uniluebeck.itm.tr.iwsn.messages.Request\022" +
+      "H\n\010progress\030f \001(\01326.de.uniluebeck.itm.tr" +
+      ".iwsn.messages.SingleNodeProgress\022H\n\010res",
+      "ponse\030g \001(\01326.de.uniluebeck.itm.tr.iwsn." +
+      "messages.SingleNodeResponse\0228\n\005event\030h \001" +
+      "(\0132).de.uniluebeck.itm.tr.iwsn.messages." +
+      "Event\022>\n\010eventAck\030i \001(\0132,.de.uniluebeck." +
+      "itm.tr.iwsn.messages.EventAck\"I\n\004Type\022\013\n" +
+      "\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022\014\n\010RESPONSE\020\003\022\t" +
+      "\n\005EVENT\020\004\022\r\n\tEVENT_ACK\020\005B\014B\010MessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -396,7 +396,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_descriptor,
-              new java.lang.String[] { "RequestId", "NodeUrn", "StatusCode", "ErrorMessage", },
+              new java.lang.String[] { "RequestId", "NodeUrn", "Response", "StatusCode", "ErrorMessage", },
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.class,
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_descriptor =

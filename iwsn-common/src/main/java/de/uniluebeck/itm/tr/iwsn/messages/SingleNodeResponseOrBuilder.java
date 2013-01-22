@@ -13,11 +13,15 @@ public interface SingleNodeResponseOrBuilder
   boolean hasNodeUrn();
   String getNodeUrn();
   
-  // optional int32 statusCode = 3;
+  // optional bytes response = 3;
+  boolean hasResponse();
+  com.google.protobuf.ByteString getResponse();
+  
+  // optional int32 statusCode = 4;
   boolean hasStatusCode();
   int getStatusCode();
   
-  // optional string errorMessage = 4;
+  // optional string errorMessage = 5;
   boolean hasErrorMessage();
   String getErrorMessage();
 }

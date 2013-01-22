@@ -24,8 +24,8 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
@@ -38,7 +38,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.size;
 
 public abstract class SingleDeviceAdapterBase extends AbstractService implements DeviceAdapter {
 
@@ -49,95 +51,95 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(final Set<NodeUrn> nodeUrns) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, Boolean>(ImmutableMap.of(nodeUrn, isNodeAlive()));
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(final Set<NodeUrn> nodeUrns) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, Boolean>(ImmutableMap.of(nodeUrn, isNodeConnected()));
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(final Set<NodeUrn> nodeUrns) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(ImmutableMap.of(nodeUrn, disableNode()));
 	}
 
 	@Override
 	public ListenableFutureMap<NodeUrn, NodeApiCallResult> disablePhysicalLinks(
-			final Map<NodeUrn, MacAddress> sourceTargetMap) {
+			final Map<NodeUrn, NodeUrn> sourceTargetMap) {
 		checkArgument(sourceTargetMap.size() == 1 && sourceTargetMap.containsKey(nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(
-				ImmutableMap.of(nodeUrn, disablePhysicalLink(sourceTargetMap.get(nodeUrn)))
+				ImmutableMap.of(nodeUrn, disablePhysicalLink(new MacAddress(sourceTargetMap.get(nodeUrn).getSuffix())))
 		);
 	}
 
 	@Override
 	public ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(
-			final Map<NodeUrn, MacAddress> sourceTargetMap) {
+			final Map<NodeUrn, NodeUrn> sourceTargetMap) {
 		checkArgument(sourceTargetMap.size() == 1 && sourceTargetMap.containsKey(nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(
-				ImmutableMap.of(nodeUrn, disableVirtualLink(sourceTargetMap.get(nodeUrn)))
+				ImmutableMap.of(nodeUrn, disableVirtualLink(new MacAddress(sourceTargetMap.get(nodeUrn).getSuffix())))
 		);
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(final Set<NodeUrn> nodeUrns) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(ImmutableMap.of(nodeUrn, enableNode()));
 	}
 
 	@Override
 	public ListenableFutureMap<NodeUrn, NodeApiCallResult> enablePhysicalLinks(
-			final Map<NodeUrn, MacAddress> sourceTargetMap) {
+			final Map<NodeUrn, NodeUrn> sourceTargetMap) {
 		checkArgument(sourceTargetMap.size() == 1 && sourceTargetMap.containsKey(nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(
-				ImmutableMap.of(nodeUrn, enablePhysicalLink(sourceTargetMap.get(nodeUrn)))
+				ImmutableMap.of(nodeUrn, enablePhysicalLink(new MacAddress(sourceTargetMap.get(nodeUrn).getSuffix())))
 		);
 	}
 
 	@Override
 	public ListenableFutureMap<NodeUrn, NodeApiCallResult> enableVirtualLinks(
-			final Map<NodeUrn, MacAddress> sourceTargetMap) {
+			final Map<NodeUrn, NodeUrn> sourceTargetMap) {
 		checkArgument(sourceTargetMap.size() == 1 && sourceTargetMap.containsKey(nodeUrn));
 		return new SettableFutureMap<NodeUrn, NodeApiCallResult>(
-				ImmutableMap.of(nodeUrn, enableVirtualLink(sourceTargetMap.get(nodeUrn)))
+				ImmutableMap.of(nodeUrn, enableVirtualLink(new MacAddress(sourceTargetMap.get(nodeUrn).getSuffix())))
 		);
 	}
 
 	@Override
-	public ProgressListenableFutureMap<NodeUrn, Void> flashProgram(final Map<NodeUrn, byte[]> binaryImageMap) {
-		checkArgument(binaryImageMap.size() == 1 && binaryImageMap.containsKey(nodeUrn));
-		return new ProgressSettableFutureMap<NodeUrn, Void>(
-				ImmutableMap.of(nodeUrn, flashProgram(binaryImageMap.get(nodeUrn)))
-		);
+	public ProgressListenableFutureMap<NodeUrn, Void> flashProgram(final Iterable<NodeUrn> nodeUrns,
+																   byte[] binaryImage) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
+		return new ProgressSettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, flashProgram(binaryImage)));
 	}
 
 	@Override
 	public Set<NodeUrn> getNodeUrns() {
-		return isRunning() ? newHashSet(nodeUrn) : Sets.<NodeUrn>newHashSet();
+		return isRunning() ? ImmutableSet.of(nodeUrn) : ImmutableSet.<NodeUrn>of();
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, Void> resetNodes(final Set<NodeUrn> nodeUrns) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, Void> resetNodes(final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, resetNode()));
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, Void> sendMessage(final Set<NodeUrn> nodeUrns, final byte[] messageBytes) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
+	public ListenableFutureMap<NodeUrn, Void> sendMessage(final Iterable<NodeUrn> nodeUrns, final byte[] messageBytes) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, sendMessage(messageBytes)));
 	}
 
 	@Override
-	public ListenableFutureMap<NodeUrn, Void> setChannelPipelines(final Set<NodeUrn> nodeUrns,
+	public ListenableFutureMap<NodeUrn, Void> setChannelPipelines(final Iterable<NodeUrn> nodeUrns,
 																  final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs) {
-		checkArgument(nodeUrns.size() == 1 && nodeUrns.contains(nodeUrn));
-		return new SettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, setChannelPipeline(channelHandlerConfigs)));
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
+		return new SettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, setChannelPipeline(channelHandlerConfigs))
+		);
 	}
 
 	protected abstract ListenableFuture<NodeApiCallResult> enableNode();
@@ -162,5 +164,6 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 
 	protected abstract ListenableFuture<NodeApiCallResult> enableVirtualLink(MacAddress targetMacAddress);
 
-	protected abstract ListenableFuture<Void> setChannelPipeline(List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
+	protected abstract ListenableFuture<Void> setChannelPipeline(
+			List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
 }

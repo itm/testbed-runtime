@@ -29,7 +29,6 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.ListenableFutureMap;
 import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
 import de.uniluebeck.itm.tr.util.Tuple;
-import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.List;
@@ -40,28 +39,28 @@ public interface DeviceAdapter extends Service {
 
 	Set<NodeUrn> getNodeUrns();
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(Set<NodeUrn> nodeUrns);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(Iterable<NodeUrn> nodeUrns);
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> enablePhysicalLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enablePhysicalLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableVirtualLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> enableVirtualLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(Set<NodeUrn> nodeUrns);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(Iterable<NodeUrn> nodeUrns);
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> disablePhysicalLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disablePhysicalLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
 
-	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(Map<NodeUrn, MacAddress> sourceTargetMap);
+	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
 
-	ProgressListenableFutureMap<NodeUrn, Void> flashProgram(Map<NodeUrn, byte[]> binaryImageMap);
+	ProgressListenableFutureMap<NodeUrn, Void> flashProgram(Iterable<NodeUrn> nodeUrns, byte[] binaryImage);
 
-	ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(Set<NodeUrn> nodeUrns);
+	ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(Iterable<NodeUrn> nodeUrns);
 
-	ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(Set<NodeUrn> nodeUrns);
+	ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(Iterable<NodeUrn> nodeUrns);
 
-	ListenableFutureMap<NodeUrn, Void> resetNodes(Set<NodeUrn> nodeUrns);
+	ListenableFutureMap<NodeUrn, Void> resetNodes(Iterable<NodeUrn> nodeUrns);
 
-	ListenableFutureMap<NodeUrn, Void> sendMessage(Set<NodeUrn> nodeUrns, byte[] messageBytes);
+	ListenableFutureMap<NodeUrn, Void> sendMessage(Iterable<NodeUrn> nodeUrns, byte[] messageBytes);
 
-	ListenableFutureMap<NodeUrn, Void> setChannelPipelines(Set<NodeUrn> nodeUrns,
+	ListenableFutureMap<NodeUrn, Void> setChannelPipelines(Iterable<NodeUrn> nodeUrns,
 														   List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
 }
