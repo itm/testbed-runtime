@@ -12,7 +12,6 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -23,6 +22,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newDevicesAttachedEvent;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newDevicesDetachedEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 
 public class ReservationEventBusImpl extends AbstractService implements ReservationEventBus {
 
@@ -64,86 +64,17 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		checkState(isRunning());
 
 		if (event instanceof Request) {
-
-			final Request request = (Request) event;
-			switch (request.getType()) {
-
-				case ARE_NODES_ALIVE:
-					assertNodesArePartOfReservation(request.getAreNodesAliveRequest().getNodeUrnsList());
-					break;
-
-				case ARE_NODES_CONNECTED:
-					assertNodesArePartOfReservation(request.getAreNodesConnectedRequest().getNodeUrnsList());
-					break;
-
-				case DISABLE_NODES:
-					assertNodesArePartOfReservation(request.getDisableNodesRequest().getNodeUrnsList());
-					break;
-
-				case DISABLE_VIRTUAL_LINKS:
-					assertLinkSourceNodesArePartOfReservation(request.getDisableVirtualLinksRequest().getLinksList());
-					break;
-
-				case DISABLE_PHYSICAL_LINKS:
-					assertLinkSourceNodesArePartOfReservation(request.getDisablePhysicalLinksRequest().getLinksList());
-					break;
-
-				case ENABLE_NODES:
-					assertNodesArePartOfReservation(request.getEnableNodesRequest().getNodeUrnsList());
-					break;
-
-				case ENABLE_PHYSICAL_LINKS:
-					assertLinkSourceNodesArePartOfReservation(request.getEnablePhysicalLinksRequest().getLinksList());
-					break;
-
-				case ENABLE_VIRTUAL_LINKS:
-					assertLinkSourceNodesArePartOfReservation(request.getEnableVirtualLinksRequest().getLinksList());
-					break;
-
-				case FLASH_IMAGES:
-					assertNodesArePartOfReservation(request.getFlashImagesRequest().getNodeUrnsList());
-					break;
-
-				case RESET_NODES:
-					assertNodesArePartOfReservation(request.getResetNodesRequest().getNodeUrnsList());
-					break;
-
-				case SEND_DOWNSTREAM_MESSAGES:
-					assertNodesArePartOfReservation(request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList());
-					break;
-
-				case SET_CHANNEL_PIPELINES:
-					assertNodesArePartOfReservation(request.getSetChannelPipelinesRequest().getNodeUrnsList());
-					break;
-
-				default:
-					throw new RuntimeException("Unknown request type \"" + request.getType() + "\"!");
-			}
-
+			assertNodesArePartOfReservation(extractNodeUrns((Request) event));
 			portalEventBus.post(event);
 		}
 	}
 
-	private void assertLinkSourceNodesArePartOfReservation(final List<Link> links) {
-		final Set<NodeUrn> requestNodeUrns = newHashSet();
-		for (Link link : links) {
-			final NodeUrn sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
-			requestNodeUrns.add(sourceNodeUrn);
-		}
-		throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(requestNodeUrns);
-	}
-
-	private void throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(final Set<NodeUrn> nodeUrns) {
+	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
 		if (!reservedNodeUrns.containsAll(nodeUrns)) {
 			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservedNodeUrns)));
 			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
 					+ "are not part of the reservation.");
 		}
-	}
-
-	private void assertNodesArePartOfReservation(final List<String> nodeUrnStrings) {
-		final Set<NodeUrn> requestNodeUrns = newHashSet(transform(nodeUrnStrings, STRING_TO_NODE_URN));
-		throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(requestNodeUrns);
 	}
 
 	@Subscribe

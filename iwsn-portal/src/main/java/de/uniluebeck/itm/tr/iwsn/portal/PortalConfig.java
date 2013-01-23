@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.net.HostAndPort;
+import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.iwsn.common.config.HostAndPortOptionHandler;
+import de.uniluebeck.itm.tr.iwsn.common.config.MultimapOptionHandler;
 import de.uniluebeck.itm.tr.iwsn.common.config.NodeUrnPrefixOptionHandler;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.kohsuke.args4j.Option;
@@ -11,23 +11,17 @@ import java.net.URL;
 
 public class PortalConfig extends ConfigWithLogging {
 
-	@Option(name = "--overlayAddress",
-			usage = "Hostname and port to listen on for the internal overlay network "
-					+ "(default: 0.0.0.0:8880, binding on all interfaces)",
-			handler = HostAndPortOptionHandler.class)
-	public HostAndPort overlayAddress = HostAndPort.fromParts("0.0.0.0", 8880);
+	@Option(name = "--overlayPort",
+			usage = "Port to listen on for the internal overlay network (default: 8880)")
+	public int overlayPort = 8880;
 
-	@Option(name = "--portalAddress",
-			usage = "Hostname and port to provide the public portal services on "
-					+ "(default: 0.0.0.0:8888, binding on all interfaces)",
-			handler = HostAndPortOptionHandler.class)
-	public HostAndPort portalAddress = HostAndPort.fromParts("0.0.0.0", 8888);
+	@Option(name = "--port",
+			usage = "Port to provide the public SOAP and REST APIs on (default: 8888)")
+	public int port = 8888;
 
-	@Option(name = "--protobufAddress",
-			usage = "Hostname and port of the protobuf-based interface to be started "
-					+ "(default: 0.0.0.0:8885, binding on all interfaces)",
-			handler = HostAndPortOptionHandler.class)
-	public HostAndPort protobufAddress = HostAndPort.fromParts("0.0.0.0", 8885);
+	@Option(name = "--protobufPort",
+			usage = "Port to provide the protobuf-based API on (default: 8885)")
+	public int protobufPort = 8885;
 
 	@Option(name = "--nodeUrnPrefix",
 			usage = "The node URN prefix this portal is responsible for (e.g. \"urn:wisebed:uzl1:\"",
@@ -44,4 +38,10 @@ public class PortalConfig extends ConfigWithLogging {
 			required = true)
 	public URL snaaEndpointUrl;
 
+	@Option(name = "--options",
+			usage = "Additional key/value pairs to pass to TR extensions. Multiple comma-separated values are allowed"
+					+ " per key. Example usage: \"--options k1=k1v1,k1v2 k2=k2v1,k2v2\".",
+			handler = MultimapOptionHandler.class,
+			multiValued = true)
+	public Multimap<String, String> options;
 }

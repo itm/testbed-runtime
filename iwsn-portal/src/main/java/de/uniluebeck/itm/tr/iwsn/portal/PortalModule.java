@@ -6,6 +6,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -36,6 +39,13 @@ public class PortalModule extends AbstractModule {
 		);
 
 		install(new SchedulerServiceModule());
+
+		final ServicePublisherConfig servicePublisherConfig = new ServicePublisherConfig(
+				portalConfig.port,
+				ServicePublisherJettyMetroJerseyModule.class
+		);
+		install(new ServicePublisherJettyMetroJerseyModule(servicePublisherConfig));
+		install(new ResponseTrackerModule());
 	}
 
 	@Provides
