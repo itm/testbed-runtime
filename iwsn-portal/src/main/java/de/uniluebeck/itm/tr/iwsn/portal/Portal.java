@@ -21,15 +21,19 @@ public class Portal extends AbstractService {
 
 	private final PortalEventBus portalEventBus;
 
+	private final ReservationManager reservationManager;
+
 	@Inject
-	public Portal(final PortalEventBus portalEventBus) {
+	public Portal(final PortalEventBus portalEventBus, final ReservationManager reservationManager) {
 		this.portalEventBus = portalEventBus;
+		this.reservationManager = reservationManager;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 			portalEventBus.startAndWait();
+			reservationManager.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -39,6 +43,7 @@ public class Portal extends AbstractService {
 	@Override
 	protected void doStop() {
 		try {
+			reservationManager.stopAndWait();
 			portalEventBus.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {

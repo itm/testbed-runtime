@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
@@ -33,6 +34,8 @@ public class PortalModule extends AbstractModule {
 				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
 				.build(ReservationEventBusFactory.class)
 		);
+
+		install(new SchedulerServiceModule());
 	}
 
 	@Provides

@@ -3,39 +3,43 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
+import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
-import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
 
 	private static final Logger log = LoggerFactory.getLogger(ReservationManager.class);
+
+	private static final ThreadFactory SCHEDULER_THREAD_FACTORY =
+			new ThreadFactoryBuilder().setNameFormat("ReservationManager %d").build();
+
+	private static final TimeUnit MS = TimeUnit.MILLISECONDS;
 
 	private final PortalConfig portalConfig;
 
@@ -47,23 +51,30 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final Map<String, Reservation> reservationMap = newHashMap();
 
-	private ScheduledExecutorService scheduler;
+	private final SchedulerService schedulerService;
 
 	@Inject
-	public ReservationManagerImpl(final PortalConfig portalConfig, final RS rs, final DeviceConfigDB deviceConfigDB,
-								  final ReservationFactory reservationFactory) {
-		this.portalConfig = portalConfig;
-		this.rs = rs;
-		this.deviceConfigDB = deviceConfigDB;
-		this.reservationFactory = reservationFactory;
+	public ReservationManagerImpl(final PortalConfig portalConfig,
+								  final RS rs,
+								  final DeviceConfigDB deviceConfigDB,
+								  final ReservationFactory reservationFactory,
+								  final SchedulerServiceFactory schedulerServiceFactory) {
+		this.portalConfig = checkNotNull(portalConfig);
+		this.rs = checkNotNull(rs);
+		this.deviceConfigDB = checkNotNull(deviceConfigDB);
+		this.reservationFactory = checkNotNull(reservationFactory);
+		this.schedulerService = schedulerServiceFactory.create(
+				-1,
+				"ReservationManager-Scheduler %d",
+				"ReservationManager-Worker %d"
+		);
 	}
 
 	@Override
 	protected void doStart() {
+		log.trace("ReservationManagerImpl.doStart()");
 		try {
-			scheduler = Executors.newScheduledThreadPool(1,
-					new ThreadFactoryBuilder().setNameFormat("ReservationManager %d").build()
-			);
+			schedulerService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -72,8 +83,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	@Override
 	protected void doStop() {
+		log.trace("ReservationManagerImpl.doStop()");
 		try {
-			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+			for (Reservation reservation : reservationMap.values()) {
+				reservation.stopAndWait();
+			}
+			schedulerService.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -81,8 +96,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final String secretReservationKey)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception, ExperimentNotRunningFault_Exception {
+	public Reservation getReservation(final String secretReservationKey) throws ReservationUnknownException {
+
+		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKey);
 
 		synchronized (reservationMap) {
 
@@ -90,15 +106,24 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 				return reservationMap.get(secretReservationKey);
 			}
 
-			final List<SecretReservationKey> keys = toSecretReservationKeyList(secretReservationKey);
-			final List<ConfidentialReservationData> confidentialReservationDataList = rs.getReservation(keys);
+			final List<ConfidentialReservationData> confidentialReservationDataList;
+			try {
+				final List<SecretReservationKey> keys = toSecretReservationKeyList(secretReservationKey);
+				confidentialReservationDataList = rs.getReservation(keys);
+			} catch (RSFault_Exception e) {
+				throw propagate(e);
+			} catch (ReservationNotFoundFault_Exception e) {
+				throw new ReservationUnknownException(secretReservationKey, e);
+			}
+
+			if (confidentialReservationDataList.size() == 0) {
+				throw new ReservationUnknownException(secretReservationKey);
+			}
 
 			checkArgument(
 					confidentialReservationDataList.size() == 1,
 					"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
 			);
-
-			assertReservationIntervalMet(confidentialReservationDataList);
 
 			final ConfidentialReservationData data = confidentialReservationDataList.get(0);
 			final Set<NodeUrn> reservedNodes = newHashSet(data.getNodeUrns());
@@ -110,17 +135,23 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 					new Interval(data.getFrom(), data.getTo())
 			);
 
-			reservation.startAndWait();
+			reservationMap.put(secretReservationKey, reservation);
 
-			final Runnable stopReservationRunnable = new Runnable() {
-				@Override
-				public void run() {
-					reservation.stopAndWait();
-				}
-			};
+			if (!reservation.isRunning() && reservation.getInterval().containsNow()) {
 
-			final long stopAfterMillis = new Duration(DateTime.now(), data.getTo()).getMillis();
-			scheduler.schedule(stopReservationRunnable, stopAfterMillis, TimeUnit.MILLISECONDS);
+				reservation.startAndWait();
+
+				final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
+				schedulerService.schedule(new ReservationStopCallable(reservation), stopAfter.getMillis(), MS);
+
+			} else if (reservation.getInterval().isAfterNow()) {
+
+				final Duration startAfter = new Duration(now(), reservation.getInterval().getStart());
+				final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
+
+				schedulerService.schedule(new ReservationStartCallable(reservation), startAfter.getMillis(), MS);
+				schedulerService.schedule(new ReservationStopCallable(reservation), stopAfter.getMillis(), MS);
+			}
 
 			return reservation;
 		}
@@ -132,47 +163,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 				throw new RuntimeException("Node URN \"" + entry.getKey() + "\" unknown.");
 			}
 		}
-	}
-
-	/**
-	 * Checks the reservations' time intervals if they have already started or have already stopped and throws an
-	 * exception
-	 * if that's the case.
-	 *
-	 * @param reservations
-	 * 		the reservations to check
-	 *
-	 * @throws eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception
-	 * 		if now is not inside the reservations' time interval
-	 */
-	private void assertReservationIntervalMet(List<ConfidentialReservationData> reservations)
-			throws ExperimentNotRunningFault_Exception {
-
-		for (ConfidentialReservationData reservation : reservations) {
-
-			DateTime from = reservation.getFrom();
-			DateTime to = reservation.getTo();
-
-			if (from.isAfterNow()) {
-				throw WisebedServiceHelper.createExperimentNotRunningException(
-						"Reservation time interval for node URNs "
-								+ Arrays.toString(reservation.getNodeUrns().toArray())
-								+ " lies in the future.",
-						null
-				);
-			}
-
-			if (to.isBeforeNow()) {
-				throw WisebedServiceHelper.createExperimentNotRunningException(
-						"Reservation time interval for node URNs "
-								+ Arrays.toString(reservation.getNodeUrns().toArray())
-								+ " lies in the past.",
-						null
-				);
-			}
-
-		}
-
 	}
 
 	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {

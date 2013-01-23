@@ -69,83 +69,62 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 			switch (request.getType()) {
 
 				case ARE_NODES_ALIVE:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getAreNodesAliveRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getAreNodesAliveRequest().getNodeUrnsList());
 					break;
 
 				case ARE_NODES_CONNECTED:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getAreNodesConnectedRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getAreNodesConnectedRequest().getNodeUrnsList());
 					break;
 
 				case DISABLE_NODES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getDisableNodesRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getDisableNodesRequest().getNodeUrnsList());
 					break;
 
 				case DISABLE_VIRTUAL_LINKS:
-					throwIllegalArgumentExceptionIfAnyLinkSourceNodeIsNotPartOfReservation(
-							request.getDisableVirtualLinksRequest().getLinksList()
-					);
+					assertLinkSourceNodesArePartOfReservation(request.getDisableVirtualLinksRequest().getLinksList());
 					break;
 
 				case DISABLE_PHYSICAL_LINKS:
-					throwIllegalArgumentExceptionIfAnyLinkSourceNodeIsNotPartOfReservation(
-							request.getDisablePhysicalLinksRequest().getLinksList()
-					);
+					assertLinkSourceNodesArePartOfReservation(request.getDisablePhysicalLinksRequest().getLinksList());
 					break;
 
 				case ENABLE_NODES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getEnableNodesRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getEnableNodesRequest().getNodeUrnsList());
 					break;
 
 				case ENABLE_PHYSICAL_LINKS:
-					throwIllegalArgumentExceptionIfAnyLinkSourceNodeIsNotPartOfReservation(
-							request.getEnablePhysicalLinksRequest().getLinksList()
-					);
+					assertLinkSourceNodesArePartOfReservation(request.getEnablePhysicalLinksRequest().getLinksList());
 					break;
 
 				case ENABLE_VIRTUAL_LINKS:
-					throwIllegalArgumentExceptionIfAnyLinkSourceNodeIsNotPartOfReservation(
-							request.getEnableVirtualLinksRequest().getLinksList()
-					);
+					assertLinkSourceNodesArePartOfReservation(request.getEnableVirtualLinksRequest().getLinksList());
 					break;
 
 				case FLASH_IMAGES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getFlashImagesRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getFlashImagesRequest().getNodeUrnsList());
 					break;
 
 				case RESET_NODES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getResetNodesRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getResetNodesRequest().getNodeUrnsList());
 					break;
 
 				case SEND_DOWNSTREAM_MESSAGES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList());
 					break;
 
 				case SET_CHANNEL_PIPELINES:
-					throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(
-							request.getSetChannelPipelinesRequest().getNodeUrnsList()
-					);
+					assertNodesArePartOfReservation(request.getSetChannelPipelinesRequest().getNodeUrnsList());
 					break;
-			}
-		}
 
-		portalEventBus.post(event);
+				default:
+					throw new RuntimeException("Unknown request type \"" + request.getType() + "\"!");
+			}
+
+			portalEventBus.post(event);
+		}
 	}
 
-	private void throwIllegalArgumentExceptionIfAnyLinkSourceNodeIsNotPartOfReservation(final List<Link> links) {
+	private void assertLinkSourceNodesArePartOfReservation(final List<Link> links) {
 		final Set<NodeUrn> requestNodeUrns = newHashSet();
 		for (Link link : links) {
 			final NodeUrn sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
@@ -162,7 +141,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		}
 	}
 
-	private void throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(final List<String> nodeUrnStrings) {
+	private void assertNodesArePartOfReservation(final List<String> nodeUrnStrings) {
 		final Set<NodeUrn> requestNodeUrns = newHashSet(transform(nodeUrnStrings, STRING_TO_NODE_URN));
 		throwIllegalArgumentExceptionIfAnyNodeIsNotPartOfReservation(requestNodeUrns);
 	}
