@@ -127,6 +127,7 @@ public abstract class GenericDaoImpl<T, K extends Serializable> implements Gener
 	}
 
 	@Override
+	@Transactional
 	public void update(T entity) {
 		log.debug("Persisting all local changes of " + entity);
 		entityManager.merge(entity);
