@@ -23,6 +23,33 @@
 
 package de.uniluebeck.itm.tr.snaa;
 
+import static com.google.common.collect.Sets.newHashSet;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+import javax.xml.ws.Endpoint;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.apache.shiro.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -31,8 +58,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
+import com.google.inject.persist.jpa.JpaPersistModule;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
+
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAA;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
@@ -40,6 +70,9 @@ import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shiro.MyShiroModule;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAFactory;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -50,21 +83,6 @@ import eu.wisebed.testbed.api.snaa.authorization.AttributeBasedAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
 import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import javax.xml.ws.Endpoint;
-import java.io.FileReader;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.util.*;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 @SuppressWarnings("restriction")
 public class SNAAServer {
@@ -265,7 +283,20 @@ public class SNAAServer {
 						federationManager
 				);
 
-			} else {
+			}
+
+            else if ("shiro".equals(type)) {
+
+                nodeUrnPrefix =
+                        new NodeUrnPrefix(props.getProperty(snaaName + ".urnprefix", "urn:default:" + snaaName));
+//                String shiroConfigPath = props.getProperty(snaaName + ".shiroConfig");
+//                if (null == shiroConfigPath) {
+//                    throw new IllegalArgumentException("Path to Shiro configuration is missing. Please supply value for " + snaaName + ".shiroConfig");
+//                }
+//                String ehCacheConfigPath = props.getProperty(snaaName + ".ehCacheConfig", "");
+
+                startShiroSNAA(path, nodeUrnPrefix);
+            } else {
 				log.error("Found unknown type " + type + " for snaa name " + snaaName + ". Ignoring...");
 			}
 
@@ -348,6 +379,34 @@ public class SNAAServer {
 		log.info("Started dummy SNAA on " + server.getAddress() + path);
 
 	}
+
+    private static void startShiroSNAA(String path, NodeUrnPrefix nodeUrnPrefix) {
+
+		Properties properties = new Properties();
+		try {
+			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			
+		}
+		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
+		jpaInjector.getInstance(PersistService.class).start();
+		
+		MyShiroModule myShiroModule = new MyShiroModule();
+		Injector shiroInjector = jpaInjector.createChildInjector(myShiroModule);
+    	SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
+    	
+    	ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
+        ShiroSNAA shiroSNAA = factory.create(newHashSet(nodeUrnPrefix));
+        
+        HttpContext context = server.createContext(path);
+        Endpoint endpoint = Endpoint.create(shiroSNAA);
+     	endpoint.publish(context);
+     	
+     	log.info("Started Shiro SNAA on " + server.getAddress() + path);
+    }
+
+
 
 	private static void startShibbolethSNAA(String path, NodeUrnPrefix prefix, String secretKeyURL,
 											IUserAuthorization authorization, Injector injector,

@@ -32,4 +32,5 @@ target
 **/**/*.iml
 **/**/*.ipr
 **/**/*.iws
+/snaa-server/src/main/resources/META-INF/hibernate.properties
 

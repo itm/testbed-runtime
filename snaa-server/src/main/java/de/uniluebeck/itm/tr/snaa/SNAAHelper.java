@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
@@ -117,6 +118,20 @@ public class SNAAHelper {
 			}
 		}
 	}
+	
+	public static void assertAllNodeUrnPrefixesServed(
+			Set<NodeUrnPrefix> servedNodeUrnPrefixes,
+			List<NodeUrn> nodeUrns)
+					throws SNAAFault_Exception{
+		NodeUrnPrefix prefix;
+		for (NodeUrn nodeUrn : nodeUrns) {
+			prefix = nodeUrn.getPrefix();
+			if (!servedNodeUrnPrefixes.contains(prefix)){
+				throw createSNAAFault("Not serving node URN prefix '" +prefix+"'");
+			}
+		}
+		
+	}
 
 	public static SNAAFault_Exception createSNAAFault(String msg) {
 		log.warn(msg);
@@ -154,5 +169,7 @@ public class SNAAHelper {
 		}
 		return usernamePrefixPairs;
 	}
+
+	
 
 }

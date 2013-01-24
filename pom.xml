@@ -188,6 +188,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-persist</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
 				<artifactId>guice-assistedinject</artifactId>
 				<version>3.0</version>
 			</dependency>
@@ -322,6 +327,11 @@
 				<version>3.5.5-Final</version>
 			</dependency>
 			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>3.5.5-Final</version>
+			</dependency>
+			<dependency>
 				<groupId>javax.transaction</groupId>
 				<artifactId>jta</artifactId>
 				<version>1.1</version>
@@ -395,6 +405,18 @@
 				<artifactId>mockito-all</artifactId>
 				<version>1.9.0</version>
 				<scope>test</scope>
+			</dependency>
+			
+			<!-- Apache Shiro dependencies -->
+			<dependency>
+				<groupId>org.apache.shiro</groupId>
+				<artifactId>shiro-core</artifactId>
+				<version>1.2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.shiro</groupId>
+				<artifactId>shiro-guice</artifactId>
+				<version>1.2.1</version>
 			</dependency>
 
 		</dependencies>
