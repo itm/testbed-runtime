@@ -1,16 +1,28 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.iwsn.devicedb.entity;
 
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Transient;
+
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Entity
 public class DeviceConfig {
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
@@ -21,32 +33,44 @@ public class DeviceConfig {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-	private final NodeUrn nodeUrn;
+	@Id
+	private String nodeUrn;
+	
+	@Column(nullable=false)
+	private  String nodeType;
 
-	private final String nodeType;
+	private  boolean gatewayNode;
 
-	private final boolean gatewayNode;
-
-	@Nullable
-	private final String nodeUSBChipID;
-
-	@Nullable
-	private final Map<String, String> nodeConfiguration;
-
-	@Nullable
-	private final List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
+	@Nullable 
+	private  String nodeUSBChipID;
 
 	@Nullable
-	private final Long timeoutNodeApiMillis;
+	@ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SELECT)
+    @MapKeyColumn(name = "key", length = 1024)
+    @Column(name = "value", length = 4069)
+	private  Map<String, String> nodeConfiguration;
 
 	@Nullable
-	private final Long timeoutResetMillis;
+	// TODO how to persist?
+	@Transient
+	private  List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
 
 	@Nullable
-	private final Long timeoutFlashMillis;
+	private  Long timeoutNodeApiMillis;
 
 	@Nullable
-	private final Long timeoutCheckAliveMillis;
+	private  Long timeoutResetMillis;
+
+	@Nullable
+	private  Long timeoutFlashMillis;
+
+	@Nullable
+	private  Long timeoutCheckAliveMillis;
+	
+	public DeviceConfig() {
+		
+	}
 
 	public DeviceConfig(
 			final NodeUrn nodeUrn,
@@ -60,7 +84,7 @@ public class DeviceConfig {
 			@Nullable final Long timeoutNodeApiMillis,
 			@Nullable final Long timeoutResetMillis) {
 
-		this.nodeUrn = checkNotNull(nodeUrn);
+		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
 		this.gatewayNode = gatewayNode;
 		this.nodeUSBChipID = nodeUSBChipID;
@@ -101,7 +125,7 @@ public class DeviceConfig {
 	}
 
 	public NodeUrn getNodeUrn() {
-		return nodeUrn;
+		return new NodeUrn(nodeUrn);
 	}
 
 	@Nullable
