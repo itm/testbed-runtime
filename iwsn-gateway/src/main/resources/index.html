@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Gateway ...</title>
+    <link rel="stylesheet" href="bootstrap-2.2.2.css"/>
+    <script src="jquery-1.8.3.js"></script>
+    <script src="bootstrap-2.2.2.js"></script>
+    <script>
+
+        function reset(nodeUrn, resetButton, row) {
+            resetButton.addClass('disabled');
+            $.get("/devices/" + encodeURIComponent(nodeUrn) + "/reset", function() {
+                resetButton.removeClass('disabled');
+                row.addClass('success');
+                window.setTimeout(function() {row.removeClass('success')}, 2000);
+            });
+        }
+
+        $(document).ready(function() {
+
+            window.document.title = "Gateway " + window.location.hostname;
+            $('#titleHostnameDiv').append(window.location.hostname);
+
+            $.get("/devices", function(data) {
+                $(data.nodeUrns).each(function(index, nodeUrn) {
+
+                    var row = $('<tr>'
+                            + '<td>' + nodeUrn + '</td>'
+                            + '<td><button class="btn">Reset</button></td>'
+                            + '</tr>');
+
+                    var resetButton = row.find('button').first();
+                    resetButton.bind('click', function() {
+                        reset(nodeUrn, resetButton, row);
+                    });
+
+                    $('#connectedDevicesTable').append(row);
+                });
+            }, "json")
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Gateway&nbsp;<span id="titleHostnameDiv"></span></h1>
+
+    <h3>Currently connected devices</h3>
+
+    <table class="table table-striped table-bordered table-hover table-condensed" id="connectedDevicesTable"></table>
+</div>
+</body>
+</html>

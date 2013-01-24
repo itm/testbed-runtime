@@ -23,14 +23,16 @@
 
 package de.uniluebeck.itm.tr.snaa;
 
-import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
+import eu.wisebed.api.v3.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinMaxCount;
 
@@ -40,94 +42,117 @@ public class SNAAHelper {
 
 	public static void assertMinAuthenticationCount(List<AuthenticationTriple> authenticationData,
 													int minCountInclusive)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 	}
 
 	public static void assertAuthenticationCount(List<AuthenticationTriple> authenticationData, int minCountInclusive,
-												 int maxCountInclusive) throws SNAAExceptionException {
+												 int maxCountInclusive) throws SNAAFault_Exception {
 
 		try {
 			assertCollectionMinMaxCount(authenticationData, minCountInclusive, maxCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 	}
 
 	public static void assertAuthenticationKeyCount(List<SecretAuthenticationKey> authenticationData,
 													int minCountInclusive, int maxCountInclusive)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		try {
 			assertCollectionMinCount(authenticationData, minCountInclusive);
 		} catch (Exception e) {
-			createSNAAException(e.getMessage());
+			throw createSNAAFault(e.getMessage());
 		}
 
 	}
 
-	public static void assertUrnPrefixServed(String servedURNPrefix, List<AuthenticationTriple> authenticationData)
-			throws SNAAExceptionException {
-		Set<String> urnPrefixes = new HashSet<String>();
-		urnPrefixes.add(servedURNPrefix);
+	public static void assertElementCount(Collection<?> c, int minCountInclusive, int maxCountInclusive)
+			throws SNAAFault_Exception {
 
-		assertAuthenticationCount(authenticationData, 1, 1);
-		assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
+		try {
+			assertCollectionMinCount(c, minCountInclusive);
+		} catch (Exception e) {
+			throw createSNAAFault(e.getMessage());
+		}
 	}
 
-	public static void assertSAKUrnPrefixServed(String servedURNPrefix,
+	public static void assertUrnPrefixServed(NodeUrnPrefix servedURNPrefix,
+											 List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
+		assertAuthenticationCount(authenticationData, 1, 1);
+		assertAllUrnPrefixesServed(newHashSet(servedURNPrefix), authenticationData);
+	}
+
+	public static void assertSAKUrnPrefixServed(NodeUrnPrefix urnPrefixes,
 												List<SecretAuthenticationKey> authenticationData)
-			throws SNAAExceptionException {
-		Set<String> urnPrefixes = new HashSet<String>();
-		urnPrefixes.add(servedURNPrefix);
+			throws SNAAFault_Exception {
 
 		assertAuthenticationKeyCount(authenticationData, 1, 1);
-		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
+		assertAllUrnPrefixesInSAKsAreServed(newHashSet(urnPrefixes), authenticationData);
 	}
 
-	public static void assertAllUrnPrefixesServed(Set<String> servedURNPrefixes,
+	public static void assertAllUrnPrefixesServed(Set<NodeUrnPrefix> servedURNPrefixes,
 												  List<AuthenticationTriple> authenticationData)
-			throws SNAAExceptionException {
+			throws SNAAFault_Exception {
 
 		for (AuthenticationTriple triple : authenticationData) {
 			if (!servedURNPrefixes.contains(triple.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + triple.getUrnPrefix());
+				throw createSNAAFault("Not serving node URN prefix " + triple.getUrnPrefix());
 			}
 		}
 	}
 
-	public static void assertAllSAKUrnPrefixesServed(Set<String> servedURNPrefixes,
-													 List<SecretAuthenticationKey> authenticationData)
-			throws SNAAExceptionException {
+	public static void assertAllUrnPrefixesInSAKsAreServed(Set<NodeUrnPrefix> servedURNPrefixes,
+														   List<SecretAuthenticationKey> authenticationData)
+			throws SNAAFault_Exception {
 
 		for (SecretAuthenticationKey key : authenticationData) {
 			if (!servedURNPrefixes.contains(key.getUrnPrefix())) {
-				throw createSNAAException("Not serving urn prefix " + key.getUrnPrefix());
+				throw createSNAAFault("Not serving node URN prefix " + key.getUrnPrefix());
 			}
 		}
 	}
 
-	/**
-	 * @param msg
-	 *
-	 * @return
-	 */
-	public static SNAAExceptionException createSNAAException(String msg) {
+	public static SNAAFault_Exception createSNAAFault(String msg) {
 		log.warn(msg);
-		SNAAException exception = new SNAAException();
+		SNAAFault exception = new SNAAFault();
 		exception.setMessage(msg);
-		return new SNAAExceptionException(msg, exception);
+		return new SNAAFault_Exception(msg, exception);
 	}
 
-	public static AuthenticationExceptionException createAuthenticationException(String msg) {
+	public static AuthenticationFault_Exception createAuthenticationFault_Exception(String msg) {
 		log.warn(msg);
-		AuthenticationException exception = new AuthenticationException();
+		AuthenticationFault exception = new AuthenticationFault();
 		exception.setMessage(msg);
-		return new AuthenticationExceptionException(msg, exception);
+		return new AuthenticationFault_Exception(msg, exception);
+	}
+
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
+	 * urn prefixes and returns the result.
+	 *
+	 * @param secretAuthenticationKeys
+	 * 		A list of secret authentication keys
+	 *
+	 * @return A list of tuples comprising user names and urn prefixes
+	 */
+	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
+		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
+		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
+			upp.setUsername(secretAuthenticationKey.getUsername());
+			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+			usernamePrefixPairs.add(upp);
+		}
+		return usernamePrefixPairs;
 	}
 
 }

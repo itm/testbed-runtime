@@ -23,33 +23,8 @@
 
 package de.uniluebeck.itm.tr.rs;
 
-import static com.google.inject.matcher.Matchers.annotatedWith;
-
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import javax.xml.ws.Endpoint;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -65,7 +40,6 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
@@ -74,14 +48,35 @@ import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.WisebedServiceHelper;
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.SNAA;
+import org.apache.commons.cli.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.ws.Endpoint;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import static com.google.inject.matcher.Matchers.annotatedWith;
 
 @SuppressWarnings("restriction")
 public class RSServer {
@@ -149,9 +144,10 @@ public class RSServer {
 
 		startHttpServer(port);
 
-		Set<String> rsNames = parseCSV(props.getProperty("config.rsnames", ""));
+		Iterable<String> rsNames = Splitter.on(",").trimResults().split(props.getProperty("config.rsnames", ""));
 
-		String type, urnprefix, path;
+		String type, path;
+		NodeUrnPrefix nodeUrnPrefix;
 		for (String rs : rsNames) {
 
 			type = props.getProperty(rs + ".type", "");
@@ -163,25 +159,28 @@ public class RSServer {
 
 			} else if ("singleurnprefix".equals(type)) {
 
-				urnprefix = props.getProperty(rs + ".urnprefix", "urn:default:" + rs);
-				startSingleUrnPrefixRS(path, urnprefix, props, rs);
+				nodeUrnPrefix = new NodeUrnPrefix(props.getProperty(rs + ".urnprefix", "urn:default:" + rs));
+				startSingleUrnPrefixRS(path, nodeUrnPrefix, props, rs);
 
 			} else if ("federator".equals(type)) {
 
-				// endpoint url -> set<urnprefix>
-				Map<String, Set<String>> federatedUrnPrefixes = new HashMap<String, Set<String>>();
+				// endpoint URL -> Set<NodeUrnPrefix>
+				ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> urnPrefixSetBuilder = ImmutableMap.builder();
 
-				Set<String> federates = parseCSV(props.getProperty(rs + ".federates", ""));
+				final String federatesString = props.getProperty(rs + ".federates", "");
+				final Iterable<String> federates = Splitter.on(",").trimResults().split(federatesString);
 				for (String federatedName : federates) {
 
-					Set<String> urnPrefixes = parseCSV(props.getProperty(rs + "." + federatedName + ".urnprefixes"));
-					String endpointUrl = props.getProperty(rs + "." + federatedName + ".endpointurl", "");
+					final String urnPrefixesString = props.getProperty(rs + "." + federatedName + ".urnprefixes");
+					final String rsEndpointUrlString = props.getProperty(rs + "." + federatedName + ".endpointurl", "");
 
-					federatedUrnPrefixes.put(endpointUrl, urnPrefixes);
+					final ImmutableSet<NodeUrnPrefix> urnPrefixes = parseNodeUrnPrefixSetFromCSV(urnPrefixesString);
+					final URI rsEndpointUrl = URI.create(rsEndpointUrlString);
 
+					urnPrefixSetBuilder.put(rsEndpointUrl, urnPrefixes);
 				}
 
-				startFederator(path, federatedUrnPrefixes);
+				startFederator(path, urnPrefixSetBuilder.build());
 
 			} else {
 				log.error("Found unknown type " + type + " for rs name " + rs + ". Ignoring...");
@@ -193,7 +192,9 @@ public class RSServer {
 
 	}
 
-	private static void startSingleUrnPrefixRS(final String path, final String urnPrefix, final Properties props,
+	private static void startSingleUrnPrefixRS(final String path,
+											   final NodeUrnPrefix urnPrefix,
+											   final Properties props,
 											   final String propsPrefix)
 			throws Exception {
 
@@ -208,7 +209,7 @@ public class RSServer {
 		final Injector injector = Guice.createInjector(new Module() {
 			@Override
 			public void configure(final Binder binder) {
-				
+
 				SNAA snaaInstance = WisebedServiceHelper.getSNAAService(snaaEndpointUrl);
 
 				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"",
@@ -224,7 +225,7 @@ public class RSServer {
 						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.timeLimiter"))
 						.toInstance(timeLimiter);
 
-				binder.bind(String.class)
+				binder.bind(NodeUrnPrefix.class)
 						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.urnPrefix"))
 						.toInstance(urnPrefix);
 
@@ -236,16 +237,16 @@ public class RSServer {
 					binder.bind(SessionManagement.class)
 							.toProvider(Providers.<SessionManagement>of(null));
 
-					binder.bind(String[].class)
+					binder.bind(NodeUrn[].class)
 							.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
-							.toProvider(Providers.<String[]>of(null));
+							.toProvider(Providers.<NodeUrn[]>of(null));
 
 				} else {
 
 					binder.bind(SessionManagement.class)
 							.toInstance(WisebedServiceHelper.getSessionManagementService(sessionManagementEndpointUrl));
 
-					binder.bind(String[].class)
+					binder.bind(NodeUrn[].class)
 							.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
 							.toProvider(ServedNodeUrnsProvider.class);
 				}
@@ -253,15 +254,17 @@ public class RSServer {
 
 				binder.bind(RSPersistence.class)
 						.toInstance(persistence);
-				
+
 				binder.bind(RS.class)
 						.to(SingleUrnPrefixSOAPRS.class);
 
 				binder.bind(RS.class)
 						.annotatedWith(NonWS.class)
 						.to(SingleUrnPrefixRS.class);
-				
-				binder.bindInterceptor(Matchers.any(), annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaaInstance));
+
+				binder.bindInterceptor(Matchers.any(), annotatedWith(AuthorizationRequired.class),
+						new RSAuthorizationInterceptor(snaaInstance)
+				);
 			}
 		}
 		);
@@ -318,13 +321,13 @@ public class RSServer {
 
 	}
 
-	private static Set<String> parseCSV(String str) {
+	private static ImmutableSet<NodeUrnPrefix> parseNodeUrnPrefixSetFromCSV(String str) {
 		String[] split = str.split(",");
-		Set<String> trimmedSplit = new HashSet<String>();
+		ImmutableSet.Builder<NodeUrnPrefix> setBuilder = ImmutableSet.builder();
 		for (String string : split) {
-			trimmedSplit.add(string.trim());
+			setBuilder.add(new NodeUrnPrefix(string.trim()));
 		}
-		return trimmedSplit;
+		return setBuilder.build();
 	}
 
 	private static void usage(Options options) {
@@ -333,32 +336,21 @@ public class RSServer {
 		System.exit(1);
 	}
 
-	private static void startFederator(String path, Map<String, Set<String>>... prefixSets) {
+	private static void startFederator(String path, ImmutableMap<URI, ImmutableSet<NodeUrnPrefix>> prefixSet) {
 
-		// union the prefix sets to one set
-		ImmutableMap.Builder<String, ImmutableSet<String>> prefixSetBuilder = ImmutableMap.builder();
-
-		for (Map<String, Set<String>> p : prefixSets) {
-			for (Map.Entry<String, Set<String>> entry : p.entrySet()) {
-				prefixSetBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
+		final Function<URI, RS> uriToRSEndpointFunction = new Function<URI, RS>() {
+			@Override
+			public RS apply(final URI uri) {
+				return WisebedServiceHelper.getRSService(uri.toString());
 			}
-		}
+		};
 
-		FederationManager<RS> federationManager = new FederationManager<RS>(
-				new Function<String, RS>() {
-					@Override
-					public RS apply(final String s) {
-						return WisebedServiceHelper.getRSService(s);
-					}
-				}, prefixSetBuilder.build()
+		final ExecutorService executorService = Executors.newCachedThreadPool(
+				new ThreadFactoryBuilder().setNameFormat("FederatorRS-Thread %d").build()
 		);
 
-		FederatorRS federator = new FederatorRS(
-				federationManager,
-				Executors.newCachedThreadPool(
-						new ThreadFactoryBuilder().setNameFormat("FederatorRS-Thread %d").build()
-				)
-		);
+		final FederationManager<RS> federationManager = new FederationManager<RS>(uriToRSEndpointFunction, prefixSet);
+		final FederatorRS federator = new FederatorRS(federationManager, executorService);
 
 		HttpContext context = server.createContext(path);
 		Endpoint endpoint = Endpoint.create(federator);
@@ -369,7 +361,7 @@ public class RSServer {
 	}
 
 	private static RSPersistence createPersistenceDB(Properties props, String propsPrefix)
-			throws IOException, RSExceptionException {
+			throws IOException, RSFault_Exception {
 
 		Map<String, String> properties = new HashMap<String, String>();
 		for (Object key : props.keySet()) {

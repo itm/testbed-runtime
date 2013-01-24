@@ -23,17 +23,18 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufControllerServer;
 import de.uniluebeck.itm.tr.runtime.portalapp.protobuf.ProtobufDeliveryManager;
 import de.uniluebeck.itm.tr.runtime.wsnapp.WSNApp;
-import de.uniluebeck.itm.tr.util.Service;
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
-public class WSNServiceHandle implements Service {
+public class WSNServiceHandle extends AbstractService implements Service {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceHandle.class);
 
@@ -69,42 +70,56 @@ public class WSNServiceHandle implements Service {
 	}
 
 	@Override
-	public void start() throws Exception {
-		wsnApp.startAndWait();
-		wsnService.start();
-		wsnSoapService.start();
+	protected void doStart() {
+
+		try {
+
+			wsnApp.startAndWait();
+			wsnService.startAndWait();
+			wsnSoapService.startAndWait();
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
-	public void stop() {
+	protected void doStop() {
 
 		try {
-			wsnSoapService.stop();
-		} catch (Exception e) {
-			log.error("Exception while stopping WSN SOAP Web service interface: {}", e);
-		}
 
-		try {
-			wsnService.stop();
-		} catch (Throwable e) {
-			if (e instanceof NullPointerException) {
-				// ignore as it is well-known and an error in the jre library
-			} else {
-				log.warn("" + e, e);
+			try {
+				wsnSoapService.stopAndWait();
+			} catch (Exception e) {
+				log.error("Exception while stopping WSN SOAP Web service interface: ", e);
 			}
+
+			try {
+				wsnService.stopAndWait();
+			} catch (Throwable e) {
+				log.error("Exception while stopping WSN service: ", e);
+			}
+
+			try {
+				wsnApp.stopAndWait();
+			} catch (Throwable e) {
+				log.error("Exception while stopping WSNApp: ", e);
+			}
+
+			try {
+				protobufControllerServer.stopHandlers(secretReservationKey);
+			} catch (Throwable e) {
+				log.error("Exception while stopping ProtobufControllerServer: ", e);
+			}
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
 
-		try {
-			wsnApp.stopAndWait();
-		} catch (Throwable e) {
-			log.warn("" + e, e);
-		}
-
-		try {
-			protobufControllerServer.stopHandlers(secretReservationKey);
-		} catch (Throwable e) {
-			log.warn("" + e, e);
-		}
 	}
 
 	public WSN getWsnService() {

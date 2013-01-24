@@ -1,12 +1,15 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.Portalapp;
 import de.uniluebeck.itm.tr.runtime.portalapp.xml.ProtobufInterface;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.wiseml.WiseMLHelper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -48,7 +51,7 @@ public class SessionManagementServiceConfig {
 	/**
 	 * The URN prefix that is served by this instance.
 	 */
-	private final String urnPrefix;
+	private final NodeUrnPrefix urnPrefix;
 
 	/**
 	 * The base URL (i.e. prefix) that is used as the prefix of a newly created WSN API instance.
@@ -57,11 +60,11 @@ public class SessionManagementServiceConfig {
 
 	/**
 	 * The filename of the file containing the WiseML document that is to delivered when {@link
-	 * eu.wisebed.api.sm.SessionManagement#getNetwork()} is called.
+	 * eu.wisebed.api.v3.sm.SessionManagement#getNetwork()} is called.
 	 */
 	private final String wiseMLFilename;
 
-	private final ImmutableSet<String> nodeUrnsServed;
+	private final ImmutableSet<NodeUrn> nodeUrnsServed;
 
 	public SessionManagementServiceConfig(Portalapp config) {
 
@@ -81,13 +84,20 @@ public class SessionManagementServiceConfig {
 				);
 			}
 
-			this.nodeUrnsServed = ImmutableSet.<String>builder().addAll(WiseMLHelper.getNodeUrns(serializedWiseML)).build();
+			final List<String> nodeUrnsStrings = WiseMLHelper.getNodeUrns(serializedWiseML);
+			final ImmutableSet.Builder<NodeUrn> nodeUrnsServedBuilder = ImmutableSet.builder();
+			for (String nodeUrnString : nodeUrnsStrings) {
+				nodeUrnsServedBuilder.add(new NodeUrn(nodeUrnString));
+			}
+			final ImmutableSet<NodeUrn> nodeUrnsServed = nodeUrnsServedBuilder.build();
+
+			this.nodeUrnsServed = nodeUrnsServedBuilder.addAll(nodeUrnsServed).build();
 			this.protobufinterface = config.getWebservice().getProtobufinterface();
 			this.maximumDeliveryQueueSize = config.getWebservice().getMaximumdeliveryqueuesize();
 			this.sessionManagementEndpointUrl = new URL(config.getWebservice().getSessionmanagementendpointurl());
 			this.reservationEndpointUrl = new URL(config.getWebservice().getReservationendpointurl());
 			this.snaaEndpointUrl = new URL(config.getWebservice().getSnaaendpointurl());
-			this.urnPrefix = config.getWebservice().getUrnprefix();
+			this.urnPrefix = new NodeUrnPrefix(config.getWebservice().getUrnprefix());
 
 			this.wsnInstanceBaseUrl = new URL(config.getWebservice().getWsninstancebaseurl().endsWith("/") ?
 					config.getWebservice().getWsninstancebaseurl() :
@@ -121,7 +131,7 @@ public class SessionManagementServiceConfig {
 		return snaaEndpointUrl;
 	}
 
-	public String getUrnPrefix() {
+	public NodeUrnPrefix getUrnPrefix() {
 		return urnPrefix;
 	}
 
@@ -133,7 +143,7 @@ public class SessionManagementServiceConfig {
 		return wsnInstanceBaseUrl;
 	}
 
-	public ImmutableSet<String> getNodeUrnsServed() {
+	public ImmutableSet<NodeUrn> getNodeUrnsServed() {
 		return nodeUrnsServed;
 	}
 }

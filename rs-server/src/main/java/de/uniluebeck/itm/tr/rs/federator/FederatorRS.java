@@ -24,28 +24,37 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.rs.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 
 @WebService(
-		endpointInterface = "eu.wisebed.api.rs.RS",
+		name = "RS",
+		endpointInterface = "eu.wisebed.api.v3.rs.RS",
 		portName = "RSPort",
 		serviceName = "RSService",
-		targetNamespace = "urn:RSService"
+		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
 public class FederatorRS implements RS {
 
@@ -62,14 +71,9 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public void deleteReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
-		assertNotNull(authenticationData, "authenticationData");
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
 		Map<RS, List<SecretReservationKey>> map = FederatorRSHelper.constructEndpointToReservationKeyMap(
@@ -109,32 +113,70 @@ public class FederatorRS implements RS {
 
 	}
 
+	private static class MakeReservationArguments {
+
+		public Set<SecretAuthenticationKey> secretAuthenticationKeys;
+
+		public Set<NodeUrn> nodeUrns;
+
+		public DateTime from;
+
+		public DateTime to;
+
+		private MakeReservationArguments(final Set<SecretAuthenticationKey> secretAuthenticationKeys,
+										 final Set<NodeUrn> nodeUrns,
+										 final DateTime from,
+										 final DateTime to) {
+			this.secretAuthenticationKeys = secretAuthenticationKeys;
+			this.nodeUrns = nodeUrns;
+			this.from = from;
+			this.to = to;
+		}
+	}
+
 	@Override
-	public List<SecretReservationKey> makeReservation(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "reservation", targetNamespace = "") ConfidentialReservationData reservation)
-			throws AuthorizationExceptionException, RSExceptionException, ReservervationConflictExceptionException {
+	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+													  final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to)
+			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
-		assertNotNull(authenticationData, "authenticationData");
-		assertNotNull(reservation, "reservation");
+		try {
 
-		assertTrue(authenticationData.size() > 0, "The parameter authenticationData must contain at least one element");
-		assertTrue(reservation.getNodeURNs().size() > 0, "The reservation data must contain at least one node URN");
+			checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
+			checkNotNull(nodeUrns, "Parameter nodeUrns is null");
+			checkNotNull(from, "Parameter from is null");
+			checkNotNull(to, "Parameter to is null");
 
-		assertUrnsServed(reservation.getNodeURNs());
+			checkArgument(!secretAuthenticationKeys.isEmpty(), "Parameter secretAuthenticationKeys must not be empty");
+			checkArgument(!nodeUrns.isEmpty(), "Parameter nodeUrns must contain at least one node URN");
+
+		} catch (Exception e) {
+			RSFault exception = new RSFault();
+			exception.setMessage(e.getMessage());
+			throw new RSFault_Exception(e.getMessage(), exception);
+		}
+
+		assertUrnsServed(nodeUrns);
 
 		// run a set of parallel jobs to make a reservation on the federated rs services
-		BiMap<RS, ConfidentialReservationData> reservationMap = FederatorRSHelper.constructEndpointToReservationMap(
-				federationManager,
-				reservation
-		);
 
-		BiMap<RS, List<SecretAuthenticationKey>> authenticationMap = FederatorRSHelper
-				.constructEndpointToAuthenticationKeysMap(
-						federationManager,
-						authenticationData
-				);
+		BiMap<RS, MakeReservationArguments> map = HashBiMap.create(federationManager.getEndpoints().size());
+
+		for (NodeUrn nodeUrn : nodeUrns) {
+
+			RS rs = federationManager.getEndpointByNodeUrn(nodeUrn);
+
+			final SecretAuthenticationKey sak = getSAKByNodeUrn(secretAuthenticationKeys, nodeUrn);
+			MakeReservationArguments args = map.get(rs);
+			if (args == null) {
+				args = new MakeReservationArguments(newHashSet(sak), newHashSet(nodeUrn), from, to);
+				map.put(rs, args);
+			} else {
+				args.secretAuthenticationKeys.add(sak);
+				args.nodeUrns.add(nodeUrn);
+			}
+		}
 
 		// TODO fix check
 		// assertAuthenticationForReservation(reservationMap, authenticationMap);
@@ -142,12 +184,16 @@ public class FederatorRS implements RS {
 		Map<Future<List<SecretReservationKey>>, MakeReservationCallable> futures = Maps.newHashMap();
 
 		// fork the parallel execution of reservations on federated services
-		for (Map.Entry<RS, ConfidentialReservationData> entry : reservationMap.entrySet()) {
+		for (Map.Entry<RS, MakeReservationArguments> entry : map.entrySet()) {
+
 			MakeReservationCallable callable = new MakeReservationCallable(
 					entry.getKey(),
-					authenticationMap.get(entry.getKey()),
-					entry.getValue()
+					newArrayList(entry.getValue().secretAuthenticationKeys),
+					newArrayList(entry.getValue().nodeUrns),
+					entry.getValue().from,
+					entry.getValue().to
 			);
+
 			futures.put(executorService.submit(callable), callable);
 		}
 
@@ -165,10 +211,9 @@ public class FederatorRS implements RS {
 				failed = true;
 			} catch (ExecutionException e) {
 				failed = true;
-				failMessages
-						.add(Arrays.toString(futures.get(future).getReservation().getNodeURNs().toArray()) + ": " + e
-								.getCause().getMessage()
-						);
+				final String nodeUrnsString = Arrays.toString(futures.get(future).getNodeUrns().toArray());
+				final String msg = nodeUrnsString + ": " + e.getCause().getMessage();
+				failMessages.add(msg);
 			}
 		}
 
@@ -190,10 +235,22 @@ public class FederatorRS implements RS {
 		return res;
 	}
 
+	private SecretAuthenticationKey getSAKByNodeUrn(final List<SecretAuthenticationKey> saks, final NodeUrn nodeUrn) {
+
+		final ImmutableSet<NodeUrnPrefix> urnPrefixes = federationManager.getUrnPrefixesByNodeUrn(nodeUrn);
+
+		for (SecretAuthenticationKey secretAuthenticationKey : saks) {
+			if (urnPrefixes.contains(secretAuthenticationKey.getUrnPrefix())) {
+				return secretAuthenticationKey;
+			}
+		}
+
+		throw new IllegalArgumentException("No federated testbed for node \"" + nodeUrn + "\" found");
+	}
+
 	@Override
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") XMLGregorianCalendar from,
-			@WebParam(name = "to", targetNamespace = "") XMLGregorianCalendar to) throws RSExceptionException {
+	public List<PublicReservationData> getReservations(final DateTime from,
+													   final DateTime to) throws RSFault_Exception {
 
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
@@ -210,9 +267,9 @@ public class FederatorRS implements RS {
 			try {
 				res.addAll(future.get());
 			} catch (InterruptedException e) {
-				throwRSException("InterruptedException while getting reservations!", e);
+				throwRSFault("InterruptedException while getting reservations!", e);
 			} catch (ExecutionException e) {
-				throwRSException("ExecutionException while getting reservations!", e);
+				throwRSFault("ExecutionException while getting reservations!", e);
 			}
 		}
 
@@ -221,15 +278,14 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			List<SecretAuthenticationKey> secretAuthenticationKeys,
-			@WebParam(name = "period", targetNamespace = "")
-			GetReservations period) throws RSExceptionException {
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final DateTime from,
+			final DateTime to) throws RSFault_Exception {
 
 		//check for null
-		if (period.getFrom() == null || period.getTo() == null) {
-			throw createRSExceptionException(
-					"could not validate period from: " + period.getFrom() + " to: " + period.getTo()
+		if (from == null || to == null) {
+			throw createRSFault_Exception(
+					"could not validate period from: " + from + " to: " + to
 			);
 		}
 
@@ -237,12 +293,12 @@ public class FederatorRS implements RS {
 		Map<RS, List<SecretAuthenticationKey>> endpointToAuthenticationMap = FederatorRSHelper
 				.constructEndpointToAuthenticationMap(
 						federationManager,
-						secretAuthenticationKeys
+						secretAuthenticationKey
 				);
 
 		for (RS rs : federationManager.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
-					rs, endpointToAuthenticationMap.get(rs), period
+					rs, endpointToAuthenticationMap.get(rs), from, to
 			);
 			futures.add(executorService.submit(callable));
 		}
@@ -254,11 +310,11 @@ public class FederatorRS implements RS {
 			} catch (InterruptedException e) {
 				String message = "InterruptedException while getting reservations!";
 				log.warn(message);
-				throwRSException(message, e);
+				throwRSFault(message, e);
 			} catch (ExecutionException e) {
 				String message = "ExecutionException while getting reservations!";
 				log.warn(message);
-				throwRSException(message, e);
+				throwRSFault(message, e);
 			}
 		}
 
@@ -266,10 +322,8 @@ public class FederatorRS implements RS {
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(
-			@WebParam(name = "secretReservationKey", targetNamespace = "")
-			List<SecretReservationKey> secretReservationKey)
-			throws RSExceptionException, ReservervationNotFoundExceptionException {
+	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
+			throws RSFault_Exception, ReservationNotFoundFault_Exception {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -291,37 +345,29 @@ public class FederatorRS implements RS {
 			try {
 				res.addAll(future.get());
 			} catch (InterruptedException e) {
-				throwRSException("InterruptedException while getting reservation data!", e);
+				throwRSFault("InterruptedException while getting reservation data!", e);
 			} catch (ExecutionException e) {
-				if (e.getCause() instanceof RSExceptionException) {
-					throw (RSExceptionException) e.getCause();
+				if (e.getCause() instanceof RSFault_Exception) {
+					throw (RSFault_Exception) e.getCause();
 				}
-				if (e.getCause() instanceof ReservervationNotFoundExceptionException) {
-					throw (ReservervationNotFoundExceptionException) e.getCause();
+				if (e.getCause() instanceof ReservationNotFoundFault_Exception) {
+					throw (ReservationNotFoundFault_Exception) e.getCause();
 				}
-				throwRSException("Unknown exception occurred!", e.getCause());
+				throwRSFault("Unknown exception occurred!", e.getCause());
 			}
 		}
 
 		return res;
 	}
 
-	private static void assertTrue(boolean bool, String errorMessage) throws RSExceptionException {
-		if (!bool) {
-			RSException exception = new RSException();
-			exception.setMessage(errorMessage);
-			throw new RSExceptionException(errorMessage, exception);
-		}
-	}
-
-	private static void assertNotNull(Object obj, String paramName) throws RSExceptionException {
+	private static void assertNotNull(Object obj, String paramName) throws RSFault_Exception {
 		if (obj != null) {
 			return;
 		}
 		String msg = "Argument " + paramName + " must not be null!";
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 	}
 
 	/**
@@ -330,13 +376,13 @@ public class FederatorRS implements RS {
 	 * @param reservationMap    a mapping between federated endpoints and the reservation data belonging to them
 	 * @param authenticationMap a mapping between federated endpoints and the authentication data belonging to them
 	 *
-	 * @throws AuthorizationExceptionException
+	 * @throws AuthorizationFault_Exception
 	 *          if the user has insufficient authorization
 	 */
 	/*private void assertAuthenticationForReservation(
 			final BiMap<RS, ConfidentialReservationData> reservationMap,
 			final BiMap<RS, List<SecretAuthenticationKey>> authenticationMap)
-			throws AuthorizationExceptionException {
+			throws AuthorizationFault_Exception {
 
 		// TODO really check the matches
 		boolean matches = reservationMap.size() == authenticationMap.size();
@@ -345,48 +391,47 @@ public class FederatorRS implements RS {
 			String msg = "Not for all reservation there's a matching secret authentication key!";
 			AuthorizationException exception = new AuthorizationException();
 			exception.setMessage(msg);
-			throw new AuthorizationExceptionException(msg, exception);
+			throw new AuthorizationFault_Exception(msg, exception);
 		}
 	}*/
 
+
 	/**
-	 * Checks if all nodes in {@code nodeURNs} are served by this federators federated rs services and throws an exception
+	 * Checks if all nodes in {@code nodeUrns} are served by this federators federated rs services and throws an exception
 	 * if not
 	 *
-	 * @param nodeURNs
+	 * @param nodeUrns
 	 * 		the node URNs to check
 	 *
-	 * @throws RSExceptionException
+	 * @throws RSFault_Exception
 	 * 		if one of the node URNs is not served by this instance
 	 */
-	private void assertUrnsServed(List<String> nodeURNs) throws RSExceptionException {
+	private void assertUrnsServed(List<NodeUrn> nodeUrns) throws RSFault_Exception {
 
-		List<String> notServed = new LinkedList<String>();
+		List<NodeUrn> notServed = new LinkedList<NodeUrn>();
 
-		for (String nodeURN : nodeURNs) {
-			String endpointUrlForNodeURN = federationManager.getEndpointUrlByNodeUrn(nodeURN);
-			if (endpointUrlForNodeURN == null) {
+		for (NodeUrn nodeURN : nodeUrns) {
+			if (federationManager.getEndpointUrlByNodeUrn(nodeURN) == null) {
 				notServed.add(nodeURN);
 			}
 		}
 
 		if (notServed.size() > 0) {
-			String msg =
-					"The node URNs " + Arrays.toString(notServed.toArray()) + " are not served by this RS instance!";
-			RSException exception = new RSException();
+			String msg = "The nodes " + Arrays.toString(notServed.toArray()) + " are not served by this RS instance!";
+			RSFault exception = new RSFault();
 			exception.setMessage(msg);
-			throw new RSExceptionException(msg, exception);
+			throw new RSFault_Exception(msg, exception);
 		}
 
 	}
 
-	private RSExceptionException createRSExceptionException(String s) {
-		RSException exception = new RSException();
+	private RSFault_Exception createRSFault_Exception(String s) {
+		RSFault exception = new RSFault();
 		exception.setMessage(s);
-		return new RSExceptionException(s, exception);
+		return new RSFault_Exception(s, exception);
 	}
 
-	private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSExceptionException {
+	private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSFault_Exception {
 		StringBuilder builder = new StringBuilder();
 		builder.append("The following errors occurred: \n");
 		for (String failMessage : failMessages) {
@@ -394,16 +439,16 @@ public class FederatorRS implements RS {
 			builder.append("\n");
 		}
 		String msg = builder.toString();
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception);
+		throw new RSFault_Exception(msg, exception);
 	}
 
-	private void throwRSException(String msg, Throwable e) throws RSExceptionException {
+	private void throwRSFault(String msg, Throwable e) throws RSFault_Exception {
 		log.error(msg, e);
-		RSException exception = new RSException();
+		RSFault exception = new RSFault();
 		exception.setMessage(msg);
-		throw new RSExceptionException(msg, exception, e);
+		throw new RSFault_Exception(msg, exception, e);
 	}
 
 	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded) {

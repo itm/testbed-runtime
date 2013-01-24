@@ -23,22 +23,34 @@
 
 package de.uniluebeck.itm.tr.snaa.wisebed;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
-import eu.wisebed.api.snaa.*;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+import static com.google.common.collect.Sets.newHashSet;
+
+@WebService(
+		name = "SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
+)
 public class WisebedSnaaFederator implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(WisebedSnaaFederator.class);
@@ -47,34 +59,43 @@ public class WisebedSnaaFederator implements SNAA {
 
 	private ShibbolethSNAAImpl authenticationSnaa;
 
-	public WisebedSnaaFederator(Map<String, Set<String>> prefixSet, String secretAuthenticationKeyUrl, Injector injector, ShibbolethProxy shibbolethProxy) {
+	public WisebedSnaaFederator(FederationManager<SNAA> federationManager, String secretAuthenticationKeyUrl,
+								Injector injector, ShibbolethProxy shibbolethProxy) {
 
-		//Authentication is performed for the union of all prefixes by a ShibbolethSNAA
-		Set<String> urnPrefixUnion = new HashSet<String>();
-		for (Set<String> urnPrefixes : prefixSet.values())
-			urnPrefixUnion.addAll(urnPrefixes);
-		authenticationSnaa = new ShibbolethSNAAImpl(urnPrefixUnion, secretAuthenticationKeyUrl, null, injector, shibbolethProxy);
+		authenticationSnaa = new ShibbolethSNAAImpl(
+				federationManager.getUrnPrefixes(),
+				secretAuthenticationKeyUrl,
+				null,
+				injector,
+				shibbolethProxy
+		);
 
-		//Authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
-		authorizationFederator = new FederatorSNAA(prefixSet);
+		// authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
+		authorizationFederator = new FederatorSNAA(federationManager);
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::authenticate delegating to internal ShibbolethSNAA instance");
-        return authenticationSnaa.authenticate(authenticationData);
+		return authenticationSnaa.authenticate(authenticationData);
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::isAuthorized delegating to internal FederatorSNAA instance");
-		return authorizationFederator.isAuthorized(authenticationData, action);
+		return authorizationFederator.isAuthorized(usernameNodeUrnsMapList, action);
+	}
+
+	@Override
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
+
+		log.debug("WisebedSnaaFederator::isValid delegating to internal FederatorSNAA instance");
+		return authorizationFederator.isValid(secretAuthenticationKey);
 	}
 
 }

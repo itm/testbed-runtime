@@ -24,15 +24,17 @@
 package de.uniluebeck.itm.tr.iwsn.common;
 
 import de.uniluebeck.itm.tr.util.NetworkUtils;
-import eu.wisebed.api.sm.SecretReservationKey;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class SessionManagementPreconditions {
 
@@ -42,27 +44,26 @@ public class SessionManagementPreconditions {
 		this.commonPreconditions = new CommonPreconditions();
 	}
 
-	public void addKnownNodeUrns(final Iterable<String> knownNodeUrns) {
+	public void addKnownNodeUrns(final Iterable<NodeUrn> knownNodeUrns) {
 		commonPreconditions.addKnownNodeUrns(knownNodeUrns);
 	}
 
-	public void addServedUrnPrefixes(final String servedUrnPrefix) {
+	public void addServedUrnPrefixes(final NodeUrnPrefix servedUrnPrefix) {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefix);
 	}
 
-	public void addServedUrnPrefixes(final Iterable<String> servedUrnPrefixes) {
+	public void addServedUrnPrefixes(final Iterable<NodeUrnPrefix> servedUrnPrefixes) {
 		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 	}
 
-	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller) {
-		checkGetInstanceArguments(secretReservationKey, controller, false);
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey) {
+		checkGetInstanceArguments(secretReservationKey, false);
 	}
 
-	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey, String controller,
+	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey,
 										  boolean singleUrnImplementation) {
 
 		checkNotNull(secretReservationKey);
-		checkNotNull(controller);
 
 		checkUrnPrefixesServed(secretReservationKey);
 
@@ -78,7 +79,7 @@ public class SessionManagementPreconditions {
 		checkNotNull(secretReservationKeyList);
 	}
 
-	public void checkAreNodesAliveArguments(final Collection<String> nodes, final String controllerEndpointUrl) {
+	public void checkAreNodesAliveArguments(final Collection<NodeUrn> nodes, final String controllerEndpointUrl) {
 		commonPreconditions.checkNodesKnown(nodes);
 		NetworkUtils.checkConnectivity(controllerEndpointUrl);
 	}
@@ -86,7 +87,7 @@ public class SessionManagementPreconditions {
 	private void checkUrnPrefixesServed(List<SecretReservationKey> secretReservationKeys) {
 
 		// extract URN prefixes from secretReservationKey list and check if they're served by this instance
-		Set<String> urnPrefixes = new HashSet<String>();
+		Set<NodeUrnPrefix> urnPrefixes = newHashSet();
 		for (SecretReservationKey key : secretReservationKeys) {
 
 			checkNotNull(key.getUrnPrefix());

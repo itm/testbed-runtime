@@ -24,28 +24,35 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Injector;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
+import eu.wisebed.api.v3.snaa.*;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
-import eu.wisebed.api.snaa.*;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.*;
 
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
-@WebService(endpointInterface = "eu.wisebed.api.snaa.SNAA", portName = "SNAAPort",
-		serviceName = "SNAAService", targetNamespace = "http://testbed.wisebed.eu/api/snaa/v1/")
+@WebService(
+		name = "SNAA",
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://wisebed.eu/api/v3/snaa"
+)
 public class ShibbolethSNAAImpl implements SNAA {
 
 	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
-	protected Set<String> urnPrefixes;
+	protected Set<NodeUrnPrefix> urnPrefixes;
 
 	protected String secretAuthenticationKeyUrl;
 
@@ -55,9 +62,9 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 	private ShibbolethProxy proxy;
 
-	public ShibbolethSNAAImpl(Set<String> urnPrefixes, String secretAuthenticationKeyUrl,
+	public ShibbolethSNAAImpl(Set<NodeUrnPrefix> urnPrefixes, String secretAuthenticationKeyUrl,
 							  IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
-		this.urnPrefixes = new HashSet<String>(urnPrefixes);
+		this.urnPrefixes = urnPrefixes;
 		this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
 		this.authorization = authorization;
 		this.injector = injector;
@@ -65,9 +72,8 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") List<AuthenticationTriple> authenticationData)
-			throws AuthenticationExceptionException, SNAAExceptionException {
+	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
 		log.debug("Starting for " + authenticationData.size() + " urns.");
@@ -77,7 +83,7 @@ public class ShibbolethSNAAImpl implements SNAA {
 
 		for (AuthenticationTriple triple : authenticationData) {
 			IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-			String urn = triple.getUrnPrefix();
+			NodeUrnPrefix urn = triple.getUrnPrefix();
 
 			try {
 
@@ -97,8 +103,9 @@ public class ShibbolethSNAAImpl implements SNAA {
 					try {
 						sa.authenticate();
 					} catch (Exception e1) {
-						throw createSNAAException("Authentication failed: the authentication system has problems "
-										+ "contacting the Shibboleth server. Please try again later!");
+						throw createSNAAFault("Authentication failed: the authentication system has problems "
+								+ "contacting the Shibboleth server. Please try again later!"
+						);
 					}
 				}
 
@@ -111,13 +118,13 @@ public class ShibbolethSNAAImpl implements SNAA {
 					secretAuthKey.setUsername(triple.getUsername());
 					keys.add(secretAuthKey);
 				} else {
-					throw createAuthenticationException("Authentication for urn[" + urn + "] and user["
+					throw createAuthenticationFault_Exception("Authentication for urn[" + urn + "] and user["
 							+ triple.getUsername() + " failed."
 					);
 				}
 
 			} catch (Exception e) {
-				throw createSNAAException("Authentication failed :" + e);
+				throw createSNAAFault("Authentication failed :" + e);
 			}
 
 		}
@@ -128,56 +135,39 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public boolean isAuthorized(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<SecretAuthenticationKey> authenticationData,
-			@WebParam(name = "action", targetNamespace = "") Action action) throws SNAAExceptionException {
+	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
+											  final Action action) throws SNAAFault_Exception {
 
-		boolean authorized = true;
-		String logInfo = "Done checking authorization, result: ";
-		Map<String, List<Object>> authorizeMap;
+		AuthorizationResponse authorized = new AuthorizationResponse();
 
-		// Check if we serve all URNs
-		assertAllSAKUrnPrefixesServed(urnPrefixes, authenticationData);
+		authorized.setAuthorized(true);
+		authorized.setMessage("ShibbolethSNAAImpl is used for authentication only and always return 'true'");
 
-		// Check if we have all SecretAuthenticationKeys as sessions
-		for (SecretAuthenticationKey key : authenticationData) {
-
-			//check if authorized
-			try {
-				IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
-				sa.setUsernameAtIdpDomain(key.getUsername());
-				sa.setUrl(secretAuthenticationKeyUrl);
-				if (proxy != null) {
-					sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
-				}
-
-				//check authorization
-				List<Cookie> cookies = SSAKSerialization.deserialize(key.getSecretAuthenticationKey());
-				log.info("De-serialization successfully done.");
-				authorizeMap = sa.isAuthorized(cookies);
-
-				if (authorizeMap == null) {
-					authorized = false;
-					log.debug(logInfo + "false");
-					return authorized;
-				}
-
-				//create Authorization from map
-				IUserAuthorization.UserDetails details = new IUserAuthorization.UserDetails();
-				details.setUsername(key.getUsername());
-				details.setUserDetails(authorizeMap);
-
-				authorized = authorization.isAuthorized(action, details);
-			} catch (Exception e) {
-				log.error(e.getMessage());
-				throw createSNAAException("Authorization failed :" + e);
+		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
+			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
+				PerNodeUrnAuthorizationResponse perNodeUrnAuthorizationResponse = new PerNodeUrnAuthorizationResponse();
+				perNodeUrnAuthorizationResponse.setNodeUrn(nodeUrn);
+				perNodeUrnAuthorizationResponse.setAuthorized(true);
+				authorized.getPerNodeUrnAuthorizationResponses().add(perNodeUrnAuthorizationResponse);
 			}
 		}
 
-		log.debug(logInfo + authorized);
 		return authorized;
 
+	}
+
+	@Override
+	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
+			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
+
+		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
+		saks.add(secretAuthenticationKey);
+
+		// Check if we serve all URNs
+		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes, saks);
+
+		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
+		return null;
 	}
 
 }

@@ -44,18 +44,17 @@ public class ShibbolethDataSource implements AuthorizationDataSource {
 
     //sql-connects
 
-    public int getUserId(String user_uid) throws SQLException {
+    private int getUserId(String user_uid) throws SQLException {
         return connection.getSingleInt(MessageFormatter.format(userIDQuery, user_uid.trim()).getMessage(), "user_id");
     }
 
-    public int getActionId(String action) throws SQLException {
+    private int getActionId(String action) throws SQLException {
         return connection.getSingleInt(MessageFormatter.format(actionIDQuery, action.trim()).getMessage(), "action_id");
     }
 
-    public int getSubscriptionRole(int userId, int actionId) throws Exception {
+    private int getSubscriptionRole(int userId, int actionId) throws Exception {
         return connection.getSingleInt(MessageFormatter.format(subscriptionRole, userId, actionId).getMessage(), "subscription_role");
     }
-
 
     @Override
     public void setUsername(String username) {

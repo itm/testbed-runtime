@@ -23,135 +23,157 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.wsn.Program;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.VirtualLink;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
 
 
 public class WSNPreconditions {
 
 	private CommonPreconditions commonPreconditions;
 
-	public WSNPreconditions(Iterable<String> servedUrnPrefixes, Iterable<String> reservedNodeUrns) {
+	public WSNPreconditions(Iterable<NodeUrnPrefix> servedUrnPrefixes, Iterable<NodeUrn> reservedNodeUrns) {
 		this.commonPreconditions = new CommonPreconditions();
 		this.commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
 		this.commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
 	}
 
-	public void checkAreNodesAliveArguments(Collection<String> nodes) {
+	public void checkAreNodesAliveArguments(Collection<NodeUrn> nodes) {
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
-	public void checkFlashProgramsArguments(List<String> nodeIds, List<Integer> programIndices,
-											List<Program> programs) {
+	public void checkFlashProgramsArguments(final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
-		checkNotNull(nodeIds);
-		checkNotNull(programIndices);
-		checkNotNull(programs);
+		checkNotNull(flashProgramsConfigurations);
 
 		// check if there's at least on node to flash
-		checkArgument(nodeIds.size() > 0);
+		checkArgument(flashProgramsConfigurations.size() > 0);
 
-		commonPreconditions.checkNodesKnown(nodeIds);
+		Set<String> nodeUrns = newHashSet();
 
-		// check if for every node there's a corresponding program index and the program exists
-		checkArgument(nodeIds.size() == programIndices.size(),
-				"For every node URN there must be a corresponding program index."
-		);
+		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
 
-		for (int i = 0; i < programIndices.size(); i++) {
-			checkArgument(programIndices.get(i) < programs.size(), "There is no program for index %s for node URN %s.",
-					i, nodeIds.get(i)
+			commonPreconditions.checkNodesKnown(flashProgramsConfiguration.getNodeUrns());
+
+			final Set<NodeUrn> configNodeUrns = newHashSet(flashProgramsConfiguration.getNodeUrns());
+
+			checkArgument(
+					Sets.intersection(nodeUrns, configNodeUrns).isEmpty(),
+					"Node URN sets of flashProgram configurations must be distinct!"
+			);
+
+			configNodeUrns.addAll(configNodeUrns);
+
+			checkNotNull(
+					flashProgramsConfiguration.getProgram(),
+					"Image for node URNs " + Joiner.on(", ")
+							.join(flashProgramsConfiguration.getNodeUrns()) + " is null!"
+			);
+
+			checkArgument(
+					flashProgramsConfiguration.getProgram().length > 0,
+					"Image for node URNs " + Joiner.on(", ")
+							.join(flashProgramsConfiguration.getNodeUrns()) + " contains 0 bytes!"
 			);
 		}
 
+
 	}
 
-	public void checkSendArguments(List<String> nodeIds, Message message) {
+	public void checkSendArguments(List<NodeUrn> nodeIds, byte[] message) {
 
 		checkNotNull(nodeIds);
-		checkNotNull(message);
+		checkNotNull(message, "A message to a node must not be null!");
 
 		commonPreconditions.checkNodesKnown(nodeIds);
-
-		checkNotNull(message.getSourceNodeId(), "Source node ID is missing.");
-		checkArgument(message.getBinaryData() != null, "A message to a node must contain binary data.");
-
 	}
 
-	public void checkResetNodesArguments(List<String> nodes) {
+	public void checkResetNodesArguments(List<NodeUrn> nodes) {
 		checkNotNull(nodes);
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
 	@SuppressWarnings("unused")
-	public void checkSetVirtualLinkArguments(String sourceNode, String targetNode, String remoteServiceInstance,
-											 List<String> parameters, List<String> filters) {
+	public void checkSetVirtualLinkArguments(List<VirtualLink> links) {
 
-		checkNotNull(sourceNode);
-		checkNotNull(targetNode);
-		checkNotNull(remoteServiceInstance);
+		for (VirtualLink link : links) {
 
-		commonPreconditions.checkNodesKnown(sourceNode);
+			final NodeUrn sourceNodeUrn = link.getSourceNodeUrn();
+			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
+			final String remoteWSNServiceEndpointUrl = link.getRemoteWSNServiceEndpointUrl();
 
-		try {
-			new URL(remoteServiceInstance);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(
-					"The remoteServiceInstance argument (\"" + remoteServiceInstance + "\") is not a valid URL!"
-			);
+			checkNotNull(sourceNodeUrn);
+			checkNotNull(targetNodeUrn);
+			checkNotNull(remoteWSNServiceEndpointUrl);
+
+			commonPreconditions.checkNodesKnown(sourceNodeUrn);
+
+			try {
+				new URL(remoteWSNServiceEndpointUrl);
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException(
+						"The remoteServiceInstance argument (\"" + remoteWSNServiceEndpointUrl + "\") is not a valid URL!"
+				);
+			}
 		}
-
 	}
 
-	public void checkDestroyVirtualLinkArguments(String sourceNode, String targetNode) {
-
-		checkNotNull(sourceNode);
-		checkNotNull(targetNode);
-
-		commonPreconditions.checkNodeUrnsPrefixesServed(sourceNode);
-
+	public void checkDestroyVirtualLinkArguments(List<Link> links) {
+		checkLinkArguments(links, false);
 	}
 
-	public void checkDisableNodeArguments(String node) {
-
-		checkNotNull(node);
-
-		commonPreconditions.checkNodesKnown(node);
+	private void checkLinkArguments(final List<Link> links, final boolean targetNodeMustBeInTestbed) {
+		checkNotNull(links, "The set of links must not be null");
+		for (Link link : links) {
+			checkNotNull(link.getSourceNodeUrn(), "The source node URN must not be null");
+			checkNotNull(link.getTargetNodeUrn(), "The target node URN must not be null");
+			commonPreconditions.checkNodesKnown(link.getSourceNodeUrn());
+			commonPreconditions.checkNodeUrnsPrefixesServed(link.getSourceNodeUrn());
+			if (targetNodeMustBeInTestbed) {
+				commonPreconditions.checkNodesKnown(link.getTargetNodeUrn());
+				commonPreconditions.checkNodeUrnsPrefixesServed(link.getTargetNodeUrn());
+			}
+		}
 	}
 
-	public void checkDisablePhysicalLinkArguments(String nodeA, String nodeB) {
-
-		checkNotNull(nodeA);
-		checkNotNull(nodeB);
-
-		commonPreconditions.checkNodesKnown(nodeA, nodeB);
+	public void checkDisableNodeArguments(List<NodeUrn> nodeUrns) {
+		checkNodeUrnsArgument(nodeUrns);
 	}
 
-	public void checkEnableNodeArguments(String node) {
-
-		checkNotNull(node);
-
-		commonPreconditions.checkNodesKnown(node);
+	private void checkNodeUrnsArgument(final List<NodeUrn> nodeUrns) {
+		checkNotNull(nodeUrns, "The set of node URNs must not be null");
+		checkArgument(!nodeUrns.isEmpty(), "The set of node URNs to disable must not be empty");
+		commonPreconditions.checkNodesKnown(nodeUrns);
 	}
 
-	public void checkEnablePhysicalLinkArguments(String nodeA, String nodeB) {
-
-		checkNotNull(nodeA);
-		checkNotNull(nodeB);
-
-		commonPreconditions.checkNodesKnown(nodeA, nodeB);
+	public void checkDisablePhysicalLinkArguments(List<Link> links) {
+		checkLinkArguments(links, true);
 	}
 
-	public void checkSetChannelPipelineArguments(final List<String> nodes,
+	public void checkEnableNodeArguments(List<NodeUrn> nodeUrns) {
+		checkNodeUrnsArgument(nodeUrns);
+	}
+
+	public void checkEnablePhysicalLinkArguments(List<Link> links) {
+		checkLinkArguments(links, true);
+	}
+
+	public void checkSetChannelPipelineArguments(final List<NodeUrn> nodes,
 												 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 
 		checkNotNull(nodes);

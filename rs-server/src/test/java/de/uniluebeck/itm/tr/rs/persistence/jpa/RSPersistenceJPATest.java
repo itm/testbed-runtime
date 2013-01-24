@@ -24,17 +24,17 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
-import eu.wisebed.api.rs.ConfidentialReservationData;
-import eu.wisebed.api.rs.Data;
-import eu.wisebed.api.rs.RSExceptionException;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -60,7 +60,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	}};
 
 	@Before
-	public void setUp() throws RSExceptionException {
+	public void setUp() throws RSFault_Exception {
 		super.setUp();
 		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(localTimeZone, properties);
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
@@ -79,42 +79,34 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 		final SecretReservationKey secretReservationKey = persistence.addReservation(
 				confidentialReservationData,
-				"urn:smartsantander:testbed:"
+				new NodeUrnPrefix("urn:smartsantander:testbed:")
 		);
 
 		final ConfidentialReservationData result = persistence.getReservation(secretReservationKey);
 
 		assertNotNull(result);
-		assertNotNull(result.getUserData());
-		assertEquals(result.getUserData(), confidentialReservationData.getUserData());
-		assertNotNull(result.getData().get(0));
+		assertNotNull(result.getKeys().get(0));
 
-		final String resultReservationKey = result.getData().get(0).getSecretReservationKey();
+		final String resultReservationKey = result.getKeys().get(0).getSecretReservationKey();
 
 		assertNotNull(resultReservationKey);
 		assertFalse(resultReservationKey.isEmpty());
-		assertEquals(resultReservationKey, confidentialReservationData.getData().get(0).getSecretReservationKey());
+		assertEquals(resultReservationKey, confidentialReservationData.getKeys().get(0).getSecretReservationKey());
 
 		System.out.println(resultReservationKey);
 	}
 
 	private ConfidentialReservationData createConfidentialReservationData() throws DatatypeConfigurationException {
+
 		final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-		confidentialReservationData.setUserData("test-user");
+		confidentialReservationData.setFrom(DateTime.now());
+		confidentialReservationData.setTo(DateTime.now().plusMinutes(30));
 
-		final XMLGregorianCalendar xmlGregorianCalendar
-				= DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2011, 6, 25, 0);
-		confidentialReservationData.setFrom(xmlGregorianCalendar);
-		xmlGregorianCalendar.add(
-				DatatypeFactory.newInstance().newDuration(1000 * 60 * 30)
-		); // 30 minutes
-		confidentialReservationData.setTo(xmlGregorianCalendar);
-
-		Data data = new Data();
+		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
 		data.setSecretReservationKey("SECRET12345");
-		data.setUrnPrefix("urn:smartsantander:testbed:");
+		data.setUrnPrefix(new NodeUrnPrefix("urn:smartsantander:testbed:"));
 		data.setUsername("test-user");
-		confidentialReservationData.getData().add(data);
+		confidentialReservationData.getKeys().add(data);
 
 		return confidentialReservationData;
 	}

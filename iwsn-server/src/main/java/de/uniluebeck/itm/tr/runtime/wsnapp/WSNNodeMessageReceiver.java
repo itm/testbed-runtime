@@ -24,9 +24,12 @@
 package de.uniluebeck.itm.tr.runtime.wsnapp;
 
 
+import eu.wisebed.api.v3.common.NodeUrn;
+import org.joda.time.DateTime;
+
 public interface WSNNodeMessageReceiver {
 
-	void receive(byte[] bytes, String sourceNodeId, String timestamp);
+	void receive(byte[] bytes, NodeUrn sourceNodeId, DateTime timestamp);
 
 	void receiveNotification(WSNAppMessages.Notification notification);
 

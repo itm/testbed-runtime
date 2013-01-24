@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.collect.BiMap;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.itm.uniluebeck.tr.wiseml.merger.config.MergerConfiguration;
 import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.wiseml.WiseMLHelper;
+import eu.wisebed.wiseml.merger.config.MergerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -20,24 +21,24 @@ public abstract class FederatorWiseMLMerger {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorWiseMLMerger.class);
 
-	public static String merge(final BiMap<String, Callable<String>> endpointUrlToCallableMap,
+	public static String merge(final BiMap<URI, Callable<String>> endpointUrlToCallableMap,
 							   final ExecutorService executorService) {
 
 		List<String> serializedWiseMLs = newArrayList();
 
-		List<Tuple<String, Future<String>>> jobs = newArrayList();
+		List<Tuple<URI, Future<String>>> jobs = newArrayList();
 
 		// for calls
-		for (Map.Entry<String, Callable<String>> entry : endpointUrlToCallableMap.entrySet()) {
+		for (Map.Entry<URI, Callable<String>> entry : endpointUrlToCallableMap.entrySet()) {
 
-			final String endpointUrl = entry.getKey();
+			final URI endpointUrl = entry.getKey();
 			final Callable<String> callable = entry.getValue();
 
-			jobs.add(new Tuple<String, Future<String>>(endpointUrl, executorService.submit(callable)));
+			jobs.add(new Tuple<URI, Future<String>>(endpointUrl, executorService.submit(callable)));
 		}
 
 		// join calls
-		for (Tuple<String, Future<String>> job : jobs) {
+		for (Tuple<URI, Future<String>> job : jobs) {
 
 			String serializedWiseML = null;
 
@@ -76,7 +77,7 @@ public abstract class FederatorWiseMLMerger {
 
 		// return merged network definitions
 		try {
-			return de.itm.uniluebeck.tr.wiseml.merger.WiseMLMergerHelper.mergeFromStrings(config, serializedWiseMLs);
+			return eu.wisebed.wiseml.merger.WiseMLMergerHelper.mergeFromStrings(config, serializedWiseMLs);
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}

@@ -25,13 +25,13 @@ package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
-import eu.wisebed.api.rs.RSExceptionException;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import org.junit.Before;
 
 public class GCalRSPersistenceTest extends RSPersistenceTest {
 
 	@Before
-	public void setUp() throws RSExceptionException {
+	public void setUp() throws RSFault_Exception {
 		super.setUp();
 		RSPersistence persistence = new GCalRSPersistence(
 				"testbed-runtime-unittests@itm.uni-luebeck.de",

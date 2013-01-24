@@ -3,12 +3,15 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.controller.RequestStatus;
+import eu.wisebed.api.v3.common.Message;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.controller.Notification;
+import eu.wisebed.api.v3.controller.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -53,7 +56,17 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The queue that contains all notifications to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<String> notificationQueue;
+	private final Deque<Notification> notificationQueue;
+
+	/**
+	 * The queue that contains all nodesAttached events to be delivered to {@link DeliveryWorker#endpoint}.
+	 */
+	private final Deque<List<NodeUrn>> nodesAttachedQueue;
+
+	/**
+	 * The queue that contains all nodesDetached events to be delivered to {@link DeliveryWorker#endpoint}.
+	 */
+	private final Deque<List<NodeUrn>> nodesDetachedQueue;
 
 	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
@@ -81,22 +94,18 @@ class DeliveryWorker implements Runnable {
 						  final Controller endpoint,
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
-						  final Deque<String> notificationQueue,
+						  final Deque<Notification> notificationQueue,
+						  final Deque<List<NodeUrn>> nodesAttachedQueue,
+						  final Deque<List<NodeUrn>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
-
-		checkNotNull(deliveryManager);
-		checkNotNull(endpointUrl);
-		checkNotNull(endpoint);
-		checkNotNull(messageQueue);
-		checkNotNull(statusQueue);
-		checkNotNull(notificationQueue);
-
-		this.deliveryManager = deliveryManager;
-		this.endpointUrl = endpointUrl;
-		this.endpoint = endpoint;
-		this.messageQueue = messageQueue;
-		this.statusQueue = statusQueue;
-		this.notificationQueue = notificationQueue;
+		this.deliveryManager = checkNotNull(deliveryManager);
+		this.endpointUrl = checkNotNull(endpointUrl);
+		this.endpoint = checkNotNull(endpoint);
+		this.messageQueue = checkNotNull(messageQueue);
+		this.statusQueue = checkNotNull(statusQueue);
+		this.notificationQueue = checkNotNull(notificationQueue);
+		this.nodesAttachedQueue = checkNotNull(nodesAttachedQueue);
+		this.nodesDetachedQueue = checkNotNull(nodesDetachedQueue);
 		this.maximumDeliveryQueueSize = maximumDeliveryQueueSize;
 	}
 
@@ -107,20 +116,20 @@ class DeliveryWorker implements Runnable {
 
 		while (!stopDelivery) {
 
-			// check if signal 'experimentEnded' has been given
+			// check if signal 'reservationEnded' has been given
 			lock.lock();
 			try {
 
 				if (experimentEnded && deliveryQueuesEmpty()) {
 					log.debug(
-							"{} => Calling experimentEnded() as experiment ended and all messages have been delivered.",
+							"{} => Calling reservationEnded() as experiment ended and all messages have been delivered.",
 							endpointUrl
 					);
 					try {
-						endpoint.experimentEnded();
+						endpoint.reservationEnded();
 					} catch (Exception e) {
 						log.warn(
-								"{} => Exception while calling experimentEnded() after delivering all queued messages.",
+								"{} => Exception while calling reservationEnded() after delivering all queued messages.",
 								endpointUrl
 						);
 					}
@@ -139,6 +148,10 @@ class DeliveryWorker implements Runnable {
 				deliverySuccessful = deliverNotifications();
 			} else if (!statusQueue.isEmpty()) {
 				deliverySuccessful = deliverStatuses();
+			} else if (!nodesAttachedQueue.isEmpty()) {
+				deliverySuccessful = deliverNodesAttached();
+			} else if (!nodesDetachedQueue.isEmpty()) {
+				deliverySuccessful = deliverNodesDetached();
 			} else if (!messageQueue.isEmpty()) {
 				deliverySuccessful = deliverMessages();
 			}
@@ -276,7 +289,7 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNotifications() {
 
-		final List<String> notificationList = Lists.newArrayList();
+		final List<Notification> notificationList = Lists.newArrayList();
 
 		lock.lock();
 		try {
@@ -313,8 +326,84 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
+	private boolean deliverNodesAttached() {
+
+		final List<NodeUrn> nodeUrns;
+
+		lock.lock();
+		try {
+			nodeUrns = nodesAttachedQueue.poll();
+		} finally {
+			lock.unlock();
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"{} => Delivering nodes attached events for node URNs {}",
+					endpointUrl,
+					Arrays.toString(nodeUrns.toArray())
+			);
+		}
+
+		try {
+
+			endpoint.nodesAttached(nodeUrns);
+			return true;
+
+		} catch (Exception e) {
+			lock.lock();
+			try {
+				nodesAttachedQueue.addFirst(nodeUrns);
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		return false;
+	}
+
+	private boolean deliverNodesDetached() {
+
+		final List<NodeUrn> nodeUrns;
+
+		lock.lock();
+		try {
+			nodeUrns = nodesDetachedQueue.poll();
+		} finally {
+			lock.unlock();
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace(
+					"{} => Delivering nodes detached events for node URNs {}",
+					endpointUrl,
+					Arrays.toString(nodeUrns.toArray())
+			);
+		}
+
+		try {
+
+			endpoint.nodesDetached(nodeUrns);
+			return true;
+
+		} catch (Exception e) {
+			lock.lock();
+			try {
+				nodesDetachedQueue.addFirst(nodeUrns);
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		return false;
+	}
+
 	private boolean deliveryQueuesEmpty() {
-		return !(!messageQueue.isEmpty() || !notificationQueue.isEmpty() || !statusQueue.isEmpty());
+		return !(!messageQueue.isEmpty() ||
+				!notificationQueue.isEmpty() ||
+				!statusQueue.isEmpty() ||
+				!nodesAttachedQueue.isEmpty() ||
+				!nodesDetachedQueue.isEmpty());
 	}
 
 	/**
@@ -368,7 +457,7 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void receiveNotification(final String... notifications) {
+	public void receiveNotification(final Notification... notifications) {
 		lock.lock();
 		try {
 			Collections.addAll(notificationQueue, notifications);
@@ -378,7 +467,27 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void receiveNotification(final List<String> notifications) {
+	public void nodesAttached(final List<NodeUrn> nodeUrns) {
+		lock.lock();
+		try {
+			nodesAttachedQueue.add(nodeUrns);
+			workAvailable.signalAll();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void nodesDetached(final List<NodeUrn> nodeUrns) {
+		lock.lock();
+		try {
+			nodesDetachedQueue.add(nodeUrns);
+			workAvailable.signalAll();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void receiveNotification(final List<Notification> notifications) {
 		lock.lock();
 		try {
 			notificationQueue.addAll(notifications);
@@ -413,7 +522,8 @@ class DeliveryWorker implements Runnable {
 	 * Notifies the currently registered controllers that a number of messages have been dropped if the last notification
 	 * lies far enough in the past.
 	 *
-	 * @param messagesDropped the number of messages being dropped right now
+	 * @param messagesDropped
+	 * 		the number of messages being dropped right now
 	 */
 
 	private void enqueueDropNotificationIfNotificationRateAllows(final int messagesDropped) {
@@ -427,10 +537,11 @@ class DeliveryWorker implements Runnable {
 			String msg = "Dropped " + messagesDroppedSinceLastNotification + " messages in the last " +
 					lastMessageDropNotificationTimeDiff.ms() + " milliseconds, " +
 					"because the experiment is producing more messages than the backend is able to deliver.";
-			receiveNotification(msg);
+			Notification notification = new Notification();
+			notification.setMsg(msg);
+			receiveNotification(notification);
 			lastMessageDropNotificationTimeDiff.touch();
 			messagesDroppedSinceLastNotification = 0;
 		}
 	}
-
 }

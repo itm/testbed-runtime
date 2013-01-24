@@ -23,26 +23,28 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import eu.wisebed.api.wsn.WSN;
+import java.util.List;
 
 class WSNAreNodesAliveRunnable extends AbstractRequestRunnable {
 
-	private List<String> nodes;
+	private final List<NodeUrn> nodes;
 
-	WSNAreNodesAliveRunnable(FederatorController federatorController, WSN wsnEndpoint,
-							 String federatorRequestId,
-							 List<String> nodes) {
-		super(federatorController, wsnEndpoint, federatorRequestId);
+	WSNAreNodesAliveRunnable(final FederatorController federatorController,
+							 final WSN wsnEndpoint,
+							 final long federatedRequestId,
+							 final long federatorRequestId,
+							 final List<NodeUrn> nodes) {
+
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+
 		this.nodes = nodes;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.areNodesAlive(nodes));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
 	}
 }

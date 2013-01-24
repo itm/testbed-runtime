@@ -23,29 +23,36 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.wsn.WSN;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.WSN;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 class DestroyVirtualLinkRunnable extends AbstractRequestRunnable {
 
-	private String sourceNode;
+	private final NodeUrn sourceNodeUrn;
 
-	private String targetNode;
+	private final NodeUrn targetNodeUrn;
 
-	DestroyVirtualLinkRunnable(FederatorController federatorController, WSN wsnEndpoint,
-									   String federatorRequestId,
-									   String sourceNode, String targetNode) {
+	DestroyVirtualLinkRunnable(final FederatorController federatorController,
+							   final WSN wsnEndpoint,
+							   final long federatedRequestId,
+							   final long federatorRequestId,
+							   final NodeUrn sourceNodeUrn,
+							   final NodeUrn targetNodeUrn) {
 
-		super(federatorController, wsnEndpoint, federatorRequestId);
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
-	public void run() {
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			done(wsnEndpoint.destroyVirtualLink(sourceNode, targetNode));
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.destroyVirtualLinks(federatedRequestId, newArrayList(link));
 	}
 }

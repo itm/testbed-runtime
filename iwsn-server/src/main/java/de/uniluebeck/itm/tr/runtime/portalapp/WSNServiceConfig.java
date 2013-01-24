@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
 import com.google.common.collect.ImmutableSet;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Wiseml;
 
 import java.net.URL;
@@ -21,23 +22,19 @@ public class WSNServiceConfig {
 	private final Wiseml wiseML;
 
 	/**
-	 * The set of node URNs that are reserved and thereby associated with this {@link eu.wisebed.api.wsn.WSN} instance.
+	 * The set of node URNs that are reserved and thereby associated with this {@link eu.wisebed.api.v3.wsn.WSN} instance.
 	 */
-	private final ImmutableSet<String> reservedNodes;
+	private final ImmutableSet<NodeUrn> reservedNodes;
 
-	public WSNServiceConfig(final ImmutableSet<String> reservedNodes, final URL webServiceEndpointUrl,
+	public WSNServiceConfig(final ImmutableSet<NodeUrn> reservedNodes,
+							final URL webServiceEndpointUrl,
 							final Wiseml wiseML) {
-
-		checkNotNull(reservedNodes);
-		checkNotNull(webServiceEndpointUrl);
-		checkNotNull(wiseML);
-
-		this.reservedNodes = reservedNodes;
-		this.webserviceEndpointUrl = webServiceEndpointUrl;
-		this.wiseML = wiseML;
+		this.reservedNodes = checkNotNull(reservedNodes);
+		this.webserviceEndpointUrl = checkNotNull(webServiceEndpointUrl);
+		this.wiseML = checkNotNull(wiseML);
 	}
 
-	public ImmutableSet<String> getReservedNodes() {
+	public ImmutableSet<NodeUrn> getReservedNodes() {
 		return reservedNodes;
 	}
 

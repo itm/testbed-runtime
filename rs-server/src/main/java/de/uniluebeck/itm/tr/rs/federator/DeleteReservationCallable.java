@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
-import eu.wisebed.api.rs.RS;
-import eu.wisebed.api.rs.SecretAuthenticationKey;
-import eu.wisebed.api.rs.SecretReservationKey;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ public class DeleteReservationCallable implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		rs.deleteReservation(Collections.<SecretAuthenticationKey>emptyList(), reservationsToBeDeleted);
+		rs.deleteReservation(reservationsToBeDeleted);
 		return null;
 	}
 }

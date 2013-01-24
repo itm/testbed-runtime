@@ -23,10 +23,12 @@
 
 package de.uniluebeck.itm.tr.runtime.portalapp;
 
-import de.uniluebeck.itm.tr.util.Service;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SecretReservationKey;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
+import com.google.common.util.concurrent.Service;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,22 +38,20 @@ import java.util.List;
 public interface SessionManagementService extends Service {
 
 	/**
-	 * See {@link eu.wisebed.api.sm.SessionManagement#getInstance(java.util.List, String)}
+	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#getInstance(java.util.List)}
 	 */
-	String getInstance(List<SecretReservationKey> secretReservationKeys, String controller)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
+	String getInstance(List<SecretReservationKey> secretReservationKeys)
+			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception;
 
 	/**
-	 * See {@link eu.wisebed.api.sm.SessionManagement#areNodesAlive(java.util.List, String)}
+	 * See {@link eu.wisebed.api.v3.sm.SessionManagement#areNodesAlive(long, java.util.List, String)}
 	 */
-	String areNodesAlive(final List<String> nodes, final String controllerEndpointUrl);
-
-	/**
-	 * See {@link eu.wisebed.api.sm.SessionManagement#free(java.util.List)}
-	 */
-	void free(List<SecretReservationKey> secretReservationKeyList)
-			throws ExperimentNotRunningException_Exception, UnknownReservationIdException_Exception;
+	void areNodesAlive(final long requestId, final List<NodeUrn> nodes, final String controllerEndpointUrl);
 
 	@Nullable
 	WSNServiceHandle getWsnServiceHandle(@Nonnull String secretReservationKey);
+
+	List<ChannelHandlerDescription> getSupportedChannelHandlers();
+
+	List<String> getSupportedVirtualLinkFilters();
 }
