@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.devicedb.entity;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -21,12 +22,15 @@ import org.jboss.netty.channel.ChannelHandler;
 
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
 
 @Entity
-public class DeviceConfig {
+public class DeviceConfig implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
 
@@ -49,6 +53,11 @@ public class DeviceConfig {
 
 	@Nullable 
 	private  String nodeUSBChipID;
+	
+	@Nullable
+	@Transient
+	// TODO Coordinate can not be persisted. Why?
+	private Coordinate position;
 
 	@Nullable
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -82,6 +91,7 @@ public class DeviceConfig {
 			final NodeUrn nodeUrn,
 			final String nodeType,
 			final boolean gatewayNode,
+			// TODO add other stuff here too or make setters?
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
@@ -134,10 +144,14 @@ public class DeviceConfig {
 		return new NodeUrn(nodeUrn);
 	}
 	
-	private String getDescription() {
+	public String getDescription() {
 		return description;
 	}
-
+	
+	public Coordinate getPosition() {
+		return position;
+	}
+	
 	@Nullable
 	public String getNodeUSBChipID() {
 		return nodeUSBChipID;
@@ -190,10 +204,11 @@ public class DeviceConfig {
 			node.setGateway(config.isGatewayNode());
 			node.setId(config.getNodeUrn().toString());
 			node.setDescription(config.getDescription());
-			// TODO define Coordinate somehow
-			//node.setPosition(config.getPosition());
+			node.setPosition(config.getPosition());
+			
 			// TODO what's that?
 			//node.getProgramDetails(config.getProgramDetails());
+			// TODO capabilities
 			
 			nodes.add(node);
 		}
