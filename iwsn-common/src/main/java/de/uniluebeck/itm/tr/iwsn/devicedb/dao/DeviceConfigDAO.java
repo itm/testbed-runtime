@@ -5,6 +5,7 @@ import java.util.Map;
 
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,8 +69,9 @@ public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implem
 
 	@Override
 	public DeviceConfig getByMacAddress(long macAddress) {
+		String macHex = "0x"+Strings.padStart(Long.toHexString(macAddress), 4, '0');
 		return getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
-				.setParameter("macAddress", "%"+Long.toHexString(macAddress)).getSingleResult();
+				.setParameter("macAddress", "%"+macHex).getSingleResult();
 	}
 }

@@ -1,11 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.devicedb.entity;
 
-import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.v3.common.NodeUrn;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.jboss.netty.channel.ChannelHandler;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -16,11 +15,15 @@ import javax.persistence.Id;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Transient;
 
-import java.util.List;
-import java.util.Map;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.jboss.netty.channel.ChannelHandler;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Setup;
+import eu.wisebed.wiseml.Setup.Node;
+import eu.wisebed.wiseml.Wiseml;
 
 @Entity
 public class DeviceConfig {
@@ -40,6 +43,9 @@ public class DeviceConfig {
 	private  String nodeType;
 
 	private  boolean gatewayNode;
+	
+	@Nullable
+	private String description;
 
 	@Nullable 
 	private  String nodeUSBChipID;
@@ -127,6 +133,10 @@ public class DeviceConfig {
 	public NodeUrn getNodeUrn() {
 		return new NodeUrn(nodeUrn);
 	}
+	
+	private String getDescription() {
+		return description;
+	}
 
 	@Nullable
 	public String getNodeUSBChipID() {
@@ -162,4 +172,44 @@ public class DeviceConfig {
 	public boolean isGatewayNode() {
 		return gatewayNode;
 	}
+	
+	/**
+	 * Formats the data from a given List of DeviceConfigs to a WiseML representation.
+	 * 
+	 * @param configs An {@link Iterable} with {@link DeviceConfig}
+	 * @return A WiseML object from
+	 */
+	public static Wiseml getWiseml(Iterable<DeviceConfig> configs) {
+		
+		Setup setup = new Setup();
+		List<Node> nodes = setup.getNode();
+		for ( DeviceConfig config : configs ) {
+			Node node = new Node();
+			
+			node.setNodeType(config.getNodeType());
+			node.setGateway(config.isGatewayNode());
+			node.setId(config.getNodeUrn().toString());
+			node.setDescription(config.getDescription());
+			// TODO define Coordinate somehow
+			//node.setPosition(config.getPosition());
+			// TODO what's that?
+			//node.getProgramDetails(config.getProgramDetails());
+			
+			nodes.add(node);
+		}
+		
+		/* TODO how to set these properties?
+		setup.setCoordinateType(coordinateType);
+		setup.setDescription(description);
+		setup.setInterpolation(interpolation);
+		setup.setOrigin(origin);
+		setup.setTimeinfo(timeinfo);
+		*/
+		
+		Wiseml ml = new Wiseml();
+		ml.setSetup(setup);
+		
+		return ml;
+	}
+	
 }
