@@ -13,6 +13,7 @@ import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.snaa.PerNodeUrnAuthorizationResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
 import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.DateTime;
@@ -375,6 +376,48 @@ public class SingleUrnPrefixRSTest {
 		} finally {
 			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
 		}
+	}
+
+
+	@Test
+	public void verifyNoReservationIsPerformedIfSNAArefusesAuthorization() throws Exception {
+
+		final DateTime from = new DateTime().plusHours(1);
+		final DateTime to = from.plusHours(1);
+
+		final SecretReservationKey srk = new SecretReservationKey();
+		srk.setSecretReservationKey("abc123");
+
+		final List<ConfidentialReservationData> reservedNodes = newArrayList();
+		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
+		persistenceCrd.getNodeUrns().add(new NodeUrn("urn:local:0xcbe4"));
+		reservedNodes.add(persistenceCrd);
+
+		AuthorizationResponse unsuccessfulAuthorizationResponse = new AuthorizationResponse();
+		unsuccessfulAuthorizationResponse.setAuthorized(false);
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
+				convert(user1Saks),
+				newArrayList(new NodeUrn("urn:local:0xcbe4"))
+		);
+
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_MAKE_RESERVATION))
+				.thenReturn(unsuccessfulAuthorizationResponse);
+
+		// try to reserve
+		try {
+
+			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to);
+
+			fail();
+		} catch (AuthorizationFault_Exception e) {
+			fail();
+		} catch (RSFault_Exception expected) {
+		} catch (ReservationConflictFault_Exception expected) {
+			expected.printStackTrace();
+		}
+		verify(persistence,never()).addReservation(any(ConfidentialReservationData.class),any(NodeUrnPrefix.class));
+
 	}
 
 
