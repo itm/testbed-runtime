@@ -129,6 +129,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
+	@AuthorizationRequired("RS_MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,

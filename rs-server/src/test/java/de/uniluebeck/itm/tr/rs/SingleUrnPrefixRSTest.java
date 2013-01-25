@@ -14,6 +14,7 @@ import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.v3.snaa.SNAA;
+import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -23,6 +24,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.naming.directory.InvalidAttributesException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +87,7 @@ public class SingleUrnPrefixRSTest {
 
 	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private List<SecretReservationKey> user2Srks;
+	private RSAuthorizationInterceptor rsAuthorizationInterceptor;
 
 	@Before
 	public void setUp() {
@@ -117,8 +120,9 @@ public class SingleUrnPrefixRSTest {
 						.annotatedWith(NonWS.class)
 						.to(SingleUrnPrefixRS.class);
 
+				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaa));
 				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(),
-						annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa)
+						annotatedWith(AuthorizationRequired.class), rsAuthorizationInterceptor
 				);
 			}
 		}
@@ -336,6 +340,43 @@ public class SingleUrnPrefixRSTest {
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
 	}
+
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledBeforeDeletingReservations() throws Throwable {
+		try {
+			rs.deleteReservation(anyListOf(SecretReservationKey.class));
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledBeforeMakingReservations() throws Throwable {
+
+		try {
+			rs.makeReservation(anyListOf(SecretAuthenticationKey.class), newArrayList(new NodeUrn("urn:test:0x1234")), new DateTime(),  new DateTime());
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledReturningConfidentialReservationData() throws Throwable {
+
+		try {
+			rs.getConfidentialReservations(anyListOf(SecretAuthenticationKey.class), new DateTime(),  new DateTime());
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,
 																		 final String username,
