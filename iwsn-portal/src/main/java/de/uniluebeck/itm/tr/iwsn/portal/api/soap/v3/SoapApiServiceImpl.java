@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v2;
+package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -23,7 +23,8 @@ class SoapApiServiceImpl extends AbstractService implements SoapApiService {
 	@Override
 	protected void doStart() {
 		try {
-			sessionManagementService = servicePublisher.createJaxWsService("/soap/v2.3/", sessionManagement);
+			sessionManagementService = servicePublisher.createJaxWsService("/soap/v3", sessionManagement);
+			sessionManagementService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);

@@ -4,6 +4,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +25,32 @@ public class Portal extends AbstractService {
 
 	private final ReservationManager reservationManager;
 
+	private final SoapApiService soapApiService;
+
+	private final ServicePublisher servicePublisher;
+
 	@Inject
-	public Portal(final PortalEventBus portalEventBus, final ReservationManager reservationManager) {
+	public Portal(final PortalEventBus portalEventBus,
+				  final ReservationManager reservationManager,
+				  final SoapApiService soapApiService,
+				  final ServicePublisher servicePublisher) {
 		this.portalEventBus = portalEventBus;
 		this.reservationManager = reservationManager;
+		this.soapApiService = soapApiService;
+		this.servicePublisher = servicePublisher;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
+
 			portalEventBus.startAndWait();
 			reservationManager.startAndWait();
+			servicePublisher.startAndWait();
+			soapApiService.startAndWait();
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -43,9 +59,14 @@ public class Portal extends AbstractService {
 	@Override
 	protected void doStop() {
 		try {
+
+			soapApiService.stopAndWait();
+			servicePublisher.stopAndWait();
 			reservationManager.stopAndWait();
 			portalEventBus.stopAndWait();
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

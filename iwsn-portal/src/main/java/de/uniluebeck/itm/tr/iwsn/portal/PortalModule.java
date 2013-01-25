@@ -12,6 +12,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDBModule;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
@@ -51,12 +52,14 @@ public class PortalModule extends AbstractModule {
 
 		final ServicePublisherConfig servicePublisherConfig = new ServicePublisherConfig(
 				portalConfig.port,
-				ServicePublisherJettyMetroJerseyModule.class
+				ServicePublisherJettyMetroJerseyModule.class,
+				this.getClass().getResource("/").toString()
 		);
 		install(new ServicePublisherJettyMetroJerseyModule(servicePublisherConfig));
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
 		install(new DeviceConfigDBModule());
+		install(new SoapApiModule());
 	}
 
 	@Provides

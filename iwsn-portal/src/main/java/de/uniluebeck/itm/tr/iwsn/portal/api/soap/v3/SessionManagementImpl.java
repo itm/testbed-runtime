@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v2;
+package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -20,6 +20,7 @@ import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 
 import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
 
+@WebService(name = "SessionManagement", targetNamespace = "http://wisebed.eu/api/v3/sm")
 public class SessionManagementImpl implements SessionManagement {
 
 	private final DeliveryManager deliveryManager;
