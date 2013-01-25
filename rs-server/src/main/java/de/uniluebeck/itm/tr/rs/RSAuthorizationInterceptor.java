@@ -160,6 +160,8 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(
 							convert((List<SecretAuthenticationKey>) list)
 					);
+				} else if (list.size() > 0 && list.get(0) instanceof NodeUrn) {
+					nodeURNs = (List<NodeUrn>) list;
 				}
 			} else if (object instanceof ConfidentialReservationData) {
 				nodeURNs = ((ConfidentialReservationData) object).getNodeUrns();
