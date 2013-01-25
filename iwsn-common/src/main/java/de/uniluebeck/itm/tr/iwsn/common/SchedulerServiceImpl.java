@@ -24,11 +24,10 @@ class SchedulerServiceImpl extends AbstractService implements SchedulerService {
 
 	@Inject
 	SchedulerServiceImpl(@Assisted final int workerThreads,
-						 @Assisted final String schedulerThreadNameFormat,
-						 @Assisted final String workerThreadNameFormat) {
+						 @Assisted final String threadNamePrefix) {
 		this.workerThreads = workerThreads;
-		this.schedulerThreadNameFormat = schedulerThreadNameFormat;
-		this.workerThreadNameFormat = workerThreadNameFormat;
+		this.schedulerThreadNameFormat = threadNamePrefix + "-Scheduler";
+		this.workerThreadNameFormat = threadNamePrefix + "-Worker %d";
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v2;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
@@ -21,6 +22,7 @@ import eu.wisebed.api.v3.sm.UnknownReservationIdFault_Exception;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
@@ -39,17 +41,21 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final PortalConfig portalConfig;
 
+	private final Set<HandlerFactory> handlerFactories;
+
 	@Inject
 	public SessionManagementImpl(final DeliveryManager deliveryManager,
 								 final PortalEventBus portalEventBus,
 								 final RequestIdProvider requestIdProvider,
 								 final ResponseTrackerFactory responseTrackerFactory,
-								 final PortalConfig portalConfig) {
+								 final PortalConfig portalConfig,
+								 final Set<HandlerFactory> handlerFactories) {
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.portalConfig = checkNotNull(portalConfig);
+		this.handlerFactories = checkNotNull(handlerFactories);
 	}
 
 	@Override
@@ -61,7 +67,7 @@ public class SessionManagementImpl implements SessionManagement {
 		deliveryManager.addController(controllerEndpointUrl);
 
 		final Request request = newAreNodesConnectedRequest(requestId, nodeUrns);
-		final ResponseTracker responseTracker = responseTrackerFactory.create(request);
+		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
 
 		portalEventBus.post(request);
 
@@ -111,16 +117,40 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Override
 	public String getNetwork() {
+
+
+
 		return null;  // TODO implement
 	}
 
 	@Override
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
-		return null;  // TODO implement
+
+		final List<ChannelHandlerDescription> list = newArrayList();
+
+		for (HandlerFactory handlerFactory : handlerFactories) {
+
+			final ChannelHandlerDescription channelHandlerDescription = new ChannelHandlerDescription();
+			channelHandlerDescription.setName(handlerFactory.getName());
+			channelHandlerDescription.setDescription(handlerFactory.getDescription());
+
+			for (String key : handlerFactory.getConfigurationOptions().keySet()) {
+				for (String value : handlerFactory.getConfigurationOptions().get(key)) {
+
+					final KeyValuePair keyValuePair = new KeyValuePair();
+					keyValuePair.setKey(key);
+					keyValuePair.setValue(value);
+
+					channelHandlerDescription.getConfigurationOptions().add(keyValuePair);
+				}
+			}
+		}
+
+		return list;
 	}
 
 	@Override
 	public List<String> getSupportedVirtualLinkFilters() {
-		return null;  // TODO implement
+		return newArrayList();
 	}
 }

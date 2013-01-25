@@ -7,7 +7,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools.toPrintableString;
+import static de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools.toPrintableString;
 
 public class AbovePipelineLogger extends SimpleChannelHandler {
 

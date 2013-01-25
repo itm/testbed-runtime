@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,9 +32,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
-import de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools;
+import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +71,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
@@ -94,16 +95,6 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	public static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
-	private static final HandlerFactoryRegistry HANDLER_FACTORY_REGISTRY = new HandlerFactoryRegistry();
-
-	static {
-		try {
-			ProtocolCollection.registerProtocols(HANDLER_FACTORY_REGISTRY);
-		} catch (Exception e) {
-			throw propagate(e);
-		}
-	}
-
 	private static final Logger log = LoggerFactory.getLogger(DeviceAdapter.class);
 
 	private final DeviceConfig deviceConfig;
@@ -115,6 +106,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	private final DeviceFactory deviceFactory;
 
 	private final NodeApiFactory nodeApiFactory;
+
+	private final ImmutableMap<String, HandlerFactory> handlerFactories;
 
 	private Channel deviceChannel;
 
@@ -165,15 +158,22 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 							   final DeviceConfig deviceConfig,
 							   final DeviceFactory deviceFactory,
 							   final NodeApiFactory nodeApiFactory,
-							   final GatewayEventBus gatewayEventBus) {
+							   final GatewayEventBus gatewayEventBus,
+							   final Set<HandlerFactory> handlerFactories) {
 
 		super(deviceConfig.getNodeUrn());
 
 		this.port = port;
-		this.deviceFactory = deviceFactory;
-		this.nodeApiFactory = nodeApiFactory;
+		this.deviceFactory = checkNotNull(deviceFactory);
+		this.nodeApiFactory = checkNotNull(nodeApiFactory);
 		this.deviceConfig = checkNotNull(deviceConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
+
+		final ImmutableMap.Builder<String, HandlerFactory> handlerFactoriesBuilder = ImmutableMap.builder();
+		for (HandlerFactory handlerFactory : checkNotNull(handlerFactories)) {
+			handlerFactoriesBuilder.put(handlerFactory.getName(), handlerFactory);
+		}
+		this.handlerFactories = handlerFactoriesBuilder.build();
 
 		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
 		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
@@ -581,7 +581,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 						channelHandlerConfigs
 				);
 
-				innerPipelineHandlers = HANDLER_FACTORY_REGISTRY.create(channelHandlerConfigs);
+				innerPipelineHandlers = createHandlers(channelHandlerConfigs);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
@@ -592,7 +592,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 				log.warn("{} => {} while setting channel pipeline: {}",
 						deviceConfig.getNodeUrn(), e.getClass().getSimpleName(), e.getMessage()
 				);
-				future.setException(new RuntimeException(e));
+				future.setException(e);
 
 				log.warn("{} => Resetting channel pipeline to default pipeline.", deviceConfig.getNodeUrn());
 				setDefaultChannelPipeline();
@@ -605,6 +605,23 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		return future;
+	}
+
+	private List<Tuple<String, ChannelHandler>> createHandlers(
+			final List<Tuple<String, Multimap<String, String>>> configs) throws Exception {
+
+		final List<Tuple<String, ChannelHandler>> handlers = newArrayList();
+
+		for (Tuple<String, Multimap<String, String>> config : configs) {
+
+			final String name = config.getFirst();
+			final Multimap<String, String> properties = config.getSecond();
+			final List<Tuple<String, ChannelHandler>> factoryHandlers = handlerFactories.get(name).create(properties);
+
+			handlers.addAll(factoryHandlers);
+		}
+
+		return handlers;
 	}
 
 	private SimpleChannelHandler forwardingHandler = new SimpleChannelHandler() {

@@ -7,15 +7,11 @@ public interface SchedulerServiceFactory {
 	 *
 	 * @param workerThreads
 	 * 		the number of worker threads or {@code -1} (unlimited)
-	 * @param schedulerThreadNameFormat
-	 * 		the name format for the scheduler thread (cf. {@link com.google.common.util.concurrent.ThreadFactoryBuilder}
-	 * @param workerThreadNameFormat
-	 * 		the name format for the worker threads (cf. {@link com.google.common.util.concurrent.ThreadFactoryBuilder}
+	 * @param threadNamePrefix
+	 * 		the prefix of the name for the scheduler thread (cf. {@link com.google.common.util.concurrent.ThreadFactoryBuilder})
 	 *
 	 * @return a new SchedulerService instance
 	 */
-	SchedulerService create(final int workerThreads,
-							final String schedulerThreadNameFormat,
-							final String workerThreadNameFormat);
+	SchedulerService create(final int workerThreads, final String threadNamePrefix);
 
 }

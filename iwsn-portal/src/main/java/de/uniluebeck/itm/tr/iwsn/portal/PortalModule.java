@@ -6,10 +6,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDBModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
@@ -27,11 +29,18 @@ public class PortalModule extends AbstractModule {
 
 		bind(PortalConfig.class).toInstance(portalConfig);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
+		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
+
+		install(new FactoryModuleBuilder()
+				.implement(Reservation.class, ReservationImpl.class)
+				.build(ReservationFactory.class)
+		);
 
 		install(new NettyServerModule(
 				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
 				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
-		));
+		)
+		);
 
 		install(new FactoryModuleBuilder()
 				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
@@ -46,6 +55,8 @@ public class PortalModule extends AbstractModule {
 		);
 		install(new ServicePublisherJettyMetroJerseyModule(servicePublisherConfig));
 		install(new ResponseTrackerModule());
+		install(new NettyProtocolsModule());
+		install(new DeviceConfigDBModule());
 	}
 
 	@Provides

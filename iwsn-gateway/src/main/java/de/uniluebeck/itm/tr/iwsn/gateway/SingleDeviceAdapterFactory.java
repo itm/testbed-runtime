@@ -1,10 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
+
+import java.util.Set;
 
 public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
@@ -14,13 +17,17 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	private final DeviceFactory deviceFactory;
 
+	private final Set<HandlerFactory> handlerFactories;
+
 	@Inject
 	public SingleDeviceAdapterFactory(final DeviceFactory deviceFactory,
 									  final GatewayEventBus gatewayEventBus,
-									  final NodeApiFactory nodeApiFactory) {
+									  final NodeApiFactory nodeApiFactory,
+									  final Set<HandlerFactory> handlerFactories) {
 		this.deviceFactory = deviceFactory;
 		this.gatewayEventBus = gatewayEventBus;
 		this.nodeApiFactory = nodeApiFactory;
+		this.handlerFactories = handlerFactories;
 	}
 
 	@Override
@@ -38,6 +45,6 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new SingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, gatewayEventBus);
+		return new SingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, gatewayEventBus, handlerFactories);
 	}
 }

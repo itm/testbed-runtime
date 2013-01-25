@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
@@ -43,7 +44,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final PortalConfig portalConfig;
 
-	private final RS rs;
+	private final Provider<RS> rs;
 
 	private final DeviceConfigDB deviceConfigDB;
 
@@ -55,7 +56,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	@Inject
 	public ReservationManagerImpl(final PortalConfig portalConfig,
-								  final RS rs,
+								  final Provider<RS> rs,
 								  final DeviceConfigDB deviceConfigDB,
 								  final ReservationFactory reservationFactory,
 								  final SchedulerServiceFactory schedulerServiceFactory) {
@@ -63,11 +64,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		this.rs = checkNotNull(rs);
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 		this.reservationFactory = checkNotNull(reservationFactory);
-		this.schedulerService = schedulerServiceFactory.create(
-				-1,
-				"ReservationManager-Scheduler %d",
-				"ReservationManager-Worker %d"
-		);
+		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
 	}
 
 	@Override
@@ -109,7 +106,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 			final List<ConfidentialReservationData> confidentialReservationDataList;
 			try {
 				final List<SecretReservationKey> keys = toSecretReservationKeyList(secretReservationKey);
-				confidentialReservationDataList = rs.getReservation(keys);
+				confidentialReservationDataList = rs.get().getReservation(keys);
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
 			} catch (ReservationNotFoundFault_Exception e) {

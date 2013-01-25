@@ -33,7 +33,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	private final SettableFutureMap<NodeUrn, SingleNodeResponse> futureMap;
 
 	@Inject
-	public ResponseTrackerImpl(@Assisted final Request request, final EventBusService eventBusService) {
+	public ResponseTrackerImpl(@Assisted final Request request, @Assisted final EventBusService eventBusService) {
 
 		this.request = checkNotNull(request);
 		this.eventBusService = checkNotNull(eventBusService);

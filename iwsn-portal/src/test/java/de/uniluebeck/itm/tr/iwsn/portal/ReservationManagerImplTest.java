@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
@@ -123,6 +124,9 @@ public class ReservationManagerImplTest {
 	}
 
 	@Mock
+	private Provider<RS> rsProvider;
+
+	@Mock
 	private RS rs;
 
 	@Mock
@@ -150,8 +154,9 @@ public class ReservationManagerImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when(schedulerServiceFactory.create(anyInt(), anyString(), anyString())).thenReturn(schedulerService);
-		reservationManager = new ReservationManagerImpl(PORTAL_CONFIG, rs, deviceConfigDB, reservationFactory,
+		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
+		when(rsProvider.get()).thenReturn(rs);
+		reservationManager = new ReservationManagerImpl(PORTAL_CONFIG, rsProvider, deviceConfigDB, reservationFactory,
 				schedulerServiceFactory
 		);
 		reservationManager.startAndWait();

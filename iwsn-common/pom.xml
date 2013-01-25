@@ -80,8 +80,8 @@
 			<artifactId>netty</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>protocol-collection</artifactId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

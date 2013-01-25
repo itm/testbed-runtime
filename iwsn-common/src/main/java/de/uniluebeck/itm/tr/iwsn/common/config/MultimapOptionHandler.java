@@ -17,7 +17,7 @@ import static com.google.common.collect.Iterables.size;
 
 public class MultimapOptionHandler extends OptionHandler<Multimap<String, String>> {
 
-	protected MultimapOptionHandler(final CmdLineParser parser, final OptionDef option,
+	public MultimapOptionHandler(final CmdLineParser parser, final OptionDef option,
 									final Setter<? super Multimap<String, String>> setter) {
 		super(parser, option, setter);
 	}

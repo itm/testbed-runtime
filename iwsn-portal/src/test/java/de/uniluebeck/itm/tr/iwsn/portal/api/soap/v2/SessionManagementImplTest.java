@@ -1,6 +1,9 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v2;
 
+import com.google.common.collect.Sets;
+import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
@@ -72,9 +75,10 @@ public class SessionManagementImplTest {
 	@Before
 	public void setUp() throws Exception {
 		sessionManagement = new SessionManagementImpl(
-				deliveryManager, portalEventBus, requestIdProvider, responseTrackerFactory, portalConfig
+				deliveryManager, portalEventBus, requestIdProvider, responseTrackerFactory, portalConfig,
+				Sets.<HandlerFactory>newHashSet()
 		);
-		when(responseTrackerFactory.create(isA(Request.class))).thenReturn(responseTracker);
+		when(responseTrackerFactory.create(isA(Request.class), isA(EventBusService.class))).thenReturn(responseTracker);
 		when(requestIdProvider.get()).thenReturn(REQUEST_ID);
 	}
 
@@ -85,7 +89,7 @@ public class SessionManagementImplTest {
 		verify(deliveryManager).addController(CONTROLLER_ENDPOINT_URL);
 
 		final ArgumentCaptor<Request> req1 = ArgumentCaptor.forClass(Request.class);
-		verify(responseTrackerFactory).create(req1.capture());
+		verify(responseTrackerFactory).create(req1.capture(), isA(EventBusService.class));
 		assertTrue(req1.getValue().getAreNodesConnectedRequest().getNodeUrnsList().equals(NODE_URN_STRINGS));
 
 		final ArgumentCaptor<Runnable> runnableArgumentCaptor = ArgumentCaptor.forClass(Runnable.class);

@@ -165,14 +165,9 @@
 				<version>0.6</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>protocol-collection</artifactId>
-				<version>1.6</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>factory</artifactId>
-				<version>1.6</version>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+				<artifactId>netty-protocols</artifactId>
+				<version>1.7-SNAPSHOT</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->
@@ -229,7 +224,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>13.0.1</version>
+				<version>[13.0,14.0)</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.classpath-explorer</groupId>
@@ -431,28 +426,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<docletArtifact>
-						<groupId>com.google.doclava</groupId>
-						<artifactId>doclava</artifactId>
-						<version>1.0.3</version>
-					</docletArtifact>
-					<doclet>com.google.doclava.Doclava</doclet>
-					<bootclasspath>${sun.boot.class.path}</bootclasspath>
-					<additionalparam>
-						-quiet
-						-federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
-						-federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
-						-hdf project.name "${project.name}"
-						-d ${project.build.directory}/apidocs
-					</additionalparam>
-					<useStandardDocletOptions>false</useStandardDocletOptions>
-					<additionalJOption>-J-Xmx1024m</additionalJOption>
-				</configuration>
-			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
