@@ -1,17 +1,36 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
-
-import de.uniluebeck.itm.tr.util.Tuple;
-import eu.wisebed.api.v3.common.NodeUrn;
-import org.jboss.netty.channel.ChannelHandler;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
+package de.uniluebeck.itm.tr.iwsn.devicedb.entity;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DeviceConfig {
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.jboss.netty.channel.ChannelHandler;
+
+import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Coordinate;
+import eu.wisebed.wiseml.Setup;
+import eu.wisebed.wiseml.Setup.Node;
+import eu.wisebed.wiseml.Wiseml;
+
+@Entity
+public class DeviceConfig implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final int DEFAULT_TIMEOUT_FLASH_MILLIS = 120000;
 
@@ -21,37 +40,58 @@ public class DeviceConfig {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-	private final NodeUrn nodeUrn;
+	@Id
+	private String nodeUrn;
+	
+	@Column(nullable=false)
+	private  String nodeType;
 
-	private final String nodeType;
+	private  boolean gatewayNode;
+	
+	@Nullable
+	private String description;
 
-	private final boolean gatewayNode;
+	@Nullable 
+	private  String nodeUSBChipID;
+	
+	@Nullable
+	@Transient
+	// TODO Coordinate can not be persisted. Why?
+	private Coordinate position;
 
 	@Nullable
-	private final String nodeUSBChipID;
+	@ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SELECT)
+    @MapKeyColumn(name = "key", length = 1024)
+    @Column(name = "value", length = 4069)
+	private  Map<String, String> nodeConfiguration;
 
 	@Nullable
-	private final Map<String, String> nodeConfiguration;
+	// TODO how to persist?
+	@Transient
+	private  List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
 
 	@Nullable
-	private final List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
+	private  Long timeoutNodeApiMillis;
 
 	@Nullable
-	private final Long timeoutNodeApiMillis;
+	private  Long timeoutResetMillis;
 
 	@Nullable
-	private final Long timeoutResetMillis;
+	private  Long timeoutFlashMillis;
 
 	@Nullable
-	private final Long timeoutFlashMillis;
-
-	@Nullable
-	private final Long timeoutCheckAliveMillis;
+	private  Long timeoutCheckAliveMillis;
+	
+	public DeviceConfig() {
+		
+	}
 
 	public DeviceConfig(
 			final NodeUrn nodeUrn,
 			final String nodeType,
 			final boolean gatewayNode,
+			// TODO add other stuff here too or make setters?
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
@@ -60,7 +100,7 @@ public class DeviceConfig {
 			@Nullable final Long timeoutNodeApiMillis,
 			@Nullable final Long timeoutResetMillis) {
 
-		this.nodeUrn = checkNotNull(nodeUrn);
+		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
 		this.gatewayNode = gatewayNode;
 		this.nodeUSBChipID = nodeUSBChipID;
@@ -101,9 +141,17 @@ public class DeviceConfig {
 	}
 
 	public NodeUrn getNodeUrn() {
-		return nodeUrn;
+		return new NodeUrn(nodeUrn);
 	}
-
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public Coordinate getPosition() {
+		return position;
+	}
+	
 	@Nullable
 	public String getNodeUSBChipID() {
 		return nodeUSBChipID;
@@ -138,4 +186,45 @@ public class DeviceConfig {
 	public boolean isGatewayNode() {
 		return gatewayNode;
 	}
+	
+	/**
+	 * Formats the data from a given List of DeviceConfigs to a WiseML representation.
+	 * 
+	 * @param configs An {@link Iterable} with {@link DeviceConfig}
+	 * @return A WiseML object from
+	 */
+	public static Wiseml getWiseml(Iterable<DeviceConfig> configs) {
+		
+		Setup setup = new Setup();
+		List<Node> nodes = setup.getNode();
+		for ( DeviceConfig config : configs ) {
+			Node node = new Node();
+			
+			node.setNodeType(config.getNodeType());
+			node.setGateway(config.isGatewayNode());
+			node.setId(config.getNodeUrn().toString());
+			node.setDescription(config.getDescription());
+			node.setPosition(config.getPosition());
+			
+			// TODO what's that?
+			//node.getProgramDetails(config.getProgramDetails());
+			// TODO capabilities
+			
+			nodes.add(node);
+		}
+		
+		/* TODO how to set these properties?
+		setup.setCoordinateType(coordinateType);
+		setup.setDescription(description);
+		setup.setInterpolation(interpolation);
+		setup.setOrigin(origin);
+		setup.setTimeinfo(timeinfo);
+		*/
+		
+		Wiseml ml = new Wiseml();
+		ml.setSetup(setup);
+		
+		return ml;
+	}
+	
 }

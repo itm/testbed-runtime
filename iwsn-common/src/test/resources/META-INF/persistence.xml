@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+	<persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+	    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+	    <class>de.uniluebeck.itm.tr.iwsn.devicedb.entity.DeviceConfig</class>
+	    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+	    <properties>
+	    	<!-- vendor-specific properties go here -->
+			<!-- Load these properties from hibernate.properties when setting up the 
+				DeviceConfigDB module to prevent inconsistencies -->
+	    </properties>
+	</persistence-unit>
+</persistence>
