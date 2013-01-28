@@ -13,7 +13,9 @@ import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
+import eu.wisebed.api.v3.snaa.PerNodeUrnAuthorizationResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
+import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -23,6 +25,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.naming.directory.InvalidAttributesException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +88,7 @@ public class SingleUrnPrefixRSTest {
 
 	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private List<SecretReservationKey> user2Srks;
+	private RSAuthorizationInterceptor rsAuthorizationInterceptor;
 
 	@Before
 	public void setUp() {
@@ -117,8 +121,9 @@ public class SingleUrnPrefixRSTest {
 						.annotatedWith(NonWS.class)
 						.to(SingleUrnPrefixRS.class);
 
+				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaa));
 				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(),
-						annotatedWith(AuthorizationRequired.class), new RSAuthorizationInterceptor(snaa)
+						annotatedWith(AuthorizationRequired.class), rsAuthorizationInterceptor
 				);
 			}
 		}
@@ -336,6 +341,85 @@ public class SingleUrnPrefixRSTest {
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
 	}
+
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledBeforeDeletingReservations() throws Throwable {
+		try {
+			rs.deleteReservation(anyListOf(SecretReservationKey.class));
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledBeforeMakingReservations() throws Throwable {
+
+		try {
+			rs.makeReservation(anyListOf(SecretAuthenticationKey.class), newArrayList(new NodeUrn("urn:test:0x1234")), new DateTime(),  new DateTime());
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
+	@Test
+	public void verifyRSAuthorizationInterceptorIsCalledReturningConfidentialReservationData() throws Throwable {
+
+		try {
+			rs.getConfidentialReservations(anyListOf(SecretAuthenticationKey.class), new DateTime(),  new DateTime());
+		} catch (Throwable expected) {
+			// the call will not work
+		} finally {
+			verify(rsAuthorizationInterceptor).invoke(any(MethodInvocation.class));
+		}
+	}
+
+
+	@Test
+	public void verifyNoReservationIsPerformedIfSNAArefusesAuthorization() throws Exception {
+
+		final DateTime from = new DateTime().plusHours(1);
+		final DateTime to = from.plusHours(1);
+
+		final SecretReservationKey srk = new SecretReservationKey();
+		srk.setSecretReservationKey("abc123");
+
+		final List<ConfidentialReservationData> reservedNodes = newArrayList();
+		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
+		persistenceCrd.getNodeUrns().add(new NodeUrn("urn:local:0xcbe4"));
+		reservedNodes.add(persistenceCrd);
+
+		AuthorizationResponse unsuccessfulAuthorizationResponse = new AuthorizationResponse();
+		unsuccessfulAuthorizationResponse.setAuthorized(false);
+
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
+				convert(user1Saks),
+				newArrayList(new NodeUrn("urn:local:0xcbe4"))
+		);
+
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_MAKE_RESERVATION))
+				.thenReturn(unsuccessfulAuthorizationResponse);
+
+		// try to reserve
+		try {
+
+			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to);
+
+			fail();
+		} catch (AuthorizationFault_Exception e) {
+			fail();
+		} catch (RSFault_Exception expected) {
+		} catch (ReservationConflictFault_Exception expected) {
+			expected.printStackTrace();
+		}
+		verify(persistence,never()).addReservation(any(ConfidentialReservationData.class),any(NodeUrnPrefix.class));
+
+	}
+
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,
 																		 final String username,
