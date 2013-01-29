@@ -50,8 +50,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	/**
 	 * Constructor
 	 *
-	 * @param snaa
-	 * 		SNAA server to be used to check the authorization.
+	 * @param snaa SNAA server to be used to check the authorization.
 	 */
 	public RSAuthorizationInterceptor(SNAA snaa) {
 		this.snaa = snaa;
@@ -160,6 +159,8 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 					usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>(
 							convert((List<SecretAuthenticationKey>) list)
 					);
+				} else if (list.size() > 0 && list.get(0) instanceof NodeUrn) {
+					nodeURNs = (List<NodeUrn>) list;
 				}
 			} else if (object instanceof ConfidentialReservationData) {
 				nodeURNs = ((ConfidentialReservationData) object).getNodeUrns();
@@ -188,24 +189,23 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 		if (requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 
-			final List<PerNodeUrnAuthorizationResponse> authorizationResponses = isAuthorizedToMakeReservation(
-					usernamePrefixPairs,
-					requestedAction,
-					nodeURNs
-			);
+			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(usernamePrefixPairs, nodeURNs);
+			final AuthorizationResponse overallAuthorizationResponse = snaa.isAuthorized(mapList, requestedAction);
 
-			boolean isAuthorized = true;
-			for (PerNodeUrnAuthorizationResponse authorizationResponse : authorizationResponses) {
-				isAuthorized = isAuthorized && authorizationResponse.isAuthorized();
-			}
+			final List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = overallAuthorizationResponse.getPerNodeUrnAuthorizationResponses();
 
+			// if the operation is not authorized for all nodes, a more detailed authorization response is desirable
+			boolean isAuthorized = overallAuthorizationResponse.isAuthorized();
 			if (!isAuthorized) {
-				final String authorizationResponsesString = createAuthorizationResponsesString(authorizationResponses);
+				String authorizationResponsesString = createAuthorizationResponsesString(perNodeAuthorizationResponses);
+				authorizationResponsesString = overallAuthorizationResponse.getMessage() + " :: " + authorizationResponsesString;
 				final String msg = String.format("The user was NOT authorized to perform the action \"%s\": %s",
 						requestedAction,
 						authorizationResponsesString
 				);
 				log.warn(msg);
+
+				// even if the requested action was authorized for one or more nodes, the entire operation will not be authorized.
 				throw createAuthorizationFailedException(msg);
 			}
 
@@ -220,12 +220,17 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 	private String createAuthorizationResponsesString(final List<PerNodeUrnAuthorizationResponse> authorizationResponses) {
 		final Objects.ToStringHelper toStringHelper = Objects.toStringHelper("");
-		for (PerNodeUrnAuthorizationResponse authorizationResponse : authorizationResponses) {
-			final String authorizationMsg = authorizationResponse.getMessage();
-			toStringHelper.add(
-					authorizationResponse.getNodeUrn().toString(),
-					authorizationResponse.isAuthorized() + (authorizationMsg != null ? " (" + authorizationMsg + ")" : "")
-			);
+
+		if (authorizationResponses == null || authorizationResponses.size() == 0){
+			log.debug("No per node authorization information were provided by the responsible SNAA server");
+		} else {
+			for (PerNodeUrnAuthorizationResponse authorizationResponse : authorizationResponses) {
+				final String authorizationMsg = authorizationResponse.getMessage();
+				toStringHelper.add(
+						authorizationResponse.getNodeUrn().toString(),
+						authorizationResponse.isAuthorized() + (authorizationMsg != null ? " (" + authorizationMsg + ")" : "")
+				);
+			}
 		}
 		return toStringHelper.toString();
 	}
@@ -255,36 +260,67 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 	// ------------------------------------------------------------------------
 
-	/**
-	 * Checks and returns whether an action is allowed to be performed due to the privileges bound
-	 * to certain secret reservation keys.
-	 *
-	 * @param upp
-	 * 		A collection of tuples of user names and urn prefixes
-	 * @param action
-	 * 		Action to be performed.
-	 * @param nodeURNs
-	 * 		The urns of the nodes the action is to be performed at
-	 *
-	 * @return An object which returns whether the requested action is authorized.
-	 *
-	 * @throws RSFault_Exception
-	 * 		Thrown if an exception is thrown in the reservation system
-	 */
+//	/**
+//	 * Checks and returns whether an action is allowed to be performed due to the privileges bound
+//	 * to certain secret reservation keys.
+//	 *
+//	 * @param upp
+//	 * 		A collection of tuples of user names and urn prefixes
+//	 * @param action
+//	 * 		Action to be performed.
+//	 * @param nodeURNs
+//	 * 		The urns of the nodes the action is to be performed at
+//	 *
+//	 * @return An object which returns whether the requested action is authorized.
+//	 *
+//	 * @throws RSFault_Exception
+//	 * 		Thrown if an exception is thrown in the reservation system or if the authorization status could
+//	 * 		not be determined properly (i.e. the authorization result is null or not properly set
+//	 */
+//	private List<PerNodeUrnAuthorizationResponse> isAuthorizedToMakeReservation(final List<UsernameUrnPrefixPair> upp,
+//												  final Action action,
+//												  final Collection<NodeUrn> nodeURNs)
+//			throws RSFault_Exception {
+//
+//		try {
+//
+//			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
+//			final AuthorizationResponse authorized = snaa.isAuthorized(mapList, action);
+//			List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = authorized.getPerNodeUrnAuthorizationResponses();
+//			log.debug("Authorization result: {}", perNodeAuthorizationResponses);
+//			if (perNodeAuthorizationResponses == null) {
+//				throw createRSFault("No authorization information available on node level.");
+//			}
+//			if (perNodeAuthorizationResponses.size() == 0) {
+//				throw createRSFault("Authorization result was not properly set.");
+//			}
+//			return perNodeAuthorizationResponses;
+//
+//		} catch (SNAAFault_Exception e) {
+//			throw createRSFault(e.getMessage());
+//		} catch (InvalidAttributesException e) {
+//			throw createRSFault(e.getMessage());
+//		}
+//	}
+
 	private List<PerNodeUrnAuthorizationResponse> isAuthorizedToMakeReservation(final List<UsernameUrnPrefixPair> upp,
-												  final Action action,
-												  final Collection<NodeUrn> nodeURNs)
+	                                                                            final Action action,
+	                                                                            final Collection<NodeUrn> nodeURNs)
 			throws RSFault_Exception {
 
 		try {
 
 			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
-			List<PerNodeUrnAuthorizationResponse> authorizationResponses = snaa.isAuthorized(mapList, action).getPerNodeUrnAuthorizationResponses();
-			log.debug("Authorization result: {}", authorizationResponses);
-			if (authorizationResponses == null) {
-				throw createRSFault("Authorization result was null");
+			final AuthorizationResponse authorized = snaa.isAuthorized(mapList, action);
+			List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = authorized.getPerNodeUrnAuthorizationResponses();
+			log.debug("Authorization result: {}", perNodeAuthorizationResponses);
+			if (perNodeAuthorizationResponses == null) {
+				throw createRSFault("No authorization information available on node level.");
 			}
-			return authorizationResponses;
+			if (perNodeAuthorizationResponses.size() == 0) {
+				throw createRSFault("Authorization result was not properly set.");
+			}
+			return perNodeAuthorizationResponses;
 
 		} catch (SNAAFault_Exception e) {
 			throw createRSFault(e.getMessage());
@@ -305,8 +341,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	/**
 	 * Returns an exception due to an authorization failure.
 	 *
-	 * @param message
-	 * 		States the cause of the authorization failure.
+	 * @param message States the cause of the authorization failure.
 	 */
 	private RSFault_Exception createAuthorizationFailedException(final String message) {
 		RSFault e = new RSFault();
