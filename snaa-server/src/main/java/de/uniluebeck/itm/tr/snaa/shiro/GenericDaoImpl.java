@@ -1,20 +1,18 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-
-import com.google.inject.persist.Transactional;
-import org.hibernate.Session;
-import org.hibernate.engine.SessionImplementor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
 
 /**
  * Extensions of this class provide functionality to manage

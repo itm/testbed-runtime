@@ -1,41 +1,32 @@
 package de.uniluebeck.itm.tr.iwsn.devicedb;
 
-import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
-import de.uniluebeck.itm.tr.iwsn.devicedb.dao.DeviceConfigDAO;
-import de.uniluebeck.itm.tr.iwsn.devicedb.dao.DeviceConfigDB;
+import javax.persistence.EntityManager;
+import java.util.Properties;
 
 public class DeviceConfigDBModule extends AbstractModule {
-	
-	private static final Logger log = LoggerFactory.getLogger(DeviceConfigDBModule.class);
+
 	private Properties properties;
+
+	public DeviceConfigDBModule(final Properties properties) {
+		this.properties = properties;
+	}
 
 	@Override
 	protected void configure() {
-		install(new JpaPersistModule("default").properties(properties));
+
+		install(new JpaPersistModule("DeviceConfigDB").properties(properties));
+
 		bind(JPAInitializer.class).asEagerSingleton();
-		bind(DeviceConfigDB.class).to(DeviceConfigDAO.class).in(Scopes.SINGLETON);
+		bind(DeviceConfigDB.class).to(DeviceConfigDBImpl.class).in(Scopes.SINGLETON);
 	}
-	
-	public DeviceConfigDBModule() {
-		Properties props = new Properties();
-		try {
-			props.load(DeviceConfigDBModule.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
-			this.properties = props;
-		} catch (Exception e) {
-			log.error("Error loading hibernate.properties");
-		}
+
+	@Provides
+	GenericDao<DeviceConfig, String> provideDao(final EntityManager entityManager) {
+		return new GenericDaoImpl<DeviceConfig, String>(entityManager, DeviceConfig.class);
 	}
-	
-	public DeviceConfigDBModule(Properties properties) {
-		this.properties = properties;
-	}
-	
 }

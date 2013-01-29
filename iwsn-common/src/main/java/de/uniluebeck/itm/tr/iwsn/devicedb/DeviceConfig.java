@@ -1,31 +1,20 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb.entity;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.jboss.netty.channel.ChannelHandler;
+package de.uniluebeck.itm.tr.iwsn.devicedb;
 
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Setup;
-import eu.wisebed.wiseml.Setup.Node;
-import eu.wisebed.wiseml.Wiseml;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.jboss.netty.channel.ChannelHandler;
+
+import javax.annotation.Nullable;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Entity
 public class DeviceConfig implements Serializable {
@@ -185,46 +174,6 @@ public class DeviceConfig implements Serializable {
 
 	public boolean isGatewayNode() {
 		return gatewayNode;
-	}
-	
-	/**
-	 * Formats the data from a given List of DeviceConfigs to a WiseML representation.
-	 * 
-	 * @param configs An {@link Iterable} with {@link DeviceConfig}
-	 * @return A WiseML object from
-	 */
-	public static Wiseml getWiseml(Iterable<DeviceConfig> configs) {
-		
-		Setup setup = new Setup();
-		List<Node> nodes = setup.getNode();
-		for ( DeviceConfig config : configs ) {
-			Node node = new Node();
-			
-			node.setNodeType(config.getNodeType());
-			node.setGateway(config.isGatewayNode());
-			node.setId(config.getNodeUrn().toString());
-			node.setDescription(config.getDescription());
-			node.setPosition(config.getPosition());
-			
-			// TODO what's that?
-			//node.getProgramDetails(config.getProgramDetails());
-			// TODO capabilities
-			
-			nodes.add(node);
-		}
-		
-		/* TODO how to set these properties?
-		setup.setCoordinateType(coordinateType);
-		setup.setDescription(description);
-		setup.setInterpolation(interpolation);
-		setup.setOrigin(origin);
-		setup.setTimeinfo(timeinfo);
-		*/
-		
-		Wiseml ml = new Wiseml();
-		ml.setSetup(setup);
-		
-		return ml;
 	}
 	
 }

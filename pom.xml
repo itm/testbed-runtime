@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -35,7 +36,7 @@
 	<modules>
 		<module>iwsn-integration-tests</module>
 		<module>iwsn-common</module>
-        <module>iwsn-federator</module>
+		<module>iwsn-federator</module>
 		<module>iwsn-portal</module>
 		<module>iwsn-gateway</module>
 		<module>rs-server</module>
@@ -209,11 +210,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.google</groupId>
-				<artifactId>gdata-calendar-meta</artifactId>
-				<version>2.0</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google</groupId>
 				<artifactId>gdata-client</artifactId>
 				<version>1.0</version>
 			</dependency>
@@ -225,7 +221,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>[13.0,14.0)</version>
+				<version>13.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.classpath-explorer</groupId>
@@ -241,11 +237,6 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>1.7.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.james</groupId>
-				<artifactId>apache-mime4j</artifactId>
-				<version>0.6</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-cli</groupId>
@@ -278,11 +269,6 @@
 				<version>4.0.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpmime</artifactId>
-				<version>4.0.1</version>
-			</dependency>
-			<dependency>
 				<groupId>net.htmlparser.jericho</groupId>
 				<artifactId>jericho-html</artifactId>
 				<version>3.1</version>
@@ -308,6 +294,11 @@
 				<version>1.8.0.7</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.derby</groupId>
+				<artifactId>derby</artifactId>
+				<version>10.9.1.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.hibernate.javax.persistence</groupId>
 				<artifactId>hibernate-jpa-2.0-api</artifactId>
 				<version>1.0.0.Final</version>
@@ -315,22 +306,17 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
-				<version>3.5.5-Final</version>
+				<version>4.1.9.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>3.5.5-Final</version>
+				<version>4.1.9.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.transaction</groupId>
 				<artifactId>jta</artifactId>
 				<version>1.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.derby</groupId>
-				<artifactId>derby</artifactId>
-				<version>10.8.2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>mysql</groupId>
@@ -399,7 +385,7 @@
 				<version>1.9.0</version>
 				<scope>test</scope>
 			</dependency>
-			
+
 			<!-- Apache Shiro dependencies -->
 			<dependency>
 				<groupId>org.apache.shiro</groupId>

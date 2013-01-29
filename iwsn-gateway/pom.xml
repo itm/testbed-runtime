@@ -144,7 +144,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.portal.Portal</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.iwsn.gateway.Gateway</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

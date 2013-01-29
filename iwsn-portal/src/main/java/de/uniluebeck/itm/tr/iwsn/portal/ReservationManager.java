@@ -2,8 +2,6 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.Service;
 
-import javax.annotation.Nullable;
-
 public interface ReservationManager extends Service {
 
 	/**
@@ -13,9 +11,11 @@ public interface ReservationManager extends Service {
 	 * @param secretReservationKey
 	 * 		the reservation key
 	 *
-	 * @return a {@link Reservation} instance or {@code null} if the key is unknown
+	 * @return a {@link Reservation} instance
+	 *
+	 * @throws ReservationUnknownException
+	 * 		if the reservation key is unknown
 	 */
-	@Nullable
 	Reservation getReservation(String secretReservationKey) throws ReservationUnknownException;
 
 }

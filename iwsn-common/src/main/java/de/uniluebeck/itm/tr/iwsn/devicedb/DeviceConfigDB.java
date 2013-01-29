@@ -1,11 +1,11 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb.dao;
+package de.uniluebeck.itm.tr.iwsn.devicedb;
 
-import de.uniluebeck.itm.tr.iwsn.devicedb.entity.DeviceConfig;
+import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.Map;
 
-public interface DeviceConfigDB extends GenericDao<DeviceConfig, String>{
+public interface DeviceConfigDB extends Service {
 
 	Map<NodeUrn, DeviceConfig> getByNodeUrns(Iterable<NodeUrn> nodeUrns);
 
@@ -14,5 +14,7 @@ public interface DeviceConfigDB extends GenericDao<DeviceConfig, String>{
 	DeviceConfig getByNodeUrn(NodeUrn nodeUrn);
 
 	DeviceConfig getByMacAddress(long macAddress);
+
+	Iterable<DeviceConfig> getAll();
 
 }

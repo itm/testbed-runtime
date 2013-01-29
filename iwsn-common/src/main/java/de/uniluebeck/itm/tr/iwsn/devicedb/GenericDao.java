@@ -1,9 +1,9 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb.dao;
+package de.uniluebeck.itm.tr.iwsn.devicedb;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.EntityNotFoundException;
 
 /**
  * Implementation of this interface provide functionality to manage
@@ -77,4 +77,6 @@ public interface GenericDao<T, K extends Serializable>
      * @throws IllegalArgumentException if not an entity
      */
     public boolean contains(T entity);
+
+	EntityManager getEntityManager();
 }

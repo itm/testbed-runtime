@@ -48,9 +48,9 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	private static final Map<String, String> properties = new HashMap<String, String>() {{
 
 		// configure derby as embedded db for unit test
+		put("hibernate.connection.url", "jdbc:derby:memory:DeviceConfigDB;create=true");
 		put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
-		put("hibernate.connection.url", "jdbc:derby:memory:default;create=true");
-		put("hibernate.dialect", "org.hibernate.dialect.DerbyDialect");
+		put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
 
 		// configure hibernate ORM
 		put("hibernate.ddl-generation.output-mode", "database");

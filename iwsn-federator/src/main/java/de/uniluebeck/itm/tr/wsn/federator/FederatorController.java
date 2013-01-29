@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -82,7 +83,7 @@ public class FederatorController extends AbstractService implements Service, Con
 
 	public FederatorController(URI controllerEndpointUrl) {
 		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.deliveryManager = new DeliveryManager();
+		this.deliveryManager = new DeliveryManagerImpl();
 	}
 
 	public void addRequestIdMapping(long federatedRequestId, long federatorRequestId) {

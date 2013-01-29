@@ -58,7 +58,7 @@ public class PortalModule extends AbstractModule {
 		install(new ServicePublisherJettyMetroJerseyModule(servicePublisherConfig));
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
-		install(new DeviceConfigDBModule());
+		install(new DeviceConfigDBModule(portalConfig.deviceConfigDBProperties));
 		install(new SoapApiModule());
 	}
 

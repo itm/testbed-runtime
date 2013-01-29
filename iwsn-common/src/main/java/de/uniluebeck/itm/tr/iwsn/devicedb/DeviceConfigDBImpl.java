@@ -1,26 +1,37 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb.dao;
-
-import java.util.List;
-import java.util.Map;
-
+package de.uniluebeck.itm.tr.iwsn.devicedb;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
-
-import de.uniluebeck.itm.tr.iwsn.devicedb.entity.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
 
-public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implements DeviceConfigDB {
-	
+import java.util.List;
+import java.util.Map;
 
-	public DeviceConfigDAO() {
-		super(DeviceConfig.class);
-	}
+public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigDB {
 	
+	private final GenericDao<DeviceConfig, String> dao;
+
+	@Inject
+	public DeviceConfigDBImpl(final GenericDao<DeviceConfig, String> dao) {
+		this.dao = dao;
+	}
+
+	@Override
+	protected void doStart() {
+		// TODO implement
+	}
+
+	@Override
+	protected void doStop() {
+		// TODO implement
+	}
+
 	@Transactional
 	@Override
 	public Map<NodeUrn, DeviceConfig> getByNodeUrns(Iterable<NodeUrn> nodeUrns) {
@@ -36,7 +47,7 @@ public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implem
 		}));
 		// send out db request
 		// TODO "IN (:param)" is not valid JPA2. Parantheses need to be ommited in newer Hibernate versions. 
-		List<DeviceConfig> configs = getEntityManager()
+		List<DeviceConfig> configs = dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfig.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
 		
@@ -54,7 +65,7 @@ public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implem
 
 	@Override
 	public DeviceConfig getByUsbChipId(String usbChipId) {
-		return getEntityManager()
+		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
 				.setParameter("usbChipId", usbChipId).getSingleResult();
 	}
@@ -62,7 +73,7 @@ public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implem
 	@Override
 	public DeviceConfig getByNodeUrn(NodeUrn nodeUrn) {
 		// TODO remove toString() as soon as NodeUrn is Serializable
-		return getEntityManager()
+		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfig.class)
 				.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
 	}
@@ -70,8 +81,13 @@ public class DeviceConfigDAO extends GenericDaoImpl<DeviceConfig, String> implem
 	@Override
 	public DeviceConfig getByMacAddress(long macAddress) {
 		String macHex = "0x"+Strings.padStart(Long.toHexString(macAddress), 4, '0');
-		return getEntityManager()
+		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
 				.setParameter("macAddress", "%"+macHex).getSingleResult();
+	}
+
+	@Override
+	public Iterable<DeviceConfig> getAll() {
+		return dao.find();
 	}
 }
