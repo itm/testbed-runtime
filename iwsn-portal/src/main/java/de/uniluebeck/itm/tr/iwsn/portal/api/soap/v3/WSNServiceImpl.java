@@ -179,7 +179,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public void setChannelPipeline(final long requestId, final List<NodeUrn> nodeUrns,
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		reservation.getReservationEventBus().post(
-				newSetChannelPipelinesRequest(requestId, nodeUrns, convert(channelHandlerConfigurations))
+				newSetChannelPipelinesRequest(requestId, nodeUrns, convertCHCs(channelHandlerConfigurations))
 		);
 		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
 	}
@@ -217,7 +217,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		return map;
 	}
 
-	private Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> convert(
+	private Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> convertCHCs(
 			final List<ChannelHandlerConfiguration> chcs) {
 
 		List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> retList = newLinkedList();
