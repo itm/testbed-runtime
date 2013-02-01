@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class RemoteDeviceConfigDB extends AbstractService implements DeviceConfigDB {
+public class DeviceConfigDBDummy extends AbstractService implements DeviceConfigDB {
 
 	private static final NodeUrn DEVELOPMENT_DEVICE_NODE_URN = new NodeUrn("urn:wisebed:uzl1:0x2087");
 

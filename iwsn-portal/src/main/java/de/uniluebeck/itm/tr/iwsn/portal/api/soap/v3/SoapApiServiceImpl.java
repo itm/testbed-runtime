@@ -23,7 +23,7 @@ class SoapApiServiceImpl extends AbstractService implements SoapApiService {
 	@Override
 	protected void doStart() {
 		try {
-			sessionManagementService = servicePublisher.createJaxWsService("/soap/v3", sessionManagement);
+			sessionManagementService = servicePublisher.createJaxWsService("/soap/v3/sm", sessionManagement);
 			sessionManagementService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

@@ -130,8 +130,8 @@ public class RSPersistenceJPA implements RSPersistence {
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws ReservationNotFoundFault_Exception, RSFault_Exception {
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
-		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey
 				.getSecretReservationKey()
 		);
 		ReservationDataInternal reservationData;
@@ -152,8 +152,8 @@ public class RSPersistenceJPA implements RSPersistence {
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
 			throws ReservationNotFoundFault_Exception, RSFault_Exception {
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERYNAME);
-		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY, secretReservationKey
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey
 				.getSecretReservationKey()
 		);
 		ReservationDataInternal reservationData;
@@ -186,7 +186,7 @@ public class RSPersistenceJPA implements RSPersistence {
 		GregorianCalendar to = interval.getEnd().toGregorianCalendar();
 		from.setTimeZone(this.localTimeZone);
 
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERYNAME);
+		Query query = em.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, from.getTimeInMillis());
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, to.getTimeInMillis());
 

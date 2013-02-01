@@ -29,13 +29,13 @@ import java.io.Serializable;
 @Entity
 @NamedQueries({
 		@NamedQuery(
-				name = ReservationDataInternal.QGetByReservationKey.QUERYNAME,
+				name = ReservationDataInternal.QGetByReservationKey.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE data.secretReservationKey.secretReservationKey = :" +
-						ReservationDataInternal.QGetByReservationKey.P_SECRETRESERVATIONKEY +
+						ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY +
 						" AND data.deleted = false"
 		),
 		@NamedQuery(
-				name = ReservationDataInternal.QGetByInterval.QUERYNAME,
+				name = ReservationDataInternal.QGetByInterval.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE NOT (" +
 						":" + ReservationDataInternal.QGetByInterval.P_TO + " <= data.confidentialReservationData.fromDate" +
 						" OR " +
@@ -48,14 +48,14 @@ public class ReservationDataInternal implements Serializable {
 
 	public static class QGetByReservationKey {
 
-		public static final String QUERYNAME = "getReservationDataBySecretReservationKey";
+		public static final String QUERY_NAME = "getReservationDataBySecretReservationKey";
 
-		public static final String P_SECRETRESERVATIONKEY = "secretReservationKey";
+		public static final String P_SECRET_RESERVATION_KEY = "secretReservationKey";
 	}
 
 	public static class QGetByInterval {
 
-		public static final String QUERYNAME = "getReservationDataByInterval";
+		public static final String QUERY_NAME = "getReservationDataByInterval";
 
 		public static final String P_FROM = "from";
 

@@ -414,10 +414,17 @@ class DeliveryWorker implements Runnable {
 	}
 
 	/**
+	 * Signals the worker that the experiment has started.
+	 */
+	public void reservationStarted() {
+		endpoint.reservationStarted();
+	}
+
+	/**
 	 * Signals the worker that the experiment has ended. The worker will eventually stop himself when all messages in the
 	 * messageQueue have been delivered.
 	 */
-	public void experimentEnded() {
+	public void reservationEnded() {
 		this.experimentEnded = true;
 		lock.lock();
 		try {

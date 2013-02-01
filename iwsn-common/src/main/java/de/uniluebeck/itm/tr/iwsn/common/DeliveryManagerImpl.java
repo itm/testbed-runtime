@@ -26,7 +26,6 @@ package de.uniluebeck.itm.tr.iwsn.common;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
@@ -39,10 +38,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 
 /**
@@ -58,7 +62,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * The logger instance for this class.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(DeliveryManagerImpl.class);
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * The actual instance maximum number of messages to be held in a delivery queue before new messages are discarded.
@@ -174,6 +178,20 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	/**
+	 * Asynchronously notifies all currently registered controllers that the experiment has <emph>started</emph>.
+	 */
+	@Override
+	public void reservationStarted() {
+
+		if (isRunning()) {
+
+			for (DeliveryWorker deliveryWorker : controllers.values()) {
+				deliveryWorker.reservationStarted();
+			}
+		}
+	}
+
+	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
 	@Override
@@ -182,26 +200,30 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.experimentEnded();
+				deliveryWorker.reservationEnded();
 			}
 		}
 	}
 
 	@Override
-	public void nodesAttached(final List<NodeUrn> nodeUrns) {
+	public void nodesAttached(final Iterable<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.nodesAttached(nodeUrns);
+				deliveryWorker.nodesAttached(
+						nodeUrns instanceof List ? (List<NodeUrn>) nodeUrns : newArrayList(nodeUrns)
+				);
 			}
 		}
 	}
 
 
 	@Override
-	public void nodesDetached(final List<NodeUrn> nodeUrns) {
+	public void nodesDetached(final Iterable<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.nodesDetached(nodeUrns);
+				deliveryWorker.nodesDetached(
+						nodeUrns instanceof List ? (List<NodeUrn>) nodeUrns : newArrayList(nodeUrns)
+				);
 			}
 		}
 	}
@@ -230,12 +252,12 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		the list of messages to be delivered
 	 */
 	@Override
-	public void receive(List<Message> messages) {
+	public void receive(Iterable<Message> messages) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.receive(messages);
+				deliveryWorker.receive(messages instanceof List ? (List<Message>) messages : newArrayList(messages));
 			}
 		}
 	}
@@ -264,12 +286,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		a list of notifications to be forwarded to all currently registered controllers
 	 */
 	@Override
-	public void receiveNotification(final List<Notification> notifications) {
+	public void receiveNotification(final Iterable<Notification> notifications) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.receiveNotification(notifications);
+				deliveryWorker.receiveNotification(
+						notifications instanceof List ? (List<Notification>) notifications : newArrayList(notifications)
+				);
 			}
 		}
 	}
@@ -298,12 +322,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		a list of statuses to be forwarded to all currently registered controllers
 	 */
 	@Override
-	public void receiveStatus(List<RequestStatus> statuses) {
+	public void receiveStatus(Iterable<RequestStatus> statuses) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.receiveStatus(statuses);
+				deliveryWorker.receiveStatus(
+						statuses instanceof List ? (List<RequestStatus>) statuses : newArrayList(statuses)
+				);
 			}
 		}
 	}
@@ -322,7 +348,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		the Integer value that should be sent to the controllers
 	 */
 	@Override
-	public void receiveFailureStatusMessages(List<NodeUrn> nodeUrns, long requestId, Exception e, int statusValue) {
+	public void receiveFailureStatusMessages(Iterable<NodeUrn> nodeUrns, long requestId, Exception e, int statusValue) {
 
 		if (isRunning()) {
 
@@ -353,7 +379,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		the requestId
 	 */
 	@Override
-	public void receiveUnknownNodeUrnRequestStatus(final Set<NodeUrn> nodeUrns, final String msg,
+	public void receiveUnknownNodeUrnRequestStatus(final Iterable<NodeUrn> nodeUrns, final String msg,
 												   final long requestId) {
 
 		if (isRunning()) {
@@ -411,7 +437,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 				public void run() {
 
 					for (DeliveryWorker deliveryWorker : controllers.values()) {
-						deliveryWorker.experimentEnded();
+						deliveryWorker.reservationEnded();
 					}
 
 					// try gently to shut down executor which will succeed if no messages are to be delivered anymore

@@ -6,34 +6,33 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 
-import java.util.List;
-import java.util.Set;
-
 public interface DeliveryManager extends Service {
 
 	void addController(String endpointUrl);
 
 	void removeController(String endpointUrl);
 
+	void reservationStarted();
+
 	void reservationEnded();
 
-	void nodesAttached(List<NodeUrn> nodeUrns);
+	void nodesAttached(Iterable<NodeUrn> nodeUrns);
 
-	void nodesDetached(List<NodeUrn> nodeUrns);
+	void nodesDetached(Iterable<NodeUrn> nodeUrns);
 
 	void receive(Message... messages);
 
-	void receive(List<Message> messages);
+	void receive(Iterable<Message> messages);
 
 	void receiveNotification(Notification... notifications);
 
-	void receiveNotification(List<Notification> notifications);
+	void receiveNotification(Iterable<Notification> notifications);
 
 	void receiveStatus(RequestStatus... statuses);
 
-	void receiveStatus(List<RequestStatus> statuses);
+	void receiveStatus(Iterable<RequestStatus> statuses);
 
-	void receiveFailureStatusMessages(List<NodeUrn> nodeUrns, long requestId, Exception e, int statusValue);
+	void receiveFailureStatusMessages(Iterable<NodeUrn> nodeUrns, long requestId, Exception e, int statusValue);
 
-	void receiveUnknownNodeUrnRequestStatus(Set<NodeUrn> nodeUrns, String msg, long requestId);
+	void receiveUnknownNodeUrnRequestStatus(Iterable<NodeUrn> nodeUrns, String msg, long requestId);
 }

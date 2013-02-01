@@ -334,7 +334,20 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			case EVENT:
 				final Event event = message.getEvent();
 				log.trace("PortalChannelHandler.messageReceived(event={})", event);
-				portalEventBus.post(event);
+				switch (event.getType()) {
+					case DEVICES_ATTACHED:
+						portalEventBus.post(event.getDevicesAttachedEvent());
+						break;
+					case DEVICES_DETACHED:
+						portalEventBus.post(event.getDevicesDetachedEvent());
+						break;
+					case NOTIFICATION:
+						portalEventBus.post(event.getNotificationEvent());
+						break;
+					case UPSTREAM_MESSAGE:
+						portalEventBus.post(event.getUpstreamMessageEvent());
+						break;
+				}
 				sendEventAck(ctx, event);
 				processEvent(ctx, event);
 				break;

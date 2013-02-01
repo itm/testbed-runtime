@@ -46,14 +46,12 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Override
 	public void register(final Object object) {
 		log.trace("ReservationEventBusImpl.register(object={})", object);
-		checkState(isRunning());
 		eventBus.register(object);
 	}
 
 	@Override
 	public void unregister(final Object object) {
 		log.trace("ReservationEventBusImpl.unregister(object={}", object);
-		checkState(isRunning());
 		eventBus.unregister(object);
 	}
 

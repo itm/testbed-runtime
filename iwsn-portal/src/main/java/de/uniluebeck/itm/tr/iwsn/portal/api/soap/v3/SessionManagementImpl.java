@@ -3,9 +3,13 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.iwsn.common.*;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
+import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
@@ -15,6 +19,8 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
@@ -31,8 +37,16 @@ import static de.uniluebeck.itm.tr.iwsn.devicedb.WiseMLConverter.convertToWiseML
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
-@WebService
+@WebService(
+		name = "SessionManagement",
+		endpointInterface = "eu.wisebed.api.v3.sm.SessionManagement",
+		portName = "SessionManagementPort",
+		serviceName = "SessionManagementService",
+		targetNamespace = "http://wisebed.eu/api/v3/sm"
+)
 public class SessionManagementImpl implements SessionManagement {
+
+	private static final Logger log = LoggerFactory.getLogger(SessionManagementImpl.class);
 
 	private static final Function<DeviceConfig, NodeUrn> DEVICE_CONFIG_TO_NODE_URN_FUNCTION =
 			new Function<DeviceConfig, NodeUrn>() {
@@ -184,7 +198,11 @@ public class SessionManagementImpl implements SessionManagement {
 			}
 		}
 
-		if (reservation.getInterval().getStart().isBeforeNow() && reservation.getInterval().getEnd().isAfterNow()) {
+		if (deliveryManager.state() == Service.State.NEW) {
+			deliveryManager.startAndWait();
+		}
+
+		if (wsnService.state() == Service.State.NEW) {
 			wsnService.startAndWait();
 		}
 
@@ -193,10 +211,19 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Subscribe
 	public void onReservationStarted(final ReservationStartedEvent event) {
+		log.trace("SessionManagementImpl.onReservationStarted({})", event);
 		synchronized (wsnInstances) {
-			final WSNService wsnService = wsnInstances.get(event.getReservation());
-			if (wsnService != null && !wsnService.isRunning()) {
-				wsnService.startAndWait();
+			synchronized (deliveryManagers) {
+
+				final WSNService wsnService = wsnInstances.get(event.getReservation());
+				if (wsnService != null && !wsnService.isRunning()) {
+					wsnService.startAndWait();
+				}
+
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getReservation());
+				if (deliveryManager != null && !deliveryManager.isRunning()) {
+					deliveryManager.startAndWait();
+				}
 			}
 		}
 	}
@@ -204,9 +231,17 @@ public class SessionManagementImpl implements SessionManagement {
 	@Subscribe
 	public void onReservationEnded(final ReservationEndedEvent event) {
 		synchronized (wsnInstances) {
-			final WSNService wsnService = wsnInstances.get(event.getReservation());
-			if (wsnService != null && wsnService.isRunning()) {
-				wsnService.stopAndWait();
+			synchronized (deliveryManagers) {
+
+				final WSNService wsnService = wsnInstances.get(event.getReservation());
+				if (wsnService != null && wsnService.isRunning()) {
+					wsnService.stopAndWait();
+				}
+
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getReservation());
+				if (deliveryManager != null && deliveryManager.isRunning()) {
+					deliveryManager.stopAndWait();
+				}
 			}
 		}
 	}
