@@ -1,13 +1,12 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
-import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,9 +35,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private static final Logger log = LoggerFactory.getLogger(ReservationManager.class);
 
-	private static final ThreadFactory SCHEDULER_THREAD_FACTORY =
-			new ThreadFactoryBuilder().setNameFormat("ReservationManager %d").build();
-
 	private static final TimeUnit MS = TimeUnit.MILLISECONDS;
 
 	private final PortalConfig portalConfig;
@@ -50,7 +45,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final ReservationFactory reservationFactory;
 
-	private final Map<String, Reservation> reservationMap = newHashMap();
+	private final Map<Long, Reservation> reservationMap = newHashMap();
 
 	private final SchedulerService schedulerService;
 
@@ -64,7 +59,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		this.rs = checkNotNull(rs);
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 		this.reservationFactory = checkNotNull(reservationFactory);
-		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
+		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager %d");
 	}
 
 	@Override
@@ -93,7 +88,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final String secretReservationKey) throws ReservationUnknownException {
+	public Reservation getReservation(final long secretReservationKey) throws ReservationUnknownException {
 
 		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKey);
 
@@ -162,10 +157,10 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		}
 	}
 
-	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
+	private List<SecretReservationKey> toSecretReservationKeyList(long secretReservationKey) {
 		SecretReservationKey key = new SecretReservationKey();
 		key.setUrnPrefix(portalConfig.urnPrefix);
-		key.setSecretReservationKey(secretReservationKey);
+		key.setKey(secretReservationKey);
 		return newArrayList(key);
 	}
 }

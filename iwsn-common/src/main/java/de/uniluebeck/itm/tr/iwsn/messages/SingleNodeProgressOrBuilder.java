@@ -5,15 +5,19 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface SingleNodeProgressOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required int64 requestId = 1;
+  // optional int64 reservationId = 1;
+  boolean hasReservationId();
+  long getReservationId();
+  
+  // required int64 requestId = 2;
   boolean hasRequestId();
   long getRequestId();
   
-  // required string nodeUrn = 2;
+  // required string nodeUrn = 3;
   boolean hasNodeUrn();
   String getNodeUrn();
   
-  // required uint32 progressInPercent = 3;
+  // required uint32 progressInPercent = 4;
   boolean hasProgressInPercent();
   int getProgressInPercent();
 }

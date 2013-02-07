@@ -172,83 +172,85 @@ public final class Messages {
       "e.uniluebeck.itm.tr.iwsn.messages.SetCha" +
       "nnelPipelinesRequest.ChannelHandlerConfi" +
       "guration.KeyValuePair\032*\n\014KeyValuePair\022\013\n",
-      "\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\346\013\n\007Request\022\021\n" +
-      "\trequestId\030\001 \002(\003\022>\n\004type\030\002 \002(\01620.de.unil" +
-      "uebeck.itm.tr.iwsn.messages.Request.Type" +
-      "\022V\n\024areNodesAliveRequest\030e \001(\01328.de.unil" +
-      "uebeck.itm.tr.iwsn.messages.AreNodesAliv" +
-      "eRequest\022^\n\030areNodesConnectedRequest\030f \001" +
-      "(\0132<.de.uniluebeck.itm.tr.iwsn.messages." +
-      "AreNodesConnectedRequest\022T\n\023disableNodes" +
-      "Request\030g \001(\01327.de.uniluebeck.itm.tr.iws" +
-      "n.messages.DisableNodesRequest\022b\n\032disabl",
-      "eVirtualLinksRequest\030h \001(\0132>.de.uniluebe" +
-      "ck.itm.tr.iwsn.messages.DisableVirtualLi" +
-      "nksRequest\022d\n\033disablePhysicalLinksReques" +
-      "t\030i \001(\0132?.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.DisablePhysicalLinksRequest\022R\n\022enab" +
-      "leNodesRequest\030j \001(\01326.de.uniluebeck.itm" +
-      ".tr.iwsn.messages.EnableNodesRequest\022b\n\032" +
-      "enablePhysicalLinksRequest\030k \001(\0132>.de.un" +
-      "iluebeck.itm.tr.iwsn.messages.EnablePhys" +
-      "icalLinksRequest\022`\n\031enableVirtualLinksRe",
-      "quest\030l \001(\0132=.de.uniluebeck.itm.tr.iwsn." +
-      "messages.EnableVirtualLinksRequest\022R\n\022fl" +
-      "ashImagesRequest\030m \001(\01326.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.FlashImagesRequest\022P" +
-      "\n\021resetNodesRequest\030n \001(\01325.de.uniluebec" +
-      "k.itm.tr.iwsn.messages.ResetNodesRequest" +
-      "\022h\n\035sendDownstreamMessagesRequest\030o \001(\0132" +
-      "A.de.uniluebeck.itm.tr.iwsn.messages.Sen" +
-      "dDownstreamMessagesRequest\022b\n\032setChannel" +
-      "PipelinesRequest\030p \001(\0132>.de.uniluebeck.i",
-      "tm.tr.iwsn.messages.SetChannelPipelinesR" +
-      "equest\"\241\002\n\004Type\022\023\n\017ARE_NODES_ALIVE\020\001\022\027\n\023" +
-      "ARE_NODES_CONNECTED\020\002\022\021\n\rDISABLE_NODES\020\003" +
-      "\022\031\n\025DISABLE_VIRTUAL_LINKS\020\004\022\032\n\026DISABLE_P" +
-      "HYSICAL_LINKS\020\005\022\020\n\014ENABLE_NODES\020\006\022\031\n\025ENA" +
-      "BLE_PHYSICAL_LINKS\020\007\022\030\n\024ENABLE_VIRTUAL_L" +
-      "INKS\020\010\022\020\n\014FLASH_IMAGES\020\t\022\017\n\013RESET_NODES\020" +
-      "\n\022\034\n\030SEND_DOWNSTREAM_MESSAGES\020\013\022\031\n\025SET_C" +
-      "HANNEL_PIPELINES\020\014\"S\n\022SingleNodeProgress" +
-      "\022\021\n\trequestId\030\001 \002(\003\022\017\n\007nodeUrn\030\002 \002(\t\022\031\n\021",
-      "progressInPercent\030\003 \002(\r\"t\n\022SingleNodeRes" +
-      "ponse\022\021\n\trequestId\030\001 \002(\003\022\017\n\007nodeUrn\030\002 \002(" +
-      "\t\022\020\n\010response\030\003 \001(\014\022\022\n\nstatusCode\030\004 \001(\005\022" +
-      "\024\n\014errorMessage\030\005 \001(\t\"V\n\024UpstreamMessage" +
-      "Event\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttimestam" +
-      "p\030\002 \002(\004\022\024\n\014messageBytes\030\003 \002(\014\";\n\024Devices" +
-      "AttachedEvent\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimes" +
-      "tamp\030\002 \002(\004\";\n\024DevicesDetachedEvent\022\020\n\010no" +
-      "deUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004\"H\n\021Notif" +
-      "icationEvent\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimesta",
-      "mp\030\002 \002(\004\022\017\n\007message\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007e" +
-      "ventId\030\001 \002(\003\022<\n\004type\030\002 \002(\0162..de.uniluebe" +
-      "ck.itm.tr.iwsn.messages.Event.Type\022V\n\024up" +
-      "streamMessageEvent\030e \001(\01328.de.uniluebeck" +
-      ".itm.tr.iwsn.messages.UpstreamMessageEve" +
-      "nt\022V\n\024devicesAttachedEvent\030f \001(\01328.de.un" +
-      "iluebeck.itm.tr.iwsn.messages.DevicesAtt" +
-      "achedEvent\022V\n\024devicesDetachedEvent\030g \001(\013" +
-      "28.de.uniluebeck.itm.tr.iwsn.messages.De" +
-      "vicesDetachedEvent\022P\n\021notificationEvent\030",
-      "h \001(\01325.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.NotificationEvent\"Z\n\004Type\022\024\n\020UPSTREAM" +
-      "_MESSAGE\020\001\022\024\n\020DEVICES_ATTACHED\020\002\022\024\n\020DEVI" +
-      "CES_DETACHED\020\003\022\020\n\014NOTIFICATION\020\004\"\033\n\010Even" +
-      "tAck\022\017\n\007eventId\030\001 \002(\003\"\340\003\n\007Message\022>\n\004typ" +
-      "e\030\001 \002(\01620.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.Message.Type\022<\n\007request\030e \001(\0132+.de." +
-      "uniluebeck.itm.tr.iwsn.messages.Request\022" +
-      "H\n\010progress\030f \001(\01326.de.uniluebeck.itm.tr" +
-      ".iwsn.messages.SingleNodeProgress\022H\n\010res",
-      "ponse\030g \001(\01326.de.uniluebeck.itm.tr.iwsn." +
-      "messages.SingleNodeResponse\0228\n\005event\030h \001" +
-      "(\0132).de.uniluebeck.itm.tr.iwsn.messages." +
-      "Event\022>\n\010eventAck\030i \001(\0132,.de.uniluebeck." +
-      "itm.tr.iwsn.messages.EventAck\"I\n\004Type\022\013\n" +
-      "\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022\014\n\010RESPONSE\020\003\022\t" +
-      "\n\005EVENT\020\004\022\r\n\tEVENT_ACK\020\005B\014B\010MessagesP\001"
+      "\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\375\013\n\007Request\022\025\n" +
+      "\rreservationId\030\001 \001(\003\022\021\n\trequestId\030\002 \002(\003\022" +
+      ">\n\004type\030\003 \002(\01620.de.uniluebeck.itm.tr.iws" +
+      "n.messages.Request.Type\022V\n\024areNodesAlive" +
+      "Request\030e \001(\01328.de.uniluebeck.itm.tr.iws" +
+      "n.messages.AreNodesAliveRequest\022^\n\030areNo" +
+      "desConnectedRequest\030f \001(\0132<.de.uniluebec" +
+      "k.itm.tr.iwsn.messages.AreNodesConnected" +
+      "Request\022T\n\023disableNodesRequest\030g \001(\01327.d" +
+      "e.uniluebeck.itm.tr.iwsn.messages.Disabl",
+      "eNodesRequest\022b\n\032disableVirtualLinksRequ" +
+      "est\030h \001(\0132>.de.uniluebeck.itm.tr.iwsn.me" +
+      "ssages.DisableVirtualLinksRequest\022d\n\033dis" +
+      "ablePhysicalLinksRequest\030i \001(\0132?.de.unil" +
+      "uebeck.itm.tr.iwsn.messages.DisablePhysi" +
+      "calLinksRequest\022R\n\022enableNodesRequest\030j " +
+      "\001(\01326.de.uniluebeck.itm.tr.iwsn.messages" +
+      ".EnableNodesRequest\022b\n\032enablePhysicalLin" +
+      "ksRequest\030k \001(\0132>.de.uniluebeck.itm.tr.i" +
+      "wsn.messages.EnablePhysicalLinksRequest\022",
+      "`\n\031enableVirtualLinksRequest\030l \001(\0132=.de." +
+      "uniluebeck.itm.tr.iwsn.messages.EnableVi" +
+      "rtualLinksRequest\022R\n\022flashImagesRequest\030" +
+      "m \001(\01326.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.FlashImagesRequest\022P\n\021resetNodesReque" +
+      "st\030n \001(\01325.de.uniluebeck.itm.tr.iwsn.mes" +
+      "sages.ResetNodesRequest\022h\n\035sendDownstrea" +
+      "mMessagesRequest\030o \001(\0132A.de.uniluebeck.i" +
+      "tm.tr.iwsn.messages.SendDownstreamMessag" +
+      "esRequest\022b\n\032setChannelPipelinesRequest\030",
+      "p \001(\0132>.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.SetChannelPipelinesRequest\"\241\002\n\004Type\022\023" +
+      "\n\017ARE_NODES_ALIVE\020\001\022\027\n\023ARE_NODES_CONNECT" +
+      "ED\020\002\022\021\n\rDISABLE_NODES\020\003\022\031\n\025DISABLE_VIRTU" +
+      "AL_LINKS\020\004\022\032\n\026DISABLE_PHYSICAL_LINKS\020\005\022\020" +
+      "\n\014ENABLE_NODES\020\006\022\031\n\025ENABLE_PHYSICAL_LINK" +
+      "S\020\007\022\030\n\024ENABLE_VIRTUAL_LINKS\020\010\022\020\n\014FLASH_I" +
+      "MAGES\020\t\022\017\n\013RESET_NODES\020\n\022\034\n\030SEND_DOWNSTR" +
+      "EAM_MESSAGES\020\013\022\031\n\025SET_CHANNEL_PIPELINES\020" +
+      "\014\"j\n\022SingleNodeProgress\022\025\n\rreservationId",
+      "\030\001 \001(\003\022\021\n\trequestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002" +
+      "(\t\022\031\n\021progressInPercent\030\004 \002(\r\"\213\001\n\022Single" +
+      "NodeResponse\022\025\n\rreservationId\030\001 \001(\003\022\021\n\tr" +
+      "equestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002(\t\022\020\n\010respo" +
+      "nse\030\004 \001(\014\022\022\n\nstatusCode\030\005 \001(\005\022\024\n\014errorMe" +
+      "ssage\030\006 \001(\t\"V\n\024UpstreamMessageEvent\022\025\n\rs" +
+      "ourceNodeUrn\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\004\022\024\n" +
+      "\014messageBytes\030\003 \002(\014\";\n\024DevicesAttachedEv" +
+      "ent\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004" +
+      "\";\n\024DevicesDetachedEvent\022\020\n\010nodeUrns\030\001 \003",
+      "(\t\022\021\n\ttimestamp\030\002 \002(\004\"H\n\021NotificationEve" +
+      "nt\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimestamp\030\002 \002(\004\022\017" +
+      "\n\007message\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007eventId\030\001 \002" +
+      "(\003\022<\n\004type\030\002 \002(\0162..de.uniluebeck.itm.tr." +
+      "iwsn.messages.Event.Type\022V\n\024upstreamMess" +
+      "ageEvent\030e \001(\01328.de.uniluebeck.itm.tr.iw" +
+      "sn.messages.UpstreamMessageEvent\022V\n\024devi" +
+      "cesAttachedEvent\030f \001(\01328.de.uniluebeck.i" +
+      "tm.tr.iwsn.messages.DevicesAttachedEvent" +
+      "\022V\n\024devicesDetachedEvent\030g \001(\01328.de.unil",
+      "uebeck.itm.tr.iwsn.messages.DevicesDetac" +
+      "hedEvent\022P\n\021notificationEvent\030h \001(\01325.de" +
+      ".uniluebeck.itm.tr.iwsn.messages.Notific" +
+      "ationEvent\"Z\n\004Type\022\024\n\020UPSTREAM_MESSAGE\020\001" +
+      "\022\024\n\020DEVICES_ATTACHED\020\002\022\024\n\020DEVICES_DETACH" +
+      "ED\020\003\022\020\n\014NOTIFICATION\020\004\"\033\n\010EventAck\022\017\n\007ev" +
+      "entId\030\001 \002(\003\"\340\003\n\007Message\022>\n\004type\030\001 \002(\01620." +
+      "de.uniluebeck.itm.tr.iwsn.messages.Messa" +
+      "ge.Type\022<\n\007request\030e \001(\0132+.de.uniluebeck" +
+      ".itm.tr.iwsn.messages.Request\022H\n\010progres",
+      "s\030f \001(\01326.de.uniluebeck.itm.tr.iwsn.mess" +
+      "ages.SingleNodeProgress\022H\n\010response\030g \001(" +
+      "\01326.de.uniluebeck.itm.tr.iwsn.messages.S" +
+      "ingleNodeResponse\0228\n\005event\030h \001(\0132).de.un" +
+      "iluebeck.itm.tr.iwsn.messages.Event\022>\n\010e" +
+      "ventAck\030i \001(\0132,.de.uniluebeck.itm.tr.iws" +
+      "n.messages.EventAck\"I\n\004Type\022\013\n\007REQUEST\020\001" +
+      "\022\014\n\010PROGRESS\020\002\022\014\n\010RESPONSE\020\003\022\t\n\005EVENT\020\004\022" +
+      "\r\n\tEVENT_ACK\020\005B\014B\010MessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -380,7 +382,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Request_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_Request_descriptor,
-              new java.lang.String[] { "RequestId", "Type", "AreNodesAliveRequest", "AreNodesConnectedRequest", "DisableNodesRequest", "DisableVirtualLinksRequest", "DisablePhysicalLinksRequest", "EnableNodesRequest", "EnablePhysicalLinksRequest", "EnableVirtualLinksRequest", "FlashImagesRequest", "ResetNodesRequest", "SendDownstreamMessagesRequest", "SetChannelPipelinesRequest", },
+              new java.lang.String[] { "ReservationId", "RequestId", "Type", "AreNodesAliveRequest", "AreNodesConnectedRequest", "DisableNodesRequest", "DisableVirtualLinksRequest", "DisablePhysicalLinksRequest", "EnableNodesRequest", "EnablePhysicalLinksRequest", "EnableVirtualLinksRequest", "FlashImagesRequest", "ResetNodesRequest", "SendDownstreamMessagesRequest", "SetChannelPipelinesRequest", },
               de.uniluebeck.itm.tr.iwsn.messages.Request.class,
               de.uniluebeck.itm.tr.iwsn.messages.Request.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_descriptor =
@@ -388,7 +390,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_descriptor,
-              new java.lang.String[] { "RequestId", "NodeUrn", "ProgressInPercent", },
+              new java.lang.String[] { "ReservationId", "RequestId", "NodeUrn", "ProgressInPercent", },
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.class,
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_descriptor =
@@ -396,7 +398,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_descriptor,
-              new java.lang.String[] { "RequestId", "NodeUrn", "Response", "StatusCode", "ErrorMessage", },
+              new java.lang.String[] { "ReservationId", "RequestId", "NodeUrn", "Response", "StatusCode", "ErrorMessage", },
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.class,
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_descriptor =

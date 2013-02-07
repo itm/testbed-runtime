@@ -5,11 +5,15 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface RequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required int64 requestId = 1;
+  // optional int64 reservationId = 1;
+  boolean hasReservationId();
+  long getReservationId();
+  
+  // required int64 requestId = 2;
   boolean hasRequestId();
   long getRequestId();
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.Request.Type type = 2;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Request.Type type = 3;
   boolean hasType();
   de.uniluebeck.itm.tr.iwsn.messages.Request.Type getType();
   

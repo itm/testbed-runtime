@@ -5,6 +5,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 
 public interface WSNServiceFactory {
 
-	WSNService create(String secretReservationKey, Reservation reservation, final DeliveryManager deliveryManager);
+	WSNService create(long reservationId, Reservation reservation, final DeliveryManager deliveryManager);
 
 }

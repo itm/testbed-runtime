@@ -96,6 +96,8 @@ public class PortalChannelHandlerTest {
 							).build()
 			);
 
+	private static final long RESERVATION_ID = RANDOM.nextLong();
+
 	@Mock
 	private PortalEventBus portalEventBus;
 
@@ -190,10 +192,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newAreNodesAliveRequest(requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newAreNodesAliveRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
 
-		final Message expectedMessage1 = newAreNodesAliveRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newAreNodesAliveRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+		final Message expectedMessage1 =
+				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 =
+				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -205,10 +209,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newAreNodesConnectedRequest(requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newAreNodesConnectedRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
 
-		final Message expectedMessage1 = newAreNodesConnectedRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newAreNodesConnectedRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+		final Message expectedMessage1 =
+				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 =
+				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -220,10 +226,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDisableNodesRequest(requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newDisableNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
 
-		final Message expectedMessage1 = newDisableNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newDisableNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+		final Message expectedMessage1 =
+				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 =
+				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -235,10 +243,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newEnableNodesRequest(requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newEnableNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
 
-		final Message expectedMessage1 = newEnableNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newEnableNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+		final Message expectedMessage1 =
+				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 =
+				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -250,10 +260,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newResetNodesRequest(requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newResetNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
 
-		final Message expectedMessage1 = newResetNodesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS);
-		final Message expectedMessage2 = newResetNodesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS);
+		final Message expectedMessage1 =
+				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+		final Message expectedMessage2 =
+				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -266,12 +278,12 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 		final byte[] bytes = "Hello, World!".getBytes(Charset.defaultCharset());
 
-		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(requestId, ALL_NODE_URNS, bytes));
+		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, bytes));
 
 		final Message expectedMessage1 =
-				newSendDownstreamMessageRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, bytes);
+				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, bytes);
 		final Message expectedMessage2 =
-				newSendDownstreamMessageRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, bytes);
+				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, bytes);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -284,10 +296,10 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 		final byte[] imageBytes = "Hello, World!".getBytes(Charset.defaultCharset());
 
-		portalChannelHandler.onRequest(newFlashImagesRequest(requestId, ALL_NODE_URNS, imageBytes));
+		portalChannelHandler.onRequest(newFlashImagesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, imageBytes));
 
-		final Message expectedMessage1 = newFlashImagesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, imageBytes);
-		final Message expectedMessage2 = newFlashImagesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, imageBytes);
+		final Message expectedMessage1 = newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, imageBytes);
+		final Message expectedMessage2 = newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, imageBytes);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -299,10 +311,10 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(requestId, LINKS));
+		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(RESERVATION_ID, requestId, LINKS));
 
-		final Message expectedMessage1 = newDisableVirtualLinksRequestMessage(requestId, LINKS_GW1);
-		final Message expectedMessage2 = newDisableVirtualLinksRequestMessage(requestId, LINKS_GW2);
+		final Message expectedMessage1 = newDisableVirtualLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW1);
+		final Message expectedMessage2 = newDisableVirtualLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -314,10 +326,10 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(requestId, LINKS));
+		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(RESERVATION_ID, requestId, LINKS));
 
-		final Message expectedMessage1 = newEnableVirtualLinksRequestMessage(requestId, LINKS_GW1);
-		final Message expectedMessage2 = newEnableVirtualLinksRequestMessage(requestId, LINKS_GW2);
+		final Message expectedMessage1 = newEnableVirtualLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW1);
+		final Message expectedMessage2 = newEnableVirtualLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -329,10 +341,10 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDisablePhysicalLinksRequest(requestId, LINKS));
+		portalChannelHandler.onRequest(newDisablePhysicalLinksRequest(RESERVATION_ID, requestId, LINKS));
 
-		final Message expectedMessage1 = newDisablePhysicalLinksRequestMessage(requestId, LINKS_GW1);
-		final Message expectedMessage2 = newDisablePhysicalLinksRequestMessage(requestId, LINKS_GW2);
+		final Message expectedMessage1 = newDisablePhysicalLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW1);
+		final Message expectedMessage2 = newDisablePhysicalLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -344,10 +356,10 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newEnablePhysicalLinksRequest(requestId, LINKS));
+		portalChannelHandler.onRequest(newEnablePhysicalLinksRequest(RESERVATION_ID, requestId, LINKS));
 
-		final Message expectedMessage1 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW1);
-		final Message expectedMessage2 = newEnablePhysicalLinksRequestMessage(requestId, LINKS_GW2);
+		final Message expectedMessage1 = newEnablePhysicalLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW1);
+		final Message expectedMessage2 = newEnablePhysicalLinksRequestMessage(RESERVATION_ID, requestId, LINKS_GW2);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -360,13 +372,13 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 
 		portalChannelHandler.onRequest(
-				newSetChannelPipelinesRequest(requestId, ALL_NODE_URNS, CHANNEL_HANDLER_CONFIGS)
+				newSetChannelPipelinesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, CHANNEL_HANDLER_CONFIGS)
 		);
 
 		final Message expectedMessage1 =
-				newSetChannelPipelinesRequestMessage(requestId, GATEWAY1_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
+				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
 		final Message expectedMessage2 =
-				newSetChannelPipelinesRequestMessage(requestId, GATEWAY2_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
+				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));

@@ -30,6 +30,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSingleNodeResponse;
 
 public class RequestHandlerImpl extends AbstractService implements RequestHandler {
 
@@ -128,6 +129,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnableVirtualLinksRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getEnableVirtualLinksRequest().getLinksList();
@@ -139,11 +141,11 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedSubset.keySet()) {
 			final Map<NodeUrn, NodeUrn> linksMap = createLinkMap(links, connectedSubset.get(deviceAdapter));
-			addNodeApiOperationListeners(requestId, deviceAdapter.enableVirtualLinks(linksMap));
+			addNodeApiOperationListeners(reservationId, requestId, deviceAdapter.enableVirtualLinks(linksMap));
 		}
 	}
 
@@ -151,6 +153,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onSetChannelPipelinesRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getSetChannelPipelinesRequest().getNodeUrnsList(),
@@ -160,7 +163,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 
@@ -173,18 +176,18 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			for (SetChannelPipelinesRequest.ChannelHandlerConfiguration config : channelHandlerConfigurationsList) {
 
 				final HashMultimap<String, String> options = HashMultimap.create();
-				for (SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair keyValuePair : config
+				for (SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair kv : config
 						.getConfigurationList()) {
-					options.put(keyValuePair.getKey(), keyValuePair.getValue());
+					options.put(kv.getKey(), kv.getValue());
 				}
 
 				cp.add(new Tuple<String, Multimap<String, String>>(config.getName(), options));
 			}
 
-			addVoidOperationListeners(requestId, deviceAdapter.setChannelPipelines(
-					nodeUrnsToSetChannelPipelineOn,
-					cp
-			)
+			addVoidOperationListeners(
+					reservationId,
+					requestId,
+					deviceAdapter.setChannelPipelines(nodeUrnsToSetChannelPipelineOn, cp)
 			);
 		}
 	}
@@ -193,6 +196,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onSendDownstreamMessagesRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList(),
@@ -202,14 +206,18 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 
 			final Collection<NodeUrn> nodeUrnsToSendTo = connectedMap.get(deviceAdapter);
 			final byte[] messageBytes = request.getSendDownstreamMessagesRequest().getMessageBytes().toByteArray();
 
-			addVoidOperationListeners(requestId, deviceAdapter.sendMessage(nodeUrnsToSendTo, messageBytes));
+			addVoidOperationListeners(
+					reservationId,
+					requestId,
+					deviceAdapter.sendMessage(nodeUrnsToSendTo, messageBytes)
+			);
 		}
 	}
 
@@ -217,6 +225,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onResetNodesRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getResetNodesRequest().getNodeUrnsList(),
@@ -226,10 +235,14 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
-			addVoidOperationListeners(requestId, deviceAdapter.resetNodes(connectedMap.get(deviceAdapter)));
+			addVoidOperationListeners(
+					reservationId,
+					requestId,
+					deviceAdapter.resetNodes(connectedMap.get(deviceAdapter))
+			);
 		}
 	}
 
@@ -237,6 +250,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onFlashImagesRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getFlashImagesRequest().getNodeUrnsList(),
@@ -246,14 +260,18 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 
 			final byte[] binaryImage = request.getFlashImagesRequest().getImage().toByteArray();
 			final Collection<NodeUrn> nodeUrnsToFlash = connectedMap.get(deviceAdapter);
 
-			addVoidOperationListeners(requestId, deviceAdapter.flashProgram(nodeUrnsToFlash, binaryImage));
+			addVoidOperationListeners(
+					reservationId,
+					requestId,
+					deviceAdapter.flashProgram(nodeUrnsToFlash, binaryImage)
+			);
 		}
 	}
 
@@ -261,6 +279,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnablePhysicalLinksRequest({)", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getEnablePhysicalLinksRequest().getLinksList();
@@ -272,11 +291,11 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedSubset.keySet()) {
 			final Map<NodeUrn, NodeUrn> linksMap = createLinkMap(links, connectedSubset.get(deviceAdapter));
-			addNodeApiOperationListeners(requestId, deviceAdapter.enablePhysicalLinks(linksMap));
+			addNodeApiOperationListeners(reservationId, requestId, deviceAdapter.enablePhysicalLinks(linksMap));
 		}
 	}
 
@@ -284,6 +303,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnablesNodeRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getEnableNodesRequest().getNodeUrnsList(),
@@ -293,10 +313,14 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(requestId, unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
-			addNodeApiOperationListeners(requestId, deviceAdapter.enableNodes(connectedMap.get(deviceAdapter)));
+			addNodeApiOperationListeners(
+					reservationId,
+					requestId,
+					deviceAdapter.enableNodes(connectedMap.get(deviceAdapter))
+			);
 		}
 	}
 
@@ -304,6 +328,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisablePhysicalLinksRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getDisablePhysicalLinksRequest().getLinksList();
@@ -315,11 +340,11 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedSubset.keySet()) {
 			final Map<NodeUrn, NodeUrn> linksMap = createLinkMap(links, connectedSubset.get(deviceAdapter));
-			addNodeApiOperationListeners(requestId, deviceAdapter.disablePhysicalLinks(linksMap));
+			addNodeApiOperationListeners(reservationId, requestId, deviceAdapter.disablePhysicalLinks(linksMap));
 		}
 	}
 
@@ -327,6 +352,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisableNodesRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getDisableNodesRequest().getNodeUrnsList(),
@@ -336,10 +362,12 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(requestId, unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
-			addNodeApiOperationListeners(requestId, deviceAdapter.disableNodes(connectedMap.get(deviceAdapter)));
+			addNodeApiOperationListeners(reservationId, requestId,
+					deviceAdapter.disableNodes(connectedMap.get(deviceAdapter))
+			);
 		}
 	}
 
@@ -347,6 +375,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisableVirtualLinksRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getDisableVirtualLinksRequest().getLinksList();
@@ -358,11 +387,11 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedSubset.keySet()) {
 			final Map<NodeUrn, NodeUrn> linksMap = createLinkMap(links, connectedSubset.get(deviceAdapter));
-			addNodeApiOperationListeners(requestId, deviceAdapter.disableVirtualLinks(linksMap));
+			addNodeApiOperationListeners(reservationId, requestId, deviceAdapter.disableVirtualLinks(linksMap));
 		}
 	}
 
@@ -370,6 +399,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onAreNodesConnectedRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getAreNodesAliveRequest().getNodeUrnsList(),
@@ -379,10 +409,12 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(request.getRequestId(), unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, request.getRequestId(), unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
-			addBoolOperationListeners(requestId, deviceAdapter.areNodesConnected(connectedMap.get(deviceAdapter)));
+			addBoolOperationListeners(reservationId, requestId,
+					deviceAdapter.areNodesConnected(connectedMap.get(deviceAdapter))
+			);
 		}
 	}
 
@@ -390,6 +422,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onAreNodesAliveRequest({})", request);
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getAreNodesAliveRequest().getNodeUrnsList(),
@@ -399,58 +432,66 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 		final Multimap<DeviceAdapter, NodeUrn> connectedMap = deviceManager.getConnectedSubset(nodeUrns);
 
-		postNodeNotConnectedResponse(requestId, unconnectedSubset);
+		postNodeNotConnectedResponse(reservationId, requestId, unconnectedSubset);
 
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
-			addBoolOperationListeners(requestId, deviceAdapter.areNodesAlive(connectedMap.get(deviceAdapter)));
+			addBoolOperationListeners(reservationId, requestId,
+					deviceAdapter.areNodesAlive(connectedMap.get(deviceAdapter))
+			);
 		}
 	}
 
-	private void addVoidOperationListeners(final long requestId,
+	private void addVoidOperationListeners(@Nullable final Long reservationId,
+										   final long requestId,
 										   final ListenableFutureMap<NodeUrn, Void> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
 			futureMap.get(nodeUrn).addListener(
-					createVoidOperationListener(requestId, nodeUrn, futureMap.get(nodeUrn)),
+					createVoidOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
 					SAME_THREAD_EXECUTOR
 			);
 		}
 	}
 
-	private void addVoidOperationListeners(final long requestId,
+	private void addVoidOperationListeners(@Nullable final Long reservationId,
+										   final long requestId,
 										   final ProgressListenableFutureMap<NodeUrn, Void> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
 			futureMap.get(nodeUrn).addListener(
-					createVoidOperationListener(requestId, nodeUrn, futureMap.get(nodeUrn)),
+					createVoidOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
 					SAME_THREAD_EXECUTOR
 			);
 		}
 	}
 
-	private void addBoolOperationListeners(final long requestId,
+	private void addBoolOperationListeners(@Nullable final Long reservationId,
+										   final long requestId,
 										   final ListenableFutureMap<NodeUrn, Boolean> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
 			futureMap.get(nodeUrn).addListener(
-					createBoolOperationListener(requestId, nodeUrn, futureMap.get(nodeUrn)),
+					createBoolOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
 					SAME_THREAD_EXECUTOR
 			);
 		}
 	}
 
-	private void addNodeApiOperationListeners(final long requestId,
+	private void addNodeApiOperationListeners(@Nullable final Long reservationId,
+											  final long requestId,
 											  final ListenableFutureMap<NodeUrn, NodeApiCallResult> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
 			futureMap.get(nodeUrn).addListener(
-					createNodeApiOperationListener(requestId, nodeUrn, futureMap.get(nodeUrn)),
+					createNodeApiOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
 					SAME_THREAD_EXECUTOR
 			);
 		}
 	}
 
-	private Runnable createVoidOperationListener(final long requestId, final NodeUrn nodeUrn,
+	private Runnable createVoidOperationListener(@Nullable final Long reservationId,
+												 final long requestId,
+												 final NodeUrn nodeUrn,
 												 final ListenableFuture<Void> future) {
 		return new Runnable() {
 			@Override
@@ -458,24 +499,31 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 				if (future instanceof ProgressListenableFutureMap && !future.isDone()) {
 
-					postProgress(requestId, nodeUrn, ((ProgressListenableFutureMap) future).getProgress());
+					postProgress(
+							reservationId,
+							requestId,
+							nodeUrn,
+							((ProgressListenableFutureMap) future).getProgress()
+					);
 
 				} else {
 
 					try {
 
 						future.get();
-						postResponse(requestId, nodeUrn, 1, null);
+						postResponse(reservationId, requestId, nodeUrn, 1, null);
 
 					} catch (Exception e) {
-						postRequestFailureResponse(requestId, nodeUrn, e);
+						postRequestFailureResponse(reservationId, requestId, nodeUrn, e);
 					}
 				}
 			}
 		};
 	}
 
-	private Runnable createNodeApiOperationListener(final long requestId, final NodeUrn nodeUrn,
+	private Runnable createNodeApiOperationListener(@Nullable final Long reservationId,
+													final long requestId,
+													final NodeUrn nodeUrn,
 													final ListenableFuture<NodeApiCallResult> future) {
 		return new Runnable() {
 
@@ -485,44 +533,62 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 					final NodeApiCallResult result = future.get();
 					final byte statusCode = result.isSuccessful() ? 1 : result.getResponseType();
-					postResponse(requestId, nodeUrn, statusCode, result.getResponse());
+					postResponse(reservationId, requestId, nodeUrn, statusCode, result.getResponse());
 
 				} catch (Exception e) {
-					postRequestFailureResponse(requestId, nodeUrn, e);
+					postRequestFailureResponse(reservationId, requestId, nodeUrn, e);
 				}
 			}
 		};
 	}
 
-	private Runnable createBoolOperationListener(final long requestId, final NodeUrn nodeUrn,
+	private Runnable createBoolOperationListener(@Nullable final Long reservationId,
+												 final long requestId,
+												 final NodeUrn nodeUrn,
 												 final ListenableFuture<Boolean> future) {
 		return new Runnable() {
 			@Override
 			public void run() {
 				try {
-					postResponse(requestId, nodeUrn, future.get() ? 1 : 0, null);
+					postResponse(reservationId, requestId, nodeUrn, future.get() ? 1 : 0, null);
 				} catch (Exception e) {
-					postRequestFailureResponse(requestId, nodeUrn, e);
+					postRequestFailureResponse(reservationId, requestId, nodeUrn, e);
 				}
 			}
 		};
 	}
 
-	private void postProgress(final long requestId, final NodeUrn nodeUrn, final float progress) {
-		gatewayEventBus.post(SingleNodeProgress.newBuilder()
+	private void postProgress(@Nullable final Long reservationId,
+							  final long requestId,
+							  final NodeUrn nodeUrn,
+							  final float progress) {
+
+		final SingleNodeProgress.Builder builder = SingleNodeProgress.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
-				.setProgressInPercent((int) progress * 100)
-		);
+				.setProgressInPercent((int) progress * 100);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		gatewayEventBus.post(builder.build());
 	}
 
-	private void postResponse(final long requestId, final NodeUrn nodeUrn, final int statusCode,
+	private void postResponse(@Nullable final Long reservationId,
+							  final long requestId,
+							  final NodeUrn nodeUrn,
+							  final int statusCode,
 							  @Nullable final byte[] responseBytes) {
 
 		final SingleNodeResponse.Builder responseBuilder = SingleNodeResponse.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
 				.setStatusCode(statusCode);
+
+		if (reservationId != null) {
+			responseBuilder.setReservationId(reservationId);
+		}
 
 		if (responseBytes != null) {
 			responseBuilder.setResponse(ByteString.copyFrom(responseBytes));
@@ -531,24 +597,34 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		gatewayEventBus.post(responseBuilder.build());
 	}
 
-	private void postRequestFailureResponse(final long requestId, final NodeUrn nodeUrn, final Exception e) {
-		gatewayEventBus.post(SingleNodeResponse.newBuilder()
+	private void postRequestFailureResponse(@Nullable final Long reservationId,
+											final long requestId,
+											final NodeUrn nodeUrn,
+											final Exception e) {
+		final SingleNodeResponse.Builder builder = SingleNodeResponse.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
 				.setStatusCode(-2)
-				.setErrorMessage(Throwables.getStackTraceAsString(e))
-				.build()
-		);
+				.setErrorMessage(Throwables.getStackTraceAsString(e));
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		gatewayEventBus.post(builder.build());
 	}
 
-	private void postNodeNotConnectedResponse(final long requestId, final Iterable<NodeUrn> unconnectedNodeUrns) {
+	private void postNodeNotConnectedResponse(@Nullable final Long reservationId,
+											  final long requestId,
+											  final Iterable<NodeUrn> unconnectedNodeUrns) {
 		for (NodeUrn nodeUrn : unconnectedNodeUrns) {
-			gatewayEventBus.post(SingleNodeResponse.newBuilder()
-					.setRequestId(requestId)
-					.setNodeUrn(nodeUrn.toString())
-					.setStatusCode(-1)
-					.setErrorMessage("Node \"" + nodeUrn + "\" is not connected.")
-					.build()
+			gatewayEventBus.post(newSingleNodeResponse(
+					reservationId,
+					requestId,
+					nodeUrn,
+					-1,
+					"Node \"" + nodeUrn + "\" is not connected."
+			)
 			);
 		}
 	}

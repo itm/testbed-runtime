@@ -18,7 +18,10 @@ import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.*;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault_Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +38,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static de.uniluebeck.itm.tr.iwsn.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
+import static eu.wisebed.api.v3.WisebedServiceHelper.createUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 @WebService(
@@ -60,8 +64,6 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final PortalEventBus portalEventBus;
 
-	private final RequestIdProvider requestIdProvider;
-
 	private final ResponseTrackerFactory responseTrackerFactory;
 
 	private final PortalConfig portalConfig;
@@ -85,7 +87,6 @@ public class SessionManagementImpl implements SessionManagement {
 	@Inject
 	public SessionManagementImpl(final DeliveryManager sessionManagementDeliveryManager,
 								 final PortalEventBus portalEventBus,
-								 final RequestIdProvider requestIdProvider,
 								 final ResponseTrackerFactory responseTrackerFactory,
 								 final PortalConfig portalConfig,
 								 final Set<HandlerFactory> handlerFactories,
@@ -96,7 +97,6 @@ public class SessionManagementImpl implements SessionManagement {
 
 		this.sessionManagementDeliveryManager = checkNotNull(sessionManagementDeliveryManager);
 		this.portalEventBus = checkNotNull(portalEventBus);
-		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.portalConfig = checkNotNull(portalConfig);
 		this.handlerFactories = checkNotNull(handlerFactories);
@@ -115,7 +115,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		sessionManagementDeliveryManager.addController(controllerEndpointUrl);
 
-		final Request request = newAreNodesConnectedRequest(requestId, nodeUrns);
+		final Request request = newAreNodesConnectedRequest(null, requestId, nodeUrns);
 		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
 
 		portalEventBus.post(request);
@@ -153,29 +153,26 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault_Exception {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
 
-		final String secretReservationKey = secretReservationKeys.get(0).getSecretReservationKey();
+		final long key = secretReservationKeys.get(0).getKey();
 		final Reservation reservation;
 
 		try {
 
-			reservation = reservationManager.getReservation(secretReservationKey);
+			reservation = reservationManager.getReservation(key);
 
 		} catch (ReservationUnknownException e) {
-			final String message = "Secret reservation key \"" + secretReservationKey + "\" is unknown!";
-			final UnknownReservationIdFault fault = new UnknownReservationIdFault();
-			fault.setMessage(message);
-			fault.setReservationId(secretReservationKey);
-			throw new UnknownReservationIdFault_Exception(message, fault, e);
+			final String message = "Secret reservation key \"" + key + "\" is unknown!";
+			throw createUnknownSecretReservationKeyFault(message, secretReservationKeys.get(0), e);
 		}
 
-		return getOrCreateAndStartWSNServiceInstance(secretReservationKey, reservation).getURI().toString();
+		return getOrCreateAndStartWSNServiceInstance(key, reservation).getURI().toString();
 	}
 
-	private WSNService getOrCreateAndStartWSNServiceInstance(final String secretReservationKey,
+	private WSNService getOrCreateAndStartWSNServiceInstance(final long reservationKey,
 															 final Reservation reservation) {
 
 		WSNService wsnService;
@@ -193,7 +190,7 @@ public class SessionManagementImpl implements SessionManagement {
 				deliveryManager = deliveryManagerFactory.create(reservation);
 				deliveryManagers.put(reservation, deliveryManager);
 
-				wsnService = wsnServiceFactory.create(secretReservationKey, reservation, deliveryManager);
+				wsnService = wsnServiceFactory.create(reservationKey, reservation, deliveryManager);
 				wsnInstances.put(reservation, wsnService);
 			}
 		}

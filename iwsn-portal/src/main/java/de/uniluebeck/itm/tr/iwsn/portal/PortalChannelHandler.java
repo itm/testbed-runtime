@@ -56,6 +56,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Subscribe
 	public void onRequest(final Request request) {
 
+		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final List<String> nodeUrnsList;
 		final Set<NodeUrn> nodeUrns;
@@ -72,7 +73,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					requestsToBeSent.put(ctx, newAreNodesAliveRequest(requestId, mapping.get(ctx)));
+					requestsToBeSent.put(ctx, newAreNodesAliveRequest(reservationId, requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -85,7 +86,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					requestsToBeSent.put(ctx, newAreNodesConnectedRequest(requestId, mapping.get(ctx)));
+					requestsToBeSent.put(ctx, newAreNodesConnectedRequest(reservationId, requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -98,7 +99,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					requestsToBeSent.put(ctx, newDisableNodesRequest(requestId, mapping.get(ctx)));
+					requestsToBeSent.put(ctx, newDisableNodesRequest(reservationId, requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -125,7 +126,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 							);
 						}
 					}
-					requestsToBeSent.put(ctx, newDisablePhysicalLinksRequest(requestId, subRequestLinks));
+					requestsToBeSent.put(
+							ctx,
+							newDisablePhysicalLinksRequest(reservationId, requestId, subRequestLinks)
+					);
 				}
 
 				sendRequests(requestsToBeSent);
@@ -152,7 +156,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 							);
 						}
 					}
-					requestsToBeSent.put(ctx, newDisableVirtualLinksRequest(requestId, subRequestLinks));
+					requestsToBeSent.put(ctx, newDisableVirtualLinksRequest(reservationId, requestId, subRequestLinks));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -165,7 +169,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					requestsToBeSent.put(ctx, newEnableNodesRequest(requestId, mapping.get(ctx)));
+					requestsToBeSent.put(ctx, newEnableNodesRequest(reservationId, requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -192,7 +196,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 							);
 						}
 					}
-					requestsToBeSent.put(ctx, newEnablePhysicalLinksRequest(requestId, subRequestLinks));
+					requestsToBeSent.put(ctx, newEnablePhysicalLinksRequest(reservationId, requestId, subRequestLinks));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -219,7 +223,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 							);
 						}
 					}
-					requestsToBeSent.put(ctx, newEnableVirtualLinksRequest(requestId, subRequestLinks));
+					requestsToBeSent.put(ctx, newEnableVirtualLinksRequest(reservationId, requestId, subRequestLinks));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -233,7 +237,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final ByteString imageBytes = request.getFlashImagesRequest().getImage();
-					requestsToBeSent.put(ctx, newFlashImagesRequest(requestId, mapping.get(ctx), imageBytes));
+					requestsToBeSent.put(
+							ctx,
+							newFlashImagesRequest(reservationId, requestId, mapping.get(ctx), imageBytes)
+					);
 				}
 
 				sendRequests(requestsToBeSent);
@@ -246,7 +253,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					requestsToBeSent.put(ctx, newResetNodesRequest(requestId, mapping.get(ctx)));
+					requestsToBeSent.put(ctx, newResetNodesRequest(reservationId, requestId, mapping.get(ctx)));
 				}
 
 				sendRequests(requestsToBeSent);
@@ -260,7 +267,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final ByteString bytes = request.getSendDownstreamMessagesRequest().getMessageBytes();
-					requestsToBeSent.put(ctx, newSendDownstreamMessageRequest(requestId, mapping.get(ctx), bytes));
+					requestsToBeSent.put(
+							ctx,
+							newSendDownstreamMessageRequest(reservationId, requestId, mapping.get(ctx), bytes)
+					);
 				}
 
 				sendRequests(requestsToBeSent);
@@ -275,7 +285,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
 					final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs =
 							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
-					requestsToBeSent.put(ctx, newSetChannelPipelinesRequest(requestId, mapping.get(ctx), configs));
+					requestsToBeSent.put(
+							ctx,
+							newSetChannelPipelinesRequest(reservationId, requestId, mapping.get(ctx), configs)
+					);
 				}
 
 				sendRequests(requestsToBeSent);

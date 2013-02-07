@@ -31,21 +31,31 @@ public  final class SingleNodeResponse extends
   }
   
   private int bitField0_;
-  // required int64 requestId = 1;
-  public static final int REQUESTID_FIELD_NUMBER = 1;
+  // optional int64 reservationId = 1;
+  public static final int RESERVATIONID_FIELD_NUMBER = 1;
+  private long reservationId_;
+  public boolean hasReservationId() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public long getReservationId() {
+    return reservationId_;
+  }
+  
+  // required int64 requestId = 2;
+  public static final int REQUESTID_FIELD_NUMBER = 2;
   private long requestId_;
   public boolean hasRequestId() {
-    return ((bitField0_ & 0x00000001) == 0x00000001);
+    return ((bitField0_ & 0x00000002) == 0x00000002);
   }
   public long getRequestId() {
     return requestId_;
   }
   
-  // required string nodeUrn = 2;
-  public static final int NODEURN_FIELD_NUMBER = 2;
+  // required string nodeUrn = 3;
+  public static final int NODEURN_FIELD_NUMBER = 3;
   private java.lang.Object nodeUrn_;
   public boolean hasNodeUrn() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public String getNodeUrn() {
     java.lang.Object ref = nodeUrn_;
@@ -73,31 +83,31 @@ public  final class SingleNodeResponse extends
     }
   }
   
-  // optional bytes response = 3;
-  public static final int RESPONSE_FIELD_NUMBER = 3;
+  // optional bytes response = 4;
+  public static final int RESPONSE_FIELD_NUMBER = 4;
   private com.google.protobuf.ByteString response_;
   public boolean hasResponse() {
-    return ((bitField0_ & 0x00000004) == 0x00000004);
+    return ((bitField0_ & 0x00000008) == 0x00000008);
   }
   public com.google.protobuf.ByteString getResponse() {
     return response_;
   }
   
-  // optional int32 statusCode = 4;
-  public static final int STATUSCODE_FIELD_NUMBER = 4;
+  // optional int32 statusCode = 5;
+  public static final int STATUSCODE_FIELD_NUMBER = 5;
   private int statusCode_;
   public boolean hasStatusCode() {
-    return ((bitField0_ & 0x00000008) == 0x00000008);
+    return ((bitField0_ & 0x00000010) == 0x00000010);
   }
   public int getStatusCode() {
     return statusCode_;
   }
   
-  // optional string errorMessage = 5;
-  public static final int ERRORMESSAGE_FIELD_NUMBER = 5;
+  // optional string errorMessage = 6;
+  public static final int ERRORMESSAGE_FIELD_NUMBER = 6;
   private java.lang.Object errorMessage_;
   public boolean hasErrorMessage() {
-    return ((bitField0_ & 0x00000010) == 0x00000010);
+    return ((bitField0_ & 0x00000020) == 0x00000020);
   }
   public String getErrorMessage() {
     java.lang.Object ref = errorMessage_;
@@ -126,6 +136,7 @@ public  final class SingleNodeResponse extends
   }
   
   private void initFields() {
+    reservationId_ = 0L;
     requestId_ = 0L;
     nodeUrn_ = "";
     response_ = com.google.protobuf.ByteString.EMPTY;
@@ -153,19 +164,22 @@ public  final class SingleNodeResponse extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeInt64(1, requestId_);
+      output.writeInt64(1, reservationId_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeBytes(2, getNodeUrnBytes());
+      output.writeInt64(2, requestId_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      output.writeBytes(3, response_);
+      output.writeBytes(3, getNodeUrnBytes());
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
-      output.writeInt32(4, statusCode_);
+      output.writeBytes(4, response_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
-      output.writeBytes(5, getErrorMessageBytes());
+      output.writeInt32(5, statusCode_);
+    }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      output.writeBytes(6, getErrorMessageBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -178,23 +192,27 @@ public  final class SingleNodeResponse extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, requestId_);
+        .computeInt64Size(1, reservationId_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(2, getNodeUrnBytes());
+        .computeInt64Size(2, requestId_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(3, response_);
+        .computeBytesSize(3, getNodeUrnBytes());
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(4, statusCode_);
+        .computeBytesSize(4, response_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(5, getErrorMessageBytes());
+        .computeInt32Size(5, statusCode_);
+    }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(6, getErrorMessageBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -320,16 +338,18 @@ public  final class SingleNodeResponse extends
     
     public Builder clear() {
       super.clear();
-      requestId_ = 0L;
+      reservationId_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000001);
-      nodeUrn_ = "";
+      requestId_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000002);
-      response_ = com.google.protobuf.ByteString.EMPTY;
+      nodeUrn_ = "";
       bitField0_ = (bitField0_ & ~0x00000004);
-      statusCode_ = 0;
+      response_ = com.google.protobuf.ByteString.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000008);
-      errorMessage_ = "";
+      statusCode_ = 0;
       bitField0_ = (bitField0_ & ~0x00000010);
+      errorMessage_ = "";
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
     
@@ -371,21 +391,25 @@ public  final class SingleNodeResponse extends
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.requestId_ = requestId_;
+      result.reservationId_ = reservationId_;
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
-      result.nodeUrn_ = nodeUrn_;
+      result.requestId_ = requestId_;
       if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
         to_bitField0_ |= 0x00000004;
       }
-      result.response_ = response_;
+      result.nodeUrn_ = nodeUrn_;
       if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
         to_bitField0_ |= 0x00000008;
       }
-      result.statusCode_ = statusCode_;
+      result.response_ = response_;
       if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
         to_bitField0_ |= 0x00000010;
+      }
+      result.statusCode_ = statusCode_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000020;
       }
       result.errorMessage_ = errorMessage_;
       result.bitField0_ = to_bitField0_;
@@ -404,6 +428,9 @@ public  final class SingleNodeResponse extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.getDefaultInstance()) return this;
+      if (other.hasReservationId()) {
+        setReservationId(other.getReservationId());
+      }
       if (other.hasRequestId()) {
         setRequestId(other.getRequestId());
       }
@@ -460,26 +487,31 @@ public  final class SingleNodeResponse extends
           }
           case 8: {
             bitField0_ |= 0x00000001;
-            requestId_ = input.readInt64();
+            reservationId_ = input.readInt64();
             break;
           }
-          case 18: {
+          case 16: {
             bitField0_ |= 0x00000002;
-            nodeUrn_ = input.readBytes();
+            requestId_ = input.readInt64();
             break;
           }
           case 26: {
             bitField0_ |= 0x00000004;
+            nodeUrn_ = input.readBytes();
+            break;
+          }
+          case 34: {
+            bitField0_ |= 0x00000008;
             response_ = input.readBytes();
             break;
           }
-          case 32: {
-            bitField0_ |= 0x00000008;
+          case 40: {
+            bitField0_ |= 0x00000010;
             statusCode_ = input.readInt32();
             break;
           }
-          case 42: {
-            bitField0_ |= 0x00000010;
+          case 50: {
+            bitField0_ |= 0x00000020;
             errorMessage_ = input.readBytes();
             break;
           }
@@ -489,31 +521,52 @@ public  final class SingleNodeResponse extends
     
     private int bitField0_;
     
-    // required int64 requestId = 1;
+    // optional int64 reservationId = 1;
+    private long reservationId_ ;
+    public boolean hasReservationId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public long getReservationId() {
+      return reservationId_;
+    }
+    public Builder setReservationId(long value) {
+      bitField0_ |= 0x00000001;
+      reservationId_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearReservationId() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      reservationId_ = 0L;
+      onChanged();
+      return this;
+    }
+    
+    // required int64 requestId = 2;
     private long requestId_ ;
     public boolean hasRequestId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public long getRequestId() {
       return requestId_;
     }
     public Builder setRequestId(long value) {
-      bitField0_ |= 0x00000001;
+      bitField0_ |= 0x00000002;
       requestId_ = value;
       onChanged();
       return this;
     }
     public Builder clearRequestId() {
-      bitField0_ = (bitField0_ & ~0x00000001);
+      bitField0_ = (bitField0_ & ~0x00000002);
       requestId_ = 0L;
       onChanged();
       return this;
     }
     
-    // required string nodeUrn = 2;
+    // required string nodeUrn = 3;
     private java.lang.Object nodeUrn_ = "";
     public boolean hasNodeUrn() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public String getNodeUrn() {
       java.lang.Object ref = nodeUrn_;
@@ -529,27 +582,27 @@ public  final class SingleNodeResponse extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000004;
       nodeUrn_ = value;
       onChanged();
       return this;
     }
     public Builder clearNodeUrn() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       nodeUrn_ = getDefaultInstance().getNodeUrn();
       onChanged();
       return this;
     }
     void setNodeUrn(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       nodeUrn_ = value;
       onChanged();
     }
     
-    // optional bytes response = 3;
+    // optional bytes response = 4;
     private com.google.protobuf.ByteString response_ = com.google.protobuf.ByteString.EMPTY;
     public boolean hasResponse() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     public com.google.protobuf.ByteString getResponse() {
       return response_;
@@ -558,43 +611,43 @@ public  final class SingleNodeResponse extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000008;
       response_ = value;
       onChanged();
       return this;
     }
     public Builder clearResponse() {
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00000008);
       response_ = getDefaultInstance().getResponse();
       onChanged();
       return this;
     }
     
-    // optional int32 statusCode = 4;
+    // optional int32 statusCode = 5;
     private int statusCode_ ;
     public boolean hasStatusCode() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     public int getStatusCode() {
       return statusCode_;
     }
     public Builder setStatusCode(int value) {
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       statusCode_ = value;
       onChanged();
       return this;
     }
     public Builder clearStatusCode() {
-      bitField0_ = (bitField0_ & ~0x00000008);
+      bitField0_ = (bitField0_ & ~0x00000010);
       statusCode_ = 0;
       onChanged();
       return this;
     }
     
-    // optional string errorMessage = 5;
+    // optional string errorMessage = 6;
     private java.lang.Object errorMessage_ = "";
     public boolean hasErrorMessage() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     public String getErrorMessage() {
       java.lang.Object ref = errorMessage_;
@@ -610,19 +663,19 @@ public  final class SingleNodeResponse extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
       errorMessage_ = value;
       onChanged();
       return this;
     }
     public Builder clearErrorMessage() {
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000020);
       errorMessage_ = getDefaultInstance().getErrorMessage();
       onChanged();
       return this;
     }
     void setErrorMessage(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       errorMessage_ = value;
       onChanged();
     }

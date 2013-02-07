@@ -5,23 +5,27 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface SingleNodeResponseOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required int64 requestId = 1;
+  // optional int64 reservationId = 1;
+  boolean hasReservationId();
+  long getReservationId();
+  
+  // required int64 requestId = 2;
   boolean hasRequestId();
   long getRequestId();
   
-  // required string nodeUrn = 2;
+  // required string nodeUrn = 3;
   boolean hasNodeUrn();
   String getNodeUrn();
   
-  // optional bytes response = 3;
+  // optional bytes response = 4;
   boolean hasResponse();
   com.google.protobuf.ByteString getResponse();
   
-  // optional int32 statusCode = 4;
+  // optional int32 statusCode = 5;
   boolean hasStatusCode();
   int getStatusCode();
   
-  // optional string errorMessage = 5;
+  // optional string errorMessage = 6;
   boolean hasErrorMessage();
   String getErrorMessage();
 }

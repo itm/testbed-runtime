@@ -44,24 +44,33 @@ public class ResponseTrackerImplTest {
 			.build();
 
 	private Request request = Request.newBuilder()
+			.setReservationId(new Random().nextLong())
 			.setRequestId(new Random().nextLong())
 			.setType(Request.Type.ARE_NODES_ALIVE)
 			.setAreNodesAliveRequest(areNodesAliveRequest)
 			.build();
 
 	private SingleNodeResponse responseNode1 = SingleNodeResponse.newBuilder()
+			.setReservationId(request.getReservationId())
 			.setRequestId(request.getRequestId())
 			.setNodeUrn(NODE_URN_1_STRING)
 			.build();
 
 	private SingleNodeResponse responseNode2 = SingleNodeResponse.newBuilder()
+			.setReservationId(request.getReservationId())
 			.setRequestId(request.getRequestId())
 			.setNodeUrn(NODE_URN_2_STRING)
 			.build();
 
 	private SingleNodeResponse responseNode3 = SingleNodeResponse.newBuilder()
+			.setReservationId(request.getReservationId())
 			.setRequestId(request.getRequestId())
 			.setNodeUrn(NODE_URN_3_STRING)
+			.build();
+
+	private SingleNodeResponse responseOfOtherReservationWithSameRequestId = SingleNodeResponse
+			.newBuilder(responseNode1)
+			.setReservationId(new Random().nextLong())
 			.build();
 
 	@Mock
@@ -102,6 +111,16 @@ public class ResponseTrackerImplTest {
 		responseTracker.onSingleNodeResponse(responseNode3);
 
 		assertTrue(responseTracker.isDone());
+	}
+
+	@Test
+	public void testIsNotDoneWhenOneOfThreeResponsesBelongsToDifferentReservation() throws Exception {
+
+		responseTracker.onSingleNodeResponse(responseOfOtherReservationWithSameRequestId);
+		responseTracker.onSingleNodeResponse(responseNode2);
+		responseTracker.onSingleNodeResponse(responseNode3);
+
+		assertFalse(responseTracker.isDone());
 	}
 
 	@Test

@@ -45,18 +45,21 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private final DeliveryManager deliveryManager;
 
+	private final long reservationId;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
 						  final DeviceConfigDB deviceConfigDB,
-						  @Assisted final String secretReservationKey,
+						  @Assisted final long reservationId,
 						  @Assisted final Reservation reservation,
 						  @Assisted final DeliveryManager deliveryManager) {
+		this.reservationId = reservationId;
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
-		this.jaxWsService = servicePublisher.createJaxWsService("/soap/v3/wsn/" + secretReservationKey, this);
+		this.jaxWsService = servicePublisher.createJaxWsService("/soap/v3/wsn/" + reservationId, this);
 	}
 
 	@Override
@@ -112,29 +115,28 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newAreNodesAliveRequest(requestId, nodeUrns));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void destroyVirtualLinks(final long requestId, final List<Link> links) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newDisableVirtualLinksRequest(requestId, convert(links)));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(
+				newDisableVirtualLinksRequest(reservationId, requestId, convert(links))
+		);
 	}
 
 	@Override
 	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newDisableNodesRequest(requestId, nodeUrns));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void disablePhysicalLinks(final long requestId, final List<Link> links) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newDisablePhysicalLinksRequest(requestId, convert(links)));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus()
+				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convert(links)));
 	}
 
 	@Override
@@ -152,15 +154,15 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newEnableNodesRequest(requestId, nodeUrns));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void enablePhysicalLinks(final long requestId, final List<Link> links) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newEnablePhysicalLinksRequest(requestId, convert(links)));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(
+				newEnablePhysicalLinksRequest(reservationId, requestId, convert(links))
+		);
 	}
 
 	@Override
@@ -194,25 +196,27 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public void resetNodes(final long requestId, final List<NodeUrn> nodeUrns) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newResetNodesRequest(requestId, nodeUrns));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(newResetNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void send(final long requestId, final List<NodeUrn> nodeUrns, final byte[] message) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newSendDownstreamMessageRequest(requestId, nodeUrns, message));
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		reservation.getReservationEventBus().post(
+				newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, message)
+		);
 	}
 
 	@Override
 	public void setChannelPipeline(final long requestId, final List<NodeUrn> nodeUrns,
 								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(
-				newSetChannelPipelinesRequest(requestId, nodeUrns, convertCHCs(channelHandlerConfigurations))
+		reservation.getReservationEventBus().post(newSetChannelPipelinesRequest(
+				reservationId,
+				requestId,
+				nodeUrns,
+				convertCHCs(channelHandlerConfigurations))
 		);
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
 	}
 
 	@Override
@@ -224,9 +228,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public void setVirtualLinks(final long requestId, final List<VirtualLink> links) {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newEnableVirtualLinksRequest(requestId, convertVirtualLinks(links)));
+		reservation.getReservationEventBus().post(
+				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
+		);
 		// TODO remember virtual link mapping in specialized class that also delivers vlink messages to remote instance
-		throw new RuntimeException("Assure that requestIds do not interfere with other concurrently running requests");
+		throw new RuntimeException("TODO only partially implemented");
 	}
 
 	@Override
@@ -275,7 +281,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	}
 
 	private void assertReservationIntervalMet() {
-		if(!reservation.getInterval().containsNow()) {
+		if (!reservation.getInterval().containsNow()) {
 			ExperimentNotRunningFault fault = new ExperimentNotRunningFault();
 			final String message = reservation.getInterval().isBeforeNow() ?
 					"Reservation interval is over" :

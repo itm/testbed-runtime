@@ -109,8 +109,9 @@ message Request {
 		SET_CHANNEL_PIPELINES    = 12;
 	}
 
-	required int64                            requestId                        = 1;
-	required Type                             type                             = 2;
+	optional int64                            reservationId                    = 1;
+	required int64                            requestId                        = 2;
+	required Type                             type                             = 3;
 
 	optional AreNodesAliveRequest             areNodesAliveRequest             = 101;
 	optional AreNodesConnectedRequest         areNodesConnectedRequest         = 102;
@@ -127,17 +128,19 @@ message Request {
 }
 
 message SingleNodeProgress {
-	required int64  requestId         = 1;
-	required string nodeUrn           = 2;
-	required uint32 progressInPercent = 3;
+	optional int64  reservationId     = 1;
+	required int64  requestId         = 2;
+	required string nodeUrn           = 3;
+	required uint32 progressInPercent = 4;
 }
 
 message SingleNodeResponse {
-	required int64  requestId    = 1;
-	required string nodeUrn      = 2;
-	optional bytes  response     = 3;
-	optional int32  statusCode   = 4;
-	optional string errorMessage = 5;
+	optional int64  reservationId = 1;
+	required int64  requestId     = 2;
+	required string nodeUrn       = 3;
+	optional bytes  response      = 4;
+	optional int32  statusCode    = 5;
+	optional string errorMessage  = 6;
 }
 
 /////////////////////// EVENTS /////////////////////// 

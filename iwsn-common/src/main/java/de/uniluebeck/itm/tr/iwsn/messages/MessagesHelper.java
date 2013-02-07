@@ -19,208 +19,307 @@ import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.NODE_URN_TO_STRING;
 
 public abstract class MessagesHelper {
 
-	public static Message newAreNodesAliveRequestMessage(final long requestId, final Iterable<NodeUrn> nodeUrns) {
-		return newMessage(newAreNodesAliveRequest(requestId, nodeUrns));
+	public static Message newAreNodesAliveRequestMessage(@Nullable final Long reservationId,
+														 final long requestId,
+														 final Iterable<NodeUrn> nodeUrns) {
+		return newMessage(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newAreNodesAliveRequest(final long requestId, final Iterable<NodeUrn> nodeUrns) {
-		return Request.newBuilder()
+	public static Request newAreNodesAliveRequest(@Nullable final Long reservationId,
+												  final long requestId,
+												  final Iterable<NodeUrn> nodeUrns) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ARE_NODES_ALIVE)
 				.setAreNodesAliveRequest(
 						AreNodesAliveRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Request newAreNodesConnectedRequest(final long requestId,
+	public static Request newAreNodesConnectedRequest(@Nullable final Long reservationId,
+													  final long requestId,
 													  final Iterable<NodeUrn> nodeUrns) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ARE_NODES_CONNECTED)
 				.setAreNodesConnectedRequest(
 						AreNodesConnectedRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newAreNodesConnectedRequestMessage(final long requestId,
+	public static Message newAreNodesConnectedRequestMessage(@Nullable final Long reservationId,
+															 final long requestId,
 															 final Iterable<NodeUrn> nodeUrns) {
-		return newMessage(newAreNodesConnectedRequest(requestId, nodeUrns));
+		return newMessage(newAreNodesConnectedRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Message newDisableNodesRequestMessage(final long requestId,
+	public static Message newDisableNodesRequestMessage(@Nullable final Long reservationId,
+														final long requestId,
 														final Iterable<NodeUrn> nodeUrns) {
-		return newMessage(newDisableNodesRequest(requestId, nodeUrns));
+		return newMessage(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newDisableNodesRequest(final long requestId, final Iterable<NodeUrn> nodeUrns) {
-		return Request.newBuilder()
+	public static Request newDisableNodesRequest(@Nullable final Long reservationId,
+												 final long requestId,
+												 final Iterable<NodeUrn> nodeUrns) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.DISABLE_NODES)
 				.setDisableNodesRequest(
 						DisableNodesRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Request newEnableNodesRequest(final long requestId,
+	public static Request newEnableNodesRequest(@Nullable final Long reservationId,
+												final long requestId,
 												final Iterable<NodeUrn> nodeUrns) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ENABLE_NODES)
 				.setEnableNodesRequest(
 						EnableNodesRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newEnableNodesRequestMessage(final long requestId,
+	public static Message newEnableNodesRequestMessage(@Nullable final Long reservationId,
+													   final long requestId,
 													   final Iterable<NodeUrn> nodeUrns) {
-		return newMessage(newEnableNodesRequest(requestId, nodeUrns));
+		return newMessage(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newResetNodesRequest(final long requestId,
+	public static Request newResetNodesRequest(@Nullable final Long reservationId,
+											   final long requestId,
 											   final Iterable<NodeUrn> nodeUrns) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.RESET_NODES)
 				.setResetNodesRequest(
 						ResetNodesRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newResetNodesRequestMessage(final long requestId,
+	public static Message newResetNodesRequestMessage(@Nullable final Long reservationId,
+													  final long requestId,
 													  final Iterable<NodeUrn> nodeUrns) {
-		return newMessage(newResetNodesRequest(requestId, nodeUrns));
+		return newMessage(newResetNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newSendDownstreamMessageRequest(final long requestId,
+	public static Request newSendDownstreamMessageRequest(@Nullable final Long reservationId,
+														  final long requestId,
 														  final Iterable<NodeUrn> nodeUrns,
 														  final byte[] bytes) {
-		return newSendDownstreamMessageRequest(requestId, nodeUrns, ByteString.copyFrom(bytes));
+		return newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(bytes));
 	}
 
-	public static Request newSendDownstreamMessageRequest(final long requestId,
+	public static Request newSendDownstreamMessageRequest(@Nullable final Long reservationId,
+														  final long requestId,
 														  final Iterable<NodeUrn> nodeUrns,
 														  final ByteString bytes) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.SEND_DOWNSTREAM_MESSAGES)
 				.setSendDownstreamMessagesRequest(SendDownstreamMessagesRequest.newBuilder()
 						.addAllTargetNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
 						.setMessageBytes(bytes)
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newSendDownstreamMessageRequestMessage(final long requestId,
+	public static Message newSendDownstreamMessageRequestMessage(@Nullable final Long reservationId,
+																 final long requestId,
 																 final Iterable<NodeUrn> nodeUrns,
 																 final byte[] bytes) {
-		return newMessage(newSendDownstreamMessageRequest(requestId, nodeUrns, ByteString.copyFrom(bytes)));
+		return newMessage(
+				newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(bytes))
+		);
 	}
 
-	public static Request newFlashImagesRequest(final long requestId,
+	public static Request newFlashImagesRequest(@Nullable final Long reservationId,
+												final long requestId,
 												final Iterable<NodeUrn> nodeUrns,
 												final byte[] imageBytes) {
-		return newFlashImagesRequest(requestId, nodeUrns, ByteString.copyFrom(imageBytes));
+		return newFlashImagesRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(imageBytes));
 	}
 
-	public static Request newFlashImagesRequest(final long requestId,
+	public static Request newFlashImagesRequest(@Nullable final Long reservationId,
+												final long requestId,
 												final Iterable<NodeUrn> nodeUrns,
 												final ByteString image) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.FLASH_IMAGES)
 				.setFlashImagesRequest(FlashImagesRequest.newBuilder()
 						.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
 						.setImage(image)
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newFlashImagesRequestMessage(final long requestId,
+	public static Message newFlashImagesRequestMessage(@Nullable final Long reservationId,
+													   final long requestId,
 													   final Iterable<NodeUrn> nodeUrns,
 													   final byte[] imageBytes) {
-		return newMessage(newFlashImagesRequest(requestId, nodeUrns, ByteString.copyFrom(imageBytes)));
+		return newMessage(newFlashImagesRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(imageBytes)));
 	}
 
-	public static Request newDisableVirtualLinksRequest(final long requestId, final Multimap<NodeUrn, NodeUrn> links) {
-		return Request.newBuilder()
+	public static Request newDisableVirtualLinksRequest(@Nullable final Long reservationId,
+														final long requestId,
+														final Multimap<NodeUrn, NodeUrn> links) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.DISABLE_VIRTUAL_LINKS)
 				.setDisableVirtualLinksRequest(
 						DisableVirtualLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newDisableVirtualLinksRequestMessage(final long requestId,
+	public static Message newDisableVirtualLinksRequestMessage(@Nullable final Long reservationId,
+															   final long requestId,
 															   final Multimap<NodeUrn, NodeUrn> links) {
-		return newMessage(newDisableVirtualLinksRequest(requestId, links));
+		return newMessage(newDisableVirtualLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newEnableVirtualLinksRequest(final long requestId, final Multimap<NodeUrn, NodeUrn> links) {
-		return Request.newBuilder()
+	public static Request newEnableVirtualLinksRequest(@Nullable final Long reservationId,
+													   final long requestId,
+													   final Multimap<NodeUrn, NodeUrn> links) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ENABLE_VIRTUAL_LINKS)
 				.setEnableVirtualLinksRequest(
 						EnableVirtualLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newEnableVirtualLinksRequestMessage(final long requestId,
+	public static Message newEnableVirtualLinksRequestMessage(@Nullable final Long reservationId,
+															  final long requestId,
 															  final Multimap<NodeUrn, NodeUrn> links) {
-		return newMessage(newEnableVirtualLinksRequest(requestId, links));
+		return newMessage(newEnableVirtualLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newDisablePhysicalLinksRequest(final long requestId, final Multimap<NodeUrn, NodeUrn> links) {
-		return Request.newBuilder()
+	public static Request newDisablePhysicalLinksRequest(@Nullable final Long reservationId,
+														 final long requestId,
+														 final Multimap<NodeUrn, NodeUrn> links) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.DISABLE_PHYSICAL_LINKS)
 				.setDisablePhysicalLinksRequest(
 						DisablePhysicalLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newDisablePhysicalLinksRequestMessage(final long requestId,
+	public static Message newDisablePhysicalLinksRequestMessage(@Nullable final Long reservationId,
+																final long requestId,
 																final Multimap<NodeUrn, NodeUrn> links) {
-		return newMessage(newDisablePhysicalLinksRequest(requestId, links));
+		return newMessage(newDisablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newEnablePhysicalLinksRequest(final long requestId, final Multimap<NodeUrn, NodeUrn> links) {
-		return Request.newBuilder()
+	public static Request newEnablePhysicalLinksRequest(@Nullable final Long reservationId,
+														final long requestId,
+														final Multimap<NodeUrn, NodeUrn> links) {
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.ENABLE_PHYSICAL_LINKS)
 				.setEnablePhysicalLinksRequest(
 						EnablePhysicalLinksRequest.newBuilder().addAllLinks(toLinks(links)).build()
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newEnablePhysicalLinksRequestMessage(final long requestId,
+	public static Message newEnablePhysicalLinksRequestMessage(@Nullable final Long reservationId,
+															   final long requestId,
 															   final Multimap<NodeUrn, NodeUrn> links) {
-		return newMessage(newEnablePhysicalLinksRequest(requestId, links));
+		return newMessage(newEnablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newSetChannelPipelinesRequest(final long requestId, final Iterable<NodeUrn> nodeUrns,
+	public static Request newSetChannelPipelinesRequest(@Nullable final Long reservationId,
+														final long requestId,
+														final Iterable<NodeUrn> nodeUrns,
 														final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		return Request.newBuilder()
+		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.SET_CHANNEL_PIPELINES)
 				.setSetChannelPipelinesRequest(SetChannelPipelinesRequest.newBuilder()
 						.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
 						.addAllChannelHandlerConfigurations(channelHandlerConfigurations)
-				)
-				.build();
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static Message newSetChannelPipelinesRequestMessage(final long requestId, final Iterable<NodeUrn> nodeUrns,
+	public static Message newSetChannelPipelinesRequestMessage(@Nullable final Long reservationId,
+															   final long requestId,
+															   final Iterable<NodeUrn> nodeUrns,
 															   final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
-		return newMessage(newSetChannelPipelinesRequest(requestId, nodeUrns, channelHandlerConfigurations));
+		return newMessage(
+				newSetChannelPipelinesRequest(reservationId, requestId, nodeUrns, channelHandlerConfigurations)
+		);
 	}
 
 	public static Message newMessage(Request request) {
@@ -386,7 +485,8 @@ public abstract class MessagesHelper {
 		return newNotificationEvent(null, new DateTime().getMillis(), message);
 	}
 
-	public static SingleNodeProgress newSingleNodeProgress(final long requestId,
+	public static SingleNodeProgress newSingleNodeProgress(@Nullable final Long reservationId,
+														   final long requestId,
 														   final NodeUrn nodeUrn,
 														   final int progressInPercent) {
 		checkArgument(
@@ -394,14 +494,20 @@ public abstract class MessagesHelper {
 				"A progress in percent can only be between 0 and 100 (actual value: " + progressInPercent + ")"
 		);
 
-		return SingleNodeProgress.newBuilder()
+		final SingleNodeProgress.Builder builder = SingleNodeProgress.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
-				.setProgressInPercent(progressInPercent)
-				.build();
+				.setProgressInPercent(progressInPercent);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
 	}
 
-	public static SingleNodeResponse newSingleNodeResponse(final long requestId,
+	public static SingleNodeResponse newSingleNodeResponse(@Nullable final Long reservationId,
+														   final long requestId,
 														   final NodeUrn nodeUrn,
 														   final int statusCode,
 														   @Nullable final String errorMessage) {
@@ -409,6 +515,10 @@ public abstract class MessagesHelper {
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
 				.setStatusCode(statusCode);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
 
 		if (errorMessage != null) {
 			builder.setErrorMessage(errorMessage);

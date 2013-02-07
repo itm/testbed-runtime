@@ -54,7 +54,12 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	@Subscribe
 	public void onSingleNodeResponse(final SingleNodeResponse response) {
-		if (request.getRequestId() == response.getRequestId()) {
+
+		final boolean reservationIdEquals = request.hasReservationId() && response.hasReservationId() &&
+				request.getReservationId() == response.getReservationId();
+		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
+
+		if (reservationIdEquals && requestIdEquals) {
 			final NodeUrn responseNodeUrn = new NodeUrn(response.getNodeUrn());
 			((SettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).set(response);
 			if (futureMap.isDone()) {
@@ -90,12 +95,12 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Set<Entry<NodeUrn,ListenableFuture<SingleNodeResponse>>> entrySet() {
+	public Set<Entry<NodeUrn, ListenableFuture<SingleNodeResponse>>> entrySet() {
 		return futureMap.entrySet();
 	}
 
 	@Override
-	public Map<NodeUrn,SingleNodeResponse> get() throws InterruptedException, ExecutionException {
+	public Map<NodeUrn, SingleNodeResponse> get() throws InterruptedException, ExecutionException {
 		return futureMap.get();
 	}
 
@@ -105,7 +110,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Map<NodeUrn,SingleNodeResponse> get(final long timeout, final TimeUnit unit)
+	public Map<NodeUrn, SingleNodeResponse> get(final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		return futureMap.get(timeout, unit);
 	}

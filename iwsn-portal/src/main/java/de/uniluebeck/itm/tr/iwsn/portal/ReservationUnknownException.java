@@ -2,13 +2,13 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 public class ReservationUnknownException extends Exception {
 
-	private final String secretReservationKey;
+	private final long secretReservationKey;
 
-	public ReservationUnknownException(final String secretReservationKey) {
+	public ReservationUnknownException(final long secretReservationKey) {
 		this.secretReservationKey = secretReservationKey;
 	}
 
-	public ReservationUnknownException(final String secretReservationKey, final Throwable cause) {
+	public ReservationUnknownException(final long secretReservationKey, final Throwable cause) {
 		super(cause);
 		this.secretReservationKey = secretReservationKey;
 	}

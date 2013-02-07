@@ -16,6 +16,6 @@ public interface ReservationManager extends Service {
 	 * @throws ReservationUnknownException
 	 * 		if the reservation key is unknown
 	 */
-	Reservation getReservation(String secretReservationKey) throws ReservationUnknownException;
+	Reservation getReservation(long secretReservationKey) throws ReservationUnknownException;
 
 }
