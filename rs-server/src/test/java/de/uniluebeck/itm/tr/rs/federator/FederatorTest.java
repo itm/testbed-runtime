@@ -32,8 +32,7 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -121,13 +120,13 @@ public class FederatorTest {
 	public void testGetReservationWithWrongSecretReservationKey() throws Exception {
 
 		SecretReservationKey key = new SecretReservationKey();
-		key.setSecretReservationKey("abcdefghijklmnopqrstuvwxyz");
+		key.setKey("abcdefghijklmnopqrstuvwxyz");
 		key.setUrnPrefix(URN_PREFIX_TESTBED_1);
 		final List<SecretReservationKey> secretReservationKeys = newArrayList(key);
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new ReservationNotFoundFault_Exception("", new ReservationNotFoundFault())
+				new UnknownSecretReservationKeyFault("", new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault())
 		);
 
 		try {
@@ -135,7 +134,7 @@ public class FederatorTest {
 			federatorRS.getReservation(secretReservationKeys);
 			fail("Should have raised ReservationNotFoundFault");
 
-		} catch (ReservationNotFoundFault_Exception expected) {
+		} catch (UnknownSecretReservationKeyFault expected) {
 		}
 	}
 

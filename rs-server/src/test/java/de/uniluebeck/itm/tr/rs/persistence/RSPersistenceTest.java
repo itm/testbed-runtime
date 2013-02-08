@@ -28,7 +28,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
@@ -170,7 +170,7 @@ public abstract class RSPersistenceTest {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
-			} catch (ReservationNotFoundFault_Exception ignored) {
+			} catch (UnknownSecretReservationKeyFault ignored) {
 			}
 		}
 		reservationDataMap = null;
@@ -199,7 +199,7 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkGetReservationBeforeDeletion()
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 
 			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
@@ -216,7 +216,7 @@ public abstract class RSPersistenceTest {
 			try {
 				persistence.getReservation(reservationKeyMap.get(i));
 				fail("Should have raised an ReservationNotFoundFault_Exception");
-			} catch (ReservationNotFoundFault_Exception ignored) {
+			} catch (UnknownSecretReservationKeyFault ignored) {
 			}
 		}
 	}
@@ -237,7 +237,7 @@ public abstract class RSPersistenceTest {
 	}
 
 	public void checkDeleteReservation()
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			ConfidentialReservationData actualData = persistence.deleteReservation(reservationKeyMap.get(i));
 			ConfidentialReservationData expectedData = reservationDataMap.get(i);
@@ -252,7 +252,7 @@ public abstract class RSPersistenceTest {
 			try {
 				persistence.deleteReservation(reservationKeyMap.get(i));
 				fail("Should have raised an ReservationNotFoundFault_Exception");
-			} catch (ReservationNotFoundFault_Exception ignored) {
+			} catch (UnknownSecretReservationKeyFault ignored) {
 			}
 		}
 	}

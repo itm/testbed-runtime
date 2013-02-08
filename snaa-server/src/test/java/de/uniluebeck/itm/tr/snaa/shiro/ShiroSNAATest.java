@@ -1,21 +1,17 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.persistence.EntityManager;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
+import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
+import eu.wisebed.api.v3.snaa.AuthenticationTriple;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.log4j.Level;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Sha512Hash;
@@ -26,28 +22,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import javax.persistence.EntityManager;
+import java.util.*;
 
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.ResourceGroup;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroupId;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
-import eu.wisebed.api.v3.snaa.AuthenticationTriple;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShiroSNAATest {
@@ -121,7 +100,7 @@ public class ShiroSNAATest {
 			assertNotNull(sakList);
 			assertEquals(EXPERIMENTER1, sakList.get(0).getUsername());
 			assertEquals(nodeUrnPrefixes.get(0), sakList.get(0).getUrnPrefix());
-			assertNotNull(sakList.get(0).getSecretAuthenticationKey());
+			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
 			log.error(e.getMessage(),e);
 			fail();
@@ -160,7 +139,7 @@ public class ShiroSNAATest {
 			assertNotNull(sakList);
 			assertEquals(SERVICE_PROVIDER1, sakList.get(0).getUsername());
 			assertEquals(nodeUrnPrefixes.get(0), sakList.get(0).getUrnPrefix());
-			assertNotNull(sakList.get(0).getSecretAuthenticationKey());
+			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
 			log.error(e.getMessage(),e);
 			fail();
@@ -330,7 +309,7 @@ public class ShiroSNAATest {
 			log.error(e.getMessage(),e);
 			fail();
 		}
-		sakList.get(0).setSecretAuthenticationKey("123456");
+		sakList.get(0).setKey("123456");
 		try {
 			assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
 			return;

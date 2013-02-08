@@ -21,7 +21,7 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault_Exception;
+import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static de.uniluebeck.itm.tr.iwsn.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
-import static eu.wisebed.api.v3.WisebedServiceHelper.createUnknownSecretReservationKeyFault;
+import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 @WebService(
@@ -153,11 +153,11 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
 
-		final long key = secretReservationKeys.get(0).getKey();
+		final String key = secretReservationKeys.get(0).getKey();
 		final Reservation reservation;
 
 		try {
@@ -166,13 +166,13 @@ public class SessionManagementImpl implements SessionManagement {
 
 		} catch (ReservationUnknownException e) {
 			final String message = "Secret reservation key \"" + key + "\" is unknown!";
-			throw createUnknownSecretReservationKeyFault(message, secretReservationKeys.get(0), e);
+			throw createSMUnknownSecretReservationKeyFault(message, secretReservationKeys.get(0), e);
 		}
 
 		return getOrCreateAndStartWSNServiceInstance(key, reservation).getURI().toString();
 	}
 
-	private WSNService getOrCreateAndStartWSNServiceInstance(final long reservationKey,
+	private WSNService getOrCreateAndStartWSNServiceInstance(final String reservationKey,
 															 final Reservation reservation) {
 
 		WSNService wsnService;

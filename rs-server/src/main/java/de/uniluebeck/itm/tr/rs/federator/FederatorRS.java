@@ -72,7 +72,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -323,7 +323,7 @@ public class FederatorRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		assertNotNull(secretReservationKey, "secretReservationKey");
 
@@ -350,8 +350,8 @@ public class FederatorRS implements RS {
 				if (e.getCause() instanceof RSFault_Exception) {
 					throw (RSFault_Exception) e.getCause();
 				}
-				if (e.getCause() instanceof ReservationNotFoundFault_Exception) {
-					throw (ReservationNotFoundFault_Exception) e.getCause();
+				if (e.getCause() instanceof UnknownSecretReservationKeyFault) {
+					throw (UnknownSecretReservationKeyFault) e.getCause();
 				}
 				throwRSFault("Unknown exception occurred!", e.getCause());
 			}

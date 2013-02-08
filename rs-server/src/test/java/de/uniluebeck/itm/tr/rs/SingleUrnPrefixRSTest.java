@@ -13,7 +13,6 @@ import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
-import eu.wisebed.api.v3.snaa.PerNodeUrnAuthorizationResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
 import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.DateTime;
@@ -25,8 +24,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.naming.directory.InvalidAttributesException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -132,24 +129,24 @@ public class SingleUrnPrefixRSTest {
 		rs = injector.getInstance(RS.class);
 
 		user1Sak = new SecretAuthenticationKey();
-		user1Sak.setSecretAuthenticationKey(USER1_SECRET_AUTHENTICATION_KEY);
+		user1Sak.setKey(USER1_SECRET_AUTHENTICATION_KEY);
 		user1Sak.setUrnPrefix(URN_PREFIX);
 		user1Sak.setUsername(USER1_USERNAME);
 		user1Saks = Lists.newArrayList(user1Sak);
 
 		user2Sak = new SecretAuthenticationKey();
-		user2Sak.setSecretAuthenticationKey(USER2_SECRET_AUTHENTICATION_KEY);
+		user2Sak.setKey(USER2_SECRET_AUTHENTICATION_KEY);
 		user2Sak.setUrnPrefix(URN_PREFIX);
 		user2Sak.setUsername(USER2_USERNAME);
 		user2Saks = Lists.newArrayList(user2Sak);
 
 		user1Srk = new SecretReservationKey();
-		user1Srk.setSecretReservationKey(USER1_SECRET_RESERVATION_KEY);
+		user1Srk.setKey(USER1_SECRET_RESERVATION_KEY);
 		user1Srk.setUrnPrefix(URN_PREFIX);
 		user1Srks = Lists.newArrayList(user1Srk);
 
 		user2Srk = new SecretReservationKey();
-		user2Srk.setSecretReservationKey(USER2_SECRET_RESERVATION_KEY);
+		user2Srk.setKey(USER2_SECRET_RESERVATION_KEY);
 		user2Srk.setUrnPrefix(URN_PREFIX);
 		user2Srks = Lists.newArrayList(user2Srk);
 	}
@@ -225,7 +222,7 @@ public class SingleUrnPrefixRSTest {
 		final DateTime to = from.plusHours(1);
 
 		final SecretReservationKey srk = new SecretReservationKey();
-		srk.setSecretReservationKey("abc123");
+		srk.setKey("abc123");
 
 		final List<ConfidentialReservationData> reservedNodes = newArrayList();
 		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
@@ -246,7 +243,6 @@ public class SingleUrnPrefixRSTest {
 				newArrayList(new NodeUrn("urn:local:0xcbe4"))
 		);
 
-//		when(snaa.isAuthorized(Matchers.<List<UsernameNodeUrnsMap>>any(), eq(Action.RS_MAKE_RESERVATION))).thenReturn(successfulAuthorizationResponse);
 		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
 		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION))
@@ -380,13 +376,13 @@ public class SingleUrnPrefixRSTest {
 
 
 	@Test
-	public void verifyNoReservationIsPerformedIfSNAArefusesAuthorization() throws Exception {
+	public void verifyNoReservationIsPerformedIfSNAARefusesAuthorization() throws Exception {
 
 		final DateTime from = new DateTime().plusHours(1);
 		final DateTime to = from.plusHours(1);
 
 		final SecretReservationKey srk = new SecretReservationKey();
-		srk.setSecretReservationKey("abc123");
+		srk.setKey("abc123");
 
 		final List<ConfidentialReservationData> reservedNodes = newArrayList();
 		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
@@ -436,7 +432,7 @@ public class SingleUrnPrefixRSTest {
 
 		ConfidentialReservationDataKey key = new ConfidentialReservationDataKey();
 
-		key.setSecretReservationKey(secretReservationKey);
+		key.setKey(secretReservationKey);
 		key.setUrnPrefix(URN_PREFIX);
 		key.setUsername(username);
 

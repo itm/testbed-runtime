@@ -118,7 +118,7 @@ public class JAASSNAA implements SNAA {
 			authenticatedSessions.put(sak, new AuthData(username, lc.getSubject()));
 
 			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
-			secretAuthenticationKey.setSecretAuthenticationKey(sak);
+			secretAuthenticationKey.setKey(sak);
 			secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
 			secretAuthenticationKey.setUsername(username);
 
@@ -170,7 +170,7 @@ public class JAASSNAA implements SNAA {
 		assertSAKUrnPrefixServed(urnPrefix, saks);
 
 		// Get the session from the cache of authenticated sessions
-		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
+		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getKey());
 
 		ValidationResult result = new ValidationResult();
 

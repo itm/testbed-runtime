@@ -109,7 +109,7 @@ message Request {
 		SET_CHANNEL_PIPELINES    = 12;
 	}
 
-	optional int64                            reservationId                    = 1;
+	optional string                           reservationId                    = 1;
 	required int64                            requestId                        = 2;
 	required Type                             type                             = 3;
 
@@ -128,14 +128,14 @@ message Request {
 }
 
 message SingleNodeProgress {
-	optional int64  reservationId     = 1;
+	optional string reservationId     = 1;
 	required int64  requestId         = 2;
 	required string nodeUrn           = 3;
 	required uint32 progressInPercent = 4;
 }
 
 message SingleNodeResponse {
-	optional int64  reservationId = 1;
+	optional string reservationId = 1;
 	required int64  requestId     = 2;
 	required string nodeUrn       = 3;
 	optional bytes  response      = 4;

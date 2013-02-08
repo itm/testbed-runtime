@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.snaa.SNAAHelper;
@@ -148,7 +147,7 @@ public class ShiroSNAA implements SNAA {
 		/* Create a secret authentication key for the authenticated user */
 		SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
 		secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
-		secretAuthenticationKey.setSecretAuthenticationKey(randomLongAsString);
+		secretAuthenticationKey.setKey(randomLongAsString);
 		secretAuthenticationKey.setUsername(authenticationTriple.getUsername());
 
 		/* Return the single secret authentication key in a list (due to the federator) */
@@ -168,7 +167,7 @@ public class ShiroSNAA implements SNAA {
 		SNAAHelper.assertAllUrnPrefixesInSAKsAreServed(nodeUrnPrefixes, Lists.newArrayList(secretAuthenticationKey));
 
 		// Get the session from the cache of authenticated sessions
-		AuthenticationTriple authTriple = authenticatedSessions.get(secretAuthenticationKey.getSecretAuthenticationKey());
+		AuthenticationTriple authTriple = authenticatedSessions.get(secretAuthenticationKey.getKey());
 
 		IsValidResponse.ValidationResult result = new IsValidResponse.ValidationResult();
 
@@ -218,11 +217,17 @@ public class ShiroSNAA implements SNAA {
 
 		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
 		authorizationResponse.setAuthorized(true);
-		StringBuffer reason = new StringBuffer();
+		StringBuilder reason = new StringBuilder();
 		for (String nodeGroup : nodeGroups) {
 			if(!subject.isPermittedAll(action.name()+":"+nodeGroup)){
 				authorizationResponse.setAuthorized(false);
-				reason.append("The action '"+action.name()+"' is not allowed for node group '"+nodeGroup+"' and user '"+userName+"'. ");
+				reason.append("The action '")
+						.append(action.name())
+						.append("' is not allowed for node group '")
+						.append(nodeGroup)
+						.append("' and user '")
+						.append(userName)
+						.append("'. ");
 			}
 		}
 		subject.logout();

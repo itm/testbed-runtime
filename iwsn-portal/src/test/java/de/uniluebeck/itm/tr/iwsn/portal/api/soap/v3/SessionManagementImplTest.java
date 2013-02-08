@@ -105,8 +105,14 @@ public class SessionManagementImplTest {
 		when(requestIdProvider.get()).thenReturn(REQUEST_ID);
 
 		sessionManagement = new SessionManagementImpl(
-				sessionManagementDeliveryManager, portalEventBus, requestIdProvider, responseTrackerFactory,
-				portalConfig, Sets.<HandlerFactory>newHashSet(), deviceConfigDB, reservationManager, wsnServiceFactory,
+				sessionManagementDeliveryManager,
+				portalEventBus,
+				responseTrackerFactory,
+				portalConfig,
+				Sets.<HandlerFactory>newHashSet(),
+				deviceConfigDB,
+				reservationManager,
+				wsnServiceFactory,
 				deliveryManagerFactory
 		);
 	}

@@ -139,7 +139,7 @@ public class SNAAClient {
 				System.out.println("Authentication suceeded, secret authentication key(s): ");
 				for (SecretAuthenticationKey sak : list) {
 					System.out.println("\tuser[" + sak.getUsername() + "], urnprefix[" + sak.getUrnPrefix() + "], key["
-							+ sak.getSecretAuthenticationKey() + "]"
+							+ sak.getKey() + "]"
 					);
 				}
 
@@ -155,7 +155,7 @@ public class SNAAClient {
 			List<SecretAuthenticationKey> saks = new ArrayList<SecretAuthenticationKey>();
 			SecretAuthenticationKey sak = new SecretAuthenticationKey();
 
-			sak.setSecretAuthenticationKey(secretAuthenticationKey);
+			sak.setKey(secretAuthenticationKey);
 			saks.add(sak);
 
 			try {

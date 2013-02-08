@@ -69,7 +69,7 @@ public class ReservationEventBusImplTest {
 	private static final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration>
 			CHANNEL_HANDLER_CONFIGURATIONS = newArrayList();
 
-	private static final long RESERVATION_ID = RANDOM.nextLong();
+	private static final String RESERVATION_ID = "" + RANDOM.nextLong();
 
 	@Mock
 	private PortalEventBus portalEventBus;

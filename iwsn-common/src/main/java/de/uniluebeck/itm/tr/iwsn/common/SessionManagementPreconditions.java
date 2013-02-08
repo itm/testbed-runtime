@@ -74,11 +74,6 @@ public class SessionManagementPreconditions {
 		}
 	}
 
-	public void checkFreeArguments(List<SecretReservationKey> secretReservationKeyList) {
-
-		checkNotNull(secretReservationKeyList);
-	}
-
 	public void checkAreNodesAliveArguments(final Collection<NodeUrn> nodes, final String controllerEndpointUrl) {
 		commonPreconditions.checkNodesKnown(nodes);
 		NetworkUtils.checkConnectivity(controllerEndpointUrl);
@@ -91,7 +86,7 @@ public class SessionManagementPreconditions {
 		for (SecretReservationKey key : secretReservationKeys) {
 
 			checkNotNull(key.getUrnPrefix());
-			checkNotNull(key.getSecretReservationKey());
+			checkNotNull(key.getKey());
 
 			urnPrefixes.add(key.getUrnPrefix());
 

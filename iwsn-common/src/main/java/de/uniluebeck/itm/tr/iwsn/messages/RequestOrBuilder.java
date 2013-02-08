@@ -5,9 +5,9 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface RequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // optional int64 reservationId = 1;
+  // optional string reservationId = 1;
   boolean hasReservationId();
-  long getReservationId();
+  String getReservationId();
   
   // required int64 requestId = 2;
   boolean hasRequestId();

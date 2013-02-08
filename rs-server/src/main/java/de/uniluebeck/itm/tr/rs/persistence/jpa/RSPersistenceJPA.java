@@ -44,6 +44,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
+
 public class RSPersistenceJPA implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(RSPersistence.class);
@@ -95,7 +97,7 @@ public class RSPersistenceJPA implements RSPersistence {
 		}
 
 		for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
-			data.setSecretReservationKey(generatedSecretReservationKey);
+			data.setKey(generatedSecretReservationKey);
 		}
 
 		ReservationDataInternal reservationData = new ReservationDataInternal(
@@ -128,19 +130,15 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
-	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundFault_Exception, RSFault_Exception {
+	public ConfidentialReservationData getReservation(SecretReservationKey srk)
+			throws UnknownSecretReservationKeyFault, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
-		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey
-				.getSecretReservationKey()
-		);
+		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, srk.getKey());
 		ReservationDataInternal reservationData;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundFault()
-			);
+			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
@@ -150,19 +148,15 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
-	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundFault_Exception, RSFault_Exception {
+	public ConfidentialReservationData deleteReservation(SecretReservationKey srk)
+			throws UnknownSecretReservationKeyFault, RSFault_Exception {
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
-		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey
-				.getSecretReservationKey()
-		);
+		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, srk.getKey());
 		ReservationDataInternal reservationData;
 		try {
 			reservationData = (ReservationDataInternal) query.getSingleResult();
 		} catch (NoResultException e) {
-			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundFault()
-			);
+			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
 		reservationData.delete();
 		em.getTransaction().begin();

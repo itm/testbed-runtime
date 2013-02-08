@@ -27,10 +27,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -40,6 +39,8 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 public class InMemoryRSPersistence implements RSPersistence {
 
@@ -51,8 +52,8 @@ public class InMemoryRSPersistence implements RSPersistence {
 			new ThreadFactoryBuilder().setNameFormat("InMemoryRSPersistence-Thread %d").build()
 	);
 
-	private HashMap<SecretReservationKeyWrapper, ConfidentialReservationData> reservations =
-			new HashMap<SecretReservationKeyWrapper, ConfidentialReservationData>();
+	private HashMap<SecretReservationKey, ConfidentialReservationData> reservations =
+			new HashMap<SecretReservationKey, ConfidentialReservationData>();
 
 	private Runnable housekeeper = new Runnable() {
 
@@ -60,9 +61,9 @@ public class InMemoryRSPersistence implements RSPersistence {
 		public void run() {
 			//log.debug("Doing housekeeping. Checking for invalidated sessions (current " + reservations.size() + ")");
 
-			for (Iterator<Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData>> iterator =
+			for (Iterator<Map.Entry<SecretReservationKey, ConfidentialReservationData>> iterator =
 						 reservations.entrySet().iterator(); iterator.hasNext(); ) {
-				Map.Entry<SecretReservationKeyWrapper, ConfidentialReservationData> entry = iterator.next();
+				Map.Entry<SecretReservationKey, ConfidentialReservationData> entry = iterator.next();
 
 				if (entry.getValue().getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
 					log.debug("Removing reservation during housekeeping: " + entry.getValue());
@@ -84,13 +85,10 @@ public class InMemoryRSPersistence implements RSPersistence {
 		// construct the return object
 		SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
-		secretReservationKey.setSecretReservationKey(secureIdGenerator.getNextId());
-
-		// wrap it so it can be used in a HashMap
-		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
+		secretReservationKey.setKey(secureIdGenerator.getNextId());
 
 		// remember in the HashMap (aka In-Memory-Storage)
-		reservations.put(secretReservationKeyWrapper, reservationData);
+		reservations.put(secretReservationKey, reservationData);
 
 		return secretReservationKey;
 
@@ -115,87 +113,25 @@ public class InMemoryRSPersistence implements RSPersistence {
 		return res;
 	}
 
-	/**
-	 * This class is used to wrap the JAX-WS-generated {@link SecretReservationKey} class
-	 * with a {@link Object#equals(Object)} and a {@link Object#hashCode()} method so these
-	 * are not lost if the JAX-WS class are newly generated. By wrapping the class it can
-	 * be used e.g. inside a {@link java.util.HashMap}.
-	 */
-	private static class SecretReservationKeyWrapper {
-
-		public SecretReservationKey secretReservationKey;
-
-		private SecretReservationKeyWrapper(SecretReservationKey secretReservationKey) {
-			this.secretReservationKey = secretReservationKey;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			SecretReservationKeyWrapper other = (SecretReservationKeyWrapper) obj;
-			if (secretReservationKey.getSecretReservationKey() == null) {
-				if (other.secretReservationKey.getSecretReservationKey() != null) {
-					return false;
-				}
-			} else if (!secretReservationKey.getSecretReservationKey()
-					.equals(other.secretReservationKey.getSecretReservationKey())) {
-				return false;
-			}
-			if (secretReservationKey.getUrnPrefix() == null) {
-				if (other.secretReservationKey.getUrnPrefix() != null) {
-					return false;
-				}
-			} else if (!secretReservationKey.getUrnPrefix().equals(other.secretReservationKey.getUrnPrefix())) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((secretReservationKey.getSecretReservationKey() == null) ? 0 :
-					secretReservationKey.getSecretReservationKey().hashCode());
-			result = prime * result + ((secretReservationKey.getUrnPrefix() == null) ? 0 :
-					secretReservationKey.getUrnPrefix().hashCode());
-			return result;
-		}
-	}
-
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
-			ReservationNotFoundFault_Exception {
-		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
-		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKeyWrapper);
+			UnknownSecretReservationKeyFault {
+		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKey);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundFault()
-			);
+			throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 		}
 	}
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
-			ReservationNotFoundFault_Exception {
-		SecretReservationKeyWrapper secretReservationKeyWrapper = new SecretReservationKeyWrapper(secretReservationKey);
-		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKeyWrapper);
+			UnknownSecretReservationKeyFault {
+		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKey);
 		if (confidentialReservationData != null) {
 			return confidentialReservationData;
 		} else {
-			throw new ReservationNotFoundFault_Exception(("Reservation " + secretReservationKey + " not found"),
-					new ReservationNotFoundFault()
-			);
+			throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 		}
 	}
 

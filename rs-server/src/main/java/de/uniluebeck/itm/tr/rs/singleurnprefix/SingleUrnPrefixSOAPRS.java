@@ -59,14 +59,14 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getReservation(
 			final List<SecretReservationKey> secretReservationKeys)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		return reservationSystem.getReservation(secretReservationKeys);
 	}
 
 	@Override
 	public void deleteReservation(final List<SecretReservationKey> secretReservationKeys)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		reservationSystem.deleteReservation(secretReservationKeys);
 	}

@@ -38,6 +38,7 @@ import com.google.gdata.util.ServiceException;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
+import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
@@ -62,14 +63,14 @@ public class GCalRSPersistence implements RSPersistence {
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	// The base URL for a user's calendar metafeed (needs a username appended).
-	private static final String METAFEED_URL_BASE = "http://www.google.com/calendar/feeds/";
+	// The base URL for a user's calendar meta feed (needs a username appended).
+	private static final String META_FEED_URL_BASE = "http://www.google.com/calendar/feeds/";
 
-	// The string to add to the user's metafeedUrl to access the event feed for their primary calendar.
+	// The string to add to the user's meta feed URL to access the event feed for their primary calendar.
 	private static final String EVENT_FEED_URL_SUFFIX = "/private/full";
 
 	// The URL for the event feed of the specified user's primary calendar. (e.g.
-	// http://www.googe.com/feeds/calendar/jdoe@gmail.com/private/full)
+	// http://www.google.com/feeds/calendar/jdoe@gmail.com/private/full)
 	private URL eventFeedUrl = null;
 
 	private CalendarService myService;
@@ -79,7 +80,7 @@ public class GCalRSPersistence implements RSPersistence {
 		myService = new CalendarService("GCal Persistence Service");
 
 		try {
-			eventFeedUrl = new URL(METAFEED_URL_BASE + userName + EVENT_FEED_URL_SUFFIX);
+			eventFeedUrl = new URL(META_FEED_URL_BASE + userName + EVENT_FEED_URL_SUFFIX);
 			myService.setUserCredentials(userName, password);
 		} catch (MalformedURLException e) {
 			log.error("Invalid URL: " + e, e);
@@ -102,7 +103,7 @@ public class GCalRSPersistence implements RSPersistence {
 			String secretReservationKeyString = secureIdGenerator.getNextId();
 
 			for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
-				data.setSecretReservationKey(secretReservationKeyString);
+				data.setKey(secretReservationKeyString);
 			}
 
 			ReservationData reservationData = new ReservationData(
@@ -152,7 +153,7 @@ public class GCalRSPersistence implements RSPersistence {
 					String content = updatedEntry.getPlainTextContent();
 
 					if (!reservationDataXml.equals(marshall(unmarshall(content)))) {
-						log.error("De-Marshalled contents do not match (maybe text was truncated)");
+						log.error("Unmarshalled contents do not match (maybe text was truncated)");
 						log.debug("---- Original : " + reservationDataXml);
 						log.debug("---- Text@Gcal: " + content);
 						throw new Exception("Unmarshalled contents do not match (maybe text was truncated)");
@@ -165,7 +166,7 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 
 			SecretReservationKey key = new SecretReservationKey();
-			key.setSecretReservationKey(secretReservationKeyString);
+			key.setKey(secretReservationKeyString);
 			key.setUrnPrefix(urnPrefix);
 			return key;
 
@@ -177,9 +178,9 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundFault_Exception, RSFault_Exception {
+			throws UnknownSecretReservationKeyFault, RSFault_Exception {
 
-		Tuple<Entry, ReservationData> reservation = getReservation(secretReservationKey.getSecretReservationKey());
+		Tuple<Entry, ReservationData> reservation = getReservationInternal(secretReservationKey);
 		ConfidentialReservationData confidentialReservationData = reservation.getSecond().getReservation();
 		Entry gcalEntry = reservation.getFirst();
 
@@ -198,8 +199,8 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws ReservationNotFoundFault_Exception, RSFault_Exception {
-		return getReservation(secretReservationKey.getSecretReservationKey()).getSecond().getReservation();
+			throws UnknownSecretReservationKeyFault, RSFault_Exception {
+		return getReservationInternal(secretReservationKey).getSecond().getReservation();
 	}
 
 
@@ -238,7 +239,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 
-		//because of different timespan logic of calendar api we need to shift the timespan to match interval
+		// because of different time span logic of calendar api we need to shift the time span to match interval
 		long shiftStartMillis = interval.getStart().getMillis() - 2000;
 		long shiftEndMillis = interval.getEnd().getMillis() + 2000;
 
@@ -315,11 +316,11 @@ public class GCalRSPersistence implements RSPersistence {
 		return new Interval(from, to);
 	}
 
-	private Tuple<Entry, ReservationData> getReservation(String secretReservationKey)
-			throws ReservationNotFoundFault_Exception, RSFault_Exception {
+	private Tuple<Entry, ReservationData> getReservationInternal(SecretReservationKey secretReservationKey)
+			throws UnknownSecretReservationKeyFault, RSFault_Exception {
 		// Do a full text search for the secretReservationKey and then iterate over the results
 		Query myQuery = new Query(eventFeedUrl);
-		myQuery.setFullTextQuery(secretReservationKey);
+		myQuery.setFullTextQuery("" + secretReservationKey);
 		Entry reservationGcalEntry = null;
 		ReservationData reservationData = null;
 
@@ -329,7 +330,7 @@ public class GCalRSPersistence implements RSPersistence {
 			for (Entry entry : myResultsFeed.getEntries()) {
 				// Unmarshal the text and check if the secretReservationKey is the desired one
 				ReservationData res = convert(entry);
-				if (secretReservationKey.equals(res.getSecretReservationKey())) {
+				if (secretReservationKey.getKey().equals(res.getSecretReservationKey())) {
 					reservationData = res;
 					reservationGcalEntry = entry;
 					break;
@@ -345,7 +346,9 @@ public class GCalRSPersistence implements RSPersistence {
 
 		// If no reservation was found, throw an exception
 		if (reservationData == null) {
-			throw createReservationNotFoundFault("Reservation " + secretReservationKey + " not found");
+			throw WisebedServiceHelper.createRSUnknownSecretReservationKeyFault("Reservation not found",
+					secretReservationKey
+			);
 		}
 
 		// Reservation found, return it
@@ -360,13 +363,6 @@ public class GCalRSPersistence implements RSPersistence {
 			log.error("Could not unmarshal " + content, e);
 			throw createRSFault("Internal Server Error");
 		}
-	}
-
-	private ReservationNotFoundFault_Exception createReservationNotFoundFault(String msg) {
-		log.warn(msg);
-		ReservationNotFoundFault exception = new ReservationNotFoundFault();
-		exception.setMessage(msg);
-		return new ReservationNotFoundFault_Exception(msg, exception);
 	}
 
 	private RSFault_Exception createRSFault(String msg) {

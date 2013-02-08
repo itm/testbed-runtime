@@ -42,8 +42,10 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
-import eu.wisebed.api.v3.sm.*;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,7 @@ import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
+import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 
 @WebService(
 		name = "SessionManagement",
@@ -360,7 +363,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningFault_Exception, UnknownReservationIdFault_Exception {
+			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
@@ -398,10 +401,10 @@ public class FederatorSessionManagement implements SessionManagement {
 
 			reservedNodeUrns = reservedNodeUrnsBuilder.build();
 
-		} catch (ReservationNotFoundFault_Exception e) {
-			final UnknownReservationIdFault faultInfo = new UnknownReservationIdFault();
-			faultInfo.setMessage(e.getFaultInfo().getMessage());
-			throw new UnknownReservationIdFault_Exception(e.getMessage(), faultInfo, e);
+		} catch (eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault e) {
+			throw createSMUnknownSecretReservationKeyFault(e.getMessage(), e.getFaultInfo().getSecretReservationKey(),
+					e
+			);
 		} catch (Exception e) {
 			log.warn("An exception was thrown by the reservation system: " + e, e);
 			throw new RuntimeException("An exception was thrown by the reservation system: " + e, e);
@@ -519,7 +522,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	private eu.wisebed.api.v3.common.SecretReservationKey convertWsnToRs(
 			final eu.wisebed.api.v3.common.SecretReservationKey in) {
 		eu.wisebed.api.v3.common.SecretReservationKey out = new eu.wisebed.api.v3.common.SecretReservationKey();
-		out.setSecretReservationKey(in.getSecretReservationKey());
+		out.setKey(in.getKey());
 		out.setUrnPrefix(in.getUrnPrefix());
 		return out;
 	}

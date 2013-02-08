@@ -87,11 +87,11 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		assertNotNull(result);
 		assertNotNull(result.getKeys().get(0));
 
-		final String resultReservationKey = result.getKeys().get(0).getSecretReservationKey();
+		final String resultReservationKey = result.getKeys().get(0).getKey();
 
 		assertNotNull(resultReservationKey);
 		assertFalse(resultReservationKey.isEmpty());
-		assertEquals(resultReservationKey, confidentialReservationData.getKeys().get(0).getSecretReservationKey());
+		assertEquals(resultReservationKey, confidentialReservationData.getKeys().get(0).getKey());
 
 		System.out.println(resultReservationKey);
 	}
@@ -103,7 +103,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		confidentialReservationData.setTo(DateTime.now().plusMinutes(30));
 
 		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
-		data.setSecretReservationKey("SECRET12345");
+		data.setKey("SECRET12345");
 		data.setUrnPrefix(new NodeUrnPrefix("urn:smartsantander:testbed:"));
 		data.setUsername("test-user");
 		confidentialReservationData.getKeys().add(data);

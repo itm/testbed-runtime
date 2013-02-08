@@ -41,7 +41,6 @@ import com.google.inject.util.Providers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import de.uniluebeck.itm.tr.rs.dummy.DummyRS;
 import de.uniluebeck.itm.tr.rs.federator.FederatorRS;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistence;
@@ -153,11 +152,7 @@ public class RSServer {
 			type = props.getProperty(rs + ".type", "");
 			path = props.getProperty(rs + ".path", "/rs/" + rs);
 
-			if ("dummy".equals(type)) {
-
-				startDummyRS(path);
-
-			} else if ("singleurnprefix".equals(type)) {
+			if ("singleurnprefix".equals(type)) {
 
 				nodeUrnPrefix = new NodeUrnPrefix(props.getProperty(rs + ".urnprefix", "urn:default:" + rs));
 				startSingleUrnPrefixRS(path, nodeUrnPrefix, props, rs);
@@ -295,18 +290,6 @@ public class RSServer {
 		}
 
 		throw new IllegalArgumentException("Persistence type " + persistenceType + " unknown!");
-	}
-
-	private static void startDummyRS(String path) {
-
-		DummyRS rs = new DummyRS();
-
-		HttpContext context = server.createContext(path);
-		Endpoint endpoint = Endpoint.create(rs);
-		endpoint.publish(context);
-
-		log.debug("Started dummy RS on " + server.getAddress() + path);
-
 	}
 
 	private static void startHttpServer(int port) throws Exception {

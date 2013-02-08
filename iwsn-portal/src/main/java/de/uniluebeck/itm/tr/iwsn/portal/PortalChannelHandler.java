@@ -56,7 +56,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Subscribe
 	public void onRequest(final Request request) {
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final List<String> nodeUrnsList;
 		final Set<NodeUrn> nodeUrns;

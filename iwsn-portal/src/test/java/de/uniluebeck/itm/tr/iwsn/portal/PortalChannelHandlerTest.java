@@ -96,7 +96,7 @@ public class PortalChannelHandlerTest {
 							).build()
 			);
 
-	private static final long RESERVATION_ID = RANDOM.nextLong();
+	private static final String RESERVATION_ID = "" + RANDOM.nextLong();
 
 	@Mock
 	private PortalEventBus portalEventBus;

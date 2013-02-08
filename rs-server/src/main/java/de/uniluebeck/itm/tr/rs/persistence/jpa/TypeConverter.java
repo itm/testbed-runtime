@@ -47,7 +47,7 @@ public class TypeConverter {
 
 	public static SecretReservationKey convert(SecretReservationKeyInternal internal) {
 		SecretReservationKey external = new SecretReservationKey();
-		external.setSecretReservationKey(internal.getSecretReservationKey());
+		external.setKey(internal.getSecretReservationKey());
 		external.setUrnPrefix(new NodeUrnPrefix(internal.getUrnPrefix()));
 		return external;
 	}
@@ -97,7 +97,7 @@ public class TypeConverter {
 		return new DataInternal(
 				external.getUrnPrefix().toString(),
 				external.getUsername(),
-				external.getSecretReservationKey()
+				external.getKey()
 		);
 	}
 
@@ -130,7 +130,7 @@ public class TypeConverter {
 		ConfidentialReservationDataKey external = new ConfidentialReservationDataKey();
 		external.setUrnPrefix(new NodeUrnPrefix(internal.getUrnPrefix()));
 		external.setUsername(internal.getUsername());
-		external.setSecretReservationKey(internal.getSecretReservationKey());
+		external.setKey(internal.getSecretReservationKey());
 		return external;
 	}
 

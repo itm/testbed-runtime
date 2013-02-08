@@ -173,7 +173,7 @@ public final class Messages {
       "nnelPipelinesRequest.ChannelHandlerConfi" +
       "guration.KeyValuePair\032*\n\014KeyValuePair\022\013\n",
       "\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\375\013\n\007Request\022\025\n" +
-      "\rreservationId\030\001 \001(\003\022\021\n\trequestId\030\002 \002(\003\022" +
+      "\rreservationId\030\001 \001(\t\022\021\n\trequestId\030\002 \002(\003\022" +
       ">\n\004type\030\003 \002(\01620.de.uniluebeck.itm.tr.iws" +
       "n.messages.Request.Type\022V\n\024areNodesAlive" +
       "Request\030e \001(\01328.de.uniluebeck.itm.tr.iws" +
@@ -212,9 +212,9 @@ public final class Messages {
       "MAGES\020\t\022\017\n\013RESET_NODES\020\n\022\034\n\030SEND_DOWNSTR" +
       "EAM_MESSAGES\020\013\022\031\n\025SET_CHANNEL_PIPELINES\020" +
       "\014\"j\n\022SingleNodeProgress\022\025\n\rreservationId",
-      "\030\001 \001(\003\022\021\n\trequestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002" +
+      "\030\001 \001(\t\022\021\n\trequestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002" +
       "(\t\022\031\n\021progressInPercent\030\004 \002(\r\"\213\001\n\022Single" +
-      "NodeResponse\022\025\n\rreservationId\030\001 \001(\003\022\021\n\tr" +
+      "NodeResponse\022\025\n\rreservationId\030\001 \001(\t\022\021\n\tr" +
       "equestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002(\t\022\020\n\010respo" +
       "nse\030\004 \001(\014\022\022\n\nstatusCode\030\005 \001(\005\022\024\n\014errorMe" +
       "ssage\030\006 \001(\t\"V\n\024UpstreamMessageEvent\022\025\n\rs" +

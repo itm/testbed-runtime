@@ -45,14 +45,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private final DeliveryManager deliveryManager;
 
-	private final long reservationId;
+	private final String reservationId;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
 						  final DeviceConfigDB deviceConfigDB,
-						  @Assisted final long reservationId,
+						  @Assisted final String reservationId,
 						  @Assisted final Reservation reservation,
 						  @Assisted final DeliveryManager deliveryManager) {
 		this.reservationId = reservationId;

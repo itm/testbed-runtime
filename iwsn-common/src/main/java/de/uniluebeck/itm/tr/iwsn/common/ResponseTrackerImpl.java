@@ -56,7 +56,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	public void onSingleNodeResponse(final SingleNodeResponse response) {
 
 		final boolean reservationIdEquals = request.hasReservationId() && response.hasReservationId() &&
-				request.getReservationId() == response.getReservationId();
+				request.getReservationId().equals(response.getReservationId());
 		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
 
 		if (reservationIdEquals && requestIdEquals) {

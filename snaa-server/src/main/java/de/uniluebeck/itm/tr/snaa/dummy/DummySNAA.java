@@ -54,7 +54,7 @@ public class DummySNAA implements SNAA {
 		for (AuthenticationTriple triple : authenticationData) {
 			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
 			secretAuthenticationKey.setUrnPrefix(triple.getUrnPrefix());
-			secretAuthenticationKey.setSecretAuthenticationKey(Long.toString(r.nextLong()));
+			secretAuthenticationKey.setKey(Long.toString(r.nextLong()));
 			secretAuthenticationKey.setUsername(triple.getUsername());
 			keys.add(secretAuthenticationKey);
 		}

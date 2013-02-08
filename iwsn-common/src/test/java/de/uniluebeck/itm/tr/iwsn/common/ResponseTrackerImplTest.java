@@ -10,12 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
 import java.util.Random;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.transform;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,10 +29,6 @@ public class ResponseTrackerImplTest {
 
 	private static final NodeUrn NODE_URN_3 = new NodeUrn(NODE_URN_3_STRING);
 
-	private static final List<NodeUrn> NODE_URNS = newArrayList(NODE_URN_1, NODE_URN_2, NODE_URN_3);
-
-	private static final List<String> NODE_URN_STRINGS = newArrayList(transform(NODE_URNS, NODE_URN_TO_STRING));
-
 	private final AreNodesAliveRequest areNodesAliveRequest = AreNodesAliveRequest.newBuilder()
 			.addNodeUrns(NODE_URN_1_STRING)
 			.addNodeUrns(NODE_URN_2_STRING)
@@ -44,7 +36,7 @@ public class ResponseTrackerImplTest {
 			.build();
 
 	private Request request = Request.newBuilder()
-			.setReservationId(new Random().nextLong())
+			.setReservationId("" + new Random().nextLong())
 			.setRequestId(new Random().nextLong())
 			.setType(Request.Type.ARE_NODES_ALIVE)
 			.setAreNodesAliveRequest(areNodesAliveRequest)
@@ -70,7 +62,7 @@ public class ResponseTrackerImplTest {
 
 	private SingleNodeResponse responseOfOtherReservationWithSameRequestId = SingleNodeResponse
 			.newBuilder(responseNode1)
-			.setReservationId(new Random().nextLong())
+			.setReservationId("" + new Random().nextLong())
 			.build();
 
 	@Mock

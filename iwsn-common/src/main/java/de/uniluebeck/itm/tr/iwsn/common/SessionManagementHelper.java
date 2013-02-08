@@ -50,7 +50,7 @@ public class SessionManagementHelper {
 		// secretReservationKey -> urnPrefix
 		Map<String, NodeUrnPrefix> map = new TreeMap<String, NodeUrnPrefix>();
 		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
-			map.put(secretReservationKey.getSecretReservationKey(), secretReservationKey.getUrnPrefix());
+			map.put(secretReservationKey.getKey(), secretReservationKey.getUrnPrefix());
 		}
 		return "wsnInstanceHash" + map.hashCode();
 	}

@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 /**
  * Testbed Runtime internal implementation of the interface which defines the reservation system
@@ -67,7 +68,7 @@ public class SingleUrnPrefixRS implements RS {
 
 			SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
 
-			data.setSecretReservationKey(secretReservationKey.getSecretReservationKey());
+			data.setKey(secretReservationKey.getKey());
 
 			List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
 			keys.add(secretReservationKey);
@@ -81,7 +82,7 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception,
-			ReservationNotFoundFault_Exception {
+			UnknownSecretReservationKeyFault {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 		checkArgumentValidReservation(secretReservationKeys);
@@ -90,10 +91,7 @@ public class SingleUrnPrefixRS implements RS {
 		ConfidentialReservationData reservation = persistence.getReservation(secretReservationKey);
 
 		if (reservation == null) {
-			String msg = "Reservation not found for key " + secretReservationKey;
-			ReservationNotFoundFault exception = new ReservationNotFoundFault();
-			exception.setMessage(msg);
-			throw new ReservationNotFoundFault_Exception(msg, exception);
+			throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 		}
 
 		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
@@ -104,7 +102,7 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	@AuthorizationRequired("RS_DELETE_RESERVATION")
 	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
-			throws RSFault_Exception, ReservationNotFoundFault_Exception {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 

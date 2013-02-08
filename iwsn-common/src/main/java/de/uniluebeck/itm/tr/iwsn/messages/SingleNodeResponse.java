@@ -31,14 +31,36 @@ public  final class SingleNodeResponse extends
   }
   
   private int bitField0_;
-  // optional int64 reservationId = 1;
+  // optional string reservationId = 1;
   public static final int RESERVATIONID_FIELD_NUMBER = 1;
-  private long reservationId_;
+  private java.lang.Object reservationId_;
   public boolean hasReservationId() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public long getReservationId() {
-    return reservationId_;
+  public String getReservationId() {
+    java.lang.Object ref = reservationId_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        reservationId_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getReservationIdBytes() {
+    java.lang.Object ref = reservationId_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      reservationId_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
   }
   
   // required int64 requestId = 2;
@@ -136,7 +158,7 @@ public  final class SingleNodeResponse extends
   }
   
   private void initFields() {
-    reservationId_ = 0L;
+    reservationId_ = "";
     requestId_ = 0L;
     nodeUrn_ = "";
     response_ = com.google.protobuf.ByteString.EMPTY;
@@ -164,7 +186,7 @@ public  final class SingleNodeResponse extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeInt64(1, reservationId_);
+      output.writeBytes(1, getReservationIdBytes());
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       output.writeInt64(2, requestId_);
@@ -192,7 +214,7 @@ public  final class SingleNodeResponse extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, reservationId_);
+        .computeBytesSize(1, getReservationIdBytes());
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
@@ -338,7 +360,7 @@ public  final class SingleNodeResponse extends
     
     public Builder clear() {
       super.clear();
-      reservationId_ = 0L;
+      reservationId_ = "";
       bitField0_ = (bitField0_ & ~0x00000001);
       requestId_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000002);
@@ -485,9 +507,9 @@ public  final class SingleNodeResponse extends
             }
             break;
           }
-          case 8: {
+          case 10: {
             bitField0_ |= 0x00000001;
-            reservationId_ = input.readInt64();
+            reservationId_ = input.readBytes();
             break;
           }
           case 16: {
@@ -521,25 +543,40 @@ public  final class SingleNodeResponse extends
     
     private int bitField0_;
     
-    // optional int64 reservationId = 1;
-    private long reservationId_ ;
+    // optional string reservationId = 1;
+    private java.lang.Object reservationId_ = "";
     public boolean hasReservationId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public long getReservationId() {
-      return reservationId_;
+    public String getReservationId() {
+      java.lang.Object ref = reservationId_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        reservationId_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
     }
-    public Builder setReservationId(long value) {
-      bitField0_ |= 0x00000001;
+    public Builder setReservationId(String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
       reservationId_ = value;
       onChanged();
       return this;
     }
     public Builder clearReservationId() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      reservationId_ = 0L;
+      reservationId_ = getDefaultInstance().getReservationId();
       onChanged();
       return this;
+    }
+    void setReservationId(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000001;
+      reservationId_ = value;
+      onChanged();
     }
     
     // required int64 requestId = 2;

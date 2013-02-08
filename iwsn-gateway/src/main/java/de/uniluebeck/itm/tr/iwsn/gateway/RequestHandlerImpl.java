@@ -129,7 +129,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnableVirtualLinksRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getEnableVirtualLinksRequest().getLinksList();
@@ -153,7 +153,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onSetChannelPipelinesRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getSetChannelPipelinesRequest().getNodeUrnsList(),
@@ -196,7 +196,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onSendDownstreamMessagesRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList(),
@@ -225,7 +225,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onResetNodesRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getResetNodesRequest().getNodeUrnsList(),
@@ -250,7 +250,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onFlashImagesRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getFlashImagesRequest().getNodeUrnsList(),
@@ -279,7 +279,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnablePhysicalLinksRequest({)", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getEnablePhysicalLinksRequest().getLinksList();
@@ -303,7 +303,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onEnablesNodeRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getEnableNodesRequest().getNodeUrnsList(),
@@ -328,7 +328,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisablePhysicalLinksRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getDisablePhysicalLinksRequest().getLinksList();
@@ -352,7 +352,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisableNodesRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getDisableNodesRequest().getNodeUrnsList(),
@@ -375,7 +375,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onDisableVirtualLinksRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Set<NodeUrn> nodeUrns = newHashSet();
 		final List<Link> links = request.getDisableVirtualLinksRequest().getLinksList();
@@ -399,7 +399,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onAreNodesConnectedRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getAreNodesAliveRequest().getNodeUrnsList(),
@@ -422,7 +422,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 		log.trace("RequestHandlerImpl.onAreNodesAliveRequest({})", request);
 
-		final Long reservationId = request.hasReservationId() ? request.getReservationId() : null;
+		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
 				request.getAreNodesAliveRequest().getNodeUrnsList(),
@@ -441,7 +441,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		}
 	}
 
-	private void addVoidOperationListeners(@Nullable final Long reservationId,
+	private void addVoidOperationListeners(@Nullable final String reservationId,
 										   final long requestId,
 										   final ListenableFutureMap<NodeUrn, Void> futureMap) {
 
@@ -453,7 +453,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		}
 	}
 
-	private void addVoidOperationListeners(@Nullable final Long reservationId,
+	private void addVoidOperationListeners(@Nullable final String reservationId,
 										   final long requestId,
 										   final ProgressListenableFutureMap<NodeUrn, Void> futureMap) {
 
@@ -465,7 +465,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		}
 	}
 
-	private void addBoolOperationListeners(@Nullable final Long reservationId,
+	private void addBoolOperationListeners(@Nullable final String reservationId,
 										   final long requestId,
 										   final ListenableFutureMap<NodeUrn, Boolean> futureMap) {
 
@@ -477,7 +477,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		}
 	}
 
-	private void addNodeApiOperationListeners(@Nullable final Long reservationId,
+	private void addNodeApiOperationListeners(@Nullable final String reservationId,
 											  final long requestId,
 											  final ListenableFutureMap<NodeUrn, NodeApiCallResult> futureMap) {
 
@@ -489,7 +489,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		}
 	}
 
-	private Runnable createVoidOperationListener(@Nullable final Long reservationId,
+	private Runnable createVoidOperationListener(@Nullable final String reservationId,
 												 final long requestId,
 												 final NodeUrn nodeUrn,
 												 final ListenableFuture<Void> future) {
@@ -521,7 +521,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		};
 	}
 
-	private Runnable createNodeApiOperationListener(@Nullable final Long reservationId,
+	private Runnable createNodeApiOperationListener(@Nullable final String reservationId,
 													final long requestId,
 													final NodeUrn nodeUrn,
 													final ListenableFuture<NodeApiCallResult> future) {
@@ -542,7 +542,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		};
 	}
 
-	private Runnable createBoolOperationListener(@Nullable final Long reservationId,
+	private Runnable createBoolOperationListener(@Nullable final String reservationId,
 												 final long requestId,
 												 final NodeUrn nodeUrn,
 												 final ListenableFuture<Boolean> future) {
@@ -558,7 +558,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		};
 	}
 
-	private void postProgress(@Nullable final Long reservationId,
+	private void postProgress(@Nullable final String reservationId,
 							  final long requestId,
 							  final NodeUrn nodeUrn,
 							  final float progress) {
@@ -575,7 +575,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		gatewayEventBus.post(builder.build());
 	}
 
-	private void postResponse(@Nullable final Long reservationId,
+	private void postResponse(@Nullable final String reservationId,
 							  final long requestId,
 							  final NodeUrn nodeUrn,
 							  final int statusCode,
@@ -597,7 +597,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		gatewayEventBus.post(responseBuilder.build());
 	}
 
-	private void postRequestFailureResponse(@Nullable final Long reservationId,
+	private void postRequestFailureResponse(@Nullable final String reservationId,
 											final long requestId,
 											final NodeUrn nodeUrn,
 											final Exception e) {
@@ -614,7 +614,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		gatewayEventBus.post(builder.build());
 	}
 
-	private void postNodeNotConnectedResponse(@Nullable final Long reservationId,
+	private void postNodeNotConnectedResponse(@Nullable final String reservationId,
 											  final long requestId,
 											  final Iterable<NodeUrn> unconnectedNodeUrns) {
 		for (NodeUrn nodeUrn : unconnectedNodeUrns) {

@@ -12,7 +12,7 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.rs.ReservationNotFoundFault_Exception;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final ReservationFactory reservationFactory;
 
-	private final Map<Long, Reservation> reservationMap = newHashMap();
+	private final Map<String, Reservation> reservationMap = newHashMap();
 
 	private final SchedulerService schedulerService;
 
@@ -88,7 +88,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final long secretReservationKey) throws ReservationUnknownException {
+	public Reservation getReservation(final String secretReservationKey) throws ReservationUnknownException {
 
 		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKey);
 
@@ -104,7 +104,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 				confidentialReservationDataList = rs.get().getReservation(keys);
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
-			} catch (ReservationNotFoundFault_Exception e) {
+			} catch (UnknownSecretReservationKeyFault e) {
 				throw new ReservationUnknownException(secretReservationKey, e);
 			}
 
@@ -157,7 +157,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		}
 	}
 
-	private List<SecretReservationKey> toSecretReservationKeyList(long secretReservationKey) {
+	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
 		SecretReservationKey key = new SecretReservationKey();
 		key.setUrnPrefix(portalConfig.urnPrefix);
 		key.setKey(secretReservationKey);

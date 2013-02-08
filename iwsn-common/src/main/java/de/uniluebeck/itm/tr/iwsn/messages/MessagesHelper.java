@@ -19,13 +19,13 @@ import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.NODE_URN_TO_STRING;
 
 public abstract class MessagesHelper {
 
-	public static Message newAreNodesAliveRequestMessage(@Nullable final Long reservationId,
+	public static Message newAreNodesAliveRequestMessage(@Nullable final String reservationId,
 														 final long requestId,
 														 final Iterable<NodeUrn> nodeUrns) {
 		return newMessage(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newAreNodesAliveRequest(@Nullable final Long reservationId,
+	public static Request newAreNodesAliveRequest(@Nullable final String reservationId,
 												  final long requestId,
 												  final Iterable<NodeUrn> nodeUrns) {
 		final Request.Builder builder = Request.newBuilder()
@@ -42,7 +42,7 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Request newAreNodesConnectedRequest(@Nullable final Long reservationId,
+	public static Request newAreNodesConnectedRequest(@Nullable final String reservationId,
 													  final long requestId,
 													  final Iterable<NodeUrn> nodeUrns) {
 		final Request.Builder builder = Request.newBuilder()
@@ -59,19 +59,19 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newAreNodesConnectedRequestMessage(@Nullable final Long reservationId,
+	public static Message newAreNodesConnectedRequestMessage(@Nullable final String reservationId,
 															 final long requestId,
 															 final Iterable<NodeUrn> nodeUrns) {
 		return newMessage(newAreNodesConnectedRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Message newDisableNodesRequestMessage(@Nullable final Long reservationId,
+	public static Message newDisableNodesRequestMessage(@Nullable final String reservationId,
 														final long requestId,
 														final Iterable<NodeUrn> nodeUrns) {
 		return newMessage(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newDisableNodesRequest(@Nullable final Long reservationId,
+	public static Request newDisableNodesRequest(@Nullable final String reservationId,
 												 final long requestId,
 												 final Iterable<NodeUrn> nodeUrns) {
 		final Request.Builder builder = Request.newBuilder()
@@ -88,7 +88,7 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Request newEnableNodesRequest(@Nullable final Long reservationId,
+	public static Request newEnableNodesRequest(@Nullable final String reservationId,
 												final long requestId,
 												final Iterable<NodeUrn> nodeUrns) {
 		final Request.Builder builder = Request.newBuilder()
@@ -105,13 +105,13 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newEnableNodesRequestMessage(@Nullable final Long reservationId,
+	public static Message newEnableNodesRequestMessage(@Nullable final String reservationId,
 													   final long requestId,
 													   final Iterable<NodeUrn> nodeUrns) {
 		return newMessage(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newResetNodesRequest(@Nullable final Long reservationId,
+	public static Request newResetNodesRequest(@Nullable final String reservationId,
 											   final long requestId,
 											   final Iterable<NodeUrn> nodeUrns) {
 		final Request.Builder builder = Request.newBuilder()
@@ -128,20 +128,20 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newResetNodesRequestMessage(@Nullable final Long reservationId,
+	public static Message newResetNodesRequestMessage(@Nullable final String reservationId,
 													  final long requestId,
 													  final Iterable<NodeUrn> nodeUrns) {
 		return newMessage(newResetNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
-	public static Request newSendDownstreamMessageRequest(@Nullable final Long reservationId,
+	public static Request newSendDownstreamMessageRequest(@Nullable final String reservationId,
 														  final long requestId,
 														  final Iterable<NodeUrn> nodeUrns,
 														  final byte[] bytes) {
 		return newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(bytes));
 	}
 
-	public static Request newSendDownstreamMessageRequest(@Nullable final Long reservationId,
+	public static Request newSendDownstreamMessageRequest(@Nullable final String reservationId,
 														  final long requestId,
 														  final Iterable<NodeUrn> nodeUrns,
 														  final ByteString bytes) {
@@ -160,7 +160,7 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newSendDownstreamMessageRequestMessage(@Nullable final Long reservationId,
+	public static Message newSendDownstreamMessageRequestMessage(@Nullable final String reservationId,
 																 final long requestId,
 																 final Iterable<NodeUrn> nodeUrns,
 																 final byte[] bytes) {
@@ -169,14 +169,14 @@ public abstract class MessagesHelper {
 		);
 	}
 
-	public static Request newFlashImagesRequest(@Nullable final Long reservationId,
+	public static Request newFlashImagesRequest(@Nullable final String reservationId,
 												final long requestId,
 												final Iterable<NodeUrn> nodeUrns,
 												final byte[] imageBytes) {
 		return newFlashImagesRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(imageBytes));
 	}
 
-	public static Request newFlashImagesRequest(@Nullable final Long reservationId,
+	public static Request newFlashImagesRequest(@Nullable final String reservationId,
 												final long requestId,
 												final Iterable<NodeUrn> nodeUrns,
 												final ByteString image) {
@@ -195,14 +195,14 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newFlashImagesRequestMessage(@Nullable final Long reservationId,
+	public static Message newFlashImagesRequestMessage(@Nullable final String reservationId,
 													   final long requestId,
 													   final Iterable<NodeUrn> nodeUrns,
 													   final byte[] imageBytes) {
 		return newMessage(newFlashImagesRequest(reservationId, requestId, nodeUrns, ByteString.copyFrom(imageBytes)));
 	}
 
-	public static Request newDisableVirtualLinksRequest(@Nullable final Long reservationId,
+	public static Request newDisableVirtualLinksRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Multimap<NodeUrn, NodeUrn> links) {
 		final Request.Builder builder = Request.newBuilder()
@@ -219,13 +219,13 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newDisableVirtualLinksRequestMessage(@Nullable final Long reservationId,
+	public static Message newDisableVirtualLinksRequestMessage(@Nullable final String reservationId,
 															   final long requestId,
 															   final Multimap<NodeUrn, NodeUrn> links) {
 		return newMessage(newDisableVirtualLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newEnableVirtualLinksRequest(@Nullable final Long reservationId,
+	public static Request newEnableVirtualLinksRequest(@Nullable final String reservationId,
 													   final long requestId,
 													   final Multimap<NodeUrn, NodeUrn> links) {
 		final Request.Builder builder = Request.newBuilder()
@@ -242,13 +242,13 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newEnableVirtualLinksRequestMessage(@Nullable final Long reservationId,
+	public static Message newEnableVirtualLinksRequestMessage(@Nullable final String reservationId,
 															  final long requestId,
 															  final Multimap<NodeUrn, NodeUrn> links) {
 		return newMessage(newEnableVirtualLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newDisablePhysicalLinksRequest(@Nullable final Long reservationId,
+	public static Request newDisablePhysicalLinksRequest(@Nullable final String reservationId,
 														 final long requestId,
 														 final Multimap<NodeUrn, NodeUrn> links) {
 		final Request.Builder builder = Request.newBuilder()
@@ -265,13 +265,13 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newDisablePhysicalLinksRequestMessage(@Nullable final Long reservationId,
+	public static Message newDisablePhysicalLinksRequestMessage(@Nullable final String reservationId,
 																final long requestId,
 																final Multimap<NodeUrn, NodeUrn> links) {
 		return newMessage(newDisablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newEnablePhysicalLinksRequest(@Nullable final Long reservationId,
+	public static Request newEnablePhysicalLinksRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Multimap<NodeUrn, NodeUrn> links) {
 		final Request.Builder builder = Request.newBuilder()
@@ -288,13 +288,13 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newEnablePhysicalLinksRequestMessage(@Nullable final Long reservationId,
+	public static Message newEnablePhysicalLinksRequestMessage(@Nullable final String reservationId,
 															   final long requestId,
 															   final Multimap<NodeUrn, NodeUrn> links) {
 		return newMessage(newEnablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
-	public static Request newSetChannelPipelinesRequest(@Nullable final Long reservationId,
+	public static Request newSetChannelPipelinesRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Iterable<NodeUrn> nodeUrns,
 														final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
@@ -313,7 +313,7 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static Message newSetChannelPipelinesRequestMessage(@Nullable final Long reservationId,
+	public static Message newSetChannelPipelinesRequestMessage(@Nullable final String reservationId,
 															   final long requestId,
 															   final Iterable<NodeUrn> nodeUrns,
 															   final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
@@ -485,7 +485,7 @@ public abstract class MessagesHelper {
 		return newNotificationEvent(null, new DateTime().getMillis(), message);
 	}
 
-	public static SingleNodeProgress newSingleNodeProgress(@Nullable final Long reservationId,
+	public static SingleNodeProgress newSingleNodeProgress(@Nullable final String reservationId,
 														   final long requestId,
 														   final NodeUrn nodeUrn,
 														   final int progressInPercent) {
@@ -506,7 +506,7 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
-	public static SingleNodeResponse newSingleNodeResponse(@Nullable final Long reservationId,
+	public static SingleNodeResponse newSingleNodeResponse(@Nullable final String reservationId,
 														   final long requestId,
 														   final NodeUrn nodeUrn,
 														   final int statusCode,
