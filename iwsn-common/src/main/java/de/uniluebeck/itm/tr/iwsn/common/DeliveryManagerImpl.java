@@ -177,9 +177,6 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 	}
 
-	/**
-	 * Asynchronously notifies all currently registered controllers that the experiment has <emph>started</emph>.
-	 */
 	@Override
 	public void reservationStarted() {
 
@@ -191,9 +188,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 		}
 	}
 
-	/**
-	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
-	 */
+	@Override
+	public void reservationStarted(final String controllerEndpointUrl) {
+
+		if (isRunning()) {
+			controllers.get(controllerEndpointUrl).reservationStarted();
+		}
+	}
+
 	@Override
 	public void reservationEnded() {
 
@@ -202,6 +204,13 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.reservationEnded();
 			}
+		}
+	}
+
+	@Override
+	public void reservationEnded(final String controllerEndpointUrl) {
+		if (isRunning()) {
+			controllers.get(controllerEndpointUrl).reservationEnded();
 		}
 	}
 

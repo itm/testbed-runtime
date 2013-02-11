@@ -107,11 +107,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		deliveryManager.addController(controllerEndpointUrl);
 
 		if (reservation.getInterval().containsNow()) {
-			deliveryManager.reservationStarted();
+			deliveryManager.reservationStarted(controllerEndpointUrl);
 		}
 
 		if (reservation.getInterval().isBeforeNow()) {
-			deliveryManager.reservationEnded();
+			deliveryManager.reservationEnded(controllerEndpointUrl);
 		}
 	}
 

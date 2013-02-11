@@ -6,6 +6,8 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
@@ -71,6 +73,18 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	public void onSingleNodeProgress(final SingleNodeProgress progress) {
 		log.trace("DeliveryManagerAdapter.onSingleNodeProgress({})", progress);
 		receiveStatus(convert(progress));
+	}
+
+	@Subscribe
+	public void onReservationStartedEvent(final ReservationStartedEvent event) {
+		log.trace("DeliveryManagerAdapter.onReservationStartedEvent({})", event);
+		reservationStarted();
+	}
+
+	@Subscribe
+	public void onReservationEndedEvent(final ReservationEndedEvent event) {
+		log.trace("DeliveryManagerAdapter.onReservationEndedEvent({})", event);
+		reservationEnded();
 	}
 
 	private RequestStatus convert(final SingleNodeProgress progress) {

@@ -275,6 +275,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Subscribe
 	public void onReservationEnded(final ReservationEndedEvent event) {
+
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
