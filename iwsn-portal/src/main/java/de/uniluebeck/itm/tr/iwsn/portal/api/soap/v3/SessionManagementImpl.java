@@ -25,8 +25,13 @@ import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +116,21 @@ public class SessionManagementImpl implements SessionManagement {
 	}
 
 	@Override
-	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns, final String controllerEndpointUrl) {
+	@WebMethod
+	@RequestWrapper(
+			localName = "areNodesAlive",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.AreNodesAlive"
+	)
+	@ResponseWrapper(
+			localName = "areNodesAliveResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.AreNodesAliveResponse"
+	)
+	public void areNodesAlive(
+			@WebParam(name = "requestId", targetNamespace = "") long requestId,
+			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
+			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
 
 		sessionManagementDeliveryManager.addController(controllerEndpointUrl);
 
@@ -130,10 +149,26 @@ public class SessionManagementImpl implements SessionManagement {
 	}
 
 	@Override
-	public void getConfiguration(final Holder<String> rsEndpointUrl,
-								 final Holder<String> snaaEndpointUrl,
-								 final Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
-								 final Holder<List<KeyValuePair>> options) {
+	@WebMethod
+	@RequestWrapper(
+			localName = "getConfiguration",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetConfiguration"
+	)
+	@ResponseWrapper(
+			localName = "getConfigurationResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetConfigurationResponse"
+	)
+	public void getConfiguration(
+			@WebParam(name = "rsEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT)
+			Holder<String> rsEndpointUrl,
+			@WebParam(name = "snaaEndpointUrl", targetNamespace = "", mode = WebParam.Mode.OUT)
+			Holder<String> snaaEndpointUrl,
+			@WebParam(name = "servedUrnPrefixes", targetNamespace = "", mode = WebParam.Mode.OUT)
+			Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
+			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT)
+			Holder<List<KeyValuePair>> options) {
 
 		rsEndpointUrl.value = portalConfig.rsEndpointUrl.toString();
 		snaaEndpointUrl.value = portalConfig.snaaEndpointUrl.toString();
@@ -152,7 +187,20 @@ public class SessionManagementImpl implements SessionManagement {
 	}
 
 	@Override
-	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(
+			localName = "getInstance",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetInstance"
+	)
+	@ResponseWrapper(
+			localName = "getInstanceResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetInstanceResponse"
+	)
+	public String getInstance(@WebParam(name = "secretReservationKey", targetNamespace = "")
+							  List<SecretReservationKey> secretReservationKeys)
 			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
@@ -244,11 +292,35 @@ public class SessionManagementImpl implements SessionManagement {
 	}
 
 	@Override
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(
+			localName = "getNetwork",
+			targetNamespace = "http://wisebed.eu/api/v3/common",
+			className = "eu.wisebed.api.v3.common.GetNetwork"
+	)
+	@ResponseWrapper(
+			localName = "getNetworkResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/common",
+			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
+	)
 	public String getNetwork() {
 		return serialize(convertToWiseML(deviceConfigDB.getAll()));
 	}
 
 	@Override
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(
+			localName = "getSupportedChannelHandlers",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetSupportedChannelHandlers"
+	)
+	@ResponseWrapper(
+			localName = "getSupportedChannelHandlersResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetSupportedChannelHandlersResponse"
+	)
 	public List<ChannelHandlerDescription> getSupportedChannelHandlers() {
 
 		final List<ChannelHandlerDescription> list = newArrayList();
@@ -275,6 +347,18 @@ public class SessionManagementImpl implements SessionManagement {
 	}
 
 	@Override
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(
+			localName = "getSupportedVirtualLinkFilters",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetSupportedVirtualLinkFilters"
+	)
+	@ResponseWrapper(
+			localName = "getSupportedVirtualLinkFiltersResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetSupportedVirtualLinkFiltersResponse"
+	)
 	public List<String> getSupportedVirtualLinkFilters() {
 		return newArrayList();
 	}

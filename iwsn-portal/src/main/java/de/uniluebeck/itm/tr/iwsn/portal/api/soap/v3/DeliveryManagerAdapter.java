@@ -4,14 +4,13 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
+import eu.wisebed.api.v3.controller.RequestStatus;
+import eu.wisebed.api.v3.controller.Status;
 import org.joda.time.DateTime;
 
 import static com.google.common.collect.Iterables.transform;
@@ -62,19 +61,64 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 		receiveNotification(convert(event));
 	}
 
+	@Subscribe
+	public void onSingleNodeResponse(final SingleNodeResponse response) {
+		log.trace("DeliveryManagerAdapter.onSingleNodeResponse({})", response);
+		receiveStatus(convert(response));
+	}
+
+	@Subscribe
+	public void onSingleNodeProgress(final SingleNodeProgress progress) {
+		log.trace("DeliveryManagerAdapter.onSingleNodeProgress({})", progress);
+		receiveStatus(convert(progress));
+	}
+
+	private RequestStatus convert(final SingleNodeProgress progress) {
+
+		final Status status = new Status();
+		status.setNodeUrn(new NodeUrn(progress.getNodeUrn()));
+		status.setValue(progress.getProgressInPercent());
+
+		final RequestStatus requestStatus = new RequestStatus();
+		requestStatus.setRequestId(progress.getRequestId());
+		requestStatus.getStatus().add(status);
+
+		return requestStatus;
+	}
+
+	private RequestStatus convert(final SingleNodeResponse response) {
+
+		final Status status = new Status();
+		status.setNodeUrn(new NodeUrn(response.getNodeUrn()));
+		status.setValue(response.getStatusCode());
+		if (response.hasErrorMessage()) {
+			status.setMsg(response.getErrorMessage());
+		}
+
+		final RequestStatus requestStatus = new RequestStatus();
+		requestStatus.setRequestId(response.getRequestId());
+		requestStatus.getStatus().add(status);
+
+		return requestStatus;
+	}
+
 	private Notification convert(final NotificationEvent event) {
-		Notification notification = new Notification();
+
+		final Notification notification = new Notification();
 		notification.setNodeUrn(new NodeUrn(event.getNodeUrn()));
 		notification.setTimestamp(new DateTime(event.getTimestamp()));
 		notification.setMsg(event.getMessage());
+
 		return notification;
 	}
 
 	private Message convert(final UpstreamMessageEvent event) {
-		Message msg = new Message();
+
+		final Message msg = new Message();
 		msg.setSourceNodeUrn(new NodeUrn(event.getSourceNodeUrn()));
 		msg.setTimestamp(new DateTime(event.getTimestamp()));
 		msg.setBinaryData(event.getMessageBytes().toByteArray());
+
 		return msg;
 	}
 }
