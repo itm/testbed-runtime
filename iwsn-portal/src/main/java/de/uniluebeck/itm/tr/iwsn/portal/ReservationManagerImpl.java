@@ -59,7 +59,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		this.rs = checkNotNull(rs);
 		this.deviceConfigDB = checkNotNull(deviceConfigDB);
 		this.reservationFactory = checkNotNull(reservationFactory);
-		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager %d");
+		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
 	}
 
 	@Override
