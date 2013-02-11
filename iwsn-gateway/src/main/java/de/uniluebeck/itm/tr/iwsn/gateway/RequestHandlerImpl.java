@@ -534,9 +534,8 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 				} else if (future.isDone()) {
 
 					try {
-
+						future.get(); // check if exception occurred
 						postResponse(reservationId, requestId, nodeUrn, completionStatusCode, null);
-
 					} catch (Exception e) {
 						postRequestFailureResponse(reservationId, requestId, nodeUrn, e);
 					}
