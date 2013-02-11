@@ -26,10 +26,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
@@ -318,11 +316,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 					device.program(binaryImage, deviceConfig.getTimeoutFlashMillis(),
 							new OperationAdapter<Void>() {
 
-								private int lastProgress = -1;
+								private RateLimiter rateLimiter = RateLimiter.create(4);
 
 								@Override
 								public void onExecute() {
-									lastProgress = 0;
 									future.setProgress(0f);
 								}
 
@@ -354,16 +351,14 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 								@Override
 								public void onProgressChange(final float fraction) {
 
-									int newProgress = (int) (fraction * 100);
-
-									if (newProgress > lastProgress) {
+									if (rateLimiter.tryAcquire(0, TimeUnit.SECONDS)) {
 
 										log.debug("{} => Flashing progress: {}%.",
 												deviceConfig.getNodeUrn(),
-												newProgress
+												(int) (fraction * 100)
 										);
+
 										future.setProgress(fraction);
-										lastProgress = newProgress;
 									}
 								}
 

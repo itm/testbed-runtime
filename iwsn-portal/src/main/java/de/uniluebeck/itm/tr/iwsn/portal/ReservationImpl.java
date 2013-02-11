@@ -32,7 +32,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
-		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(nodeUrns));
+		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
 	}
 
 	@Override
@@ -51,9 +51,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
+			portalEventBus.post(new ReservationEndedEvent(this));
 			reservationEventBus.stopAndWait();
 			notifyStopped();
-			portalEventBus.post(new ReservationEndedEvent(this));
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

@@ -6,6 +6,7 @@ import org.joda.time.Interval;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -36,7 +37,8 @@ public class ReservationImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when(reservationEventBusFactory.create(eq(NODE_URNS))).thenReturn(reservationEventBus);
+		when(reservation.getNodeUrns()).thenReturn(NODE_URNS);
+		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		reservation = new ReservationImpl(reservationEventBusFactory, portalEventBus, NODE_URNS, INTERVAL);
 	}
 

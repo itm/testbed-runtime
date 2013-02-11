@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
@@ -419,6 +416,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		if (allChannels.isEmpty()) {
 			log.debug("Unsubscribing from the event bus.");
 			portalEventBus.unregister(this);
+		}
+		synchronized (contextToNodeUrnsMap) {
+			portalEventBus.post(newDevicesDetachedEvent(contextToNodeUrnsMap.get(ctx)));
+			contextToNodeUrnsMap.removeAll(ctx);
 		}
 		super.channelDisconnected(ctx, e);
 	}

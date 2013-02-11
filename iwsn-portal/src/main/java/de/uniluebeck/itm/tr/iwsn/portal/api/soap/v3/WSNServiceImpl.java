@@ -278,7 +278,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 							  @WebParam(name = "configurations", targetNamespace = "")
 							  List<FlashProgramsConfiguration> configurations) {
 		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		for (FlashProgramsConfiguration configuration : configurations) {
+			reservation.getReservationEventBus().post(newFlashImagesRequest(
+					reservationId,
+					requestId,
+					configuration.getNodeUrns(),
+					configuration.getProgram()
+			));
+		}
 	}
 
 	@Override

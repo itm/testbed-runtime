@@ -77,11 +77,15 @@ public class ReservationEventBusImplTest {
 	@Mock
 	private EventBus eventBus;
 
+	@Mock
+	private Reservation reservation;
+
 	private ReservationEventBusImpl reservationEventBus;
 
 	@Before
 	public void setUp() throws Exception {
-		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBus, RESERVED_NODES);
+		when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
+		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBus, reservation);
 		reservationEventBus.startAndWait();
 	}
 

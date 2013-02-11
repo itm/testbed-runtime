@@ -13,6 +13,7 @@ import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.ListenableFutureMap;
+import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -187,6 +188,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			addVoidOperationListeners(
 					reservationId,
 					requestId,
+					1,
 					deviceAdapter.setChannelPipelines(nodeUrnsToSetChannelPipelineOn, cp)
 			);
 		}
@@ -216,6 +218,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			addVoidOperationListeners(
 					reservationId,
 					requestId,
+					1,
 					deviceAdapter.sendMessage(nodeUrnsToSendTo, messageBytes)
 			);
 		}
@@ -241,6 +244,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			addVoidOperationListeners(
 					reservationId,
 					requestId,
+					1,
 					deviceAdapter.resetNodes(connectedMap.get(deviceAdapter))
 			);
 		}
@@ -270,6 +274,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			addVoidOperationListeners(
 					reservationId,
 					requestId,
+					100,
 					deviceAdapter.flashProgram(nodeUrnsToFlash, binaryImage)
 			);
 		}
@@ -443,11 +448,18 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	private void addVoidOperationListeners(@Nullable final String reservationId,
 										   final long requestId,
+										   final int completionStatusCode,
 										   final ListenableFutureMap<NodeUrn, Void> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
 			futureMap.get(nodeUrn).addListener(
-					createVoidOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
+					createVoidOperationListener(
+							reservationId,
+							requestId,
+							nodeUrn,
+							completionStatusCode,
+							futureMap.get(nodeUrn)
+					),
 					SAME_THREAD_EXECUTOR
 			);
 		}
@@ -455,13 +467,19 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	private void addVoidOperationListeners(@Nullable final String reservationId,
 										   final long requestId,
+										   final int completionStatusCode,
 										   final ProgressListenableFutureMap<NodeUrn, Void> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
-			futureMap.get(nodeUrn).addListener(
-					createVoidOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
-					SAME_THREAD_EXECUTOR
+			final Runnable listener = createVoidOperationListener(
+					reservationId,
+					requestId,
+					nodeUrn,
+					completionStatusCode,
+					futureMap.get(nodeUrn)
 			);
+			futureMap.get(nodeUrn).addListener(listener, SAME_THREAD_EXECUTOR);
+			futureMap.get(nodeUrn).addProgressListener(listener, SAME_THREAD_EXECUTOR);
 		}
 	}
 
@@ -470,10 +488,13 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 										   final ListenableFutureMap<NodeUrn, Boolean> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
-			futureMap.get(nodeUrn).addListener(
-					createBoolOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
-					SAME_THREAD_EXECUTOR
+			final Runnable listener = createBoolOperationListener(
+					reservationId,
+					requestId,
+					nodeUrn,
+					futureMap.get(nodeUrn)
 			);
+			futureMap.get(nodeUrn).addListener(listener, SAME_THREAD_EXECUTOR);
 		}
 	}
 
@@ -482,36 +503,39 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 											  final ListenableFutureMap<NodeUrn, NodeApiCallResult> futureMap) {
 
 		for (NodeUrn nodeUrn : futureMap.keySet()) {
-			futureMap.get(nodeUrn).addListener(
-					createNodeApiOperationListener(reservationId, requestId, nodeUrn, futureMap.get(nodeUrn)),
-					SAME_THREAD_EXECUTOR
+			final Runnable listener = createNodeApiOperationListener(
+					reservationId,
+					requestId,
+					nodeUrn,
+					futureMap.get(nodeUrn)
 			);
+			futureMap.get(nodeUrn).addListener(listener, SAME_THREAD_EXECUTOR);
 		}
 	}
 
 	private Runnable createVoidOperationListener(@Nullable final String reservationId,
 												 final long requestId,
 												 final NodeUrn nodeUrn,
+												 final int completionStatusCode,
 												 final ListenableFuture<Void> future) {
 		return new Runnable() {
 			@Override
 			public void run() {
 
-				if (future instanceof ProgressListenableFutureMap && !future.isDone()) {
+				if (future instanceof ProgressListenableFuture && !future.isDone()) {
 
 					postProgress(
 							reservationId,
 							requestId,
 							nodeUrn,
-							((ProgressListenableFutureMap) future).getProgress()
+							((ProgressListenableFuture) future).getProgress()
 					);
 
-				} else {
+				} else if (future.isDone()) {
 
 					try {
 
-						future.get();
-						postResponse(reservationId, requestId, nodeUrn, 1, null);
+						postResponse(reservationId, requestId, nodeUrn, completionStatusCode, null);
 
 					} catch (Exception e) {
 						postRequestFailureResponse(reservationId, requestId, nodeUrn, e);
@@ -566,7 +590,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final SingleNodeProgress.Builder builder = SingleNodeProgress.newBuilder()
 				.setRequestId(requestId)
 				.setNodeUrn(nodeUrn.toString())
-				.setProgressInPercent((int) progress * 100);
+				.setProgressInPercent((int) (progress * 100));
 
 		if (reservationId != null) {
 			builder.setReservationId(reservationId);

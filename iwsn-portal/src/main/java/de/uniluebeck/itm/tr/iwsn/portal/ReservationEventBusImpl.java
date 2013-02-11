@@ -32,15 +32,15 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	private final EventBus eventBus;
 
-	private final Set<NodeUrn> reservedNodeUrns;
+	private final Reservation reservation;
 
 	@Inject
 	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
 								   final EventBus eventBus,
-								   @Assisted final Set<NodeUrn> reservedNodeUrns) {
+								   @Assisted final Reservation reservation) {
 		this.portalEventBus = portalEventBus;
 		this.eventBus = eventBus;
-		this.reservedNodeUrns = reservedNodeUrns;
+		this.reservation = reservation;
 	}
 
 	@Override
@@ -68,8 +68,8 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	}
 
 	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
-		if (!reservedNodeUrns.containsAll(nodeUrns)) {
-			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservedNodeUrns)));
+		if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
+			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
 			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
 					+ "are not part of the reservation.");
 		}
@@ -79,7 +79,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservedNodeUrns));
+		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
 
 		if (!reservedNodeUrnsOfEvent.isEmpty()) {
 			eventBus.post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
@@ -91,7 +91,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 		final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
 
-		if (reservedNodeUrns.contains(sourceNodeUrn)) {
+		if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
 			eventBus.post(event);
 		}
 	}
@@ -100,7 +100,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservedNodeUrns));
+		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
 
 		if (!reservedNodeUrnsOfEvent.isEmpty()) {
 			eventBus.post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
@@ -109,22 +109,36 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
-		if (!event.hasNodeUrn() || reservedNodeUrns.contains(new NodeUrn(event.getNodeUrn()))) {
+		if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
 			eventBus.post(event);
 		}
 	}
 
 	@Subscribe
 	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
-		if (reservedNodeUrns.contains(new NodeUrn(progress.getNodeUrn()))) {
+		if (reservation.getNodeUrns().contains(new NodeUrn(progress.getNodeUrn()))) {
 			eventBus.post(progress);
 		}
 	}
 
 	@Subscribe
 	public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
-		if (reservedNodeUrns.contains(new NodeUrn(response.getNodeUrn()))) {
+		if (reservation.getNodeUrns().contains(new NodeUrn(response.getNodeUrn()))) {
 			eventBus.post(response);
+		}
+	}
+
+	@Subscribe
+	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
+		if (event.getReservation() == reservation) {
+			eventBus.post(event);
+		}
+	}
+
+	@Subscribe
+	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
+		if (event.getReservation() == reservation) {
+			eventBus.post(event);
 		}
 	}
 
