@@ -78,7 +78,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, 0, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case ARE_NODES_CONNECTED:
@@ -92,7 +92,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, 0, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case DISABLE_NODES:
@@ -106,7 +106,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case DISABLE_PHYSICAL_LINKS:
@@ -137,7 +137,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case DISABLE_VIRTUAL_LINKS:
@@ -165,7 +165,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case ENABLE_NODES:
@@ -179,7 +179,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case ENABLE_PHYSICAL_LINKS:
@@ -207,7 +207,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case ENABLE_VIRTUAL_LINKS:
@@ -235,7 +235,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case FLASH_IMAGES:
@@ -253,7 +253,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case RESET_NODES:
@@ -267,7 +267,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case SEND_DOWNSTREAM_MESSAGES:
@@ -285,7 +285,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			case SET_CHANNEL_PIPELINES:
@@ -304,7 +304,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				}
 
 				sendRequests(requestsToBeSent);
-				sendUnconnectedResponses(reservationId, requestId, getUnconnectedNodeUrns(nodeUrns));
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
 			default:
@@ -312,10 +312,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		}
 	}
 
-	private void sendUnconnectedResponses(final String reservationId, final long requestId,
+	private void sendUnconnectedResponses(final String reservationId, final long requestId, final int statusCode,
 										  final Set<NodeUrn> unconnectedNodeUrns) {
 		for (NodeUrn nodeUrn : unconnectedNodeUrns) {
-			portalEventBus.post(newSingleNodeResponse(reservationId, requestId, nodeUrn, -1, "Node is not connected"));
+			portalEventBus.post(
+					newSingleNodeResponse(reservationId, requestId, nodeUrn, statusCode, "Node is not connected")
+			);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.util.Logging;
@@ -16,8 +17,10 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -403,22 +406,141 @@ public class PortalChannelHandlerTest {
 	}
 
 	@Test
-	public void testIfErrorMessageIsReturnedWhenRequestToUnconnectedNodeIsPosted() throws Exception {
-
+	public void testAreNodesAliveRequestToUnconnectedNode() throws Exception {
 		final long requestId = RANDOM.nextLong();
-
 		reset(portalEventBus);
+		portalChannelHandler.onRequest(newAreNodesAliveRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, 0, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
 
+	@Test
+	public void testAreNodesConnectedRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		portalChannelHandler.onRequest(newAreNodesConnectedRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, 0, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testDisableNodesConnectedRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		portalChannelHandler.onRequest(newDisableNodesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testDisablePhysicalLinksRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		final HashMultimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(GATEWAY3_NODE1_UNCONNECTED, GATEWAY1_NODE1);
+		portalChannelHandler.onRequest(newDisablePhysicalLinksRequest(RESERVATION_ID, requestId, links));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testDisableVirtualLinksRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		final HashMultimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(GATEWAY3_NODE1_UNCONNECTED, GATEWAY1_NODE1);
+		portalChannelHandler.onRequest(newDisableVirtualLinksRequest(RESERVATION_ID, requestId, links));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testEnableNodesRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		portalChannelHandler.onRequest(newEnableNodesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testEnablePhysicalLinksRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		final HashMultimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(GATEWAY3_NODE1_UNCONNECTED, GATEWAY1_NODE1);
+		portalChannelHandler.onRequest(newEnablePhysicalLinksRequest(RESERVATION_ID, requestId, links));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testEnableVirtualLinksRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		final HashMultimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(GATEWAY3_NODE1_UNCONNECTED, GATEWAY1_NODE1);
+		portalChannelHandler.onRequest(newEnableVirtualLinksRequest(RESERVATION_ID, requestId, links));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testResetRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
 		portalChannelHandler.onRequest(newResetNodesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
 
+	@Test
+	public void testSendDownstreamMessageRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS,
+				new byte[]{1, 2, 3}
+		)
+		);
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	@Test
+	public void testSetChannelPipelinesRequestToUnconnectedNode() throws Exception {
+		final long requestId = RANDOM.nextLong();
+		reset(portalEventBus);
+		final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs = Lists.newArrayList();
+		portalChannelHandler.onRequest(
+				newSetChannelPipelinesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS, configs)
+		);
+		verifyThatNodeUnconnectedResponseIsPostedBack(requestId, -1, GATEWAY3_NODE1_UNCONNECTED,
+				"Node is not connected"
+		);
+	}
+
+	private void verifyThatNodeUnconnectedResponseIsPostedBack(final long expectedRequestId,
+															   final int expectedStatusCode,
+															   final NodeUrn expectedNodeUrn,
+															   @Nullable final String expectedErrorMessage) {
 		final ArgumentCaptor<SingleNodeResponse> captor = ArgumentCaptor.forClass(SingleNodeResponse.class);
 		verify(portalEventBus).post(captor.capture());
 		final SingleNodeResponse capturedResponse = captor.getValue();
 
-		assertEquals(requestId, capturedResponse.getRequestId());
-		assertEquals(-1, capturedResponse.getStatusCode());
-		assertEquals(GATEWAY3_NODE1_UNCONNECTED, new NodeUrn(capturedResponse.getNodeUrn()));
-		assertEquals("Node is not connected", capturedResponse.getErrorMessage());
+		assertEquals(expectedRequestId, capturedResponse.getRequestId());
+		assertEquals(expectedStatusCode, capturedResponse.getStatusCode());
+		assertEquals(expectedNodeUrn, new NodeUrn(capturedResponse.getNodeUrn()));
+		assertEquals(expectedErrorMessage, capturedResponse.getErrorMessage());
 	}
 
 	private Message verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
