@@ -127,7 +127,8 @@ public class SessionManagementImpl implements SessionManagement {
 			targetNamespace = "http://wisebed.eu/api/v3/sm",
 			className = "eu.wisebed.api.v3.sm.AreNodesAliveResponse"
 	)
-	public List<NodeConnectionStatus> areNodesConnected(@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+	public List<NodeConnectionStatus> areNodesConnected(
+			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
 
 		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
 		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
@@ -136,7 +137,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		try {
 
-			final Map<NodeUrn,SingleNodeResponse> responseMap = responseTracker.get(20, TimeUnit.SECONDS);
+			final Map<NodeUrn, SingleNodeResponse> responseMap = responseTracker.get(20, TimeUnit.SECONDS);
 			final List<NodeConnectionStatus> connectionStatusList = newLinkedList();
 
 			for (Map.Entry<NodeUrn, SingleNodeResponse> entry : responseMap.entrySet()) {
