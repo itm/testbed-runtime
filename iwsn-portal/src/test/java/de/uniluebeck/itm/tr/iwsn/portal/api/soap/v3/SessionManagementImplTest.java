@@ -120,7 +120,7 @@ public class SessionManagementImplTest {
 	@Test
 	public void testAreNodesAlive() throws Exception {
 
-		sessionManagement.areNodesAlive(REQUEST_ID, NODE_URNS, CONTROLLER_ENDPOINT_URL);
+		sessionManagement.areNodesConnected(REQUEST_ID, NODE_URNS, CONTROLLER_ENDPOINT_URL);
 		verify(sessionManagementDeliveryManager).addController(CONTROLLER_ENDPOINT_URL);
 
 		final ArgumentCaptor<Request> req1 = ArgumentCaptor.forClass(Request.class);

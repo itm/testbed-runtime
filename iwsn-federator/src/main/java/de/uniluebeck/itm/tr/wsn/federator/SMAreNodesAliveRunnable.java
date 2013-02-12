@@ -23,10 +23,10 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import java.util.List;
-
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.sm.SessionManagement;
+
+import java.util.List;
 
 class SMAreNodesAliveRunnable implements Runnable {
 
@@ -60,7 +60,7 @@ class SMAreNodesAliveRunnable implements Runnable {
 
 		// instance smEndpoint is potentially not thread-safe!!!
 		synchronized (smEndpoint) {
-			smEndpoint.areNodesAlive(federatedRequestId, nodes, federatorController.getControllerEndpointUrl().toString());
+			smEndpoint.areNodesConnected(federatedRequestId, nodes, federatorController.getControllerEndpointUrl().toString());
 		}
 	}
 }

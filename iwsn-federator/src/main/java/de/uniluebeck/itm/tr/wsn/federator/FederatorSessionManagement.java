@@ -108,7 +108,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	private final SessionManagementPreconditions preconditions;
 
 	/**
-	 * FederatorController instance managing asynchronous replies for {@link SessionManagement#areNodesAlive(long,
+	 * FederatorController instance managing asynchronous replies for {@link SessionManagement#areNodesConnected(long,
 	 * java.util.List, String)}.
 	 */
 	private final FederatorController federatorController;
@@ -579,7 +579,7 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public void areNodesAlive(final long clientRequest, final List<NodeUrn> nodeUrns,
+	public void areNodesConnected(final long clientRequest, final List<NodeUrn> nodeUrns,
 							  final String controllerEndpointUrl) {
 
 		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodeUrns, controllerEndpointUrl);

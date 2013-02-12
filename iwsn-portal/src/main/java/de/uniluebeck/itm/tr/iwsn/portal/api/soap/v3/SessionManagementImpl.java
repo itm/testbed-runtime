@@ -118,16 +118,16 @@ public class SessionManagementImpl implements SessionManagement {
 	@Override
 	@WebMethod
 	@RequestWrapper(
-			localName = "areNodesAlive",
+			localName = "areNodesConnected",
 			targetNamespace = "http://wisebed.eu/api/v3/sm",
 			className = "eu.wisebed.api.v3.sm.AreNodesAlive"
 	)
 	@ResponseWrapper(
-			localName = "areNodesAliveResponse",
+			localName = "areNodesConnectedResponse",
 			targetNamespace = "http://wisebed.eu/api/v3/sm",
 			className = "eu.wisebed.api.v3.sm.AreNodesAliveResponse"
 	)
-	public void areNodesAlive(
+	public void areNodesConnected(
 			@WebParam(name = "requestId", targetNamespace = "") long requestId,
 			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
