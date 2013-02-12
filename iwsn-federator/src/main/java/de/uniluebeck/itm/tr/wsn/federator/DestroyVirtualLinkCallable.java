@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.Link;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -51,7 +52,7 @@ class DestroyVirtualLinkCallable extends AbstractRequestCallable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);

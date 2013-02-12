@@ -205,7 +205,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DisableVirtualizationResponse"
 	)
 	public void disableVirtualization()
-			throws VirtualizationNotSupported_Exception, ReservationNotRunningFault_Exception {
+			throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");
 	}
@@ -222,7 +222,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.EnableVirtualizationResponse"
 	)
-	public void enableVirtualization() throws VirtualizationNotSupported_Exception,
+	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception,
 			ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");

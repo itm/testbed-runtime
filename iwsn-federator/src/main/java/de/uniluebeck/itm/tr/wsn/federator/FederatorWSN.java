@@ -361,12 +361,12 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
+	public void disableVirtualization() throws VirtualizationNotSupportedFault_Exception {
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
-	public void enableVirtualization() throws VirtualizationNotSupported_Exception {
+	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception {
 		throw new RuntimeException("Not yet implemented!");
 	}
 

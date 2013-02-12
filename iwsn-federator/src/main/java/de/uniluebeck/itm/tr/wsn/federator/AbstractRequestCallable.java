@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.concurrent.Callable;
@@ -50,7 +51,7 @@ abstract class AbstractRequestCallable implements Callable<Void> {
 	}
 
 	@Override
-	public Void call() throws ReservationNotRunningFault_Exception {
+	public Void call() throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 
 		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
 
@@ -63,5 +64,5 @@ abstract class AbstractRequestCallable implements Callable<Void> {
 	}
 
 	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception;
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception;
 }
