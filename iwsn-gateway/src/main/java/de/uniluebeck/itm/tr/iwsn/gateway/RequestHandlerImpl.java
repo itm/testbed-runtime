@@ -407,7 +407,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
 		final Iterable<NodeUrn> nodeUrns = transform(
-				request.getAreNodesAliveRequest().getNodeUrnsList(),
+				request.getAreNodesConnectedRequest().getNodeUrnsList(),
 				STRING_TO_NODE_URN
 		);
 
