@@ -37,7 +37,6 @@ public class ReservationImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when(reservation.getNodeUrns()).thenReturn(NODE_URNS);
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		reservation = new ReservationImpl(reservationEventBusFactory, portalEventBus, NODE_URNS, INTERVAL);
 	}
