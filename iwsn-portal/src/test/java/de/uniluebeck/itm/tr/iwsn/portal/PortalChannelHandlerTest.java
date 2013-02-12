@@ -2,13 +2,11 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.Event;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,16 +42,22 @@ public class PortalChannelHandlerTest {
 
 	private static final NodeUrn GATEWAY2_NODE2 = new NodeUrn("urn:unit-test:0x0022");
 
-	private static final HashSet<NodeUrn> GATEWAY1_NODE_URN_STRINGS = newHashSet(
+	private static final NodeUrn GATEWAY3_NODE1_UNCONNECTED = new NodeUrn("urn:unit-test:0x0031");
+
+	private static final HashSet<NodeUrn> GATEWAY1_NODE_URNS = newHashSet(
 			GATEWAY1_NODE1
 	);
 
-	private static final HashSet<NodeUrn> GATEWAY2_NODE_URN_STRINGS = newHashSet(
+	private static final HashSet<NodeUrn> GATEWAY2_NODE_URNS = newHashSet(
 			GATEWAY2_NODE1,
 			GATEWAY2_NODE2
 	);
 
-	private static final Iterable<NodeUrn> ALL_NODE_URNS = newHashSet(
+	private static final HashSet<NodeUrn> GATEWAY3_NODE_URNS = newHashSet(
+			GATEWAY3_NODE1_UNCONNECTED
+	);
+
+	private static final Iterable<NodeUrn> ALL_CONNECTED_NODE_URNS = newHashSet(
 			GATEWAY1_NODE1,
 			GATEWAY2_NODE1,
 			GATEWAY2_NODE2
@@ -80,19 +84,22 @@ public class PortalChannelHandlerTest {
 			newArrayList(
 					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
 							.setName("n1")
-							.addConfiguration(
-									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
-											.setKey("k1").setValue("v1")
+							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+									.newBuilder()
+									.setKey("k1")
+									.setValue("v1")
 							).build(),
 					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
 							.setName("n2")
-							.addConfiguration(
-									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
-											.setKey("n2k1").setValue("n2v1")
+							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+									.newBuilder()
+									.setKey("n2k1")
+									.setValue("n2v1")
 							)
-							.addConfiguration(
-									SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
-											.setKey("n2k2").setValue("n2v2")
+							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+									.newBuilder()
+									.setKey("n2k2")
+									.setValue("n2v2")
 							).build()
 			);
 
@@ -147,15 +154,14 @@ public class PortalChannelHandlerTest {
 				gateway1Channel,
 				Message.newBuilder()
 						.setType(Message.Type.EVENT)
-						.setEvent(
-								Event.newBuilder()
-										.setType(Event.Type.DEVICES_ATTACHED)
-										.setEventId(RANDOM.nextLong())
-										.setDevicesAttachedEvent(
-												DevicesAttachedEvent.newBuilder()
-														.addNodeUrns(GATEWAY1_NODE1.toString())
-														.setTimestamp(new DateTime().getMillis())
-										)
+						.setEvent(Event.newBuilder()
+								.setType(Event.Type.DEVICES_ATTACHED)
+								.setEventId(RANDOM.nextLong())
+								.setDevicesAttachedEvent(
+										DevicesAttachedEvent.newBuilder()
+												.addNodeUrns(GATEWAY1_NODE1.toString())
+												.setTimestamp(new DateTime().getMillis())
+								)
 						).build(),
 				null
 		)
@@ -165,16 +171,15 @@ public class PortalChannelHandlerTest {
 				gateway2Channel,
 				Message.newBuilder()
 						.setType(Message.Type.EVENT)
-						.setEvent(
-								Event.newBuilder()
-										.setType(Event.Type.DEVICES_ATTACHED)
-										.setEventId(RANDOM.nextLong())
-										.setDevicesAttachedEvent(
-												DevicesAttachedEvent.newBuilder()
-														.addNodeUrns(GATEWAY2_NODE1.toString())
-														.addNodeUrns(GATEWAY2_NODE2.toString())
-														.setTimestamp(new DateTime().getMillis())
-										)
+						.setEvent(Event.newBuilder()
+								.setType(Event.Type.DEVICES_ATTACHED)
+								.setEventId(RANDOM.nextLong())
+								.setDevicesAttachedEvent(
+										DevicesAttachedEvent.newBuilder()
+												.addNodeUrns(GATEWAY2_NODE1.toString())
+												.addNodeUrns(GATEWAY2_NODE2.toString())
+												.setTimestamp(new DateTime().getMillis())
+								)
 						).build(),
 				null
 		)
@@ -192,12 +197,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newAreNodesAliveRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newAreNodesAliveRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS));
 
 		final Message expectedMessage1 =
-				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS);
 		final Message expectedMessage2 =
-				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
+				newAreNodesAliveRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -209,12 +214,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newAreNodesConnectedRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newAreNodesConnectedRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS));
 
 		final Message expectedMessage1 =
-				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS);
 		final Message expectedMessage2 =
-				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
+				newAreNodesConnectedRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -226,12 +231,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newDisableNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newDisableNodesRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS));
 
 		final Message expectedMessage1 =
-				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS);
 		final Message expectedMessage2 =
-				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
+				newDisableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -243,12 +248,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newEnableNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newEnableNodesRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS));
 
 		final Message expectedMessage1 =
-				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS);
 		final Message expectedMessage2 =
-				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
+				newEnableNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -260,12 +265,12 @@ public class PortalChannelHandlerTest {
 
 		final long requestId = RANDOM.nextLong();
 
-		portalChannelHandler.onRequest(newResetNodesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS));
+		portalChannelHandler.onRequest(newResetNodesRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS));
 
 		final Message expectedMessage1 =
-				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS);
+				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS);
 		final Message expectedMessage2 =
-				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS);
+				newResetNodesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -278,12 +283,15 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 		final byte[] bytes = "Hello, World!".getBytes(Charset.defaultCharset());
 
-		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, bytes));
+		portalChannelHandler.onRequest(newSendDownstreamMessageRequest(RESERVATION_ID, requestId,
+				ALL_CONNECTED_NODE_URNS, bytes
+		)
+		);
 
 		final Message expectedMessage1 =
-				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, bytes);
+				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS, bytes);
 		final Message expectedMessage2 =
-				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, bytes);
+				newSendDownstreamMessageRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS, bytes);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -296,10 +304,13 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 		final byte[] imageBytes = "Hello, World!".getBytes(Charset.defaultCharset());
 
-		portalChannelHandler.onRequest(newFlashImagesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, imageBytes));
+		portalChannelHandler
+				.onRequest(newFlashImagesRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS, imageBytes));
 
-		final Message expectedMessage1 = newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, imageBytes);
-		final Message expectedMessage2 = newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, imageBytes);
+		final Message expectedMessage1 =
+				newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS, imageBytes);
+		final Message expectedMessage2 =
+				newFlashImagesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS, imageBytes);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
@@ -372,17 +383,42 @@ public class PortalChannelHandlerTest {
 		final long requestId = RANDOM.nextLong();
 
 		portalChannelHandler.onRequest(
-				newSetChannelPipelinesRequest(RESERVATION_ID, requestId, ALL_NODE_URNS, CHANNEL_HANDLER_CONFIGS)
+				newSetChannelPipelinesRequest(RESERVATION_ID, requestId, ALL_CONNECTED_NODE_URNS,
+						CHANNEL_HANDLER_CONFIGS
+				)
 		);
 
 		final Message expectedMessage1 =
-				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
+				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY1_NODE_URNS,
+						CHANNEL_HANDLER_CONFIGS
+				);
 		final Message expectedMessage2 =
-				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URN_STRINGS, CHANNEL_HANDLER_CONFIGS);
+				newSetChannelPipelinesRequestMessage(RESERVATION_ID, requestId, GATEWAY2_NODE_URNS,
+						CHANNEL_HANDLER_CONFIGS
+				);
 
 		assertEquals(expectedMessage1, verifyAndCaptureMessage(gateway1Context, gateway1Channel));
 		assertEquals(expectedMessage2, verifyAndCaptureMessage(gateway2Context, gateway2Channel));
 		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
+	}
+
+	@Test
+	public void testIfErrorMessageIsReturnedWhenRequestToUnconnectedNodeIsPosted() throws Exception {
+
+		final long requestId = RANDOM.nextLong();
+
+		reset(portalEventBus);
+
+		portalChannelHandler.onRequest(newResetNodesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS));
+
+		final ArgumentCaptor<SingleNodeResponse> captor = ArgumentCaptor.forClass(SingleNodeResponse.class);
+		verify(portalEventBus).post(captor.capture());
+		final SingleNodeResponse capturedResponse = captor.getValue();
+
+		assertEquals(requestId, capturedResponse.getRequestId());
+		assertEquals(-1, capturedResponse.getStatusCode());
+		assertEquals(GATEWAY3_NODE1_UNCONNECTED, new NodeUrn(capturedResponse.getNodeUrn()));
+		assertEquals("Node is not connected", capturedResponse.getErrorMessage());
 	}
 
 	private Message verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
