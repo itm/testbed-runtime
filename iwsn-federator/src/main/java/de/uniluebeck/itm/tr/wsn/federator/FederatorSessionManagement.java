@@ -312,6 +312,11 @@ public class FederatorSessionManagement implements SessionManagement {
 		return Lists.newArrayList(intersectedFilters);
 	}
 
+	@Override
+	public String getVersion() {
+		return "3.0";
+	}
+
 	private static final Comparator<ChannelHandlerDescription> CHANNEL_HANDLER_DESCRIPTION_COMPARATOR =
 			new Comparator<ChannelHandlerDescription>() {
 				@Override

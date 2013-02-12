@@ -369,4 +369,21 @@ public class SessionManagementImpl implements SessionManagement {
 	public List<String> getSupportedVirtualLinkFilters() {
 		return newArrayList();
 	}
+
+	@Override
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(
+			localName = "getVersion",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetVersion"
+	)
+	@ResponseWrapper(
+			localName = "getVersionResponse",
+			targetNamespace = "http://wisebed.eu/api/v3/sm",
+			className = "eu.wisebed.api.v3.sm.GetVersionResponse"
+	)
+	public String getVersion() {
+		return "3.0";
+	}
 }

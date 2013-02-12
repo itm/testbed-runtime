@@ -35,7 +35,6 @@ import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.net.URI;
 import java.util.List;
@@ -139,7 +138,7 @@ public class FederatorWSN implements WSN {
 
 		Map<WSN, List<NodeUrn>> map = federationManager.getEndpointToNodeUrnMap(nodeUrns);
 
-		log.debug("Invoking send({}, {}) on {}", new Object[]{nodeUrns, messageBytes, map.keySet()});
+		log.debug("Invoking send({}, {}) on {}", nodeUrns, messageBytes, map.keySet());
 		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
@@ -156,11 +155,6 @@ public class FederatorWSN implements WSN {
 			)
 			);
 		}
-	}
-
-	@Override
-	public String getVersion() {
-		return "3.0";
 	}
 
 	@Override
@@ -257,9 +251,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = federationManager.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug("Invoking setVirtualLink({}, {}, {}, {}, {}) on {}",
-					new Object[]{
-							sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
-					}
+					sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
 			);
 
 			executorService.submit(new SetVirtualLinkRunnable(
@@ -295,7 +287,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug(
 					"Invoking destroyVirtualLink({}, {}) on {}",
-					new Object[]{sourceNodeUrn, targetNodeUrn, endpoint}
+					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
 			executorService.submit(new DestroyVirtualLinkRunnable(
@@ -353,7 +345,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug(
 					"Invoking disablePhysicalLink({}, {}) on {}",
-					new Object[]{sourceNodeUrn, targetNodeUrn, endpoint}
+					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
 			executorService.submit(new DisablePhysicalLinkRunnable(
@@ -420,7 +412,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug(
 					"Invoking enablePhysicalLink({}, {}) on {}",
-					new Object[]{sourceNodeUrn, targetNodeUrn, endpoint}
+					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
 			executorService.submit(new EnablePhysicalLinkRunnable(

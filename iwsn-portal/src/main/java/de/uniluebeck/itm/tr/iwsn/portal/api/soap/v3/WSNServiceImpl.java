@@ -326,23 +326,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	@WebMethod
-	@WebResult(targetNamespace = "")
-	@RequestWrapper(
-			localName = "getVersion",
-			targetNamespace = "http://wisebed.eu/api/v3/wsn",
-			className = "eu.wisebed.api.v3.wsn.GetVersion"
-	)
-	@ResponseWrapper(
-			localName = "getVersionResponse",
-			targetNamespace = "http://wisebed.eu/api/v3/wsn",
-			className = "eu.wisebed.api.v3.wsn.GetVersionResponse"
-	)
-	public String getVersion() {
-		return "3.0";
-	}
-
-	@Override
-	@WebMethod
 	@RequestWrapper(
 			localName = "removeController",
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
