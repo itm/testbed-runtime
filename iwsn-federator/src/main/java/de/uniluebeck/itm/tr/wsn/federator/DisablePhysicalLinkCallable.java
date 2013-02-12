@@ -23,39 +23,38 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-abstract class AbstractRequestRunnable implements Runnable {
+import static com.google.common.collect.Lists.newArrayList;
 
-	protected final FederatorController federatorController;
+class DisablePhysicalLinkCallable extends AbstractRequestCallable {
 
-	protected final WSN wsnEndpoint;
+	private final NodeUrn sourceNodeUrn;
 
-	protected final long federatedRequestId;
+	private final NodeUrn targetNodeUrn;
 
-	protected final long federatorRequestId;
+	DisablePhysicalLinkCallable(final FederatorController federatorController,
+								final WSN wsnEndpoint,
+								final long federatedRequestId,
+								final long federatorRequestId,
+								final NodeUrn sourceNodeUrn,
+								final NodeUrn targetNodeUrn) {
 
-	protected AbstractRequestRunnable(final FederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId) {
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.federatorController = federatorController;
-		this.wsnEndpoint = wsnEndpoint;
-		this.federatedRequestId = federatedRequestId;
-		this.federatorRequestId = federatorRequestId;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
-	public void run() {
-
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
-
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			executeRequestOnFederatedTestbed(federatedRequestId);
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
-
-	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId);
 }

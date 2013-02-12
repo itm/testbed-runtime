@@ -26,8 +26,8 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 
 import java.util.List;
 import java.util.Map;
@@ -55,14 +55,14 @@ public class SessionManagementHelper {
 		return "wsnInstanceHash" + map.hashCode();
 	}
 
-	public static ExperimentNotRunningFault_Exception createExperimentNotRunningException(
+	public static ReservationNotRunningFault_Exception createExperimentNotRunningException(
 			final String secretReservationKey) {
 
-		String msg = "Experiment with secret reservation key \"" + secretReservationKey + "\" either does not exist "
+		String msg = "Reservation with secret reservation key \"" + secretReservationKey + "\" either does not exist "
 				+ "or is currently not running.";
 
-		ExperimentNotRunningFault exception = new ExperimentNotRunningFault();
+		ReservationNotRunningFault exception = new ReservationNotRunningFault();
 		exception.setMessage(msg);
-		return new ExperimentNotRunningFault_Exception(msg, exception);
+		return new ReservationNotRunningFault_Exception(msg, exception);
 	}
 }

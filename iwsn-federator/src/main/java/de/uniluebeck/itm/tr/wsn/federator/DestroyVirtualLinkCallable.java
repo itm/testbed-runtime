@@ -25,22 +25,23 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class DisablePhysicalLinkRunnable extends AbstractRequestRunnable {
+class DestroyVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn sourceNodeUrn;
 
 	private final NodeUrn targetNodeUrn;
 
-	DisablePhysicalLinkRunnable(final FederatorController federatorController,
-								final WSN wsnEndpoint,
-								final long federatedRequestId,
-								final long federatorRequestId,
-								final NodeUrn sourceNodeUrn,
-								final NodeUrn targetNodeUrn) {
+	DestroyVirtualLinkCallable(final FederatorController federatorController,
+							   final WSN wsnEndpoint,
+							   final long federatedRequestId,
+							   final long federatorRequestId,
+							   final NodeUrn sourceNodeUrn,
+							   final NodeUrn targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
@@ -49,10 +50,11 @@ class DisablePhysicalLinkRunnable extends AbstractRequestRunnable {
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
+		wsnEndpoint.destroyVirtualLinks(federatedRequestId, newArrayList(link));
 	}
 }

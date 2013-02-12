@@ -23,53 +23,30 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.VirtualLink;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+class FlashProgramsCallable extends AbstractRequestCallable {
 
-class SetVirtualLinkRunnable extends AbstractRequestRunnable {
+	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	private final NodeUrn sourceNodeUrn;
-
-	private final NodeUrn targetNodeUrn;
-
-	private final String remoteWSNServiceEndpointUrl;
-
-	private final List<String> parameters;
-
-	private final List<String> filters;
-
-	SetVirtualLinkRunnable(final FederatorController federatorController,
-						   final WSN wsnEndpoint,
-						   final long federatedRequestId,
-						   final long federatorRequestId,
-						   final NodeUrn sourceNodeUrn,
-						   final NodeUrn targetNodeUrn,
-						   final String remoteWSNServiceEndpointUrl,
-						   final List<String> parameters,
-						   final List<String> filters) {
+	FlashProgramsCallable(final FederatorController federatorController,
+						  final WSN wsnEndpoint,
+						  final long federatedRequestId,
+						  final long federatorRequestId,
+						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
-		this.remoteWSNServiceEndpointUrl = remoteWSNServiceEndpointUrl;
-		this.parameters = parameters;
-		this.filters = filters;
+		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		final VirtualLink virtualLink = new VirtualLink();
-		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
-		virtualLink.setSourceNodeUrn(sourceNodeUrn);
-		virtualLink.setTargetNodeUrn(targetNodeUrn);
-		virtualLink.getParameters().addAll(parameters);
-		virtualLink.getFilters().addAll(filters);
-		wsnEndpoint.setVirtualLinks(federatedRequestId, newArrayList(virtualLink));
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
 	}
 }

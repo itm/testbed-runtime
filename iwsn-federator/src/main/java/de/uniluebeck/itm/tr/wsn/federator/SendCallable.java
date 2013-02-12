@@ -24,35 +24,33 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
-class EnablePhysicalLinkRunnable extends AbstractRequestRunnable {
+class SendCallable extends AbstractRequestCallable {
 
-	private final NodeUrn sourceNodeUrn;
+	private final List<NodeUrn> nodeUrns;
 
-	private final NodeUrn targetNodeUrn;
+	private final byte[] message;
 
-	public EnablePhysicalLinkRunnable(final FederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId,
-									  final NodeUrn sourceNodeUrn,
-									  final NodeUrn targetNodeUrn) {
+	SendCallable(final FederatorController federatorController,
+				 final WSN wsnEndpoint,
+				 final long federatedRequestId,
+				 final long federatorRequestId,
+				 final List<NodeUrn> nodeUrns,
+				 final byte[] message) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
+		this.nodeUrns = nodeUrns;
+		this.message = message;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
 	}
 }

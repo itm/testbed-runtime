@@ -24,15 +24,16 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class EnableNodeRunnable extends AbstractRequestRunnable {
+class EnableNodeCallable extends AbstractRequestCallable {
 
 	private final NodeUrn nodeUrn;
 
-	EnableNodeRunnable(final FederatorController federatorController,
+	EnableNodeCallable(final FederatorController federatorController,
 					   final WSN wsnEndpoint,
 					   final long federatedRequestId,
 					   final long federatorRequestId,
@@ -44,7 +45,8 @@ class EnableNodeRunnable extends AbstractRequestRunnable {
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
 		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 

@@ -145,7 +145,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
-			executorService.submit(new SendRunnable(
+			executorService.submit(new SendCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -171,7 +171,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeUrnSubset = entry.getValue();
 
-			executorService.submit(new WSNAreNodesAliveRunnable(
+			executorService.submit(new WSNAreNodesAliveCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -220,7 +220,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
-			executorService.submit(new ResetNodesRunnable(
+			executorService.submit(new ResetNodesCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -254,7 +254,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
 			);
 
-			executorService.submit(new SetVirtualLinkRunnable(
+			executorService.submit(new SetVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -290,7 +290,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new DestroyVirtualLinkRunnable(
+			executorService.submit(new DestroyVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -316,7 +316,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug("Invoking disableNode({}) on {}", nodeUrn, endpoint);
 
-			executorService.submit(new DisableNodeRunnable(
+			executorService.submit(new DisableNodeCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -348,7 +348,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new DisablePhysicalLinkRunnable(
+			executorService.submit(new DisablePhysicalLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -384,7 +384,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug("Invoking enableNode({}) on {}", new Object[]{nodeUrn, endpoint});
 
-			executorService.submit(new EnableNodeRunnable(
+			executorService.submit(new EnableNodeCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -415,7 +415,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new EnablePhysicalLinkRunnable(
+			executorService.submit(new EnablePhysicalLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -455,7 +455,7 @@ public class FederatorWSN implements WSN {
 		for (final WSN wsn : federatedConfigurations.keySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			executorService.submit(new FlashProgramsRunnable(
+			executorService.submit(new FlashProgramsCallable(
 					federatorController,
 					wsn,
 					federatedRequestId,
@@ -478,7 +478,7 @@ public class FederatorWSN implements WSN {
 		for (WSN wsnEndpoint : endpointToNodesMapping.keySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			executorService.submit(new SetChannelPipelineRunnable(
+			executorService.submit(new SetChannelPipelineCallable(
 					federatorController,
 					wsnEndpoint,
 					federatedRequestId,

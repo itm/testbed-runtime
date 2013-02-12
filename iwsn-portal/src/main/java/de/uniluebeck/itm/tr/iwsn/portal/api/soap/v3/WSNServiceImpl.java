@@ -14,8 +14,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +126,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.AreNodesAliveResponse"
 	)
 	public void areNodesAlive(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+							  @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
 	}
@@ -146,7 +145,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DestroyVirtualLinksResponse"
 	)
 	public void destroyVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									@WebParam(name = "links", targetNamespace = "") List<Link> links) {
+									@WebParam(name = "links", targetNamespace = "") List<Link> links)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
 				newDisableVirtualLinksRequest(reservationId, requestId, convert(links))
@@ -166,7 +166,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DisableNodesResponse"
 	)
 	public void disableNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+							 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
@@ -184,7 +185,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DisablePhysicalLinksResponse"
 	)
 	public void disablePhysicalLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									 @WebParam(name = "links", targetNamespace = "") List<Link> links) {
+									 @WebParam(name = "links", targetNamespace = "") List<Link> links)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus()
 				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convert(links)));
@@ -202,7 +204,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.DisableVirtualizationResponse"
 	)
-	public void disableVirtualization() throws VirtualizationNotSupported_Exception {
+	public void disableVirtualization()
+			throws VirtualizationNotSupported_Exception, ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");
 	}
@@ -219,7 +222,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.EnableVirtualizationResponse"
 	)
-	public void enableVirtualization() throws VirtualizationNotSupported_Exception {
+	public void enableVirtualization() throws VirtualizationNotSupported_Exception,
+			ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");
 	}
@@ -237,7 +241,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.EnableNodesResponse"
 	)
 	public void enableNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+							@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
@@ -255,7 +260,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.EnablePhysicalLinksResponse"
 	)
 	public void enablePhysicalLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									@WebParam(name = "links", targetNamespace = "") List<Link> links) {
+									@WebParam(name = "links", targetNamespace = "") List<Link> links)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
 				newEnablePhysicalLinksRequest(reservationId, requestId, convert(links))
@@ -276,7 +282,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void flashPrograms(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 							  @WebParam(name = "configurations", targetNamespace = "")
-							  List<FlashProgramsConfiguration> configurations) {
+							  List<FlashProgramsConfiguration> configurations)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		for (FlashProgramsConfiguration configuration : configurations) {
 			reservation.getReservationEventBus().post(newFlashImagesRequest(
@@ -302,7 +309,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.GetChannelPipelinesResponse"
 	)
 	public List<ChannelPipelinesMap> getChannelPipelines(
-			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");
 	}
@@ -355,7 +363,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.ResetNodesResponse"
 	)
 	public void resetNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-						   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
+						   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newResetNodesRequest(reservationId, requestId, nodeUrns));
 	}
@@ -374,7 +383,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void send(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 					 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
-					 @WebParam(name = "message", targetNamespace = "") byte[] message) {
+					 @WebParam(name = "message", targetNamespace = "") byte[] message)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
 				newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, message)
@@ -396,7 +406,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public void setChannelPipeline(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 								   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 								   @WebParam(name = "channelHandlerConfigurations", targetNamespace = "")
-								   List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+								   List<ChannelHandlerConfiguration> channelHandlerConfigurations)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newSetChannelPipelinesRequest(
 				reservationId,
@@ -421,7 +432,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void setSerialPortParameters(@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 										@WebParam(name = "parameters", targetNamespace = "")
-										SerialPortParameters parameters) {
+										SerialPortParameters parameters) throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		throw new RuntimeException("TODO implement");
 	}
@@ -439,7 +450,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.SetVirtualLinksResponse"
 	)
 	public void setVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-								@WebParam(name = "links", targetNamespace = "") List<VirtualLink> links) {
+								@WebParam(name = "links", targetNamespace = "") List<VirtualLink> links)
+			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
 				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
@@ -493,14 +505,14 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 		return retList;
 	}
 
-	private void assertReservationIntervalMet() {
+	private void assertReservationIntervalMet() throws ReservationNotRunningFault_Exception {
 		if (!reservation.getInterval().containsNow()) {
-			ExperimentNotRunningFault fault = new ExperimentNotRunningFault();
+			ReservationNotRunningFault fault = new ReservationNotRunningFault();
 			final String message = reservation.getInterval().isBeforeNow() ?
 					"Reservation interval is over" :
 					"Reservation interval lies in the future";
 			fault.setMessage(message);
-			throw new RuntimeException(new ExperimentNotRunningFault_Exception(message, fault));
+			throw new RuntimeException(new ReservationNotRunningFault_Exception(message, fault));
 		}
 	}
 }

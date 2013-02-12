@@ -207,7 +207,7 @@ public class SessionManagementImpl implements SessionManagement {
 	)
 	public String getInstance(@WebParam(name = "secretReservationKey", targetNamespace = "")
 							  List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault {
+			throws UnknownSecretReservationKeyFault {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
 

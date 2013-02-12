@@ -24,27 +24,30 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import java.util.List;
+import static com.google.common.collect.Lists.newArrayList;
 
-class WSNAreNodesAliveRunnable extends AbstractRequestRunnable {
+class DisableNodeCallable extends AbstractRequestCallable {
 
-	private final List<NodeUrn> nodes;
+	private final NodeUrn nodeUrn;
 
-	WSNAreNodesAliveRunnable(final FederatorController federatorController,
-							 final WSN wsnEndpoint,
-							 final long federatedRequestId,
-							 final long federatorRequestId,
-							 final List<NodeUrn> nodes) {
+	DisableNodeCallable(final FederatorController federatorController,
+						final WSN wsnEndpoint,
+						final long federatedRequestId,
+						final long federatorRequestId,
+						final NodeUrn nodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodes = nodes;
+		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		wsnEndpoint.disableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
+
 }

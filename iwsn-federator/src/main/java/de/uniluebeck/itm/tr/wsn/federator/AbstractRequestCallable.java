@@ -23,36 +23,45 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.concurrent.Callable;
 
-class DestroyVirtualLinkRunnable extends AbstractRequestRunnable {
+abstract class AbstractRequestCallable implements Callable<Void> {
 
-	private final NodeUrn sourceNodeUrn;
+	protected final FederatorController federatorController;
 
-	private final NodeUrn targetNodeUrn;
+	protected final WSN wsnEndpoint;
 
-	DestroyVirtualLinkRunnable(final FederatorController federatorController,
-							   final WSN wsnEndpoint,
-							   final long federatedRequestId,
-							   final long federatorRequestId,
-							   final NodeUrn sourceNodeUrn,
-							   final NodeUrn targetNodeUrn) {
+	protected final long federatedRequestId;
 
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+	protected final long federatorRequestId;
 
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
+	protected AbstractRequestCallable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId) {
+
+		this.federatorController = federatorController;
+		this.wsnEndpoint = wsnEndpoint;
+		this.federatedRequestId = federatedRequestId;
+		this.federatorRequestId = federatorRequestId;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.destroyVirtualLinks(federatedRequestId, newArrayList(link));
+	public Void call() throws ReservationNotRunningFault_Exception {
+
+		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
+
+		// instance wsnEndpoint is potentially not thread-safe!!!
+		synchronized (wsnEndpoint) {
+			executeRequestOnFederatedTestbed(federatedRequestId);
+		}
+
+		return null;
 	}
+
+	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception;
 }

@@ -23,28 +23,38 @@
 
 package de.uniluebeck.itm.tr.wsn.federator;
 
-import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.Link;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import java.util.List;
+import static com.google.common.collect.Lists.newArrayList;
 
-class FlashProgramsRunnable extends AbstractRequestRunnable {
+class EnablePhysicalLinkCallable extends AbstractRequestCallable {
 
-	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
+	private final NodeUrn sourceNodeUrn;
 
-	FlashProgramsRunnable(final FederatorController federatorController,
-						  final WSN wsnEndpoint,
-						  final long federatedRequestId,
-						  final long federatorRequestId,
-						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+	private final NodeUrn targetNodeUrn;
+
+	public EnablePhysicalLinkCallable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId,
+									  final NodeUrn sourceNodeUrn,
+									  final NodeUrn targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.flashProgramsConfigurations = flashProgramsConfigurations;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
 }

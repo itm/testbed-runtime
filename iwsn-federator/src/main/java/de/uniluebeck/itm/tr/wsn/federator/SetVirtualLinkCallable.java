@@ -24,27 +24,54 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.VirtualLink;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
-class ResetNodesRunnable extends AbstractRequestRunnable {
+import static com.google.common.collect.Lists.newArrayList;
 
-	private List<NodeUrn> nodes;
+class SetVirtualLinkCallable extends AbstractRequestCallable {
 
-	ResetNodesRunnable(final FederatorController federatorController,
-					   final WSN wsnEndpoint,
-					   final long federatedRequestId,
-					   final long federatorRequestId,
-					   final List<NodeUrn> nodes) {
+	private final NodeUrn sourceNodeUrn;
+
+	private final NodeUrn targetNodeUrn;
+
+	private final String remoteWSNServiceEndpointUrl;
+
+	private final List<String> parameters;
+
+	private final List<String> filters;
+
+	SetVirtualLinkCallable(final FederatorController federatorController,
+						   final WSN wsnEndpoint,
+						   final long federatedRequestId,
+						   final long federatorRequestId,
+						   final NodeUrn sourceNodeUrn,
+						   final NodeUrn targetNodeUrn,
+						   final String remoteWSNServiceEndpointUrl,
+						   final List<String> parameters,
+						   final List<String> filters) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodes = nodes;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
+		this.remoteWSNServiceEndpointUrl = remoteWSNServiceEndpointUrl;
+		this.parameters = parameters;
+		this.filters = filters;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId) {
-		wsnEndpoint.resetNodes(federatedRequestId, nodes);
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception {
+		final VirtualLink virtualLink = new VirtualLink();
+		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
+		virtualLink.setSourceNodeUrn(sourceNodeUrn);
+		virtualLink.setTargetNodeUrn(targetNodeUrn);
+		virtualLink.getParameters().addAll(parameters);
+		virtualLink.getFilters().addAll(filters);
+		wsnEndpoint.setVirtualLinks(federatedRequestId, newArrayList(virtualLink));
 	}
 }

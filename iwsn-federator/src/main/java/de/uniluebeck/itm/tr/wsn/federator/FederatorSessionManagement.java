@@ -348,7 +348,7 @@ public class FederatorSessionManagement implements SessionManagement {
 
 	@Override
 	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
-			throws ExperimentNotRunningFault_Exception, UnknownSecretReservationKeyFault {
+			throws UnknownSecretReservationKeyFault {
 
 		preconditions.checkGetInstanceArguments(secretReservationKeys);
 
