@@ -9,6 +9,8 @@ import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.util.SettableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -25,6 +27,8 @@ import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 
 @SuppressWarnings("NullableProblems")
 class ResponseTrackerImpl implements ResponseTracker {
+
+	private final static Logger log = LoggerFactory.getLogger(ResponseTrackerImpl.class);
 
 	private final Request request;
 
@@ -55,7 +59,11 @@ class ResponseTrackerImpl implements ResponseTracker {
 	@Subscribe
 	public void onSingleNodeResponse(final SingleNodeResponse response) {
 
-		final boolean reservationIdEquals = request.hasReservationId() && response.hasReservationId() &&
+		log.trace("ResponseTrackerImpl.onSingleNodeResponse({})", response);
+
+		final boolean reservationIdEquals =
+				((request.hasReservationId() && response.hasReservationId()) ||
+				(!request.hasReservationId() && !response.hasReservationId())) &&
 				request.getReservationId().equals(response.getReservationId());
 		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
 
