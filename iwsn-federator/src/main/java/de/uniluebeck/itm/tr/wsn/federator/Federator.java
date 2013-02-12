@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableSet;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -130,13 +129,9 @@ public class Federator {
 			preconditions.addServedUrnPrefixes(endpointPrefixSet);
 		}
 
-		final URI randomControllerEndpointUrl = createRandomControllerEndpointUrl(config);
-		final FederatorController federatorController = new FederatorController(randomControllerEndpointUrl);
-
 		final FederatorSessionManagement federatorSessionManagement = new FederatorSessionManagement(
 				federationManager,
 				preconditions,
-				federatorController,
 				config
 		);
 
@@ -157,16 +152,6 @@ public class Federator {
 		}
 		);
 
-	}
-
-	private static URI createRandomControllerEndpointUrl(final FederatorWSNConfig config) {
-		final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-		final URI federatorSmEndpointURL = config.getFederatorSmEndpointURL();
-		return URI.create(federatorSmEndpointURL.getScheme() + "://" +
-				federatorSmEndpointURL.getHost() + ":" +
-				federatorSmEndpointURL.getPort() + "/" +
-				secureIdGenerator.getNextId() + "/controller"
-		);
 	}
 
 	private static void usage(Options options) {

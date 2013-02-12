@@ -24,43 +24,28 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.sm.NodeConnectionStatus;
 import eu.wisebed.api.v3.sm.SessionManagement;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-class SMAreNodesAliveRunnable implements Runnable {
-
-	private final FederatorController federatorController;
-
-	private final long federatedRequestId;
-
-	private final long federatorRequestId;
+class SMAreNodesAliveCallable implements Callable<List<NodeConnectionStatus>> {
 
 	private final SessionManagement smEndpoint;
 
 	private final List<NodeUrn> nodes;
 
-	SMAreNodesAliveRunnable(final FederatorController federatorController,
-							final SessionManagement smEndpoint,
-							final long federatedRequestId,
-							final long federatorRequestId,
-							final List<NodeUrn> nodes) {
-
-		this.federatorController = federatorController;
+	SMAreNodesAliveCallable(final SessionManagement smEndpoint, final List<NodeUrn> nodes) {
 		this.smEndpoint = smEndpoint;
-		this.federatedRequestId = federatedRequestId;
-		this.federatorRequestId = federatorRequestId;
 		this.nodes = nodes;
 	}
 
 	@Override
-	public void run() {
-
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
-
+	public List<NodeConnectionStatus> call() throws Exception {
 		// instance smEndpoint is potentially not thread-safe!!!
 		synchronized (smEndpoint) {
-			smEndpoint.areNodesConnected(federatedRequestId, nodes, federatorController.getControllerEndpointUrl().toString());
+			return smEndpoint.areNodesConnected(nodes);
 		}
 	}
 }

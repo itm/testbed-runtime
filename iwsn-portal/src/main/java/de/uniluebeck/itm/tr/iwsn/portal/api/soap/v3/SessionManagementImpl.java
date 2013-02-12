@@ -13,15 +13,13 @@ import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
-import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
+import eu.wisebed.api.v3.sm.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +33,14 @@ import javax.xml.ws.ResponseWrapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static de.uniluebeck.itm.tr.iwsn.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
@@ -65,8 +65,6 @@ public class SessionManagementImpl implements SessionManagement {
 				}
 			};
 
-	private final DeliveryManager sessionManagementDeliveryManager;
-
 	private final PortalEventBus portalEventBus;
 
 	private final ResponseTrackerFactory responseTrackerFactory;
@@ -89,18 +87,19 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Map<Reservation, DeliveryManager> deliveryManagers = newHashMap();
 
+	private final RequestIdProvider requestIdProvider;
+
 	@Inject
-	public SessionManagementImpl(final DeliveryManager sessionManagementDeliveryManager,
-								 final PortalEventBus portalEventBus,
+	public SessionManagementImpl(final PortalEventBus portalEventBus,
 								 final ResponseTrackerFactory responseTrackerFactory,
 								 final PortalConfig portalConfig,
 								 final Set<HandlerFactory> handlerFactories,
 								 final DeviceConfigDB deviceConfigDB,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
-								 final DeliveryManagerFactory deliveryManagerFactory) {
+								 final DeliveryManagerFactory deliveryManagerFactory,
+								 final RequestIdProvider requestIdProvider) {
 
-		this.sessionManagementDeliveryManager = checkNotNull(sessionManagementDeliveryManager);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.portalConfig = checkNotNull(portalConfig);
@@ -109,6 +108,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
+		this.requestIdProvider = checkNotNull(requestIdProvider);
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(portalConfig.urnPrefix);
@@ -127,25 +127,30 @@ public class SessionManagementImpl implements SessionManagement {
 			targetNamespace = "http://wisebed.eu/api/v3/sm",
 			className = "eu.wisebed.api.v3.sm.AreNodesAliveResponse"
 	)
-	public void areNodesConnected(
-			@WebParam(name = "requestId", targetNamespace = "") long requestId,
-			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") final String controllerEndpointUrl) {
+	public List<NodeConnectionStatus> areNodesConnected(@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
 
-		sessionManagementDeliveryManager.addController(controllerEndpointUrl);
-
-		final Request request = newAreNodesConnectedRequest(null, requestId, nodeUrns);
+		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
 		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
 
 		portalEventBus.post(request);
 
-		responseTracker.addListener(new Runnable() {
-			@Override
-			public void run() {
-				sessionManagementDeliveryManager.removeController(controllerEndpointUrl);
+		try {
+
+			final Map<NodeUrn,SingleNodeResponse> responseMap = responseTracker.get(20, TimeUnit.SECONDS);
+			final List<NodeConnectionStatus> connectionStatusList = newLinkedList();
+
+			for (Map.Entry<NodeUrn, SingleNodeResponse> entry : responseMap.entrySet()) {
+				final NodeConnectionStatus status = new NodeConnectionStatus();
+				status.setNodeUrn(entry.getKey());
+				status.setConnected(entry.getValue().getStatusCode() == 1);
+				connectionStatusList.add(status);
 			}
-		}, sameThreadExecutor()
-		);
+
+			return connectionStatusList;
+
+		} catch (Exception e) {
+			throw propagate(e);
+		}
 	}
 
 	@Override

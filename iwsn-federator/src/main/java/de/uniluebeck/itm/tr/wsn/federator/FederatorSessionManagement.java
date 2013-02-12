@@ -42,10 +42,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
-import eu.wisebed.api.v3.sm.ExperimentNotRunningFault_Exception;
-import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
+import eu.wisebed.api.v3.sm.*;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,37 +104,22 @@ public class FederatorSessionManagement implements SessionManagement {
 	 */
 	private final SessionManagementPreconditions preconditions;
 
-	/**
-	 * FederatorController instance managing asynchronous replies for {@link SessionManagement#areNodesConnected(long,
-	 * java.util.List, String)}.
-	 */
-	private final FederatorController federatorController;
-
 	private final FederatorWSNConfig config;
-
-	private final Random requestIdGenerator = new Random();
 
 	private final FederationManager<SessionManagement> federationManager;
 
 	public FederatorSessionManagement(
 			final FederationManager<SessionManagement> federationManager,
 			final SessionManagementPreconditions preconditions,
-			final FederatorController federatorController,
 			final FederatorWSNConfig config) {
 
 		this.federationManager = federationManager;
 		this.preconditions = preconditions;
-		this.federatorController = federatorController;
 		this.config = config;
 	}
 
 	public void start() throws Exception {
-
-		log.debug("Starting Session Management federator on endpoint URL {}...", config.getFederatorSmEndpointURL());
-
-		federatorController.startAndWait();
 		sessionManagementEndpoint = Endpoint.publish(config.getFederatorSmEndpointURL().toString(), this);
-
 		log.info("Started Session Management federator on endpoint URL {}", config.getFederatorSmEndpointURL());
 	}
 
@@ -146,12 +128,10 @@ public class FederatorSessionManagement implements SessionManagement {
 		if (log.isInfoEnabled() && instanceCache.size() > 0) {
 			log.info("Stopping all WSN federator instances...");
 		}
+
 		for (String wsnInstanceHash : instanceCache.keySet()) {
 			stopFederatorWSN(wsnInstanceHash);
 		}
-
-		log.debug("Stopping Session Management federator controller...");
-		federatorController.stopAndWait();
 
 		if (sessionManagementEndpoint != null) {
 			log.info("Stopping Session Management federator instance on {}...", config.getFederatorSmEndpointURL());
@@ -579,31 +559,49 @@ public class FederatorSessionManagement implements SessionManagement {
 	}
 
 	@Override
-	public void areNodesConnected(final long clientRequest, final List<NodeUrn> nodeUrns,
-							  final String controllerEndpointUrl) {
+	public List<NodeConnectionStatus> areNodesConnected(final List<NodeUrn> nodeUrns) {
 
-		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({}, {})", nodeUrns, controllerEndpointUrl);
+		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodeUrns);
 
 		// fork areNodesAlive() calls to federated testbeds
 		final Map<URI, Set<NodeUrn>> sessionManagementEndpointUrlToNodeUrnMapping =
 				createSessionManagementEndpointUrlToNodeUrnMapping(nodeUrns);
 
+		final List<Tuple<Set<NodeUrn>, Future<List<NodeConnectionStatus>>>> futures = newArrayList();
+
 		for (Map.Entry<URI, Set<NodeUrn>> entry : sessionManagementEndpointUrlToNodeUrnMapping.entrySet()) {
 
 			final URI nodeUrnSubsetSessionManagementEndpointUrl = entry.getKey();
 			final Set<NodeUrn> nodeUrnSubset = entry.getValue();
-			final long federatedRequestId = requestIdGenerator.nextLong();
 
-			final SMAreNodesAliveRunnable runnable = new SMAreNodesAliveRunnable(
-					federatorController,
+			final SMAreNodesAliveCallable callable = new SMAreNodesAliveCallable(
 					federationManager.getEndpointByEndpointUrl(nodeUrnSubsetSessionManagementEndpointUrl),
-					federatedRequestId,
-					clientRequest,
 					newArrayList(nodeUrnSubset)
 			);
 
-			executorService.submit(runnable);
+			futures.add(new Tuple<Set<NodeUrn>, Future<List<NodeConnectionStatus>>>(
+					nodeUrnSubset,
+					executorService.submit(callable)
+			)
+			);
 		}
+
+		final List<NodeConnectionStatus> statusList = newArrayList();
+
+		for (Tuple<Set<NodeUrn>, Future<List<NodeConnectionStatus>>> tuple : futures) {
+			try {
+				statusList.addAll(tuple.getSecond().get(30, TimeUnit.SECONDS));
+			} catch (Exception e) {
+				for (NodeUrn nodeUrn : tuple.getFirst()) {
+					final NodeConnectionStatus status = new NodeConnectionStatus();
+					status.setNodeUrn(nodeUrn);
+					status.setConnected(false);
+					statusList.add(status);
+				}
+			}
+		}
+
+		return statusList;
 	}
 
 	@Override

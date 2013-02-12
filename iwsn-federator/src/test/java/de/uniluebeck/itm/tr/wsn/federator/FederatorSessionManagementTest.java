@@ -50,16 +50,13 @@ public class FederatorSessionManagementTest {
 	private SessionManagementPreconditions preconditions;
 
 	@Mock
-	private FederatorController federatorController;
-
-	@Mock
 	private FederatorWSNConfig config;
 
 	private FederatorSessionManagement federatorSM;
 
 	@Before
 	public void setUp() throws Exception {
-		federatorSM = new FederatorSessionManagement(federationManager, preconditions, federatorController, config);
+		federatorSM = new FederatorSessionManagement(federationManager, preconditions, config);
 	}
 
 	/**
