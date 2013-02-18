@@ -5,6 +5,7 @@ import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
+import org.joda.time.DateTime;
 
 public interface DeliveryManager extends Service {
 
@@ -15,24 +16,24 @@ public interface DeliveryManager extends Service {
 	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has <emph>started</emph>.
 	 */
-	void reservationStarted();
+	void reservationStarted(DateTime timestamp);
 
 	/**
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
 	 * <emph>started</emph>.
 	 */
-	void reservationStarted(String controllerEndpointUrl);
+	void reservationStarted(DateTime timestamp, String controllerEndpointUrl);
 
 	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
 	 */
-	void reservationEnded();
+	void reservationEnded(DateTime timestamp);
 
 	/**
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
 	 * <emph>ended</emph>.
 	 */
-	void reservationEnded(String controllerEndpointUrl);
+	void reservationEnded(DateTime timestamp, String controllerEndpointUrl);
 
 	void nodesAttached(Iterable<NodeUrn> nodeUrns);
 

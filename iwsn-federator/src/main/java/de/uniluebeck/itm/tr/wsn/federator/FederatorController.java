@@ -33,6 +33,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +136,7 @@ public class FederatorController extends AbstractService implements Service, Con
 		try {
 
 			log.debug("Calling reservationEnded() on connected controllers...");
-			deliveryManager.reservationEnded();
+			deliveryManager.reservationEnded(DateTime.now());
 
 			deliveryManager.stopAndWait();
 
@@ -243,14 +244,13 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
-	public void reservationStarted() {
-		// TODO implement
-		throw new RuntimeException("Not yet implemented!");
+	public void reservationStarted(final DateTime timestamp) {
+		deliveryManager.reservationStarted(timestamp);
 	}
 
 	@Override
-	public void reservationEnded() {
-		deliveryManager.reservationEnded();
+	public void reservationEnded(final DateTime timestamp) {
+		deliveryManager.reservationEnded(timestamp);
 	}
 
 	URI getControllerEndpointUrl() {

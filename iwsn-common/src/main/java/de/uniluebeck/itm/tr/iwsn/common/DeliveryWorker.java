@@ -8,6 +8,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +127,7 @@ class DeliveryWorker implements Runnable {
 							endpointUrl
 					);
 					try {
-						endpoint.reservationEnded();
+						endpoint.reservationEnded(DateTime.now());
 					} catch (Exception e) {
 						log.warn(
 								"{} => Exception while calling reservationEnded() after delivering all queued messages.",
@@ -415,16 +416,19 @@ class DeliveryWorker implements Runnable {
 
 	/**
 	 * Signals the worker that the experiment has started.
+	 *
+	 * @param timestamp
+	 * 		the time at which the reservation started
 	 */
-	public void reservationStarted() {
-		endpoint.reservationStarted();
+	public void reservationStarted(final DateTime timestamp) {
+		endpoint.reservationStarted(timestamp);
 	}
 
 	/**
 	 * Signals the worker that the experiment has ended. The worker will eventually stop himself when all messages in the
 	 * messageQueue have been delivered.
 	 */
-	public void reservationEnded() {
+	public void reservationEnded(final DateTime timestamp) {
 		this.experimentEnded = true;
 		lock.lock();
 		try {

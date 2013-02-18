@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 
 import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static org.joda.time.DateTime.now;
 
 public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 
@@ -78,13 +79,13 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationStartedEvent({})", event);
-		reservationStarted();
+		reservationStarted(now());
 	}
 
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationEndedEvent({})", event);
-		reservationEnded();
+		reservationEnded(now());
 	}
 
 	private RequestStatus convert(final SingleNodeProgress progress) {

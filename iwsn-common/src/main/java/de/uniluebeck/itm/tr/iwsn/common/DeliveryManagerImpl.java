@@ -34,6 +34,7 @@ import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.Status;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,39 +179,39 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationStarted() {
+	public void reservationStarted(final DateTime timestamp) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.reservationStarted();
+				deliveryWorker.reservationStarted(timestamp);
 			}
 		}
 	}
 
 	@Override
-	public void reservationStarted(final String controllerEndpointUrl) {
+	public void reservationStarted(final DateTime timestamp, final String controllerEndpointUrl) {
 
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationStarted();
+			controllers.get(controllerEndpointUrl).reservationStarted(timestamp);
 		}
 	}
 
 	@Override
-	public void reservationEnded() {
+	public void reservationEnded(final DateTime timestamp) {
 
 		if (isRunning()) {
 
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
-				deliveryWorker.reservationEnded();
+				deliveryWorker.reservationEnded(timestamp);
 			}
 		}
 	}
 
 	@Override
-	public void reservationEnded(final String controllerEndpointUrl) {
+	public void reservationEnded(final DateTime timestamp, final String controllerEndpointUrl) {
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationEnded();
+			controllers.get(controllerEndpointUrl).reservationEnded(timestamp);
 		}
 	}
 
@@ -439,14 +440,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 			log.debug("Stopping delivery manager (asynchronously)...");
 
-			reservationEnded();
+			reservationEnded(DateTime.now());
 
 			final Thread shutdownThread = new Thread("DeliveryManager-ShutdownThread") {
 				@Override
 				public void run() {
 
 					for (DeliveryWorker deliveryWorker : controllers.values()) {
-						deliveryWorker.reservationEnded();
+						deliveryWorker.reservationEnded(DateTime.now());
 					}
 
 					// try gently to shut down executor which will succeed if no messages are to be delivered anymore
