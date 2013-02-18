@@ -17,7 +17,6 @@ import org.joda.time.DateTime;
 
 import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
-import static org.joda.time.DateTime.now;
 
 public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 
@@ -49,13 +48,13 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
 		log.trace("DeliveryManagerAdapter.onDevicesAttachedEvent({})", event);
-		nodesAttached(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+		nodesAttached(new DateTime(event.getTimestamp()), transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 	}
 
 	@Subscribe
 	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
 		log.trace("DeliveryManagerAdapter.onDevicesDetachedEvent({})", event);
-		nodesDetached(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+		nodesDetached(new DateTime(event.getTimestamp()), transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 	}
 
 	@Subscribe
@@ -79,13 +78,13 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationStartedEvent({})", event);
-		reservationStarted(now());
+		reservationStarted(event.getReservation().getInterval().getStart());
 	}
 
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationEndedEvent({})", event);
-		reservationEnded(now());
+		reservationEnded(event.getReservation().getInterval().getEnd());
 	}
 
 	private RequestStatus convert(final SingleNodeProgress progress) {

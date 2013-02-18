@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -40,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -48,6 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 
 
 /**
@@ -119,11 +120,11 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 		log.debug("Adding controller endpoint {} to the set of controllers.", endpointUrl);
 		final Controller endpoint = WisebedServiceHelper.getControllerService(endpointUrl, executorService);
 
-		final Deque<Message> messageQueue = new LinkedList<Message>();
-		final Deque<Notification> notificationQueue = new LinkedList<Notification>();
-		final Deque<RequestStatus> statusQueue = new LinkedList<RequestStatus>();
-		final Deque<List<NodeUrn>> nodesAttachedQueue = new LinkedList<List<NodeUrn>>();
-		final Deque<List<NodeUrn>> nodesDetachedQueue = new LinkedList<List<NodeUrn>>();
+		final Deque<Message> messageQueue = newLinkedList();
+		final Deque<Notification> notificationQueue = newLinkedList();
+		final Deque<RequestStatus> statusQueue = newLinkedList();
+		final Deque<Tuple<DateTime, List<NodeUrn>>> nodesAttachedQueue = newLinkedList();
+		final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue = newLinkedList();
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
@@ -216,10 +217,11 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void nodesAttached(final Iterable<NodeUrn> nodeUrns) {
+	public void nodesAttached(final DateTime timestamp, final Iterable<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.nodesAttached(
+						timestamp,
 						nodeUrns instanceof List ? (List<NodeUrn>) nodeUrns : newArrayList(nodeUrns)
 				);
 			}
@@ -228,10 +230,11 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 
 	@Override
-	public void nodesDetached(final Iterable<NodeUrn> nodeUrns) {
+	public void nodesDetached(final DateTime timestamp, final Iterable<NodeUrn> nodeUrns) {
 		if (isRunning()) {
 			for (DeliveryWorker deliveryWorker : controllers.values()) {
 				deliveryWorker.nodesDetached(
+						timestamp,
 						nodeUrns instanceof List ? (List<NodeUrn>) nodeUrns : newArrayList(nodeUrns)
 				);
 			}

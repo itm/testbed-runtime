@@ -35,9 +35,9 @@ public interface DeliveryManager extends Service {
 	 */
 	void reservationEnded(DateTime timestamp, String controllerEndpointUrl);
 
-	void nodesAttached(Iterable<NodeUrn> nodeUrns);
+	void nodesAttached(DateTime timestamp, Iterable<NodeUrn> nodeUrns);
 
-	void nodesDetached(Iterable<NodeUrn> nodeUrns);
+	void nodesDetached(DateTime timestamp, Iterable<NodeUrn> nodeUrns);
 
 	void receive(Message... messages);
 

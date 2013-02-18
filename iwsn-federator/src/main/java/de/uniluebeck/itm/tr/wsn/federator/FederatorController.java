@@ -234,13 +234,13 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	@Override
-	public void nodesAttached(final List<NodeUrn> nodeUrns) {
-		deliveryManager.nodesAttached(nodeUrns);
+	public void nodesAttached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
+		deliveryManager.nodesAttached(timestamp, nodeUrns);
 	}
 
 	@Override
-	public void nodesDetached(final List<NodeUrn> nodeUrns) {
-		deliveryManager.nodesDetached(nodeUrns);
+	public void nodesDetached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
+		deliveryManager.nodesDetached(timestamp, nodeUrns);
 	}
 
 	@Override

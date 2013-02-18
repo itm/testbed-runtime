@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
@@ -62,12 +63,12 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The queue that contains all nodesAttached events to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<List<NodeUrn>> nodesAttachedQueue;
+	private final Deque<Tuple<DateTime, List<NodeUrn>>> nodesAttachedQueue;
 
 	/**
 	 * The queue that contains all nodesDetached events to be delivered to {@link DeliveryWorker#endpoint}.
 	 */
-	private final Deque<List<NodeUrn>> nodesDetachedQueue;
+	private final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue;
 
 	/**
 	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
@@ -84,6 +85,8 @@ class DeliveryWorker implements Runnable {
 
 	private volatile boolean experimentEnded = false;
 
+	private volatile DateTime experimentEndedAt = null;
+
 	private final Lock lock = new ReentrantLock();
 
 	private final Condition workAvailable = lock.newCondition();
@@ -96,8 +99,8 @@ class DeliveryWorker implements Runnable {
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
 						  final Deque<Notification> notificationQueue,
-						  final Deque<List<NodeUrn>> nodesAttachedQueue,
-						  final Deque<List<NodeUrn>> nodesDetachedQueue,
+						  final Deque<Tuple<DateTime, List<NodeUrn>>> nodesAttachedQueue,
+						  final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.endpointUrl = checkNotNull(endpointUrl);
@@ -127,7 +130,7 @@ class DeliveryWorker implements Runnable {
 							endpointUrl
 					);
 					try {
-						endpoint.reservationEnded(DateTime.now());
+						endpoint.reservationEnded(experimentEndedAt);
 					} catch (Exception e) {
 						log.warn(
 								"{} => Exception while calling reservationEnded() after delivering all queued messages.",
@@ -329,11 +332,11 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNodesAttached() {
 
-		final List<NodeUrn> nodeUrns;
+		final Tuple<DateTime, List<NodeUrn>> nodesAttachedEvent;
 
 		lock.lock();
 		try {
-			nodeUrns = nodesAttachedQueue.poll();
+			nodesAttachedEvent = nodesAttachedQueue.poll();
 		} finally {
 			lock.unlock();
 		}
@@ -342,19 +345,19 @@ class DeliveryWorker implements Runnable {
 			log.trace(
 					"{} => Delivering nodes attached events for node URNs {}",
 					endpointUrl,
-					Arrays.toString(nodeUrns.toArray())
+					Arrays.toString(nodesAttachedEvent.getSecond().toArray())
 			);
 		}
 
 		try {
 
-			endpoint.nodesAttached(nodeUrns);
+			endpoint.nodesAttached(nodesAttachedEvent.getFirst(), nodesAttachedEvent.getSecond());
 			return true;
 
 		} catch (Exception e) {
 			lock.lock();
 			try {
-				nodesAttachedQueue.addFirst(nodeUrns);
+				nodesAttachedQueue.addFirst(nodesAttachedEvent);
 			} finally {
 				lock.unlock();
 			}
@@ -365,11 +368,11 @@ class DeliveryWorker implements Runnable {
 
 	private boolean deliverNodesDetached() {
 
-		final List<NodeUrn> nodeUrns;
+		final Tuple<DateTime, List<NodeUrn>> nodesDetachedEvent;
 
 		lock.lock();
 		try {
-			nodeUrns = nodesDetachedQueue.poll();
+			nodesDetachedEvent = nodesDetachedQueue.poll();
 		} finally {
 			lock.unlock();
 		}
@@ -378,19 +381,19 @@ class DeliveryWorker implements Runnable {
 			log.trace(
 					"{} => Delivering nodes detached events for node URNs {}",
 					endpointUrl,
-					Arrays.toString(nodeUrns.toArray())
+					Arrays.toString(nodesDetachedEvent.getSecond().toArray())
 			);
 		}
 
 		try {
 
-			endpoint.nodesDetached(nodeUrns);
+			endpoint.nodesDetached(nodesDetachedEvent.getFirst(), nodesDetachedEvent.getSecond());
 			return true;
 
 		} catch (Exception e) {
 			lock.lock();
 			try {
-				nodesDetachedQueue.addFirst(nodeUrns);
+				nodesDetachedQueue.addFirst(nodesDetachedEvent);
 			} finally {
 				lock.unlock();
 			}
@@ -429,6 +432,7 @@ class DeliveryWorker implements Runnable {
 	 * messageQueue have been delivered.
 	 */
 	public void reservationEnded(final DateTime timestamp) {
+		this.experimentEndedAt = timestamp;
 		this.experimentEnded = true;
 		lock.lock();
 		try {
@@ -478,20 +482,20 @@ class DeliveryWorker implements Runnable {
 		}
 	}
 
-	public void nodesAttached(final List<NodeUrn> nodeUrns) {
+	public void nodesAttached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
 		lock.lock();
 		try {
-			nodesAttachedQueue.add(nodeUrns);
+			nodesAttachedQueue.add(new Tuple<DateTime, List<NodeUrn>>(timestamp, nodeUrns));
 			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	public void nodesDetached(final List<NodeUrn> nodeUrns) {
+	public void nodesDetached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
 		lock.lock();
 		try {
-			nodesDetachedQueue.add(nodeUrns);
+			nodesDetachedQueue.add(new Tuple<DateTime, List<NodeUrn>>(timestamp, nodeUrns));
 			workAvailable.signalAll();
 		} finally {
 			lock.unlock();
