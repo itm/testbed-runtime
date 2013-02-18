@@ -34,7 +34,6 @@
 	<name>TR</name>
 
 	<modules>
-		<module>iwsn-integration-tests</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
 		<module>iwsn-portal</module>
