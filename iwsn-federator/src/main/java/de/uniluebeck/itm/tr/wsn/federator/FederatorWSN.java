@@ -233,7 +233,7 @@ public class FederatorWSN implements WSN {
 
 
 	@Override
-	public void setVirtualLinks(final long requestId, final List<VirtualLink> links) {
+	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links) {
 
 		log.debug("FederatorWSN.setVirtualLinks({}, {})", requestId, links);
 
@@ -254,7 +254,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
 			);
 
-			executorService.submit(new SetVirtualLinkCallable(
+			executorService.submit(new EnableVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -270,7 +270,7 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void destroyVirtualLinks(final long requestId, final List<Link> links) {
+	public void disableVirtualLinks(final long requestId, final List<Link> links) {
 
 		log.debug("FederatorWSN.destroyVirtualLinks({}, {})", requestId, links);
 
@@ -290,7 +290,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new DestroyVirtualLinkCallable(
+			executorService.submit(new DisableVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,

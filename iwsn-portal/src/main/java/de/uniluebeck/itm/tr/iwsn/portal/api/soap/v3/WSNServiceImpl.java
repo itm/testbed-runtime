@@ -144,7 +144,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.DestroyVirtualLinksResponse"
 	)
-	public void destroyVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
+	public void disableVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 									@WebParam(name = "links", targetNamespace = "") List<Link> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
@@ -291,7 +291,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 					requestId,
 					configuration.getNodeUrns(),
 					configuration.getProgram()
-			));
+			)
+			);
 		}
 	}
 
@@ -449,8 +450,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.SetVirtualLinksResponse"
 	)
-	public void setVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-								@WebParam(name = "links", targetNamespace = "") List<VirtualLink> links)
+	public void enableVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
+								   @WebParam(name = "links", targetNamespace = "") List<VirtualLink> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
