@@ -1,11 +1,10 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.devicedb;
 
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -58,7 +57,7 @@ public class DeviceConfig implements Serializable {
 	@Nullable
 	// TODO how to persist?
 	@Transient
-	private  List<Tuple<String, ChannelHandler>> defaultChannelPipeline;
+	private  List<Tuple<String, Map<String, String>>> defaultChannelPipeline;
 
 	@Nullable
 	private  Long timeoutNodeApiMillis;
@@ -83,7 +82,7 @@ public class DeviceConfig implements Serializable {
 			// TODO add other stuff here too or make setters?
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
-			@Nullable final List<Tuple<String, ChannelHandler>> defaultChannelPipeline,
+			@Nullable final List<Tuple<String, Map<String, String>>> defaultChannelPipeline,
 			@Nullable final Long timeoutCheckAliveMillis,
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
@@ -133,10 +132,12 @@ public class DeviceConfig implements Serializable {
 		return new NodeUrn(nodeUrn);
 	}
 	
+	@Nullable
 	public String getDescription() {
 		return description;
 	}
-	
+
+	@Nullable
 	public Coordinate getPosition() {
 		return position;
 	}
@@ -168,7 +169,7 @@ public class DeviceConfig implements Serializable {
 	}
 
 	@Nullable
-	public List<Tuple<String, ChannelHandler>> getDefaultChannelPipeline() {
+	public List<Tuple<String, Map<String, String>>> getDefaultChannelPipeline() {
 		return defaultChannelPipeline;
 	}
 

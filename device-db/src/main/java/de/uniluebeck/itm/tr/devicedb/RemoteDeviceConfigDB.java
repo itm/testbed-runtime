@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.util.concurrent.AbstractService;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class DeviceConfigDBDummy extends AbstractService implements DeviceConfigDB {
+public class RemoteDeviceConfigDB extends AbstractService implements DeviceConfigDB {
 
 	private static final NodeUrn DEVELOPMENT_DEVICE_NODE_URN = new NodeUrn("urn:wisebed:uzl1:0x2087");
 

@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.devicedb;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;

@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
-import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;

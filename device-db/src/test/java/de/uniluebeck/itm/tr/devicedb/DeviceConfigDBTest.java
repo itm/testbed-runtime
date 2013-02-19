@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.devicedb;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.hibernate.ejb.Ejb3Configuration;

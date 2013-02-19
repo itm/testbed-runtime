@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
-import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 
 public interface DeviceAdapterFactory {
 

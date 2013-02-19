@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.iwsn-gateway</artifactId>
+	<artifactId>tr.device-db</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: iWSN Gateway</name>
+	<name>TR :: Device DB</name>
 
 	<dependencies>
 
@@ -55,27 +55,6 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-jetty-metro-jersey</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.device-db</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>wsn-device-drivers-factories</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
-			<artifactId>wsn-device-utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-			<artifactId>netty-protocols</artifactId>
 		</dependency>
 
 		<dependency>
@@ -109,19 +88,15 @@
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-multibindings</artifactId>
+			<artifactId>guice-persist</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-assistedinject</artifactId>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
 		</dependency>
 
 		<dependency>
@@ -132,6 +107,11 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
 			<scope>test</scope>
 		</dependency>
 
@@ -148,7 +128,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.gateway.Gateway</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDB</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

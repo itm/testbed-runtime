@@ -34,6 +34,7 @@
 	<name>TR</name>
 
 	<modules>
+		<module>device-db</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
 		<module>iwsn-portal</module>
@@ -69,6 +70,11 @@
 		<dependencies>
 
 			<!-- project module dependencies -->
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.device-db</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-common</artifactId>

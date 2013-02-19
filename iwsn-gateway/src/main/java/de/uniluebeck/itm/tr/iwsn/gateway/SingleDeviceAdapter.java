@@ -32,7 +32,7 @@ import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
-import de.uniluebeck.itm.tr.iwsn.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;

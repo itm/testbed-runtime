@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.devicedb;
+package de.uniluebeck.itm.tr.devicedb;
 
 import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.Wiseml;
