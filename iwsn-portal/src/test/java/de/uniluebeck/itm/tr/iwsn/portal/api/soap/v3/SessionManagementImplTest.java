@@ -8,7 +8,7 @@ import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -75,7 +75,7 @@ public class SessionManagementImplTest {
 	private ResponseTracker responseTracker;
 
 	@Mock
-	private DeviceConfigDB deviceConfigDB;
+	private DeviceDB deviceDB;
 
 	@Mock
 	private ReservationManager reservationManager;
@@ -107,7 +107,7 @@ public class SessionManagementImplTest {
 		responseMap.put(NODE_URN_2, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_2, 0, null));
 		responseMap.put(NODE_URN_3, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_3, 1, null));
 
-		when(deviceConfigDB.getAll()).thenReturn(DEVICE_CONFIGS);
+		when(deviceDB.getAll()).thenReturn(DEVICE_CONFIGS);
 		when(deliveryManagerFactory.create(isA(Reservation.class))).thenReturn(deliveryManager);
 		when(responseTrackerFactory.create(isA(Request.class), isA(EventBusService.class))).thenReturn(responseTracker);
 		when(requestIdProvider.get()).thenReturn(REQUEST_ID);
@@ -118,7 +118,7 @@ public class SessionManagementImplTest {
 				responseTrackerFactory,
 				portalConfig,
 				Sets.<HandlerFactory>newHashSet(),
-				deviceConfigDB,
+				deviceDB,
 				reservationManager,
 				wsnServiceFactory,
 				deliveryManagerFactory,

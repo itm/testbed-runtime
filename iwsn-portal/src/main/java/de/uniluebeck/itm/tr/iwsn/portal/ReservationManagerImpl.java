@@ -6,7 +6,7 @@ import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -41,7 +41,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final Provider<RS> rs;
 
-	private final DeviceConfigDB deviceConfigDB;
+	private final DeviceDB deviceDB;
 
 	private final ReservationFactory reservationFactory;
 
@@ -52,12 +52,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	@Inject
 	public ReservationManagerImpl(final PortalConfig portalConfig,
 								  final Provider<RS> rs,
-								  final DeviceConfigDB deviceConfigDB,
+								  final DeviceDB deviceDB,
 								  final ReservationFactory reservationFactory,
 								  final SchedulerServiceFactory schedulerServiceFactory) {
 		this.portalConfig = checkNotNull(portalConfig);
 		this.rs = checkNotNull(rs);
-		this.deviceConfigDB = checkNotNull(deviceConfigDB);
+		this.deviceDB = checkNotNull(deviceDB);
 		this.reservationFactory = checkNotNull(reservationFactory);
 		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
 	}
@@ -150,7 +150,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {
-		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceConfigDB.getByNodeUrns(reservedNodes).entrySet()) {
+		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceDB.getConfigsByNodeUrns(reservedNodes).entrySet()) {
 			if (entry.getValue() == null) {
 				throw new RuntimeException("Node URN \"" + entry.getKey() + "\" unknown.");
 			}

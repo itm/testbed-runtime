@@ -13,12 +13,12 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import java.util.List;
 import java.util.Map;
 
-public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigDB {
+public class DeviceDBImpl extends AbstractService implements DeviceDB {
 	
 	private final GenericDao<DeviceConfig, String> dao;
 
 	@Inject
-	public DeviceConfigDBImpl(final GenericDao<DeviceConfig, String> dao) {
+	public DeviceDBImpl(final GenericDao<DeviceConfig, String> dao) {
 		this.dao = dao;
 	}
 
@@ -34,7 +34,7 @@ public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigD
 
 	@Transactional
 	@Override
-	public Map<NodeUrn, DeviceConfig> getByNodeUrns(Iterable<NodeUrn> nodeUrns) {
+	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns) {
 		// TODO simplify this as soon as NodeUrn is serializable
 		// prepare list of IDs
 		List<String> nodeUrnStrings = Lists.newArrayList(Iterables.transform(nodeUrns, new Function<NodeUrn, String>() {
@@ -46,13 +46,13 @@ public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigD
 
 		}));
 		// send out db request
-		// TODO "IN (:param)" is not valid JPA2. Parantheses need to be ommited in newer Hibernate versions. 
+		// TODO "IN (:param)" is not valid JPA2. Parentheses need to be omitted in newer Hibernate versions.
 		List<DeviceConfig> configs = dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfig.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
 		
 		// create map for final result
-		Map<NodeUrn, DeviceConfig> result = Maps.uniqueIndex(configs, new Function<DeviceConfig, NodeUrn>() {
+		return Maps.uniqueIndex(configs, new Function<DeviceConfig, NodeUrn>() {
 
 			@Override
 			public NodeUrn apply(DeviceConfig config) {
@@ -60,18 +60,17 @@ public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigD
 			}
 
 		});
-		return result;
 	}
 
 	@Override
-	public DeviceConfig getByUsbChipId(String usbChipId) {
+	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
 		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
 				.setParameter("usbChipId", usbChipId).getSingleResult();
 	}
 
 	@Override
-	public DeviceConfig getByNodeUrn(NodeUrn nodeUrn) {
+	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
 		// TODO remove toString() as soon as NodeUrn is Serializable
 		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfig.class)
@@ -79,7 +78,7 @@ public class DeviceConfigDBImpl extends AbstractService implements DeviceConfigD
 	}
 
 	@Override
-	public DeviceConfig getByMacAddress(long macAddress) {
+	public DeviceConfig getConfigByMacAddress(long macAddress) {
 		String macHex = "0x"+Strings.padStart(Long.toHexString(macAddress), 4, '0');
 		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)

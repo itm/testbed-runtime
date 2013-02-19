@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DeviceConfigDBTest {
+public class DeviceDBTest {
 
 	private static final NodeUrn NODE_URN1 = new NodeUrn("urn:wisebed:uzl1:0x2087");
 
@@ -26,7 +26,7 @@ public class DeviceConfigDBTest {
 
 	private static GenericDao<DeviceConfig, String> dao;
 
-	private static DeviceConfigDB db;
+	private static DeviceDB db;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -48,7 +48,7 @@ public class DeviceConfigDBTest {
 				.createEntityManager();
 
 		dao = new GenericDaoImpl<DeviceConfig, String>(entityManager, DeviceConfig.class);
-		db = new DeviceConfigDBImpl(dao);
+		db = new DeviceDBImpl(dao);
 	}
 
 	@Before
@@ -85,7 +85,7 @@ public class DeviceConfigDBTest {
 		insertTestNodes();
 
 		List<NodeUrn> nodeUrns = Arrays.asList(NODE_URN1, NODE_URN3);
-		Map<NodeUrn, DeviceConfig> res = db.getByNodeUrns(nodeUrns);
+		Map<NodeUrn, DeviceConfig> res = db.getConfigsByNodeUrns(nodeUrns);
 
 		assertEquals(2, res.size());
 		Assert.assertNotNull(res.get(NODE_URN1));
@@ -97,7 +97,7 @@ public class DeviceConfigDBTest {
 	public void getByUsbChipIdTest() {
 		insertTestNodes();
 
-		DeviceConfig config = db.getByUsbChipId(NODE_CHIP_ID1);
+		DeviceConfig config = db.getConfigByUsbChipId(NODE_CHIP_ID1);
 
 		assertEquals(NODE_URN1, config.getNodeUrn());
 	}
@@ -106,7 +106,7 @@ public class DeviceConfigDBTest {
 	public void getByNodeUrnTest() {
 		insertTestNodes();
 
-		DeviceConfig config = db.getByNodeUrn(NODE_URN2);
+		DeviceConfig config = db.getConfigByNodeUrn(NODE_URN2);
 
 		assertEquals(NODE_URN2, config.getNodeUrn());
 	}
@@ -115,7 +115,7 @@ public class DeviceConfigDBTest {
 	public void getByMacAddressTest() {
 		insertTestNodes();
 
-		DeviceConfig config = db.getByMacAddress(8327L);
+		DeviceConfig config = db.getConfigByMacAddress(8327L);
 
 		assertEquals(NODE_URN1, config.getNodeUrn());
 	}

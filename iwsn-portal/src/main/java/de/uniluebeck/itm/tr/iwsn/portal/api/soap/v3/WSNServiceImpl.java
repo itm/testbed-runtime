@@ -7,8 +7,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
 import de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
@@ -38,7 +38,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
 
-	private final DeviceConfigDB deviceConfigDB;
+	private final DeviceDB deviceDB;
 
 	private final Reservation reservation;
 
@@ -50,12 +50,12 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
-						  final DeviceConfigDB deviceConfigDB,
+						  final DeviceDB deviceDB,
 						  @Assisted final String reservationId,
 						  @Assisted final Reservation reservation,
 						  @Assisted final DeliveryManager deliveryManager) {
 		this.reservationId = reservationId;
-		this.deviceConfigDB = checkNotNull(deviceConfigDB);
+		this.deviceDB = checkNotNull(deviceDB);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.jaxWsService = servicePublisher.createJaxWsService("/soap/v3/wsn/" + reservationId, this);
@@ -330,7 +330,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
 	)
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceConfigDB.getByNodeUrns(reservation.getNodeUrns()).values()));
+		return serialize(convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values()));
 	}
 
 	@Override

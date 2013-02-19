@@ -5,7 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
@@ -31,7 +31,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private final Map<String, DeviceAdapter> connectedDevices = newHashMap();
 
-	private final DeviceConfigDB deviceConfigDB;
+	private final DeviceDB deviceDB;
 
 	private final Set<DeviceAdapterFactory> deviceAdapterFactories;
 
@@ -46,11 +46,11 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	private ExecutorService deviceDriverExecutorService;
 
 	@Inject
-	public DeviceObserverWrapper(final DeviceConfigDB deviceConfigDB,
+	public DeviceObserverWrapper(final DeviceDB deviceDB,
 								 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
 		checkArgument(deviceAdapterFactories != null && !deviceAdapterFactories.isEmpty());
 		this.deviceAdapterFactories = deviceAdapterFactories;
-		this.deviceConfigDB = checkNotNull(deviceConfigDB);
+		this.deviceDB = checkNotNull(deviceDB);
 	}
 
 	@Override
@@ -188,9 +188,9 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	@Nullable
 	private DeviceConfig getDeviceConfigFromDeviceDB(final DeviceInfo deviceInfo) {
 		if (deviceInfo.getMacAddress() != null) {
-			return deviceConfigDB.getByMacAddress(deviceInfo.getMacAddress().toLong());
+			return deviceDB.getConfigByMacAddress(deviceInfo.getMacAddress().toLong());
 		} else if (deviceInfo.getReference() != null) {
-			return deviceConfigDB.getByUsbChipId(deviceInfo.getReference());
+			return deviceDB.getConfigByUsbChipId(deviceInfo.getReference());
 		}
 		return null;
 	}

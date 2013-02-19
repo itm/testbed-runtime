@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class RemoteDeviceConfigDB extends AbstractService implements DeviceConfigDB {
+public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 	private static final NodeUrn DEVELOPMENT_DEVICE_NODE_URN = new NodeUrn("urn:wisebed:uzl1:0x2087");
 
@@ -46,24 +46,24 @@ public class RemoteDeviceConfigDB extends AbstractService implements DeviceConfi
 	}
 
 	@Override
-	public Map<NodeUrn, DeviceConfig> getByNodeUrns(final Iterable<NodeUrn> nodeUrns) {
+	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(final Iterable<NodeUrn> nodeUrns) {
 		final HashMap<NodeUrn,DeviceConfig> map = newHashMap();
 		map.put(DEVELOPMENT_DEVICE_NODE_URN, DEVELOPMENT_DEVICE_CONFIG);
 		return map;
 	}
 
 	@Override
-	public DeviceConfig getByUsbChipId(final String usbChipId) {
+	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
 		return DEVELOPMENT_DEVICE_CONFIG;
 	}
 
 	@Override
-	public DeviceConfig getByNodeUrn(final NodeUrn nodeUrn) {
+	public DeviceConfig getConfigByNodeUrn(final NodeUrn nodeUrn) {
 		return DEVELOPMENT_DEVICE_CONFIG;
 	}
 
 	@Override
-	public DeviceConfig getByMacAddress(final long macAddress) {
+	public DeviceConfig getConfigByMacAddress(final long macAddress) {
 		return DEVELOPMENT_DEVICE_CONFIG;
 	}
 

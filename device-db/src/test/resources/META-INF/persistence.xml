@@ -10,7 +10,7 @@
 		<properties>
 			<!-- vendor-specific properties go here -->
 			<!-- Load these properties from hibernate.properties when setting up the 
-				DeviceConfigDB module to prevent inconsistencies -->
+				DeviceDB module to prevent inconsistencies -->
 		</properties>
 	</persistence-unit>
 </persistence>

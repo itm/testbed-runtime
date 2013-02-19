@@ -11,7 +11,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -73,7 +73,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Set<HandlerFactory> handlerFactories;
 
-	private final DeviceConfigDB deviceConfigDB;
+	private final DeviceDB deviceDB;
 
 	private final ReservationManager reservationManager;
 
@@ -94,7 +94,7 @@ public class SessionManagementImpl implements SessionManagement {
 								 final ResponseTrackerFactory responseTrackerFactory,
 								 final PortalConfig portalConfig,
 								 final Set<HandlerFactory> handlerFactories,
-								 final DeviceConfigDB deviceConfigDB,
+								 final DeviceDB deviceDB,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
@@ -104,7 +104,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.portalConfig = checkNotNull(portalConfig);
 		this.handlerFactories = checkNotNull(handlerFactories);
-		this.deviceConfigDB = checkNotNull(deviceConfigDB);
+		this.deviceDB = checkNotNull(deviceDB);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
@@ -112,7 +112,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		this.preconditions = new SessionManagementPreconditions();
 		this.preconditions.addServedUrnPrefixes(portalConfig.urnPrefix);
-		this.preconditions.addKnownNodeUrns(transform(deviceConfigDB.getAll(), DEVICE_CONFIG_TO_NODE_URN_FUNCTION));
+		this.preconditions.addKnownNodeUrns(transform(deviceDB.getAll(), DEVICE_CONFIG_TO_NODE_URN_FUNCTION));
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class SessionManagementImpl implements SessionManagement {
 			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
 	)
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceConfigDB.getAll()));
+		return serialize(convertToWiseML(deviceDB.getAll()));
 	}
 
 	@Override

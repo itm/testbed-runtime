@@ -28,7 +28,7 @@ public class PortalConfig extends ConfigWithLogging {
 	private static final String HIBERNATE_CONNECTION_PASSWORD = "hibernate.connection.password";
 
 	static {
-		DEFAULT_DEVICE_CONFIG_DB_PROPERTIES.put(HIBERNATE_CONNECTION_URL, "jdbc:derby:DeviceConfigDB;create=true");
+		DEFAULT_DEVICE_CONFIG_DB_PROPERTIES.put(HIBERNATE_CONNECTION_URL, "jdbc:derby:DeviceDB;create=true");
 		DEFAULT_DEVICE_CONFIG_DB_PROPERTIES.put(HIBERNATE_DRIVER_CLASS, "org.apache.derby.jdbc.EmbeddedDriver");
 		DEFAULT_DEVICE_CONFIG_DB_PROPERTIES.put(HIBERNATE_DIALECT, "org.hibernate.dialect.DerbyTenSevenDialect");
 		DEFAULT_DEVICE_CONFIG_DB_PROPERTIES.put(HIBERNATE_HBM2DDL_AUTO, "update");

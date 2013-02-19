@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfigDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
@@ -129,7 +129,7 @@ public class ReservationManagerImplTest {
 	private RS rs;
 
 	@Mock
-	private DeviceConfigDB deviceConfigDB;
+	private DeviceDB deviceDB;
 
 	@Mock
 	private ReservationFactory reservationFactory;
@@ -155,7 +155,7 @@ public class ReservationManagerImplTest {
 	public void setUp() throws Exception {
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
-		reservationManager = new ReservationManagerImpl(PORTAL_CONFIG, rsProvider, deviceConfigDB, reservationFactory,
+		reservationManager = new ReservationManagerImpl(PORTAL_CONFIG, rsProvider, deviceDB, reservationFactory,
 				schedulerServiceFactory
 		);
 		reservationManager.startAndWait();
@@ -184,7 +184,7 @@ public class ReservationManagerImplTest {
 		try {
 			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_1);
 		} catch (ReservationUnknownException e) {
-			verifyZeroInteractions(deviceConfigDB);
+			verifyZeroInteractions(deviceDB);
 			verifyZeroInteractions(reservationFactory);
 		}
 	}
