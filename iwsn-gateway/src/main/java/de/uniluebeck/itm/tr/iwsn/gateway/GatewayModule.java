@@ -6,6 +6,7 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
@@ -49,5 +50,13 @@ public class GatewayModule extends AbstractModule {
 	@Singleton
 	EventBus provideEventBus() {
 		return new EventBus("GatewayEventBus");
+	}
+
+	@Provides
+	ServicePublisherConfig provideServicePublisherConfig() {
+		return new ServicePublisherConfig(
+				gatewayConfig.restAPIPort,
+				this.getClass().getResource("/").toString()
+		);
 	}
 }

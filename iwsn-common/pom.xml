@@ -48,10 +48,6 @@
 	        <artifactId>wiseml</artifactId>
         </dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.device-db</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
 		</dependency>

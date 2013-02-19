@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
@@ -136,7 +137,7 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 
 	@Override
 	public ListenableFutureMap<NodeUrn, Void> setChannelPipelines(final Iterable<NodeUrn> nodeUrns,
-																  final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs) {
+																  final ChannelHandlerConfigList channelHandlerConfigs) {
 		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
 		return new SettableFutureMap<NodeUrn, Void>(ImmutableMap.of(nodeUrn, setChannelPipeline(channelHandlerConfigs))
 		);
@@ -164,6 +165,5 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 
 	protected abstract ListenableFuture<NodeApiCallResult> enableVirtualLink(MacAddress targetMacAddress);
 
-	protected abstract ListenableFuture<Void> setChannelPipeline(
-			List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
+	protected abstract ListenableFuture<Void> setChannelPipeline(ChannelHandlerConfigList channelHandlerConfigs);
 }

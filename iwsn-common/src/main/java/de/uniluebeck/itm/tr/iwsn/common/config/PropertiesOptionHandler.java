@@ -15,7 +15,7 @@ import java.util.Properties;
 public class PropertiesOptionHandler extends OptionHandler<Properties> {
 
 	public PropertiesOptionHandler(final CmdLineParser parser, final OptionDef option,
-									  final Setter<? super Properties> setter) {
+								   final Setter<? super Properties> setter) {
 		super(parser, option, setter);
 	}
 

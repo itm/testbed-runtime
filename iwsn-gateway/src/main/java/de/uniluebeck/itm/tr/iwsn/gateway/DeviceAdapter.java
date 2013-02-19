@@ -23,15 +23,13 @@
 
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
-import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.ListenableFutureMap;
 import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
-import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,5 +60,5 @@ public interface DeviceAdapter extends Service {
 	ListenableFutureMap<NodeUrn, Void> sendMessage(Iterable<NodeUrn> nodeUrns, byte[] messageBytes);
 
 	ListenableFutureMap<NodeUrn, Void> setChannelPipelines(Iterable<NodeUrn> nodeUrns,
-														   List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs);
+														   ChannelHandlerConfigList channelHandlerConfigs);
 }

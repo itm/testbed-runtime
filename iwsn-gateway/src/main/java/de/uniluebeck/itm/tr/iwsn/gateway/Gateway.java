@@ -7,13 +7,13 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
 
@@ -40,6 +40,10 @@ public class Gateway extends AbstractService {
 
 	private final RequestHandler requestHandler;
 
+	private final ServicePublisherConfig servicePublisherConfig;
+
+	private final ServicePublisherFactory servicePublisherFactory;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
@@ -48,14 +52,17 @@ public class Gateway extends AbstractService {
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
 				   final RestApplication restApplication,
-				   final RequestHandler requestHandler) {
-
-		this.gatewayConfig = gatewayConfig;
-		this.gatewayEventBus = gatewayEventBus;
-		this.deviceManager = deviceManager;
-		this.deviceObserverWrapper = deviceObserverWrapper;
-		this.restApplication = restApplication;
-		this.requestHandler = requestHandler;
+				   final RequestHandler requestHandler,
+				   final ServicePublisherConfig servicePublisherConfig,
+				   final ServicePublisherFactory servicePublisherFactory) {
+		this.gatewayConfig = checkNotNull(gatewayConfig);
+		this.gatewayEventBus = checkNotNull(gatewayEventBus);
+		this.deviceManager = checkNotNull(deviceManager);
+		this.deviceObserverWrapper = checkNotNull(deviceObserverWrapper);
+		this.restApplication = checkNotNull(restApplication);
+		this.requestHandler = checkNotNull(requestHandler);
+		this.servicePublisherConfig = checkNotNull(servicePublisherConfig);
+		this.servicePublisherFactory = checkNotNull(servicePublisherFactory);
 	}
 
 	@Override
@@ -72,13 +79,7 @@ public class Gateway extends AbstractService {
 
 			if (gatewayConfig.restAPI) {
 
-				final ServicePublisherConfig config = new ServicePublisherConfig(
-						gatewayConfig.restAPIPort,
-						ServicePublisherJettyMetroJerseyModule.class,
-						this.getClass().getResource("/").toString()
-				);
-
-				servicePublisher = ServicePublisherFactory.create(config);
+				servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
 				servicePublisher.createJaxRsService("/devices/*", restApplication);
 				servicePublisher.startAndWait();
 			}

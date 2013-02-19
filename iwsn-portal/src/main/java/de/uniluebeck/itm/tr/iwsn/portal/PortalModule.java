@@ -49,13 +49,7 @@ public class PortalModule extends AbstractModule {
 		);
 
 		install(new SchedulerServiceModule());
-
-		final ServicePublisherConfig servicePublisherConfig = new ServicePublisherConfig(
-				portalConfig.port,
-				ServicePublisherJettyMetroJerseyModule.class,
-				this.getClass().getResource("/").toString()
-		);
-		install(new ServicePublisherJettyMetroJerseyModule(servicePublisherConfig));
+		install(new ServicePublisherJettyMetroJerseyModule());
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
 		install(new DeviceDBModule(portalConfig.deviceConfigDBProperties));
@@ -70,5 +64,10 @@ public class PortalModule extends AbstractModule {
 	@Provides
 	RS provideRS() {
 		return WisebedServiceHelper.getRSService(portalConfig.rsEndpointUrl.toString());
+	}
+
+	@Provides
+	ServicePublisherConfig provideServicePublisherConfig() {
+		return new ServicePublisherConfig(portalConfig.port, this.getClass().getResource("/").toString());
 	}
 }

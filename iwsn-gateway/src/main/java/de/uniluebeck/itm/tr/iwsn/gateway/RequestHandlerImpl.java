@@ -10,12 +10,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.util.ListenableFutureMap;
 import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
-import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
@@ -172,7 +172,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurationsList =
 					request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
 
-			final List<Tuple<String, Multimap<String, String>>> cp = newArrayList();
+			final ChannelHandlerConfigList cp = new ChannelHandlerConfigList();
 
 			for (SetChannelPipelinesRequest.ChannelHandlerConfiguration config : channelHandlerConfigurationsList) {
 
@@ -182,7 +182,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 					options.put(kv.getKey(), kv.getValue());
 				}
 
-				cp.add(new Tuple<String, Multimap<String, String>>(config.getName(), options));
+				cp.add(new ChannelHandlerConfig(config.getName(), config.getName(), options));
 			}
 
 			addVoidOperationListeners(

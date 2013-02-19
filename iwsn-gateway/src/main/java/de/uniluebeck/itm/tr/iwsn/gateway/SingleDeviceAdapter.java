@@ -25,12 +25,13 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.*;
-import com.google.common.util.concurrent.RateLimiter;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
@@ -39,7 +40,10 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
-import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.tr.util.ExecutorUtils;
+import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
+import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -56,11 +60,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,8 +70,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
@@ -212,7 +211,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
-					return setPipeline(pipeline(), createPipelineHandlers(deviceConfig.getDefaultChannelPipeline()));
+					return setPipeline(
+							pipeline(),
+							createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
+					);
 				}
 			}
 			);
@@ -550,9 +552,14 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	public ListenableFuture<Void> setDefaultChannelPipeline() {
 		try {
-			List<Tuple<String, ChannelHandler>> innerPipelineHandlers = deviceConfig.getDefaultChannelPipeline();
-			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
-			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
+			setPipeline(
+					deviceChannel.getPipeline(),
+					createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
+			);
+			log.debug("{} => Channel pipeline now set to: {}",
+					deviceConfig.getNodeUrn(),
+					deviceConfig.getDefaultChannelPipeline()
+			);
 			return immediateFuture(null);
 		} catch (Exception e) {
 			log.warn("Exception while setting default channel pipeline: {}", e);
@@ -561,14 +568,13 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	}
 
 	@Override
-	public ListenableFuture<Void> setChannelPipeline(
-			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigs) {
+	public ListenableFuture<Void> setChannelPipeline(final ChannelHandlerConfigList channelHandlerConfigs) {
 
 		final SettableFuture<Void> future = SettableFuture.create();
 
 		if (isConnected()) {
 
-			List<Tuple<String, ChannelHandler>> innerPipelineHandlers;
+			NamedChannelHandlerList innerPipelineHandlers;
 
 			try {
 
@@ -602,20 +608,11 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		return future;
 	}
 
-	private List<Tuple<String, ChannelHandler>> createHandlers(
-			final List<Tuple<String, Multimap<String, String>>> configs) throws Exception {
-
-		final List<Tuple<String, ChannelHandler>> handlers = newArrayList();
-
-		for (Tuple<String, Multimap<String, String>> config : configs) {
-
-			final String name = config.getFirst();
-			final Multimap<String, String> properties = config.getSecond();
-			final List<Tuple<String, ChannelHandler>> factoryHandlers = handlerFactories.get(name).create(properties);
-
-			handlers.addAll(factoryHandlers);
+	private NamedChannelHandlerList createHandlers(final ChannelHandlerConfigList configs) throws Exception {
+		final NamedChannelHandlerList handlers = new NamedChannelHandlerList();
+		for (ChannelHandlerConfig config : configs) {
+			handlers.add(handlerFactories.get(config.getHandlerName()).create(config));
 		}
-
 		return handlers;
 	}
 
@@ -723,31 +720,28 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	}
 
 	@Nonnull
-	private List<Tuple<String, ChannelHandler>> createPipelineHandlers(
-			@Nullable List<Tuple<String, ChannelHandler>> innerHandlers) {
+	private NamedChannelHandlerList createPipelineHandlers(NamedChannelHandlerList innerChannelHandlers)
+			throws Exception {
 
-		LinkedList<Tuple<String, ChannelHandler>> handlers = newLinkedList();
+		final NamedChannelHandlerList handlers = new NamedChannelHandlerList();
 
-		handlers.addFirst(new Tuple<String, ChannelHandler>("forwardingHandler", forwardingHandler));
+		handlers.add("forwardingHandler", forwardingHandler);
 
-		final boolean innerHandlersExist = innerHandlers != null && !innerHandlers.isEmpty();
+		final boolean innerHandlersExist = !checkNotNull(innerChannelHandlers).isEmpty();
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("aboveFilterPipelineLogger", abovePipelineLogger));
+			handlers.add("aboveFilterPipelineLogger", abovePipelineLogger);
 		}
 
 		if (innerHandlersExist) {
-			for (Tuple<String, ChannelHandler> innerHandler : innerHandlers) {
-				handlers.addFirst(innerHandler);
-			}
+			handlers.add(innerChannelHandlers);
 		}
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.addFirst(new Tuple<String, ChannelHandler>("belowFilterPipelineLogger", belowPipelineLogger));
+			handlers.add("belowFilterPipelineLogger", belowPipelineLogger);
 		}
 
 		return handlers;
-
 	}
 
 	@Override
