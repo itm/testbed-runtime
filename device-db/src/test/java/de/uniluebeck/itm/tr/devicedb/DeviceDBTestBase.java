@@ -1,29 +1,33 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.inject.Guice;
+import com.google.common.collect.Iterators;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.ws.rs.core.UriInfo;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterators.size;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DeviceDBTest {
+public class DeviceDBTestBase {
+
+	protected static final Properties JPA_PROPERTIES = new Properties();
+
+	static {
+		JPA_PROPERTIES.put("hibernate.connection.url", "jdbc:hsqldb:mem:unit-testing-jpa");
+		JPA_PROPERTIES.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+		JPA_PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		JPA_PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
+		JPA_PROPERTIES.put("hibernate.connection.username", "sa");
+		JPA_PROPERTIES.put("hibernate.connection.password", "");
+	}
 
 	private static final NodeUrn NODE_URN1 = new NodeUrn("urn:wisebed:uzl1:0x2087");
 
@@ -33,32 +37,17 @@ public class DeviceDBTest {
 
 	private static final String NODE_CHIP_ID1 = "XBQTBYH2";
 
-	private static final Properties PROPERTIES = new Properties();
-
-	static {
-		PROPERTIES.put("hibernate.connection.url", "jdbc:hsqldb:mem:unit-testing-jpa");
-		PROPERTIES.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
-		PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
-		PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
-		PROPERTIES.put("hibernate.connection.username", "sa");
-		PROPERTIES.put("hibernate.connection.password", "");
-	}
-
-	private DeviceDB db;
-
 	private DeviceConfig config1;
 
 	private DeviceConfig config2;
 
 	private DeviceConfig config3;
 
-	@Mock
-	private UriInfo uriInfo;
+	private DeviceDB db;
 
-	@Before
-	public void setUp() throws Exception {
+	public void setUp(DeviceDB db) throws Exception {
 
-		db = Guice.createInjector(new DeviceDBJpaModule(PROPERTIES)).getInstance(DeviceDB.class);
+		this.db = db;
 
 		config1 = new DeviceConfig(
 				NODE_URN1,
@@ -118,7 +107,7 @@ public class DeviceDBTest {
 		db.add(config1);
 		db.add(config2);
 
-		assertEquals(2, size(db.getAll().iterator()));
+		assertEquals(2, Iterators.size(db.getAll().iterator()));
 		assertEquals(newHashSet(config1, config2), newHashSet(db.getAll()));
 	}
 
@@ -128,7 +117,7 @@ public class DeviceDBTest {
 		db.add(config1);
 
 		db.removeByNodeUrn(config1.getNodeUrn());
-		assertEquals(0, size(db.getAll().iterator()));
+		assertEquals(0, Iterators.size(db.getAll().iterator()));
 	}
 
 	@Test
@@ -203,4 +192,5 @@ public class DeviceDBTest {
 
 		assertEquals(config1, retrievedConfig);
 	}
+
 }

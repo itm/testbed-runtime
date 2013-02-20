@@ -5,6 +5,8 @@ import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
 import de.uniluebeck.itm.tr.iwsn.common.config.HostAndPortOptionHandler;
 import org.kohsuke.args4j.Option;
 
+import java.net.URI;
+
 public class GatewayConfig extends ConfigWithLogging {
 
 	@Option(name = "--portalOverlayAddress",
@@ -26,5 +28,11 @@ public class GatewayConfig extends ConfigWithLogging {
 			required = false
 	)
 	public int restAPIPort = 8080;
+
+	@Option(name = "--deviceDBUri",
+			usage = "The URI on which the DeviceDB runs",
+			required = true
+	)
+	public URI deviceDBUri = null;
 
 }

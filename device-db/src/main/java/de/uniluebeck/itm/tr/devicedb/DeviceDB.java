@@ -10,11 +10,13 @@ public interface DeviceDB extends Service {
 
 	Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns);
 
+	@Nullable
 	DeviceConfig getConfigByUsbChipId(String usbChipId);
 
 	@Nullable
 	DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn);
 
+	@Nullable
 	DeviceConfig getConfigByMacAddress(long macAddress);
 
 	Iterable<DeviceConfig> getAll();

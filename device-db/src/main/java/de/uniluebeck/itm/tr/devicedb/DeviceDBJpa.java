@@ -9,6 +9,7 @@ import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import java.util.List;
@@ -58,14 +59,20 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	}
 
 	@Override
+	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
-		return entityManager.get()
-				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
-				.setParameter("usbChipId", usbChipId).getSingleResult();
+		try {
+			return entityManager.get()
+					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
+					.setParameter("usbChipId", usbChipId).getSingleResult();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
+	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
 		try {
@@ -78,18 +85,28 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	}
 
 	@Override
+	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
-		String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
-		return entityManager.get()
-				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
-				.setParameter("macAddress", "%" + macHex).getSingleResult();
+		try {
+			String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
+			return entityManager.get()
+					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
+					.setParameter("macAddress", "%" + macHex).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	@Override
 	@Transactional
 	public Iterable<DeviceConfig> getAll() {
-		return entityManager.get().createQuery("SELECT d FROM DeviceConfig d", DeviceConfig.class).getResultList();
+
+		final List<DeviceConfig> list = entityManager.get()
+				.createQuery("SELECT d FROM DeviceConfig d", DeviceConfig.class)
+				.getResultList();
+
+		return list;
 	}
 
 	@Override
@@ -119,6 +136,8 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public void removeAll() {
-		entityManager.get().createQuery("DELETE FROM DeviceConfig d").executeUpdate();
+		for (DeviceConfig deviceConfig : getAll()) {
+			entityManager.get().remove(deviceConfig);
+		}
 	}
 }

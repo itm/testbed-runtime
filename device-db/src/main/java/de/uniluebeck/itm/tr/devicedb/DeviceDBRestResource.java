@@ -8,7 +8,6 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
@@ -26,15 +25,19 @@ public class DeviceDBRestResource {
 	}
 
 	@GET
-	@Path("/test")
-	public Response test(@QueryParam("a") List<String> as, @Context UriInfo uriInfo) {
-		System.out.println(Arrays.toString(as.toArray()));
-		return Response.ok(uriInfo.getRequestUri()).build();
+	@Path("{nodeUrn}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getByNodeUrn(@PathParam("nodeUrn") final String nodeUrnString) {
+		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
+		return config == null ?
+				Response.status(Response.Status.NOT_FOUND).build() :
+				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
 	}
 
 	@GET
+	@Path("byNodeUrn")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<DeviceConfigDto> get(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
+	public List<DeviceConfigDto> getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
 
 		if (nodeUrnStrings.isEmpty()) {
 
@@ -63,13 +66,17 @@ public class DeviceDBRestResource {
 	}
 
 	@GET
-	@Path("{nodeUrn}")
+	@Path("byUsbChipId")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getByNodeUrn(@PathParam("nodeUrn") final String nodeUrnString) {
-		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
-		return config == null ?
-				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
+	public DeviceConfigDto getByUsbChipId(@QueryParam("usbChipId") String usbChipIds) {
+		return DeviceConfigDto.fromDeviceConfig(deviceDB.getConfigByUsbChipId(usbChipIds));
+	}
+
+	@GET
+	@Path("byMacAddress")
+	@Produces(MediaType.APPLICATION_JSON)
+	public DeviceConfigDto getByUsbChipId(@QueryParam("macAddress") long macAddress) {
+		return DeviceConfigDto.fromDeviceConfig(deviceDB.getConfigByMacAddress(macAddress));
 	}
 
 	@POST
@@ -80,5 +87,25 @@ public class DeviceDBRestResource {
 		deviceDB.add(deviceConfig.toDeviceConfig());
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
 		return Response.created(location).build();
+	}
+
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response delete(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
+
+		if (nodeUrnStrings.isEmpty()) {
+
+			deviceDB.removeAll();
+
+		} else {
+
+			for (String nodeUrnString : nodeUrnStrings) {
+				deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+			}
+
+		}
+
+		return Response.ok().build();
 	}
 }
