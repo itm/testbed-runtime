@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -11,13 +10,23 @@ import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.uniqueIndex;
 
 public class DeviceDBJpa extends AbstractService implements DeviceDB {
+
+	private static final Function<DeviceConfig,NodeUrn> CONFIG_NODE_URN_FUNCTION =
+			new Function<DeviceConfig, NodeUrn>() {
+				@Override
+				public NodeUrn apply(DeviceConfig config) {
+					return config.getNodeUrn();
+				}
+			};
 
 	private final Provider<EntityManager> entityManager;
 
@@ -39,24 +48,13 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns) {
-		// TODO simplify this as soon as NodeUrn is serializable
-		// prepare list of IDs
-		List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrnHelper.NODE_URN_TO_STRING));
 
-		List<DeviceConfig> configs = entityManager.get()
-				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN :urns", DeviceConfig.class)
+		final List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrnHelper.NODE_URN_TO_STRING));
+		final List<DeviceConfig> configs = entityManager.get()
+				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfig.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
 
-		// create map for final result
-		return Maps.uniqueIndex(configs, new Function<DeviceConfig, NodeUrn>() {
-
-			@Override
-			public NodeUrn apply(DeviceConfig config) {
-				return config.getNodeUrn();
-			}
-
-		}
-		);
+		return uniqueIndex(configs, CONFIG_NODE_URN_FUNCTION);
 	}
 
 	@Override
@@ -70,10 +68,13 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
-		// TODO remove toString() as soon as NodeUrn is Serializable
-		return entityManager.get()
-				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfig.class)
-				.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
+		try {
+			return entityManager.get()
+					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfig.class)
+					.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	@Override

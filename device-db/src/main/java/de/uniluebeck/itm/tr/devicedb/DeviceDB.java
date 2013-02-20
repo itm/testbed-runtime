@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public interface DeviceDB extends Service {
@@ -11,6 +12,7 @@ public interface DeviceDB extends Service {
 
 	DeviceConfig getConfigByUsbChipId(String usbChipId);
 
+	@Nullable
 	DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn);
 
 	DeviceConfig getConfigByMacAddress(long macAddress);
