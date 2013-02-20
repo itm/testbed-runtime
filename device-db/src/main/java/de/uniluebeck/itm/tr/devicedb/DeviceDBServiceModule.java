@@ -29,7 +29,10 @@ public class DeviceDBServiceModule extends AbstractModule {
 
 	@Provides
 	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(config.port);
+		return new ServicePublisherConfig(
+				config.port,
+				this.getClass().getResource("/").toString()
+		);
 	}
 
 	private Properties readProperties(final File dbPropertiesFile) {
