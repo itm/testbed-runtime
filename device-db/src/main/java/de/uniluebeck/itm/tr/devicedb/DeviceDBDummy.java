@@ -71,4 +71,19 @@ public class DeviceDBDummy extends AbstractService implements DeviceDB {
 	public Iterable<DeviceConfig> getAll() {
 		return newArrayList(DEVELOPMENT_DEVICE_CONFIG);
 	}
+
+	@Override
+	public void add(final DeviceConfig deviceConfig) {
+		// TODO implement
+	}
+
+	@Override
+	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
+		return false;  // TODO implement
+	}
+
+	@Override
+	public void removeAll() {
+		// TODO implement
+	}
 }

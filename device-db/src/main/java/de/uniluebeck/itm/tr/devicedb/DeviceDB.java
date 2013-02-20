@@ -15,6 +15,11 @@ public interface DeviceDB extends Service {
 
 	DeviceConfig getConfigByMacAddress(long macAddress);
 
-	Iterable<DeviceConfig> getAll();
+	Iterable<? extends DeviceConfig> getAll();
 
+	void add(DeviceConfig deviceConfig);
+
+	boolean removeByNodeUrn(NodeUrn nodeUrn);
+
+	void removeAll();
 }

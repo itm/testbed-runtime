@@ -13,23 +13,23 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import java.util.List;
 import java.util.Map;
 
-public class DeviceDBImpl extends AbstractService implements DeviceDB {
-	
+public class DeviceDBJpa extends AbstractService implements DeviceDB {
+
 	private final GenericDao<DeviceConfig, String> dao;
 
 	@Inject
-	public DeviceDBImpl(final GenericDao<DeviceConfig, String> dao) {
+	public DeviceDBJpa(final GenericDao<DeviceConfig, String> dao) {
 		this.dao = dao;
 	}
 
 	@Override
 	protected void doStart() {
-		// TODO implement
+		notifyStarted();
 	}
 
 	@Override
 	protected void doStop() {
-		// TODO implement
+		notifyStopped();
 	}
 
 	@Transactional
@@ -44,13 +44,14 @@ public class DeviceDBImpl extends AbstractService implements DeviceDB {
 				return nodeUrn.toString();
 			}
 
-		}));
+		}
+		)
+		);
 		// send out db request
-		// TODO "IN (:param)" is not valid JPA2. Parentheses need to be omitted in newer Hibernate versions.
 		List<DeviceConfig> configs = dao.getEntityManager()
-				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfig.class)
+				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN :urns", DeviceConfig.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
-		
+
 		// create map for final result
 		return Maps.uniqueIndex(configs, new Function<DeviceConfig, NodeUrn>() {
 
@@ -59,10 +60,12 @@ public class DeviceDBImpl extends AbstractService implements DeviceDB {
 				return config.getNodeUrn();
 			}
 
-		});
+		}
+		);
 	}
 
 	@Override
+	@Transactional
 	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
 		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
@@ -70,6 +73,7 @@ public class DeviceDBImpl extends AbstractService implements DeviceDB {
 	}
 
 	@Override
+	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
 		// TODO remove toString() as soon as NodeUrn is Serializable
 		return dao.getEntityManager()
@@ -78,15 +82,49 @@ public class DeviceDBImpl extends AbstractService implements DeviceDB {
 	}
 
 	@Override
+	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
-		String macHex = "0x"+Strings.padStart(Long.toHexString(macAddress), 4, '0');
+		String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
 		return dao.getEntityManager()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
-				.setParameter("macAddress", "%"+macHex).getSingleResult();
+				.setParameter("macAddress", "%" + macHex).getSingleResult();
 	}
 
 	@Override
-	public Iterable<DeviceConfig> getAll() {
+	@Transactional
+	public Iterable<? extends DeviceConfig> getAll() {
 		return dao.find();
+	}
+
+	@Override
+	@Transactional
+	public void add(final DeviceConfig deviceConfig) {
+		dao.save(deviceConfig);
+	}
+
+	@Override
+	@Transactional
+	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
+
+		final int entriesRemoved = dao.getEntityManager()
+				.createQuery("DELETE FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn")
+				.setParameter("nodeUrn", nodeUrn.toString())
+				.executeUpdate();
+
+		if (entriesRemoved > 1) {
+			throw new RuntimeException(
+					"More than one entry (" + entriesRemoved + ") removed while trying to remove entry for one Node URN!"
+			);
+		}
+
+		return entriesRemoved == 1;
+	}
+
+	@Override
+	@Transactional
+	public void removeAll() {
+		dao.getEntityManager()
+				.createQuery("DELETE FROM DeviceConfig d")
+				.executeUpdate();
 	}
 }

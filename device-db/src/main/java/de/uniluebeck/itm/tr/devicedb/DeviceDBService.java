@@ -49,7 +49,7 @@ public class DeviceDBService extends AbstractService {
 		try {
 
 			servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
-			servicePublisher.createJaxRsService("/*", restApplication);
+			servicePublisher.createJaxRsService("/rest/*", restApplication);
 			servicePublisher.startAndWait();
 
 			notifyStarted();

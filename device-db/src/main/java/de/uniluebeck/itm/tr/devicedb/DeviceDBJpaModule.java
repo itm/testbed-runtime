@@ -8,11 +8,11 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import javax.persistence.EntityManager;
 import java.util.Properties;
 
-public class DeviceDBModule extends AbstractModule {
+public class DeviceDBJpaModule extends AbstractModule {
 
 	private Properties properties;
 
-	public DeviceDBModule(final Properties properties) {
+	public DeviceDBJpaModule(final Properties properties) {
 		this.properties = properties;
 	}
 
@@ -20,7 +20,7 @@ public class DeviceDBModule extends AbstractModule {
 	protected void configure() {
 		install(new JpaPersistModule("DeviceDB").properties(properties));
 		bind(JPAInitializer.class).asEagerSingleton();
-		bind(DeviceDB.class).to(DeviceDBImpl.class).in(Scopes.SINGLETON);
+		bind(DeviceDB.class).to(DeviceDBJpa.class).in(Scopes.SINGLETON);
 	}
 
 	@Provides

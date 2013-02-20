@@ -29,18 +29,18 @@ public class DeviceConfig implements Serializable {
 
 	@Id
 	private String nodeUrn;
-	
-	@Column(nullable=false)
-	private  String nodeType;
 
-	private  boolean gatewayNode;
-	
+	@Column(nullable = false)
+	private String nodeType;
+
+	private boolean gatewayNode;
+
 	@Nullable
 	private String description;
 
-	@Nullable 
-	private  String nodeUSBChipID;
-	
+	@Nullable
+	private String nodeUSBChipID;
+
 	@Nullable
 	@Transient
 	// TODO Coordinate can not be persisted. Why?
@@ -48,10 +48,10 @@ public class DeviceConfig implements Serializable {
 
 	@Nullable
 	@ElementCollection(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SELECT)
-    @MapKeyColumn(name = "key", length = 1024)
-    @Column(name = "value", length = 4069)
-	private  Map<String, String> nodeConfiguration;
+	@Fetch(value = FetchMode.SELECT)
+	@MapKeyColumn(name = "key", length = 1024)
+	@Column(name = "value", length = 4069)
+	private Map<String, String> nodeConfiguration;
 
 	@Nullable
 	// TODO how to persist?
@@ -59,19 +59,19 @@ public class DeviceConfig implements Serializable {
 	private ChannelHandlerConfigList defaultChannelPipeline;
 
 	@Nullable
-	private  Long timeoutNodeApiMillis;
+	private Long timeoutNodeApiMillis;
 
 	@Nullable
-	private  Long timeoutResetMillis;
+	private Long timeoutResetMillis;
 
 	@Nullable
-	private  Long timeoutFlashMillis;
+	private Long timeoutFlashMillis;
 
 	@Nullable
-	private  Long timeoutCheckAliveMillis;
-	
+	private Long timeoutCheckAliveMillis;
+
 	public DeviceConfig() {
-		
+
 	}
 
 	public DeviceConfig(
@@ -130,7 +130,7 @@ public class DeviceConfig implements Serializable {
 	public NodeUrn getNodeUrn() {
 		return new NodeUrn(nodeUrn);
 	}
-	
+
 	@Nullable
 	public String getDescription() {
 		return description;
@@ -140,7 +140,7 @@ public class DeviceConfig implements Serializable {
 	public Coordinate getPosition() {
 		return position;
 	}
-	
+
 	@Nullable
 	public String getNodeUSBChipID() {
 		return nodeUSBChipID;
@@ -175,5 +175,6 @@ public class DeviceConfig implements Serializable {
 	public boolean isGatewayNode() {
 		return gatewayNode;
 	}
-	
+
+
 }

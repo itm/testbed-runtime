@@ -24,7 +24,7 @@ public class DeviceDBServiceModule extends AbstractModule {
 	protected void configure() {
 		bind(DeviceDBServiceConfig.class).toInstance(config);
 		install(new ServicePublisherJettyMetroJerseyModule());
-		install(new DeviceDBModule(readProperties(config.dbPropertiesFile)));
+		install(new DeviceDBJpaModule(readProperties(config.dbPropertiesFile)));
 	}
 
 	@Provides
