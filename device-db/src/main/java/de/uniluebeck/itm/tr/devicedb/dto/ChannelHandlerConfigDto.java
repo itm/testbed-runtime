@@ -51,9 +51,12 @@ public class ChannelHandlerConfigDto {
 	}
 
 	public ChannelHandlerConfig toChannelHandlerConfig() {
-		final HashMultimap<String, String> properties = HashMultimap.create();
-		for (KeyValueDto keyValueDto : configuration) {
-			properties.put(keyValueDto.getKey(), keyValueDto.getValue());
+		HashMultimap<String, String> properties = null;
+		if (configuration != null) {
+			properties = HashMultimap.create();
+			for (KeyValueDto keyValueDto : configuration) {
+				properties.put(keyValueDto.getKey(), keyValueDto.getValue());
+			}
 		}
 		return new ChannelHandlerConfig(handlerName, instanceName, properties);
 	}

@@ -5,6 +5,7 @@ import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -21,7 +22,7 @@ public class DeviceDBRestResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<DeviceConfigDto> get() {
+	public List<DeviceConfigDto> getAll() {
 		final List<DeviceConfigDto> list = newArrayList();
 		for (DeviceConfig deviceConfig : deviceDB.getAll()) {
 			list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
@@ -32,19 +33,9 @@ public class DeviceDBRestResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response create(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
-		try {
-			deviceDB.add(deviceConfig.toDeviceConfig());
-			return Response.created(UriBuilder.fromUri(uriInfo.getBaseUri()).build(deviceConfig.getNodeUrn())).build();
-		} catch (Exception e) {
-			return Response
-					.status(Response.Status.PRECONDITION_FAILED)
-					.entity("An entry under Node URN \"" + deviceConfig.getNodeUrn() + "\" already exists!")
-					.build();
-		}
-	}
-
-	public DeviceDB getDeviceDB() {
-		return deviceDB;
+	public Response add(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
+		deviceDB.add(deviceConfig.toDeviceConfig());
+		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
+		return Response.created(location).build();
 	}
 }
