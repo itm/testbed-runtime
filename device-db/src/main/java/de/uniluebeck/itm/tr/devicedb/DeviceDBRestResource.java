@@ -43,4 +43,8 @@ public class DeviceDBRestResource {
 					.build();
 		}
 	}
+
+	public DeviceDB getDeviceDB() {
+		return deviceDB;
+	}
 }

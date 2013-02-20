@@ -183,7 +183,9 @@ public class DeviceConfigDto {
 		dto.nodeType = deviceConfig.getNodeType();
 		dto.nodeUrn = deviceConfig.getNodeUrn().toString();
 		dto.nodeUSBChipID = deviceConfig.getNodeUSBChipID();
-		dto.position = CoordinateDto.fromCoordinate(deviceConfig.getPosition());
+		dto.position = deviceConfig.getPosition() == null ?
+				null :
+				CoordinateDto.fromCoordinate(deviceConfig.getPosition());
 		dto.timeoutCheckAliveMillis = deviceConfig.getTimeoutCheckAliveMillis();
 		dto.timeoutFlashMillis = deviceConfig.getTimeoutFlashMillis();
 		dto.timeoutNodeApiMillis = deviceConfig.getTimeoutNodeApiMillis();

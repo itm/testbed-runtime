@@ -2,24 +2,28 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 public class DeviceDBJpa extends AbstractService implements DeviceDB {
 
-	private final GenericDao<DeviceConfig, String> dao;
+	private final Provider<EntityManager> entityManager;
 
 	@Inject
-	public DeviceDBJpa(final GenericDao<DeviceConfig, String> dao) {
-		this.dao = dao;
+	public DeviceDBJpa(final Provider<EntityManager> entityManager) {
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -32,23 +36,14 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 		notifyStopped();
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns) {
 		// TODO simplify this as soon as NodeUrn is serializable
 		// prepare list of IDs
-		List<String> nodeUrnStrings = Lists.newArrayList(Iterables.transform(nodeUrns, new Function<NodeUrn, String>() {
+		List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrnHelper.NODE_URN_TO_STRING));
 
-			@Override
-			public String apply(NodeUrn nodeUrn) {
-				return nodeUrn.toString();
-			}
-
-		}
-		)
-		);
-		// send out db request
-		List<DeviceConfig> configs = dao.getEntityManager()
+		List<DeviceConfig> configs = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN :urns", DeviceConfig.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
 
@@ -67,7 +62,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
-		return dao.getEntityManager()
+		return entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfig.class)
 				.setParameter("usbChipId", usbChipId).getSingleResult();
 	}
@@ -76,7 +71,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
 		// TODO remove toString() as soon as NodeUrn is Serializable
-		return dao.getEntityManager()
+		return entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfig.class)
 				.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
 	}
@@ -85,7 +80,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
 		String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
-		return dao.getEntityManager()
+		return entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfig.class)
 				.setParameter("macAddress", "%" + macHex).getSingleResult();
 	}
@@ -93,20 +88,20 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public Iterable<DeviceConfig> getAll() {
-		return dao.find();
+		return entityManager.get().createQuery("SELECT d FROM DeviceConfig d", DeviceConfig.class).getResultList();
 	}
 
 	@Override
 	@Transactional
 	public void add(final DeviceConfig deviceConfig) {
-		dao.save(deviceConfig);
+		entityManager.get().persist(deviceConfig);
 	}
 
 	@Override
 	@Transactional
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
 
-		final int entriesRemoved = dao.getEntityManager()
+		final int entriesRemoved = entityManager.get()
 				.createQuery("DELETE FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn")
 				.setParameter("nodeUrn", nodeUrn.toString())
 				.executeUpdate();
@@ -123,8 +118,6 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public void removeAll() {
-		dao.getEntityManager()
-				.createQuery("DELETE FROM DeviceConfig d")
-				.executeUpdate();
+		entityManager.get().createQuery("DELETE FROM DeviceConfig d").executeUpdate();
 	}
 }

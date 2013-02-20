@@ -50,12 +50,11 @@ public class DeviceConfig implements Serializable {
 	@ElementCollection(fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SELECT)
 	@MapKeyColumn(name = "key", length = 1024)
-	@Column(name = "value", length = 4069)
+	@Column(name = "value", length = 4096)
 	private Map<String, String> nodeConfiguration;
 
 	@Nullable
-	// TODO how to persist?
-	@Transient
+	@Transient // TODO persist this
 	private ChannelHandlerConfigList defaultChannelPipeline;
 
 	@Nullable
@@ -176,5 +175,77 @@ public class DeviceConfig implements Serializable {
 		return gatewayNode;
 	}
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
+		final DeviceConfig that = (DeviceConfig) o;
+
+		if (gatewayNode != that.gatewayNode) {
+			return false;
+		}
+		if (defaultChannelPipeline != null ? !defaultChannelPipeline.equals(that.defaultChannelPipeline) :
+				that.defaultChannelPipeline != null) {
+			return false;
+		}
+		if (description != null ? !description.equals(that.description) : that.description != null) {
+			return false;
+		}
+		if (nodeConfiguration != null ? !nodeConfiguration.equals(that.nodeConfiguration) :
+				that.nodeConfiguration != null) {
+			return false;
+		}
+		if (nodeType != null ? !nodeType.equals(that.nodeType) : that.nodeType != null) {
+			return false;
+		}
+		if (nodeUSBChipID != null ? !nodeUSBChipID.equals(that.nodeUSBChipID) : that.nodeUSBChipID != null) {
+			return false;
+		}
+		if (nodeUrn != null ? !nodeUrn.equals(that.nodeUrn) : that.nodeUrn != null) {
+			return false;
+		}
+		if (position != null ? !position.equals(that.position) : that.position != null) {
+			return false;
+		}
+		if (timeoutCheckAliveMillis != null ? !timeoutCheckAliveMillis.equals(that.timeoutCheckAliveMillis) :
+				that.timeoutCheckAliveMillis != null) {
+			return false;
+		}
+		if (timeoutFlashMillis != null ? !timeoutFlashMillis.equals(that.timeoutFlashMillis) :
+				that.timeoutFlashMillis != null) {
+			return false;
+		}
+		if (timeoutNodeApiMillis != null ? !timeoutNodeApiMillis.equals(that.timeoutNodeApiMillis) :
+				that.timeoutNodeApiMillis != null) {
+			return false;
+		}
+		if (timeoutResetMillis != null ? !timeoutResetMillis.equals(that.timeoutResetMillis) :
+				that.timeoutResetMillis != null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = nodeUrn != null ? nodeUrn.hashCode() : 0;
+		result = 31 * result + (nodeType != null ? nodeType.hashCode() : 0);
+		result = 31 * result + (gatewayNode ? 1 : 0);
+		result = 31 * result + (description != null ? description.hashCode() : 0);
+		result = 31 * result + (nodeUSBChipID != null ? nodeUSBChipID.hashCode() : 0);
+		result = 31 * result + (position != null ? position.hashCode() : 0);
+		result = 31 * result + (nodeConfiguration != null ? nodeConfiguration.hashCode() : 0);
+		result = 31 * result + (defaultChannelPipeline != null ? defaultChannelPipeline.hashCode() : 0);
+		result = 31 * result + (timeoutNodeApiMillis != null ? timeoutNodeApiMillis.hashCode() : 0);
+		result = 31 * result + (timeoutResetMillis != null ? timeoutResetMillis.hashCode() : 0);
+		result = 31 * result + (timeoutFlashMillis != null ? timeoutFlashMillis.hashCode() : 0);
+		result = 31 * result + (timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis.hashCode() : 0);
+		return result;
+	}
 }
