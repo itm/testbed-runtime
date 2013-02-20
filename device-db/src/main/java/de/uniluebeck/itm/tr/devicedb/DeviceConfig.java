@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.common.collect.Maps;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Maps.newHashMap;
 
 @Entity
 public class DeviceConfig implements Serializable {
@@ -46,7 +48,6 @@ public class DeviceConfig implements Serializable {
 	// TODO Coordinate can not be persisted. Why?
 	private Coordinate position;
 
-	@Nullable
 	@ElementCollection(fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SELECT)
 	@MapKeyColumn(name = "key", length = 1024)
@@ -77,7 +78,7 @@ public class DeviceConfig implements Serializable {
 			final NodeUrn nodeUrn,
 			final String nodeType,
 			final boolean gatewayNode,
-			// TODO add other stuff here too or make setters?
+			@Nullable final String description,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
 			@Nullable final ChannelHandlerConfigList defaultChannelPipeline,
@@ -89,8 +90,9 @@ public class DeviceConfig implements Serializable {
 		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
 		this.gatewayNode = gatewayNode;
+		this.description = description;
 		this.nodeUSBChipID = nodeUSBChipID;
-		this.nodeConfiguration = nodeConfiguration;
+		this.nodeConfiguration = nodeConfiguration == null ? Maps.<String, String>newHashMap() : nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
 
 		checkArgument((timeoutCheckAliveMillis == null || timeoutCheckAliveMillis > 0),
@@ -161,7 +163,6 @@ public class DeviceConfig implements Serializable {
 		return timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis : DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS;
 	}
 
-	@Nullable
 	public Map<String, String> getNodeConfiguration() {
 		return nodeConfiguration;
 	}

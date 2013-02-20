@@ -216,6 +216,7 @@ public class DeviceConfigDto {
 				new NodeUrn(nodeUrn),
 				nodeType,
 				gatewayNode,
+				description,
 				nodeUSBChipID,
 				nodeConfigurationMap,
 				channelHandlerConfigs,
