@@ -92,7 +92,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 
 	@Override
 	@Transactional
-	public Iterable<? extends DeviceConfig> getAll() {
+	public Iterable<DeviceConfig> getAll() {
 		return dao.find();
 	}
 

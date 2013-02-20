@@ -15,7 +15,7 @@ public interface DeviceDB extends Service {
 
 	DeviceConfig getConfigByMacAddress(long macAddress);
 
-	Iterable<? extends DeviceConfig> getAll();
+	Iterable<DeviceConfig> getAll();
 
 	void add(DeviceConfig deviceConfig);
 
