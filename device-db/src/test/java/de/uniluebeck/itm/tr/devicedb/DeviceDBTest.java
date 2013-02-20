@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.junit.Before;
@@ -11,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.UriInfo;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -61,29 +58,7 @@ public class DeviceDBTest {
 	@Before
 	public void setUp() throws Exception {
 
-		final File file = File.createTempFile("ldkjf", "lkjdsfl");
-		final FileWriter writer = new FileWriter(file);
-		PROPERTIES.store(writer, "");
-		writer.close();
-
-
-		final DeviceDBServiceConfig config = new DeviceDBServiceConfig();
-		config.dbPropertiesFile = file;
-		config.port = 1234;
-		final DeviceDBServiceModule module = new DeviceDBServiceModule(config);
-
-		/*
-		final Module module = new AbstractModule() {
-			@Override
-			protected void configure() {
-				install(new DeviceDBJpaModule(PROPERTIES));
-
-			}
-		};
-		*/
-
-		final Injector injector = Guice.createInjector(module);
-		db = injector.getInstance(DeviceDB.class);
+		db = Guice.createInjector(new DeviceDBJpaModule(PROPERTIES)).getInstance(DeviceDB.class);
 
 		config1 = new DeviceConfig(
 				NODE_URN1,
