@@ -24,6 +24,8 @@ public class ReservationImplTest {
 
 	private static final Interval INTERVAL = new Interval(DateTime.now(), DateTime.now().plusHours(1));
 
+	private static final String username = "Horst Ackerpella";
+
 	@Mock
 	private ReservationEventBusFactory reservationEventBusFactory;
 
@@ -38,7 +40,7 @@ public class ReservationImplTest {
 	@Before
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
-		reservation = new ReservationImpl(reservationEventBusFactory, portalEventBus, NODE_URNS, INTERVAL);
+		reservation = new ReservationImpl(reservationEventBusFactory, portalEventBus, username, NODE_URNS, INTERVAL);
 	}
 
 	@Test

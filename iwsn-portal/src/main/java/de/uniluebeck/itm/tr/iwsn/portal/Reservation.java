@@ -8,6 +8,8 @@ import java.util.Set;
 
 public interface Reservation extends Service {
 
+	String getUsername();
+
 	Set<NodeUrn> getNodeUrns();
 
 	ReservationEventBus getReservationEventBus();

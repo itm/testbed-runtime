@@ -7,6 +7,6 @@ import java.util.Set;
 
 public interface ReservationFactory {
 
-	Reservation create(Set<NodeUrn> nodeUrns, Interval interval);
+	Reservation create(String username, Set<NodeUrn> nodeUrns, Interval interval);
 
 }

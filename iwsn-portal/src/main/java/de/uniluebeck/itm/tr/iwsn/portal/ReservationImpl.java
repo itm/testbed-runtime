@@ -24,11 +24,15 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final Interval interval;
 
+	private final String username;
+
 	@Inject
 	public ReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
 						   final PortalEventBus portalEventBus,
+						   @Assisted final String username,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
+		this.username = checkNotNull(username);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
@@ -57,6 +61,11 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	@Override
+	public String getUsername() {
+		return username;
 	}
 
 	@Override
