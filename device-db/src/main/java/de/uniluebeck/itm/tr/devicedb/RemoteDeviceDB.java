@@ -2,12 +2,14 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.GenericType;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
@@ -30,10 +32,6 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 				public DeviceConfig apply(final DeviceConfigDto input) {
 					return input.toDeviceConfig();
 				}
-			};
-
-	private static final GenericType<List<DeviceConfigDto>> DEVICE_CONFIG_LIST_TYPE =
-			new GenericType<List<DeviceConfigDto>>() {
 			};
 
 	private final RemoteDeviceDBConfig config;
@@ -81,6 +79,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 			return Client.create()
 					.asyncResource(config.uri)
+					.path("byUsbChipId")
+					.queryParam("usbChipId", usbChipId)
+					.accept(MediaType.APPLICATION_JSON)
 					.get(DeviceConfigDto.class)
 					.get(10, TimeUnit.SECONDS)
 					.toDeviceConfig();
@@ -103,6 +104,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 			return Client.create()
 					.asyncResource(config.uri)
+					.path("byMacAddress")
+					.queryParam("macAddress", "" + macAddress)
+					.accept(MediaType.APPLICATION_JSON)
 					.get(DeviceConfigDto.class)
 					.get(10, TimeUnit.SECONDS)
 					.toDeviceConfig();
@@ -124,7 +128,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 			Client.create()
 					.asyncResource(config.uri)
-					.type(MediaType.APPLICATION_JSON_TYPE)
+					.type(MediaType.APPLICATION_JSON)
 					.post(DeviceConfigDto.fromDeviceConfig(deviceConfig))
 					.get(10, TimeUnit.SECONDS);
 
@@ -138,13 +142,18 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 		try {
 
-			final Response response = Client.create()
+			Client.create()
 					.asyncResource(config.uri)
 					.queryParam("nodeUrn", nodeUrn.toString())
-					.delete(Response.class)
+					.accept(MediaType.APPLICATION_JSON)
+					.delete()
 					.get(10, TimeUnit.SECONDS);
 
-			return Response.Status.OK == Response.Status.fromStatusCode(response.getStatus());
+			return true;
+
+		} catch (UniformInterfaceException e) {
+
+			return false;
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -171,7 +180,12 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 				res = res.queryParam("nodeUrn", nodeUrn.toString());
 			}
 
-			return res.get(DEVICE_CONFIG_LIST_TYPE).get(10, TimeUnit.SECONDS);
+			final List<DeviceConfigDto> dtos = res.accept(MediaType.APPLICATION_JSON)
+					.get(DeviceConfigListDto.class)
+					.get(10, TimeUnit.SECONDS)
+					.getDeviceConfigDtos();
+
+			return dtos == null ? Lists.<DeviceConfigDto>newArrayList() : dtos;
 
 		} catch (Exception e) {
 			throw propagate(e);

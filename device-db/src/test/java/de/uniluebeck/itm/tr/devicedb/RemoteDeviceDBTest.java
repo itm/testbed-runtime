@@ -26,7 +26,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 		service.startAndWait();
 
-		final URI remoteDeviceDBUri = URI.create("http://localhost:8888/rest");
+		final URI remoteDeviceDBUri = URI.create("http://localhost:7654/rest");
 		final RemoteDeviceDBConfig remoteDeviceDBConfig = new RemoteDeviceDBConfig(remoteDeviceDBUri);
 		super.setUp(Guice.createInjector(new RemoteDeviceDBModule(remoteDeviceDBConfig)).getInstance(DeviceDB.class));
 	}

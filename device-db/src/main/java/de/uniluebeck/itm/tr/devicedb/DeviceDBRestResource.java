@@ -3,7 +3,10 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.base.Function;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
+import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.apache.log4j.Level;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -16,6 +19,10 @@ import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 @Path("/")
 public class DeviceDBRestResource {
+
+	static {
+		Logging.setLoggingDefaults(Level.TRACE);
+	}
 
 	private final DeviceDB deviceDB;
 
@@ -37,7 +44,7 @@ public class DeviceDBRestResource {
 	@GET
 	@Path("byNodeUrn")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<DeviceConfigDto> getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
+	public DeviceConfigListDto getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
 
 		if (nodeUrnStrings.isEmpty()) {
 
@@ -46,7 +53,7 @@ public class DeviceDBRestResource {
 				list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
 			}
 
-			return list;
+			return new DeviceConfigListDto(list);
 
 		} else {
 
@@ -60,7 +67,7 @@ public class DeviceDBRestResource {
 			}
 			);
 
-			return newArrayList(retList);
+			return new DeviceConfigListDto(newArrayList(retList));
 		}
 
 	}
@@ -68,15 +75,21 @@ public class DeviceDBRestResource {
 	@GET
 	@Path("byUsbChipId")
 	@Produces(MediaType.APPLICATION_JSON)
-	public DeviceConfigDto getByUsbChipId(@QueryParam("usbChipId") String usbChipIds) {
-		return DeviceConfigDto.fromDeviceConfig(deviceDB.getConfigByUsbChipId(usbChipIds));
+	public Response getByUsbChipId(@QueryParam("usbChipId") String usbChipIds) {
+		final DeviceConfig config = deviceDB.getConfigByUsbChipId(usbChipIds);
+		return config == null ?
+				Response.status(Response.Status.NOT_FOUND).build() :
+				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
 	}
 
 	@GET
 	@Path("byMacAddress")
 	@Produces(MediaType.APPLICATION_JSON)
-	public DeviceConfigDto getByUsbChipId(@QueryParam("macAddress") long macAddress) {
-		return DeviceConfigDto.fromDeviceConfig(deviceDB.getConfigByMacAddress(macAddress));
+	public Response getByMacAddress(@QueryParam("macAddress") long macAddress) {
+		final DeviceConfig config = deviceDB.getConfigByMacAddress(macAddress);
+		return config == null ?
+				Response.status(Response.Status.NOT_FOUND).build() :
+				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
 	}
 
 	@POST
@@ -85,6 +98,7 @@ public class DeviceDBRestResource {
 	public Response add(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
 
 		deviceDB.add(deviceConfig.toDeviceConfig());
+
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
 		return Response.created(location).build();
 	}

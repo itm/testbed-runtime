@@ -19,7 +19,7 @@ public class DeviceDBService extends AbstractService {
 	static {
 		Logging.setLoggingDefaults();
 		org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
-		//org.apache.log4j.Logger.getLogger("org.hibernate").setLevel(Level.WARN);
+		org.apache.log4j.Logger.getLogger("org.hibernate").setLevel(Level.WARN);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBService.class);
