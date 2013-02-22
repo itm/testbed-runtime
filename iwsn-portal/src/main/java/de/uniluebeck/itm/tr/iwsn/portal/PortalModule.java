@@ -16,8 +16,10 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 import java.io.File;
 import java.io.FileReader;
@@ -100,6 +102,12 @@ public class PortalModule extends AbstractModule {
 	@Singleton
 	RS provideRS() {
 		return WisebedServiceHelper.getRSService(portalConfig.rsEndpointUrl.toString());
+	}
+
+	@Provides
+	@Singleton
+	SNAA provideSNAA(){
+		return WisebedServiceHelper.getSNAAService(portalConfig.snaaEndpointUrl.toString());
 	}
 
 	@Provides

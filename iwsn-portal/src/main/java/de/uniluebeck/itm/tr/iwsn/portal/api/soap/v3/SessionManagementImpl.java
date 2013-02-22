@@ -20,6 +20,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.*;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +89,8 @@ public class SessionManagementImpl implements SessionManagement {
 	private final Map<Reservation, DeliveryManager> deliveryManagers = newHashMap();
 
 	private final RequestIdProvider requestIdProvider;
+	private WSNFactory wsnFactory;
+	private AuthorizingWSNFactory authorizingWSNFactory;
 
 	@Inject
 	public SessionManagementImpl(final PortalEventBus portalEventBus,
@@ -97,8 +100,11 @@ public class SessionManagementImpl implements SessionManagement {
 								 final DeviceDB deviceDB,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
+								 final AuthorizingWSNFactory authorizingWSNFactory,
+								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
 								 final RequestIdProvider requestIdProvider) {
+		this.authorizingWSNFactory = authorizingWSNFactory;
 
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
@@ -107,6 +113,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.deviceDB = checkNotNull(deviceDB);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
+		this.wsnFactory = wsnFactory;
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 
@@ -244,7 +251,9 @@ public class SessionManagementImpl implements SessionManagement {
 				deliveryManager = deliveryManagerFactory.create(reservation);
 				deliveryManagers.put(reservation, deliveryManager);
 
-				wsnService = wsnServiceFactory.create(reservationKey, reservation, deliveryManager);
+				final WSN wsn = wsnFactory.create(reservationKey,reservation,deliveryManager);
+				AuthorizingWSN authorizingWSN = authorizingWSNFactory.create(reservation,wsn);
+				wsnService = wsnServiceFactory.create(reservationKey, authorizingWSN);
 				wsnInstances.put(reservation, wsnService);
 			}
 		}

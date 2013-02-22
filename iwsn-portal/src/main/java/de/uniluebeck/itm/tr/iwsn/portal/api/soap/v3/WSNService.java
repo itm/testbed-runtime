@@ -6,7 +6,5 @@ import eu.wisebed.api.v3.wsn.WSN;
 import java.net.URI;
 
 public interface WSNService extends WSN, Service {
-
 	URI getURI();
-
 }

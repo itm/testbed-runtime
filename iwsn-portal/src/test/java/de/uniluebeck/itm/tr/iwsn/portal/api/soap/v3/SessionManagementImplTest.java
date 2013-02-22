@@ -84,6 +84,12 @@ public class SessionManagementImplTest {
 	private WSNServiceFactory wsnServiceFactory;
 
 	@Mock
+	private AuthorizingWSNFactory authorizingWSNFactory;
+
+	@Mock
+	private  WSNFactory wsnFactory;
+
+	@Mock
 	private DeliveryManagerFactory deliveryManagerFactory;
 
 	@Mock
@@ -121,6 +127,8 @@ public class SessionManagementImplTest {
 				deviceDB,
 				reservationManager,
 				wsnServiceFactory,
+				authorizingWSNFactory,
+				wsnFactory,
 				deliveryManagerFactory,
 				requestIdProvider
 		);
