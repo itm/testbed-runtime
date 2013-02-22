@@ -174,6 +174,26 @@
 
 			<!-- 3rd party libraries -->
 			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>transducer_device</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>squawk_common</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>multihop_common</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>spotlib_device</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>
 				<version>2.0.16</version>
@@ -505,6 +525,14 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>repository.ru1</id>
+			<url>http://ru1.cti.gr/maven</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<layout>default</layout>
 		</repository>
 	</repositories>
 

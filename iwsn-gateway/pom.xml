@@ -84,6 +84,23 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>transducer_device</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>squawk_common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>multihop_common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>spotlib_device</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
 		</dependency>
