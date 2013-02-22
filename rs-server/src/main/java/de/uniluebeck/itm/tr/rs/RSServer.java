@@ -207,8 +207,8 @@ public class RSServer {
 
 				SNAA snaaInstance = WisebedServiceHelper.getSNAAService(snaaEndpointUrl);
 
-				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"\"",
-						new Object[]{urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl}
+				log.debug("Binding urnPrefix \"{}\", snaaEndpointUrl \"{}\", sessionManagementEndpointUrl \"{}\"",
+						urnPrefix, snaaEndpointUrl, sessionManagementEndpointUrl
 				);
 
 				final ExecutorService executorService =
