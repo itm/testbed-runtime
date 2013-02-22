@@ -32,6 +32,7 @@ public class NettyClientModule extends AbstractModule {
 	}
 
 	@Provides
+	@Singleton
 	ChannelFactory provideChannelFactory() {
 		return new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),

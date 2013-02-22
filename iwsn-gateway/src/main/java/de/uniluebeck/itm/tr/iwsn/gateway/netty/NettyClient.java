@@ -41,14 +41,6 @@ public class NettyClient extends AbstractService {
 		this.bootstrap = new ClientBootstrap(factory);
 	}
 
-	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
-		return new ChannelPipelineFactory() {
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(handlers);
-			}
-		};
-	}
-
 	@Override
 	protected void doStart() {
 
@@ -89,5 +81,13 @@ public class NettyClient extends AbstractService {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
+		return new ChannelPipelineFactory() {
+			public ChannelPipeline getPipeline() throws Exception {
+				return Channels.pipeline(handlers);
+			}
+		};
 	}
 }
