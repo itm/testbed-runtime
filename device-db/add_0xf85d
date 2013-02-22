@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -v -X POST -d @src/test/resources/device-0xf85d.json -H Content-Type:application/json http://localhost:7654/rest/ && echo

@@ -7,9 +7,12 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBJpaModule;
+import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
@@ -52,7 +55,7 @@ public class PortalModule extends AbstractModule {
 		install(new ServicePublisherJettyMetroJerseyModule());
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
-		install(new DeviceDBJpaModule(portalConfig.deviceConfigDBProperties));
+		install(new RemoteDeviceDBModule(new RemoteDeviceDBConfig(portalConfig.deviceDBUri)));
 		install(new SoapApiModule());
 	}
 
@@ -67,7 +70,12 @@ public class PortalModule extends AbstractModule {
 	}
 
 	@Provides
-	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(portalConfig.port, this.getClass().getResource("/").toString());
+	@Singleton
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
+		final ServicePublisherConfig config = new ServicePublisherConfig(
+				portalConfig.port,
+				this.getClass().getResource("/").toString()
+		);
+		return factory.create(config);
 	}
 }

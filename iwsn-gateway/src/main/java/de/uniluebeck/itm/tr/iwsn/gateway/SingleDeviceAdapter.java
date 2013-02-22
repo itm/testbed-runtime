@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
@@ -608,10 +609,12 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		return future;
 	}
 
-	private NamedChannelHandlerList createHandlers(final ChannelHandlerConfigList configs) throws Exception {
+	private NamedChannelHandlerList createHandlers(@Nullable final ChannelHandlerConfigList configs) throws Exception {
 		final NamedChannelHandlerList handlers = new NamedChannelHandlerList();
-		for (ChannelHandlerConfig config : configs) {
-			handlers.add(handlerFactories.get(config.getHandlerName()).create(config));
+		if (configs != null) {
+			for (ChannelHandlerConfig config : configs) {
+				handlers.add(handlerFactories.get(config.getHandlerName()).create(config));
+			}
 		}
 		return handlers;
 	}
