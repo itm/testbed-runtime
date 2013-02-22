@@ -83,13 +83,20 @@ public class ReservationManagerImplTest {
 
 	private static final Set<NodeUrn> RESERVATION_NODE_URNS_3 = newHashSet(new NodeUrn(NODE_URN_PREFIX + "0x0003"));
 
-	private static final Interval RESERVATION_INTERVAL_1 = new Interval(DateTime.now(), DateTime.now().plusHours(1));
+	private static final Interval RESERVATION_INTERVAL_1 = new Interval(
+			DateTime.now(),
+			DateTime.now().plusHours(1)
+	);
 
-	private static final Interval RESERVATION_INTERVAL_2 =
-			new Interval(DateTime.now().plusMinutes(1), DateTime.now().plusHours(1));
+	private static final Interval RESERVATION_INTERVAL_2 = new Interval(
+			DateTime.now().plusMinutes(1),
+			DateTime.now().plusHours(1)
+	);
 
-	private static final Interval RESERVATION_INTERVAL_3 =
-			new Interval(DateTime.now().minusHours(1), DateTime.now().minusMinutes(1));
+	private static final Interval RESERVATION_INTERVAL_3 = new Interval(
+			DateTime.now().minusHours(1),
+			DateTime.now().minusMinutes(1)
+	);
 
 	private static final List<ConfidentialReservationData> RESERVATION_DATA_1 = newArrayList();
 

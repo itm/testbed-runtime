@@ -14,7 +14,6 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Maps.newHashMap;
 
 @Entity
 public class DeviceConfig implements Serializable {
@@ -49,9 +48,9 @@ public class DeviceConfig implements Serializable {
 	private Coordinate position;
 
 	@ElementCollection(fetch = FetchType.EAGER)
-	@Fetch(value = FetchMode.SELECT)
+	/*@Fetch(value = FetchMode.SELECT)
 	@MapKeyColumn(name = "key", length = 1024)
-	@Column(name = "value", length = 4096)
+	@Column(name = "value", length = 4096)*/
 	private Map<String, String> nodeConfiguration;
 
 	@Nullable

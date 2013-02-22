@@ -6,20 +6,20 @@ import java.util.List;
 @XmlRootElement
 public class DeviceConfigListDto {
 
-	private List<DeviceConfigDto> deviceConfigDtos;
+	private List<DeviceConfigDto> configs;
 
 	public DeviceConfigListDto() {
 	}
 
-	public DeviceConfigListDto(final List<DeviceConfigDto> deviceConfigDtos) {
-		this.deviceConfigDtos = deviceConfigDtos;
+	public DeviceConfigListDto(final List<DeviceConfigDto> configs) {
+		this.configs = configs;
 	}
 
-	public List<DeviceConfigDto> getDeviceConfigDtos() {
-		return deviceConfigDtos;
+	public List<DeviceConfigDto> getConfigs() {
+		return configs;
 	}
 
-	public void setDeviceConfigDtos(final List<DeviceConfigDto> deviceConfigDtos) {
-		this.deviceConfigDtos = deviceConfigDtos;
+	public void setConfigs(final List<DeviceConfigDto> configs) {
+		this.configs = configs;
 	}
 }

@@ -9,8 +9,8 @@
     <script src="mustache-20120220.js"></script>
     <script>
         $(document).ready(function() {
-            $.getJSON("/rest/", function(data) {
-                $(data).each(function(index, config) {
+            $.getJSON("/rest/byNodeUrn", function(data) {
+                $(data.configs).each(function(index, config) {
                     $('#table_configs').append(Mustache.render("<tr>"
                             + "<td>{{nodeUrn}}</td>"
                             + "<td>{{nodeType}}</td>"

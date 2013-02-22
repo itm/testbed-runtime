@@ -183,7 +183,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 			final List<DeviceConfigDto> dtos = res.accept(MediaType.APPLICATION_JSON)
 					.get(DeviceConfigListDto.class)
 					.get(10, TimeUnit.SECONDS)
-					.getDeviceConfigDtos();
+					.getConfigs();
 
 			return dtos == null ? Lists.<DeviceConfigDto>newArrayList() : dtos;
 
