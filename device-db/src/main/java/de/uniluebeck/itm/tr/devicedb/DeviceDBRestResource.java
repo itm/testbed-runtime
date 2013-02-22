@@ -32,13 +32,25 @@ public class DeviceDBRestResource {
 	}
 
 	@GET
-	@Path("{nodeUrn}")
+	@Path("{a: deviceConfigs/|}{nodeUrn}") // accept "/deviceConfigs/{nodUrn}" or just "/{nodeUrn}"
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getByNodeUrn(@PathParam("nodeUrn") final String nodeUrnString) {
 		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
 				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
+	}
+	
+	@GET
+	@Path("deviceConfigs")
+	@Produces(MediaType.APPLICATION_JSON)
+	public DeviceConfigListDto list() {
+		final List<DeviceConfigDto> list = newArrayList();
+		for (DeviceConfig deviceConfig : deviceDB.getAll()) {
+			list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
+		}
+
+		return new DeviceConfigListDto(list);
 	}
 
 	@GET

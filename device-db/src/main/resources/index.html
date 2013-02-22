@@ -3,33 +3,135 @@
 <head>
     <meta charset="utf-8"/>
     <title>Device DB</title>
-    <link rel="stylesheet" href="bootstrap-2.2.2.css"/>
-    <script src="jquery-1.8.3.js"></script>
-    <script src="bootstrap-2.2.2.js"></script>
-    <script src="mustache-20120220.js"></script>
+    <link rel="stylesheet" href="lib/css/bootstrap.css"/>
+    <script src="lib/js/jquery-1.9.1.js"></script>
+    <script src="lib/js/bootstrap.js"></script>
+    <script src="lib/js/bootbox-3.2.0.js"></script>
+    <script src="lib/js/handlebars-1.0.0-rc.3.js"></script>
+    <script src="lib/js/underscore-1.4.4.js"></script>
+    <script src="lib/js/backbone-0.9.10.js"></script>
+    <script id="row-template" type="text/x-handlebars-template">
+        {{#each configs}}
+        <tr data-id="{{nodeUrn}}">
+            <td>{{nodeUrn}}</td>
+            <td>{{nodeType}}</td>
+            <td>{{gatewayNode}}</td>
+            <td>{{description}}</td>
+            <td>{{nodeUSBChipID}}</td>
+            <td>
+                CheckAlive: {{timeoutCheckAliveMillis}}ms <br>
+                Flash: {{timeoutFlashMillis}}ms  <br>
+                Node-API: {{timeoutNodeApiMillis}}ms  <br>
+                Reset: {{timeoutResetMillis}}ms  <br>
+            </td>
+            <td>
+                <a class="btn btn-mini node-edit" title="Edit this entry">
+                    <i class="icon-edit"></i>
+                </a>
+                <br>
+                <a href="#" class="btn btn-mini" data-confirm="Really remove this entry?">
+                    <i class="icon-remove" title="Remove this entry"></i>
+                </a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script id="modal-template" type="text/x-handlebars-template">
+        <div class="modal hide fade">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Modal header</h3>
+            </div>
+            <div class="modal-body">
+                <p>One fine body…</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn">Close</a>
+                <a href="#" class="btn btn-primary">Save changes</a>
+            </div>
+        </div>
+    </script>    
     <script>
         $(document).ready(function() {
-            $.getJSON("/rest/byNodeUrn", function(data) {
-                $(data.configs).each(function(index, config) {
-                    $('#table_configs').append(Mustache.render("<tr>"
-                            + "<td>{{nodeUrn}}</td>"
-                            + "<td>{{nodeType}}</td>"
-                            + "</tr>", config));
-                });
+
+            var NodeModel = Backbone.Model.extend({
+                idAttribute: 'nodeUrn',
+                urlRoot: '/rest/deviceConfigs'
             });
+            var NodeCollection = Backbone.Collection.extend({
+                model: NodeModel,
+                url: "/rest/deviceConfigs",
+                parse: function(response) {
+                    return response.deviceConfigDtos;
+                }
+            });
+            var nodes = new NodeCollection();
+
+            var node = new NodeModel({nodeUrn: "urn:wisebed:uzl1:0x2038"});
+
+            nodes.fetch({
+                success: function (collection, response, options) {
+                    var seed = { configs: _.map(nodes.models, function(el) {
+                        return el.attributes;
+                    }) };
+                    $('#table_configs tbody').html(rowTpl(seed));
+                },
+                error: function (collection, xhr, options) {
+                    console.error("Error fetching nodes.");
+                    //console.error(xhr)
+                }
+            });            
+
+            var rowTpl = Handlebars.compile($("#row-template").html());
+            var modalTpl = Handlebars.compile($("#modal-template").html());
+
+            // edit functionality
+            $('#table_configs').on('click', 'a.node-edit', function(e) {
+                e.preventDefault();
+                var id = $(this).parents('tr').data('id');
+                console.log(id);
+            });
+
+
+            // delete functionality
+            $('#table_configs').on('click', 'a[data-confirm]', function(e) {
+                e.preventDefault();
+                var id = $(this).parents('tr').data('id');
+                var msg = $(this).data('confirm');
+                bootbox.confirm(msg, function(sure) {
+                    if ( sure ) {
+                        // TODO implement deletion via REST API
+                        console.log('Delete ID: '+id);
+                    }
+                }); 
+            });
+            
+
         });
     </script>
 </head>
 <body>
 <div class="container">
     <h1>Device DB</h1>
+    <p class="pull-right">
+        <a class="btn btn-info btn-small">
+            <i class="icon-plus-sign icon-white"></i>
+             Add
+        </a>
+    </p>
     <table class="table table-striped table-bordered table-hover table-condensed" id="table_configs">
         <thead>
         <tr>
             <th>URN</th>
             <th>Type</th>
+            <th>Gateway</th>
+            <th>Description</th>
+            <th>USB Chip ID</th>
+            <th>Timeouts</th>
+            <th></th>
         </tr>
         </thead>
+        <tbody></tbody>
     </table>
 </div>
 </body>
