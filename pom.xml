@@ -172,10 +172,20 @@
 				<version>1.7-SNAPSHOT</version>
 			</dependency>
 
-			<!-- 3rd party libraries -->
+			<!-- Sun SPOT support -->
 			<dependency>
 				<groupId>com.sunspot</groupId>
-				<artifactId>transducer_device</artifactId>
+				<artifactId>multihop_common</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>spotlib_host</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>spotlib_common</artifactId>
 				<version>1.0</version>
 			</dependency>
 			<dependency>
@@ -185,14 +195,31 @@
 			</dependency>
 			<dependency>
 				<groupId>com.sunspot</groupId>
-				<artifactId>multihop_common</artifactId>
+				<artifactId>spotclient_host</artifactId>
 				<version>1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sunspot</groupId>
-				<artifactId>spotlib_device</artifactId>
+				<artifactId>signing_host</artifactId>
 				<version>1.0</version>
 			</dependency>
+			<dependency>
+				<groupId>com.sunspot</groupId>
+				<artifactId>RXTXcomm</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>1.3.2</version>
+			</dependency>
+
+			<!-- 3rd party libraries -->
 			<dependency>
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>

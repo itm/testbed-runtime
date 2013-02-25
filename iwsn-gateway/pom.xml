@@ -83,9 +83,18 @@
 			<artifactId>itmutils</artifactId>
 		</dependency>
 
+		<!-- Sun SPOT support -->
 		<dependency>
 			<groupId>com.sunspot</groupId>
-			<artifactId>transducer_device</artifactId>
+			<artifactId>multihop_common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>spotlib_host</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>spotlib_common</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sunspot</groupId>
@@ -93,11 +102,23 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sunspot</groupId>
-			<artifactId>multihop_common</artifactId>
+			<artifactId>spotclient_host</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sunspot</groupId>
-			<artifactId>spotlib_device</artifactId>
+			<artifactId>signing_host</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunspot</groupId>
+			<artifactId>RXTXcomm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 
 		<dependency>
