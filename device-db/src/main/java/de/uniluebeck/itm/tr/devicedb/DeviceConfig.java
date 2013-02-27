@@ -1,21 +1,19 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.Maps;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Coordinate;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import javax.annotation.Nullable;
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Entity
+import java.io.Serializable;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Coordinate;
+
 public class DeviceConfig implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -28,10 +26,9 @@ public class DeviceConfig implements Serializable {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-	@Id
+
 	private String nodeUrn;
 
-	@Column(nullable = false)
 	private String nodeType;
 
 	private boolean gatewayNode;
@@ -43,18 +40,11 @@ public class DeviceConfig implements Serializable {
 	private String nodeUSBChipID;
 
 	@Nullable
-	@Transient
-	// TODO Coordinate can not be persisted. Why?
 	private Coordinate position;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	/*@Fetch(value = FetchMode.SELECT)
-	@MapKeyColumn(name = "key", length = 1024)
-	@Column(name = "value", length = 4096)*/
 	private Map<String, String> nodeConfiguration;
 
 	@Nullable
-	@Transient // TODO persist this
 	private ChannelHandlerConfigList defaultChannelPipeline;
 
 	@Nullable
@@ -84,7 +74,8 @@ public class DeviceConfig implements Serializable {
 			@Nullable final Long timeoutCheckAliveMillis,
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
-			@Nullable final Long timeoutResetMillis) {
+			@Nullable final Long timeoutResetMillis,
+			@Nullable final Coordinate position) {
 
 		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
@@ -93,6 +84,7 @@ public class DeviceConfig implements Serializable {
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration == null ? Maps.<String, String>newHashMap() : nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
+		this.position = position;
 
 		checkArgument((timeoutCheckAliveMillis == null || timeoutCheckAliveMillis > 0),
 				"The timeout value for the checkAlive operation must either be omitted (null) to use the default value "
@@ -248,4 +240,24 @@ public class DeviceConfig implements Serializable {
 		result = 31 * result + (timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis.hashCode() : 0);
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		Joiner joiner = Joiner.on(", ").useForNull("null");
+		return "{"+ joiner.join(
+					nodeUrn,
+					nodeType,
+					gatewayNode,
+					description,
+					nodeUSBChipID,
+					position,
+					nodeConfiguration,
+					timeoutCheckAliveMillis,
+					timeoutFlashMillis,
+					timeoutNodeApiMillis,
+					timeoutResetMillis,
+					defaultChannelPipeline
+				) +"}";
+	}
+
 }

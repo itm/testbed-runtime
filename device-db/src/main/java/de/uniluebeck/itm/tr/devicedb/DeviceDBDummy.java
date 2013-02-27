@@ -25,7 +25,8 @@ public class DeviceDBDummy extends AbstractService implements DeviceDB {
 			TimeUnit.SECONDS.toMillis(1),
 			TimeUnit.MINUTES.toMillis(2),
 			TimeUnit.SECONDS.toMillis(5),
-			TimeUnit.SECONDS.toMillis(2)
+			TimeUnit.SECONDS.toMillis(2),
+			null
 	);
 
 	@Override

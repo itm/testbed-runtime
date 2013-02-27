@@ -60,7 +60,8 @@ public class DeviceDBTestBase {
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				null
 		);
 
 		config2 = new DeviceConfig(
@@ -74,7 +75,8 @@ public class DeviceDBTestBase {
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				null
 		);
 
 		config3 = new DeviceConfig(
@@ -88,7 +90,8 @@ public class DeviceDBTestBase {
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				null
 		);
 	}
 

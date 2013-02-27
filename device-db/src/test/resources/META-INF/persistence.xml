@@ -5,7 +5,8 @@
 			 version="1.0">
 	<persistence-unit name="DeviceDB" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<class>de.uniluebeck.itm.tr.devicedb.DeviceConfig</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<!-- vendor-specific properties go here -->
