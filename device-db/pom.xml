@@ -136,7 +136,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDBService</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDBServiceImpl</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

@@ -7,6 +7,7 @@ import de.uniluebeck.itm.tr.iwsn.common.config.NodeUrnPrefixOptionHandler;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.kohsuke.args4j.Option;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
@@ -47,8 +48,14 @@ public class PortalConfig extends ConfigWithLogging {
 	public Multimap<String, String> options;
 
 	@Option(name = "--deviceDBUri",
-			usage = "The URI on which the DeviceDB runs",
-			required = true
+			usage = "The URI on which the DeviceDB runs (only if --deviceDBPropertiesFile is not set and access to DeviceDB shall be executed remotely)",
+			required = false
 	)
 	public URI deviceDBUri = null;
+
+	@Option(name = "--deviceDBPropertiesFile",
+			usage = ".properties file to initialize the DeviceDB JPA storage (alternative: --deviceDBUri)",
+			required = false
+	)
+	public File deviceDBPropertiesFile;
 }

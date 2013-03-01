@@ -13,7 +13,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	private static int port = NetworkUtils.findFreePort();
 
-	private DeviceDBService service;
+	private DeviceDBServiceImpl service;
 
 	@Before
 	public void setUp() throws Exception {
@@ -24,8 +24,8 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		fileWriter.close();
 
 		service = Guice
-				.createInjector(new DeviceDBServiceModule(new DeviceDBServiceConfig(port, file)))
-				.getInstance(DeviceDBService.class);
+				.createInjector(new DeviceDBMainModule(new DeviceDBMainConfig(port, file)))
+				.getInstance(DeviceDBServiceImpl.class);
 
 		service.startAndWait();
 
