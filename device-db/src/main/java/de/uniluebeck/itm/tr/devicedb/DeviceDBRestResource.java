@@ -4,9 +4,7 @@ import com.google.common.base.Function;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
-import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
-import org.apache.log4j.Level;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -19,10 +17,6 @@ import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 @Path("/")
 public class DeviceDBRestResource {
-
-	static {
-		Logging.setLoggingDefaults(Level.TRACE);
-	}
 
 	private final DeviceDB deviceDB;
 

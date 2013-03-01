@@ -1,7 +1,9 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.Guice;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
+import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 
@@ -11,9 +13,13 @@ import java.net.URI;
 
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
+	static {
+		Logging.setLoggingDefaults(Level.WARN);
+	}
+
 	private static int port = NetworkUtils.findFreePort();
 
-	private DeviceDBServiceImpl service;
+	private DeviceDBService service;
 
 	@Before
 	public void setUp() throws Exception {
@@ -25,7 +31,8 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 		service = Guice
 				.createInjector(new DeviceDBMainModule(new DeviceDBMainConfig(port, file)))
-				.getInstance(DeviceDBServiceImpl.class);
+				.getInstance(DeviceDBServiceFactory.class)
+				.create("/rest");
 
 		service.startAndWait();
 
