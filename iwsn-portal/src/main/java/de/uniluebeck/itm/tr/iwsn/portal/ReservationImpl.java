@@ -84,6 +84,16 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	@Override
+	public void enableVirtualization() {
+		reservationEventBus.enableVirtualization();
+	}
+
+	@Override
+	public void disableVirtualization() {
+		reservationEventBus.disableVirtualization();
+	}
+
+	@Override
 	public boolean equals(final Object o) {
 
 		if (this == o) {

@@ -161,4 +161,14 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 			notifyFailed(e);
 		}
 	}
+
+	@Override
+	public void enableVirtualization() {
+		throw new RuntimeException("TODO not yet implemented!");
+	}
+
+	@Override
+	public void disableVirtualization() {
+		throw new RuntimeException("TODO not yet implemented!");
+	}
 }

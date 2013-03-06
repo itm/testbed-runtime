@@ -16,4 +16,7 @@ public interface Reservation extends Service {
 
 	Interval getInterval();
 
+	void enableVirtualization();
+
+	void disableVirtualization();
 }

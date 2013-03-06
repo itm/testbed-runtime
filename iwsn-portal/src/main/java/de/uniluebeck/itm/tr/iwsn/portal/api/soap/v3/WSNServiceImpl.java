@@ -188,8 +188,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 									 @WebParam(name = "links", targetNamespace = "") List<Link> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus()
-				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convert(links)));
+		reservation.getReservationEventBus().post(
+				newDisablePhysicalLinksRequest(reservationId, requestId, convert(links))
+		);
 	}
 
 	@Override
@@ -207,7 +208,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public void disableVirtualization()
 			throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		reservation.disableVirtualization();
 	}
 
 	@Override
@@ -225,7 +226,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception,
 			ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		reservation.enableVirtualization();
 	}
 
 	@Override

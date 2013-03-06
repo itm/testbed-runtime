@@ -4,4 +4,7 @@ import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 
 public interface ReservationEventBus extends EventBusService {
 
+	void enableVirtualization();
+
+	void disableVirtualization();
 }
