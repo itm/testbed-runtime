@@ -1,13 +1,22 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.Iterators;
+
+import de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity;
+import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Coordinate;
+
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.size;
@@ -76,7 +85,7 @@ public class DeviceDBTestBase {
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
-				null
+				new Coordinate().withX(10).withY(3).withZ(5.0)
 		);
 
 		config3 = new DeviceConfig(

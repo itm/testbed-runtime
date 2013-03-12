@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -35,7 +36,7 @@ public class DeviceConfigEntity {
 	private String nodeUSBChipID;
 
 	@Nullable
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	private CoordinateEntity position;
 
 	@ElementCollection(fetch = FetchType.EAGER)

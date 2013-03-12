@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -128,6 +129,12 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	public void add(final DeviceConfig deviceConfig) {
 		entityManager.get().persist(new DeviceConfigEntity(deviceConfig));
 	}
+	
+	@Override
+	@Transactional
+	public void update(DeviceConfig deviceConfig) {
+		entityManager.get().merge(new DeviceConfigEntity(deviceConfig));
+	}
 
 	@Override
 	@Transactional
@@ -150,7 +157,21 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public void removeAll() {
 		for (DeviceConfig deviceConfig : getAll()) {
-			entityManager.get().remove(new DeviceConfigEntity(deviceConfig));
+			removeByNodeUrn(deviceConfig.getNodeUrn());
+			//entityManager.get().remove(new DeviceConfigEntity(deviceConfig));
 		}
+		
+		Iterable<NodeUrn> urns = Iterables.transform(getAll(), CONFIG_NODE_URN_FUNCTION);
+		final List<String> nodeUrnStrings = newArrayList(transform(urns, NodeUrnHelper.NODE_URN_TO_STRING));
+
+		final int entriesRemoved = entityManager.get()
+				.createQuery("DELETE FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)")
+				.setParameter("urns", nodeUrnStrings)
+				.executeUpdate();
+		
+	}
+	
+	protected EntityManager getEntityManager() {
+		return entityManager.get();
 	}
 }

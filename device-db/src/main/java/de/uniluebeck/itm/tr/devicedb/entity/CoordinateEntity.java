@@ -2,26 +2,31 @@ package de.uniluebeck.itm.tr.devicedb.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import eu.wisebed.wiseml.Coordinate;
 
-@Entity
+@Entity(name="Coordinate")
 public class CoordinateEntity {
 	
 	@Id
-    @GeneratedValue
-    protected long id;
+	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+    private Long id;
 
-	protected double x;
+	private double x;
 
-	protected double y;
+	private double y;
 
-	protected double z;
+	private Double z;
 
-	protected double phi;
+	private Double phi;
 
-	protected double theta;
+	private Double theta;
+	
+	public CoordinateEntity() {
+		
+	}
 	
 	public static CoordinateEntity fromCoordinate(final Coordinate position) {
 		if ( position == null) return null;
@@ -43,5 +48,9 @@ public class CoordinateEntity {
 		coordinate.setPhi(phi);
 		coordinate.setTheta(theta);
 		return coordinate;
+	}
+	
+	public long getId() {
+		return id;
 	}
 }

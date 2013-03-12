@@ -1,0 +1,91 @@
+<div class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Modal header</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" id="modal-form">
+        <div class="control-group">
+            <label class="control-label" for="nodeUrn">Node-URN</label>
+            <div class="controls">
+                <input type="text" id="nodeUrn" placeholder="e.g. urn:wisebed:[namespace]:[0xID]" value="{{nodeUrn}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="nodeType">Node-Type</label>
+            <div class="controls">
+                <input type="text" id="nodeType" placeholder="e.g. isense48" value="{{nodeType}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="gatewayNode">Gateway</label>
+            <div class="controls">
+                <input type="checkbox" id="gatewayNode">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="description">Description</label>
+            <div class="controls">
+                <textarea id="description" value="{{description}}" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="nodeUSBChipID">USB Chip ID</label>
+            <div class="controls">
+                <input type="text" id="nodeUSBChipID" value="{{nodeUSBChipID}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Position</label>
+            <div class="controls">
+                <label style="display:inline;" for="position.x">x:</label>
+                <input style="display:inline; width: 40px" type="text" id="position.x" value="{{position.x}}">
+                <label style="display:inline;" for="position.y">y:</label>
+                <input style="display:inline; width: 40px" type="text" id="position.y" value="{{position.y}}">
+                <label style="display:inline;" for="position.z">z:</label>
+                <input style="display:inline; width: 40px" type="text" id="position.z" value="{{position.z}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="timeoutNodeApiMillis">Timeout Node-API</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="text" id="timeoutNodeApiMillis" value="{{timeoutNodeApiMillis}}">
+                    <span class="add-on">ms</span>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="timeoutResetMillis">Timeout Reset</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="text" id="timeoutResetMillis" value="{{timeoutResetMillis}}">
+                    <span class="add-on">ms</span>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="timeoutFlashMillis">Timeout Flash</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="text" id="timeoutFlashMillis" value="{{timeoutFlashMillis}}">
+                    <span class="add-on">ms</span>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="timeoutCheckAliveMillis">Timeout Check-Alive</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="text" id="timeoutCheckAliveMillis" value="{{timeoutCheckAliveMillis}}">
+                    <span class="add-on">ms</span>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn">Close</a>
+        <a href="#" id="save" class="btn btn-primary">Save changes</a>
+    </div>
+</div>
