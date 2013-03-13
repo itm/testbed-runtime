@@ -22,23 +22,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.log4j.Level;
-
 import com.google.common.base.Function;
 import com.google.inject.Inject;
 
-import de.uniluebeck.itm.tr.devicedb.dto.CoordinateDto;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
-import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 @Path("/")
 public class DeviceDBRestResource {
-
-	static {
-		Logging.setLoggingDefaults(Level.TRACE);
-	}
 
 	private final DeviceDB deviceDB;
 

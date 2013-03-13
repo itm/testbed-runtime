@@ -5,12 +5,12 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 
-public class DeviceDBServiceConfig extends ConfigWithLogging {
+public class DeviceDBMainConfig extends ConfigWithLogging {
 
-	public DeviceDBServiceConfig() {
+	public DeviceDBMainConfig() {
 	}
 
-	public DeviceDBServiceConfig(final int port, final File dbPropertiesFile) {
+	public DeviceDBMainConfig(final int port, final File dbPropertiesFile) {
 		this.port = port;
 		this.dbPropertiesFile = dbPropertiesFile;
 	}

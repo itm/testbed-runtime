@@ -5,12 +5,14 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
 
@@ -28,6 +30,8 @@ public class Portal extends AbstractService {
 
 	private static final Logger log = LoggerFactory.getLogger(Portal.class);
 
+	private final DeviceDBService deviceDBService;
+
 	private final PortalEventBus portalEventBus;
 
 	private final ReservationManager reservationManager;
@@ -37,20 +41,23 @@ public class Portal extends AbstractService {
 	private final ServicePublisher servicePublisher;
 
 	@Inject
-	public Portal(final PortalEventBus portalEventBus,
+	public Portal(final DeviceDBService deviceDBService,
+				  final PortalEventBus portalEventBus,
 				  final ReservationManager reservationManager,
 				  final SoapApiService soapApiService,
 				  final ServicePublisher servicePublisher) {
-		this.portalEventBus = portalEventBus;
-		this.reservationManager = reservationManager;
-		this.soapApiService = soapApiService;
-		this.servicePublisher = servicePublisher;
+		this.deviceDBService = checkNotNull(deviceDBService);
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.reservationManager = checkNotNull(reservationManager);
+		this.soapApiService = checkNotNull(soapApiService);
+		this.servicePublisher = checkNotNull(servicePublisher);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 
+			deviceDBService.startAndWait();
 			portalEventBus.startAndWait();
 			reservationManager.startAndWait();
 			servicePublisher.startAndWait();
@@ -67,6 +74,7 @@ public class Portal extends AbstractService {
 	protected void doStop() {
 		try {
 
+			deviceDBService.stopAndWait();
 			soapApiService.stopAndWait();
 			servicePublisher.stopAndWait();
 			reservationManager.stopAndWait();
