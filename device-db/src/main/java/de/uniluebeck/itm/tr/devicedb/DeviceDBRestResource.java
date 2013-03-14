@@ -113,7 +113,7 @@ public class DeviceDBRestResource {
 	}
 
 	@POST
-	@Path("deviceConfigs") // accept "/deviceConfigs" or root
+	@Path("deviceConfigs/{nodeUrn}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
@@ -123,7 +123,7 @@ public class DeviceDBRestResource {
 			return Response.serverError().entity(e.getMessage()).build();
 		}
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
-		return Response.created(location).build();
+		return Response.created(location).entity("true").build();
 	}
 	
 	@PUT

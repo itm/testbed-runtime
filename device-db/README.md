@@ -6,7 +6,7 @@ Contains configuration options and properties of all nodes in a testbed.
 ## REST API
 
 There is a RESTful HTTP Webservice which consumes/produces JSON
- - **create**: ``POST`` on ``/rest/deviceConfigs/`` with JSON representation as payload
+ - **create**: ``POST`` on ``/rest/deviceConfigs/_[nodeURN]_`` with JSON representation as payload
  - **update**: ``PUT`` on ``/rest/deviceConfigs/_[nodeURN]_``[^note-id]   with JSON representation as payload
  - **remove**: ``DELETE`` on ``/rest/deviceConfigs/_[nodeURN]_``[^note-id] 
 

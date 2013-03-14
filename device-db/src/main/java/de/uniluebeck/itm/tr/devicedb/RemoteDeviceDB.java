@@ -129,6 +129,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 			Client.create()
 					.asyncResource(config.uri)
 					.path("deviceConfigs")
+					.path(deviceConfig.getNodeUrn().toString())
 					.type(MediaType.APPLICATION_JSON)
 					.post(DeviceConfigDto.fromDeviceConfig(deviceConfig))
 					.get(10, TimeUnit.SECONDS);

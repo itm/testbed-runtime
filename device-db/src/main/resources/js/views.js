@@ -56,7 +56,8 @@ $(function () {
     app.DetailView = Backbone.View.extend({
         template: Handlebars.getTemplate('modal'),
         events: {
-            'click #save' : 'save'
+            'click #save' : 'save',
+            'click #close': 'hide'
         },
         initialize: function() {
             this.render();
@@ -78,14 +79,17 @@ $(function () {
             // serialize form
             var data = form2js('modal-form','.',true,nodeCallback,true);
             // send to server
+            var isNew = this.model.id === this.model.defaults.nodeUrn;
             this.model.save(data, {
                 wait: true,
                 success: function(model, response, options) {
+                    app.Nodes.add(self.model, {merge: true});
                     self.hide();
                 },
                 error: function(model, xhr, options) {
                     alert(xhr.responseText);
-                }
+                },
+                type: isNew ? 'post' : 'put'
             });
         },
 
