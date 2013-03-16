@@ -88,7 +88,7 @@ public class PortalModule extends AbstractModule {
 	@Provides
 	@Singleton
 	DeviceDBService provideDeviceDBService(final DeviceDBServiceFactory factory) {
-		return factory.create("/devicedb/rest");
+		return factory.create("/devicedb/rest", "/devicedb");
 	}
 
 	@Provides
@@ -112,10 +112,6 @@ public class PortalModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		final ServicePublisherConfig config = new ServicePublisherConfig(
-				portalConfig.port,
-				this.getClass().getResource("/").toString()
-		);
-		return factory.create(config);
+		return factory.create(new ServicePublisherConfig(portalConfig.port));
 	}
 }

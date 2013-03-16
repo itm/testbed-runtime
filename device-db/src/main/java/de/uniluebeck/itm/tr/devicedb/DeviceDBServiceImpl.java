@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,15 +14,19 @@ public class DeviceDBServiceImpl extends AbstractService implements DeviceDBServ
 
 	private final DeviceDBRestApplication restApplication;
 
-	private final String path;
+	private final String restPath;
+
+	private final String webAppPath;
 
 	private final ServicePublisher servicePublisher;
 
 	@Inject
-	public DeviceDBServiceImpl(@Assisted String path,
+	public DeviceDBServiceImpl(@Assisted("path_rest") String restPath,
+							   @Assisted("path_webapp") String webAppPath,
 							   final ServicePublisher servicePublisher,
 							   final DeviceDBRestApplication restApplication) {
-		this.path = path;
+		this.restPath = restPath;
+		this.webAppPath = webAppPath;
 		this.servicePublisher = servicePublisher;
 		this.restApplication = restApplication;
 	}
@@ -33,8 +38,11 @@ public class DeviceDBServiceImpl extends AbstractService implements DeviceDBServ
 
 		try {
 
-			servicePublisher.createJaxRsService(path + "/*", restApplication);
+			servicePublisher.createJaxRsService(restPath, restApplication);
+			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
+			ServicePublisherService ss = servicePublisher.createServletService(webAppPath, webAppResourceBase);
 			servicePublisher.startAndWait();
+			ss.startAndWait();
 
 			notifyStarted();
 

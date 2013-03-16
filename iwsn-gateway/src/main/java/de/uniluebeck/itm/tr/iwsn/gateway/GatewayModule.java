@@ -57,9 +57,6 @@ public class GatewayModule extends AbstractModule {
 
 	@Provides
 	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(
-				gatewayConfig.restAPIPort,
-				this.getClass().getResource("/").toString()
-		);
+		return new ServicePublisherConfig(gatewayConfig.restAPIPort);
 	}
 }

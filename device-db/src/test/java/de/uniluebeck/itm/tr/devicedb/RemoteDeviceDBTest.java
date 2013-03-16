@@ -32,7 +32,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		service = Guice
 				.createInjector(new DeviceDBMainModule(new DeviceDBMainConfig(port, file)))
 				.getInstance(DeviceDBServiceFactory.class)
-				.create("/rest");
+				.create("/rest", "/");
 
 		service.startAndWait();
 

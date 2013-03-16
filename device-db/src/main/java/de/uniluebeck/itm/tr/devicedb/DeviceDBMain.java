@@ -28,7 +28,7 @@ public class DeviceDBMain {
 				.createInjector(new DeviceDBMainModule(config))
 				.getInstance(DeviceDBServiceFactory.class);
 
-		final DeviceDBService deviceDBService = deviceDBServiceFactory.create("/rest");
+		final DeviceDBService deviceDBService = deviceDBServiceFactory.create("/rest", "/");
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.util.Logging;
@@ -62,6 +63,11 @@ public class Portal extends AbstractService {
 			reservationManager.startAndWait();
 			servicePublisher.startAndWait();
 			soapApiService.startAndWait();
+
+			final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/webapp";
+			final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
+			final ServicePublisherService webapp = servicePublisher.createServletService("/", resourceBase);
+			webapp.startAndWait();
 
 			notifyStarted();
 

@@ -33,10 +33,7 @@ public class DeviceDBMainModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(
-				config.port,
-				this.getClass().getResource("/").toString()
-		));
+		return factory.create(new ServicePublisherConfig(config.port));
 	}
 
 	private Properties readProperties(final File dbPropertiesFile) {
