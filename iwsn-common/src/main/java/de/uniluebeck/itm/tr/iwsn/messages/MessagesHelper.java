@@ -294,10 +294,27 @@ public abstract class MessagesHelper {
 		return newMessage(newEnablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
+	public static Request newGetChannelPipelinesRequest(@Nullable final String reservationId,
+														final long requestId,
+														final Iterable<NodeUrn> nodeUrns) {
+		final Request.Builder builder = Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.GET_CHANNEL_PIPELINES)
+				.setGetChannelPipelinesRequest(
+						GetChannelPipelinesRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
+	}
+
 	public static Request newSetChannelPipelinesRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Iterable<NodeUrn> nodeUrns,
-														final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+														final Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.SET_CHANNEL_PIPELINES)
@@ -316,7 +333,7 @@ public abstract class MessagesHelper {
 	public static Message newSetChannelPipelinesRequestMessage(@Nullable final String reservationId,
 															   final long requestId,
 															   final Iterable<NodeUrn> nodeUrns,
-															   final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+															   final Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		return newMessage(
 				newSetChannelPipelinesRequest(reservationId, requestId, nodeUrns, channelHandlerConfigurations)
 		);

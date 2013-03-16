@@ -1,18 +1,20 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest;
+import de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.util.NetworkUtils;
-import eu.wisebed.api.v3.common.KeyValuePair;
+import de.uniluebeck.itm.tr.util.SettableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
@@ -26,11 +28,15 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.*;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 @WebService(name = "WSN", targetNamespace = "http://wisebed.eu/api/v3/wsn")
@@ -44,6 +50,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private final DeliveryManager deliveryManager;
 
+	private final RequestIdProvider requestIdProvider;
+
 	private final String reservationId;
 
 	private ServicePublisherService jaxWsService;
@@ -51,11 +59,13 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
 						  final DeviceDB deviceDB,
+						  final RequestIdProvider requestIdProvider,
 						  @Assisted final String reservationId,
 						  @Assisted final Reservation reservation,
 						  @Assisted final DeliveryManager deliveryManager) {
 		this.reservationId = reservationId;
 		this.deviceDB = checkNotNull(deviceDB);
+		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.jaxWsService = servicePublisher.createJaxWsService("/soap/v3/wsn/" + reservationId, this);
@@ -149,7 +159,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
-				newDisableVirtualLinksRequest(reservationId, requestId, convert(links))
+				newDisableVirtualLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
 	}
 
@@ -189,7 +199,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
-				newDisablePhysicalLinksRequest(reservationId, requestId, convert(links))
+				newDisablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
 	}
 
@@ -265,7 +275,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
-				newEnablePhysicalLinksRequest(reservationId, requestId, convert(links))
+				newEnablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
 	}
 
@@ -313,8 +323,50 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public List<ChannelPipelinesMap> getChannelPipelines(
 			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
+
 		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+
+		final long requestId = requestIdProvider.get();
+		final Request request = newGetChannelPipelinesRequest(
+				reservationId,
+				requestId,
+				nodeUrns
+		);
+
+		final Map<NodeUrn, SettableFuture<GetChannelPipelinesResponse.GetChannelPipelineResponse>> map = newHashMap();
+		for (NodeUrn nodeUrn : nodeUrns) {
+			map.put(nodeUrn, SettableFuture.<GetChannelPipelinesResponse.GetChannelPipelineResponse>create());
+		}
+		final SettableFutureMap<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> future =
+				new SettableFutureMap<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse>(map);
+
+		final Object eventBusListener = new Object() {
+			@Subscribe
+			public void onResponse(GetChannelPipelinesResponse response) {
+				if (response.getRequestId() == requestId) {
+					for (GetChannelPipelinesResponse.GetChannelPipelineResponse p : response.getPipelinesList()) {
+
+						final SettableFuture<GetChannelPipelinesResponse.GetChannelPipelineResponse> nodeFuture =
+								map.get(new NodeUrn(p.getNodeUrn()));
+						nodeFuture.set(p);
+					}
+				}
+			}
+		};
+
+		reservation.getReservationEventBus().register(eventBusListener);
+		reservation.getReservationEventBus().post(request);
+
+		try {
+
+			final Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap =
+					future.get(30, TimeUnit.SECONDS);
+			reservation.getReservationEventBus().unregister(eventBusListener);
+			return convert(resultMap);
+
+		} catch (Exception e) {
+			throw propagate(e);
+		}
 	}
 
 	@Override
@@ -465,46 +517,6 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	public URI getURI() {
 		return jaxWsService.getURI();
-	}
-
-	private Multimap<NodeUrn, NodeUrn> convert(final List<Link> links) {
-		final Multimap<NodeUrn, NodeUrn> map = HashMultimap.create();
-		for (Link link : links) {
-			map.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
-		}
-		return map;
-	}
-
-	private Multimap<NodeUrn, NodeUrn> convertVirtualLinks(final List<VirtualLink> links) {
-		final Multimap<NodeUrn, NodeUrn> map = HashMultimap.create();
-		for (VirtualLink link : links) {
-			map.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
-		}
-		return map;
-	}
-
-	private Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> convertCHCs(
-			final List<ChannelHandlerConfiguration> chcs) {
-
-		List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> retList = newLinkedList();
-
-		for (ChannelHandlerConfiguration chc : chcs) {
-
-			final SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder builder = SetChannelPipelinesRequest
-					.ChannelHandlerConfiguration
-					.newBuilder()
-					.setName(chc.getName());
-
-			for (KeyValuePair keyValuePair : chc.getConfiguration()) {
-				builder.addConfigurationBuilder()
-						.setKey(keyValuePair.getKey())
-						.setValue(keyValuePair.getValue());
-			}
-
-			retList.add(builder.build());
-		}
-
-		return retList;
 	}
 
 	private void assertReservationIntervalMet() throws ReservationNotRunningFault_Exception {

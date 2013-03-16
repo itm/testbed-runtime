@@ -10,13 +10,13 @@ public interface SetChannelPipelinesRequestOrBuilder
   int getNodeUrnsCount();
   String getNodeUrns(int index);
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
-  java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> 
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
+  java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> 
       getChannelHandlerConfigurationsList();
-  de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index);
+  de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index);
   int getChannelHandlerConfigurationsCount();
-  java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder> 
+  java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
       getChannelHandlerConfigurationsOrBuilderList();
-  de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
+  de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
       int index);
 }

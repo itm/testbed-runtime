@@ -295,7 +295,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs =
+					final List<ChannelHandlerConfiguration> configs =
 							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
 					requestsToBeSent.put(
 							ctx,

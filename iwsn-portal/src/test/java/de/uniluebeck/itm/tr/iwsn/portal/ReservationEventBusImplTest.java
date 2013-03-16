@@ -66,7 +66,7 @@ public class ReservationEventBusImplTest {
 
 	private static final Random RANDOM = new Random();
 
-	private static final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration>
+	private static final Iterable<? extends ChannelHandlerConfiguration>
 			CHANNEL_HANDLER_CONFIGURATIONS = newArrayList();
 
 	private static final String RESERVATION_ID = "" + RANDOM.nextLong();

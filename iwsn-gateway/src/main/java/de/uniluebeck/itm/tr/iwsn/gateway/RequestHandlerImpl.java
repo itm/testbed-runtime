@@ -169,15 +169,15 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 		for (DeviceAdapter deviceAdapter : connectedMap.keySet()) {
 
 			final Collection<NodeUrn> nodeUrnsToSetChannelPipelineOn = connectedMap.get(deviceAdapter);
-			final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurationsList =
+			final List<ChannelHandlerConfiguration> channelHandlerConfigurationsList =
 					request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
 
 			final ChannelHandlerConfigList cp = new ChannelHandlerConfigList();
 
-			for (SetChannelPipelinesRequest.ChannelHandlerConfiguration config : channelHandlerConfigurationsList) {
+			for (ChannelHandlerConfiguration config : channelHandlerConfigurationsList) {
 
 				final HashMultimap<String, String> options = HashMultimap.create();
-				for (SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair kv : config
+				for (ChannelHandlerConfiguration.KeyValuePair kv : config
 						.getConfigurationList()) {
 					options.put(kv.getKey(), kv.getValue());
 				}
