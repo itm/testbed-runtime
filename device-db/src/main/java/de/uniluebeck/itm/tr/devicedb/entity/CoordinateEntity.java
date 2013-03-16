@@ -1,17 +1,17 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
+import eu.wisebed.wiseml.Coordinate;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import eu.wisebed.wiseml.Coordinate;
-
 @Entity(name="Coordinate")
 public class CoordinateEntity {
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
 	private double x;
