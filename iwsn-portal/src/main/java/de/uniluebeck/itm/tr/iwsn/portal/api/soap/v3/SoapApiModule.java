@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.wsn.WSN;
 
 public class SoapApiModule extends AbstractModule {
 
@@ -17,6 +18,16 @@ public class SoapApiModule extends AbstractModule {
 		install(new FactoryModuleBuilder()
 				.implement(WSNService.class, WSNServiceImpl.class)
 				.build(WSNServiceFactory.class)
+		);
+
+		install(new FactoryModuleBuilder()
+				.implement(WSN.class, WSNImpl.class)
+				.build(WSNFactory.class)
+		);
+
+		install(new FactoryModuleBuilder()
+				.implement(AuthorizingWSN.class, AuthorizingWSNImpl.class)
+				.build(AuthorizingWSNFactory.class)
 		);
 
 		install(new FactoryModuleBuilder()

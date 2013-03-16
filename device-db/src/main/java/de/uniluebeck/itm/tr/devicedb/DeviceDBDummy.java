@@ -78,6 +78,12 @@ public class DeviceDBDummy extends AbstractService implements DeviceDB {
 	public void add(final DeviceConfig deviceConfig) {
 		// TODO implement
 	}
+	
+	@Override
+	public void update(DeviceConfig deviceConfig) {
+		// TODO implement
+		
+	}
 
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {

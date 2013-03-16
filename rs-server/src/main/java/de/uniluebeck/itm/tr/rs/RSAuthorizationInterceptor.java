@@ -336,8 +336,6 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		return new RSFault_Exception(message, rse);
 	}
 
-	// ------------------------------------------------------------------------
-
 	/**
 	 * Returns an exception due to an authorization failure.
 	 *

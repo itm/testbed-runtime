@@ -128,6 +128,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 			Client.create()
 					.asyncResource(config.uri)
+					.path("deviceConfigs")
+					.path(deviceConfig.getNodeUrn().toString())
 					.type(MediaType.APPLICATION_JSON)
 					.post(DeviceConfigDto.fromDeviceConfig(deviceConfig))
 					.get(10, TimeUnit.SECONDS);
@@ -137,6 +139,25 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 		}
 	}
 
+	@Override
+	public void update(DeviceConfig deviceConfig) {
+		
+		try {
+
+			Client.create()
+					.asyncResource(config.uri)
+					.path("deviceConfigs")
+					.path(deviceConfig.getNodeUrn().toString())
+					.type(MediaType.APPLICATION_JSON)
+					.put(DeviceConfigDto.fromDeviceConfig(deviceConfig))
+					.get(10, TimeUnit.SECONDS);
+
+		} catch (Exception e) {
+			throw propagate(e);
+		}
+		
+	}
+	
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
 

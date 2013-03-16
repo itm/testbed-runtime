@@ -1,19 +1,33 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.base.Function;
-import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
-import eu.wisebed.api.v3.common.NodeUrn;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.net.URI;
-import java.util.List;
-
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
+
+import java.net.URI;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import com.google.common.base.Function;
+import com.google.inject.Inject;
+
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
+import eu.wisebed.api.v3.common.NodeUrn;
 
 @Path("/")
 public class DeviceDBRestResource {
@@ -99,14 +113,43 @@ public class DeviceDBRestResource {
 	}
 
 	@POST
+	@Path("deviceConfigs/{nodeUrn}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
-
-		deviceDB.add(deviceConfig.toDeviceConfig());
-
+		try {
+			deviceDB.add(deviceConfig.toDeviceConfig());
+		} catch (Exception e) {
+			return Response.serverError().entity(e.getMessage()).build();
+		}
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
-		return Response.created(location).build();
+		return Response.created(location).entity("true").build();
+	}
+	
+	@PUT
+	@Path("deviceConfigs/{nodeUrn}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response update(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
+		// check if Entity to update already exists
+		if ( deviceDB.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null ) {
+			deviceDB.update(deviceConfig.toDeviceConfig());
+		} else {
+			return Response.notModified().build();
+		}
+
+		return Response.ok("true").build();
+	}
+	
+	@DELETE
+	@Path("deviceConfigs/{nodeUrn}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response delete(@PathParam("nodeUrn")  String nodeUrnString) {
+
+		boolean ok = deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+
+		return ok ? Response.ok("true").build() : Response.notModified().build();
 	}
 
 	@DELETE
@@ -126,6 +169,8 @@ public class DeviceDBRestResource {
 
 		}
 
-		return Response.ok().build();
+		return Response.ok("true").build();
 	}
+	
+	
 }

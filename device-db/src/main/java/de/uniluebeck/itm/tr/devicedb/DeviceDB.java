@@ -22,6 +22,8 @@ public interface DeviceDB extends Service {
 	Iterable<DeviceConfig> getAll();
 
 	void add(DeviceConfig deviceConfig);
+	
+	void update(DeviceConfig deviceConfig);
 
 	boolean removeByNodeUrn(NodeUrn nodeUrn);
 

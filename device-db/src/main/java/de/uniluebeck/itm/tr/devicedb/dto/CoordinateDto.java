@@ -4,15 +4,15 @@ import eu.wisebed.wiseml.Coordinate;
 
 public class CoordinateDto {
 
-	protected double x;
+	private double x;
 
-	protected double y;
+	private double y;
 
-	protected Double z;
+	private Double z;
 
-	protected Double phi;
+	private Double phi;
 
-	protected Double theta;
+	private Double theta;
 
 	public static CoordinateDto fromCoordinate(final Coordinate position) {
 		final CoordinateDto dto = new CoordinateDto();
@@ -33,4 +33,45 @@ public class CoordinateDto {
 		coordinate.setTheta(theta);
 		return coordinate;
 	}
-}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
+	}
+
+	public Double getZ() {
+		return z;
+	}
+
+	public void setZ(Double z) {
+		this.z = z;
+	}
+
+	public Double getPhi() {
+		return phi;
+	}
+
+	public void setPhi(Double phi) {
+		this.phi = phi;
+	}
+
+	public Double getTheta() {
+		return theta;
+	}
+
+	public void setTheta(Double theta) {
+		this.theta = theta;
+	}
+	
+}	
