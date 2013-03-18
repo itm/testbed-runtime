@@ -13,3 +13,16 @@ Handlebars.getTemplate = function(name) {
 	}
 	return Handlebars.templates[name];
 };
+
+Handlebars.registerExternalPartial = function(name) {
+	if (Handlebars.partials === undefined || Handlebars.partials[name] === undefined) {
+		$.ajax({
+			url : 'tpl/' + name + '.handlebars',
+			success : function(data) {
+				Handlebars.registerPartial(name, Handlebars.compile(data));
+			},
+			async : false
+		});
+	}
+	return Handlebars.partials[name];
+};

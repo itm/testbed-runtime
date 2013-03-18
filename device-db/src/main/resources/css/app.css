@@ -1,0 +1,11 @@
+.top-margin {
+	margin-top: 5px;
+}
+
+.inline-controls label {
+	display: inline;
+}
+
+.inline-controls input {
+	width: 40px;
+}

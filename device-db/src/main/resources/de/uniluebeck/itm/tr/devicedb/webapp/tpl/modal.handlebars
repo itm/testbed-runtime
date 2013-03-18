@@ -5,6 +5,7 @@
     </div>
     <div class="modal-body">
         <form class="form-horizontal" id="modal-form">
+        <legend>Generic</legend>
         <div class="control-group">
             <label class="control-label" for="nodeUrn">Node-URN</label>
             <div class="controls">
@@ -37,15 +38,23 @@
         </div>
         <div class="control-group">
             <label class="control-label">Position</label>
-            <div class="controls">
-                <label style="display:inline;" for="position.x">x:</label>
-                <input style="display:inline; width: 40px" type="text" id="position.x" value="{{position.x}}">
-                <label style="display:inline;" for="position.y">y:</label>
-                <input style="display:inline; width: 40px" type="text" id="position.y" value="{{position.y}}">
-                <label style="display:inline;" for="position.z">z:</label>
-                <input style="display:inline; width: 40px" type="text" id="position.z" value="{{position.z}}">
+            <div class="controls inline-controls">
+                <div>
+                    <label for="position.x">x:</label>
+                    <input type="text" id="position.x" value="{{position.x}}">
+                    <label for="position.y">y:</label>
+                    <input type="text" id="position.y" value="{{position.y}}">
+                    <label for="position.z">z:</label>
+                    <input type="text" id="position.z" value="{{position.z}}">
+                </div><div class="top-margin">
+                    <label for="position.phi">phi: </label>
+                    <input type="text" id="position.phi" value="{{position.phi}}">
+                    <label for="position.theta">theta:</label>
+                    <input type="text" id="position.theta" value="{{position.theta}}">
+                </div>
             </div>
         </div>
+        <legend>Timeouts</legend>
         <div class="control-group">
             <label class="control-label" for="timeoutNodeApiMillis">Timeout Node-API</label>
             <div class="controls">
@@ -82,6 +91,15 @@
                 </div>
             </div>
         </div>
+        <legend>Parameters</legend>
+        <div id="params">
+            {{#each nodeConfiguration}}
+                {{>text-input}}
+            {{/each}}
+        </div>
+        <a class="btn btn-mini" href="#" id="add-param">
+            <i class="icon-plus"></i>
+        </a>
         </form>
     </div>
     <div class="modal-footer">

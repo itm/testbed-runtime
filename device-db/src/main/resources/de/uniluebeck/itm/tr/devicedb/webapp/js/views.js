@@ -55,11 +55,16 @@ $(function () {
 
     app.DetailView = Backbone.View.extend({
         template: Handlebars.getTemplate('modal'),
+        paramTpl: Handlebars.getTemplate('text-input'),
         events: {
-            'click #save' : 'save',
-            'click #close': 'hide'
+            'click #save'       : 'save',
+            'click #close'      : 'hide',
+            'click #add-param'  : 'addParam',
+            'click #rm-param'   : 'rmParam',
+            'hidden'            : 'undelegateEvents'
         },
         initialize: function() {
+            Handlebars.registerExternalPartial('text-input');
             this.render();
         },
 
@@ -93,9 +98,33 @@ $(function () {
             });
         },
 
+        _getMaxParamIdx: function() {
+            var max = -1;
+            $('#params [name]').each(function(idx,val){
+                $(val).attr('name').match(/nodeConfiguration\[(\d+)\]/);
+                var thisIdx = parseInt(RegExp.$1, 10);
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+
+        addParam: function(e) {
+            var param = this.paramTpl({
+                'key' : '',
+                'value': ''
+            }, {
+                data: {
+                    index: this._getMaxParamIdx()+1
+                }
+            });
+            $('#params').append(param);
+        },
+        rmParam: function(e) {
+            $(e.target).parents('.control-group').remove();
+        },
+
         hide: function() {
             this.$el.find('.modal').modal('hide');
-            this.undelegateEvents();
         },
         show: function() {
             this.$el.find('.modal').modal('show');
