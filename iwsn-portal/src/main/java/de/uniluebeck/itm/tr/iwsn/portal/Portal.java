@@ -69,6 +69,7 @@ public class Portal extends AbstractService {
 			final ServicePublisherService webapp = servicePublisher.createServletService("/", resourceBase);
 			webapp.startAndWait();
 
+
 			notifyStarted();
 
 		} catch (Exception e) {

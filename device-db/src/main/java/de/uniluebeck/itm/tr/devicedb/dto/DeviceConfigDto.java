@@ -224,7 +224,7 @@ public class DeviceConfigDto {
 				timeoutFlashMillis,
 				timeoutNodeApiMillis,
 				timeoutResetMillis,
-				position==null ? null : position.toCoordinate()
+				position == null ? null : position.toCoordinate()
 		);
 	}
 }

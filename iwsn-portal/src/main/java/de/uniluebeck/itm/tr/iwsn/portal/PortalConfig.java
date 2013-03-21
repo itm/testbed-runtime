@@ -4,12 +4,13 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
 import de.uniluebeck.itm.tr.iwsn.common.config.MultimapOptionHandler;
 import de.uniluebeck.itm.tr.iwsn.common.config.NodeUrnPrefixOptionHandler;
+import de.uniluebeck.itm.tr.iwsn.common.config.PropertiesOptionHandler;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.kohsuke.args4j.Option;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Properties;
 
 public class PortalConfig extends ConfigWithLogging {
 
@@ -43,19 +44,19 @@ public class PortalConfig extends ConfigWithLogging {
 	@Option(name = "--options",
 			usage = "Additional key/value pairs to pass to TR extensions. Multiple comma-separated values are allowed"
 					+ " per key. Example usage: \"--options k1=k1v1,k1v2 k2=k2v1,k2v2\".",
-			handler = MultimapOptionHandler.class,
-			multiValued = true)
+			handler = MultimapOptionHandler.class)
 	public Multimap<String, String> options;
 
 	@Option(name = "--deviceDBUri",
-			usage = "The URI on which the DeviceDB runs (only if --deviceDBPropertiesFile is not set and access to DeviceDB shall be executed remotely)",
+			usage = "The URI on which the DeviceDB runs (only if --deviceDBProperties is not set and access to DeviceDB shall be executed remotely)",
 			required = false
 	)
 	public URI deviceDBUri = null;
 
-	@Option(name = "--deviceDBPropertiesFile",
+	@Option(name = "--deviceDBProperties",
 			usage = ".properties file to initialize the DeviceDB JPA storage (alternative: --deviceDBUri)",
-			required = false
+			required = false,
+			handler = PropertiesOptionHandler.class
 	)
-	public File deviceDBPropertiesFile;
+	public Properties deviceDBProperties;
 }

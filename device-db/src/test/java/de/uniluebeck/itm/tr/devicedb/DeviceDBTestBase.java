@@ -1,22 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.Iterators;
-
-import de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity;
-import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
-
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.size;
@@ -25,16 +17,25 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class DeviceDBTestBase {
+public abstract class DeviceDBTestBase {
 
 	protected static final Properties JPA_PROPERTIES = new Properties();
 
 	static {
+		/*
 		JPA_PROPERTIES.put("hibernate.connection.url", "jdbc:hsqldb:mem:unit-testing-jpa");
 		JPA_PROPERTIES.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
 		JPA_PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 		JPA_PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
 		JPA_PROPERTIES.put("hibernate.connection.username", "sa");
+		JPA_PROPERTIES.put("hibernate.connection.password", "");
+		*/
+
+		JPA_PROPERTIES.put("hibernate.connection.url", "jdbc:derby:memory:device-db-unit-test");
+		JPA_PROPERTIES.put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
+		JPA_PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
+		JPA_PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
+		JPA_PROPERTIES.put("hibernate.connection.username", "");
 		JPA_PROPERTIES.put("hibernate.connection.password", "");
 	}
 

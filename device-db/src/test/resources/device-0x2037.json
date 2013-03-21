@@ -1,5 +1,7 @@
 {
-	"nodeUrn" : "urn:wisebed:uzl1:0x2037",
-	"nodeType" : "isense39",
-	"gatewayNode" : false
+	"deviceConfigDto": {
+		"nodeUrn" : "urn:wisebed:uzl1:0x2037",
+		"nodeType" : "isense39",
+		"gatewayNode" : false
+	}
 }

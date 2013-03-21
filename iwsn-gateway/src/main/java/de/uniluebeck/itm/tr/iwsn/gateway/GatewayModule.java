@@ -7,7 +7,7 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
@@ -46,7 +46,7 @@ public class GatewayModule extends AbstractModule {
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
-		install(new ServicePublisherJettyMetroJerseyModule());
+		install(new ServicePublisherCxfModule());
 	}
 
 	@Provides

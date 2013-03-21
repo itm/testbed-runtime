@@ -8,10 +8,10 @@ import java.util.Set;
 
 public class DeviceDBRestApplication extends Application {
 
-	private final DeviceDBRestResource resource;
+	private final DeviceDBRestResourceImpl resource;
 
 	@Inject
-	public DeviceDBRestApplication(final DeviceDBRestResource resource) {
+	public DeviceDBRestApplication(final DeviceDBRestResourceImpl resource) {
 		this.resource = resource;
 	}
 

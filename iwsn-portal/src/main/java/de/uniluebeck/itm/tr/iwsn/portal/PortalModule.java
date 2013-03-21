@@ -10,7 +10,7 @@ import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.devicedb.*;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
@@ -19,13 +19,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.snaa.SNAA;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-
-import static com.google.common.base.Throwables.propagate;
 
 public class PortalModule extends AbstractModule {
 
@@ -59,11 +52,11 @@ public class PortalModule extends AbstractModule {
 		);
 
 		install(new SchedulerServiceModule());
-		install(new ServicePublisherJettyMetroJerseyModule());
+		install(new ServicePublisherCxfModule());
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
-		if (portalConfig.deviceDBPropertiesFile != null) {
-			install(new DeviceDBJpaModule(readProperties(portalConfig.deviceDBPropertiesFile)));
+		if (portalConfig.deviceDBProperties != null) {
+			install(new DeviceDBJpaModule(portalConfig.deviceDBProperties));
 		} else if (portalConfig.deviceDBUri != null) {
 			install(new RemoteDeviceDBModule(new RemoteDeviceDBConfig(portalConfig.deviceDBUri)));
 		} else {
@@ -73,16 +66,6 @@ public class PortalModule extends AbstractModule {
 		}
 		install(new DeviceDBServiceModule());
 		install(new SoapApiModule());
-	}
-
-	private Properties readProperties(final File propertiesFile) {
-		try {
-			final Properties properties = new Properties();
-			properties.load(new FileReader(propertiesFile));
-			return properties;
-		} catch (IOException e) {
-			throw propagate(e);
-		}
 	}
 
 	@Provides

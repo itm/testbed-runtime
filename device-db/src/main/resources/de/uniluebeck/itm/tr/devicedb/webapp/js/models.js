@@ -17,7 +17,7 @@ $(function () {
         url: "rest/deviceConfigs",
         parse: function(response) {
             // array of deviceConfigs grouped under "configs" in JSON
-            return response.configs;
+            return response.deviceConfigListDto.configs;
         }
     });
     app.Nodes = new NodeCollection();

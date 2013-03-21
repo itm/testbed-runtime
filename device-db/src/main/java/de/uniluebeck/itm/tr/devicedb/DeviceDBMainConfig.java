@@ -1,18 +1,19 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
+import de.uniluebeck.itm.tr.iwsn.common.config.PropertiesOptionHandler;
 import org.kohsuke.args4j.Option;
 
-import java.io.File;
+import java.util.Properties;
 
 public class DeviceDBMainConfig extends ConfigWithLogging {
 
 	public DeviceDBMainConfig() {
 	}
 
-	public DeviceDBMainConfig(final int port, final File dbPropertiesFile) {
+	public DeviceDBMainConfig(final int port, final Properties dbProperties) {
 		this.port = port;
-		this.dbPropertiesFile = dbPropertiesFile;
+		this.dbProperties = dbProperties;
 	}
 
 	@Option(
@@ -23,9 +24,10 @@ public class DeviceDBMainConfig extends ConfigWithLogging {
 	public int port = 8080;
 
 	@Option(
-			name = "--dbPropertiesFile",
+			name = "--dbProperties",
 			usage = ".properties file to initialize JPA",
-			required = true
+			required = true,
+			handler = PropertiesOptionHandler.class
 	)
-	public File dbPropertiesFile = null;
+	public Properties dbProperties = null;
 }

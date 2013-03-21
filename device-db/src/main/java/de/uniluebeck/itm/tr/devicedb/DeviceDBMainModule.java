@@ -2,18 +2,12 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-
-import static com.google.common.base.Throwables.propagate;
+import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 
 public class DeviceDBMainModule extends AbstractModule {
 
@@ -25,8 +19,11 @@ public class DeviceDBMainModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		install(new ServicePublisherJettyMetroJerseyModule());
-		install(new DeviceDBJpaModule(readProperties(config.dbPropertiesFile)));
+
+		bind(DeviceDBRestResource.class).to(DeviceDBRestResourceImpl.class).in(Scopes.SINGLETON);
+
+		install(new ServicePublisherCxfModule());
+		install(new DeviceDBJpaModule(config.dbProperties));
 		install(new DeviceDBServiceModule());
 	}
 
@@ -34,15 +31,5 @@ public class DeviceDBMainModule extends AbstractModule {
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
 		return factory.create(new ServicePublisherConfig(config.port));
-	}
-
-	private Properties readProperties(final File dbPropertiesFile) {
-		try {
-			final Properties properties = new Properties();
-			properties.load(new FileReader(dbPropertiesFile));
-			return properties;
-		} catch (IOException e) {
-			throw propagate(e);
-		}
 	}
 }

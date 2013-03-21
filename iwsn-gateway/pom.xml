@@ -54,7 +54,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
-			<artifactId>service-publisher-jetty-metro-jersey</artifactId>
+			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 
 		<dependency>
