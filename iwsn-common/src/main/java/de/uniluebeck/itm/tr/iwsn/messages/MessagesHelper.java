@@ -607,6 +607,15 @@ public abstract class MessagesHelper {
 		}
 	}
 
+	public static int getUnconnectedStatusCode(final Request request) {
+		switch (request.getType()) {
+			case FLASH_IMAGES:
+				return -1;
+			default:
+				return 0;
+		}
+	}
+
 	private static HashSet<NodeUrn> toNodeUrnSet(final List<String> nodeUrnsList) {
 		return newHashSet(
 				transform(
