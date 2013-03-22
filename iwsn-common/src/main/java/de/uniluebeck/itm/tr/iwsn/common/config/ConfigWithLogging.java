@@ -11,6 +11,11 @@ public class ConfigWithLogging extends Config {
 	)
 	public Level logLevel = null;
 
+	@Option(name = "--logLibs",
+			usage = "If set to true, also library outputs are logged with the same level"
+	)
+	public boolean logLibs = false;
+
 	@Option(
 			name = "--verbose",
 			usage = "Verbose (DEBUG) logging output (default: INFO)."

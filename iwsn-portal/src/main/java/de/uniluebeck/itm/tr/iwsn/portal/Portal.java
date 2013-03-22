@@ -20,13 +20,7 @@ import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
 public class Portal extends AbstractService {
 
 	static {
-
-		Logging.setLoggingDefaults();
-
-		org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("org.hibernate").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("org.hibernate.tool.hbm2ddl").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("org.jboss.logging").setLevel(Level.WARN);
+		Logging.setLoggingDefaults(Level.WARN);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Portal.class);
@@ -98,7 +92,10 @@ public class Portal extends AbstractService {
 
 		Thread.currentThread().setName("Portal-Main");
 
-		final PortalConfig portalConfig = setLogLevel(parseOrExit(new PortalConfig(), Portal.class, args));
+		final PortalConfig portalConfig = setLogLevel(
+				parseOrExit(new PortalConfig(), Portal.class, args),
+				"de.uniluebeck.itm"
+		);
 		final PortalModule portalModule = new PortalModule(portalConfig);
 		final Injector injector = Guice.createInjector(portalModule);
 		final Portal portal = injector.getInstance(Portal.class);

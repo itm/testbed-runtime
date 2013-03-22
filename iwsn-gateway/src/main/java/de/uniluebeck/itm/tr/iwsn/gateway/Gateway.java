@@ -20,10 +20,7 @@ import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
 public class Gateway extends AbstractService {
 
 	static {
-		Logging.setLoggingDefaults();
-		org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("de.uniluebeck.itm.wsn.drivers").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("de.uniluebeck.itm.wsn.deviceutils").setLevel(Level.WARN);
+		Logging.setLoggingDefaults(Level.WARN);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Gateway.class);
@@ -118,7 +115,10 @@ public class Gateway extends AbstractService {
 
 		Thread.currentThread().setName("Gateway-Main");
 
-		final GatewayConfig config = setLogLevel(parseOrExit(new GatewayConfig(), Gateway.class, args));
+		final GatewayConfig config = setLogLevel(
+				parseOrExit(new GatewayConfig(), Gateway.class, args),
+				"de.uniluebeck.itm"
+		);
 		final GatewayModule gatewayModule = new GatewayModule(config);
 		final Injector injector = Guice.createInjector(gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);

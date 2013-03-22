@@ -10,18 +10,14 @@ import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
 public class DeviceDBMain {
 
 	static {
-		Logging.setLoggingDefaults();
-		org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
-		org.apache.log4j.Logger.getLogger("org.hibernate").setLevel(Level.WARN);
+		Logging.setLoggingDefaults(Level.WARN);
 	}
 
 	public static void main(String[] args) {
 
-		final DeviceDBMainConfig config = setLogLevel(parseOrExit(
-				new DeviceDBMainConfig(),
-				DeviceDBServiceImpl.class,
-				args
-		)
+		final DeviceDBMainConfig config = setLogLevel(
+				parseOrExit(new DeviceDBMainConfig(), DeviceDBServiceImpl.class, args),
+				"de.uniluebeck.itm"
 		);
 
 		final DeviceDBServiceFactory deviceDBServiceFactory = Guice
