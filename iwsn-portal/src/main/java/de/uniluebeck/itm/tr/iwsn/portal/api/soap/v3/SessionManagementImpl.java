@@ -357,6 +357,8 @@ public class SessionManagementImpl implements SessionManagement {
 					channelHandlerDescription.getConfigurationOptions().add(keyValuePair);
 				}
 			}
+
+			list.add(channelHandlerDescription);
 		}
 
 		return list;
