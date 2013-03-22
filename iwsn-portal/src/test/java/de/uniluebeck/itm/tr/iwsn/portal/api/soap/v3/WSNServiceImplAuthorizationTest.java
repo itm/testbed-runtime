@@ -6,6 +6,8 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -43,10 +45,10 @@ public class WSNServiceImplAuthorizationTest {
 	private DeviceDB deviceDB;
 
 	@Mock
-	DeliveryManager deliveryManager;
+	private DeliveryManager deliveryManager;
 
 	@Mock
-	Reservation reservation;
+	private Reservation reservation;
 
 	@Mock
 	private PortalConfig portalConfig;
@@ -85,10 +87,9 @@ public class WSNServiceImplAuthorizationTest {
 				);
 
 				bind(SNAA.class).toInstance(snaa);
-
 				bind(DeviceDB.class).toInstance(deviceDB);
-
 				bind(PortalConfig.class).toInstance(portalConfig);
+				bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 			}
 		});
 
