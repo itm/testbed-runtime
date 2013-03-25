@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.impl.ResponseImpl;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -75,8 +74,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
 		try {
 
-			final ResponseImpl response = (ResponseImpl) client().getByUsbChipId(usbChipId);
-			return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
+			return client().getByUsbChipId(usbChipId).readEntity(DeviceConfigDto.class).toDeviceConfig();
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -94,7 +92,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	public DeviceConfig getConfigByMacAddress(final long macAddress) {
 		try {
 
-			final ResponseImpl response = (ResponseImpl) client().getByMacAddress(macAddress);
+			final Response response = client().getByMacAddress(macAddress);
 			final Response.Status status = Response.Status.fromStatusCode(response.getStatus());
 			if (status == Response.Status.OK) {
 				return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
