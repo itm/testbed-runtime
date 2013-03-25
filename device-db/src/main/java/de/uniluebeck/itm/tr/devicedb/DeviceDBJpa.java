@@ -8,15 +8,15 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
-
 import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
 import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 
 public class DeviceDBJpa extends AbstractService implements DeviceDB {
+
+	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
 
 	private static final Function<DeviceConfig,NodeUrn> CONFIG_NODE_URN_FUNCTION =
 			new Function<DeviceConfig, NodeUrn>() {
@@ -104,10 +106,15 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
 		try {
+
 			String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
-			return entityManager.get()
-					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress", DeviceConfigEntity.class)
+			DeviceConfig config = entityManager.get()
+					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress",
+							DeviceConfigEntity.class
+					)
 					.setParameter("macAddress", "%" + macHex).getSingleResult().toDeviceConfig();
+			return config;
+
 		} catch (NoResultException e) {
 			return null;
 		}

@@ -12,6 +12,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.impl.ResponseImpl;
 
 import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +95,14 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 		try {
 
 			final ResponseImpl response = (ResponseImpl) client().getByMacAddress(macAddress);
-			return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
+			final Response.Status status = Response.Status.fromStatusCode(response.getStatus());
+			if (status == Response.Status.OK) {
+				return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
+			} else if (status == Response.Status.NOT_FOUND) {
+				return null;
+			} else {
+				throw new RuntimeException("Unexpected status retrieved from DeviceDB: " + response);
+			}
 
 		} catch (Exception e) {
 			throw propagate(e);
