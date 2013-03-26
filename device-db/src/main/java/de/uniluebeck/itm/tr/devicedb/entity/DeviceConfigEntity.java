@@ -1,22 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
+
+import javax.annotation.Nullable;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
 
 @Entity(name="DeviceConfig")
 public class DeviceConfigEntity {

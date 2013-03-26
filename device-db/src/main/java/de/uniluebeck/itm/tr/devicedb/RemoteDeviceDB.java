@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -178,6 +179,10 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	}
 
 	private DeviceDBRestResource client() {
-		return JAXRSClientFactory.create(config.uri.toString(), DeviceDBRestResource.class);
+		final JSONProvider jsonProvider = new JSONProvider();
+		jsonProvider.setDropRootElement(true);
+		jsonProvider.setSupportUnwrapped(true);
+		jsonProvider.setDropCollectionWrapperElement(false);
+		return JAXRSClientFactory.create(config.uri.toString(), DeviceDBRestResource.class, newArrayList(jsonProvider));
 	}
 }

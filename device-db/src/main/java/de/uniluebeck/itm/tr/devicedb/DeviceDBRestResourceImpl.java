@@ -96,7 +96,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 	@Override
 	public Response add(final DeviceConfigDto deviceConfig, String nodeUrnString) {
 
-		if (!deviceConfig.getNodeUrn().equalsIgnoreCase(nodeUrnString)) {
+		if (deviceConfig.getNodeUrn() == null || !deviceConfig.getNodeUrn().equalsIgnoreCase(nodeUrnString)) {
 			return Response
 					.status(Response.Status.BAD_REQUEST)
 					.entity("Node URN encoded in request (\"" + nodeUrnString + "\") is not valid!")
