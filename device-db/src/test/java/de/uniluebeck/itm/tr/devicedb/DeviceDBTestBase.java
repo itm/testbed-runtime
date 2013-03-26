@@ -1,6 +1,13 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Multimap;
+
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
@@ -58,6 +65,15 @@ public abstract class DeviceDBTestBase {
 	public void setUp(DeviceDB db) throws Exception {
 
 		this.db = db;
+		
+		Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
+				.put("a", "b")
+				.build();
+		
+		
+		Multimap<String, String> handlerProps = ImmutableMultimap.of("Key1", "Val1", "Key1", "Val2", "Key2", "Val3");
+		ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps );
+		ChannelHandlerConfigList defaultChannelPipeline1 = new ChannelHandlerConfigList(ImmutableList.of(handler1));
 
 		config1 = new DeviceConfig(
 				NODE_URN1,
@@ -66,8 +82,8 @@ public abstract class DeviceDBTestBase {
 				null,
 				null,
 				NODE_CHIP_ID1,
-				null,
-				null,
+				nodeConfig1,
+				defaultChannelPipeline1,
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),

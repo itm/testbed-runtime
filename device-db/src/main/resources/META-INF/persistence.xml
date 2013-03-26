@@ -7,6 +7,8 @@
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<class>de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity</class>
 		<class>de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.ChannelHandlerConfigEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.KeyValueEntity</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<!-- vendor-specific properties go here -->

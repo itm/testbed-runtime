@@ -1,32 +1,35 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.persist.Transactional;
-import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
-import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
-import eu.wisebed.api.v3.common.NodeUrn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
+
+import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
+import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
+import eu.wisebed.api.v3.common.NodeUrn;
+
 public class DeviceDBJpa extends AbstractService implements DeviceDB {
 
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
 
 	private static final Function<DeviceConfig,NodeUrn> CONFIG_NODE_URN_FUNCTION =
@@ -163,7 +166,9 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public void removeAll() {
-		// delete nodeConfiguration ElementCollection
+		// delete nodeConfiguration ElementCollection via native Query, 
+		// because JPA doesn't support bulk delete with ElementCollections
+		// TODO find a better approach to cascade deletion with ElementCollection
 		entityManager.get()
 		    .createNativeQuery("DELETE FROM DeviceConfigEntity_NODECONFIGURATION")
 		    .executeUpdate();
