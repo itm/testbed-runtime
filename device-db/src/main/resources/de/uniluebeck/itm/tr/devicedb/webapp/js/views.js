@@ -82,12 +82,9 @@ $(function () {
                 }
             };
             // serialize form
-            var data = {
-				"deviceConfigDto": form2js('modal-form','.',true,nodeCallback,true)
-			};
+            var data = form2js('modal-form','.',true,nodeCallback,true);
             // send to server
             var isNew = this.model.id === this.model.defaults.nodeUrn;
-			console.log(data);
             this.model.save(data, {
                 wait: true,
                 success: function(model, response, options) {

@@ -1,3 +1,3 @@
 #!/bin/bash
-curl -v -X POST -d @src/test/resources/device-0x2037.json -H Content-Type:application/json http://localhost:7654/rest/deviceConfigs/urn:wisebed:uzl1:0x2037 && echo
-curl -v -X POST -d @src/test/resources/device-0x2038.json -H Content-Type:application/json http://localhost:7654/rest/deviceConfigs/urn:wisebed:uzl1:0x2038 && echo
+curl -v -X POST -d @device-0x2037.json -H Content-Type:application/json http://localhost:7654/rest/deviceConfigs/urn:wisebed:uzl1:0x2037 && echo
+curl -v -X POST -d @device-0x2038.json -H Content-Type:application/json http://localhost:7654/rest/deviceConfigs/urn:wisebed:uzl1:0x2038 && echo

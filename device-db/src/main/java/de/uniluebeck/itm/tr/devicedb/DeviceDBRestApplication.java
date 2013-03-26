@@ -1,10 +1,12 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 public class DeviceDBRestApplication extends Application {
 
@@ -17,6 +19,9 @@ public class DeviceDBRestApplication extends Application {
 
 	@Override
 	public Set<Object> getSingletons() {
-		return Sets.<Object>newHashSet(resource);
+		final JSONProvider jsonProvider = new JSONProvider();
+		jsonProvider.setDropRootElement(true);
+		jsonProvider.setSupportUnwrapped(true);
+		return newHashSet(resource, jsonProvider);
 	}
 }
