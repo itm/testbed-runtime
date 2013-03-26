@@ -171,7 +171,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	private List<DeviceConfigDto> getDeviceConfigDtos(final Iterable<NodeUrn> nodeUrns) {
 		try {
 
-			return client().getByNodeUrn(newArrayList(Iterables.transform(nodeUrns, toStringFunction()))).getConfigs();
+			return client().getByNodeUrn(newArrayList(Iterables.transform(nodeUrns, toStringFunction())));
 
 		} catch (Exception e) {
 			throw propagate(e);

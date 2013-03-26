@@ -22,6 +22,7 @@ public class DeviceDBRestApplication extends Application {
 		final JSONProvider jsonProvider = new JSONProvider();
 		jsonProvider.setDropRootElement(true);
 		jsonProvider.setSupportUnwrapped(true);
+		jsonProvider.setDropCollectionWrapperElement(true);
 		jsonProvider.setSerializeAsArray(true);
 		return newHashSet(resource, jsonProvider);
 	}
