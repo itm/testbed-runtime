@@ -9,6 +9,9 @@ $(function () {
         defaults: {
             "nodeUrn" : "urn:wisebed:uzl1:"
             // TODO add sensible defaults
+        },
+        toJSON: function(options) {
+          return { "deviceConfigDto" : _.clone( this.attributes ) };
         }
     });
 
