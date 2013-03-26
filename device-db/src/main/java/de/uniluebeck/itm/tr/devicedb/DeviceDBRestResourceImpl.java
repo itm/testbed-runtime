@@ -36,7 +36,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 				Response.status(Response.Status.NOT_FOUND).build() :
 				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
 	}
-	
+
 	@Override
 	public DeviceConfigListDto list() {
 
@@ -99,7 +99,9 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		if (deviceConfig.getNodeUrn() == null || !deviceConfig.getNodeUrn().equalsIgnoreCase(nodeUrnString)) {
 			return Response
 					.status(Response.Status.BAD_REQUEST)
-					.entity("Node URN encoded in request (\"" + nodeUrnString + "\") is not valid!")
+					.entity("Node URN encoded in request (\"" + nodeUrnString + "\") does not match node URN in entity (\"" + deviceConfig
+							.getNodeUrn() + "\")!"
+					)
 					.build();
 		}
 
@@ -111,7 +113,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
 		return Response.created(location).entity("true").build();
 	}
-	
+
 	@Override
 	public Response update(final DeviceConfigDto deviceConfig, String nodeUrnString) {
 
@@ -120,7 +122,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		// check if Entity to update already exists
-		if ( deviceDB.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null ) {
+		if (deviceDB.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
 			deviceDB.update(deviceConfig.toDeviceConfig());
 		} else {
 			return Response.notModified().build();
@@ -128,7 +130,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		return Response.ok("true").build();
 	}
-	
+
 	@Override
 	public Response delete(final String nodeUrnString) {
 
@@ -154,6 +156,6 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		return Response.ok("true").build();
 	}
-	
-	
+
+
 }
