@@ -146,34 +146,30 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
-		final int entriesRemoved = entityManager.get()
-				.createQuery("DELETE FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn")
-				.setParameter("nodeUrn", nodeUrn.toString())
-				.executeUpdate();
-
-		if (entriesRemoved > 1) {
-			throw new RuntimeException(
-					"More than one entry (" + entriesRemoved + ") removed while trying to remove entry for one Node URN!"
-			);
+		
+		try {
+			DeviceConfigEntity config = entityManager.get()
+				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
+				.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
+			entityManager.get().remove(config);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return false;
 		}
 
-		return entriesRemoved == 1;
+		return true;
 	}
 
 	@Override
 	@Transactional
 	public void removeAll() {
-		for (DeviceConfig deviceConfig : getAll()) {
-			removeByNodeUrn(deviceConfig.getNodeUrn());
-			//entityManager.get().remove(new DeviceConfigEntity(deviceConfig));
-		}
+		// delete nodeConfiguration ElementCollection
+		entityManager.get()
+		    .createNativeQuery("DELETE FROM DeviceConfigEntity_NODECONFIGURATION")
+		    .executeUpdate();
 		
-		Iterable<NodeUrn> urns = Iterables.transform(getAll(), CONFIG_NODE_URN_FUNCTION);
-		final List<String> nodeUrnStrings = newArrayList(transform(urns, NodeUrnHelper.NODE_URN_TO_STRING));
-
-		final int entriesRemoved = entityManager.get()
-				.createQuery("DELETE FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)")
-				.setParameter("urns", nodeUrnStrings)
+		entityManager.get()
+				.createQuery("DELETE FROM DeviceConfig")
 				.executeUpdate();
 		
 	}

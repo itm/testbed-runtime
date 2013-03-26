@@ -1,13 +1,11 @@
 {
-	"deviceConfigDto": {
-		"nodeUrn" : "urn:wisebed:uzl1:0x2037",
-		"nodeType" : "isense39",
-		"gatewayNode" : false,
-		"nodeConfiguration" : [
-			{
-				"key" : "bla",
-				"value" : "blub"
-			}
-		]
-	}
+	"nodeUrn" : "urn:wisebed:uzl1:0x2037",
+	"nodeType" : "isense39",
+	"gatewayNode" : false,
+	"nodeConfiguration" : [
+		{
+			"key" : "bla",
+			"value" : "blub"
+		}
+	]
 }

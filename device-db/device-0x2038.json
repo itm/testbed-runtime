@@ -1,6 +1,4 @@
 {
-	"deviceConfigDto":
-		{
 			"nodeUrn" : "urn:wisebed:uzl1:0x2038",
 			"nodeType" : "isense39",
 			"gatewayNode" : false,
@@ -34,5 +32,4 @@
 			"timeoutResetMillis" : 1000,
 			"timeoutFlashMillis" : 120000,
 			"timeoutCheckAliveMillis" : 1000
-		}
 }
