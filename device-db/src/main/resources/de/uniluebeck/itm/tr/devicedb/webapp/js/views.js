@@ -83,8 +83,12 @@ $(function () {
             };
             // serialize form
             var data = form2js('modal-form','.',true,nodeCallback,true);
-            // send to server
             var isNew = this.model.id === this.model.defaults.nodeUrn;
+            // directly set URN if new
+            if ( isNew ) {
+                this.model.set("nodeUrn", data.nodeUrn);
+            }
+            // send to server
             this.model.save(data, {
                 wait: true,
                 success: function(model, response, options) {

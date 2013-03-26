@@ -17,37 +17,39 @@ There is a RESTful HTTP Webservice which consumes/produces JSON
  Example structure:
 
 	{
-		"nodeUrn" : "urn:wisebed:uzl1:0x2038",
-		"nodeType" : "isense39",
-		"gatewayNode" : false,
-		"description" : "this is the device description",
-		"nodeUsbChipId" : "0123456789",
-		"position" : {
-			"x" : 123.0,
-			"y" : 234.0,
-			"z" : 345.0,
-			"phi" : 12.0,
-			"theta" : 23.0
-		},
-		"nodeConfiguration" : [
-			{
-				"key" : "bla",
-				"value" : "blub"
+		"deviceConfigDto": {
+			"nodeUrn" : "urn:wisebed:uzl1:0x2038",
+			"nodeType" : "isense39",
+			"gatewayNode" : false,
+			"description" : "this is the device description",
+			"nodeUsbChipId" : "0123456789",
+			"position" : {
+				"x" : 123,
+				"y" : 234,
+				"z" : 345,
+				"phi" : 12,
+				"theta" : 23
 			},
-			{
-				"key" : "bli",
-				"value" : "blib"
-			}
-		],
-		"defaultChannelPipeline" : [
-			{
-				"handlerName" : "dlestxetx",
-				"instanceName" : "dlestxetx",
-				"configuration" : []
-			}
-		],
-		"timeoutNodeApiMillis" : 100,
-		"timeoutResetMillis" : 1000,
-		"timeoutFlashMillis" : 120000,
-		"timeoutCheckAliveMillis" : 1000
+			"nodeConfiguration" : [
+				{
+					"key" : "bla",
+					"value" : "blub"
+				},
+				{
+					"key" : "bli",
+					"value" : "blib"
+				}
+			],
+			"defaultChannelPipeline" : [
+				{
+					"handlerName" : "dlestxetx",
+					"instanceName" : "dlestxetx",
+					"configuration" : []
+				}
+			],
+			"timeoutNodeApiMillis" : 100,
+			"timeoutResetMillis" : 1000,
+			"timeoutFlashMillis" : 120000,
+			"timeoutCheckAliveMillis" : 1000
+		}
 	}

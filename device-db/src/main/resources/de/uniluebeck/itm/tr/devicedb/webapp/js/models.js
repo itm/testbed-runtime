@@ -20,6 +20,7 @@ $(function () {
             return response.configs;
         }
     });
+
     app.Nodes = new NodeCollection();
 
 });
