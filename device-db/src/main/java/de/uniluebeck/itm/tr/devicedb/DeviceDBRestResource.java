@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,12 +19,12 @@ public interface DeviceDBRestResource {
 	@GET
 	@Path("deviceConfigs")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<DeviceConfigDto> list();
+	DeviceConfigListDto list();
 
 	@GET
 	@Path("byNodeUrn")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<DeviceConfigDto> getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings);
+	DeviceConfigListDto getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings);
 
 	@GET
 	@Path("byUsbChipId")

@@ -19,11 +19,13 @@ public class DeviceDBRestApplication extends Application {
 
 	@Override
 	public Set<Object> getSingletons() {
+
 		final JSONProvider jsonProvider = new JSONProvider();
 		jsonProvider.setDropRootElement(true);
 		jsonProvider.setSupportUnwrapped(true);
 		jsonProvider.setDropCollectionWrapperElement(true);
 		jsonProvider.setSerializeAsArray(true);
+
 		return newHashSet(resource, jsonProvider);
 	}
 }

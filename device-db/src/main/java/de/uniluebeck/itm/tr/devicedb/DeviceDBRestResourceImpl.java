@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.base.Function;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.ws.rs.core.Context;
@@ -37,18 +38,18 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 	}
 
 	@Override
-	public List<DeviceConfigDto> list() {
+	public DeviceConfigListDto list() {
 
 		final List<DeviceConfigDto> list = newArrayList();
 		for (DeviceConfig deviceConfig : deviceDB.getAll()) {
 			list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
 		}
 
-		return list;
+		return new DeviceConfigListDto(list);
 	}
 
 	@Override
-	public List<DeviceConfigDto> getByNodeUrn(final List<String> nodeUrnStrings) {
+	public DeviceConfigListDto getByNodeUrn(final List<String> nodeUrnStrings) {
 
 		if (nodeUrnStrings.isEmpty()) {
 
@@ -57,7 +58,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 				list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
 			}
 
-			return list;
+			return new DeviceConfigListDto(list);
 
 		} else {
 
@@ -71,7 +72,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 			}
 			);
 
-			return newArrayList(retList);
+			return new DeviceConfigListDto(newArrayList(retList));
 		}
 
 	}

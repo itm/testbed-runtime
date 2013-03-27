@@ -86,7 +86,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Nullable
 	public DeviceConfig getConfigByNodeUrn(final NodeUrn nodeUrn) {
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(newArrayList(nodeUrn));
-		return configs.isEmpty() ? null : configs.get(0).toDeviceConfig();
+ 		return configs.isEmpty() ? null : configs.get(0).toDeviceConfig();
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	private List<DeviceConfigDto> getDeviceConfigDtos(final Iterable<NodeUrn> nodeUrns) {
 		try {
 
-			return client().getByNodeUrn(newArrayList(Iterables.transform(nodeUrns, toStringFunction())));
+			return client().getByNodeUrn(newArrayList(Iterables.transform(nodeUrns, toStringFunction()))).getConfigs();
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -179,10 +179,13 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	}
 
 	private DeviceDBRestResource client() {
+
 		final JSONProvider jsonProvider = new JSONProvider();
 		jsonProvider.setDropRootElement(true);
 		jsonProvider.setSupportUnwrapped(true);
-		jsonProvider.setDropCollectionWrapperElement(false);
+		jsonProvider.setDropCollectionWrapperElement(true);
+		jsonProvider.setSerializeAsArray(true);
+
 		return JAXRSClientFactory.create(config.uri.toString(), DeviceDBRestResource.class, newArrayList(jsonProvider));
 	}
 }

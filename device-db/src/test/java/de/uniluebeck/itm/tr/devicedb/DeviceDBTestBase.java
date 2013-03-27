@@ -110,8 +110,10 @@ public abstract class DeviceDBTestBase {
 
 		db.add(config1);
 
-		assertEquals(1, size(db.getAll()));
-		assertEquals(config1, db.getAll().iterator().next());
+		final Iterable<DeviceConfig> all = db.getAll();
+
+		assertEquals(1, size(all));
+		assertEquals(config1, all.iterator().next());
 	}
 
 	@Test

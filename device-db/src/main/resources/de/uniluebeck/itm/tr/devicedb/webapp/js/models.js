@@ -14,7 +14,13 @@ $(function () {
 
     var NodeCollection = Backbone.Collection.extend({
         model: app.NodeModel,
-        url: "rest/deviceConfigs"
+        url: "rest/deviceConfigs",
+		toJSON: function(list) {
+			return { "configs" : list }
+		},
+		parse: function(response) {
+			return response.configs;
+		}
     });
 
     app.Nodes = new NodeCollection();
