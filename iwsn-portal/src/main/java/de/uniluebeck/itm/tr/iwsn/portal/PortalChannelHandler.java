@@ -15,6 +15,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -390,7 +391,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			portalEventBus.unregister(this);
 		}
 		synchronized (contextToNodeUrnsMap) {
-			portalEventBus.post(newDevicesDetachedEvent(contextToNodeUrnsMap.get(ctx)));
+			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
+			if (!nodeUrns.isEmpty()) {
+				portalEventBus.post(newDevicesDetachedEvent(nodeUrns));
+			}
 			contextToNodeUrnsMap.removeAll(ctx);
 		}
 		super.channelDisconnected(ctx, e);

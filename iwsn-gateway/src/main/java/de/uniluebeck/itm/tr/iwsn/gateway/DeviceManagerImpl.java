@@ -55,11 +55,13 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 		try {
 
+			final List<DeviceAdapter> adapters;
 			synchronized (deviceAdapters) {
-				for (DeviceAdapter deviceAdapter : deviceAdapters) {
-					deviceAdapter.stopAndWait();
-				}
-				deviceAdapters.clear();
+				adapters = newArrayList(deviceAdapters);
+			}
+
+			for (DeviceAdapter deviceAdapter : adapters) {
+				deviceAdapter.stopAndWait();
 			}
 
 			gatewayEventBus.unregister(this);
