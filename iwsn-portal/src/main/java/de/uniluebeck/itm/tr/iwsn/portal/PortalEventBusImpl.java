@@ -119,8 +119,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 				);
 				eventBus.post(response);
 			}
-		} else {
-			log.warn("Dead event received in portal event bus: {}", event);
 		}
 	}
 }
