@@ -188,7 +188,9 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		shuttingDown = true;
 
 		try {
-			nettyClient.stopAndWait();
+			if (nettyClient != null && nettyClient.isRunning()) {
+				nettyClient.stopAndWait();
+			}
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
