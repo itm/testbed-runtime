@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -31,6 +30,7 @@ public class PortalModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
+		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
 		bind(PortalConfig.class).toInstance(portalConfig);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
@@ -72,12 +72,6 @@ public class PortalModule extends AbstractModule {
 	@Singleton
 	DeviceDBService provideDeviceDBService(final DeviceDBServiceFactory factory) {
 		return factory.create("/devicedb/rest", "/devicedb");
-	}
-
-	@Provides
-	@Singleton
-	EventBus provideEventBus() {
-		return new EventBus("PortalEventBus");
 	}
 
 	@Provides

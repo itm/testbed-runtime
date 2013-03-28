@@ -38,11 +38,11 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	@Inject
 	public PortalEventBusImpl(final PortalConfig config,
-							  final EventBus eventBus,
+							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
 							  final PortalChannelHandler portalChannelHandler) {
 		this.config = config;
-		this.eventBus = eventBus;
+		this.eventBus = eventBusFactory.create("PortalEventBus");
 		this.nettyServerFactory = nettyServerFactory;
 		this.portalChannelHandler = portalChannelHandler;
 	}

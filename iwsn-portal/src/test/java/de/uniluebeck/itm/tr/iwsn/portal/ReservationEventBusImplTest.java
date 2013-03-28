@@ -75,6 +75,9 @@ public class ReservationEventBusImplTest {
 	private PortalEventBus portalEventBus;
 
 	@Mock
+	private EventBusFactory eventBusFactory;
+
+	@Mock
 	private EventBus eventBus;
 
 	@Mock
@@ -85,7 +88,8 @@ public class ReservationEventBusImplTest {
 	@Before
 	public void setUp() throws Exception {
 		when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
-		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBus, reservation);
+		when(eventBusFactory.create(anyString())).thenReturn(eventBus);
+		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
 		reservationEventBus.startAndWait();
 	}
 

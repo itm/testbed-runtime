@@ -36,22 +36,26 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Inject
 	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
-								   final EventBus eventBus,
+								   final EventBusFactory eventBusFactory,
 								   @Assisted final Reservation reservation) {
 		this.portalEventBus = portalEventBus;
-		this.eventBus = eventBus;
+		this.eventBus = eventBusFactory.create("ReservationEventBus");
 		this.reservation = reservation;
 	}
 
 	@Override
 	public void register(final Object object) {
+
 		log.trace("ReservationEventBusImpl.register(object={})", object);
+
 		eventBus.register(object);
 	}
 
 	@Override
 	public void unregister(final Object object) {
+
 		log.trace("ReservationEventBusImpl.unregister(object={}", object);
+
 		eventBus.unregister(object);
 	}
 
@@ -59,6 +63,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void post(final Object event) {
 
 		log.trace("ReservationEventBusImpl.post(event={})", event);
+
 		checkState(isRunning());
 
 		if (event instanceof Request) {
@@ -67,16 +72,10 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		}
 	}
 
-	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
-		if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
-			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
-			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
-					+ "are not part of the reservation.");
-		}
-	}
-
 	@Subscribe
 	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
+
+		log.trace("ReservationEventBusImpl.onDevicesAttachedEventFromPortalEventBus({})", event);
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -89,6 +88,8 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Subscribe
 	public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
 
+		log.trace("ReservationEventBusImpl.onUpstreamMessageEventFromPortalEventBus({})", event);
+
 		final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
 
 		if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
@@ -98,6 +99,8 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
+
+		log.trace("ReservationEventBusImpl.onDevicesDetachedEventFromPortalEventBus({})", event);
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -109,6 +112,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
+		log.trace("ReservationEventBusImpl.onNotificationEventFromPortalEventBus({})", event);
 		if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
 			eventBus.post(event);
 		}
@@ -116,6 +120,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
+		log.trace("ReservationEventBusImpl.onSingleNodeProgressFromPortalEventBus({})", progress);
 		if (reservation.getNodeUrns().contains(new NodeUrn(progress.getNodeUrn()))) {
 			eventBus.post(progress);
 		}
@@ -123,6 +128,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+		log.trace("ReservationEventBusImpl.onSingleNodeResponseFromPortalEventBus({})", response);
 		if (reservation.getNodeUrns().contains(new NodeUrn(response.getNodeUrn()))) {
 			eventBus.post(response);
 		}
@@ -130,6 +136,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
+		log.trace("ReservationEventBusImpl.onReservationStartedEventFromPortalEventBus({})", event);
 		if (event.getReservation() == reservation) {
 			eventBus.post(event);
 		}
@@ -137,6 +144,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
+		log.trace("ReservationEventBusImpl.onReservationEndedEventFromPortalEventBus({})", event);
 		if (event.getReservation() == reservation) {
 			eventBus.post(event);
 		}
@@ -144,6 +152,9 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Override
 	protected void doStart() {
+
+		log.trace("ReservationEventBusImpl.doStart()");
+
 		try {
 			portalEventBus.register(this);
 			notifyStarted();
@@ -154,6 +165,9 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Override
 	protected void doStop() {
+
+		log.trace("ReservationEventBusImpl.doStop()");
+
 		try {
 			portalEventBus.unregister(this);
 			notifyStopped();
@@ -170,5 +184,13 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Override
 	public void disableVirtualization() {
 		throw new RuntimeException("TODO not yet implemented!");
+	}
+
+	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
+		if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
+			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
+			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
+					+ "are not part of the reservation.");
+		}
 	}
 }

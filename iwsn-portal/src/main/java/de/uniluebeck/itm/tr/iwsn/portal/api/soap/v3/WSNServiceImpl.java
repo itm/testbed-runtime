@@ -33,7 +33,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
 						  @Assisted final String reservationId,
 						  @Assisted final WSN wsn) {
-		this.jaxWsService = servicePublisher.createJaxWsService("/soap/v3/wsn/" + reservationId, this);
+		this.jaxWsService = servicePublisher.createJaxWsService("/v3/wsn/" + reservationId, this);
 		this.wsn = wsn;
 	}
 
