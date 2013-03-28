@@ -65,6 +65,7 @@ public class NettyServer extends AbstractService {
 					}
 				}
 			}
+			ctx.sendUpstream(e);
 		}
 	};
 
