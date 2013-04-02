@@ -1,16 +1,15 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
-import java.util.List;
 import java.util.Map;
 
 @Entity(name="DeviceConfig")
+@SuppressWarnings("unused")
 public class DeviceConfigEntity {
 	
 	@Id
@@ -22,6 +21,10 @@ public class DeviceConfigEntity {
 	private boolean gatewayNode;
 
 	@Nullable
+	private String nodePort;
+
+	@Nullable
+	@Column(length = 1024)
 	private String description;
 
 	@Nullable
@@ -57,6 +60,7 @@ public class DeviceConfigEntity {
 		this.nodeUrn = config.getNodeUrn().toString();
 		this.nodeType = config.getNodeType();
 		this.gatewayNode = config.isGatewayNode();
+		this.nodePort = config.getNodePort();
 		this.description = config.getDescription();
 		this.nodeUSBChipID = config.getNodeUSBChipID();
 		this.position = CoordinateEntity.fromCoordinate(config.getPosition());
@@ -68,101 +72,118 @@ public class DeviceConfigEntity {
 		this.timeoutCheckAliveMillis = config.getTimeoutCheckAliveMillis();
 	}
 
-	public String getNodeUrn() {
-		return nodeUrn;
+	@Nullable
+	public ChannelHandlerConfigList getDefaultChannelPipeline() {
+		return defaultChannelPipeline;
 	}
 
-	public void setNodeUrn(String nodeUrn) {
-		this.nodeUrn = nodeUrn;
+	public void setDefaultChannelPipeline(
+			@Nullable final ChannelHandlerConfigList defaultChannelPipeline) {
+		this.defaultChannelPipeline = defaultChannelPipeline;
 	}
 
-	public String getNodeType() {
-		return nodeType;
+	@Nullable
+	public String getDescription() {
+		return description;
 	}
 
-	public void setNodeType(String nodeType) {
-		this.nodeType = nodeType;
+	public void setDescription(@Nullable final String description) {
+		this.description = description;
 	}
 
 	public boolean isGatewayNode() {
 		return gatewayNode;
 	}
 
-	public void setGatewayNode(boolean gatewayNode) {
+	public void setGatewayNode(final boolean gatewayNode) {
 		this.gatewayNode = gatewayNode;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getNodeUSBChipID() {
-		return nodeUSBChipID;
-	}
-
-	public void setNodeUSBChipID(String nodeUSBChipID) {
-		this.nodeUSBChipID = nodeUSBChipID;
-	}
-
-	public CoordinateEntity getPosition() {
-		return position;
-	}
-
-	public void setPosition(CoordinateEntity position) {
-		this.position = position;
 	}
 
 	public Map<String, String> getNodeConfiguration() {
 		return nodeConfiguration;
 	}
 
-	public void setNodeConfiguration(Map<String, String> nodeConfiguration) {
+	public void setNodeConfiguration(final Map<String, String> nodeConfiguration) {
 		this.nodeConfiguration = nodeConfiguration;
 	}
 
-	public List<ChannelHandlerConfig> getDefaultChannelPipeline() {
-		return defaultChannelPipeline;
+	@Nullable
+	public String getNodePort() {
+		return nodePort;
 	}
 
-	public void setDefaultChannelPipeline(
-			ChannelHandlerConfigList defaultChannelPipeline) {
-		this.defaultChannelPipeline = defaultChannelPipeline;
+	public void setNodePort(@Nullable final String nodePort) {
+		this.nodePort = nodePort;
 	}
 
-	public Long getTimeoutNodeApiMillis() {
-		return timeoutNodeApiMillis;
+	public String getNodeType() {
+		return nodeType;
 	}
 
-	public void setTimeoutNodeApiMillis(Long timeoutNodeApiMillis) {
-		this.timeoutNodeApiMillis = timeoutNodeApiMillis;
+	public void setNodeType(final String nodeType) {
+		this.nodeType = nodeType;
 	}
 
-	public Long getTimeoutResetMillis() {
-		return timeoutResetMillis;
+	public String getNodeUrn() {
+		return nodeUrn;
 	}
 
-	public void setTimeoutResetMillis(Long timeoutResetMillis) {
-		this.timeoutResetMillis = timeoutResetMillis;
+	public void setNodeUrn(final String nodeUrn) {
+		this.nodeUrn = nodeUrn;
 	}
 
-	public Long getTimeoutFlashMillis() {
-		return timeoutFlashMillis;
+	@Nullable
+	public String getNodeUSBChipID() {
+		return nodeUSBChipID;
 	}
 
-	public void setTimeoutFlashMillis(Long timeoutFlashMillis) {
-		this.timeoutFlashMillis = timeoutFlashMillis;
+	public void setNodeUSBChipID(@Nullable final String nodeUSBChipID) {
+		this.nodeUSBChipID = nodeUSBChipID;
 	}
 
+	@Nullable
+	public CoordinateEntity getPosition() {
+		return position;
+	}
+
+	public void setPosition(@Nullable final CoordinateEntity position) {
+		this.position = position;
+	}
+
+	@Nullable
 	public Long getTimeoutCheckAliveMillis() {
 		return timeoutCheckAliveMillis;
 	}
 
-	public void setTimeoutCheckAliveMillis(Long timeoutCheckAliveMillis) {
+	public void setTimeoutCheckAliveMillis(@Nullable final Long timeoutCheckAliveMillis) {
 		this.timeoutCheckAliveMillis = timeoutCheckAliveMillis;
+	}
+
+	@Nullable
+	public Long getTimeoutFlashMillis() {
+		return timeoutFlashMillis;
+	}
+
+	public void setTimeoutFlashMillis(@Nullable final Long timeoutFlashMillis) {
+		this.timeoutFlashMillis = timeoutFlashMillis;
+	}
+
+	@Nullable
+	public Long getTimeoutNodeApiMillis() {
+		return timeoutNodeApiMillis;
+	}
+
+	public void setTimeoutNodeApiMillis(@Nullable final Long timeoutNodeApiMillis) {
+		this.timeoutNodeApiMillis = timeoutNodeApiMillis;
+	}
+
+	@Nullable
+	public Long getTimeoutResetMillis() {
+		return timeoutResetMillis;
+	}
+
+	public void setTimeoutResetMillis(@Nullable final Long timeoutResetMillis) {
+		this.timeoutResetMillis = timeoutResetMillis;
 	}
 
 	public DeviceConfig toDeviceConfig() {
@@ -170,6 +191,7 @@ public class DeviceConfigEntity {
 				new NodeUrn(nodeUrn),
 				nodeType,
 				gatewayNode,
+				nodePort,
 				description,
 				nodeUSBChipID,
 				nodeConfiguration,

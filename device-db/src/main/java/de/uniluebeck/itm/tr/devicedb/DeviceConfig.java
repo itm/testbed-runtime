@@ -1,18 +1,16 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.Serializable;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
-
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Coordinate;
+
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DeviceConfig implements Serializable {
 
@@ -26,10 +24,11 @@ public class DeviceConfig implements Serializable {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-
 	private String nodeUrn;
 
 	private String nodeType;
+
+	private String nodePort;
 
 	private boolean gatewayNode;
 
@@ -67,6 +66,7 @@ public class DeviceConfig implements Serializable {
 			final NodeUrn nodeUrn,
 			final String nodeType,
 			final boolean gatewayNode,
+			@Nullable final String nodePort,
 			@Nullable final String description,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
@@ -80,6 +80,7 @@ public class DeviceConfig implements Serializable {
 		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
 		this.gatewayNode = gatewayNode;
+		this.nodePort = nodePort;
 		this.description = description;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration == null ? Maps.<String, String>newHashMap() : nodeConfiguration;
@@ -121,6 +122,10 @@ public class DeviceConfig implements Serializable {
 
 	public NodeUrn getNodeUrn() {
 		return new NodeUrn(nodeUrn);
+	}
+
+	public String getNodePort() {
+		return nodePort;
 	}
 
 	@Nullable
@@ -192,13 +197,16 @@ public class DeviceConfig implements Serializable {
 				that.nodeConfiguration != null) {
 			return false;
 		}
-		if (nodeType != null ? !nodeType.equals(that.nodeType) : that.nodeType != null) {
+		if (nodePort != null ? !nodePort.equals(that.nodePort) : that.nodePort != null) {
+			return false;
+		}
+		if (!nodeType.equals(that.nodeType)) {
 			return false;
 		}
 		if (nodeUSBChipID != null ? !nodeUSBChipID.equals(that.nodeUSBChipID) : that.nodeUSBChipID != null) {
 			return false;
 		}
-		if (nodeUrn != null ? !nodeUrn.equals(that.nodeUrn) : that.nodeUrn != null) {
+		if (!nodeUrn.equals(that.nodeUrn)) {
 			return false;
 		}
 		if (position != null ? !position.equals(that.position) : that.position != null) {
@@ -226,8 +234,9 @@ public class DeviceConfig implements Serializable {
 
 	@Override
 	public int hashCode() {
-		int result = nodeUrn != null ? nodeUrn.hashCode() : 0;
-		result = 31 * result + (nodeType != null ? nodeType.hashCode() : 0);
+		int result = nodeUrn.hashCode();
+		result = 31 * result + nodeType.hashCode();
+		result = 31 * result + (nodePort != null ? nodePort.hashCode() : 0);
 		result = 31 * result + (gatewayNode ? 1 : 0);
 		result = 31 * result + (description != null ? description.hashCode() : 0);
 		result = 31 * result + (nodeUSBChipID != null ? nodeUSBChipID.hashCode() : 0);
@@ -240,24 +249,23 @@ public class DeviceConfig implements Serializable {
 		result = 31 * result + (timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis.hashCode() : 0);
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
-		Joiner joiner = Joiner.on(", ").useForNull("null");
-		return "{"+ joiner.join(
-					nodeUrn,
-					nodeType,
-					gatewayNode,
-					description,
-					nodeUSBChipID,
-					position,
-					nodeConfiguration,
-					timeoutCheckAliveMillis,
-					timeoutFlashMillis,
-					timeoutNodeApiMillis,
-					timeoutResetMillis,
-					defaultChannelPipeline
-				) +"}";
+		return "DeviceConfig{" +
+				"nodeUrn='" + nodeUrn + '\'' +
+				", nodeType='" + nodeType + '\'' +
+				", gatewayNode=" + gatewayNode +
+				", nodePort='" + nodePort + '\'' +
+				", description='" + description + '\'' +
+				", nodeConfiguration=" + nodeConfiguration +
+				", nodeUSBChipID='" + nodeUSBChipID + '\'' +
+				", defaultChannelPipeline=" + defaultChannelPipeline +
+				", position=" + position +
+				", timeoutFlashMillis=" + timeoutFlashMillis +
+				", timeoutCheckAliveMillis=" + timeoutCheckAliveMillis +
+				", timeoutNodeApiMillis=" + timeoutNodeApiMillis +
+				", timeoutResetMillis=" + timeoutResetMillis +
+				'}';
 	}
-
 }

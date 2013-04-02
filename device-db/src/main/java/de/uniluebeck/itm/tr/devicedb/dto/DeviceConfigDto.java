@@ -14,6 +14,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 @XmlRootElement
+@SuppressWarnings("unused")
 public class DeviceConfigDto {
 
 	private String nodeUrn;
@@ -21,6 +22,9 @@ public class DeviceConfigDto {
 	private String nodeType;
 
 	private boolean gatewayNode;
+
+	@Nullable
+	private String nodePort;
 
 	@Nullable
 	private String description;
@@ -48,6 +52,15 @@ public class DeviceConfigDto {
 
 	@Nullable
 	private Long timeoutCheckAliveMillis;
+
+	@Nullable
+	public String getNodePort() {
+		return nodePort;
+	}
+
+	public void setNodePort(@Nullable final String nodePort) {
+		this.nodePort = nodePort;
+	}
 
 	@Nullable
 	public List<ChannelHandlerConfigDto> getDefaultChannelPipeline() {
@@ -170,6 +183,7 @@ public class DeviceConfigDto {
 
 		dto.description = deviceConfig.getDescription();
 		dto.gatewayNode = deviceConfig.isGatewayNode();
+		dto.nodePort = deviceConfig.getNodePort();
 
 		final Map<String, String> nodeConfiguration = deviceConfig.getNodeConfiguration();
 		if (nodeConfiguration != null) {
@@ -216,6 +230,7 @@ public class DeviceConfigDto {
 				new NodeUrn(nodeUrn),
 				nodeType,
 				gatewayNode,
+				nodePort,
 				description,
 				nodeUSBChipID,
 				nodeConfigurationMap,
