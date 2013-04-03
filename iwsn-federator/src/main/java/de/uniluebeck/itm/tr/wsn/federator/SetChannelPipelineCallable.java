@@ -29,6 +29,6 @@ public class SetChannelPipelineCallable extends AbstractRequestCallable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception {
-		wsnEndpoint.setChannelPipeline(federatedRequestId, nodeUrns, channelHandlerConfigurations);
+		wsnEndpoint.setChannelPipeline(federatedRequestId, nodeUrns, channelHandlerConfigurations, null);
 	}
 }

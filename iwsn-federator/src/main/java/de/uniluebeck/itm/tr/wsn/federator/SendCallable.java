@@ -51,6 +51,6 @@ class SendCallable extends AbstractRequestCallable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception {
-		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
+		wsnEndpoint.send(federatedRequestId, nodeUrns, message, null);
 	}
 }

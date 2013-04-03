@@ -56,6 +56,6 @@ class EnablePhysicalLinkCallable extends AbstractRequestCallable {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
+		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link), null);
 	}
 }

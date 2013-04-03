@@ -32,9 +32,11 @@ import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.jws.WebService;
 import java.net.URI;
 import java.util.List;
@@ -44,6 +46,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -58,6 +61,9 @@ import static com.google.common.collect.Maps.newHashMap;
 public class FederatorWSN implements WSN {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorWSN.class);
+
+	private static final String SCHEDULING_ERROR_MESSAGE =
+			"Operation scheduling is not yet implemented. Please don't provide timestamps for operation invocations!";
 
 	private final ExecutorService executorService;
 
@@ -116,7 +122,11 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void addController(final String controllerEndpointUrl) {
+	public void addController(final String controllerEndpointUrl, @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.addController({}, {})", controllerEndpointUrl, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		if (!"NONE".equals(controllerEndpointUrl)) {
 			log.debug("Adding controller endpoint URL {}", controllerEndpointUrl);
@@ -125,14 +135,23 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void removeController(final String controllerEndpointUrl) {
+	public void removeController(final String controllerEndpointUrl, @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.send({}, {})", controllerEndpointUrl, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		log.debug("Removing controller endpoint URL {}", controllerEndpointUrl);
 		federatorController.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	public void send(final long federatorRequestId, final List<NodeUrn> nodeUrns, final byte[] messageBytes) {
+	public void send(final long federatorRequestId, final List<NodeUrn> nodeUrns, final byte[] messageBytes,
+					 @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.send({}, {}, {}, {})", federatorRequestId, nodeUrns, messageBytes, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkSendArguments(nodeUrns, messageBytes);
 
@@ -158,7 +177,12 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void areNodesAlive(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
+	public void areNodesAlive(final long federatorRequestId, final List<NodeUrn> nodeUrns,
+							  @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.areNodesAlive({}, {}, {})", federatorRequestId, nodeUrns, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkAreNodesAliveArguments(nodeUrns);
 
@@ -207,7 +231,12 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void resetNodes(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
+	public void resetNodes(final long federatorRequestId, final List<NodeUrn> nodeUrns,
+						   @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.resetNodes({}, {}, {})", federatorRequestId, nodeUrns, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkResetNodesArguments(nodeUrns);
 
@@ -233,9 +262,12 @@ public class FederatorWSN implements WSN {
 
 
 	@Override
-	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links) {
+	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links,
+								   @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.setVirtualLinks({}, {})", requestId, links);
+		log.debug("FederatorWSN.setVirtualLinks({}, {}, {})", requestId, links, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkSetVirtualLinkArguments(links);
 
@@ -270,9 +302,11 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disableVirtualLinks(final long requestId, final List<Link> links) {
+	public void disableVirtualLinks(final long requestId, final List<Link> links, @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.destroyVirtualLinks({}, {})", requestId, links);
+		log.debug("FederatorWSN.destroyVirtualLinks({}, {}, {})", requestId, links, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkDestroyVirtualLinkArguments(links);
 
@@ -303,9 +337,11 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
+	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns, @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.disableNodes({}, {})", requestId, nodeUrns);
+		log.debug("FederatorWSN.disableNodes({}, {}, {})", requestId, nodeUrns);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkDisableNodeArguments(nodeUrns);
 
@@ -328,12 +364,13 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disablePhysicalLinks(final long requestId, final List<Link> links) {
+	public void disablePhysicalLinks(final long requestId, final List<Link> links, @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.disablePhysicalLinks({}, {})", requestId, links);
+		log.debug("FederatorWSN.disablePhysicalLinks({}, {}, {})", requestId, links, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkDisablePhysicalLinkArguments(links);
-
 
 		for (Link link : links) {
 
@@ -361,19 +398,27 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void disableVirtualization() throws VirtualizationNotSupportedFault_Exception {
+	public void disableVirtualization(@Nullable final DateTime timestamp)
+			throws VirtualizationNotSupportedFault_Exception {
+		log.trace("FederatorWSN.disableVirtualization({})", timestamp);
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
-	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception {
+	public void enableVirtualization(@Nullable final DateTime timestamp)
+			throws VirtualizationNotSupportedFault_Exception {
+		log.trace("FederatorWSN.enableVirtualization({})", timestamp);
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
-	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) {
+	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns, @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.enableNodes({}, {})", requestId, nodeUrns);
+		log.debug("FederatorWSN.enableNodes({}, {}, {})", requestId, nodeUrns, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkEnableNodeArguments(nodeUrns);
 
@@ -396,9 +441,11 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void enablePhysicalLinks(final long requestId, final List<Link> links) {
+	public void enablePhysicalLinks(final long requestId, final List<Link> links, @Nullable final DateTime timestamp) {
 
-		log.debug("FederatorWSN.enablePhysicalLinks({}, {})", requestId, links);
+		log.debug("FederatorWSN.enablePhysicalLinks({}, {}, {})", requestId, links, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkEnablePhysicalLinkArguments(links);
 
@@ -429,7 +476,12 @@ public class FederatorWSN implements WSN {
 
 	@Override
 	public void flashPrograms(final long federatorRequestId,
-							  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+							  final List<FlashProgramsConfiguration> flashProgramsConfigurations,
+							  @Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.flashPrograms({}, {}, {})", federatorRequestId, flashProgramsConfigurations, timestamp);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		wsnPreconditions.checkFlashProgramsArguments(flashProgramsConfigurations);
 
@@ -469,9 +521,14 @@ public class FederatorWSN implements WSN {
 	@Override
 	public void setChannelPipeline(final long federatorRequestId,
 								   final List<NodeUrn> nodeUrns,
-								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
+								   final List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+								   @Nullable final DateTime timestamp) {
 
-		log.debug("setChannelPipeline({}, {}) called...", nodeUrns, channelHandlerConfigurations);
+		log.trace("FederatorWSN.setChannelPipeline({}, {}, {}, {})",
+				federatorRequestId, nodeUrns, channelHandlerConfigurations, timestamp
+		);
+
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 
 		final Map<WSN, List<NodeUrn>> endpointToNodesMapping = constructEndpointToNodesMapping(nodeUrns);
 
@@ -491,7 +548,12 @@ public class FederatorWSN implements WSN {
 	}
 
 	@Override
-	public void setSerialPortParameters(final List<NodeUrn> nodeUrns, final SerialPortParameters parameters) {
+	public void setSerialPortParameters(final List<NodeUrn> nodeUrns,
+										final SerialPortParameters parameters,
+										@Nullable final DateTime timestamp) {
+
+		log.trace("FederatorWSN.setSerialPortParameters({}, {}, {})", nodeUrns, parameters, timestamp);
+		checkArgument(timestamp == null, SCHEDULING_ERROR_MESSAGE);
 		throw new RuntimeException("Not yet implemented!");
 	}
 

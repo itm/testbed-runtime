@@ -14,6 +14,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.WSN;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,12 +137,13 @@ public class FederatorWSNTest {
 				ImmutableMap.of(testbed2WSN, config2.getNodeUrns())
 		);
 
-		federatorWSN.flashPrograms(requestIdGenerator.nextLong(), flashProgramsConfigurations);
+		federatorWSN.flashPrograms(requestIdGenerator.nextLong(), flashProgramsConfigurations, null);
 
-		verify(testbed1WSN).flashPrograms(anyLong(), eq(newArrayList(config1)));
-		verify(testbed2WSN).flashPrograms(anyLong(), eq(newArrayList(config2)));
+		verify(testbed1WSN).flashPrograms(anyLong(), eq(newArrayList(config1)), (DateTime) isNull());
+		verify(testbed2WSN).flashPrograms(anyLong(), eq(newArrayList(config2)), (DateTime) isNull());
 
-		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any());
+		verify(testbed3WSN, never())
+				.flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any(), (DateTime) isNull());
 	}
 
 	@Test
@@ -177,7 +179,7 @@ public class FederatorWSNTest {
 				)
 		);
 
-		federatorWSN.flashPrograms(anyLong(), flashProgramsConfigurations);
+		federatorWSN.flashPrograms(anyLong(), flashProgramsConfigurations, null);
 
 		final FlashProgramsConfiguration testbed1ExpectedConfiguration1 = new FlashProgramsConfiguration();
 		testbed1ExpectedConfiguration1.getNodeUrns().add(TESTBED_1_NODE_1);
@@ -204,16 +206,16 @@ public class FederatorWSNTest {
 				testbed2ExpectedConfiguration1, testbed2ExpectedConfiguration2
 		);
 
-		verify(testbed1WSN).flashPrograms(anyLong(), argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)));
-		verify(testbed2WSN).flashPrograms(anyLong(), eq(testbed2ExpectedConfigurations));
+		verify(testbed1WSN)
+				.flashPrograms(anyLong(), argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)), (DateTime) isNull());
+		verify(testbed2WSN).flashPrograms(anyLong(), eq(testbed2ExpectedConfigurations), (DateTime) isNull());
 
-		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any());
+		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any(), (DateTime) isNull());
 	}
 
 	/**
-	 * Tests if calling {@link WSN#setChannelPipeline(long, java.util.List, java.util.List)}  on the federator leads to
-	 * calls on
-	 * exactly the involved and only the involved federated testbeds.
+	 * Tests if calling {@link WSN#setChannelPipeline(long, java.util.List, java.util.List, org.joda.time.DateTime)} on
+	 * the federator leads to calls on exactly the involved and only the involved federated testbeds.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -232,7 +234,7 @@ public class FederatorWSNTest {
 		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
 		when(federationManager.getEndpointByNodeUrn(TESTBED_3_NODE_1)).thenReturn(testbed3WSN);
 
-		federatorWSN.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations);
+		federatorWSN.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations, null);
 
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_1);
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
@@ -241,17 +243,20 @@ public class FederatorWSNTest {
 		verify(testbed1WSN).setChannelPipeline(
 				anyLong(),
 				eq(newArrayList(TESTBED_1_NODE_1, TESTBED_1_NODE_2)),
-				eq(channelHandlerConfigurations)
+				eq(channelHandlerConfigurations),
+				(DateTime) isNull()
 		);
 		verify(testbed2WSN, never()).setChannelPipeline(
 				anyLong(),
 				Matchers.<List<NodeUrn>>any(),
-				Matchers.<List<ChannelHandlerConfiguration>>any()
+				Matchers.<List<ChannelHandlerConfiguration>>any(),
+				(DateTime) isNull()
 		);
 		verify(testbed3WSN).setChannelPipeline(
 				anyLong(),
 				eq(newArrayList(TESTBED_3_NODE_1)),
-				eq(channelHandlerConfigurations)
+				eq(channelHandlerConfigurations),
+				(DateTime) isNull()
 		);
 	}
 

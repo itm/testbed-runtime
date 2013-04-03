@@ -47,6 +47,6 @@ class WSNAreNodesAliveCallable extends AbstractRequestCallable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception {
-		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
+		wsnEndpoint.areNodesAlive(federatedRequestId, nodes, null);
 	}
 }

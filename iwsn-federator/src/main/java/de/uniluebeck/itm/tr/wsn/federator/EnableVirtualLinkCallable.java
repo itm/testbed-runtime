@@ -73,6 +73,6 @@ class EnableVirtualLinkCallable extends AbstractRequestCallable {
 		virtualLink.setTargetNodeUrn(targetNodeUrn);
 		virtualLink.getParameters().addAll(parameters);
 		virtualLink.getFilters().addAll(filters);
-		wsnEndpoint.enableVirtualLinks(federatedRequestId, newArrayList(virtualLink));
+		wsnEndpoint.enableVirtualLinks(federatedRequestId, newArrayList(virtualLink), null);
 	}
 }

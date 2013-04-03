@@ -47,6 +47,6 @@ class FlashProgramsCallable extends AbstractRequestCallable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception {
-		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations, null);
 	}
 }

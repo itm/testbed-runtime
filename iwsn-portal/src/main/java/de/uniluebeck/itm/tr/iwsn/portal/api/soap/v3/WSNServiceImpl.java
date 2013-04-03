@@ -7,6 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +71,12 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.AddControllerResponse"
 	)
 	public void addController(@WebParam(name = "controllerEndpointUrl", targetNamespace = "")
-							  final String controllerEndpointUrl) {
+							  final String controllerEndpointUrl,
+							  @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp) {
 
 		log.debug("WSNImpl.addController({})", controllerEndpointUrl);
 
-		wsn.addController(controllerEndpointUrl);
+		wsn.addController(controllerEndpointUrl, timestamp);
 	}
 
 	@Override
@@ -90,9 +92,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.AreNodesAliveResponse"
 	)
 	public void areNodesAlive(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+							  @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
+							  @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception {
-		wsn.areNodesAlive(requestId, nodeUrns);
+		wsn.areNodesAlive(requestId, nodeUrns, timestamp);
 	}
 
 	@Override
@@ -108,9 +111,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DestroyVirtualLinksResponse"
 	)
 	public void disableVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									@WebParam(name = "links", targetNamespace = "") List<Link> links)
+									@WebParam(name = "links", targetNamespace = "") List<Link> links,
+									@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.disableVirtualLinks(requestId, links);
+		wsn.disableVirtualLinks(requestId, links, timestamp);
 	}
 
 	@Override
@@ -126,9 +130,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DisableNodesResponse"
 	)
 	public void disableNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+							 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
+							 @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.disableNodes(requestId, nodeUrns);
+		wsn.disableNodes(requestId, nodeUrns, timestamp);
 	}
 
 	@Override
@@ -144,9 +149,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.DisablePhysicalLinksResponse"
 	)
 	public void disablePhysicalLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									 @WebParam(name = "links", targetNamespace = "") List<Link> links)
+									 @WebParam(name = "links", targetNamespace = "") List<Link> links,
+									 @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.disablePhysicalLinks(requestId, links);
+		wsn.disablePhysicalLinks(requestId, links, timestamp);
 	}
 
 	@Override
@@ -161,9 +167,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.DisableVirtualizationResponse"
 	)
-	public void disableVirtualization()
+	public void disableVirtualization(@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception {
-		wsn.disableVirtualization();
+		wsn.disableVirtualization(timestamp);
 	}
 
 	@Override
@@ -178,9 +184,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			targetNamespace = "http://wisebed.eu/api/v3/wsn",
 			className = "eu.wisebed.api.v3.wsn.EnableVirtualizationResponse"
 	)
-	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception,
+	public void enableVirtualization(@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
+			throws VirtualizationNotSupportedFault_Exception,
 			ReservationNotRunningFault_Exception {
-		wsn.enableVirtualization();
+		wsn.enableVirtualization(timestamp);
 	}
 
 	@Override
@@ -196,9 +203,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.EnableNodesResponse"
 	)
 	public void enableNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-							@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+							@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
+							@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.enableNodes(requestId, nodeUrns);
+		wsn.enableNodes(requestId, nodeUrns, timestamp);
 	}
 
 	@Override
@@ -214,9 +222,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.EnablePhysicalLinksResponse"
 	)
 	public void enablePhysicalLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-									@WebParam(name = "links", targetNamespace = "") List<Link> links)
+									@WebParam(name = "links", targetNamespace = "") List<Link> links,
+									@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.enablePhysicalLinks(requestId, links);
+		wsn.enablePhysicalLinks(requestId, links, timestamp);
 	}
 
 	@Override
@@ -233,9 +242,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void flashPrograms(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 							  @WebParam(name = "configurations", targetNamespace = "")
-							  List<FlashProgramsConfiguration> configurations)
+							  List<FlashProgramsConfiguration> configurations,
+							  @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception {
-		wsn.flashPrograms(requestId, configurations);
+		wsn.flashPrograms(requestId, configurations, timestamp);
 	}
 
 	@Override
@@ -287,9 +297,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.RemoveControllerResponse"
 	)
 	public void removeController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) {
+			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl,
+			@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp) {
 		log.debug("WSNImpl.removeController({})", controllerEndpointUrl);
-		wsn.removeController(controllerEndpointUrl);
+		wsn.removeController(controllerEndpointUrl, timestamp);
 	}
 
 	@Override
@@ -305,9 +316,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.ResetNodesResponse"
 	)
 	public void resetNodes(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-						   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns)
+						   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
+						   @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception {
-		wsn.resetNodes(requestId, nodeUrns);
+		wsn.resetNodes(requestId, nodeUrns, timestamp);
 	}
 
 	@Override
@@ -324,9 +336,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void send(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 					 @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
-					 @WebParam(name = "message", targetNamespace = "") byte[] message)
+					 @WebParam(name = "message", targetNamespace = "") byte[] message,
+					 @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception {
-		wsn.send(requestId, nodeUrns, message);
+		wsn.send(requestId, nodeUrns, message, timestamp);
 	}
 
 	@Override
@@ -344,9 +357,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	public void setChannelPipeline(@WebParam(name = "requestId", targetNamespace = "") long requestId,
 								   @WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 								   @WebParam(name = "channelHandlerConfigurations", targetNamespace = "")
-								   List<ChannelHandlerConfiguration> channelHandlerConfigurations)
+								   List<ChannelHandlerConfiguration> channelHandlerConfigurations,
+								   @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception {
-		wsn.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);
+		wsn.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations, timestamp);
 	}
 
 	@Override
@@ -363,8 +377,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void setSerialPortParameters(@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 										@WebParam(name = "parameters", targetNamespace = "")
-										SerialPortParameters parameters) throws ReservationNotRunningFault_Exception {
-		wsn.setSerialPortParameters(nodeUrns, parameters);
+										SerialPortParameters parameters,
+										@WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
+			throws ReservationNotRunningFault_Exception {
+		wsn.setSerialPortParameters(nodeUrns, parameters, timestamp);
 	}
 
 	@Override
@@ -380,9 +396,10 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.SetVirtualLinksResponse"
 	)
 	public void enableVirtualLinks(@WebParam(name = "requestId", targetNamespace = "") long requestId,
-								   @WebParam(name = "links", targetNamespace = "") List<VirtualLink> links)
+								   @WebParam(name = "links", targetNamespace = "") List<VirtualLink> links,
+								   @WebParam(name = "timestamp", targetNamespace = "") DateTime timestamp)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsn.enableVirtualLinks(requestId, links);
+		wsn.enableVirtualLinks(requestId, links, timestamp);
 	}
 
 	@Override
