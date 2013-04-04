@@ -203,7 +203,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		}
 
 		try {
-			assertTrue(shiroSNAA.isValid(sakList.get(0)).isValid());
+			assertTrue(shiroSNAA.isValid(sakList).get(0).isValid());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -226,7 +226,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		}
 		sakList.get(0).setUsername(ADMINISTRATOR1);
 		try {
-			assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+			assertFalse(shiroSNAA.isValid(sakList).get(0).isValid());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -249,7 +249,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		}
 		sakList.get(0).setUsername("Trudy");
 		try {
-			assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+			assertFalse(shiroSNAA.isValid(sakList).get(0).isValid());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -272,7 +272,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		}
 		sakList.get(0).setUrnPrefix(new NodeUrnPrefix("urn:wisebed:uzl88:"));
 		try {
-			assertFalse(shiroSNAA.isValid(sakList.get(0)).isValid());
+			assertFalse(shiroSNAA.isValid(sakList).get(0).isValid());
 			return;
 		} catch (SNAAFault_Exception e) {
 			// expected exception if one is thrown:

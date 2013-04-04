@@ -10,7 +10,6 @@ import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
@@ -243,8 +242,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		response.setAuthorized(true);
 
 		if (secretAuthenticationKeys != null) {
-			for (SecretAuthenticationKey sak : secretAuthenticationKeys) {
-				ValidationResult result = snaa.isValid(sak);
+			for (ValidationResult result : snaa.isValid(secretAuthenticationKeys)) {
 				if (!result.isValid()) {
 					response.setMessage(
 							"A provided secret authentication key is not valid" + (result.getMessage() != null ?

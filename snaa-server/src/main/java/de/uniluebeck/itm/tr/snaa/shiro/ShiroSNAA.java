@@ -51,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
 /**
@@ -158,18 +159,18 @@ public class ShiroSNAA implements SNAA {
 	}
 
 	@Override
-	public IsValidResponse.ValidationResult isValid(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
-			SecretAuthenticationKey secretAuthenticationKey)
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
 			throws SNAAFault_Exception {
 
 		// check whether the urn prefix associated to the key is served at all
-		SNAAHelper.assertAllUrnPrefixesInSAKsAreServed(nodeUrnPrefixes, Lists.newArrayList(secretAuthenticationKey));
+		assertAllUrnPrefixesInSAKsAreServed(nodeUrnPrefixes, secretAuthenticationKeys);
+
+		final SecretAuthenticationKey secretAuthenticationKey = secretAuthenticationKeys.get(0);
 
 		// Get the session from the cache of authenticated sessions
 		AuthenticationTriple authTriple = authenticatedSessions.get(secretAuthenticationKey.getKey());
 
-		IsValidResponse.ValidationResult result = new IsValidResponse.ValidationResult();
+		ValidationResult result = new ValidationResult();
 
 		if (authTriple == null) {
 			result.setValid(false);
@@ -187,7 +188,7 @@ public class ShiroSNAA implements SNAA {
 			result.setValid(true);
 		}
 
-		return result;
+		return newArrayList(result);
 	}
 
 	@Override

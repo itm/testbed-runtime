@@ -30,7 +30,6 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +39,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 
 @WebService(
@@ -160,14 +159,13 @@ public class JAASSNAA implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
-
-		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
-		saks.add(secretAuthenticationKey);
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
+			throws SNAAFault_Exception {
 
 		// Check the supplied authentication keys
-		assertSAKUrnPrefixServed(urnPrefix, saks);
+		assertSAKUrnPrefixServed(urnPrefix, secretAuthenticationKeys);
+
+		final SecretAuthenticationKey secretAuthenticationKey = secretAuthenticationKeys.get(0);
 
 		// Get the session from the cache of authenticated sessions
 		AuthData auth = authenticatedSessions.get(secretAuthenticationKey.getKey());
@@ -192,7 +190,7 @@ public class JAASSNAA implements SNAA {
 			result.setValid(true);
 		}
 
-		return result;
+		return newArrayList(result);
 	}
 
 }

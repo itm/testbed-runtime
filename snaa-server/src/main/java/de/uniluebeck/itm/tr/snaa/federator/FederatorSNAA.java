@@ -30,7 +30,6 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebService;
 import java.util.*;
@@ -90,20 +89,20 @@ public class FederatorSNAA implements SNAA {
 		}
 	}
 
-	protected static class IsValidCallable implements Callable<ValidationResult> {
+	protected static class IsValidCallable implements Callable<List<ValidationResult>> {
 
 		private final SNAA snaa;
 
-		private final SecretAuthenticationKey secretAuthenticationKey;
+		private final List<SecretAuthenticationKey> secretAuthenticationKeys;
 
-		public IsValidCallable(final SNAA snaa, final SecretAuthenticationKey secretAuthenticationKey) {
+		public IsValidCallable(final SNAA snaa, final List<SecretAuthenticationKey> secretAuthenticationKeys) {
 			this.snaa = snaa;
-			this.secretAuthenticationKey = secretAuthenticationKey;
+			this.secretAuthenticationKeys = secretAuthenticationKeys;
 		}
 
 		@Override
-		public ValidationResult call() throws Exception {
-			return snaa.isValid(secretAuthenticationKey);
+		public List<ValidationResult> call() throws Exception {
+			return snaa.isValid(secretAuthenticationKeys);
 		}
 	}
 
@@ -277,16 +276,30 @@ public class FederatorSNAA implements SNAA {
 	}
 
 	@Override
-	public ValidationResult isValid(final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
+			throws SNAAFault_Exception {
 
 		try {
 
-			checkNotNull(secretAuthenticationKey, "SecretAuthenticationKey must not be null!");
+			checkNotNull(secretAuthenticationKeys, "SecretAuthenticationKey list must not be null!");
 
-			final SNAA snaa = federationManager.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-			final IsValidCallable callable = new IsValidCallable(snaa, secretAuthenticationKey);
+			final Set<Future<List<ValidationResult>>> futures = newHashSet();
 
-			return executorService.submit(callable).get();
+			for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+
+				final SNAA snaa = federationManager.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+				final IsValidCallable callable = new IsValidCallable(snaa, newArrayList(secretAuthenticationKey));
+
+				futures.add(executorService.submit(callable));
+			}
+
+			final List<ValidationResult> result = newArrayList();
+
+			for (Future<List<ValidationResult>> future : futures) {
+				result.addAll(future.get());
+			}
+
+			return result;
 
 		} catch (Exception e) {
 			throw createSNAAFault(e.getMessage());
