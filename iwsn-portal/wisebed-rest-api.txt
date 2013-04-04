@@ -1,0 +1,106 @@
+RSResource
+
+	GET /reservations
+		cookie:	[if userOnly]
+		query:	?from
+				?to
+				[?userOnly]
+
+	POST /reservations/create
+		body:	PublicReservationData(nodeUrns, from, to)
+		cookie:	yes
+		
+	DELETE /reservations
+		body: 	List<SecretReservationKey>(urnPrefix, key)
+		cookie:	yes
+		
+	POST /reservations
+		body: 	List<SecretReservationKey>(urnPrefix, key)
+		
+========================================================
+
+SNAAResource
+	
+	GET /isLoggedIn
+		cookie:	?
+		
+	POST /login
+		body: 	List<AuthenticationTriple>(urnPrefix,userName,password)
+		
+	GET /logout
+		cookie:	?
+		
+========================================================
+
+RemoteExperimentConfigurationResource
+	
+	GET /experimentconfiguration
+		query: 	?urlString
+
+========================================================
+
+ExperimentResource
+
+	GET /network
+		desc: 	Returns WiseML as JSON or XML
+		
+	GET /nodes
+		desc:	Lists available nodes (optionally filtered)
+		query: 	?filter
+				?capability
+
+	POST /
+		desc:	getInstance(), returns {experimentUrlBase64}
+		body: 	List<SecretReservationKey>(urnPrefix, key)
+
+	POST /{experimentUrlBase64}/flash
+		desc: 	flashes nodes, returns requestId
+		body:	List<((List<NodeUrn), imageBase64)>
+
+	GET /{experimentUrlBase64}/flash/{flashRequestId}
+		desc: 	returns flash operation status
+		ret:	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/resetNodes
+		desc:	resets nodes
+		body:	List<NodeUrn>
+		ret:	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/areNodesAlive
+		desc: 	checks if nodes are alive
+		body:	List<NodeUrn>
+		ret: 	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/send
+		desc: 	sends a message to nodes
+		body:	(sourceNodeUrn, targetNodeUrn, bytesBase64)
+		ret: 	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/destroyVirtualLink
+		desc: 	destroys a virtual link
+		body:	(sourceNodeUrn, targetNodeUrn)
+		ret: 	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/disableNode
+		desc: 	disables virtual radio of a node
+		body:	nodeUrn
+		ret:	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/enableNode
+		desc: 	enables virtual radio of a node
+		body:	nodeUrn
+		ret:	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/disablePhysicalLink
+		desc: 	disables a physical link
+		body:	(sourceNodeUrn, targetNodeUrn)
+		ret: 	Map<NodeUrn, (state, statusCode, message))>
+
+	POST /{experimentUrlBase64}/enablePhysicalLink
+		desc: 	enables a physical link
+		body:	(sourceNodeUrn, targetNodeUrn)
+		ret: 	Map<NodeUrn, (state, statusCode, message))>
+
+	GET /{experimentUrlBase64}/network
+		desc: 	retrieves WiseML for reserved nodes
+		ret:	WiseML as JSON or XML
