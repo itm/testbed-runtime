@@ -48,6 +48,6 @@ class EnableNodeCallable extends AbstractRequestCallable {
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
-		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn), null);
+		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 }

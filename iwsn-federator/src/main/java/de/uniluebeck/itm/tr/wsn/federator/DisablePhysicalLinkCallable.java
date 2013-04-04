@@ -56,6 +56,6 @@ class DisablePhysicalLinkCallable extends AbstractRequestCallable {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link), null);
+		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
 }

@@ -56,6 +56,6 @@ class DisableVirtualLinkCallable extends AbstractRequestCallable {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disableVirtualLinks(federatedRequestId, newArrayList(link), null);
+		wsnEndpoint.disableVirtualLinks(federatedRequestId, newArrayList(link));
 	}
 }
