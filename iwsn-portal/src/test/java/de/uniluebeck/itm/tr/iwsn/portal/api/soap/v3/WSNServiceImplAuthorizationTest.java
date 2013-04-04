@@ -116,27 +116,27 @@ public class WSNServiceImplAuthorizationTest {
 	public void testAddControllerIfAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
-			authorizingWsn.addController("NONE", null);
+			authorizingWsn.addController("NONE");
 		} catch (RuntimeException e){
 			e.printStackTrace();
 			fail("An unexpected exception was thrown");
 		}
 
-		verify(wsnDelegate,times(1)).addController("NONE", null);
+		verify(wsnDelegate,times(1)).addController("NONE");
 	}
 
 	@Test
 	public void testAddControllerIfNoTAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
-			authorizingWsn.addController("ABC", null);
+			authorizingWsn.addController("ABC");
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).addController("ABC", null);
+		verify(wsnDelegate,never()).addController("ABC");
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<NodeUrn> nodeUrns = Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.areNodesAlive(1L, nodeUrns, null);
+			authorizingWsn.areNodesAlive(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 				&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -152,7 +152,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).areNodesAlive(1L, nodeUrns, null);
+		verify(wsnDelegate,times(1)).areNodesAlive(1L, nodeUrns);
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.areNodesAlive(1L, nodeUrns, null);
+			authorizingWsn.areNodesAlive(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
@@ -168,7 +168,7 @@ public class WSNServiceImplAuthorizationTest {
 			}
 
 		}
-		verify(wsnDelegate,never()).areNodesAlive(1L, nodeUrns, null);
+		verify(wsnDelegate,never()).areNodesAlive(1L, nodeUrns);
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.disableVirtualLinks(0L,links, null);
+			authorizingWsn.disableVirtualLinks(0L,links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -184,7 +184,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).disableVirtualLinks(0L,links, null);
+		verify(wsnDelegate,times(1)).disableVirtualLinks(0L,links);
 	}
 
 	@Test
@@ -192,14 +192,14 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.disableVirtualLinks(0L,links, null);
+			authorizingWsn.disableVirtualLinks(0L,links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).disableVirtualLinks(0L, links, null);
+		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
 
 	@Test
@@ -207,7 +207,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.disableNodes(1L, nodeUrns, null);
+			authorizingWsn.disableNodes(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -215,7 +215,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).disableNodes(1L, nodeUrns, null);
+		verify(wsnDelegate,times(1)).disableNodes(1L, nodeUrns);
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.disableNodes(1L, nodeUrns, null);
+			authorizingWsn.disableNodes(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
@@ -231,7 +231,7 @@ public class WSNServiceImplAuthorizationTest {
 			}
 
 		}
-		verify(wsnDelegate,never()).disableNodes(1L, nodeUrns, null);
+		verify(wsnDelegate,never()).disableNodes(1L, nodeUrns);
 	}
 
 	@Test
@@ -239,7 +239,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.disablePhysicalLinks(0L, links, null);
+			authorizingWsn.disablePhysicalLinks(0L, links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -247,7 +247,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).disablePhysicalLinks(0L, links, null);
+		verify(wsnDelegate,times(1)).disablePhysicalLinks(0L, links);
 	}
 
 	@Test
@@ -255,21 +255,21 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.disablePhysicalLinks(20L, links, null);
+			authorizingWsn.disablePhysicalLinks(0L, links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).disableVirtualLinks(0L, links, null);
+		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
 
 	@Test
 	public void testDisableVirtualizationIfAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
-			authorizingWsn.disableVirtualization(null);
+			authorizingWsn.disableVirtualization();
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -277,28 +277,28 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).disableVirtualization(null);
+		verify(wsnDelegate,times(1)).disableVirtualization();
 	}
 
 	@Test
 	public void testDisableVirtualizationIfNotAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
-			authorizingWsn.disableVirtualization(null);
+			authorizingWsn.disableVirtualization();
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).disableVirtualization(null);
+		verify(wsnDelegate,never()).disableVirtualization();
 	}
 
 	@Test
 	public void testEnableVirtualizationIfAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
-			authorizingWsn.enableVirtualization(null);
+			authorizingWsn.enableVirtualization();
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -306,21 +306,21 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).enableVirtualization(null);
+		verify(wsnDelegate,times(1)).enableVirtualization();
 	}
 
 	@Test
 	public void testEnableVirtualizationIfNotAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
-			authorizingWsn.enableVirtualization(null);
+			authorizingWsn.enableVirtualization();
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).enableVirtualization(null);
+		verify(wsnDelegate,never()).enableVirtualization();
 	}
 
 	@Test
@@ -328,7 +328,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.enableNodes(1L, nodeUrns, null);
+			authorizingWsn.enableNodes(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -336,7 +336,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).enableNodes(1L, nodeUrns, null);
+		verify(wsnDelegate,times(1)).enableNodes(1L, nodeUrns);
 	}
 
 	@Test
@@ -344,7 +344,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.enableNodes(1L, nodeUrns, null);
+			authorizingWsn.enableNodes(1L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
@@ -352,7 +352,7 @@ public class WSNServiceImplAuthorizationTest {
 			}
 
 		}
-		verify(wsnDelegate,never()).enableNodes(1L, nodeUrns, null);
+		verify(wsnDelegate,never()).enableNodes(1L, nodeUrns);
 	}
 
 	@Test
@@ -360,7 +360,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.enablePhysicalLinks(0L, links, null);
+			authorizingWsn.enablePhysicalLinks(0L, links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -368,7 +368,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).enablePhysicalLinks(0L, links, null);
+		verify(wsnDelegate,times(1)).enablePhysicalLinks(0L, links);
 	}
 
 	@Test
@@ -376,14 +376,14 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
-			authorizingWsn.enablePhysicalLinks(0L, links, null);
+			authorizingWsn.enablePhysicalLinks(0L, links);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).enablePhysicalLinks(0L, links, null);
+		verify(wsnDelegate,never()).enablePhysicalLinks(0L, links);
 	}
 
 	@Test
@@ -391,7 +391,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<FlashProgramsConfiguration> configs = Lists.newArrayList(new FlashProgramsConfiguration());
 		try{
-			authorizingWsn.flashPrograms(0L, configs, null);
+			authorizingWsn.flashPrograms(0L, configs);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -399,7 +399,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).flashPrograms(0L, configs, null);
+		verify(wsnDelegate,times(1)).flashPrograms(0L, configs);
 	}
 
 	@Test
@@ -407,14 +407,14 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<FlashProgramsConfiguration> configs = Lists.newArrayList(new FlashProgramsConfiguration());
 		try{
-			authorizingWsn.flashPrograms(0L, configs, null);
+			authorizingWsn.flashPrograms(0L, configs);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).flashPrograms(0L, configs, null);
+		verify(wsnDelegate,never()).flashPrograms(0L, configs);
 	}
 
 	@Test
@@ -481,7 +481,7 @@ public class WSNServiceImplAuthorizationTest {
 	public void testRemoveControllerIfAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
-			authorizingWsn.removeController("ABC", null);
+			authorizingWsn.removeController("ABC");
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -489,21 +489,21 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).removeController("ABC", null);
+		verify(wsnDelegate,times(1)).removeController("ABC");
 	}
 
 	@Test
 	public void testRemoveControllerIfNotAuthorized() throws Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
-			authorizingWsn.removeController("ABC", null);
+			authorizingWsn.removeController("ABC");
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).removeController("ABC", null);
+		verify(wsnDelegate,never()).removeController("ABC");
 	}
 
 	@Test
@@ -511,7 +511,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<NodeUrn> nodeUrns = Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.resetNodes(0L, nodeUrns, null);
+			authorizingWsn.resetNodes(0L, nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -519,7 +519,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).resetNodes(0L, nodeUrns, null);
+		verify(wsnDelegate,times(1)).resetNodes(0L, nodeUrns);
 	}
 
 	@Test
@@ -527,14 +527,14 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<NodeUrn> nodeUrns = Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
-			authorizingWsn.resetNodes(0L,nodeUrns, null);
+			authorizingWsn.resetNodes(0L,nodeUrns);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).resetNodes(0L, nodeUrns, null);
+		verify(wsnDelegate,never()).resetNodes(0L, nodeUrns);
 
 	}
 
@@ -544,7 +544,7 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final byte[] bytes = new byte[10];
 		try{
-			authorizingWsn.send(20L, nodeUrns, bytes, null);
+			authorizingWsn.send(0L, nodeUrns, bytes);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -552,7 +552,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).send(20L, nodeUrns, bytes, null);
+		verify(wsnDelegate,times(1)).send(0L, nodeUrns, bytes);
 	}
 
 	@Test
@@ -561,14 +561,14 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final byte[] bytes = new byte[10];
 		try{
-			authorizingWsn.send(0L, nodeUrns, bytes, null);
+			authorizingWsn.send(0L, nodeUrns, bytes);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).send(0L, nodeUrns, bytes, null);
+		verify(wsnDelegate,never()).send(0L, nodeUrns, bytes);
 	}
 
 	@Test
@@ -577,7 +577,7 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final LinkedList<ChannelHandlerConfiguration> channelHandlerConfigurations = new LinkedList<ChannelHandlerConfiguration>();
 		try{
-			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations, null);
+			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -585,7 +585,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).setChannelPipeline(0L, nodeUrns, channelHandlerConfigurations, null);
+		verify(wsnDelegate,times(1)).setChannelPipeline(0L, nodeUrns, channelHandlerConfigurations);
 	}
 
 	@Test
@@ -594,14 +594,14 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final LinkedList<ChannelHandlerConfiguration> channelHandlerConfigurations = new LinkedList<ChannelHandlerConfiguration>();
 		try{
-			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations, null);
+			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations, null);
+		verify(wsnDelegate,never()).setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 	}
 
 	@Test
@@ -610,7 +610,7 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final SerialPortParameters serialPortParameters = new SerialPortParameters();
 		try{
-			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters, null);
+			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -618,7 +618,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).setSerialPortParameters(nodeUrns,serialPortParameters, null);
+		verify(wsnDelegate,times(1)).setSerialPortParameters(nodeUrns,serialPortParameters);
 	}
 
 	@Test
@@ -627,14 +627,14 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns = Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		final SerialPortParameters serialPortParameters = new SerialPortParameters();
 		try{
-			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters, null);
+			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).setSerialPortParameters(nodeUrns,serialPortParameters, null);
+		verify(wsnDelegate,never()).setSerialPortParameters(nodeUrns,serialPortParameters);
 	}
 
 	@Test
@@ -642,7 +642,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		final ArrayList<VirtualLink> virtualLinks = Lists.newArrayList(new VirtualLink());
 		try{
-			authorizingWsn.enableVirtualLinks(0L,virtualLinks, null);
+			authorizingWsn.enableVirtualLinks(0L,virtualLinks);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
@@ -650,7 +650,7 @@ public class WSNServiceImplAuthorizationTest {
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,times(1)).enableVirtualLinks(0L, virtualLinks, null);
+		verify(wsnDelegate,times(1)).enableVirtualLinks(0L, virtualLinks);
 	}
 
 	@Test
@@ -658,13 +658,13 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		final ArrayList<VirtualLink> virtualLinks = Lists.newArrayList(new VirtualLink());
 		try{
-			authorizingWsn.enableVirtualLinks(0L,virtualLinks, null);
+			authorizingWsn.enableVirtualLinks(0L,virtualLinks);
 		} catch (RuntimeException e){
 			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");
 			}
 		}
-		verify(wsnDelegate,never()).enableVirtualLinks(0L,virtualLinks, null);
+		verify(wsnDelegate,never()).enableVirtualLinks(0L,virtualLinks);
 	}
 }
