@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import eu.wisebed.api.snaa.*;
-import eu.wisebed.restws.dto.LoginData;
-import eu.wisebed.restws.dto.SnaaSecretAuthenticationKeyList;
-import eu.wisebed.restws.proxy.WebServiceEndpointManager;
-import eu.wisebed.restws.util.Base64Helper;
-import eu.wisebed.restws.util.InjectLogger;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.LoginData;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAA;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -15,32 +16,33 @@ import javax.ws.rs.core.Response.Status;
 import java.util.LinkedList;
 import java.util.List;
 
-import static eu.wisebed.restws.resources.ResourceHelper.createSecretAuthenticationKeyCookieName;
-import static eu.wisebed.restws.resources.ResourceHelper.getSnaaSecretAuthCookie;
-import static eu.wisebed.restws.util.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 
-@Path("/" + Constants.WISEBED_API_VERSION + "/{testbedId}/")
+
+@Path("/")
 public class SnaaResource {
 
-	@InjectLogger
-	private Logger log;
+	private static final Logger log = LoggerFactory.getLogger(SnaaResource.class);
 
-	@Inject
-	private WebServiceEndpointManager endpointManager;
+	private final SNAA snaa;
 
 	@Context
 	private HttpHeaders httpHeaders;
 
+	@Inject
+	public SnaaResource(final SNAA snaa) {
+		this.snaa = snaa;
+	}
+
 	@GET
 	@Path("isLoggedIn")
-	public Response isLoggedIn(@PathParam("testbedId") final String testbedId) {
+	public Response isLoggedIn() {
 
-		SnaaSecretAuthenticationKeyList cookie = getSnaaSecretAuthCookie(httpHeaders, testbedId);
-		SNAA snaa = endpointManager.getSnaaEndpoint(testbedId);
+		final List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookie(httpHeaders);
 
 		try {
 
-			boolean isLoggedIn = snaa.isAuthorized(cookie.secretAuthenticationKeys, new Action("isLoggedIn"));
+			boolean isLoggedIn = snaa.isValid(secretAuthenticationKeys);
 			return isLoggedIn ? Response.ok().build() : Response.status(Status.FORBIDDEN).build();
 
 		} catch (SNAAExceptionException e) {
@@ -70,15 +72,15 @@ public class SnaaResource {
 	 * </code>
 	 *
 	 * @param testbedId
-	 *            the ID of the testbed
+	 * 		the ID of the testbed
 	 * @param loginData
-	 *            login data
+	 * 		login data
 	 *
 	 * @return a response
 	 */
 	@POST
-	@Produces({ MediaType.APPLICATION_JSON })
-	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("login")
 	public Response login(@PathParam("testbedId") final String testbedId, final LoginData loginData) {
 
@@ -112,7 +114,8 @@ public class SnaaResource {
 		return Response.ok().cookie(createCookie(testbedId, null, "", true)).build();
 	}
 
-	private NewCookie createCookie(final String testbedId, SnaaSecretAuthenticationKeyList loginData, String domain, boolean isReset) {
+	private NewCookie createCookie(final String testbedId, SnaaSecretAuthenticationKeyList loginData, String domain,
+								   boolean isReset) {
 		int maxAge = isReset ? 0 : 60 * 60 * 24;
 		boolean secure = false;
 		String comment = "";
