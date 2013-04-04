@@ -85,14 +85,14 @@ public class WSNImpl implements WSN {
 	public void areNodesAlive(long requestId, List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
+		reservation.getEventBus().post(newAreNodesAliveRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void disableVirtualLinks(long requestId, List<Link> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(
+		reservation.getEventBus().post(
 				newDisableVirtualLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
 	}
@@ -101,14 +101,14 @@ public class WSNImpl implements WSN {
 	public void disableNodes(long requestId, List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
+		reservation.getEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void disablePhysicalLinks(long requestId, List<Link> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus()
+		reservation.getEventBus()
 				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links)));
 	}
 
@@ -130,14 +130,14 @@ public class WSNImpl implements WSN {
 	public void enableNodes(long requestId, List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
+		reservation.getEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void enablePhysicalLinks(long requestId, List<Link> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(
+		reservation.getEventBus().post(
 				newEnablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
 	}
@@ -147,7 +147,7 @@ public class WSNImpl implements WSN {
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		for (FlashProgramsConfiguration configuration : configurations) {
-			reservation.getReservationEventBus().post(newFlashImagesRequest(
+			reservation.getEventBus().post(newFlashImagesRequest(
 					reservationId,
 					requestId,
 					configuration.getNodeUrns(),
@@ -193,14 +193,14 @@ public class WSNImpl implements WSN {
 			}
 		};
 
-		reservation.getReservationEventBus().register(eventBusListener);
-		reservation.getReservationEventBus().post(request);
+		reservation.getEventBus().register(eventBusListener);
+		reservation.getEventBus().post(request);
 
 		try {
 
 			final Map<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap =
 					future.get(30, TimeUnit.SECONDS);
-			reservation.getReservationEventBus().unregister(eventBusListener);
+			reservation.getEventBus().unregister(eventBusListener);
 			return convert(resultMap);
 
 		} catch (Exception e) {
@@ -223,14 +223,14 @@ public class WSNImpl implements WSN {
 	public void resetNodes( long requestId, List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newResetNodesRequest(reservationId, requestId, nodeUrns));
+		reservation.getEventBus().post(newResetNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void send(long requestId, List<NodeUrn> nodeUrns, byte[] message)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(
+		reservation.getEventBus().post(
 				newSendDownstreamMessageRequest(reservationId, requestId, nodeUrns, message)
 		);
 	}
@@ -241,7 +241,7 @@ public class WSNImpl implements WSN {
 	                               List<ChannelHandlerConfiguration> channelHandlerConfigurations)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(newSetChannelPipelinesRequest(
+		reservation.getEventBus().post(newSetChannelPipelinesRequest(
 				reservationId,
 				requestId,
 				nodeUrns,
@@ -261,7 +261,7 @@ public class WSNImpl implements WSN {
 	public void enableVirtualLinks(long requestId, List<VirtualLink> links)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
-		reservation.getReservationEventBus().post(
+		reservation.getEventBus().post(
 				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
 		);
 		// TODO remember virtual link mapping in specialized class that also delivers vlink messages to remote instance

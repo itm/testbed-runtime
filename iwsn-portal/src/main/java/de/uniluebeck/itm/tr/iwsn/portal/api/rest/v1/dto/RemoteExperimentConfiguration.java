@@ -1,11 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
-import eu.wisebed.restws.util.JSONHelper;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 
 @XmlRootElement
 public class RemoteExperimentConfiguration {
@@ -32,13 +32,13 @@ public class RemoteExperimentConfiguration {
 			r.configurations.add(e);
 		}
 		
-		System.out.println(JSONHelper.toJSON(r));
+		System.out.println(toJSON(r));
 		
 		NodeUrnList l = new NodeUrnList();
 		l.nodeUrns = new ArrayList<String>();
 		l.nodeUrns.add("11");
 		l.nodeUrns.add("11");
-		System.out.println(JSONHelper.toJSON(l));
+		System.out.println(toJSON(l));
 		
 	}
 }

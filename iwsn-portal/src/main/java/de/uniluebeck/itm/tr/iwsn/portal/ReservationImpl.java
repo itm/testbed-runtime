@@ -26,12 +26,16 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final String username;
 
+	private final String key;
+
 	@Inject
 	public ReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
 						   final PortalEventBus portalEventBus,
-						   @Assisted final String username,
+						   @Assisted("secretReservationKey") final String key,
+						   @Assisted("username") final String username,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
+		this.key = checkNotNull(key);
 		this.username = checkNotNull(username);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.nodeUrns = checkNotNull(nodeUrns);
@@ -63,6 +67,10 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
+	public String getKey() {
+		return key;
+	}
+
 	@Override
 	public String getUsername() {
 		return username;
@@ -74,7 +82,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	@Override
-	public ReservationEventBus getReservationEventBus() {
+	public ReservationEventBus getEventBus() {
 		return reservationEventBus;
 	}
 
