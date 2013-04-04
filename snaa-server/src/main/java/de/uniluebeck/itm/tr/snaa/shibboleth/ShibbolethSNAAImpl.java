@@ -155,14 +155,11 @@ public class ShibbolethSNAAImpl implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
-
-		List<SecretAuthenticationKey> saks = new LinkedList<SecretAuthenticationKey>();
-		saks.add(secretAuthenticationKey);
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
+			throws SNAAFault_Exception {
 
 		// Check if we serve all URNs
-		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes, saks);
+		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes, secretAuthenticationKeys);
 
 		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
 		return null;

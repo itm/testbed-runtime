@@ -23,13 +23,11 @@
 
 package de.uniluebeck.itm.tr.snaa.wisebed;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -37,12 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 @WebService(
 		name = "SNAA",
@@ -91,11 +84,11 @@ public class WisebedSnaaFederator implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey) throws SNAAFault_Exception {
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
+			throws SNAAFault_Exception {
 
 		log.debug("WisebedSnaaFederator::isValid delegating to internal FederatorSNAA instance");
-		return authorizationFederator.isValid(secretAuthenticationKey);
+		return authorizationFederator.isValid(secretAuthenticationKeys);
 	}
 
 }

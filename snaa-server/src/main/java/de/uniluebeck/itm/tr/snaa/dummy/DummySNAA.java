@@ -26,13 +26,14 @@ package de.uniluebeck.itm.tr.snaa.dummy;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 
 import javax.jws.WebService;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @WebService(
 		name = "SNAA",
@@ -74,12 +75,11 @@ public class DummySNAA implements SNAA {
 	}
 
 	@Override
-	public eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult isValid(
-			final SecretAuthenticationKey secretAuthenticationKey)
+	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKey)
 			throws SNAAFault_Exception {
 
 		ValidationResult result = new ValidationResult();
 		result.setValid(true);
-		return result;
+		return newArrayList(result);
 	}
 }

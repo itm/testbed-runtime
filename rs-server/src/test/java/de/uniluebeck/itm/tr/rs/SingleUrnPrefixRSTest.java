@@ -12,8 +12,8 @@ import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
-import eu.wisebed.api.v3.snaa.IsValidResponse.ValidationResult;
 import eu.wisebed.api.v3.snaa.SNAA;
+import eu.wisebed.api.v3.snaa.ValidationResult;
 import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -313,8 +313,8 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
 				.thenReturn(successfulAuthorizationResponse);
-		when(snaa.isValid(user1Saks.get(0))).thenReturn(validationResult);
-		when(snaa.isValid(user2Saks.get(0))).thenReturn(validationResult);
+		when(snaa.isValid(user1Saks)).thenReturn(newArrayList(validationResult));
+		when(snaa.isValid(user2Saks)).thenReturn(newArrayList(validationResult));
 		when(servedNodeUrns.get()).thenReturn(new NodeUrn[]{user1Node, user2Node});
 
 		final ConfidentialReservationData reservation1 =
@@ -337,7 +337,6 @@ public class SingleUrnPrefixRSTest {
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
 	}
-
 
 	@Test
 	public void verifyRSAuthorizationInterceptorIsCalledBeforeDeletingReservations() throws Throwable {
