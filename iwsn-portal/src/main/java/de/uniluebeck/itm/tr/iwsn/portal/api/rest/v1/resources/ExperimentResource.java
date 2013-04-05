@@ -1,23 +1,26 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
-import com.google.common.util.concurrent.TimeLimiter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
+import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +39,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.encode;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
@@ -58,21 +63,32 @@ public class ExperimentResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExperimentResource.class);
 
+	private static final Random RANDOM = new Random();
+
+	private final TimedCache<Long, List<Long>> flashResponseTrackers;
+
 	@Context
 	private UriInfo uriInfo;
-
-	private final TimeLimiter timeLimiter;
 
 	private final DeviceDB deviceDB;
 
 	private final ReservationManager reservationManager;
 
+	private final ResponseTrackerFactory responseTrackerFactory;
+
+	private final RequestIdProvider requestIdProvider;
+
 	@Inject
-	public ExperimentResource(final TimeLimiter timeLimiter, final DeviceDB deviceDB,
-							  final ReservationManager reservationManager) {
-		this.timeLimiter = timeLimiter;
-		this.deviceDB = deviceDB;
-		this.reservationManager = reservationManager;
+	public ExperimentResource(final DeviceDB deviceDB,
+							  final ReservationManager reservationManager,
+							  final ResponseTrackerFactory responseTrackerFactory,
+							  final RequestIdProvider requestIdProvider,
+							  final TimedCache<Long, List<Long>> flashResponseTrackers) {
+		this.deviceDB = checkNotNull(deviceDB);
+		this.reservationManager = checkNotNull(reservationManager);
+		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.requestIdProvider = checkNotNull(requestIdProvider);
+		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
 
 	@GET
@@ -225,66 +241,48 @@ public class ExperimentResource {
 	public Response flashPrograms(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
 								  final FlashProgramsRequest flashData) {
 
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
+		final Reservation reservation = getReservation(secretReservationKeyBase64);
 
-		log.debug("Flash request received");
-
-		// Convert input to the strange flashPrograms format
-		LinkedList<Program> programs = new LinkedList<Program>();
-		LinkedList<String> nodeUrns = new LinkedList<String>();
-		LinkedList<Integer> programIndices = new LinkedList<Integer>();
-
-		for (FlashTask task : flashData.flashTasks) {
-
-			// First, add the program to the list of programs
-
-			Program program = new Program();
-			program.setProgram(extractByteArrayFromDataURL(task.imageBase64));
-
-			ProgramMetaData metaData = new ProgramMetaData();
-			metaData.setName("");
-			metaData.setOther("");
-			metaData.setPlatform("");
-			metaData.setVersion("");
-
-			program.setMetaData(metaData);
-			programs.addLast(program);
-
-			int programIndex = programs.size() - 1;
-
-			// Then add the node URNs and the program index
-			for (String urn : task.nodeUrns) {
-				nodeUrns.addLast(urn);
-				programIndices.addLast(programIndex);
+		long flashResponseTrackersId = RANDOM.nextLong();
+		synchronized (flashResponseTrackers) {
+			while (flashResponseTrackers.containsKey(flashResponseTrackersId)) {
+				flashResponseTrackersId = RANDOM.nextLong();
 			}
+			flashResponseTrackers.put(flashResponseTrackersId, Lists.<Long>newArrayList());
 		}
 
-		// Invoke the call and redirect the caller
+		for (FlashProgramsRequest.FlashTask flashTask : flashData.flashTasks) {
+
+			final long requestId = requestIdProvider.get();
+			final Request request = newFlashImagesRequest(
+					reservation.getKey(),
+					requestId,
+					Iterables.transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
+					extractByteArrayFromDataURL(flashTask.imageBase64)
+			);
+
+			synchronized (flashResponseTrackers) {
+				flashResponseTrackers.get(flashResponseTrackersId).add(requestId);
+			}
+
+			reservation.createResponseTracker(request);
+			reservation.getEventBus().post(request);
+		}
+
+		// remember response trackers, make them available via URL, redirect callers to this URL
+		URI location = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{requestId}")
+				.build(encode(Long.toString(flashResponseTrackersId)));
+
+		return Response.ok(location.toString()).location(location).build();
+	}
+
+	private Reservation getReservation(final String secretReservationKeyBase64) {
+		final String secretReservationKey = Base64Helper.decode(secretReservationKeyBase64);
 		try {
-
-			WsnProxyService wsn = wsnProxyManagerService.get(experimentUrl);
-
-			if (wsn == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-
-			String
-					requestId = wsn.flashPrograms(nodeUrns, programIndices, programs, config.flashTimeoutMillis,
-					TimeUnit.MILLISECONDS
-			);
-
-			URI location = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{requestId}")
-					.build(encode(requestId));
-
-			return Response.ok(location.toString()).location(location).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
+			return reservationManager.getReservation(secretReservationKey);
+		} catch (ReservationUnknownException e) {
+			throw new UnknownSecretReservationKeyException(secretReservationKey);
 		}
-
 	}
 
 	private Response createExperimentNotFoundResponse(final String secretReservationKeyBase64) {
