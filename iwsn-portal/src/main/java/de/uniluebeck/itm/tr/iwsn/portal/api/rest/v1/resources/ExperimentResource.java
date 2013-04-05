@@ -21,6 +21,8 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
+import org.apache.cxf.common.util.Base64Exception;
+import org.apache.cxf.common.util.Base64Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeFactory;
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.*;
@@ -67,9 +70,6 @@ public class ExperimentResource {
 
 	private final TimedCache<Long, List<Long>> flashResponseTrackers;
 
-	@Context
-	private UriInfo uriInfo;
-
 	private final DeviceDB deviceDB;
 
 	private final ReservationManager reservationManager;
@@ -77,6 +77,9 @@ public class ExperimentResource {
 	private final ResponseTrackerFactory responseTrackerFactory;
 
 	private final RequestIdProvider requestIdProvider;
+
+	@Context
+	private UriInfo uriInfo;
 
 	@Inject
 	public ExperimentResource(final DeviceDB deviceDB,
@@ -270,7 +273,7 @@ public class ExperimentResource {
 		}
 
 		// remember response trackers, make them available via URL, redirect callers to this URL
-		URI location = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{requestId}")
+		URI location = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{flashResponseTrackersIdBase64}")
 				.build(encode(Long.toString(flashResponseTrackersId)));
 
 		return Response.ok(location.toString()).location(location).build();
@@ -298,7 +301,16 @@ public class ExperimentResource {
 		if (!header.endsWith("base64")) {
 			throw new RuntimeException("Data URLs are only supported with base64 encoding!");
 		}
-		return Base64.decode(dataURL.substring(commaPos + 1).getBytes());
+		final char[] chars = dataURL.toCharArray();
+		final int offset = commaPos + 1;
+		final int length = chars.length - offset;
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
+		try {
+			Base64Utility.decode(chars, offset, length, baos);
+		} catch (Base64Exception e) {
+			throw propagate(e);
+		}
+		return baos.toByteArray();
 	}
 
 	/**
@@ -314,7 +326,7 @@ public class ExperimentResource {
 	 *
 	 * @param secretReservationKeyBase64
 	 * 		the base64-encoded URL of the experiment
-	 * @param requestIdBase64
+	 * @param flashResponseTrackersIdBase64
 	 * 		the base64-encoded requestId of the flash operation
 	 *
 	 * @return the current state of the flash operation
@@ -323,17 +335,23 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/flash/{requestIdBase64}")
 	public Response flashProgramsStatus(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-										@PathParam("requestIdBase64") final String requestIdBase64) {
+										@PathParam("flashResponseTrackersIdBase64") final String flashResponseTrackersIdBase64) {
 
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		String requestId = Base64Helper.decode(requestIdBase64);
+		final String secretReservationKey = Base64Helper.decode(secretReservationKeyBase64);
+		final String flashResponseTrackersId = Base64Helper.decode(flashResponseTrackersIdBase64);
 
-		WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-		if (wsnProxy == null) {
-			return createExperimentNotFoundResponse(secretReservationKeyBase64);
+		try {
+
+			final Reservation reservation = reservationManager.getReservation(secretReservationKey);
+			final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
+
+			TODO implement progress tracking response tracker
+
+		} catch (ReservationUnknownException e) {
+			throw new UnknownSecretReservationKeyException(secretReservationKey);
 		}
 
-		Job job = wsnProxyManagerService.getJob(experimentUrl, requestId);
+
 
 		if (job == null) {
 			return Response.status(Status.NOT_FOUND).entity("No job with requestId " + requestId + " found!").build();
