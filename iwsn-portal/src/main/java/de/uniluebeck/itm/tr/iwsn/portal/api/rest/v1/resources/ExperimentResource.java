@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -15,8 +16,8 @@ import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
@@ -26,27 +27,24 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.print.attribute.standard.JobState;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.datatype.DatatypeFactory;
 import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.encode;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
@@ -74,8 +72,6 @@ public class ExperimentResource {
 
 	private final ReservationManager reservationManager;
 
-	private final ResponseTrackerFactory responseTrackerFactory;
-
 	private final RequestIdProvider requestIdProvider;
 
 	@Context
@@ -84,12 +80,10 @@ public class ExperimentResource {
 	@Inject
 	public ExperimentResource(final DeviceDB deviceDB,
 							  final ReservationManager reservationManager,
-							  final ResponseTrackerFactory responseTrackerFactory,
 							  final RequestIdProvider requestIdProvider,
 							  final TimedCache<Long, List<Long>> flashResponseTrackers) {
 		this.deviceDB = checkNotNull(deviceDB);
 		this.reservationManager = checkNotNull(reservationManager);
-		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
@@ -242,9 +236,9 @@ public class ExperimentResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/flash")
 	public Response flashPrograms(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-								  final FlashProgramsRequest flashData) {
+								  final FlashProgramsRequest flashData) throws Base64Exception {
 
-		final Reservation reservation = getReservation(secretReservationKeyBase64);
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
 
 		long flashResponseTrackersId = RANDOM.nextLong();
 		synchronized (flashResponseTrackers) {
@@ -273,44 +267,12 @@ public class ExperimentResource {
 		}
 
 		// remember response trackers, make them available via URL, redirect callers to this URL
-		URI location = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{flashResponseTrackersIdBase64}")
+		URI location = UriBuilder
+				.fromUri(uriInfo.getRequestUri())
+				.path("{flashResponseTrackersIdBase64}")
 				.build(encode(Long.toString(flashResponseTrackersId)));
 
 		return Response.ok(location.toString()).location(location).build();
-	}
-
-	private Reservation getReservation(final String secretReservationKeyBase64) {
-		final String secretReservationKey = Base64Helper.decode(secretReservationKeyBase64);
-		try {
-			return reservationManager.getReservation(secretReservationKey);
-		} catch (ReservationUnknownException e) {
-			throw new UnknownSecretReservationKeyException(secretReservationKey);
-		}
-	}
-
-	private Response createExperimentNotFoundResponse(final String secretReservationKeyBase64) {
-		return Response.status(Status.BAD_REQUEST)
-				.entity("An experiment with the experimentUrl " + secretReservationKeyBase64 + " has not been found! Did you POST to /experiments before?")
-				.build();
-	}
-
-	private byte[] extractByteArrayFromDataURL(String dataURL) {
-		// data:[<mediatype>][;base64]
-		int commaPos = dataURL.indexOf(',');
-		String header = dataURL.substring(0, commaPos);
-		if (!header.endsWith("base64")) {
-			throw new RuntimeException("Data URLs are only supported with base64 encoding!");
-		}
-		final char[] chars = dataURL.toCharArray();
-		final int offset = commaPos + 1;
-		final int length = chars.length - offset;
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
-		try {
-			Base64Utility.decode(chars, offset, length, baos);
-		} catch (Base64Exception e) {
-			throw propagate(e);
-		}
-		return baos.toByteArray();
 	}
 
 	/**
@@ -333,155 +295,71 @@ public class ExperimentResource {
 	 */
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/flash/{requestIdBase64}")
-	public Response flashProgramsStatus(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-										@PathParam("flashResponseTrackersIdBase64") final String flashResponseTrackersIdBase64) {
+	@Path("{secretReservationKeyBase64}/flash/{flashResponseTrackersIdBase64}")
+	public Response flashProgramsStatus(
+			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
+			@PathParam("flashResponseTrackersIdBase64") final String flashResponseTrackersIdBase64)
+			throws Base64Exception {
 
-		final String secretReservationKey = Base64Helper.decode(secretReservationKeyBase64);
-		final String flashResponseTrackersId = Base64Helper.decode(flashResponseTrackersIdBase64);
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Long flashResponseTrackersId = Long.parseLong(decode(flashResponseTrackersIdBase64));
 
-		try {
-
-			final Reservation reservation = reservationManager.getReservation(secretReservationKey);
-			final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
-
-			TODO implement progress tracking response tracker
-
-		} catch (ReservationUnknownException e) {
-			throw new UnknownSecretReservationKeyException(secretReservationKey);
+		if (!flashResponseTrackers.containsKey(flashResponseTrackersId)) {
+			return Response
+					.status(Status.NOT_FOUND)
+					.entity("No flash job with request ID " + flashResponseTrackersId + " found!")
+					.build();
 		}
 
-
-
-		if (job == null) {
-			return Response.status(Status.NOT_FOUND).entity("No job with requestId " + requestId + " found!").build();
-		}
-
-		OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-
-		return Response.ok(toJSON(operationStatusMap)).build();
-	}
-
-	private OperationStatusMap buildNodeUrnStatusMap(final Map<String, JobNodeStatus> jobNodeStates) {
-		OperationStatusMap operationStatusMap = new OperationStatusMap();
-		operationStatusMap.operationStatus = new HashMap<String, JobNodeStatus>();
-		for (Map.Entry<String, JobNodeStatus> entry : jobNodeStates.entrySet()) {
-			operationStatusMap.operationStatus.put(entry.getKey(), entry.getValue());
-		}
-		return operationStatusMap;
-	}
-
-	private OperationStatusMap buildNodeUrnTimeoutMap(final NodeUrnList nodeUrns) {
-		OperationStatusMap operationStatusMap = new OperationStatusMap();
-		operationStatusMap.operationStatus = new HashMap<String, JobNodeStatus>();
-		for (String nodeUrn : nodeUrns.nodeUrns) {
-			operationStatusMap.operationStatus.put(nodeUrn, new JobNodeStatus(JobState.FAILED, -1, "Timeout"));
-		}
-		return operationStatusMap;
+		final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
+		return Response.ok(toJSON(buildOperationStatusMap(reservation, requestIds))).build();
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/resetNodes")
-	public Response resetNodes(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64, NodeUrnList nodeUrns) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to reset nodes: {}", nodeUrns);
+	public Response resetNodes(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+							   NodeUrnList nodeUrnList) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Request request = newResetNodesRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-
-			Job job;
-			try {
-
-				job = wsnProxy.resetNodes(nodeUrns.nodeUrns, config.operationTimeoutMillis, TimeUnit.MILLISECONDS)
-						.get();
-
-			} catch (ExecutionException e) {
-				if (e.getCause() instanceof TimeoutException) {
-					log.warn("Resetting of (some of?) the nodes {} timed out!", nodeUrns.nodeUrns);
-					OperationStatusMap operationStatusMap = buildNodeUrnTimeoutMap(nodeUrns);
-					return Response.ok(toJSON(operationStatusMap)).build();
-				} else {
-					throw propagate(e);
-				}
-			}
-
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/areNodesAlive")
-	public Response areNodesAlive(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64, NodeUrnList nodeUrns) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to check for alive nodes: {}", nodeUrns);
+	public Response areNodesAlive(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+								  NodeUrnList nodeUrnList) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Request request = newAreNodesAliveRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			Job job = wsnProxy.areNodesAlive(nodeUrns.nodeUrns, config.operationTimeoutMillis, TimeUnit.MILLISECONDS)
-					.get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/send")
-	public Response send(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64, SendMessageData data) {
+	public Response send(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+						 SendMessageData data) throws Base64Exception {
 
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to send data:  {}", data);
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Iterable<NodeUrn> nodeUrns = Iterables.transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Request request = newSendDownstreamMessageRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				nodeUrns,
+				decodeBytes(data.bytesBase64)
+		);
 
-		try {
-
-			Message message = new Message();
-			message.setBinaryData(Base64.decode(data.bytesBase64));
-			message.setSourceNodeId(data.sourceNodeUrn);
-			message.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
-
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-
-			Job job = wsnProxy.send(data.targetNodeUrns, message, config.operationTimeoutMillis, TimeUnit.MILLISECONDS)
-					.get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError("Exception while trying to send message downstream", e, Status.INTERNAL_SERVER_ERROR);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
@@ -489,84 +367,52 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/destroyVirtualLink")
 	public Response destroyVirtualLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-									   TwoNodeUrns nodeUrns) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to destroy virtual link:  {}->{}", nodeUrns.from, nodeUrns.to);
+									   TwoNodeUrns nodeUrns) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
+		final Request request = newDisableVirtualLinksRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				links
+		);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			Job job = wsnProxy.destroyVirtualLink(nodeUrns.from, nodeUrns.to, config.operationTimeoutMillis,
-					TimeUnit.MILLISECONDS
-			).get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/disableNode")
-	public Response disableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64, String nodeUrn) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to disable node:  {}", nodeUrn);
+	public Response disableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+								String nodeUrn) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Request request = newDisableNodesRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				newArrayList(new NodeUrn(nodeUrn))
+		);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			Job job = wsnProxy.disableNode(nodeUrn, config.operationTimeoutMillis, TimeUnit.MILLISECONDS).get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/enableNode")
-	public Response enableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64, String nodeUrn) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to enable node:  {}", nodeUrn);
+	public Response enableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+							   String nodeUrn) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Request request = newEnableNodesRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				newArrayList(new NodeUrn(nodeUrn))
+		);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-
-			Job job = wsnProxy.enableNode(nodeUrn, config.operationTimeoutMillis, TimeUnit.MILLISECONDS).get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
@@ -574,29 +420,18 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/disablePhysicalLink")
 	public Response disablePhysicalLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-										TwoNodeUrns nodeUrns) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to disable physical link:  {}->{}", nodeUrns.from, nodeUrns.to);
+										TwoNodeUrns nodeUrns) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
+		final Request request = newDisablePhysicalLinksRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				links
+		);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			Job job = wsnProxy.disablePhysicalLink(nodeUrns.from, nodeUrns.to, config.operationTimeoutMillis,
-					TimeUnit.MILLISECONDS
-			).get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
@@ -604,93 +439,127 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/enablePhysicalLink")
 	public Response enablePhysicalLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-									   TwoNodeUrns nodeUrns) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-		log.debug("Received request to enable physical link:  {}->{}", nodeUrns.from, nodeUrns.to);
+									   TwoNodeUrns nodeUrns) throws Base64Exception {
 
-		try {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
+		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
+		final Request request = newEnablePhysicalLinksRequest(
+				reservation.getKey(),
+				requestIdProvider.get(),
+				links
+		);
 
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-
-			Job job = wsnProxy.enablePhysicalLink(nodeUrns.from, nodeUrns.to, config.operationTimeoutMillis,
-					TimeUnit.MILLISECONDS
-			).get();
-			OperationStatusMap operationStatusMap = buildNodeUrnStatusMap(job.getJobNodeStates());
-			return Response.ok(toJSON(operationStatusMap)).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/network")
-	public Response getExperimentNetworkJson(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
-
-		try {
-
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			String wisemlString = wsnProxy.getNetwork().get();
-
-			JAXBContext jaxbContext = JAXBContext.newInstance(Wiseml.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Wiseml wiseml = (Wiseml) unmarshaller.unmarshal(new StringReader(wisemlString));
-
-			String json = toJSON(wiseml);
-			log.trace("Returning network for experiment {} as json: {}", experimentUrl, json);
-			return Response.ok(json).build();
-
-		} catch (JAXBException e) {
-			return returnError("Unable to retrieve WiseML", e, Status.INTERNAL_SERVER_ERROR);
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
+	public Response getExperimentNetworkJson(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
+		return Response.ok(toJSON(getWiseml(secretReservationKeyBase64))).build();
 	}
 
 	@GET
 	@Path("{secretReservationKeyBase64}/network")
 	@Produces({MediaType.APPLICATION_XML})
-	public Response getExperimentNetworkXml(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) {
-		String experimentUrl = Base64Helper.decode(secretReservationKeyBase64);
+	public Response getExperimentNetworkXml(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
+		return Response.ok(serialize(getWiseml(secretReservationKeyBase64))).build();
+	}
 
-		try {
-
-			WsnProxyService wsnProxy = wsnProxyManagerService.get(experimentUrl);
-			if (wsnProxy == null) {
-				return createExperimentNotFoundResponse(secretReservationKeyBase64);
-			}
-			String wisemlString = wsnProxy.getNetwork().get();
-			log.trace("Returning network for experiment {} as xml: {}", experimentUrl, wisemlString);
-			return Response.ok(wisemlString).build();
-
-		} catch (Exception e) {
-			return returnError(
-					String.format("No such experiment: %s (decoded: %s)", secretReservationKeyBase64, experimentUrl), e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		}
-
+	private Wiseml getWiseml(final String secretReservationKeyBase64) throws Base64Exception {
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		return convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
 	}
 
 	private Response returnError(String msg, Exception e, Status status) {
 		log.debug(msg + " :" + e, e);
 		String errorMessage = String.format("%s: %s (%s)", msg, e, e.getMessage());
 		return Response.status(status).entity(errorMessage).build();
+	}
+
+	private Reservation getReservationOrThrow(final String secretReservationKeyBase64) throws Base64Exception {
+		final String secretReservationKey = decode(secretReservationKeyBase64);
+		try {
+			return reservationManager.getReservation(secretReservationKey);
+		} catch (ReservationUnknownException e) {
+			throw new UnknownSecretReservationKeyException(secretReservationKey);
+		}
+	}
+
+	private byte[] extractByteArrayFromDataURL(String dataURL) {
+		// data:[<mediatype>][;base64]
+		int commaPos = dataURL.indexOf(',');
+		String header = dataURL.substring(0, commaPos);
+		if (!header.endsWith("base64")) {
+			throw new RuntimeException("Data URLs are only supported with base64 encoding!");
+		}
+		final char[] chars = dataURL.toCharArray();
+		final int offset = commaPos + 1;
+		final int length = chars.length - offset;
+		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(length);
+		try {
+			Base64Utility.decode(chars, offset, length, byteArrayOutputStream);
+		} catch (Base64Exception e) {
+			throw propagate(e);
+		}
+		return byteArrayOutputStream.toByteArray();
+	}
+
+	private OperationStatusMap buildOperationStatusMap(final Reservation reservation, final Long requestId) {
+		return buildOperationStatusMap(reservation, newArrayList(requestId));
+	}
+
+	private OperationStatusMap buildOperationStatusMap(final Reservation reservation, final List<Long> requestIds) {
+
+		final OperationStatusMap operationStatusMap = new OperationStatusMap();
+		operationStatusMap.operationStatus = new HashMap<String, JobNodeStatus>();
+
+		for (long requestId : requestIds) {
+
+			JobNodeStatus status;
+			final ResponseTracker responseTracker = reservation.getResponseTracker(requestId);
+
+			for (NodeUrn nodeUrn : responseTracker.keySet()) {
+
+				if (responseTracker.get(nodeUrn).isDone()) {
+					try {
+						responseTracker.get(nodeUrn).get();
+						status = new JobNodeStatus(JobState.SUCCESS, 100, null);
+					} catch (Exception e) {
+						status = new JobNodeStatus(JobState.FAILED, -1, e.getMessage());
+					}
+				} else {
+					status = new JobNodeStatus(
+							JobState.RUNNING,
+							(int) (responseTracker.get(nodeUrn).getProgress() * 100),
+							null
+					);
+				}
+
+				operationStatusMap.operationStatus.put(nodeUrn.toString(), status);
+			}
+		}
+
+		return operationStatusMap;
+	}
+
+	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation, final Request request,
+														 final int timeout, final TimeUnit timeUnit) {
+		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
+		reservation.getEventBus().post(request);
+
+		try {
+			responseTracker.get(timeout, timeUnit);
+		} catch (TimeoutException e) {
+			return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();
+		} catch (Exception e) {
+			return Response.serverError().entity(e.getMessage()).build();
+		}
+
+		return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();
 	}
 
 }

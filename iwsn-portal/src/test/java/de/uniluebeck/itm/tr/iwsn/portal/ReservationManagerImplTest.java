@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.inject.Provider;
+import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
@@ -34,7 +35,7 @@ public class ReservationManagerImplTest {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final String USERNAME = "Horst Ackerpella";
+	private static final String USERNAME = "My Awesome Username";
 
 	private static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:unit-test:");
 
@@ -44,7 +45,7 @@ public class ReservationManagerImplTest {
 
 	private static final String KNOWN_SECRET_RESERVATION_KEY_3 = "YOU_KNOW_ME_THREE";
 
-	private static final String UNKNOWN_SECRET_RESERVATION_KEY_1 = "YOU_DONT_KNOW_ME";
+	private static final String UNKNOWN_SECRET_RESERVATION_KEY_1 = "YOU_DO_NOT_KNOW_ME";
 
 	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_1 = newArrayList();
 
@@ -196,7 +197,12 @@ public class ReservationManagerImplTest {
 		setUpReservation1();
 
 		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_1));
-		verify(reservationFactory).create(eq(USERNAME), eq(RESERVATION_NODE_URNS_1), eq(RESERVATION_INTERVAL_1));
+		verify(reservationFactory).create(
+				eq(KNOWN_SECRET_RESERVATION_KEY_1),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_1),
+				eq(RESERVATION_INTERVAL_1)
+		);
 		verify(reservation1).startAndWait();
 	}
 
@@ -271,23 +277,37 @@ public class ReservationManagerImplTest {
 
 	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1)).thenReturn(RESERVATION_DATA_1);
-		when(reservationFactory.create(USERNAME, RESERVATION_NODE_URNS_1, RESERVATION_INTERVAL_1)).thenReturn(reservation1);
+		when(reservationFactory.create(
+				KNOWN_SECRET_RESERVATION_KEY_1,
+				USERNAME,
+				RESERVATION_NODE_URNS_1,
+				RESERVATION_INTERVAL_1
+		)
+		).thenReturn(reservation1);
 		when(reservation1.getInterval()).thenReturn(RESERVATION_INTERVAL_1);
 	}
 
 	private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2)).thenReturn(RESERVATION_DATA_2);
-		when(reservationFactory.create(USERNAME, RESERVATION_NODE_URNS_2, RESERVATION_INTERVAL_2)).thenReturn(
-				reservation2
-		);
+		when(reservationFactory.create(
+				KNOWN_SECRET_RESERVATION_KEY_2,
+				USERNAME,
+				RESERVATION_NODE_URNS_2,
+				RESERVATION_INTERVAL_2
+		)
+		).thenReturn(reservation2);
 		when(reservation2.getInterval()).thenReturn(RESERVATION_INTERVAL_2);
 	}
 
 	private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3)).thenReturn(RESERVATION_DATA_3);
-		when(reservationFactory.create(USERNAME, RESERVATION_NODE_URNS_3, RESERVATION_INTERVAL_3)).thenReturn(
-				reservation3
-		);
+		when(reservationFactory.create(
+				KNOWN_SECRET_RESERVATION_KEY_3,
+				USERNAME,
+				RESERVATION_NODE_URNS_3,
+				RESERVATION_INTERVAL_3
+		)
+		).thenReturn(reservation3);
 		when(reservation3.getInterval()).thenReturn(RESERVATION_INTERVAL_3);
 	}
 
@@ -296,6 +316,7 @@ public class ReservationManagerImplTest {
 				new UnknownSecretReservationKeyFault(
 						"not found",
 						new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()
-				));
+				)
+		);
 	}
 }

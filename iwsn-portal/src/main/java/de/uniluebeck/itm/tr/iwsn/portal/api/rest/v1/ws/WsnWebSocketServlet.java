@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
+import org.apache.cxf.common.util.Base64Exception;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
@@ -10,6 +10,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decode;
 
 @Singleton
 @ThreadSafe
@@ -34,12 +36,14 @@ public class WsnWebSocketServlet extends WebSocketServlet {
 		String path = requestUri.getPath().startsWith("/") ? requestUri.getPath().substring(1) : requestUri.getPath();
 		String[] splitPath = path.split("/");
 
-		if (splitPath.length < 1 || !"ws".equals(splitPath[0]) || !"experiments".equals(splitPath[1])) {
+		if (splitPath.length < 3 || !"ws".equals(splitPath[0]) || !"experiments".equals(splitPath[1])) {
 			return null;
 		}
 
-		String experimentUrl = Base64Helper.decode(splitPath[2]);
-
-		return wsnWebSocketFactory.create(experimentUrl);
+		try {
+			return wsnWebSocketFactory.create(decode(splitPath[2]));
+		} catch (Base64Exception e) {
+			return null;
+		}
 	}
 }

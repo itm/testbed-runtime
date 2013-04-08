@@ -1,5 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
+import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -35,12 +38,27 @@ public class ReservationImplTest {
 	@Mock
 	private ReservationEventBus reservationEventBus;
 
+	@Mock
+	private TimedCache<Long, ResponseTracker> responseTrackerTimedCache;
+
+	@Mock
+	private ResponseTrackerFactory responseTrackerFactory;
+
 	private ReservationImpl reservation;
 
 	@Before
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
-		reservation = new ReservationImpl(reservationEventBusFactory, portalEventBus, username, NODE_URNS, INTERVAL);
+		reservation = new ReservationImpl(
+				reservationEventBusFactory,
+				portalEventBus,
+				responseTrackerTimedCache,
+				responseTrackerFactory,
+				"someRandomReservationIdHere",
+				username,
+				NODE_URNS,
+				INTERVAL
+		);
 	}
 
 	@Test

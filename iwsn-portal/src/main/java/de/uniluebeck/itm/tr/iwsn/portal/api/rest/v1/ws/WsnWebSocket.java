@@ -1,119 +1,107 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.sun.jersey.core.util.Base64;
-import eu.wisebed.restws.dto.WebSocketDownstreamMessage;
-import eu.wisebed.restws.dto.WebSocketNotificationMessage;
-import eu.wisebed.restws.dto.WebSocketUpstreamMessage;
-import eu.wisebed.restws.event.DownstreamMessageEvent;
-import eu.wisebed.restws.event.NotificationsEvent;
-import eu.wisebed.restws.event.UpstreamMessageEvent;
-import eu.wisebed.restws.proxy.WsnProxyManagerService;
-import eu.wisebed.restws.util.InjectLogger;
-import eu.wisebed.restws.util.JSONHelper;
+import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketDownstreamMessage;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketNotificationMessage;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketUpstreamMessage;
+import eu.wisebed.api.v3.common.NodeUrn;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decodeBytes;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
-	@InjectLogger
-	private Logger log;
+	private static final Logger log = LoggerFactory.getLogger(WsnWebSocket.class);
 
-	private final WsnProxyManagerService wsnProxyManagerService;
+	private final Reservation reservation;
 
-	private final String experimentWsnInstanceEndpointUrl;
+	private final RequestIdProvider requestIdProvider;
 
 	private Connection connection;
 
 	@Inject
-	public WsnWebSocket(final WsnProxyManagerService wsnProxyManagerService,
-						@Assisted final String experimentWsnInstanceEndpointUrl) {
-		this.wsnProxyManagerService = wsnProxyManagerService;
-		this.experimentWsnInstanceEndpointUrl = experimentWsnInstanceEndpointUrl;
+	public WsnWebSocket(final RequestIdProvider requestIdProvider,
+						final ReservationManager reservationManager,
+						@Assisted final String secretReservationKeyBase64) {
+		this.requestIdProvider = requestIdProvider;
+		try {
+			this.reservation = reservationManager.getReservation(secretReservationKeyBase64);
+		} catch (ReservationUnknownException e) {
+			throw propagate(e);
+		}
 	}
 
 	@Override
 	public void onMessage(final String data) {
+
 		try {
-			WebSocketDownstreamMessage message = JSONHelper.fromJSON(data, WebSocketDownstreamMessage.class);
-			byte[] decodedPayload = Base64.decode(message.payloadBase64);
-			DownstreamMessageEvent downstreamMessageEvent =
-					new DownstreamMessageEvent(new DateTime(), message.targetNodeUrn, decodedPayload);
-			log.debug("Sending message downstream to \"{}\", message: {}", message.targetNodeUrn, decodedPayload);
-			wsnProxyManagerService.getEventBus(experimentWsnInstanceEndpointUrl).post(downstreamMessageEvent);
+			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
+			byte[] decodedPayload = decodeBytes(message.payloadBase64);
+			reservation.getEventBus().post(newSendDownstreamMessageRequest(
+					reservation.getKey(),
+					requestIdProvider.get(),
+					newArrayList(new NodeUrn(message.targetNodeUrn)),
+					decodedPayload
+			)
+			);
 		} catch (Exception e) {
-			sendNotification(
-					new DateTime(),
+			final WebSocketNotificationMessage notificationMessage = new WebSocketNotificationMessage(
+					DateTime.now(),
+					null,
 					"The following downstream message could not be parsed by the server: " + data + ". Exception: " + e
 			);
+			sendMessage(toJSON(notificationMessage));
 		}
 	}
 
 	@Subscribe
-	public void onUpstreamMessageEvent(final UpstreamMessageEvent message) {
-		sendUpstream(message.getTimestamp(), message.getSourceNodeUrn(), message.getMessageBytes());
+	public void onUpstreamMessageEvent(final UpstreamMessageEvent event) {
+		sendMessage(toJSON(new WebSocketUpstreamMessage(event)));
 	}
 
 	@Subscribe
-	public void onNotificationsEvent(final NotificationsEvent notifications) {
-		for (String notification : notifications.getNotifications()) {
-			sendNotification(new DateTime(), notification);
-		}
+	public void onNotificationsEvent(final NotificationEvent event) {
+		sendMessage(toJSON(new WebSocketNotificationMessage(event)));
 	}
 
 	@Override
 	public void onOpen(final Connection connection) {
 
-		log.info("Websocket connection opened: {}", connection);
+		if (log.isInfoEnabled()) {
+			log.info("Websocket connection opened: {}", connection);
+		}
 
 		this.connection = connection;
-		getEventBus(experimentWsnInstanceEndpointUrl).register(this);
+		reservation.getEventBus().register(this);
 	}
 
 	@Override
 	public void onClose(final int closeCode, final String message) {
 
 		if (log.isInfoEnabled()) {
-			log.info("Websocket connection closed with code {} and message \"{}\": {}",
-					new Object[]{closeCode, message, connection}
-			);
+			log.info("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection);
 		}
 
-		getEventBus(experimentWsnInstanceEndpointUrl).unregister(this);
+		reservation.getEventBus().unregister(this);
 		this.connection = null;
-	}
-
-	private void sendUpstream(final DateTime dateTime, final String sourceNode, final byte[] payloadBytes) {
-		WebSocketUpstreamMessage upstreamMessage = new WebSocketUpstreamMessage(
-				dateTime.toString(ISODateTimeFormat.basicDateTime()),
-				sourceNode,
-				new String(Base64.encode(payloadBytes))
-		);
-		String json;
-		try {
-			json = JSONHelper.toJSON(upstreamMessage);
-		} catch (Exception e) {
-			log.error("", e);
-			JSONHelper.toJSON(upstreamMessage);
-			return;
-		}
-		log.trace("Sending upstream message via WebSocket: ", json);
-		sendMessage(json);
-	}
-
-	private void sendNotification(final DateTime dateTime, final String notificationString) {
-		WebSocketNotificationMessage notification = new WebSocketNotificationMessage(
-				dateTime.toString(ISODateTimeFormat.basicDateTime()),
-				notificationString
-		);
-		sendMessage(JSONHelper.toJSON(notification));
 	}
 
 	private void sendMessage(final String data) {
@@ -126,9 +114,5 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		} catch (IOException e) {
 			log.error("IOException while sending message over websocket connection " + connection);
 		}
-	}
-
-	private EventBus getEventBus(final String experimentWsnInstanceEndpointUrl) {
-		return wsnProxyManagerService.getEventBus(experimentWsnInstanceEndpointUrl);
 	}
 }
