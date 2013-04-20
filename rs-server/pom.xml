@@ -147,7 +147,6 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>**/WisebedFederatorShibbolethAuthenticationTest.java</exclude>
 						<exclude>**/GCalRSPersistenceTest.java</exclude>
 					</excludes>
 				</configuration>

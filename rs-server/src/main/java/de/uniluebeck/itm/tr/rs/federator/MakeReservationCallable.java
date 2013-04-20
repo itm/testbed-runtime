@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.rs.federator;
 
+import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -21,16 +22,24 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	private final DateTime to;
 
+	private final String description;
+
+	private final List<KeyValuePair> options;
+
 	public MakeReservationCallable(final RS rs,
 								   final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								   final List<NodeUrn> nodeUrns,
 								   final DateTime from,
-								   final DateTime to) {
+								   final DateTime to,
+								   final String description,
+								   final List<KeyValuePair> options) {
 		this.rs = rs;
 		this.secretAuthenticationKeys = secretAuthenticationKeys;
 		this.nodeUrns = nodeUrns;
 		this.from = from;
 		this.to = to;
+		this.description = description;
+		this.options = options;
 	}
 
 	public RS getRs() {
@@ -43,6 +52,6 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	@Override
 	public List<SecretReservationKey> call() throws Exception {
-		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
+		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}
 }

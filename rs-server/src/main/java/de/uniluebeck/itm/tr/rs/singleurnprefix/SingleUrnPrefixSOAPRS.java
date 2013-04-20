@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.rs.NonWS;
+import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -75,10 +76,12 @@ public class SingleUrnPrefixSOAPRS implements RS {
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
-													  final DateTime to)
+													  final DateTime to,
+													  final String description,
+													  final List<KeyValuePair> options)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
-		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to);
+		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}
 
 	@Override

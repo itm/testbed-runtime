@@ -1,16 +1,31 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Entity(name="DeviceConfig")
-@SuppressWarnings("unused")
 public class DeviceConfigEntity {
+	
+	@Transient
+	private static final Function<ChannelHandlerConfigEntity, ChannelHandlerConfig> ENTITY_TO_CHC_FUNCTION =
+			new Function<ChannelHandlerConfigEntity, ChannelHandlerConfig>() {
+				@Override
+				public ChannelHandlerConfig apply(ChannelHandlerConfigEntity config) {
+					return config.toChannelHandlerConfig();
+				}
+			};
 	
 	@Id
 	private String nodeUrn;
@@ -37,10 +52,9 @@ public class DeviceConfigEntity {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Map<String, String> nodeConfiguration;
 
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@Nullable
-	@Transient
-	// TODO persist this
-	private ChannelHandlerConfigList defaultChannelPipeline;
+	private List<ChannelHandlerConfigEntity> defaultChannelPipeline;
 
 	@Nullable
 	private Long timeoutNodeApiMillis;
@@ -65,7 +79,7 @@ public class DeviceConfigEntity {
 		this.nodeUSBChipID = config.getNodeUSBChipID();
 		this.position = CoordinateEntity.fromCoordinate(config.getPosition());
 		this.nodeConfiguration = config.getNodeConfiguration();
-		this.defaultChannelPipeline = config.getDefaultChannelPipeline();
+		this.defaultChannelPipeline = ChannelHandlerConfigEntity.fromChannelhandlerConfig(config.getDefaultChannelPipeline());
 		this.timeoutNodeApiMillis = config.getTimeoutNodeApiMillis();
 		this.timeoutResetMillis = config.getTimeoutResetMillis();
 		this.timeoutFlashMillis = config.getTimeoutFlashMillis();
@@ -73,12 +87,12 @@ public class DeviceConfigEntity {
 	}
 
 	@Nullable
-	public ChannelHandlerConfigList getDefaultChannelPipeline() {
+	public List<ChannelHandlerConfigEntity> getDefaultChannelPipeline() {
 		return defaultChannelPipeline;
 	}
 
 	public void setDefaultChannelPipeline(
-			@Nullable final ChannelHandlerConfigList defaultChannelPipeline) {
+			@Nullable final List<ChannelHandlerConfigEntity> defaultChannelPipeline) {
 		this.defaultChannelPipeline = defaultChannelPipeline;
 	}
 
@@ -195,12 +209,17 @@ public class DeviceConfigEntity {
 				description,
 				nodeUSBChipID,
 				nodeConfiguration,
-				defaultChannelPipeline,
+				defaultChannelPipeline == null ? null : convertDefaultPipeline(),
 				timeoutCheckAliveMillis,
 				timeoutFlashMillis,
 				timeoutNodeApiMillis,
 				timeoutResetMillis,
 				position == null ? null : position.toCoordinate());
+	}
+
+	private ChannelHandlerConfigList convertDefaultPipeline() {
+		Collection<ChannelHandlerConfig> configList = Lists.transform(defaultChannelPipeline, ENTITY_TO_CHC_FUNCTION);
+		return new ChannelHandlerConfigList(configList);
 	}
 	
 }

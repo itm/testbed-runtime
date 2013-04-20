@@ -8,11 +8,9 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -51,12 +49,16 @@ public class SingleUrnPrefixRS implements RS {
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
 			final List<NodeUrn> nodeUrns,
 			final DateTime from,
-			final DateTime to) throws RSFault_Exception {
+			final DateTime to,
+			final String description,
+			final List<KeyValuePair> options) throws RSFault_Exception {
 
 		ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(from);
 		crd.setTo(to);
 		crd.getNodeUrns().addAll(nodeUrns);
+		crd.setDescription(description);
+		crd.getOptions().addAll(options);
 
 		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
 		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
@@ -131,14 +133,16 @@ public class SingleUrnPrefixRS implements RS {
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
-													  final DateTime to)
+													  final DateTime to,
+													  final String description,
+													  final List<KeyValuePair> options)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		checkArgumentValid(nodeUrns, from, to);
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkNodesServed(nodeUrns);
 		checkNodesAvailable(newHashSet(nodeUrns), from, to);
-		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to);
+		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}
 
 	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {

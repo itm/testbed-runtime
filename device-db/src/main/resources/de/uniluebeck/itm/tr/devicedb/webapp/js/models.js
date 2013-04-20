@@ -16,7 +16,7 @@ $(function () {
         model: app.NodeModel,
         url: "rest/deviceConfigs",
 		toJSON: function(list) {
-			return { "configs" : list }
+			return { "configs" : list };
 		},
 		parse: function(response) {
 			return response.configs;

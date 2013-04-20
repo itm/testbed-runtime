@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.rs.persistence;
 
 import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -158,10 +159,15 @@ public abstract class RSPersistenceTest {
 	public void setUp() throws RSFault_Exception {
 		Logging.setLoggingDefaults();
 		for (int i = 0; i < RESERVATION_COUNT; i++) {
-			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-			confidentialReservationData.setFrom(reservationStartingTime);
-			confidentialReservationData.setTo(reservationEndingTime);
-			reservationDataMap.put(i, confidentialReservationData);
+			ConfidentialReservationData crd = new ConfidentialReservationData();
+			crd.setFrom(reservationStartingTime);
+			crd.setTo(reservationEndingTime);
+			crd.setDescription(i + "");
+			final KeyValuePair pair = new KeyValuePair();
+			pair.setKey(i + "");
+			pair.setValue(i + "");
+			crd.getOptions().add(pair);
+			reservationDataMap.put(i, crd);
 		}
 	}
 
@@ -208,6 +214,8 @@ public abstract class RSPersistenceTest {
 			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
 			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
 			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
+			assertEquals(rememberedCRD.getDescription(), receivedCRD.getDescription());
+			assertEqualOptions(rememberedCRD, receivedCRD);
 		}
 	}
 
@@ -239,11 +247,27 @@ public abstract class RSPersistenceTest {
 	public void checkDeleteReservation()
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			ConfidentialReservationData actualData = persistence.deleteReservation(reservationKeyMap.get(i));
-			ConfidentialReservationData expectedData = reservationDataMap.get(i);
-			assertEquals(actualData.getFrom(), expectedData.getFrom());
-			assertEquals(actualData.getTo(), expectedData.getTo());
-			assertEquals(actualData.getNodeUrns(), expectedData.getNodeUrns());
+			ConfidentialReservationData actual = persistence.deleteReservation(reservationKeyMap.get(i));
+			ConfidentialReservationData expected = reservationDataMap.get(i);
+			assertEquals(actual.getFrom(), expected.getFrom());
+			assertEquals(actual.getTo(), expected.getTo());
+			assertEquals(actual.getNodeUrns(), expected.getNodeUrns());
+			assertEquals(actual.getDescription(), expected.getDescription());
+			assertEqualOptions(actual, expected);
+		}
+	}
+
+	private void assertEqualOptions(final ConfidentialReservationData actual,
+									final ConfidentialReservationData expected) {
+		for (KeyValuePair expectedPair : expected.getOptions()) {
+			boolean foundPair = false;
+			for (KeyValuePair actualPair : actual.getOptions()) {
+				if (expectedPair.getKey().equals(actualPair.getKey()) && expectedPair.getValue()
+						.equals(actualPair.getValue())) {
+					foundPair = true;
+				}
+			}
+			assertTrue(foundPair);
 		}
 	}
 

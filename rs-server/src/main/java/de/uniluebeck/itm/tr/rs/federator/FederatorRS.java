@@ -28,11 +28,9 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,14 +121,23 @@ public class FederatorRS implements RS {
 
 		public DateTime to;
 
+		public String description;
+
+		public List<KeyValuePair> options;
+
 		private MakeReservationArguments(final Set<SecretAuthenticationKey> secretAuthenticationKeys,
 										 final Set<NodeUrn> nodeUrns,
 										 final DateTime from,
-										 final DateTime to) {
+										 final DateTime to,
+										 final String description,
+										 final List<KeyValuePair> options) {
+
 			this.secretAuthenticationKeys = secretAuthenticationKeys;
 			this.nodeUrns = nodeUrns;
 			this.from = from;
 			this.to = to;
+			this.description = description;
+			this.options = options;
 		}
 	}
 
@@ -138,7 +145,9 @@ public class FederatorRS implements RS {
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
-													  final DateTime to)
+													  final DateTime to,
+													  final String description,
+													  final List<KeyValuePair> options)
 			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
 
 		try {
@@ -170,7 +179,7 @@ public class FederatorRS implements RS {
 			final SecretAuthenticationKey sak = getSAKByNodeUrn(secretAuthenticationKeys, nodeUrn);
 			MakeReservationArguments args = map.get(rs);
 			if (args == null) {
-				args = new MakeReservationArguments(newHashSet(sak), newHashSet(nodeUrn), from, to);
+				args = new MakeReservationArguments(newHashSet(sak), newHashSet(nodeUrn), from, to, description, options);
 				map.put(rs, args);
 			} else {
 				args.secretAuthenticationKeys.add(sak);
@@ -186,12 +195,16 @@ public class FederatorRS implements RS {
 		// fork the parallel execution of reservations on federated services
 		for (Map.Entry<RS, MakeReservationArguments> entry : map.entrySet()) {
 
+			final MakeReservationArguments args = entry.getValue();
+			final RS rs = entry.getKey();
 			MakeReservationCallable callable = new MakeReservationCallable(
-					entry.getKey(),
-					newArrayList(entry.getValue().secretAuthenticationKeys),
-					newArrayList(entry.getValue().nodeUrns),
-					entry.getValue().from,
-					entry.getValue().to
+					rs,
+					newArrayList(args.secretAuthenticationKeys),
+					newArrayList(args.nodeUrns),
+					args.from,
+					args.to,
+					args.description,
+					args.options
 			);
 
 			futures.put(executorService.submit(callable), callable);

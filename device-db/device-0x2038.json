@@ -25,7 +25,20 @@
 				{
 					"handlerName" : "dlestxetx",
 					"instanceName" : "dlestxetx",
-					"configuration" : []
+					"configuration" : [
+						{
+							"key" : "param1",
+							"value" : "val1"
+						},
+						{
+							"key" : "param1",
+							"value" : "val2"
+						},
+						{
+							"key" : "param2",
+							"value" : "val3"
+						}
+					]
 				}
 			],
 			"timeoutNodeApiMillis" : 100,

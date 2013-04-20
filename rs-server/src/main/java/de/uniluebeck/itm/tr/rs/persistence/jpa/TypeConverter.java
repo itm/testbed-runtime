@@ -27,6 +27,7 @@ import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDat
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.DataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
+import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -36,12 +37,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class TypeConverter {
 
@@ -71,6 +70,12 @@ public class TypeConverter {
 		}
 		internal.setNodeUrns(nodeUrnStringList);
 		internal.setData(convertExternalToInternal(external.getKeys()));
+		internal.setDescription(external.getDescription());
+		Map<String, String> options = newHashMap();
+		for (KeyValuePair keyValuePair : external.getOptions()) {
+			options.put(keyValuePair.getKey(), keyValuePair.getValue());
+		}
+		internal.setOptions(options);
 
 		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
 
@@ -114,6 +119,19 @@ public class TypeConverter {
 		external.setFrom(from.toDateTime(DateTimeZone.getDefault()));
 		final DateTime to = new DateTime(internal.getToDate(), DateTimeZone.forTimeZone(localTimeZone));
 		external.setTo(to.toDateTime(DateTimeZone.getDefault()));
+		external.setDescription(internal.getDescription());
+		external.getOptions().addAll(convert(internal.getOptions()));
+		return external;
+	}
+
+	private static List<KeyValuePair> convert(final Map<String, String> internal) {
+		final List<KeyValuePair> external = newArrayList();
+		for (Map.Entry<String, String> entry : internal.entrySet()) {
+			final KeyValuePair pair = new KeyValuePair();
+			pair.setKey(entry.getKey());
+			pair.setValue(entry.getValue());
+			external.add(pair);
+		}
 		return external;
 	}
 

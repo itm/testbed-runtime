@@ -108,6 +108,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		try {
 			deviceDB.add(deviceConfig.toDeviceConfig());
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.serverError().entity(e.getMessage()).build();
 		}
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
