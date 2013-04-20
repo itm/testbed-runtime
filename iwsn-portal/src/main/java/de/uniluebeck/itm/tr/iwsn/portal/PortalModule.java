@@ -13,6 +13,7 @@ import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.devicedb.*;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -66,6 +67,7 @@ public class PortalModule extends AbstractModule {
 		}
 		install(new DeviceDBServiceModule());
 		install(new SoapApiModule());
+		install(new RestApiModule());
 	}
 
 	@Provides

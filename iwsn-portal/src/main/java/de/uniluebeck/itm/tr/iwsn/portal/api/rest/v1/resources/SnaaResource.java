@@ -5,7 +5,10 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.LoginData;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
+import eu.wisebed.api.v3.snaa.SNAA;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import eu.wisebed.api.v3.snaa.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +22,7 @@ import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHel
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 
 
-@Path("/")
+@Path("/auth/")
 public class SnaaResource {
 
 	private static final Logger log = LoggerFactory.getLogger(SnaaResource.class);
@@ -36,23 +39,21 @@ public class SnaaResource {
 
 	@GET
 	@Path("isLoggedIn")
-	public Response isLoggedIn() {
+	public Response isLoggedIn() throws SNAAFault_Exception {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookie(httpHeaders);
 
-		try {
-
-			for (ValidationResult validationResult : snaa.isValid(secretAuthenticationKeys)) {
-				if (!validationResult.isValid()) {
-					return Response.status(Status.FORBIDDEN).build();
-				}
-			}
-
-			return Response.ok().build();
-
-		} catch (SNAAFault_Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+		if (secretAuthenticationKeys == null) {
+			return Response.status(Status.FORBIDDEN).build();
 		}
+
+		for (ValidationResult validationResult : snaa.isValid(secretAuthenticationKeys)) {
+			if (!validationResult.isValid()) {
+				return Response.status(Status.FORBIDDEN).build();
+			}
+		}
+
+		return Response.ok().build();
 	}
 
 	/**

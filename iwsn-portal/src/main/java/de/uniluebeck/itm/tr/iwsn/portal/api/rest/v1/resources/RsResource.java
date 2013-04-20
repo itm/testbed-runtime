@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
+import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ConfidentialReservationDataList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.PublicReservationDataList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SecretReservationKeyListRs;
@@ -23,7 +24,7 @@ import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHel
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 
-@Path("/reservations")
+@Path("/reservations/")
 public class RsResource {
 
 	private static final Logger log = LoggerFactory.getLogger(RsResource.class);
@@ -33,6 +34,7 @@ public class RsResource {
 
 	private final RS rs;
 
+	@Inject
 	public RsResource(final RS rs) {
 		this.rs = rs;
 	}

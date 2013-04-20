@@ -60,4 +60,10 @@ public class PortalConfig extends ConfigWithLogging {
 			handler = PropertiesOptionHandler.class
 	)
 	public Properties deviceDBProperties;
+
+	@Option(name = "--testbedName",
+	        usage = "Name of the testbed to be displayed in WiseGui frontend",
+			required = true
+	)
+	public String testbedName;
 }

@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
@@ -35,16 +36,20 @@ public class Portal extends AbstractService {
 
 	private final ServicePublisher servicePublisher;
 
+	private final RestApiService restApiService;
+
 	@Inject
 	public Portal(final DeviceDBService deviceDBService,
 				  final PortalEventBus portalEventBus,
 				  final ReservationManager reservationManager,
 				  final SoapApiService soapApiService,
+				  final RestApiService restApiService,
 				  final ServicePublisher servicePublisher) {
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.soapApiService = checkNotNull(soapApiService);
+		this.restApiService = checkNotNull(restApiService);
 		this.servicePublisher = checkNotNull(servicePublisher);
 	}
 
@@ -57,12 +62,21 @@ public class Portal extends AbstractService {
 			reservationManager.startAndWait();
 			servicePublisher.startAndWait();
 			soapApiService.startAndWait();
+			restApiService.startAndWait();
 
-			final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/webapp";
-			final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
-			final ServicePublisherService webapp = servicePublisher.createServletService("/", resourceBase);
-			webapp.startAndWait();
+			{
+				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/webapp";
+				final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
+				final ServicePublisherService webapp = servicePublisher.createServletService("/services", resourceBase);
+				webapp.startAndWait();
+			}
 
+			{
+				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/wisegui";
+				final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
+				final ServicePublisherService webapp = servicePublisher.createServletService("/", resourceBase);
+				webapp.startAndWait();
+			}
 
 			notifyStarted();
 
@@ -76,6 +90,7 @@ public class Portal extends AbstractService {
 		try {
 
 			deviceDBService.stopAndWait();
+			restApiService.stopAndWait();
 			soapApiService.stopAndWait();
 			servicePublisher.stopAndWait();
 			reservationManager.stopAndWait();

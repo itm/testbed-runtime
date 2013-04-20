@@ -91,7 +91,16 @@ public class ExperimentResource {
 	@GET
 	@Path("network")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getNetworkJson() {
+	public Wiseml getNetworkJson() {
+		log.trace("ExperimentResource.getNetworkJson()");
+		return convertToWiseML(deviceDB.getAll());
+	}
+
+	@GET
+	@Path("network")
+	@Produces({MediaType.APPLICATION_XML})
+	public Response getNetworkXml() {
+		log.trace("ExperimentResource.getNetworkXml()");
 		return Response.ok(serialize(convertToWiseML(deviceDB.getAll()))).build();
 	}
 
@@ -179,13 +188,6 @@ public class ExperimentResource {
 		}
 
 		return sb.toString();
-	}
-
-	@GET
-	@Path("network")
-	@Produces({MediaType.APPLICATION_XML})
-	public Response getNetworkXml() {
-		return Response.ok(serialize(convertToWiseML(deviceDB.getAll()))).build();
 	}
 
 	@POST
