@@ -13,10 +13,10 @@ public class FlashProgramsRequest {
 		public List<String> nodeUrns;
 
 		@XmlElement(name = "image")
-		public String imageBase64;
+		public String image;
 	}
 
 	@XmlElement(name = "configurations")
-	public List<FlashTask> flashTasks;
+	public List<FlashTask> configurations;
 
 }

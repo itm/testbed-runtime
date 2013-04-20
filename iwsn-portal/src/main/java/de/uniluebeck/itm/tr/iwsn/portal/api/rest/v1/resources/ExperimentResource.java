@@ -207,8 +207,8 @@ public class ExperimentResource {
 	 * <code>
 	 * {
 	 * [
-	 * {"nodeUrns" : ["urn:...:0x1234", "urn:...:0x2345", ...], "imageBase64" : base64-string },
-	 * {"nodeUrns" : ["urn:...:0x1234", "urn:...:0x2345", ...], "imageBase64" : base64-string }
+	 * {"nodeUrns" : ["urn:...:0x1234", "urn:...:0x2345", ...], "image" : base64-string },
+	 * {"nodeUrns" : ["urn:...:0x1234", "urn:...:0x2345", ...], "image" : base64-string }
 	 * ]
 	 * }
 	 * </code>
@@ -236,14 +236,14 @@ public class ExperimentResource {
 			flashResponseTrackers.put(flashResponseTrackersId, Lists.<Long>newArrayList());
 		}
 
-		for (FlashProgramsRequest.FlashTask flashTask : flashData.flashTasks) {
+		for (FlashProgramsRequest.FlashTask flashTask : flashData.configurations) {
 
 			final long requestId = requestIdProvider.get();
 			final Request request = newFlashImagesRequest(
 					reservation.getKey(),
 					requestId,
 					Iterables.transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
-					extractByteArrayFromDataURL(flashTask.imageBase64)
+					extractByteArrayFromDataURL(flashTask.image)
 			);
 
 			synchronized (flashResponseTrackers) {

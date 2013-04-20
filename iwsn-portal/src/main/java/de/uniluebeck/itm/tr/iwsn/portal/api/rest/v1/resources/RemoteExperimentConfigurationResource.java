@@ -44,7 +44,7 @@ public class RemoteExperimentConfigurationResource {
 					fromJSON(entity, RemoteExperimentConfiguration.class);
 
 			FlashProgramsRequest flashProgramsRequest = new FlashProgramsRequest();
-			flashProgramsRequest.flashTasks = new ArrayList<FlashProgramsRequest.FlashTask>();
+			flashProgramsRequest.configurations = new ArrayList<FlashProgramsRequest.FlashTask>();
 
 			if (log.isDebugEnabled()) {
 				log.debug("Got remote experiment description from {}: {}", urlString, toJSON(entity));
@@ -55,11 +55,11 @@ public class RemoteExperimentConfigurationResource {
 				FlashProgramsRequest.FlashTask flashTask = new FlashProgramsRequest.FlashTask();
 
 				flashTask.nodeUrns = getNodeUrnList(new URL(url.toURL(), entry.nodeUrnsJsonFileUrl).toURI());
-				flashTask.imageBase64 = "data:application/octet-stream;base64," + getBinaryProgramImage(
+				flashTask.image = "data:application/octet-stream;base64," + getBinaryProgramImage(
 						new URL(url.toURL(), entry.binaryProgramUrl).toURI()
 				);
 
-				flashProgramsRequest.flashTasks.add(flashTask);
+				flashProgramsRequest.configurations.add(flashTask);
 			}
 
 			if (log.isTraceEnabled()) {

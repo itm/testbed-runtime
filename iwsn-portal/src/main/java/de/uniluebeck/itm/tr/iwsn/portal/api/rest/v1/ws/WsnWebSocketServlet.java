@@ -36,12 +36,11 @@ public class WsnWebSocketServlet extends WebSocketServlet {
 		String path = requestUri.getPath().startsWith("/") ? requestUri.getPath().substring(1) : requestUri.getPath();
 		String[] splitPath = path.split("/");
 
-		if (splitPath.length < 3 || !"ws".equals(splitPath[0]) || !"experiments".equals(splitPath[1])) {
-			return null;
-		}
-
 		try {
-			return wsnWebSocketFactory.create(decode(splitPath[2]));
+			return wsnWebSocketFactory.create(
+					decode(splitPath[splitPath.length-1]),
+					request.getRemoteAddr() + ":" + request.getRemotePort()
+			);
 		} catch (Base64Exception e) {
 			return null;
 		}

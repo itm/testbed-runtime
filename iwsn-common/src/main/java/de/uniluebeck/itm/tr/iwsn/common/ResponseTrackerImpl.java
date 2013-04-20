@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
 import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
@@ -63,16 +64,39 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 		final boolean reservationIdEquals =
 				((request.hasReservationId() && response.hasReservationId()) ||
-				(!request.hasReservationId() && !response.hasReservationId())) &&
-				request.getReservationId().equals(response.getReservationId());
+						(!request.hasReservationId() && !response.hasReservationId())) &&
+						request.getReservationId().equals(response.getReservationId());
 		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
+		final boolean forMe = reservationIdEquals && requestIdEquals;
 
-		if (reservationIdEquals && requestIdEquals) {
+		if (forMe) {
+
 			final NodeUrn responseNodeUrn = new NodeUrn(response.getNodeUrn());
 			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).set(response);
 			if (futureMap.isDone()) {
 				eventBusService.unregister(this);
 			}
+		}
+	}
+
+	@Subscribe
+	public void onSingleNodeProgress(final SingleNodeProgress progress) {
+
+		log.trace("ResponseTrackerImpl.onSingleNodeProgress({})", progress);
+
+		final boolean reservationIdEquals =
+				((request.hasReservationId() && progress.hasReservationId()) ||
+						(!request.hasReservationId() && !progress.hasReservationId())) &&
+						request.getReservationId().equals(progress.getReservationId());
+		final boolean requestIdEquals = request.getRequestId() == progress.getRequestId();
+		final boolean forMe = reservationIdEquals && requestIdEquals;
+
+		if (forMe) {
+
+			final NodeUrn responseNodeUrn = new NodeUrn(progress.getNodeUrn());
+			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).setProgress(
+					(float) progress.getProgressInPercent() / 100.0f
+			);
 		}
 	}
 
@@ -145,7 +169,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	@Override
 	public ProgressListenableFuture<SingleNodeResponse> put(final NodeUrn key,
-													final ProgressListenableFuture<SingleNodeResponse> value) {
+															final ProgressListenableFuture<SingleNodeResponse> value) {
 		return futureMap.put(key, value);
 	}
 
@@ -178,5 +202,11 @@ class ResponseTrackerImpl implements ResponseTracker {
 	@Override
 	public void addProgressListener(final Runnable runnable, final Executor executor) {
 		futureMap.addProgressListener(runnable, executor);
+	}
+
+	@Override
+	public String toString() {
+		return "ResponseTrackerImpl[requestId=" + request.getRequestId() + ",reservationId=" + request
+				.getReservationId() + "]@" + Integer.toHexString(hashCode());
 	}
 }

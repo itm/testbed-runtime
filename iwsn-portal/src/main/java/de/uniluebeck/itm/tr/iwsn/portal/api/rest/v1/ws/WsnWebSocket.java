@@ -35,13 +35,17 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	private final RequestIdProvider requestIdProvider;
 
+	private final String remoteAddress;
+
 	private Connection connection;
 
 	@Inject
 	public WsnWebSocket(final RequestIdProvider requestIdProvider,
 						final ReservationManager reservationManager,
-						@Assisted final String secretReservationKeyBase64) {
+						@Assisted("secretReservationKeyBase64") final String secretReservationKeyBase64,
+						@Assisted("remoteAddress") final String remoteAddress) {
 		this.requestIdProvider = requestIdProvider;
+		this.remoteAddress = remoteAddress;
 		try {
 			this.reservation = reservationManager.getReservation(secretReservationKeyBase64);
 		} catch (ReservationUnknownException e) {
@@ -85,8 +89,8 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	@Override
 	public void onOpen(final Connection connection) {
 
-		if (log.isInfoEnabled()) {
-			log.info("Websocket connection opened: {}", connection);
+		if (log.isTraceEnabled()) {
+			log.trace("Websocket connection opened: {}", connection);
 		}
 
 		this.connection = connection;
@@ -96,12 +100,18 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	@Override
 	public void onClose(final int closeCode, final String message) {
 
-		if (log.isInfoEnabled()) {
-			log.info("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection);
+		if (log.isTraceEnabled()) {
+			log.trace("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection
+			);
 		}
 
 		reservation.getEventBus().unregister(this);
 		this.connection = null;
+	}
+
+	@Override
+	public String toString() {
+		return "WsnWebSocket[" + remoteAddress + "]@" + Integer.toHexString(hashCode());
 	}
 
 	private void sendMessage(final String data) {
