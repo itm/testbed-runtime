@@ -177,6 +177,10 @@ public class ExperimentResource {
 	@Produces({MediaType.TEXT_PLAIN})
 	public Response getInstance(SecretReservationKeyListRs reservationKey) {
 
+		if (reservationKey == null || reservationKey.reservations == null || reservationKey.reservations.size() == 0) {
+			return Response.status(Status.BAD_REQUEST).entity("No secret reservation keys were given.").build();
+		}
+
 		final List<SecretReservationKey> secretReservationKeys = reservationKey.reservations;
 		final SecretReservationKey secretReservationKey = secretReservationKeys.get(0);
 
