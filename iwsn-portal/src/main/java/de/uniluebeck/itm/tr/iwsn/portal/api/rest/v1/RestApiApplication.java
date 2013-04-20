@@ -4,14 +4,17 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.cxf.common.util.Base64Exception;
-import org.apache.cxf.jaxrs.provider.json.JSONProvider;
+import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import java.util.HashMap;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class RestApiApplication extends Application {
@@ -45,13 +48,19 @@ public class RestApiApplication extends Application {
 	@Override
 	public Set<Object> getSingletons() {
 
-		final JSONProvider jsonProvider = new JSONProvider();
+		final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
+		final JAXBElementProvider jaxbElementProvider = new JAXBElementProvider();
+		final HashMap<Object,Object> marshallerProperties = newHashMap();
+		marshallerProperties.put("jaxb.formatted.output", true);
+		jaxbElementProvider.setMarshallerProperties(marshallerProperties);
+
+		/*final JSONProvider jsonProvider = new JSONProvider();
 		jsonProvider.setAttributesToElements(true);
 		jsonProvider.setIgnoreNamespaces(true);
 		jsonProvider.setDropRootElement(true);
 		jsonProvider.setSupportUnwrapped(true);
 		jsonProvider.setDropCollectionWrapperElement(true);
-		jsonProvider.setSerializeAsArray(true);
+		jsonProvider.setSerializeAsArray(true);*/
 
 		return newHashSet(
 				experimentResource,
@@ -61,6 +70,7 @@ public class RestApiApplication extends Application {
 				cookieResource,
 				testbedsResource,
 				jsonProvider,
+				jaxbElementProvider,
 				base64ExceptionExceptionMapper,
 				snaaFaultExceptionExceptionMapper
 		);

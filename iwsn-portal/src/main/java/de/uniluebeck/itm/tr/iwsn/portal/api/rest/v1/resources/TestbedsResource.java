@@ -40,7 +40,7 @@ public class TestbedsResource {
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/rest/v1.0";
 		testbed.sessionManagementEndpointUrl =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/soap/v3.0/sm";
-		testbed.urnPrefixes = new String[]{portalConfig.urnPrefix.toString()};
+		testbed.urnPrefixes = newArrayList(portalConfig.urnPrefix.toString());
 
 		return newArrayList(testbed);
 	}

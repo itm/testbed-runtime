@@ -88,20 +88,20 @@ public class ExperimentResource {
 		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
 
-	@GET
+	/*@GET
 	@Path("network")
 	@Produces({MediaType.APPLICATION_JSON})
 	public Wiseml getNetworkJson() {
 		log.trace("ExperimentResource.getNetworkJson()");
 		return convertToWiseML(deviceDB.getAll());
-	}
+	}*/
 
 	@GET
 	@Path("network")
-	@Produces({MediaType.APPLICATION_XML})
-	public Response getNetworkXml() {
-		log.trace("ExperimentResource.getNetworkXml()");
-		return Response.ok(serialize(convertToWiseML(deviceDB.getAll()))).build();
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getNetwork() {
+		log.trace("ExperimentResource.getNetwork()");
+		return Response.ok(convertToWiseML(deviceDB.getAll())).build();
 	}
 
 	@GET
