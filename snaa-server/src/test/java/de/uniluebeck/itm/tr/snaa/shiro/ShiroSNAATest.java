@@ -482,7 +482,7 @@ public class ShiroSNAATest {
 	
 	/* ------------------------------ Helpers ----------------------------------- */
 
-	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix, String... nodeURNStrings){
+	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix, String... nodeUrnStrings){
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = new LinkedList<UsernameNodeUrnsMap>();
 		UsernameNodeUrnsMap map = new UsernameNodeUrnsMap();
 		UsernameUrnPrefixPair usernameUrnPrefixPair = new UsernameUrnPrefixPair();
@@ -491,7 +491,7 @@ public class ShiroSNAATest {
 		map.setUsername(usernameUrnPrefixPair);
 		List<NodeUrn> nodeUrns = map.getNodeUrns();
 		
-		for (String nodeUrnString : nodeURNStrings) {
+		for (String nodeUrnString : nodeUrnStrings) {
 			nodeUrns.add(new NodeUrn(nodeUrnString));
 		}
 

@@ -81,7 +81,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	// */
 	//
 	// List<UsernameUrnPrefixPair> usernamePrefixPairs = null;
-	// List<String> nodeURNs = null;
+	// List<String> nodeUrns = null;
 	//
 	// Object[] arguments = invocation.getArguments();
 	//
@@ -96,7 +96,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	// list));
 	// }
 	// }else if (object instanceof ConfidentialReservationData){
-	// nodeURNs = ((ConfidentialReservationData)object).getNodeURNs();
+	// nodeUrns = ((ConfidentialReservationData)object).getNodeURNs();
 	// }
 	// }
 	//
@@ -113,7 +113,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	// if (requestedAction.equals(Action.RS_GET_RESERVATIONS))
 	//
 	// AuthorizationResponse isAuthorized = checkAuthorization(usernamePrefixPairs, requestedAction,
-	// nodeURNs);
+	// nodeUrns);
 	//
 	// if (isAuthorized == null || !isAuthorized.isAuthorized()) {
 	// log.warn("The user was NOT authorized to perform the action \"" + requestedAction + "\".");
@@ -143,7 +143,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		 */
 
 		List<UsernameUrnPrefixPair> usernamePrefixPairs = null;
-		List<NodeUrn> nodeURNs = null;
+		List<NodeUrn> nodeUrns = null;
 		List<SecretAuthenticationKey> secretAuthenticationKeys = null;
 
 		Object[] arguments = invocation.getArguments();
@@ -159,10 +159,10 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 							convert((List<SecretAuthenticationKey>) list)
 					);
 				} else if (list.size() > 0 && list.get(0) instanceof NodeUrn) {
-					nodeURNs = (List<NodeUrn>) list;
+					nodeUrns = (List<NodeUrn>) list;
 				}
 			} else if (object instanceof ConfidentialReservationData) {
-				nodeURNs = ((ConfidentialReservationData) object).getNodeUrns();
+				nodeUrns = ((ConfidentialReservationData) object).getNodeUrns();
 			}
 		}
 
@@ -188,7 +188,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 		if (requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 
-			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(usernamePrefixPairs, nodeURNs);
+			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(usernamePrefixPairs, nodeUrns);
 			final AuthorizationResponse overallAuthorizationResponse = snaa.isAuthorized(mapList, requestedAction);
 
 			final List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = overallAuthorizationResponse.getPerNodeUrnAuthorizationResponses();
@@ -266,7 +266,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 //	 * 		A collection of tuples of user names and urn prefixes
 //	 * @param action
 //	 * 		Action to be performed.
-//	 * @param nodeURNs
+//	 * @param nodeUrns
 //	 * 		The urns of the nodes the action is to be performed at
 //	 *
 //	 * @return An object which returns whether the requested action is authorized.
@@ -277,12 +277,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 //	 */
 //	private List<PerNodeUrnAuthorizationResponse> isAuthorizedToMakeReservation(final List<UsernameUrnPrefixPair> upp,
 //												  final Action action,
-//												  final Collection<NodeUrn> nodeURNs)
+//												  final Collection<NodeUrn> nodeUrns)
 //			throws RSFault_Exception {
 //
 //		try {
 //
-//			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
+//			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeUrns);
 //			final AuthorizationResponse authorized = snaa.isAuthorized(mapList, action);
 //			List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = authorized.getPerNodeUrnAuthorizationResponses();
 //			log.debug("Authorization result: {}", perNodeAuthorizationResponses);
@@ -303,12 +303,12 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 
 	private List<PerNodeUrnAuthorizationResponse> isAuthorizedToMakeReservation(final List<UsernameUrnPrefixPair> upp,
 	                                                                            final Action action,
-	                                                                            final Collection<NodeUrn> nodeURNs)
+	                                                                            final Collection<NodeUrn> nodeUrns)
 			throws RSFault_Exception {
 
 		try {
 
-			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeURNs);
+			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeUrns);
 			final AuthorizationResponse authorized = snaa.isAuthorized(mapList, action);
 			List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = authorized.getPerNodeUrnAuthorizationResponses();
 			log.debug("Authorization result: {}", perNodeAuthorizationResponses);

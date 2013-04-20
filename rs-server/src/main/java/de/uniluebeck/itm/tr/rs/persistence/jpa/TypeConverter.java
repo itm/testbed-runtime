@@ -69,7 +69,7 @@ public class TypeConverter {
 		for (NodeUrn nodeUrn : external.getNodeUrns()) {
 			nodeUrnStringList.add(nodeUrn.toString());
 		}
-		internal.setNodeURNs(nodeUrnStringList);
+		internal.setNodeUrns(nodeUrnStringList);
 		internal.setData(convertExternalToInternal(external.getKeys()));
 
 		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
@@ -106,7 +106,7 @@ public class TypeConverter {
 		ConfidentialReservationData external = new ConfidentialReservationData();
 		external.getKeys().addAll(convertInternalToExternal(internal.getData()));
 		List<NodeUrn> nodeUrns = newArrayList();
-		for (String nodeUrnString : internal.getNodeURNs()) {
+		for (String nodeUrnString : internal.getNodeUrns()) {
 			nodeUrns.add(new NodeUrn(nodeUrnString));
 		}
 		external.getNodeUrns().addAll(nodeUrns);

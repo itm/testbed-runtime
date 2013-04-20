@@ -340,8 +340,8 @@ public class SessionManagementServiceImpl extends AbstractService implements Ses
 				ConfidentialReservationData data = confidentialReservationDataList.get(0);
 
 				// convert all node URNs to lower case so that we can do easy string-based comparisons
-				for (NodeUrn nodeURN : data.getNodeUrns()) {
-					reservedNodes.add(nodeURN);
+				for (NodeUrn nodeUrn : data.getNodeUrns()) {
+					reservedNodes.add(nodeUrn);
 				}
 
 

@@ -47,11 +47,11 @@ public class PublicReservationDataInternal implements Serializable {
 	public PublicReservationDataInternal() {
 	}
 
-	public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeURNs) {
+	public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeUrns) {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.userData = userData;
-		this.nodeURNs = nodeURNs;
+		this.nodeUrns = nodeUrns;
 	}
 
 	public long getId() {
@@ -73,7 +73,7 @@ public class PublicReservationDataInternal implements Serializable {
 			name = "POSITION"
 	)
 	@Column(name = "urns", nullable = false)
-	private List<String> nodeURNs;
+	private List<String> nodeUrns;
 
 	public long getFromDate() {
 		return fromDate;
@@ -83,12 +83,12 @@ public class PublicReservationDataInternal implements Serializable {
 		this.fromDate = value;
 	}
 
-	public List<String> getNodeURNs() {
-		return this.nodeURNs;
+	public List<String> getNodeUrns() {
+		return this.nodeUrns;
 	}
 
-	public void setNodeURNs(List<String> nodeURNs) {
-		this.nodeURNs = nodeURNs;
+	public void setNodeUrns(List<String> nodeUrns) {
+		this.nodeUrns = nodeUrns;
 	}
 
 	public long getToDate() {
@@ -114,7 +114,7 @@ public class PublicReservationDataInternal implements Serializable {
 				", fromDate=" + fromDate +
 				", toDate=" + toDate +
 				", userData=" + userData +
-				", nodeURNs=" + nodeURNs +
+				", nodeUrns=" + nodeUrns +
 				'}';
 	}
 

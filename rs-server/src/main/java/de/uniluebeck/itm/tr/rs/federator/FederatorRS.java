@@ -410,9 +410,9 @@ public class FederatorRS implements RS {
 
 		List<NodeUrn> notServed = new LinkedList<NodeUrn>();
 
-		for (NodeUrn nodeURN : nodeUrns) {
-			if (federationManager.getEndpointUrlByNodeUrn(nodeURN) == null) {
-				notServed.add(nodeURN);
+		for (NodeUrn nodeUrn : nodeUrns) {
+			if (federationManager.getEndpointUrlByNodeUrn(nodeUrn) == null) {
+				notServed.add(nodeUrn);
 			}
 		}
 

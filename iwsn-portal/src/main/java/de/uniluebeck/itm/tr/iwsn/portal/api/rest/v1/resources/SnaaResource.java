@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import java.util.LinkedList;
 import java.util.List;
 
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
@@ -92,31 +91,21 @@ public class SnaaResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("login")
-	public Response login(final LoginData loginData) {
+	public Response login(final LoginData loginData) throws SNAAFault_Exception, AuthenticationFault_Exception {
 
-		try {
+		SnaaSecretAuthenticationKeyList loginResult = new SnaaSecretAuthenticationKeyList(
+				snaa.authenticate(loginData.authenticationData)
+		);
 
-			List<SecretAuthenticationKey> secretAuthenticationKeys = snaa.authenticate(loginData.authenticationData);
-			SnaaSecretAuthenticationKeyList loginResult = new SnaaSecretAuthenticationKeyList(secretAuthenticationKeys);
-			String jsonResponse = toJSON(loginResult);
-
-			List<NewCookie> cookies = new LinkedList<NewCookie>();
-			cookies.add(createCookie(loginResult, "", false));
-
-			log.trace("Received {}, returning {}", toJSON(loginData), jsonResponse);
-			return Response.ok(jsonResponse).cookie(cookies.toArray(new NewCookie[cookies.size()])).build();
-
-		} catch (AuthenticationFault_Exception e) {
-			return createLoginErrorResponse(e);
-		} catch (SNAAFault_Exception e) {
-			return createLoginErrorResponse(e);
-		}
-
+		return Response
+				.ok(loginResult)
+				.cookie(createCookie(loginResult, "", false))
+				.build();
 	}
 
 	@GET
 	@Path("logout")
-	public Response deleteCookie(@PathParam("testbedId") final String testbedId) {
+	public Response deleteCookie() {
 		return Response.ok().cookie(createCookie(null, "", true)).build();
 	}
 
@@ -130,12 +119,6 @@ public class SnaaResource {
 		String path = "/";
 
 		return new NewCookie(name, value, path, domain, comment, maxAge, secure);
-	}
-
-	private Response createLoginErrorResponse(Exception e) {
-		log.debug("Login failed :" + e, e);
-		String errorMessage = String.format("Login failed: %s (%s)", e, e.getMessage());
-		return Response.status(Status.FORBIDDEN).entity(errorMessage).build();
 	}
 
 }

@@ -6,11 +6,11 @@ Contains configuration options and properties of all nodes in a testbed.
 ## REST API
 
 There is a RESTful HTTP Webservice which consumes/produces JSON
- - **create**: ``POST`` on ``/rest/deviceConfigs/_[nodeURN]_`` with JSON representation as payload
- - **update**: ``PUT`` on ``/rest/deviceConfigs/_[nodeURN]_``   with JSON representation as payload
- - **remove**: ``DELETE`` on ``/rest/deviceConfigs/_[nodeURN]_`` 
+ - **create**: ``POST`` on ``/rest/deviceConfigs/_[nodeUrn]_`` with JSON representation as payload
+ - **update**: ``PUT`` on ``/rest/deviceConfigs/_[nodeUrn]_``   with JSON representation as payload
+ - **remove**: ``DELETE`` on ``/rest/deviceConfigs/_[nodeUrn]_``
 
-**Note:** replace ``_[nodeURN]_`` with your URN (e.g. ``urn:wisebed:uzl1:0x2038``)
+**Note:** replace ``_[nodeUrn]_`` with your node URN (e.g. ``urn:wisebed:uzl1:0x2038``)
 
 ## JSON
 
