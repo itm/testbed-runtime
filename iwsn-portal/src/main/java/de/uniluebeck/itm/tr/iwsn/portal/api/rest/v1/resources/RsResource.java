@@ -16,13 +16,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.assertLoggedIn;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
 
 @Path("/reservations/")
 public class RsResource {
@@ -41,111 +38,54 @@ public class RsResource {
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response listReservations(@QueryParam("from") final String from,
-									 @QueryParam("to") final String to,
-									 @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly) {
+	public Object listReservations(@QueryParam("from") final DateTime from,
+								   @QueryParam("to") final DateTime to,
+								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly)
+			throws RSFault_Exception {
 
-		try {
-
-			final Interval interval = new Interval(DateTime.parse(from), DateTime.parse(to));
-
-			Object response = userOnly ?
-					getConfidentialReservations(getSAKsFromCookie(httpHeaders), interval) :
-					getPublicReservations(interval);
-
-			return Response.ok(toJSON(response)).build();
-
-		} catch (IllegalArgumentException e) {
-			return returnError("Wrong input, please encode from and to as XMLGregorianCalendar", e, Status.BAD_REQUEST);
-		} catch (RSFault_Exception e) {
-			return returnError("Error while loading data from the reservation system", e, Status.BAD_REQUEST);
-		}
-
+		final Interval interval = new Interval(from, to);
+		return userOnly ?
+				getConfidentialReservations(getSAKsFromCookie(httpHeaders), interval) :
+				getPublicReservations(interval);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("create")
-	public Response makeReservation(PublicReservationData request) {
+	public SecretReservationKeyListRs makeReservation(PublicReservationData request)
+			throws RSFault_Exception, AuthorizationFault_Exception, ReservationConflictFault_Exception {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 
-		try {
+		final List<SecretReservationKey> reservation = rs.makeReservation(
+				secretAuthenticationKeys,
+				request.getNodeUrns(),
+				request.getFrom(),
+				request.getTo()
+		);
 
-			List<SecretReservationKey> reservation = rs.makeReservation(
-					secretAuthenticationKeys,
-					request.getNodeUrns(),
-					request.getFrom(),
-					request.getTo()
-			);
-
-			String jsonResponse = toJSON(new SecretReservationKeyListRs(reservation));
-			log.debug("Made reservation: {}", jsonResponse);
-			return Response.ok(jsonResponse).build();
-
-		} catch (AuthorizationFault_Exception e) {
-			return returnError("Authorization problem occurred", e, Status.UNAUTHORIZED);
-		} catch (RSFault_Exception e) {
-			return returnError("Error in the reservation system", e, Status.INTERNAL_SERVER_ERROR);
-		} catch (ReservationConflictFault_Exception e) {
-			return Response
-					.status(Status.BAD_REQUEST)
-					.entity(String.format("Another reservation is in conflict with yours: %s (%s)", e, e.getMessage()))
-					.build();
-		}
-
+		return new SecretReservationKeyListRs(reservation);
 	}
 
 	@DELETE
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	public Response deleteReservation(SecretReservationKeyListRs secretReservationKeys) {
+	public void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
-
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-
-		try {
-
-			rs.deleteReservation(secretReservationKeys.reservations);
-			return Response.ok("Ok, deleted reservation").build();
-
-		} catch (RSFault_Exception e) {
-			return returnError("Error while communicating with the reservation server", e,
-					Status.INTERNAL_SERVER_ERROR
-			);
-		} catch (UnknownSecretReservationKeyFault e) {
-			return returnError("Reservation not found", e, Status.BAD_REQUEST);
-		}
+		rs.deleteReservation(secretReservationKeys.reservations);
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getReservation(SecretReservationKeyListRs secretReservationKeys) {
+	public ConfidentialReservationDataList getReservation(SecretReservationKeyListRs secretReservationKeys)
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
-		try {
-
-			List<ConfidentialReservationData> reservation = rs.getReservation(secretReservationKeys.reservations);
-			String jsonResponse = toJSON(new ConfidentialReservationDataList(reservation));
-			log.debug("Get reservation data for {}: {}", toJSON(secretReservationKeys), jsonResponse);
-			return Response.ok(jsonResponse).build();
-
-		} catch (RSFault_Exception e) {
-			return returnError(
-					"Error while communicating with the reservation server",
-					e, Status.INTERNAL_SERVER_ERROR
-			);
-		} catch (UnknownSecretReservationKeyFault e) {
-			return returnError("Reservation not found", e, Status.BAD_REQUEST);
-		}
-	}
-
-	private Response returnError(String msg, Exception e, Status status) {
-		log.debug(msg + " :" + e, e);
-		String errorMessage = String.format("%s: %s (%s)", msg, e, e.getMessage());
-		return Response.status(status).entity(errorMessage).build();
+		return new ConfidentialReservationDataList(rs.getReservation(secretReservationKeys.reservations));
 	}
 
 	private ConfidentialReservationDataList getConfidentialReservations(

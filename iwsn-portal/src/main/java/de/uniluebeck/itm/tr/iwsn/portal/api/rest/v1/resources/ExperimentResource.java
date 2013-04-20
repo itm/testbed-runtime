@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
@@ -45,8 +44,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.*;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
-import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 /**
  * TODO: The following WISEBED functions are not implemented yet:
@@ -88,14 +85,6 @@ public class ExperimentResource {
 		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
 
-	/*@GET
-	@Path("network")
-	@Produces({MediaType.APPLICATION_JSON})
-	public Wiseml getNetworkJson() {
-		log.trace("ExperimentResource.getNetworkJson()");
-		return convertToWiseML(deviceDB.getAll());
-	}*/
-
 	@GET
 	@Path("network")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -105,59 +94,52 @@ public class ExperimentResource {
 	}
 
 	@GET
+	@Path("{secretReservationKeyBase64}/network")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getExperimentNetwork(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
+		return Response.ok(getWiseml(secretReservationKeyBase64)).build();
+	}
+
+	@GET
 	@Path("nodes")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getNodes(@QueryParam("filter") final String filter,
-							 @QueryParam("capability") final String capability) {
+	public NodeUrnList getNodes(@QueryParam("filter") final String filter,
+								@QueryParam("capability") final String capability) {
 
-		try {
+		final Wiseml wiseml = convertToWiseML(deviceDB.getAll());
 
-			final Wiseml wiseml = convertToWiseML(deviceDB.getAll());
+		NodeUrnList nodeList = new NodeUrnList();
+		nodeList.nodeUrns = new LinkedList<String>();
 
-			NodeUrnList nodeList = new NodeUrnList();
-			nodeList.nodeUrns = new LinkedList<String>();
+		// First add all
+		for (Node node : wiseml.getSetup().getNode()) {
+			nodeList.nodeUrns.add(node.getId());
+		}
 
-			// First add all
-			for (Node node : wiseml.getSetup().getNode()) {
-				nodeList.nodeUrns.add(node.getId());
+		// Then remove non-matching ones
+		for (Node node : wiseml.getSetup().getNode()) {
+			boolean remove = false;
+			String text = "" + node.getDescription() + " " + node.getId() + " " + node.getNodeType() + " " + node
+					.getProgramDetails() + " "
+					+ toString(node.getCapability());
+
+			if (filter != null && !text.contains(filter)) {
+				remove = true;
 			}
 
-			// Then remove non-matching ones
-			for (Node node : wiseml.getSetup().getNode()) {
-				boolean remove = false;
-				String text = "" + node.getDescription() + " " + node.getId() + " " + node.getNodeType() + " " + node
-						.getProgramDetails() + " "
-						+ toString(node.getCapability());
-
-				if (filter != null && !text.contains(filter)) {
+			if (capability != null) {
+				if (!toString(node.getCapability()).contains(capability)) {
 					remove = true;
 				}
-
-				if (capability != null) {
-					if (!toString(node.getCapability()).contains(capability)) {
-						remove = true;
-					}
-				}
-
-				if (remove) {
-					nodeList.nodeUrns.remove(node.getId());
-				}
 			}
 
-			String jsonString = toJSON(nodeList);
-			log.trace("Returning JSON representation of node list for filter {}: {}", filter, jsonString);
-			return Response.ok(jsonString).build();
-
-		} catch (Exception e) {
-			if (e instanceof UncheckedTimeoutException) {
-				return returnError(
-						"Timeout while retrieving WiseML from testbed backend",
-						e,
-						Status.SERVICE_UNAVAILABLE
-				);
+			if (remove) {
+				nodeList.nodeUrns.remove(node.getId());
 			}
-			return returnError("Unable to retrieve WiseML", e, Status.INTERNAL_SERVER_ERROR);
 		}
+
+		return nodeList;
 	}
 
 	private String toString(List<Capability> capabilities) {
@@ -314,7 +296,7 @@ public class ExperimentResource {
 		}
 
 		final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
-		return Response.ok(toJSON(buildOperationStatusMap(reservation, requestIds))).build();
+		return Response.ok(buildOperationStatusMap(reservation, requestIds)).build();
 	}
 
 	@POST
@@ -455,31 +437,9 @@ public class ExperimentResource {
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
-	@GET
-	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/network")
-	public Response getExperimentNetworkJson(
-			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
-		return Response.ok(toJSON(getWiseml(secretReservationKeyBase64))).build();
-	}
-
-	@GET
-	@Path("{secretReservationKeyBase64}/network")
-	@Produces({MediaType.APPLICATION_XML})
-	public Response getExperimentNetworkXml(
-			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
-		return Response.ok(serialize(getWiseml(secretReservationKeyBase64))).build();
-	}
-
 	private Wiseml getWiseml(final String secretReservationKeyBase64) throws Base64Exception {
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
 		return convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
-	}
-
-	private Response returnError(String msg, Exception e, Status status) {
-		log.debug(msg + " :" + e, e);
-		String errorMessage = String.format("%s: %s (%s)", msg, e, e.getMessage());
-		return Response.status(status).entity(errorMessage).build();
 	}
 
 	private Reservation getReservationOrThrow(final String secretReservationKeyBase64) throws Base64Exception {

@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.LoginData;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
@@ -41,7 +42,12 @@ public class SnaaResource {
 	@Path("isLoggedIn")
 	public Response isLoggedIn() throws SNAAFault_Exception {
 
-		final List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookie(httpHeaders);
+		final List<SecretAuthenticationKey> secretAuthenticationKeys;
+		try {
+			secretAuthenticationKeys = getSAKsFromCookie(httpHeaders);
+		} catch (NotLoggedInException e) {
+			return Response.status(Status.FORBIDDEN).build();
+		}
 
 		if (secretAuthenticationKeys == null) {
 			return Response.status(Status.FORBIDDEN).build();

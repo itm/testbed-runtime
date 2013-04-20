@@ -1,15 +1,12 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.providers.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
-import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -50,17 +47,9 @@ public class RestApiApplication extends Application {
 
 		final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
 		final JAXBElementProvider jaxbElementProvider = new JAXBElementProvider();
-		final HashMap<Object,Object> marshallerProperties = newHashMap();
+		final HashMap<Object, Object> marshallerProperties = newHashMap();
 		marshallerProperties.put("jaxb.formatted.output", true);
 		jaxbElementProvider.setMarshallerProperties(marshallerProperties);
-
-		/*final JSONProvider jsonProvider = new JSONProvider();
-		jsonProvider.setAttributesToElements(true);
-		jsonProvider.setIgnoreNamespaces(true);
-		jsonProvider.setDropRootElement(true);
-		jsonProvider.setSupportUnwrapped(true);
-		jsonProvider.setDropCollectionWrapperElement(true);
-		jsonProvider.setSerializeAsArray(true);*/
 
 		return newHashSet(
 				experimentResource,
@@ -71,27 +60,14 @@ public class RestApiApplication extends Application {
 				testbedsResource,
 				jsonProvider,
 				jaxbElementProvider,
-				base64ExceptionExceptionMapper,
-				snaaFaultExceptionExceptionMapper
+				new DateTimeParameterHandler(),
+				new Base64ExceptionMapper(),
+				new SNAAFaultExceptionMapper(),
+				new RSFaultExceptionMapper(),
+				new AuthorizationFaultExceptionMapper(),
+				new ReservationConflictFaultExceptionMapper(),
+				new RSUnknownSecretReservationKeyFaultExceptionMapper(),
+				new SMUnknownSecretReservationKeyFaultExceptionMapper()
 		);
 	}
-
-	public static ExceptionMapper<Base64Exception> base64ExceptionExceptionMapper = new ExceptionMapper<Base64Exception>() {
-		@Override
-		public Response toResponse(final Base64Exception exception) {
-			return Response
-					.status(Response.Status.BAD_REQUEST)
-					.entity("Request URL or payload contains data that is not correctly (or not) Base64-encoded. Error message: " +
-							exception.getMessage()
-					).build();
-		}
-	};
-
-	public static ExceptionMapper<SNAAFault_Exception> snaaFaultExceptionExceptionMapper = new ExceptionMapper<SNAAFault_Exception>() {
-		@Override
-		public Response toResponse(final SNAAFault_Exception exception) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
-		}
-	};
-
 }
