@@ -23,17 +23,23 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class ConfidentialReservationDataInternal extends PublicReservationDataInternal implements Serializable {
 
 	@OneToMany(cascade = javax.persistence.CascadeType.ALL)
 	protected List<DataInternal> data;
+
+	@Column
+	private String description;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Map<String, String> options;
 
 	public ConfidentialReservationDataInternal() {
 		super();
@@ -50,11 +56,28 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		this.data = data;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	public Map<String, String> getOptions() {
+		return options;
+	}
+
+	public void setOptions(final Map<String, String> options) {
+		this.options = options;
+	}
+
 	@Override
 	public String toString() {
 		return "ConfidentialReservationDataInternal{" +
-				"users=" + data +
+				"data=" + data +
+				", description='" + description + '\'' +
+				", options=" + options +
 				"} " + super.toString();
 	}
-
 }

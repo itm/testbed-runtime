@@ -85,6 +85,7 @@ public class SingleUrnPrefixRSTest {
 
 	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private List<SecretReservationKey> user2Srks;
+
 	private RSAuthorizationInterceptor rsAuthorizationInterceptor;
 
 	@Before
@@ -258,7 +259,7 @@ public class SingleUrnPrefixRSTest {
 		// try to reserve in uppercase
 		try {
 
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to);
+			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
 		} catch (AuthorizationFault_Exception e) {
@@ -270,7 +271,7 @@ public class SingleUrnPrefixRSTest {
 
 		// try to reserve in lowercase
 		try {
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xcbe4")), from, to);
+			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xcbe4")), from, to, null, null);
 			fail();
 		} catch (AuthorizationFault_Exception e) {
 			fail();
@@ -353,7 +354,14 @@ public class SingleUrnPrefixRSTest {
 	public void verifyRSAuthorizationInterceptorIsCalledBeforeMakingReservations() throws Throwable {
 
 		try {
-			rs.makeReservation(anyListOf(SecretAuthenticationKey.class), newArrayList(new NodeUrn("urn:test:0x1234")), new DateTime(),  new DateTime());
+			rs.makeReservation(
+					anyListOf(SecretAuthenticationKey.class),
+					newArrayList(new NodeUrn("urn:test:0x1234")),
+					new DateTime(),
+					new DateTime(),
+					null,
+					null
+			);
 		} catch (Throwable expected) {
 			// the call will not work
 		} finally {
@@ -365,7 +373,7 @@ public class SingleUrnPrefixRSTest {
 	public void verifyRSAuthorizationInterceptorIsCalledReturningConfidentialReservationData() throws Throwable {
 
 		try {
-			rs.getConfidentialReservations(anyListOf(SecretAuthenticationKey.class), new DateTime(),  new DateTime());
+			rs.getConfidentialReservations(anyListOf(SecretAuthenticationKey.class), new DateTime(), new DateTime());
 		} catch (Throwable expected) {
 			// the call will not work
 		} finally {
@@ -402,7 +410,7 @@ public class SingleUrnPrefixRSTest {
 		// try to reserve
 		try {
 
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to);
+			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
 		} catch (AuthorizationFault_Exception e) {
@@ -411,7 +419,7 @@ public class SingleUrnPrefixRSTest {
 		} catch (ReservationConflictFault_Exception expected) {
 			expected.printStackTrace();
 		}
-		verify(persistence,never()).addReservation(any(ConfidentialReservationData.class),any(NodeUrnPrefix.class));
+		verify(persistence, never()).addReservation(any(ConfidentialReservationData.class), any(NodeUrnPrefix.class));
 
 	}
 

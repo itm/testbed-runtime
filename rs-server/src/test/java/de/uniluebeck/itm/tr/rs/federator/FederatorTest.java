@@ -142,7 +142,7 @@ public class FederatorTest {
 	public void testMakeReservationWithNullParameters() throws Exception {
 		try {
 
-			federatorRS.makeReservation(null, null, null, null);
+			federatorRS.makeReservation(null, null, null, null, null, null);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -155,7 +155,7 @@ public class FederatorTest {
 
 			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
 
-			federatorRS.makeReservation(data, null, null, null);
+			federatorRS.makeReservation(data, null, null, null, null, null);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -171,7 +171,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to, null, null);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -187,7 +187,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to, null, null);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -202,7 +202,7 @@ public class FederatorTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to);
+			federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to, null, null);
 			fail();
 
 		} catch (RSFault_Exception expected) {
