@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ConfidentialReservationDataList;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.MakeReservationData;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.PublicReservationDataList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SecretReservationKeyListRs;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -53,16 +54,18 @@ public class RsResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("create")
-	public SecretReservationKeyListRs makeReservation(PublicReservationData request)
+	public SecretReservationKeyListRs makeReservation(MakeReservationData request)
 			throws RSFault_Exception, AuthorizationFault_Exception, ReservationConflictFault_Exception {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 
 		final List<SecretReservationKey> reservation = rs.makeReservation(
 				secretAuthenticationKeys,
-				request.getNodeUrns(),
-				request.getFrom(),
-				request.getTo()
+				request.nodeUrns,
+				request.from,
+				request.to,
+				request.description,
+				request.options
 		);
 
 		return new SecretReservationKeyListRs(reservation);
