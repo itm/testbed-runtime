@@ -108,10 +108,12 @@ public class RsResource {
 	private PublicReservationDataList getPublicReservations(final Interval interval)
 			throws RSFault_Exception {
 
-		List<PublicReservationData> reservations = rs.getReservations(interval.getStart(), interval.getEnd());
+		final List<PublicReservationData> reservations = rs.getReservations(interval.getStart(), interval.getEnd());
 
 		log.debug("Got {} public reservations from {} until {}",
-				reservations.size(), interval.getStart(), interval.getEnd()
+				reservations.size(),
+				interval.getStart(),
+				interval.getEnd()
 		);
 
 		return new PublicReservationDataList(reservations);
