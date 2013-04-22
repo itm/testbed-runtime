@@ -71,6 +71,8 @@ public class ReservationEventBusImplTest {
 
 	private static final String RESERVATION_ID = "" + RANDOM.nextLong();
 
+	private static final String OTHER_RESERVATION_ID = "" + RANDOM.nextLong();
+
 	@Mock
 	private PortalEventBus portalEventBus;
 
@@ -316,26 +318,29 @@ public class ReservationEventBusImplTest {
 	}
 
 	@Test
-	public void testSingleNodeProgressShouldBeForwardedIfNodePartOfReservation() throws Exception {
+	public void testSingleNodeProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
+		when(reservation.getKey()).thenReturn(RESERVATION_ID);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeProgress progress =
-					MessagesHelper.newSingleNodeProgress(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
+			final SingleNodeProgress progress = newSingleNodeProgress(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
 			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
 			verify(eventBus).post(eq(progress));
 		}
 	}
 
 	@Test
-	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
+	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
+		when(reservation.getKey()).thenReturn(RESERVATION_ID);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress = newSingleNodeProgress(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
+			final SingleNodeProgress progress =
+					newSingleNodeProgress(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
 			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
 			verify(eventBus, never()).post(eq(progress));
 		}
 	}
 
 	@Test
-	public void testSingleNodeResponseShouldBeForwardedIfNodePartOfReservation() throws Exception {
+	public void testSingleNodeResponseShouldBeForwardedIfHasSameReservationId() throws Exception {
+		when(reservation.getKey()).thenReturn(RESERVATION_ID);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
 			final SingleNodeResponse response =
 					newSingleNodeResponse(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
@@ -345,10 +350,11 @@ public class ReservationEventBusImplTest {
 	}
 
 	@Test
-	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
+	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
+		when(reservation.getKey()).thenReturn(RESERVATION_ID);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
 			final SingleNodeResponse response =
-					newSingleNodeResponse(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
+					newSingleNodeResponse(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
 			reservationEventBus.onSingleNodeResponseFromPortalEventBus(response);
 			verify(eventBus, never()).post(eq(response));
 		}
