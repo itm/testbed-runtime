@@ -133,7 +133,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 			final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
 
 			if (deviceConfig == null) {
-				log.warn("Ignoring attached event of unknown device: {}", deviceInfo);
+				log.warn("Ignoring unknown device: {}", deviceInfo);
 				return;
 			}
 

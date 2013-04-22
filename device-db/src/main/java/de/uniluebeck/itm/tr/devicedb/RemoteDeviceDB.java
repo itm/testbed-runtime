@@ -75,7 +75,11 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
 		try {
 
-			return client().getByUsbChipId(usbChipId).readEntity(DeviceConfigDto.class).toDeviceConfig();
+			final Response response = client().getByUsbChipId(usbChipId);
+			if (Response.Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
+				return null;
+			}
+			return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
 
 		} catch (Exception e) {
 			throw propagate(e);
