@@ -60,9 +60,9 @@ public class SessionManagementImplTest {
 	private static final long REQUEST_ID = new Random().nextLong();
 
 	private static final Iterable<DeviceConfig> DEVICE_CONFIGS = ImmutableList.of(
-			new DeviceConfig(NODE_URN_1, "isense", true, null, null, null, null, null, null, null, null, null,null),
-			new DeviceConfig(NODE_URN_2, "isense", true, null, null, null, null, null, null, null, null, null,null),
-			new DeviceConfig(NODE_URN_3, "isense", true, null, null, null, null, null, null, null, null, null,null)
+			new DeviceConfig(NODE_URN_1, "isense", true, null, null, null, null, null, null, null, null, null,null,null),
+			new DeviceConfig(NODE_URN_2, "isense", true, null, null, null, null, null, null, null, null, null,null,null),
+			new DeviceConfig(NODE_URN_3, "isense", true, null, null, null, null, null, null, null, null, null,null,null)
 	);
 
 	@Mock
