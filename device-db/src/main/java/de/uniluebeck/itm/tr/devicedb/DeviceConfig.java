@@ -1,16 +1,20 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.Maps;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Coordinate;
-
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
+
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
+import eu.wisebed.wiseml.Coordinate;
 
 public class DeviceConfig implements Serializable {
 
@@ -45,6 +49,9 @@ public class DeviceConfig implements Serializable {
 
 	@Nullable
 	private ChannelHandlerConfigList defaultChannelPipeline;
+	
+	@Nullable
+	private Set<Capability> capabilities;
 
 	@Nullable
 	private Long timeoutNodeApiMillis;
@@ -75,7 +82,8 @@ public class DeviceConfig implements Serializable {
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
 			@Nullable final Long timeoutResetMillis,
-			@Nullable final Coordinate position) {
+			@Nullable final Coordinate position,
+			@Nullable final Set<Capability> capabilities) {
 
 		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
@@ -86,6 +94,7 @@ public class DeviceConfig implements Serializable {
 		this.nodeConfiguration = nodeConfiguration == null ? Maps.<String, String>newHashMap() : nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
 		this.position = position;
+		this.capabilities = capabilities;
 
 		checkArgument((timeoutCheckAliveMillis == null || timeoutCheckAliveMillis > 0),
 				"The timeout value for the checkAlive operation must either be omitted (null) to use the default value "
@@ -172,6 +181,14 @@ public class DeviceConfig implements Serializable {
 		return gatewayNode;
 	}
 
+	public Set<Capability> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(Set<Capability> capabilities) {
+		this.capabilities = capabilities;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
@@ -212,6 +229,9 @@ public class DeviceConfig implements Serializable {
 		if (position != null ? !position.equals(that.position) : that.position != null) {
 			return false;
 		}
+		if (capabilities != null ? !capabilities.equals(that.capabilities) : that.capabilities != null) {
+			return false;
+		}
 		if (timeoutCheckAliveMillis != null ? !timeoutCheckAliveMillis.equals(that.timeoutCheckAliveMillis) :
 				that.timeoutCheckAliveMillis != null) {
 			return false;
@@ -241,6 +261,7 @@ public class DeviceConfig implements Serializable {
 		result = 31 * result + (description != null ? description.hashCode() : 0);
 		result = 31 * result + (nodeUSBChipID != null ? nodeUSBChipID.hashCode() : 0);
 		result = 31 * result + (position != null ? position.hashCode() : 0);
+		result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
 		result = 31 * result + (nodeConfiguration != null ? nodeConfiguration.hashCode() : 0);
 		result = 31 * result + (defaultChannelPipeline != null ? defaultChannelPipeline.hashCode() : 0);
 		result = 31 * result + (timeoutNodeApiMillis != null ? timeoutNodeApiMillis.hashCode() : 0);
@@ -262,6 +283,7 @@ public class DeviceConfig implements Serializable {
 				", nodeUSBChipID='" + nodeUSBChipID + '\'' +
 				", defaultChannelPipeline=" + defaultChannelPipeline +
 				", position=" + position +
+				", capabilities=" + capabilities +
 				", timeoutFlashMillis=" + timeoutFlashMillis +
 				", timeoutCheckAliveMillis=" + timeoutCheckAliveMillis +
 				", timeoutNodeApiMillis=" + timeoutNodeApiMillis +

@@ -4,6 +4,7 @@ import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -12,8 +13,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Entity(name="DeviceConfig")
 public class DeviceConfigEntity {
@@ -68,6 +71,10 @@ public class DeviceConfigEntity {
 	@Nullable
 	private Long timeoutCheckAliveMillis;
 	
+	@Nullable
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	private Set<CapabilityEntity> capabilities;
+	
 	public DeviceConfigEntity() {	}
 	
 	public DeviceConfigEntity(DeviceConfig config) {
@@ -80,6 +87,7 @@ public class DeviceConfigEntity {
 		this.position = CoordinateEntity.fromCoordinate(config.getPosition());
 		this.nodeConfiguration = config.getNodeConfiguration();
 		this.defaultChannelPipeline = ChannelHandlerConfigEntity.fromChannelhandlerConfig(config.getDefaultChannelPipeline());
+		this.capabilities = CapabilityEntity.fromCapabilitySet(config.getCapabilities());
 		this.timeoutNodeApiMillis = config.getTimeoutNodeApiMillis();
 		this.timeoutResetMillis = config.getTimeoutResetMillis();
 		this.timeoutFlashMillis = config.getTimeoutFlashMillis();
@@ -200,6 +208,14 @@ public class DeviceConfigEntity {
 		this.timeoutResetMillis = timeoutResetMillis;
 	}
 
+	public Set<CapabilityEntity> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(Set<CapabilityEntity> capabilities) {
+		this.capabilities = capabilities;
+	}
+
 	public DeviceConfig toDeviceConfig() {
 		return new DeviceConfig(
 				new NodeUrn(nodeUrn),
@@ -214,12 +230,22 @@ public class DeviceConfigEntity {
 				timeoutFlashMillis,
 				timeoutNodeApiMillis,
 				timeoutResetMillis,
-				position == null ? null : position.toCoordinate());
+				position == null ? null : position.toCoordinate(),
+				capabilities == null ? null : convertCapabilities());
+				
 	}
 
 	private ChannelHandlerConfigList convertDefaultPipeline() {
 		Collection<ChannelHandlerConfig> configList = Lists.transform(defaultChannelPipeline, ENTITY_TO_CHC_FUNCTION);
 		return new ChannelHandlerConfigList(configList);
+	}
+	
+	private Set<Capability> convertCapabilities() {
+		Set<Capability> caps = new HashSet<Capability>();
+		for ( CapabilityEntity cap : capabilities ) {
+			caps.add(cap.toCapability());
+		}
+		return caps;
 	}
 	
 }
