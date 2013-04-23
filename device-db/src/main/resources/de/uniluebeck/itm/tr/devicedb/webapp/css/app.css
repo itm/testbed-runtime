@@ -9,3 +9,15 @@
 .inline-controls input {
 	width: 40px;
 }
+
+.parent {
+	border: 1px solid #E5E5E5;
+	padding: 6px;
+	margin-bottom: 10px;
+	border-radius: 4px;
+}
+
+.rm-cap {
+	position: relative;
+	top: -25px;
+}
