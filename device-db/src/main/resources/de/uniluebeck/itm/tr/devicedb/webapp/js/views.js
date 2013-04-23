@@ -13,8 +13,6 @@ $(function () {
         },
 
         initialize: function() {
-            app.Nodes.fetch();
-
             // changes in our collection will redraw view
             this.listenTo(app.Nodes, 'all', this.render);
 
@@ -26,7 +24,6 @@ $(function () {
                 return el.attributes;
             }) };
             this.$el.html(this.template(seed));
-
             return this;
         },
 
@@ -44,10 +41,15 @@ $(function () {
         editClicked: function(e) {
             e.preventDefault();
             var id = $(e.target).parents('tr').data('id');
-            new app.DetailView({
-                el:     jQuery("#edit-view"),
-                model:  app.Nodes.get(id)
-            });
+            app.routes.navigate(id,{trigger:true});
+        },
+
+        show: function() {
+            app.routes.navigate('home');
+            this.$el.show();
+        },
+        hide: function() {
+            this.$el.hide();
         }
 
     });
@@ -59,12 +61,12 @@ $(function () {
         capTpl: Handlebars.getTemplate('cap-text-inputs'),
         events: {
             'click #save'       : 'save',
-            'click #close'      : 'hide',
+            'click #close'      : 'close',
             'click #add-param'  : 'addParam',
             'click #add-cap'    : 'addCapability',
             'click .rm-param'   : 'rmParam',
             'click .rm-cap'     : 'rmCapability',
-            'hidden'            : 'undelegateEvents'
+            'hidden'            : 'hidden'
         },
         initialize: function() {
             Handlebars.registerExternalPartial('param-text-input');
@@ -75,10 +77,12 @@ $(function () {
         render: function() {
             this.$el.html(this.template(this.model.attributes));
             this.show();
+            app.routes.navigate(this.model.get('nodeUrn'));
             return this;
         },
 
-        save: function() {
+        save: function(e) {
+            e.preventDefault();
             var self = this;
             var nodeCallback = function(node) {
                 if ( node.id && node.id=='gatewayNode' )  {
@@ -162,8 +166,12 @@ $(function () {
             this._rmParentClass(e);
         },
 
-        hide: function() {
+        close: function(e) {
+            e.preventDefault();
             this.$el.find('.modal').modal('hide');
+        },
+        hidden: function() {
+            app.routes.navigate('home',{trigger:true});
         },
         show: function() {
             this.$el.find('.modal').modal('show');
