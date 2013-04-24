@@ -18,38 +18,62 @@ There is a RESTful HTTP Webservice which consumes/produces JSON
 
 	{
 		"deviceConfigDto": {
-			"nodeUrn" : "urn:wisebed:uzl1:0x2038",
-			"nodeType" : "isense39",
-			"gatewayNode" : false,
-			"description" : "this is the device description",
-			"nodeUsbChipId" : "0123456789",
-			"position" : {
-				"x" : 123,
-				"y" : 234,
-				"z" : 345,
-				"phi" : 12,
-				"theta" : 23
-			},
-			"nodeConfiguration" : [
-				{
-					"key" : "bla",
-					"value" : "blub"
-				},
-				{
-					"key" : "bli",
-					"value" : "blib"
-				}
-			],
-			"defaultChannelPipeline" : [
-				{
-					"handlerName" : "dlestxetx",
-					"instanceName" : "dlestxetx",
-					"configuration" : []
-				}
-			],
-			"timeoutNodeApiMillis" : 100,
-			"timeoutResetMillis" : 1000,
-			"timeoutFlashMillis" : 120000,
-			"timeoutCheckAliveMillis" : 1000
+			"nodeType": "isense39",
+            "nodeUrn": "urn:wisebed:uzl1:0x2038",
+            "position": {
+                "phi": 12,
+                "theta": 23,
+                "x": 123,
+                "y": 234,
+                "z": 345
+            },
+            "description": "this is the device description",
+            "gatewayNode": false,
+			"capabilities": [
+                {
+                    "datatype": "integer",
+                    "defaultValue": 0,
+                    "name": "urn:wisebed:node:capability:light",
+                    "unit": "lux"
+                },
+                {
+                    "datatype": "integer",
+                    "defaultValue": 0,
+                    "name": "urn:wisebed:node:capability:humidity",
+                    "unit": "raw"
+                }
+            ],
+            "defaultChannelPipeline": {
+                "configuration": [
+                    {
+                        "key": "param1",
+                        "value": "val1"
+                    },
+                    {
+                        "key": "param1",
+                        "value": "val2"
+                    },
+                    {
+                        "key": "param2",
+                        "value": "val3"
+                    }
+                ],
+                "handlerName": "dlestxetx",
+                "instanceName": "dlestxetx"
+            },
+            "nodeConfiguration": [
+                {
+                    "key": "bli",
+                    "value": "blib"
+                },
+                {
+                    "key": "bla",
+                    "value": "blub"
+                }
+            ],
+            "timeoutCheckAliveMillis": 1000,
+            "timeoutFlashMillis": 120000,
+            "timeoutNodeApiMillis": 100,
+            "timeoutResetMillis": 1000
 		}
 	}

@@ -4,11 +4,16 @@ import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.mockito.internal.matchers.CapturingMatcher;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -39,6 +44,9 @@ public class DeviceConfigDto {
 
 	@Nullable
 	private List<ChannelHandlerConfigDto> defaultChannelPipeline;
+	
+	@Nullable
+	private Set<CapabilityDto> capabilities;
 
 	@Nullable
 	private Long timeoutNodeApiMillis;
@@ -167,6 +175,14 @@ public class DeviceConfigDto {
 		this.timeoutResetMillis = timeoutResetMillis;
 	}
 
+	public Set<CapabilityDto> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(@Nullable final Set<CapabilityDto> capabilities) {
+		this.capabilities = capabilities;
+	}
+
 	public static DeviceConfigDto fromDeviceConfig(DeviceConfig deviceConfig) {
 
 		final DeviceConfigDto dto = new DeviceConfigDto();
@@ -191,6 +207,15 @@ public class DeviceConfigDto {
 				nodeConfigs.add(new KeyValueDto(entry.getKey(), entry.getValue()));
 			}
 			dto.nodeConfiguration = nodeConfigs;
+		}
+		
+		final Set<Capability> capabiities = deviceConfig.getCapabilities();
+		if (capabiities != null) {
+			final Set<CapabilityDto> caps = new HashSet<CapabilityDto>();
+			for (Capability cap : capabiities) {
+				caps.add(CapabilityDto.fromCapability(cap));
+			}
+			dto.capabilities = caps;
 		}
 
 		dto.nodeType = deviceConfig.getNodeType();
@@ -224,8 +249,16 @@ public class DeviceConfigDto {
 				channelHandlerConfigs.add(channelHandlerConfigDto.toChannelHandlerConfig());
 			}
 		}
+		
+		Set<Capability> capabilitiesSet = null;
+		if (capabilities != null) {
+			capabilitiesSet = new HashSet<Capability>();
+			for (CapabilityDto cap : capabilities) {
+				capabilitiesSet.add(cap.toCapability());
+			}
+		}
 
-		return new DeviceConfig(
+		DeviceConfig config = new DeviceConfig(
 				new NodeUrn(nodeUrn),
 				nodeType,
 				gatewayNode,
@@ -238,7 +271,10 @@ public class DeviceConfigDto {
 				timeoutFlashMillis,
 				timeoutNodeApiMillis,
 				timeoutResetMillis,
-				position == null ? null : position.toCoordinate()
+				position == null ? null : position.toCoordinate(),
+				capabilitiesSet
 		);
+		
+		return config;
 	}
 }

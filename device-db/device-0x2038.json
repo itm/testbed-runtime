@@ -41,6 +41,20 @@
 					]
 				}
 			],
+			"capabilities" : [
+				{
+					"name" 			: "urn:wisebed:node:capability:light",
+					"datatype" 		: "integer",
+					"unit"			: "lux",
+					"defaultValue" 	: "0"
+				},
+				{
+					"name" 			: "urn:wisebed:node:capability:humidity",
+					"datatype" 		: "integer",
+					"unit"			: "raw",
+					"defaultValue" 	: "0"
+				}
+			],
 			"timeoutNodeApiMillis" : 100,
 			"timeoutResetMillis" : 1000,
 			"timeoutFlashMillis" : 120000,
