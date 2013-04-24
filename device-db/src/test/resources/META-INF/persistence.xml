@@ -9,6 +9,7 @@
 		<class>de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity</class>
 		<class>de.uniluebeck.itm.tr.devicedb.entity.ChannelHandlerConfigEntity</class>
 		<class>de.uniluebeck.itm.tr.devicedb.entity.KeyValueEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.CapabilityEntity</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<!-- vendor-specific properties go here -->

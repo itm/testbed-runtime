@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 
@@ -10,11 +11,17 @@ import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
+import eu.wisebed.wiseml.Dtypes;
+import eu.wisebed.wiseml.Units;
+
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.get;
@@ -74,7 +81,13 @@ public abstract class DeviceDBTestBase {
 		Multimap<String, String> handlerProps = ImmutableMultimap.of("Key1", "Val1", "Key1", "Val2", "Key2", "Val3");
 		ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps );
 		ChannelHandlerConfigList defaultChannelPipeline1 = new ChannelHandlerConfigList(ImmutableList.of(handler1));
-
+		
+		Capability cap1 = new Capability()
+				.withName("urn:wisebed:node:capability:light")
+				.withDatatype(Dtypes.INTEGER).withUnit(Units.LUX)
+				.withDefault("0");
+		Set<Capability> capabilities1 = ImmutableSet.of(cap1);
+		
 		config1 = new DeviceConfig(
 				NODE_URN1,
 				"isense48",
@@ -88,6 +101,7 @@ public abstract class DeviceDBTestBase {
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
+				null,
 				null
 		);
 
@@ -104,7 +118,8 @@ public abstract class DeviceDBTestBase {
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
-				new Coordinate().withX(10).withY(3).withZ(5.0)
+				new Coordinate().withX(10).withY(3).withZ(5.0),
+				capabilities1
 		);
 
 		config3 = new DeviceConfig(
@@ -120,6 +135,7 @@ public abstract class DeviceDBTestBase {
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
+				null,
 				null
 		);
 	}

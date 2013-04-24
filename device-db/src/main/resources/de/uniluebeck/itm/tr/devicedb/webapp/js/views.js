@@ -55,16 +55,20 @@ $(function () {
 
     app.DetailView = Backbone.View.extend({
         template: Handlebars.getTemplate('modal'),
-        paramTpl: Handlebars.getTemplate('text-input'),
+        paramTpl: Handlebars.getTemplate('param-text-input'),
+        capTpl: Handlebars.getTemplate('cap-text-inputs'),
         events: {
             'click #save'       : 'save',
             'click #close'      : 'hide',
             'click #add-param'  : 'addParam',
-            'click #rm-param'   : 'rmParam',
+            'click #add-cap'    : 'addCapability',
+            'click .rm-param'   : 'rmParam',
+            'click .rm-cap'     : 'rmCapability',
             'hidden'            : 'undelegateEvents'
         },
         initialize: function() {
-            Handlebars.registerExternalPartial('text-input');
+            Handlebars.registerExternalPartial('param-text-input');
+            Handlebars.registerExternalPartial('cap-text-inputs');
             this.render();
         },
 
@@ -102,16 +106,20 @@ $(function () {
             });
         },
 
+        _rmParentClass: function(e) {
+            $(e.target).parents('.parent').remove();
+        },
+
         _getMaxParamIdx: function() {
             var max = -1;
             $('#params [name]').each(function(idx,val){
+                // parse number e.g. '1' from 'nodeConfiguration[1]'
                 $(val).attr('name').match(/nodeConfiguration\[(\d+)\]/);
                 var thisIdx = parseInt(RegExp.$1, 10);
                 max =  thisIdx > max ? thisIdx : max;
             });
             return max;
         },
-
         addParam: function(e) {
             var param = this.paramTpl({
                 'key' : '',
@@ -124,7 +132,34 @@ $(function () {
             $('#params').append(param);
         },
         rmParam: function(e) {
-            $(e.target).parents('.control-group').remove();
+            this._rmParentClass(e);
+        },
+
+        _getMaxCapIdx: function() {
+            var max = -1;
+            $('#capabilities [name]').each(function(idx,val){
+                // parse number e.g. '1' from 'capabilities[1]'
+                $(val).attr('name').match(/capabilities\[(\d+)\]/);
+                var thisIdx = parseInt(RegExp.$1, 10);
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+        addCapability: function(e) {
+            var cap = this.capTpl({
+                'name' : '',
+                'defaultValue': '',
+                'unit': '',
+                'datatype': ''
+            }, {
+                data: {
+                    index: this._getMaxCapIdx()+1
+                }
+            });
+            $('#capabilities').append(cap);
+        },
+        rmCapability: function(e) {
+            this._rmParentClass(e);
         },
 
         hide: function() {

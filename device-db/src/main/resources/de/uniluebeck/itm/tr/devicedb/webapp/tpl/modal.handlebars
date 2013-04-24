@@ -100,11 +100,21 @@
         <legend>Parameters</legend>
         <div id="params">
             {{#each nodeConfiguration}}
-                {{>text-input}}
+                {{>param-text-input}}
             {{/each}}
         </div>
-        <a class="btn btn-mini" href="#" id="add-param">
-            <i class="icon-plus"></i>
+        <a class="btn btn-mini" href="#" id="add-param" title="add parameter">
+            <i class="icon-plus"></i> Add Parameter
+        </a>
+
+        <legend>Capabilities</legend>
+        <div id="capabilities">
+            {{#each capabilities}}
+                {{>cap-text-inputs}}
+            {{/each}}
+        </div>
+        <a class="btn btn-mini" href="#" id="add-cap" title="add capability">
+            <i class="icon-plus"></i> Add Capability
         </a>
         </form>
     </div>
