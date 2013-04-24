@@ -116,6 +116,17 @@
         <a class="btn btn-mini" href="#" id="add-cap" title="add capability">
             <i class="icon-plus"></i> Add Capability
         </a>
+
+        <legend>Default Channel Pipeline</legend>
+        <div id="pipeline">
+            {{#each defaultChannelPipeline}}
+                {{>pipeline-text-inputs}}
+            {{/each}}
+        </div>
+        <a class="btn btn-mini" href="#" id="add-cap" title="add capability">
+            <i class="icon-plus"></i> Add Capability
+        </a>
+
         </form>
     </div>
     <div class="modal-footer">

@@ -56,21 +56,30 @@ $(function () {
 
 
     app.DetailView = Backbone.View.extend({
+
         template: Handlebars.getTemplate('modal'),
         paramTpl: Handlebars.getTemplate('param-text-input'),
-        capTpl: Handlebars.getTemplate('cap-text-inputs'),
+        capTpl:   Handlebars.getTemplate('cap-text-inputs'),
+        pipeTpl:  Handlebars.getTemplate('pipeline-text-inputs'),
+        pipeParamTpl:  Handlebars.getTemplate('pipeline-param-input'),
+
         events: {
-            'click #save'       : 'save',
-            'click #close'      : 'close',
-            'click #add-param'  : 'addParam',
-            'click #add-cap'    : 'addCapability',
-            'click .rm-param'   : 'rmParam',
-            'click .rm-cap'     : 'rmCapability',
-            'hidden'            : 'hidden'
+            'click #save'           : 'save',
+            'click #close'          : 'close',
+            'click #add-param'      : 'addParam',
+            'click #add-cap'        : 'addCapability',
+            'click #add-pipe-param' : 'addPipeParam',
+            'click .rm-param'       : 'rmParam',
+            'click .rm-pipe-param'  : 'rmPipeParam',
+            'click .rm-cap'         : 'rmCapability',
+            'hidden'                : 'hidden'
         },
+
         initialize: function() {
             Handlebars.registerExternalPartial('param-text-input');
             Handlebars.registerExternalPartial('cap-text-inputs');
+            Handlebars.registerExternalPartial('pipeline-text-inputs');
+            Handlebars.registerExternalPartial('pipeline-param-input');
             this.render();
         },
 
@@ -101,7 +110,7 @@ $(function () {
                 wait: true,
                 success: function(model, response, options) {
                     app.Nodes.add(self.model, {merge: true});
-                    self.hide();
+                    self.close(e);
                 },
                 error: function(model, xhr, options) {
                     alert(xhr.responseText);
@@ -110,8 +119,8 @@ $(function () {
             });
         },
 
-        _rmParentClass: function(e) {
-            $(e.target).parents('.parent').remove();
+        _rmParentClass: function(e, element) {
+            $(e.target).parents(element).remove();
         },
 
         _getMaxParamIdx: function() {
@@ -136,7 +145,7 @@ $(function () {
             $('#params').append(param);
         },
         rmParam: function(e) {
-            this._rmParentClass(e);
+            this._rmParentClass(e, '.parent');
         },
 
         _getMaxCapIdx: function() {
@@ -163,7 +172,39 @@ $(function () {
             $('#capabilities').append(cap);
         },
         rmCapability: function(e) {
-            this._rmParentClass(e);
+            this._rmParentClass(e, '.parent');
+        },
+
+
+        _getMaxPipeParamIdx: function(handlerIdx) {
+            var max = -1;
+            $('#pipeline .parent[data-idx="'+handlerIdx+'"] [name]').each(function(idx,val){
+                // parse number e.g. '1' from 'defaultChannelPipeline[1]'
+                $(val).attr('name').match(/configuration\[(\d+)\]/);
+                var thisIdx = parseInt(RegExp.$1, 10);
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+        addPipeParam: function(e) {
+            e.preventDefault();
+            var curHandler = Number($(e.target).parents('.parent').data('idx'));
+            console.log('curHandler:'+curHandler);
+            console.log('maxParam:'+this._getMaxPipeParamIdx(curHandler));
+            var param = this.pipeParamTpl({
+                'outerIndex': curHandler,
+                'key' : '',
+                'value': ''
+            }, {
+                data: {
+                    index: this._getMaxPipeParamIdx(curHandler)+1
+                }
+            });
+            $('#pipeline .parent[data-idx="'+curHandler+'"] .pipeline-params').append(param);
+        },
+
+        rmPipeParam: function(e) {
+            this._rmParentClass(e, '.control-group');
         },
 
         close: function(e) {

@@ -1,0 +1,33 @@
+<div class="parent" data-idx="{{@index}}">
+	<div class="control-group">
+		<label class="control-label">Handler Name</label>
+	    <div class="controls">
+	    	<input type="text" value="{{handlerName}}" name="defaultChannelPipeline[{{@index}}].handlerName">
+	    </div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">Instance Name</label>
+	    <div class="controls">
+	    	<input type="text" value="{{instanceName}}" name="defaultChannelPipeline[{{@index}}].instanceName">
+	    </div>
+	</div>
+
+	<div class="pipeline-params">
+		<div class="control-group">
+			<label class="control-label">Params:</label>
+			<div class="controls">&nbsp;</div>
+		</div>
+		
+		{{#eachWithOuter configuration @index}}
+			{{>pipeline-param-input}}
+		{{/eachWithOuter}}
+	</div>
+	<a class="btn btn-mini" href="#" id="add-pipe-param" title="add parameter to channel handler">
+            <i class="icon-plus"></i> Add Param
+        </a>
+
+	<a class="btn btn-mini pull-right rm-cap" href="#" title="remove item">
+		<i class="icon-remove"></i>
+	</a>
+
+</div>
