@@ -115,7 +115,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 						request.getRequestId(),
 						nodeUrn,
 						status,
-						null
+						"Node \"" + nodeUrn + "\" is not connected"
 				);
 				eventBus.post(response);
 			}

@@ -609,10 +609,12 @@ public abstract class MessagesHelper {
 
 	public static int getUnconnectedStatusCode(final Request request) {
 		switch (request.getType()) {
-			case FLASH_IMAGES:
-				return -1;
-			default:
+			case ARE_NODES_ALIVE:
 				return 0;
+			case ARE_NODES_CONNECTED:
+				return 0;
+			default:
+				return -1;
 		}
 	}
 

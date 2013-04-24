@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
@@ -492,10 +493,15 @@ public class ExperimentResource {
 
 				if (responseTracker.get(nodeUrn).isDone()) {
 					try {
-						responseTracker.get(nodeUrn).get();
-						status = new JobNodeStatus(JobState.SUCCESS, 100, null);
+						final SingleNodeResponse response = responseTracker.get(nodeUrn).get();
+						status = new JobNodeStatus(
+								response.getStatusCode() == getUnconnectedStatusCode(responseTracker.getRequest()) ?
+										JobState.FAILED : JobState.SUCCESS,
+								response.getStatusCode(),
+								response.getErrorMessage()
+						);
 					} catch (Exception e) {
-						status = new JobNodeStatus(JobState.FAILED, -1, e.getMessage());
+						status = new JobNodeStatus(JobState.FAILED, -2, e.getMessage());
 					}
 				} else {
 					status = new JobNodeStatus(
@@ -512,8 +518,11 @@ public class ExperimentResource {
 		return operationStatusMap;
 	}
 
-	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation, final Request request,
-														 final int timeout, final TimeUnit timeUnit) {
+	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation,
+														 final Request request,
+														 final int timeout,
+														 final TimeUnit timeUnit) {
+
 		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
 		reservation.getEventBus().post(request);
 
@@ -522,7 +531,7 @@ public class ExperimentResource {
 		} catch (TimeoutException e) {
 			return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();
 		} catch (Exception e) {
-			return Response.serverError().entity(e.getMessage()).build();
+			throw propagate(e);
 		}
 
 		return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();

@@ -57,15 +57,20 @@ class ResponseTrackerImpl implements ResponseTracker {
 		this.eventBusService.register(this);
 	}
 
+	@Override
+	public Request getRequest() {
+		return request;
+	}
+
 	@Subscribe
 	public void onSingleNodeResponse(final SingleNodeResponse response) {
 
 		log.trace("ResponseTrackerImpl.onSingleNodeResponse({})", response);
 
-		final boolean reservationIdEquals =
-				((request.hasReservationId() && response.hasReservationId()) ||
-						(!request.hasReservationId() && !response.hasReservationId())) &&
-						request.getReservationId().equals(response.getReservationId());
+		final boolean reservationIdEquals = ((request.hasReservationId() && response.hasReservationId()) ||
+				(!request.hasReservationId() && !response.hasReservationId())) &&
+				request.getReservationId().equals(response.getReservationId());
+
 		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
 		final boolean forMe = reservationIdEquals && requestIdEquals;
 
