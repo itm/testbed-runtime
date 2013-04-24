@@ -1,20 +1,18 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Maps;
-
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
+
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DeviceConfig implements Serializable {
 
@@ -181,11 +179,12 @@ public class DeviceConfig implements Serializable {
 		return gatewayNode;
 	}
 
+	@Nullable
 	public Set<Capability> getCapabilities() {
 		return capabilities;
 	}
 
-	public void setCapabilities(Set<Capability> capabilities) {
+	public void setCapabilities(@Nullable Set<Capability> capabilities) {
 		this.capabilities = capabilities;
 	}
 

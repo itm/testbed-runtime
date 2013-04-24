@@ -8,7 +8,6 @@ import eu.wisebed.wiseml.Capability;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.mockito.internal.matchers.CapturingMatcher;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +18,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 @XmlRootElement
+@SuppressWarnings("unused")
 public class DeviceConfigDto {
 
 	private String nodeUrn;
@@ -175,6 +175,7 @@ public class DeviceConfigDto {
 		this.timeoutResetMillis = timeoutResetMillis;
 	}
 
+	@Nullable
 	public Set<CapabilityDto> getCapabilities() {
 		return capabilities;
 	}
@@ -209,10 +210,10 @@ public class DeviceConfigDto {
 			dto.nodeConfiguration = nodeConfigs;
 		}
 		
-		final Set<Capability> capabiities = deviceConfig.getCapabilities();
-		if (capabiities != null) {
+		final Set<Capability> capabilities = deviceConfig.getCapabilities();
+		if (capabilities != null) {
 			final Set<CapabilityDto> caps = new HashSet<CapabilityDto>();
-			for (Capability cap : capabiities) {
+			for (Capability cap : capabilities) {
 				caps.add(CapabilityDto.fromCapability(cap));
 			}
 			dto.capabilities = caps;
@@ -258,7 +259,7 @@ public class DeviceConfigDto {
 			}
 		}
 
-		DeviceConfig config = new DeviceConfig(
+		return new DeviceConfig(
 				new NodeUrn(nodeUrn),
 				nodeType,
 				gatewayNode,
@@ -274,7 +275,5 @@ public class DeviceConfigDto {
 				position == null ? null : position.toCoordinate(),
 				capabilitiesSet
 		);
-		
-		return config;
 	}
 }
