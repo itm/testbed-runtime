@@ -98,8 +98,6 @@ public class SessionManagementImplTest {
 	@Mock
 	private RequestIdProvider requestIdProvider;
 
-	private Map<NodeUrn, SingleNodeResponse> responseMap;
-
 	private SessionManagementImpl sessionManagement;
 
 	@Before
@@ -108,7 +106,7 @@ public class SessionManagementImplTest {
 		final PortalConfig portalConfig = new PortalConfig();
 		portalConfig.urnPrefix = new NodeUrnPrefix("urn:unit-test:");
 
-		responseMap = newHashMap();
+		final Map<NodeUrn, SingleNodeResponse> responseMap = newHashMap();
 		responseMap.put(NODE_URN_1, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_1, 1, null));
 		responseMap.put(NODE_URN_2, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_2, 0, null));
 		responseMap.put(NODE_URN_3, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_3, 1, null));

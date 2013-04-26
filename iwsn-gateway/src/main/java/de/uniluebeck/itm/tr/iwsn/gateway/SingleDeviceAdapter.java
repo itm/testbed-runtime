@@ -229,6 +229,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 				throw new RuntimeException(e);
 			}
 
+			setDefaultChannelPipeline();
 			nodeApi.start();
 
 			gatewayEventBus.post(new DevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
@@ -728,12 +729,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		final NamedChannelHandlerList handlers = new NamedChannelHandlerList();
 
-		handlers.add("forwardingHandler", forwardingHandler);
-
 		final boolean innerHandlersExist = !checkNotNull(innerChannelHandlers).isEmpty();
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.add("aboveFilterPipelineLogger", abovePipelineLogger);
+			handlers.add("belowChannelPipelineLogger", belowPipelineLogger);
 		}
 
 		if (innerHandlersExist) {
@@ -741,8 +740,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.add("belowFilterPipelineLogger", belowPipelineLogger);
+			handlers.add("aboveChannelPipelineLogger", abovePipelineLogger);
 		}
+
+		handlers.add("forwardingHandler", forwardingHandler);
 
 		return handlers;
 	}

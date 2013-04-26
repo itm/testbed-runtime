@@ -72,6 +72,7 @@ public class RestApiApplication extends Application {
 				new AuthorizationFaultExceptionMapper(),
 				new ReservationConflictFaultExceptionMapper(),
 				new RSUnknownSecretReservationKeyFaultExceptionMapper(),
+				new RuntimeExceptionMapper(),
 				new SMUnknownSecretReservationKeyFaultExceptionMapper(),
 				new WebServiceExceptionMapper()
 		);

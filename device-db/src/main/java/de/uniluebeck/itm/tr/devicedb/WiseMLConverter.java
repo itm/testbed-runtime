@@ -25,9 +25,9 @@ public abstract class WiseMLConverter {
 			node.setId(config.getNodeUrn().toString());
 			node.setDescription(config.getDescription());
 			node.setPosition(config.getPosition());
-
-			// TODO capabilities
-
+			if (config.getCapabilities() != null) {
+				node.getCapability().addAll(config.getCapabilities());
+			}
 			nodes.add(node);
 		}
 

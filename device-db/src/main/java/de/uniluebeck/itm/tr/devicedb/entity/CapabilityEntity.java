@@ -1,23 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name="Capability")
 public class CapabilityEntity {
@@ -32,6 +23,7 @@ public class CapabilityEntity {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
+	@SuppressWarnings("unused")
     private Long id;
 			
 	@Column(nullable=false)
@@ -93,21 +85,15 @@ public class CapabilityEntity {
 			Set<Capability> capabilities) {
 		
 		if (capabilities==null) return null;
-		
-		Collection<CapabilityEntity> coll = Collections2.transform(capabilities, CAP_TO_ENTITY_FUNCTION);
-		Set<CapabilityEntity> set = new HashSet<CapabilityEntity>(coll);
-		
-		return set;
-		
+		return new HashSet<CapabilityEntity>(Collections2.transform(capabilities, CAP_TO_ENTITY_FUNCTION));
 	}
 	
 	public Capability toCapability() {
 		Capability cap = new Capability();
-		cap.setDatatype(datatype);
-		cap.setDefault(defaultValue);
-		cap.setName(name);
-		cap.setUnit(unit);
-		
+		cap.setDatatype(getDatatype());
+		cap.setDefault(getDefaultValue());
+		cap.setName(getName());
+		cap.setUnit(getUnit());
 		return cap;
 	}
 	

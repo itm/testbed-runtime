@@ -5,19 +5,20 @@ import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
 public class CapabilityDto {
-	
+
 	private String name;
-	
+
 	private String defaultValue;
-	
+
 	private Dtypes datatype;
-	
+
 	private Units unit;
-	
-	public CapabilityDto() { }
-	
-	public CapabilityDto(String name, String defaultValue, Dtypes datatype,
-			Units unit) {
+
+	@SuppressWarnings("unused")
+	public CapabilityDto() {
+	}
+
+	public CapabilityDto(String name, String defaultValue, Dtypes datatype, Units unit) {
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.datatype = datatype;
@@ -55,23 +56,23 @@ public class CapabilityDto {
 	public void setUnit(Units unit) {
 		this.unit = unit;
 	}
-	
+
 	public Capability toCapability() {
 		Capability cap = new Capability();
-		cap.setDatatype(datatype);
-		cap.setDefault(defaultValue);
-		cap.setName(name);
-		cap.setUnit(unit);
-		
+		cap.setDatatype(getDatatype());
+		cap.setDefault(getDefaultValue());
+		cap.setName(getName());
+		cap.setUnit(getUnit());
 		return cap;
 	}
-	
-	public static CapabilityDto fromCapability(Capability capability) {		
+
+	public static CapabilityDto fromCapability(Capability capability) {
 		return new CapabilityDto(
 				capability.getName(),
 				capability.getDefault(),
 				capability.getDatatype(),
-				capability.getUnit());
+				capability.getUnit()
+		);
 	}
-	
+
 }
