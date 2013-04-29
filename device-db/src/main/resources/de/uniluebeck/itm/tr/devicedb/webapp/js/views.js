@@ -71,6 +71,8 @@ $(function () {
             'click #add-pipe-param' : 'addPipeParam',
             'click .rm-param'       : 'rmParam',
             'click .rm-pipe-param'  : 'rmPipeParam',
+            'click .rm-pipe'        : 'rmPipeElem',
+            'click #add-pipe'       : 'addPipeElem',
             'click .rm-cap'         : 'rmCapability',
             'hidden'                : 'hidden'
         },
@@ -120,6 +122,7 @@ $(function () {
         },
 
         _rmParentClass: function(e, element) {
+            e.preventDefault();
             $(e.target).parents(element).remove();
         },
 
@@ -159,6 +162,7 @@ $(function () {
             return max;
         },
         addCapability: function(e) {
+            e.preventDefault();
             var cap = this.capTpl({
                 'name' : '',
                 'defaultValue': '',
@@ -189,8 +193,6 @@ $(function () {
         addPipeParam: function(e) {
             e.preventDefault();
             var curHandler = Number($(e.target).parents('.parent').data('idx'));
-            console.log('curHandler:'+curHandler);
-            console.log('maxParam:'+this._getMaxPipeParamIdx(curHandler));
             var param = this.pipeParamTpl({
                 'outerIndex': curHandler,
                 'key' : '',
@@ -205,6 +207,31 @@ $(function () {
 
         rmPipeParam: function(e) {
             this._rmParentClass(e, '.control-group');
+        },
+
+        _getMaxPipeElemIdx: function() {
+            var max = -1;
+            $('#pipeline .parent').each(function(idx,val){
+                var thisIdx = Number($(val).data('idx'));
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+        addPipeElem: function(e) {
+            e.preventDefault();
+            var handler = this.pipeTpl({
+                'handlerName'  : '',
+                'instanceName' : '',
+                'configuration': []
+            }, {
+                data: {
+                    index: this._getMaxPipeElemIdx()+1
+                }
+            });
+            $('#pipeline').append(handler);
+        },
+        rmPipeElem: function(e) {
+            this._rmParentClass(e, '.parent');
         },
 
         close: function(e) {
