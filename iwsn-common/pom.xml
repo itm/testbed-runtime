@@ -88,6 +88,14 @@
 			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-cxf</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>

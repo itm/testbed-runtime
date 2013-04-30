@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.providers;
+package de.uniluebeck.itm.tr.iwsn.common.rest;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.ext.ParameterHandler;
