@@ -22,12 +22,14 @@ $(function () {
 		},
 
 		openDetail: function(nodeUrn) {
-			app.detailView = app.detailView || new app.DetailView({
-                el:     jQuery("#edit-view"),
-                model:  app.Nodes.get(nodeUrn)
-            });
-            if (app.table) app.table.hide();
-            app.detailView.show();
+			if ( !app.detailView || app.detailView.model.id != nodeUrn) {
+				app.detailView = new app.DetailView({
+					el:     jQuery("#edit-view"),
+					model:  app.Nodes.get(nodeUrn)
+				});
+			}
+			if (app.table) app.table.hide();
+			app.detailView.show();
 		}
 	});
 
