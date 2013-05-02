@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.net.HostAndPort;
-import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.iwsn.common.config.HostAndPortOptionHandler;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
+import de.uniluebeck.itm.tr.common.config.HostAndPortOptionHandler;
 import org.kohsuke.args4j.Option;
 
 import java.net.URI;

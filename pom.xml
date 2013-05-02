@@ -34,11 +34,13 @@
 	<name>TR</name>
 
 	<modules>
+		<module>common</module>
 		<module>device-db</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
 		<module>iwsn-portal</module>
 		<module>iwsn-gateway</module>
+		<module>rs-federator</module>
 		<module>rs-server</module>
 		<module>snaa-server</module>
 		<module>federator-utils</module>
@@ -72,6 +74,11 @@
 			<!-- project module dependencies -->
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.device-db</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -92,19 +99,12 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.rs-federator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-server</artifactId>
-				<classifier>onejar</classifier>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.iwsn-server</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.iwsn-server</artifactId>
-				<classifier>onejar</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

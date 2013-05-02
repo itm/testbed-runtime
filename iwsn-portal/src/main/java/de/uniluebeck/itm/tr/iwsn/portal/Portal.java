@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 
 public class Portal extends AbstractService {
 

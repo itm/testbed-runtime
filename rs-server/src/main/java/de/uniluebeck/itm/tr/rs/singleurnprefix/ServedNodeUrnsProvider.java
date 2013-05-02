@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.wiseml.WiseMLHelper;
@@ -39,7 +38,7 @@ public class ServedNodeUrnsProvider implements Provider<NodeUrn[]> {
 
 	@Inject
 	public ServedNodeUrnsProvider(@Nullable final SessionManagement sessionManagement,
-								  @Named("SingleUrnPrefixSOAPRS.timeLimiter") final TimeLimiter timeLimiter) {
+								  final TimeLimiter timeLimiter) {
 		this.sessionManagement = sessionManagement;
 		this.timeLimiter = timeLimiter;
 	}

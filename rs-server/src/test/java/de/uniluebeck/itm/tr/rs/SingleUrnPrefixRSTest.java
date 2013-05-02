@@ -2,11 +2,14 @@ package de.uniluebeck.itm.tr.rs;
 
 
 import com.google.common.collect.Lists;
-import com.google.inject.*;
-import com.google.inject.name.Names;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSoapRS;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -64,7 +67,10 @@ public class SingleUrnPrefixRSTest {
 	@Mock
 	private Provider<NodeUrn[]> servedNodeUrns;
 
-	private RS rs;
+	@Mock
+	private ServicePublisher servicePublisher;
+
+	private SingleUrnPrefixRS rs;
 
 	@SuppressWarnings("FieldCanBeLocal")
 	private SecretAuthenticationKey user1Sak;
@@ -91,43 +97,31 @@ public class SingleUrnPrefixRSTest {
 	@Before
 	public void setUp() {
 
-		final Injector injector = Guice.createInjector(new Module() {
+		final RSConfig config = new RSConfig();
+		config.urnPrefix = URN_PREFIX;
+
+		final Injector injector = Guice.createInjector(new AbstractModule() {
 			@Override
-			public void configure(final Binder binder) {
+			public void configure() {
 
-				binder.bind(NodeUrnPrefix.class)
-						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.urnPrefix"))
-						.toInstance(URN_PREFIX);
-
-				binder.bind(SNAA.class)
-						.toInstance(snaa);
-
-				binder.bind(SessionManagement.class)
-						.toInstance(sessionManagement);
-
-				binder.bind(RSPersistence.class)
-						.toInstance(persistence);
-
-				binder.bind(NodeUrn[].class)
-						.annotatedWith(Names.named("SingleUrnPrefixSOAPRS.servedNodeUrns"))
-						.toProvider(servedNodeUrns);
-
-				binder.bind(RS.class)
-						.to(SingleUrnPrefixSOAPRS.class);
-
-				binder.bind(RS.class)
-						.annotatedWith(NonWS.class)
-						.to(SingleUrnPrefixRS.class);
+				bind(RSConfig.class).toInstance(config);
+				bind(ServicePublisher.class).toInstance(servicePublisher);
+				bind(SNAA.class).toInstance(snaa);
+				bind(SessionManagement.class).toInstance(sessionManagement);
+				bind(RSPersistence.class).toInstance(persistence);
+				bind(NodeUrn[].class).toProvider(servedNodeUrns);
+				bind(RSService.class).to(SingleUrnPrefixSoapRS.class);
+				bind(eu.wisebed.api.v3.rs.RS.class).to(SingleUrnPrefixRS.class);
 
 				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaa));
-				binder.bindInterceptor(com.google.inject.matcher.Matchers.any(),
+				bindInterceptor(com.google.inject.matcher.Matchers.any(),
 						annotatedWith(AuthorizationRequired.class), rsAuthorizationInterceptor
 				);
 			}
 		}
 		);
 
-		rs = injector.getInstance(RS.class);
+		rs = injector.getInstance(SingleUrnPrefixRS.class);
 
 		user1Sak = new SecretAuthenticationKey();
 		user1Sak.setKey(USER1_SECRET_AUTHENTICATION_KEY);
@@ -284,8 +278,8 @@ public class SingleUrnPrefixRSTest {
 
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
-	 * user when {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime, org.joda.time.DateTime)}
-	 * is called.
+	 * user when {@link eu.wisebed.api.v3.rs.RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
+	 * org.joda.time.DateTime)} is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong

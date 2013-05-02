@@ -5,12 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
+import de.uniluebeck.itm.tr.rs.RSConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -33,52 +35,19 @@ public class SingleUrnPrefixRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
 
-	@Inject
-	@Named("SingleUrnPrefixSOAPRS.urnPrefix")
-	private NodeUrnPrefix urnPrefix;
+	private final RSConfig config;
+
+	private final RSPersistence persistence;
+
+	private final Provider<NodeUrn[]> servedNodeUrns;
 
 	@Inject
-	private RSPersistence persistence;
-
-	@Inject
-	@Nullable
-	@Named("SingleUrnPrefixSOAPRS.servedNodeUrns")
-	private Provider<NodeUrn[]> servedNodeUrns;
-
-	private List<SecretReservationKey> makeReservationInternal(
-			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final List<NodeUrn> nodeUrns,
-			final DateTime from,
-			final DateTime to,
-			final String description,
-			final List<KeyValuePair> options) throws RSFault_Exception {
-
-		ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(from);
-		crd.setTo(to);
-		crd.getNodeUrns().addAll(nodeUrns);
-		crd.setDescription(description);
-		crd.getOptions().addAll(options);
-
-		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
-		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
-		data.setUsername(secretAuthenticationKeys.get(0).getUsername());
-
-		crd.getKeys().add(data);
-
-		try {
-
-			SecretReservationKey secretReservationKey = persistence.addReservation(crd, urnPrefix);
-
-			data.setKey(secretReservationKey.getKey());
-
-			List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
-			keys.add(secretReservationKey);
-			return keys;
-
-		} catch (Exception e) {
-			throw createRSFault_Exception(e.getMessage());
-		}
+	public SingleUrnPrefixRS(final RSConfig config,
+							 final RSPersistence persistence,
+							 @Nullable final Provider<NodeUrn[]> servedNodeUrns) {
+		this.config = checkNotNull(config);
+		this.persistence = checkNotNull(persistence);
+		this.servedNodeUrns = checkNotNull(servedNodeUrns);
 	}
 
 	@Override
@@ -217,7 +186,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
-		if (!urnPrefix.equals(sak.getUrnPrefix())) {
+		if (!config.urnPrefix.equals(sak.getUrnPrefix())) {
 			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
 			RSFault exception = new RSFault();
@@ -244,16 +213,15 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Check if we serve all node urns by urnPrefix
 		for (NodeUrn nodeUrn : nodeUrns) {
-			if (!nodeUrn.belongsTo(urnPrefix)) {
+			if (!nodeUrn.belongsTo(config.urnPrefix)) {
 				throw createRSFault_Exception(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + urnPrefix
+						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + config.urnPrefix
 				);
 			}
 		}
 
-		// Ask Session Management Endpoint of the testbed we're responsible for for it's network
-		// description
-		// and check if the individual node urns of the reservation are existing
+		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description and check
+		// if the individual node urns of the reservation are existing
 		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
 
 			NodeUrn[] networkNodes;
@@ -329,7 +297,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		} else {
 			srk = secretReservationKeys.get(0);
-			if (!urnPrefix.equals(srk.getUrnPrefix())) {
+			if (!config.urnPrefix.equals(srk.getUrnPrefix())) {
 				msg = "Not serving urn prefix " + srk.getUrnPrefix();
 			}
 		}
@@ -386,4 +354,39 @@ public class SingleUrnPrefixRS implements RS {
 		return publicReservationDataList;
 	}
 
+	private List<SecretReservationKey> makeReservationInternal(
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
+			final List<NodeUrn> nodeUrns,
+			final DateTime from,
+			final DateTime to,
+			final String description,
+			final List<KeyValuePair> options) throws RSFault_Exception {
+
+		ConfidentialReservationData crd = new ConfidentialReservationData();
+		crd.setFrom(from);
+		crd.setTo(to);
+		crd.getNodeUrns().addAll(nodeUrns);
+		crd.setDescription(description);
+		crd.getOptions().addAll(options);
+
+		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
+		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
+		data.setUsername(secretAuthenticationKeys.get(0).getUsername());
+
+		crd.getKeys().add(data);
+
+		try {
+
+			SecretReservationKey secretReservationKey = persistence.addReservation(crd, config.urnPrefix);
+
+			data.setKey(secretReservationKey.getKey());
+
+			List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
+			keys.add(secretReservationKey);
+			return keys;
+
+		} catch (Exception e) {
+			throw createRSFault_Exception(e.getMessage());
+		}
+	}
 }

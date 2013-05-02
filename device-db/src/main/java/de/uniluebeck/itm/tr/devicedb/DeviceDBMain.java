@@ -4,8 +4,8 @@ import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
 
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 
 public class DeviceDBMain {
 

@@ -33,7 +33,6 @@ import com.google.gdata.data.Feed;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.extensions.When;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
@@ -53,9 +52,10 @@ import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+
+import static com.google.common.base.Throwables.propagate;
 
 public class GCalRSPersistence implements RSPersistence {
 
@@ -75,19 +75,15 @@ public class GCalRSPersistence implements RSPersistence {
 
 	private CalendarService myService;
 
-	public GCalRSPersistence(String userName, String password) throws RSFault_Exception {
+	public GCalRSPersistence(String userName, String password) {
 
 		myService = new CalendarService("GCal Persistence Service");
 
 		try {
 			eventFeedUrl = new URL(META_FEED_URL_BASE + userName + EVENT_FEED_URL_SUFFIX);
 			myService.setUserCredentials(userName, password);
-		} catch (MalformedURLException e) {
-			log.error("Invalid URL: " + e, e);
-			throw createRSFault("Internal Server Error");
-		} catch (AuthenticationException e) {
-			log.error("Invalid username and password: " + e, e);
-			throw createRSFault("Internal Server Error");
+		} catch (Exception e) {
+			throw propagate(e);
 		}
 
 		log.debug("New GCal Persistence instance for calendar @ " + eventFeedUrl);

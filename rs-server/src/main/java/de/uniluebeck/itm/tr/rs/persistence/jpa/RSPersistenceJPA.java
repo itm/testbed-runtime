@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.rs.RSConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
@@ -44,6 +45,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 public class RSPersistenceJPA implements RSPersistence {
@@ -57,9 +59,9 @@ public class RSPersistenceJPA implements RSPersistence {
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPA(final EntityManager em, final TimeZone localTimeZone) {
-		this.em = em;
-		this.localTimeZone = localTimeZone;
+	public RSPersistenceJPA(final EntityManager em, final RSConfig config) {
+		this.em = checkNotNull(em);
+		this.localTimeZone = checkNotNull(config.timeZone);
 	}
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,

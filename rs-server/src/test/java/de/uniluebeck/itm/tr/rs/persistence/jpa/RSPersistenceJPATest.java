@@ -37,13 +37,11 @@ import org.junit.Test;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
 public class RSPersistenceJPATest extends RSPersistenceTest {
-
-	private final static TimeZone localTimeZone = TimeZone.getTimeZone("GMT");
 
 	private static final Map<String, String> properties = new HashMap<String, String>() {{
 
@@ -57,14 +55,24 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		put("hibernate.hbm2ddl.auto", "create");
 		put("hibernate.archive.autodetection", "class, hbm");
 
+		// configure time zone
+		put("timezone", "GMT");
 	}};
 
 	@Before
 	public void setUp() throws RSFault_Exception {
 		super.setUp();
-		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(localTimeZone, properties);
+		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(mapToProperties());
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
 		super.setPersistence(rsPersistence);
+	}
+
+	private Properties mapToProperties() {
+		final Properties props = new Properties();
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
+			props.put(entry.getKey(), entry.getValue());
+		}
+		return props;
 	}
 
 	@After

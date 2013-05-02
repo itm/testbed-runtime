@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.iwsn.common.config.PropertiesOptionHandler;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
+import de.uniluebeck.itm.tr.common.config.PropertiesOptionHandler;
 import org.kohsuke.args4j.Option;
 
 import java.util.Properties;

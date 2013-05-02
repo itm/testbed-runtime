@@ -2,10 +2,10 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.iwsn.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.iwsn.common.config.MultimapOptionHandler;
-import de.uniluebeck.itm.tr.iwsn.common.config.NodeUrnPrefixOptionHandler;
-import de.uniluebeck.itm.tr.iwsn.common.config.PropertiesOptionHandler;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
+import de.uniluebeck.itm.tr.common.config.MultimapOptionHandler;
+import de.uniluebeck.itm.tr.common.config.NodeUrnPrefixOptionHandler;
+import de.uniluebeck.itm.tr.common.config.PropertiesOptionHandler;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.kohsuke.args4j.Option;
 

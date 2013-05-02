@@ -51,6 +51,10 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>
 		<dependency>
@@ -138,7 +142,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.6</version>
+				<version>2.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
