@@ -24,10 +24,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualLink;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
-import eu.wisebed.api.v3.wsn.WSN;
+import eu.wisebed.api.v3.wsn.*;
 
 import java.util.List;
 
@@ -66,7 +63,7 @@ class EnableVirtualLinkCallable extends AbstractRequestCallable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
 		final VirtualLink virtualLink = new VirtualLink();
 		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
 		virtualLink.setSourceNodeUrn(sourceNodeUrn);

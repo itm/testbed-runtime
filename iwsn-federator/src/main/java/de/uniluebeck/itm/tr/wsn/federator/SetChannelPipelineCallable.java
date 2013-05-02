@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
@@ -28,7 +29,7 @@ public class SetChannelPipelineCallable extends AbstractRequestCallable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		wsnEndpoint.setChannelPipeline(federatedRequestId, nodeUrns, channelHandlerConfigurations);
 	}
 }

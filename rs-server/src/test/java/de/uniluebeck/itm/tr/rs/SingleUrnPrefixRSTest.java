@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRSService;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
@@ -256,7 +257,7 @@ public class SingleUrnPrefixRSTest {
 			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
-		} catch (AuthorizationFault_Exception e) {
+		} catch (AuthorizationFault e) {
 			fail();
 		} catch (RSFault_Exception e) {
 			fail();
@@ -267,7 +268,7 @@ public class SingleUrnPrefixRSTest {
 		try {
 			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xcbe4")), from, to, null, null);
 			fail();
-		} catch (AuthorizationFault_Exception e) {
+		} catch (AuthorizationFault e) {
 			fail();
 		} catch (RSFault_Exception e) {
 			fail();
@@ -407,7 +408,7 @@ public class SingleUrnPrefixRSTest {
 			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
-		} catch (AuthorizationFault_Exception e) {
+		} catch (AuthorizationFault e) {
 			fail();
 		} catch (RSFault_Exception expected) {
 		} catch (ReservationConflictFault_Exception expected) {

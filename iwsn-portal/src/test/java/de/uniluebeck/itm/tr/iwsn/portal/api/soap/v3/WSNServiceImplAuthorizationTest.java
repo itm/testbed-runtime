@@ -12,7 +12,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.v3.rs.AuthorizationFault_Exception;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -130,11 +129,8 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
 			authorizingWsn.addController("ABC");
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).addController("ABC");
 	}
@@ -161,12 +157,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
 			authorizingWsn.areNodesAlive(1L, nodeUrns);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
-
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).areNodesAlive(1L, nodeUrns);
 	}
@@ -193,11 +185,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
 			authorizingWsn.disableVirtualLinks(0L,links);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
@@ -224,12 +213,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
 			authorizingWsn.disableNodes(1L, nodeUrns);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
-
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).disableNodes(1L, nodeUrns);
 	}
@@ -256,11 +241,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
 			authorizingWsn.disablePhysicalLinks(0L, links);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		}catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
@@ -285,11 +267,8 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
 			authorizingWsn.disableVirtualization();
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).disableVirtualization();
 	}
@@ -314,11 +293,8 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
 			authorizingWsn.enableVirtualization();
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).enableVirtualization();
 	}
@@ -345,12 +321,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
 			authorizingWsn.enableNodes(1L, nodeUrns);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
-
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).enableNodes(1L, nodeUrns);
 	}
@@ -377,11 +349,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<Link> links = Lists.newArrayList(new Link());
 		try{
 			authorizingWsn.enablePhysicalLinks(0L, links);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).enablePhysicalLinks(0L, links);
 	}
@@ -408,11 +377,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<FlashProgramsConfiguration> configs = Lists.newArrayList(new FlashProgramsConfiguration());
 		try{
 			authorizingWsn.flashPrograms(0L, configs);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).flashPrograms(0L, configs);
 	}
@@ -439,11 +405,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns =  Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
 			authorizingWsn.getChannelPipelines(nodeUrns);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).getChannelPipelines(nodeUrns);
 	}
@@ -468,11 +431,8 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
 			authorizingWsn.getNetwork();
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).getNetwork();
 	}
@@ -497,11 +457,8 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationDeniedResponse);
 		try{
 			authorizingWsn.removeController("ABC");
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).removeController("ABC");
 	}
@@ -528,11 +485,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<NodeUrn> nodeUrns = Lists.newArrayList(new NodeUrn("urn:unit-test:0x0001"));
 		try{
 			authorizingWsn.resetNodes(0L,nodeUrns);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).resetNodes(0L, nodeUrns);
 
@@ -562,11 +516,8 @@ public class WSNServiceImplAuthorizationTest {
 		final byte[] bytes = new byte[10];
 		try{
 			authorizingWsn.send(0L, nodeUrns, bytes);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).send(0L, nodeUrns, bytes);
 	}
@@ -595,11 +546,8 @@ public class WSNServiceImplAuthorizationTest {
 		final LinkedList<ChannelHandlerConfiguration> channelHandlerConfigurations = new LinkedList<ChannelHandlerConfiguration>();
 		try{
 			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 	}
@@ -628,11 +576,8 @@ public class WSNServiceImplAuthorizationTest {
 		final SerialPortParameters serialPortParameters = new SerialPortParameters();
 		try{
 			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).setSerialPortParameters(nodeUrns,serialPortParameters);
 	}
@@ -659,11 +604,8 @@ public class WSNServiceImplAuthorizationTest {
 		final ArrayList<VirtualLink> virtualLinks = Lists.newArrayList(new VirtualLink());
 		try{
 			authorizingWsn.enableVirtualLinks(0L,virtualLinks);
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof AuthorizationFault_Exception)){
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (AuthorizationFault e){
+			// expected exception was catched
 		}
 		verify(wsnDelegate,never()).enableVirtualLinks(0L,virtualLinks);
 	}

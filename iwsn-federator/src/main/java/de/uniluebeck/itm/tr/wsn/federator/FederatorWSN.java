@@ -145,6 +145,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
+			// TODO: get listenable futures and inform users about exceptions if they occur
 			executorService.submit(new SendCallable(
 					federatorController,
 					endpoint,

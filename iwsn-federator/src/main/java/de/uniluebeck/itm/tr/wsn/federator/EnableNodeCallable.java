@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.wsn.federator;
 
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
@@ -47,7 +48,7 @@ class EnableNodeCallable extends AbstractRequestCallable {
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
 		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 }
