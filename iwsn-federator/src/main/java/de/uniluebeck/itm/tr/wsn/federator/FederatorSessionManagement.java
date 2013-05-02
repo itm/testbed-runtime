@@ -25,6 +25,8 @@ package de.uniluebeck.itm.tr.wsn.federator;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
@@ -458,7 +460,7 @@ public class FederatorSessionManagement implements SessionManagement {
 		final ThreadFactory federatorWSNThreadFactory = new ThreadFactoryBuilder()
 				.setNameFormat("WSN Federator %d")
 				.build();
-		final ExecutorService federatorWSNThreadPool = Executors.newCachedThreadPool(federatorWSNThreadFactory);
+		final ListeningExecutorService federatorWSNThreadPool = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(federatorWSNThreadFactory));
 
 		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(wsnEndpointUrl);
 		final FederatorController federatorWSNController = new FederatorController(controllerEndpointUrl);
