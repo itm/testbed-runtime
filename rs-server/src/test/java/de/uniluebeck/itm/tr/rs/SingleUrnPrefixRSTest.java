@@ -9,7 +9,7 @@ import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRSService;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -110,7 +110,7 @@ public class SingleUrnPrefixRSTest {
 				bind(SessionManagement.class).toInstance(sessionManagement);
 				bind(RSPersistence.class).toInstance(persistence);
 				bind(NodeUrn[].class).toProvider(servedNodeUrns);
-				bind(RSService.class).to(SingleUrnPrefixSOAPRS.class);
+				bind(RSService.class).to(SingleUrnPrefixRSService.class);
 				bind(eu.wisebed.api.v3.rs.RS.class).to(SingleUrnPrefixRS.class);
 
 				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaa));

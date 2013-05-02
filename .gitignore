@@ -35,3 +35,4 @@ target
 /snaa-server/src/main/resources/META-INF/hibernate.properties
 iwsn-portal/dependency-reduced-pom.xml
 .idea
+**/dependency-reduced-pom.xml

@@ -52,7 +52,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 		serviceName = "RSService",
 		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
-public class SingleUrnPrefixSOAPRS extends AbstractService implements de.uniluebeck.itm.tr.rs.RSService {
+public class SingleUrnPrefixRSService extends AbstractService implements de.uniluebeck.itm.tr.rs.RSService {
 
 	/**
 	 * Testbed runtime internal implementation of the reservation system's functionality.
@@ -67,7 +67,7 @@ public class SingleUrnPrefixSOAPRS extends AbstractService implements de.unilueb
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public SingleUrnPrefixSOAPRS(final ServicePublisher servicePublisher, final RS rs, final RSConfig config) {
+	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs, final RSConfig config) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.reservationSystem = checkNotNull(rs);
 		this.config = checkNotNull(config);
