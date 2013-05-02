@@ -15,7 +15,7 @@ import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSoapRS;
+import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixSOAPRS;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -66,7 +66,7 @@ public class RSModule extends AbstractModule {
 		}
 
 
-		bind(RSService.class).to(SingleUrnPrefixSoapRS.class);
+		bind(RSService.class).to(SingleUrnPrefixSOAPRS.class);
 		bind(RS.class).to(SingleUrnPrefixRS.class);
 
 		bindInterceptor(

@@ -23,8 +23,11 @@
 
 package de.uniluebeck.itm.tr.rs.singleurnprefix;
 
+import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.rs.NonWS;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.rs.RSConfig;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -34,6 +37,8 @@ import org.joda.time.DateTime;
 
 import javax.jws.WebService;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Implementation of the interface defines the reservation system (RS) for the WISEBED
@@ -47,15 +52,26 @@ import java.util.List;
 		serviceName = "RSService",
 		targetNamespace = "http://wisebed.eu/api/v3/rs"
 )
-public class SingleUrnPrefixSOAPRS implements RS {
+public class SingleUrnPrefixSOAPRS extends AbstractService implements de.uniluebeck.itm.tr.rs.RSService {
 
 	/**
 	 * Testbed runtime internal implementation of the reservation system's functionality.
 	 * This implementation is not necessarily bound to web services or any other RPC technology.
 	 */
+	private final RS reservationSystem;
+
+	private final RSConfig config;
+
+	private final ServicePublisher servicePublisher;
+
+	private ServicePublisherService jaxWsService;
+
 	@Inject
-	@NonWS
-	private RS reservationSystem;
+	public SingleUrnPrefixSOAPRS(final ServicePublisher servicePublisher, final RS rs, final RSConfig config) {
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.reservationSystem = checkNotNull(rs);
+		this.config = checkNotNull(config);
+	}
 
 	@Override
 	public List<ConfidentialReservationData> getReservation(
@@ -98,5 +114,29 @@ public class SingleUrnPrefixSOAPRS implements RS {
 			final DateTime to) throws RSFault_Exception {
 
 		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to);
+	}
+
+
+	@Override
+	protected void doStart() {
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 }
