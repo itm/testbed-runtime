@@ -3,7 +3,7 @@
 			"nodeType" : "isense39",
 			"gatewayNode" : false,
 			"description" : "this is the device description",
-			"nodeUsbChipId" : "0123456789",
+			"nodeUSBChipID" : "0123456789",
 			"position" : {
 				"x" : 123,
 				"y" : 234,
@@ -49,14 +49,14 @@
 			"capabilities" : [
 				{
 					"name" 			: "urn:wisebed:node:capability:light",
-					"datatype" 		: "integer",
-					"unit"			: "lux",
+					"datatype" 		: "INTEGER",
+					"unit"			: "LUX",
 					"defaultValue" 	: "0"
 				},
 				{
 					"name" 			: "urn:wisebed:node:capability:humidity",
-					"datatype" 		: "integer",
-					"unit"			: "raw",
+					"datatype" 		: "INTEGER",
+					"unit"			: "RAW",
 					"defaultValue" 	: "0"
 				}
 			],

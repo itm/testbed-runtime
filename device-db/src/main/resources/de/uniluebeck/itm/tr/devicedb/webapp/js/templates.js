@@ -43,3 +43,7 @@ Handlebars.registerHelper('eachWithOuter', function(context, outerIndex, options
 
 	return Handlebars.helpers['each'].call(this, context, options);
 });
+
+Handlebars.registerHelper('selected', function(foo, bar) {
+  return foo == bar ? ' selected' : '';
+});

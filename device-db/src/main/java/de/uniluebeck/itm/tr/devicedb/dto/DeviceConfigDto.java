@@ -18,7 +18,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 @XmlRootElement
-@SuppressWarnings("unused")
 public class DeviceConfigDto {
 
 	private String nodeUrn;

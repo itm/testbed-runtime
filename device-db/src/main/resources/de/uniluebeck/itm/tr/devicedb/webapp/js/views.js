@@ -73,6 +73,8 @@ $(function () {
             'click .rm-pipe-param'  : 'rmPipeParam',
             'click .rm-pipe'        : 'rmPipeElem',
             'click #add-pipe'       : 'addPipeElem',
+            'click .up-pipe'        : 'pipeElemUp',
+            'click .down-pipe'      : 'pipeElemDown',
             'click .rm-cap'         : 'rmCapability',
             'hidden'                : 'hidden'
         },
@@ -234,11 +236,24 @@ $(function () {
             this._rmParentClass(e, '.parent');
         },
 
+        pipeElemUp: function(e) {
+            e.preventDefault();
+            var elem = $(e.target).parents('.parent');
+            elem.after(elem.prev());
+        },
+
+        pipeElemDown: function(e) {
+            e.preventDefault();
+            var elem = $(e.target).parents('.parent');
+            elem.after(elem.next());
+        },
+
         close: function(e) {
             e.preventDefault();
             this.$el.find('.modal').modal('hide');
         },
         hidden: function() {
+            this.undelegateEvents();
             app.routes.navigate('home',{trigger:true});
         },
         show: function() {
