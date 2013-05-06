@@ -34,6 +34,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -187,7 +188,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 													  final DateTime to,
 													  final String description,
 													  final List<KeyValuePair> options)
-			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
 
 		try {
 
