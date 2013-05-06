@@ -133,11 +133,18 @@ public class SNAAHelper {
 		
 	}
 
-	public static SNAAFault_Exception createSNAAFault(String msg) {
+
+	public static SNAAFault_Exception createSNAAFault(String msg, Throwable cause) {
 		log.warn(msg);
+
 		SNAAFault exception = new SNAAFault();
 		exception.setMessage(msg);
-		return new SNAAFault_Exception(msg, exception);
+
+		return cause != null ? new SNAAFault_Exception(msg, exception, cause) : new SNAAFault_Exception(msg, exception);
+	}
+
+	public static SNAAFault_Exception createSNAAFault(String msg) {
+		return createSNAAFault(msg, null);
 	}
 
 	public static AuthenticationFault_Exception createAuthenticationFault_Exception(String msg) {
