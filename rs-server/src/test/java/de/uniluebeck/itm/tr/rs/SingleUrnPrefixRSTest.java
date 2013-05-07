@@ -101,14 +101,14 @@ public class SingleUrnPrefixRSTest {
 
 		when(snaaProvider.get()).thenReturn(snaa);
 
-		final RSStandaloneConfigImpl config = new RSStandaloneConfigImpl();
+		final RsStandaloneConfigsImpl config = new RsStandaloneConfigsImpl();
 		config.setUrnPrefix(URN_PREFIX);
 
 		final Injector injector = Guice.createInjector(new AbstractModule() {
 			@Override
 			public void configure() {
 
-				bind(RSStandaloneConfigImpl.class).toInstance(config);
+				bind(RsStandaloneConfigsImpl.class).toInstance(config);
 				bind(ServicePublisher.class).toInstance(servicePublisher);
 				bind(SNAA.class).toInstance(snaa);
 				bind(SessionManagement.class).toInstance(sessionManagement);

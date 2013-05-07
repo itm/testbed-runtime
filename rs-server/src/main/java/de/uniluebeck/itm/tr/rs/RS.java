@@ -83,12 +83,12 @@ public class RS extends AbstractService {
 
 		Thread.currentThread().setName("RS-Main");
 
-		final RSStandaloneConfig config = setLogLevel(
-				parseOrExit(new RSStandaloneConfigImpl(), RS.class, args),
+		final RsStandaloneConfigs config = setLogLevel(
+				parseOrExit(new RsStandaloneConfigsImpl(), RS.class, args),
 				"de.uniluebeck.itm"
 		);
 
-		final RSStandaloneModule module = new RSStandaloneModule(config);
+		final RsStandaloneModules module = new RsStandaloneModules(config);
 		final Injector injector = Guice.createInjector(module);
 		final RS rs = injector.getInstance(RS.class);
 
