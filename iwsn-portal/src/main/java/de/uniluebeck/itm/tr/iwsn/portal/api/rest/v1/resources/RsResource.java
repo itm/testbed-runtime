@@ -55,7 +55,7 @@ public class RsResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("create")
 	public SecretReservationKeyListRs makeReservation(MakeReservationData request)
-			throws RSFault_Exception, AuthorizationFault_Exception, ReservationConflictFault_Exception {
+			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 

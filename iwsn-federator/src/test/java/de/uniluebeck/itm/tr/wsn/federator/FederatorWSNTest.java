@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
@@ -86,7 +87,7 @@ public class FederatorWSNTest {
 
 	private FederatorWSN federatorWSN;
 
-	private ExecutorService executorService;
+	private ListeningExecutorService executorService;
 
 	@Before
 	public void setUp() throws Exception {

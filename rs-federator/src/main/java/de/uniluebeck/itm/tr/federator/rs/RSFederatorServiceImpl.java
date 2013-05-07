@@ -34,6 +34,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -187,7 +188,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 													  final DateTime to,
 													  final String description,
 													  final List<KeyValuePair> options)
-			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
 
 		try {
 
@@ -274,7 +275,12 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		// if a job failed delete the successful reservations and return failure
 		if (failed) {
 
-			undoReservations(succeeded);
+			// since this could also fail, add the according message
+			try {
+				undoReservations(succeeded);
+			} catch(RSFault_Exception e){
+				failMessages.add(e.getMessage());
+			}
 
 			// construct error and throw exception
 			return throwFailureException(failMessages);
@@ -504,7 +510,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		throw new RSFault_Exception(msg, exception, e);
 	}
 
-	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded) {
+	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded) throws RSFault_Exception {
 		RS rs;
 		List<SecretReservationKey> reservationKeys;
 		List<Future> futures = new ArrayList<Future>(succeeded.size());
@@ -524,9 +530,13 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			try {
 				future.get();
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while trying to delete reservation!", e);
+				final String msg = "InterruptedException while trying to delete reservation!";
+				log.error(msg, e);
+				throwRSFault(msg,e);
 			} catch (ExecutionException e) {
-				log.warn("Exception occurred while deleting reservation!", e);
+				final String msg = "Exception occurred while deleting reservation!";
+				log.warn(msg, e);
+				throwRSFault(msg,e);
 			}
 		}
 

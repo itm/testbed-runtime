@@ -27,25 +27,26 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.*;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.controller.RequestStatus;
+import eu.wisebed.api.v3.controller.Status;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
+import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.util.concurrent.Futures.addCallback;
 
 
 @WebService(
@@ -59,7 +60,7 @@ public class FederatorWSN implements WSN {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorWSN.class);
 
-	private final ExecutorService executorService;
+	private final ListeningExecutorService executorService;
 
 	private final FederatorController federatorController;
 
@@ -75,7 +76,7 @@ public class FederatorWSN implements WSN {
 						final FederationManager<WSN> federationManager,
 						final WebservicePublisher<WSN> webservicePublisher,
 						final WSNPreconditions wsnPreconditions,
-						final ExecutorService executorService) {
+						final ListeningExecutorService executorService) {
 
 		this.federatorController = federatorController;
 		this.webservicePublisher = webservicePublisher;
@@ -145,7 +146,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
-			executorService.submit(new SendCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new SendCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -154,8 +155,13 @@ public class FederatorWSN implements WSN {
 					messageBytes
 			)
 			);
+
+			addErrorHandling(listenableFuture, federatorRequestId, nodeIdSubset);
+
 		}
+
 	}
+
 
 	@Override
 	public void areNodesAlive(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
@@ -171,7 +177,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeUrnSubset = entry.getValue();
 
-			executorService.submit(new WSNAreNodesAliveCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new WSNAreNodesAliveCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -179,6 +185,9 @@ public class FederatorWSN implements WSN {
 					nodeUrnSubset
 			)
 			);
+
+			addErrorHandling(listenableFuture, federatorRequestId, nodeUrnSubset);
+
 		}
 	}
 
@@ -220,7 +229,7 @@ public class FederatorWSN implements WSN {
 			final WSN endpoint = entry.getKey();
 			final List<NodeUrn> nodeIdSubset = entry.getValue();
 
-			executorService.submit(new ResetNodesCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new ResetNodesCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -228,6 +237,8 @@ public class FederatorWSN implements WSN {
 					nodeIdSubset
 			)
 			);
+
+			addErrorHandling(listenableFuture, federatorRequestId, nodeIdSubset);
 		}
 	}
 
@@ -254,7 +265,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
 			);
 
-			executorService.submit(new EnableVirtualLinkCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new EnableVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -266,6 +277,10 @@ public class FederatorWSN implements WSN {
 					filters
 			)
 			);
+
+			addErrorHandling(listenableFuture, requestId, newArrayList(sourceNodeUrn));
+
+
 		}
 	}
 
@@ -290,7 +305,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new DisableVirtualLinkCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new DisableVirtualLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -299,6 +314,8 @@ public class FederatorWSN implements WSN {
 					targetNodeUrn
 			)
 			);
+
+			addErrorHandling(listenableFuture, requestId, newArrayList(sourceNodeUrn));
 		}
 	}
 
@@ -316,7 +333,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug("Invoking disableNode({}) on {}", nodeUrn, endpoint);
 
-			executorService.submit(new DisableNodeCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new DisableNodeCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -324,6 +341,7 @@ public class FederatorWSN implements WSN {
 					nodeUrn
 			)
 			);
+			addErrorHandling(listenableFuture, requestId, newArrayList(nodeUrn));
 		}
 	}
 
@@ -348,7 +366,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new DisablePhysicalLinkCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new DisablePhysicalLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -357,6 +375,8 @@ public class FederatorWSN implements WSN {
 					targetNodeUrn
 			)
 			);
+
+			addErrorHandling(listenableFuture, requestId, newArrayList(targetNodeUrn));
 		}
 	}
 
@@ -384,7 +404,7 @@ public class FederatorWSN implements WSN {
 
 			log.debug("Invoking enableNode({}) on {}", new Object[]{nodeUrn, endpoint});
 
-			executorService.submit(new EnableNodeCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new EnableNodeCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -392,6 +412,8 @@ public class FederatorWSN implements WSN {
 					nodeUrn
 			)
 			);
+
+			addErrorHandling(listenableFuture, requestId, newArrayList(nodeUrn));
 		}
 	}
 
@@ -415,7 +437,7 @@ public class FederatorWSN implements WSN {
 					sourceNodeUrn, targetNodeUrn, endpoint
 			);
 
-			executorService.submit(new EnablePhysicalLinkCallable(
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new EnablePhysicalLinkCallable(
 					federatorController,
 					endpoint,
 					federatedRequestId,
@@ -424,6 +446,8 @@ public class FederatorWSN implements WSN {
 					targetNodeUrn
 			)
 			);
+
+			addErrorHandling(listenableFuture, requestId, newArrayList(targetNodeUrn));
 		}
 	}
 
@@ -455,14 +479,22 @@ public class FederatorWSN implements WSN {
 		for (final WSN wsn : federatedConfigurations.keySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			executorService.submit(new FlashProgramsCallable(
+			final List<FlashProgramsConfiguration> flashProgramsConfigurationsForWsn = newArrayList(federatedConfigurations.get(wsn));
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new FlashProgramsCallable(
 					federatorController,
 					wsn,
 					federatedRequestId,
 					federatorRequestId,
-					newArrayList(federatedConfigurations.get(wsn))
+					flashProgramsConfigurationsForWsn
 			)
 			);
+
+			List<NodeUrn> nodeUrnCollection = new ArrayList<NodeUrn>();
+			for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurationsForWsn) {
+				nodeUrnCollection.addAll(flashProgramsConfiguration.getNodeUrns());
+			}
+			addErrorHandling(listenableFuture, federatorRequestId, nodeUrnCollection);
+
 		}
 	}
 
@@ -478,15 +510,19 @@ public class FederatorWSN implements WSN {
 		for (WSN wsnEndpoint : endpointToNodesMapping.keySet()) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			executorService.submit(new SetChannelPipelineCallable(
+			final List<NodeUrn> nodeUrnsForWsnEndpoint = endpointToNodesMapping.get(wsnEndpoint);
+			final ListenableFuture<Void> listenableFuture = executorService.submit(new SetChannelPipelineCallable(
 					federatorController,
 					wsnEndpoint,
 					federatedRequestId,
 					federatorRequestId,
-					endpointToNodesMapping.get(wsnEndpoint),
+					nodeUrnsForWsnEndpoint,
 					channelHandlerConfigurations
 			)
 			);
+
+			addErrorHandling(listenableFuture, federatorRequestId, nodeUrnsForWsnEndpoint);
+
 		}
 	}
 
@@ -512,6 +548,45 @@ public class FederatorWSN implements WSN {
 		}
 
 		return mapping;
+	}
+
+
+	/**
+	 * Adds a listener to the provided ListenableFuture which will create and forward a status request to the
+	 * federation controller if the future cannot complete due to an Exception.
+	 * @param listenableFuture The future which Exceptions are to be catched.
+	 * @param requestId The request identifier provided by a client
+	 * @param nodeUrns a list of node urns
+	 */
+	private void addErrorHandling(final ListenableFuture<Void> listenableFuture, final long requestId, final List<NodeUrn> nodeUrns) {
+		addCallback(listenableFuture, new FutureCallback<Void>() {
+			@Override
+			public void onSuccess(final Void result) {
+				// the result is ignored since this is about catching exceptions only
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				log.error(t.getMessage(),t);
+
+				StringBuilder sb = new StringBuilder(
+						"An exception occured calling FederatorWSN#send using federatorRequestId '");
+				sb.append(requestId).append("': ").append(t.getCause()).append(t.getMessage())
+						.append("\r\n").append(getStackTraceAsString(t));
+
+				RequestStatus requestStatus = new RequestStatus();
+				requestStatus.setRequestId(requestId);
+				final List<Status> statusList = requestStatus.getStatus();
+				for (NodeUrn nodeUrn : nodeUrns) {
+					Status status = new Status();
+					status.setMsg(sb.toString());
+					status.setValue(-1);
+					status.setNodeUrn(nodeUrn);
+					statusList.add(status);
+				}
+				federatorController.receiveStatus(newArrayList(requestStatus));
+			}
+		});
 	}
 
 }

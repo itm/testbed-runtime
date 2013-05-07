@@ -4,16 +4,13 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
-import eu.wisebed.api.v3.rs.AuthorizationFault;
-import eu.wisebed.api.v3.rs.AuthorizationFault_Exception;
+import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import eu.wisebed.api.v3.wsn.*;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +68,13 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	}
 
 	@Override
-	public void addController(final String controllerEndpointUrl) throws RuntimeException {
-		assertIsAuthorized(Action.WSN_ADD_CONTROLLER,reservation.getNodeUrns());
+	public void addController(final String controllerEndpointUrl) throws AuthorizationFault {
+		assertIsAuthorized(Action.WSN_ADD_CONTROLLER, reservation.getNodeUrns());
 		delegate.addController(controllerEndpointUrl);
 	}
 
 	@Override
-	public void enablePhysicalLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void enablePhysicalLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		Set<NodeUrn> nodeUrnSet = new HashSet<NodeUrn>();
 		for (Link link : links) {
 			nodeUrnSet.add(link.getSourceNodeUrn());
@@ -88,13 +85,13 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	}
 
 	@Override
-	public void resetNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void resetNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_RESET_NODES,nodeUrns);
 		delegate.resetNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void disablePhysicalLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void disablePhysicalLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		Set<NodeUrn> nodeUrnSet = new HashSet<NodeUrn>();
 		for (Link link : links) {
 			nodeUrnSet.add(link.getSourceNodeUrn());
@@ -105,49 +102,49 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	}
 
 	@Override
-	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_GET_CHANNEL_PIPELINES,nodeUrns);
 		return delegate.getChannelPipelines(nodeUrns);
 	}
 
 	@Override
-	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void enableNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		assertIsAuthorized(Action.WSN_ENABLE_NODES,nodeUrns);
 		delegate.enableNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void send(final long requestId, final List<NodeUrn> nodeUrns, final byte[] message) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void send(final long requestId, final List<NodeUrn> nodeUrns, final byte[] message) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_SEND,nodeUrns);
 		delegate.send(requestId, nodeUrns, message);
 	}
 
 	@Override
-	public void disableVirtualization() throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception, RuntimeException {
+	public void disableVirtualization() throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_DISABLE_VIRTUALIZATION,reservation.getNodeUrns());
 		delegate.disableVirtualization();
 	}
 
 	@Override
-	public void removeController(final String controllerEndpointUrl) throws RuntimeException {
+	public void removeController(final String controllerEndpointUrl) throws AuthorizationFault {
 		assertIsAuthorized(Action.WSN_REMOVE_CONTROLLER,reservation.getNodeUrns());
 		delegate.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	public void setChannelPipeline(final long requestId, final List<NodeUrn> nodeUrns, final List<ChannelHandlerConfiguration> channelHandlerConfigurations) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void setChannelPipeline(final long requestId, final List<NodeUrn> nodeUrns, final List<ChannelHandlerConfiguration> channelHandlerConfigurations) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_SET_CHANNEL_PIPELINE,nodeUrns);
 		delegate.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);
 	}
 
 	@Override
-	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void disableNodes(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		assertIsAuthorized(Action.WSN_DISABLE_NODES, nodeUrns);
 		delegate.disableNodes(requestId, nodeUrns);
 	}
 
 	@Override
-	public void disableVirtualLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void disableVirtualLinks(final long requestId, final List<Link> links) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		Set<NodeUrn> nodeUrnSet = new HashSet<NodeUrn>();
 		for (Link link : links) {
 			nodeUrnSet.add(link.getSourceNodeUrn());
@@ -158,31 +155,32 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	}
 
 	@Override
-	public void setSerialPortParameters(final List<NodeUrn> nodeUrns, final SerialPortParameters parameters) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void setSerialPortParameters(final List<NodeUrn> nodeUrns, final SerialPortParameters parameters) throws ReservationNotRunningFault_Exception, RuntimeException, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_SET_SERIAL_PORT_PARAMETERS,nodeUrns);
 		delegate.setSerialPortParameters(nodeUrns, parameters);
+
 	}
 
 	@Override
-	public String getNetwork() throws RuntimeException {
+	public String getNetwork() throws eu.wisebed.api.v3.wsn.AuthorizationFault, RuntimeException {
 		assertIsAuthorized(Action.WSN_GET_NETWORK,reservation.getNodeUrns());
 		return delegate.getNetwork();
 	}
 
 	@Override
-	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception, RuntimeException {
+	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_ENABLE_VIRTUALIZATION,reservation.getNodeUrns());
 		delegate.enableVirtualization();
 	}
 
 	@Override
-	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void areNodesAlive(final long requestId, final List<NodeUrn> nodeUrns) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		assertIsAuthorized(Action.WSN_ARE_NODES_ALIVE,nodeUrns);
 		delegate.areNodesAlive(requestId, nodeUrns);
 	}
 
 	@Override
-	public void flashPrograms(final long requestId, final List<FlashProgramsConfiguration> configurations) throws ReservationNotRunningFault_Exception, RuntimeException {
+	public void flashPrograms(final long requestId, final List<FlashProgramsConfiguration> configurations) throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		Set<NodeUrn> nodeUrnSet = new HashSet<NodeUrn>();
 		for (FlashProgramsConfiguration configuration : configurations) {
 			nodeUrnSet.addAll(configuration.getNodeUrns());
@@ -192,7 +190,7 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	}
 
 	@Override
-	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links) throws ReservationNotRunningFault_Exception, RuntimeException, VirtualizationNotEnabledFault_Exception {
+	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links) throws ReservationNotRunningFault_Exception, AuthorizationFault, VirtualizationNotEnabledFault_Exception {
 		Set<NodeUrn> nodeUrnSet = new HashSet<NodeUrn>();
 		for (VirtualLink link : links) {
 			nodeUrnSet.add(link.getSourceNodeUrn());
@@ -208,7 +206,7 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 	 * @param nodeUrnCollection The involved node urns
 	 * @throws RuntimeException Thrown if the action is not authorized
 	 */
-	private void assertIsAuthorized(Action requestedAction, Collection<NodeUrn> nodeUrnCollection) throws RuntimeException {
+	private void assertIsAuthorized(Action requestedAction, Collection<NodeUrn> nodeUrnCollection) throws AuthorizationFault {
 
 		UsernameNodeUrnsMap usernameNodeUrnsMap = new UsernameNodeUrnsMap();
 		usernameNodeUrnsMap.setUsername(usernameUrnPrefixPair);
@@ -231,10 +229,11 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 				sb.append("': ");
 				sb.append(authorized.getMessage());
 
-				final AuthorizationFault authorizationFault = new AuthorizationFault();
-				authorizationFault.setMessage(sb.toString());
-				throw new RuntimeException(
-						new AuthorizationFault_Exception("The requested action was not authorized",authorizationFault));
+				final eu.wisebed.api.v3.common.AuthorizationFault faultInfo = new eu.wisebed.api.v3.common.AuthorizationFault();
+				final String value = sb.toString();
+				faultInfo.setMessage(value);
+				final AuthorizationFault authorizationFault = new AuthorizationFault(value, faultInfo);
+				throw authorizationFault;
 			}
 
 		} catch (SNAAFault_Exception e) {

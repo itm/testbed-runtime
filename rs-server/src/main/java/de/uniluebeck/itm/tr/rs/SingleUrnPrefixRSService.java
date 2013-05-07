@@ -95,7 +95,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 													  final DateTime to,
 													  final String description,
 													  final List<KeyValuePair> options)
-			throws AuthorizationFault_Exception, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
 
 		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}

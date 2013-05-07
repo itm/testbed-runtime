@@ -220,9 +220,7 @@ public class FederatorSNAA implements SNAA {
 			try {
 				resultSet.addAll(future.get());
 			} catch (Exception e) {
-				SNAAFault exception = new SNAAFault();
-				exception.setMessage(e.getMessage());
-				throw new SNAAFault_Exception(e.getMessage(), exception, e);
+				throw createSNAAFault(e.getMessage(),e);
 			}
 		}
 
@@ -265,10 +263,8 @@ public class FederatorSNAA implements SNAA {
 				response.getPerNodeUrnAuthorizationResponses().addAll(
 						authorizationResponse.getPerNodeUrnAuthorizationResponses()
 				);
-			} catch (InterruptedException e) {
-				throw createSNAAFault(e.getMessage());
-			} catch (ExecutionException e) {
-				throw createSNAAFault(e.getMessage());
+			} catch (Exception e) {
+				throw createSNAAFault(e.getMessage(),e);
 			}
 		}
 
@@ -296,7 +292,11 @@ public class FederatorSNAA implements SNAA {
 			final List<ValidationResult> result = newArrayList();
 
 			for (Future<List<ValidationResult>> future : futures) {
-				result.addAll(future.get());
+				try {
+					result.addAll(future.get());
+				} catch (ExecutionException e) {
+					throw createSNAAFault(e.getMessage(), e);
+				}
 			}
 
 			return result;
