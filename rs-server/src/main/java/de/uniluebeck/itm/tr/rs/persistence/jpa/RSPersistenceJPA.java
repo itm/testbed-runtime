@@ -59,9 +59,9 @@ public class RSPersistenceJPA implements RSPersistence {
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPA(final EntityManager em, final RSConfig config) {
+	public RSPersistenceJPA(@RSEntityManager final EntityManager em, final RSConfig config) {
 		this.em = checkNotNull(em);
-		this.localTimeZone = checkNotNull(config.timeZone);
+		this.localTimeZone = checkNotNull(config.getTimeZone());
 	}
 
 	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,

@@ -98,13 +98,15 @@ public class SessionManagementImplTest {
 	@Mock
 	private RequestIdProvider requestIdProvider;
 
+	@Mock
+	private PortalConfig portalConfig;
+
 	private SessionManagementImpl sessionManagement;
 
 	@Before
 	public void setUp() throws Exception {
 
-		final PortalConfig portalConfig = new PortalConfig();
-		portalConfig.urnPrefix = new NodeUrnPrefix("urn:unit-test:");
+		when(portalConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
 		final Map<NodeUrn, SingleNodeResponse> responseMap = newHashMap();
 		responseMap.put(NODE_URN_1, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_1, 1, null));

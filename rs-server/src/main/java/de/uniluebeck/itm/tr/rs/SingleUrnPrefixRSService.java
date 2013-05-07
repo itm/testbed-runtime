@@ -21,18 +21,18 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.rs.singleurnprefix;
+package de.uniluebeck.itm.tr.rs;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.rs.RSConfig;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 
 import javax.jws.WebService;
@@ -58,7 +58,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	 * Testbed runtime internal implementation of the reservation system's functionality.
 	 * This implementation is not necessarily bound to web services or any other RPC technology.
 	 */
-	private final RS reservationSystem;
+	private final eu.wisebed.api.v3.rs.RS reservationSystem;
 
 	private final RSConfig config;
 
@@ -120,7 +120,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getRsContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

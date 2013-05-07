@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.common;
+package de.uniluebeck.itm.tr.common;
 
 import com.google.common.base.Function;
 import eu.wisebed.api.v3.common.NodeUrn;

@@ -65,10 +65,9 @@ public class AuthorizingWSNImpl implements AuthorizingWSN{
 		this.delegate = wsnDelegate;
 		this.reservation = reservation;
 
-
 		usernameUrnPrefixPair = new UsernameUrnPrefixPair();
 		usernameUrnPrefixPair.setUsername(reservation.getUsername());
-		usernameUrnPrefixPair.setUrnPrefix(portalConfig.urnPrefix);
+		usernameUrnPrefixPair.setUrnPrefix(portalConfig.getUrnPrefix());
 	}
 
 	@Override

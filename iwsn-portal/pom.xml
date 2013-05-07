@@ -62,10 +62,14 @@
 			<artifactId>tr.device-db</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-server</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>netty-protocols</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>

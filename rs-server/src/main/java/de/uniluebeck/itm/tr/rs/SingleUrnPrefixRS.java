@@ -1,28 +1,29 @@
-package de.uniluebeck.itm.tr.rs.singleurnprefix;
+package de.uniluebeck.itm.tr.rs;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import de.uniluebeck.itm.tr.rs.AuthorizationRequired;
-import de.uniluebeck.itm.tr.rs.RSConfig;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
@@ -39,15 +40,15 @@ public class SingleUrnPrefixRS implements RS {
 
 	private final RSPersistence persistence;
 
-	private final Provider<NodeUrn[]> servedNodeUrns;
+	private final Provider<Set<NodeUrn>> servedNodeUrnsProvider;
 
 	@Inject
 	public SingleUrnPrefixRS(final RSConfig config,
 							 final RSPersistence persistence,
-							 @Nullable final Provider<NodeUrn[]> servedNodeUrns) {
+							 final ServedNodeUrnsProvider servedNodeUrnsProvider) {
 		this.config = checkNotNull(config);
 		this.persistence = checkNotNull(persistence);
-		this.servedNodeUrns = checkNotNull(servedNodeUrns);
+		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
 	}
 
 	@Override
@@ -186,7 +187,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
-		if (!config.urnPrefix.equals(sak.getUrnPrefix())) {
+		if (!config.getUrnPrefix().equals(sak.getUrnPrefix())) {
 			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
 			RSFault exception = new RSFault();
@@ -213,52 +214,43 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Check if we serve all node urns by urnPrefix
 		for (NodeUrn nodeUrn : nodeUrns) {
-			if (!nodeUrn.belongsTo(config.urnPrefix)) {
+			if (!nodeUrn.belongsTo(config.getUrnPrefix())) {
 				throw createRSFault_Exception(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + config.urnPrefix
+						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + config.getUrnPrefix()
 				);
 			}
 		}
 
-		// Ask Session Management Endpoint of the testbed we're responsible for for it's network description and check
-		// if the individual node urns of the reservation are existing
-		if (servedNodeUrns != null && servedNodeUrns.get() != null) {
-
-			NodeUrn[] networkNodes;
-			try {
-				networkNodes = servedNodeUrns.get();
-			} catch (Exception e) {
-				throw createRSFault_Exception(e.getMessage());
-			}
-
-			List<NodeUrn> unservedNodes = newArrayList();
-
-			boolean contained;
-			for (NodeUrn nodeUrn : nodeUrns) {
-
-				contained = false;
-
-				for (NodeUrn networkNode : networkNodes) {
-					if (networkNode.equals(nodeUrn)) {
-						contained = true;
-					}
-				}
-
-				if (!contained) {
-					unservedNodes.add(nodeUrn);
-				}
-			}
-
-			if (unservedNodes.size() > 0) {
-				throw createRSFault_Exception("The node URNs " + Arrays.toString(unservedNodes.toArray())
-						+ " are unknown to the reservation system!"
-				);
-			}
-
-		} else {
-			log.debug("Not checking session management endpoint for node URN validity as no endpoint is configured.");
+		Set<NodeUrn> servedNodeUrns;
+		try {
+			servedNodeUrns = servedNodeUrnsProvider.get();
+		} catch (Exception e) {
+			throw createRSFault_Exception(e.getMessage());
 		}
 
+		List<NodeUrn> unservedNodes = newArrayList(filter(nodeUrns, Predicates.not(Predicates.in(servedNodeUrns))));
+
+		boolean contained;
+		for (NodeUrn nodeUrn : nodeUrns) {
+
+			contained = false;
+
+			for (NodeUrn networkNode : servedNodeUrns) {
+				if (networkNode.equals(nodeUrn)) {
+					contained = true;
+				}
+			}
+
+			if (!contained) {
+				unservedNodes.add(nodeUrn);
+			}
+		}
+
+		if (unservedNodes.size() > 0) {
+			throw createRSFault_Exception("The node URNs " + Arrays.toString(unservedNodes.toArray())
+					+ " are unknown to the reservation system!"
+			);
+		}
 	}
 
 	private void checkArgumentValid(final List<NodeUrn> nodeUrns,
@@ -297,7 +289,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		} else {
 			srk = secretReservationKeys.get(0);
-			if (!config.urnPrefix.equals(srk.getUrnPrefix())) {
+			if (!config.getUrnPrefix().equals(srk.getUrnPrefix())) {
 				msg = "Not serving urn prefix " + srk.getUrnPrefix();
 			}
 		}
@@ -377,7 +369,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		try {
 
-			SecretReservationKey secretReservationKey = persistence.addReservation(crd, config.urnPrefix);
+			SecretReservationKey secretReservationKey = persistence.addReservation(crd, config.getUrnPrefix());
 
 			data.setKey(secretReservationKey.getKey());
 

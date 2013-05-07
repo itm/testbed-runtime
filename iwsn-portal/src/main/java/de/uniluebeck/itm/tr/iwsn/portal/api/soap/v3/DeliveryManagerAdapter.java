@@ -16,7 +16,7 @@ import eu.wisebed.api.v3.controller.Status;
 import org.joda.time.DateTime;
 
 import static com.google.common.collect.Iterables.transform;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 

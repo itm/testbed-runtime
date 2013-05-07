@@ -8,8 +8,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRS;
-import de.uniluebeck.itm.tr.rs.singleurnprefix.SingleUrnPrefixRSService;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -62,6 +60,9 @@ public class SingleUrnPrefixRSTest {
 	private SNAA snaa;
 
 	@Mock
+	private Provider<SNAA> snaaProvider;
+
+	@Mock
 	private SessionManagement sessionManagement;
 
 	@Mock
@@ -97,14 +98,16 @@ public class SingleUrnPrefixRSTest {
 	@Before
 	public void setUp() {
 
-		final RSConfig config = new RSConfig();
-		config.urnPrefix = URN_PREFIX;
+		when(snaaProvider.get()).thenReturn(snaa);
+
+		final RSStandaloneConfigImpl config = new RSStandaloneConfigImpl();
+		config.setUrnPrefix(URN_PREFIX);
 
 		final Injector injector = Guice.createInjector(new AbstractModule() {
 			@Override
 			public void configure() {
 
-				bind(RSConfig.class).toInstance(config);
+				bind(RSStandaloneConfigImpl.class).toInstance(config);
 				bind(ServicePublisher.class).toInstance(servicePublisher);
 				bind(SNAA.class).toInstance(snaa);
 				bind(SessionManagement.class).toInstance(sessionManagement);
@@ -113,7 +116,7 @@ public class SingleUrnPrefixRSTest {
 				bind(RSService.class).to(SingleUrnPrefixRSService.class);
 				bind(eu.wisebed.api.v3.rs.RS.class).to(SingleUrnPrefixRS.class);
 
-				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaa));
+				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaaProvider));
 				bindInterceptor(com.google.inject.matcher.Matchers.any(),
 						annotatedWith(AuthorizationRequired.class), rsAuthorizationInterceptor
 				);

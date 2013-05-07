@@ -141,12 +141,6 @@ public class ReservationManagerImplTest {
 		RESERVATION_DATA_3.add(crd3);
 	}
 
-	private static final PortalConfig PORTAL_CONFIG = new PortalConfig();
-
-	static {
-		PORTAL_CONFIG.urnPrefix = NODE_URN_PREFIX;
-	}
-
 	@Mock
 	private Provider<RS> rsProvider;
 
@@ -174,13 +168,21 @@ public class ReservationManagerImplTest {
 	@Mock
 	private SchedulerService schedulerService;
 
+	@Mock
+	private PortalConfig portalConfig;
+
 	private ReservationManagerImpl reservationManager;
 
 	@Before
 	public void setUp() throws Exception {
+		when(portalConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
-		reservationManager = new ReservationManagerImpl(PORTAL_CONFIG, rsProvider, deviceDB, reservationFactory,
+		reservationManager = new ReservationManagerImpl(
+				portalConfig,
+				rsProvider,
+				deviceDB,
+				reservationFactory,
 				schedulerServiceFactory
 		);
 		reservationManager.startAndWait();

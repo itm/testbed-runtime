@@ -35,12 +35,12 @@ public class TestbedsResource {
 		final URI baseUri = uriInfo.getBaseUri();
 
 		final TestbedDescription testbed = new TestbedDescription();
-		testbed.name = portalConfig.testbedName;
+		testbed.name = portalConfig.getTestbedName();
 		testbed.testbedBaseUri =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/rest/v1.0";
 		testbed.sessionManagementEndpointUrl =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/soap/v3.0/sm";
-		testbed.urnPrefixes = newArrayList(portalConfig.urnPrefix.toString());
+		testbed.urnPrefixes = newArrayList(portalConfig.getUrnPrefix().toString());
 
 		return newArrayList(testbed);
 	}

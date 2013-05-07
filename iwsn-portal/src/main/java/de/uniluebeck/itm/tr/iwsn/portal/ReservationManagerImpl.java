@@ -161,7 +161,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
 		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(portalConfig.urnPrefix);
+		key.setUrnPrefix(portalConfig.getUrnPrefix());
 		key.setKey(secretReservationKey);
 		return newArrayList(key);
 	}

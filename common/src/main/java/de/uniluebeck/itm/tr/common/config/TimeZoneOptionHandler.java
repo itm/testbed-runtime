@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.rs;
+package de.uniluebeck.itm.tr.common.config;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;

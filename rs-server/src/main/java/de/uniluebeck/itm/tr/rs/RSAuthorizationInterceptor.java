@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.rs;
 
 import com.google.common.base.Objects;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -41,8 +42,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 * The Authorization and Authentication server to be used to delegate the check for the user's
 	 * privileges
 	 */
-	@Inject
-	private SNAA snaa;
+	private Provider<SNAA> snaa;
 
 	// ------------------------------------------------------------------------
 
@@ -51,7 +51,8 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 	 *
 	 * @param snaa SNAA server to be used to check the authorization.
 	 */
-	public RSAuthorizationInterceptor(SNAA snaa) {
+	@Inject
+	public RSAuthorizationInterceptor(Provider<SNAA> snaa) {
 		this.snaa = snaa;
 	}
 
@@ -189,7 +190,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		if (requestedAction.equals(Action.RS_MAKE_RESERVATION)) {
 
 			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(usernamePrefixPairs, nodeUrns);
-			final AuthorizationResponse overallAuthorizationResponse = snaa.isAuthorized(mapList, requestedAction);
+			final AuthorizationResponse overallAuthorizationResponse = snaa.get().isAuthorized(mapList, requestedAction);
 
 			final List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = overallAuthorizationResponse.getPerNodeUrnAuthorizationResponses();
 
@@ -242,7 +243,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		response.setAuthorized(true);
 
 		if (secretAuthenticationKeys != null) {
-			for (ValidationResult result : snaa.isValid(secretAuthenticationKeys)) {
+			for (ValidationResult result : snaa.get().isValid(secretAuthenticationKeys)) {
 				if (!result.isValid()) {
 					response.setMessage(
 							"A provided secret authentication key is not valid" + (result.getMessage() != null ?
@@ -309,7 +310,7 @@ public class RSAuthorizationInterceptor implements MethodInterceptor {
 		try {
 
 			final List<UsernameNodeUrnsMap> mapList = convertToUsernameNodeUrnsMap(upp, nodeUrns);
-			final AuthorizationResponse authorized = snaa.isAuthorized(mapList, action);
+			final AuthorizationResponse authorized = snaa.get().isAuthorized(mapList, action);
 			List<PerNodeUrnAuthorizationResponse> perNodeAuthorizationResponses = authorized.getPerNodeUrnAuthorizationResponses();
 			log.debug("Authorization result: {}", perNodeAuthorizationResponses);
 			if (perNodeAuthorizationResponses == null) {

@@ -1,14 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.common.collect.Lists;
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -64,8 +63,8 @@ public class WSNServiceImplAuthorizationTest {
 
 	@Before
 	public void setUp() throws Exception {
-		portalConfig = new PortalConfig();
-		portalConfig.urnPrefix = new NodeUrnPrefix("urn:unit-test:");
+
+		when(portalConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
 		authorizationDeniedResponse = new AuthorizationResponse();
 		authorizationDeniedResponse.setAuthorized(false);

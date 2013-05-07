@@ -64,10 +64,13 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	@Override
 	protected void doStart() {
+
+		log.trace("PortalEventBusImpl.doStart()");
+
 		try {
 
 			nettyServer = nettyServerFactory.create(
-					new InetSocketAddress(config.overlayPort),
+					new InetSocketAddress(config.getOverlayPort()),
 					new ProtobufVarint32FrameDecoder(),
 					new ProtobufDecoder(Message.getDefaultInstance()),
 					new ProtobufVarint32LengthFieldPrepender(),
@@ -87,6 +90,9 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	@Override
 	protected void doStop() {
+
+		log.trace("PortalEventBusImpl.doStop()");
+
 		try {
 			nettyServer.stopAndWait();
 			eventBus.unregister(this);
@@ -106,6 +112,9 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	 */
 	@Subscribe
 	public void onDeadEvent(DeadEvent event) {
+
+		log.trace("PortalEventBusImpl.onDeadEvent({})", event);
+
 		if (event.getEvent() instanceof Request) {
 			Request request = (Request) event.getEvent();
 			for (NodeUrn nodeUrn : getNodeUrns(request)) {

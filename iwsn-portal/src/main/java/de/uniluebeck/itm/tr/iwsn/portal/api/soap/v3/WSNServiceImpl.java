@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
@@ -31,9 +32,11 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
+						  final EndpointManager endpointManager,
 						  @Assisted final String reservationId,
 						  @Assisted final WSN wsn) {
-		this.jaxWsService = servicePublisher.createJaxWsService("/v3/wsn/" + reservationId, this);
+		final String contextPath = endpointManager.getWsnEndpointUriBase().getPath() + reservationId;
+		this.jaxWsService = servicePublisher.createJaxWsService(contextPath, this);
 		this.wsn = wsn;
 	}
 

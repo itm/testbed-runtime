@@ -9,6 +9,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
+import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
@@ -38,19 +39,23 @@ public class Portal extends AbstractService {
 
 	private final RestApiService restApiService;
 
+	private final RSService rsService;
+
 	@Inject
 	public Portal(final DeviceDBService deviceDBService,
 				  final PortalEventBus portalEventBus,
 				  final ReservationManager reservationManager,
 				  final SoapApiService soapApiService,
 				  final RestApiService restApiService,
-				  final ServicePublisher servicePublisher) {
+				  final ServicePublisher servicePublisher,
+				  final RSService rsService) {
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.soapApiService = checkNotNull(soapApiService);
 		this.restApiService = checkNotNull(restApiService);
 		this.servicePublisher = checkNotNull(servicePublisher);
+		this.rsService = checkNotNull(rsService);
 	}
 
 	@Override
@@ -63,13 +68,7 @@ public class Portal extends AbstractService {
 			servicePublisher.startAndWait();
 			soapApiService.startAndWait();
 			restApiService.startAndWait();
-
-			{
-				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/webapp";
-				final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
-				final ServicePublisherService webapp = servicePublisher.createServletService("/services", resourceBase);
-				webapp.startAndWait();
-			}
+			rsService.startAndWait();
 
 			{
 				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/wisegui";
@@ -89,6 +88,7 @@ public class Portal extends AbstractService {
 	protected void doStop() {
 		try {
 
+			rsService.stopAndWait();
 			deviceDBService.stopAndWait();
 			restApiService.stopAndWait();
 			soapApiService.stopAndWait();
@@ -108,7 +108,7 @@ public class Portal extends AbstractService {
 		Thread.currentThread().setName("Portal-Main");
 
 		final PortalConfig portalConfig = setLogLevel(
-				parseOrExit(new PortalConfig(), Portal.class, args),
+				parseOrExit(new PortalConfigImpl(), Portal.class, args),
 				"de.uniluebeck.itm"
 		);
 		final PortalModule portalModule = new PortalModule(portalConfig);
