@@ -42,6 +42,7 @@
 		<module>iwsn-gateway</module>
 		<module>rs-federator</module>
 		<module>rs-server</module>
+		<module>snaa-client</module>
 		<module>snaa-server</module>
 		<module>federator-utils</module>
 	</modules>

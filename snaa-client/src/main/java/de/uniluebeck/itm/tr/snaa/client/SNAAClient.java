@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa;
+package de.uniluebeck.itm.tr.snaa.client;
 
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
