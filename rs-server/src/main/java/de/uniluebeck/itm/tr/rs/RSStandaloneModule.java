@@ -11,6 +11,9 @@ import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.EndpointManagerImpl;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.SmServedNodeUrnsProvider;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -51,5 +54,15 @@ public class RSStandaloneModule extends RSModule {
 				config.getSmEndpointUri(),
 				null
 		);
+	}
+
+	@Provides
+	SessionManagement provideSessionManagement() {
+		return WisebedServiceHelper.getSessionManagementService(config.getSmEndpointUri().toString());
+	}
+
+	@Provides
+	SNAA provideSnaa() {
+		return WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUri().toString());
 	}
 }

@@ -1,18 +1,13 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
-import de.uniluebeck.itm.tr.devicedb.entity.*;
-import org.hibernate.ejb.Ejb3Configuration;
+import com.google.inject.persist.jpa.JpaPersistModule;
+import de.uniluebeck.itm.tr.common.jpa.JPAInitializer;
 
-import javax.persistence.EntityManager;
-import java.util.List;
 import java.util.Properties;
 
-public class DeviceDBJpaModule extends AbstractModule {
+public class DeviceDBJpaModule extends PrivateModule {
 
 	private Properties properties;
 
@@ -22,27 +17,9 @@ public class DeviceDBJpaModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		install(new JpaPersistModule("DeviceDB").properties(properties));
+		bind(JPAInitializer.class).asEagerSingleton();
 		bind(DeviceDB.class).to(DeviceDBJpa.class).in(Scopes.SINGLETON);
-	}
-
-	@Provides
-	@Singleton
-	synchronized EntityManager provideEntityManager() {
-
-		@SuppressWarnings("deprecation") Ejb3Configuration cfg = new Ejb3Configuration();
-
-		@SuppressWarnings("RedundantTypeArguments") List<Class<?>> persistedClasses = Lists.<Class<?>>newArrayList(
-				DeviceConfigEntity.class,
-				CoordinateEntity.class,
-				ChannelHandlerConfigEntity.class,
-				KeyValueEntity.class,
-				CapabilityEntity.class
-		);
-
-		for (Class<?> c : persistedClasses) {
-			cfg.addAnnotatedClass(c);
-		}
-
-		return cfg.addProperties(properties).buildEntityManagerFactory().createEntityManager();
+		expose(DeviceDB.class);
 	}
 }

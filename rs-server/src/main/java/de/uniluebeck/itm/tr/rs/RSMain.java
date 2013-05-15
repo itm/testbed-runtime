@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.util.Logging;
+import eu.wisebed.api.v3.rs.RS;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 
 @SuppressWarnings("restriction")
-public class RS extends AbstractService {
+public class RSMain extends AbstractService {
 
 	static {
 		Logging.setLoggingDefaults(Level.WARN);
@@ -51,7 +52,7 @@ public class RS extends AbstractService {
 	private final RSService rsService;
 
 	@Inject
-	public RS(final ServicePublisher servicePublisher,
+	public RSMain(final ServicePublisher servicePublisher,
 			  final RSService rsService) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.rsService = checkNotNull(rsService);
@@ -90,7 +91,7 @@ public class RS extends AbstractService {
 
 		final RSStandaloneModule module = new RSStandaloneModule(config);
 		final Injector injector = Guice.createInjector(module);
-		final RS rs = injector.getInstance(RS.class);
+		final RSMain rs = injector.getInstance(RSMain.class);
 
 		try {
 			rs.start().get();

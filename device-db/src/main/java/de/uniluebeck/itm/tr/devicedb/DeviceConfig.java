@@ -194,7 +194,7 @@ public class DeviceConfig implements Serializable {
 	}
 
 	public void setCapabilities(@Nullable Set<Capability> capabilities) {
-		this.capabilities = capabilities;
+		this.capabilities = capabilities == null || capabilities.size() == 0 ? null : capabilities;
 	}
 
 	@Override

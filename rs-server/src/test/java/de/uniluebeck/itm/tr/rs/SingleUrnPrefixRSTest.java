@@ -2,15 +2,18 @@ package de.uniluebeck.itm.tr.rs;
 
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.EndpointManager;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.*;
-import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
+import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
@@ -29,7 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.common.collect.Sets.newHashSet;
 import static eu.wisebed.api.v3.util.WisebedConversionHelper.convert;
 import static eu.wisebed.api.v3.util.WisebedConversionHelper.convertToUsernameNodeUrnsMap;
 import static org.junit.Assert.assertEquals;
@@ -67,12 +70,18 @@ public class SingleUrnPrefixRSTest {
 	private SessionManagement sessionManagement;
 
 	@Mock
-	private Provider<NodeUrn[]> servedNodeUrns;
-
-	@Mock
 	private ServicePublisher servicePublisher;
 
-	private SingleUrnPrefixRS rs;
+	@Mock
+	private ServedNodeUrnsProvider servedNodeUrnsProvider;
+
+	@Mock
+	private EndpointManager endpointManager;
+
+	@Mock
+	private TimeLimiter timeLimiter;
+
+	private RS rs;
 
 	@SuppressWarnings("FieldCanBeLocal")
 	private SecretAuthenticationKey user1Sak;
@@ -94,8 +103,6 @@ public class SingleUrnPrefixRSTest {
 	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private List<SecretReservationKey> user2Srks;
 
-	private RSAuthorizationInterceptor rsAuthorizationInterceptor;
-
 	@Before
 	public void setUp() {
 
@@ -103,29 +110,25 @@ public class SingleUrnPrefixRSTest {
 
 		final RSStandaloneConfigImpl config = new RSStandaloneConfigImpl();
 		config.setUrnPrefix(URN_PREFIX);
+		config.setRsPersistenceType(RSPersistenceType.IN_MEMORY);
 
 		final Injector injector = Guice.createInjector(new AbstractModule() {
 			@Override
 			public void configure() {
 
-				bind(RSStandaloneConfigImpl.class).toInstance(config);
 				bind(ServicePublisher.class).toInstance(servicePublisher);
 				bind(SNAA.class).toInstance(snaa);
 				bind(SessionManagement.class).toInstance(sessionManagement);
-				bind(RSPersistence.class).toInstance(persistence);
-				bind(NodeUrn[].class).toProvider(servedNodeUrns);
-				bind(RSService.class).to(SingleUrnPrefixRSService.class);
-				bind(eu.wisebed.api.v3.rs.RS.class).to(SingleUrnPrefixRS.class);
+				bind(EndpointManager.class).toInstance(endpointManager);
+				bind(TimeLimiter.class).toInstance(timeLimiter);
+				bind(ServedNodeUrnsProvider.class).toInstance(servedNodeUrnsProvider);
 
-				rsAuthorizationInterceptor = spy(new RSAuthorizationInterceptor(snaaProvider));
-				bindInterceptor(com.google.inject.matcher.Matchers.any(),
-						annotatedWith(AuthorizationRequired.class), rsAuthorizationInterceptor
-				);
+				install(new RSModule(config));
 			}
 		}
 		);
 
-		rs = injector.getInstance(SingleUrnPrefixRS.class);
+		rs = injector.getInstance(RS.class);
 
 		user1Sak = new SecretAuthenticationKey();
 		user1Sak.setKey(USER1_SECRET_AUTHENTICATION_KEY);
@@ -244,14 +247,17 @@ public class SingleUrnPrefixRSTest {
 
 		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
+
 		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
-		when(servedNodeUrns.get()).thenReturn(new NodeUrn[]{new NodeUrn("urn:local:0xcbe4")});
-		when(persistence
-				.addReservation(Matchers.<ConfidentialReservationData>any(), eq(new NodeUrnPrefix("urn:local:")))
-		).thenReturn(
-				srk
-		);
+		when(servedNodeUrnsProvider.get())
+				.thenReturn(newHashSet(new NodeUrn("urn:local:0xcbe4")));
+		when(persistence.addReservation(
+				Matchers.<ConfidentialReservationData>any(),
+				eq(new NodeUrnPrefix("urn:local:"))
+		)
+		).thenReturn(srk);
+
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
@@ -314,7 +320,7 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(snaa.isValid(user1Saks)).thenReturn(newArrayList(validationResult));
 		when(snaa.isValid(user2Saks)).thenReturn(newArrayList(validationResult));
-		when(servedNodeUrns.get()).thenReturn(new NodeUrn[]{user1Node, user2Node});
+		when(servedNodeUrnsProvider.get()).thenReturn(newHashSet(user1Node, user2Node));
 
 		final ConfidentialReservationData reservation1 =
 				buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);

@@ -59,7 +59,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPA(@RSEntityManager final EntityManager em, final RSConfig config) {
+	public RSPersistenceJPA(final EntityManager em, final RSConfig config) {
 		this.em = checkNotNull(em);
 		this.localTimeZone = checkNotNull(config.getTimeZone());
 	}

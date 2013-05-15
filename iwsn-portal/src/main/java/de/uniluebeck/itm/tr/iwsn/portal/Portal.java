@@ -62,13 +62,15 @@ public class Portal extends AbstractService {
 	protected void doStart() {
 		try {
 
+			servicePublisher.startAndWait();
+
 			deviceDBService.startAndWait();
+			rsService.startAndWait();
+
 			portalEventBus.startAndWait();
 			reservationManager.startAndWait();
-			servicePublisher.startAndWait();
 			soapApiService.startAndWait();
 			restApiService.startAndWait();
-			rsService.startAndWait();
 
 			{
 				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/wisegui";
@@ -88,13 +90,15 @@ public class Portal extends AbstractService {
 	protected void doStop() {
 		try {
 
-			rsService.stopAndWait();
-			deviceDBService.stopAndWait();
 			restApiService.stopAndWait();
 			soapApiService.stopAndWait();
-			servicePublisher.stopAndWait();
 			reservationManager.stopAndWait();
 			portalEventBus.stopAndWait();
+
+			rsService.stopAndWait();
+			deviceDBService.stopAndWait();
+
+			servicePublisher.stopAndWait();
 
 			notifyStopped();
 

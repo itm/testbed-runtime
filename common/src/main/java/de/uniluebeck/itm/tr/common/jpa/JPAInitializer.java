@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.devicedb;
+package de.uniluebeck.itm.tr.common.jpa;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

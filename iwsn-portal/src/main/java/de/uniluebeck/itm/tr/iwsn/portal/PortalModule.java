@@ -48,7 +48,6 @@ public class PortalModule extends AbstractModule {
 		if (config.getRsEndpointUri() != null) {
 			bind(RS.class).toInstance(WisebedServiceHelper.getRSService(config.getRsEndpointUri().toString()));
 		} else {
-			bind(RSConfig.class).toInstance(config);
 			bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
 			install(new RSModule(config));
 		}
