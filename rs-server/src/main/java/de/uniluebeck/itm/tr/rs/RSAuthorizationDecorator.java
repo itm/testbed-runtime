@@ -27,10 +27,12 @@ public class RSAuthorizationDecorator implements RS {
 	@RequestWrapper(localName = "deleteReservation", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.DeleteReservation")
 	@ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.DeleteReservationResponse")
 	public void deleteReservation(
+			@WebParam(name = "secretAuthenticationKeys", targetNamespace = "") final
+			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		rs.deleteReservation(secretReservationKey);
+			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
+		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
 	}
 
 	@Override
@@ -42,7 +44,8 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "from", targetNamespace = "") final DateTime from,
-			@WebParam(name = "to", targetNamespace = "") final DateTime to) throws RSFault_Exception {
+			@WebParam(name = "to", targetNamespace = "") final DateTime to)
+			throws AuthorizationFault, RSFault_Exception {
 		return rs.getConfidentialReservations(secretAuthenticationKey, from, to);
 	}
 
