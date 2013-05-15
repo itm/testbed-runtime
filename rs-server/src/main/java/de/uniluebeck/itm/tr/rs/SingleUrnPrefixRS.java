@@ -73,20 +73,15 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	@AuthorizationRequired("RS_DELETE_RESERVATION")
-	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
+	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
+		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
+		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkArgumentValidReservation(secretReservationKeys);
-
-		// TODO check authentication (https://github.com/itm/testbed-runtime/issues/47)
-		// checkArgumentValidAuthentication(authenticationData);
-		// try {
-		// checkAuthorization(authenticationData.get(0), Actions.DELETE_RESERVATION);
-		// } catch (AuthorizationFault_Exception e) {
-		// throwRSFault_Exception(e);
-		// }
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
 		ConfidentialReservationData reservationToDelete = persistence.getReservation(secretReservationKeyToDelete);

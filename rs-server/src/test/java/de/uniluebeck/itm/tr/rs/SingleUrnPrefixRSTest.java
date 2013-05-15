@@ -172,7 +172,7 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.getReservation(user1Srk)).thenReturn(crd);
 
 		try {
-			rs.deleteReservation(user1Srks);
+			rs.deleteReservation(user1Saks, user1Srks);
 			fail();
 		} catch (RSFault_Exception e) {
 			// this should be thrown
@@ -208,7 +208,7 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.deleteReservation(user1Srk)).thenReturn(crd);
 
-		rs.deleteReservation(user1Srks);
+		rs.deleteReservation(user1Saks, user1Srks);
 
 		// TODO https://github.com/itm/testbed-runtime/issues/47
 		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
@@ -346,7 +346,7 @@ public class SingleUrnPrefixRSTest {
 	@Test
 	public void verifyRSAuthorizationInterceptorIsCalledBeforeDeletingReservations() throws Throwable {
 		try {
-			rs.deleteReservation(anyListOf(SecretReservationKey.class));
+			rs.deleteReservation(user1Saks, user1Srks);
 		} catch (Throwable expected) {
 			// the call will not work
 		} finally {

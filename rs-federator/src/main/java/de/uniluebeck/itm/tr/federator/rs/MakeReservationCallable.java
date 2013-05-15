@@ -10,6 +10,8 @@ import org.joda.time.DateTime;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class MakeReservationCallable implements Callable<List<SecretReservationKey>> {
 
 	private final RS rs;
@@ -26,28 +28,44 @@ public class MakeReservationCallable implements Callable<List<SecretReservationK
 
 	private final List<KeyValuePair> options;
 
-	public MakeReservationCallable(final RS rs,
-								   final List<SecretAuthenticationKey> secretAuthenticationKeys,
-								   final List<NodeUrn> nodeUrns,
-								   final DateTime from,
-								   final DateTime to,
-								   final String description,
+	public MakeReservationCallable(final RS rs, final DateTime from, final DateTime to, final String description,
 								   final List<KeyValuePair> options) {
 		this.rs = rs;
-		this.secretAuthenticationKeys = secretAuthenticationKeys;
-		this.nodeUrns = nodeUrns;
 		this.from = from;
 		this.to = to;
 		this.description = description;
 		this.options = options;
+
+		this.secretAuthenticationKeys = newArrayList();
+		this.nodeUrns = newArrayList();
 	}
 
 	public RS getRs() {
 		return rs;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public DateTime getFrom() {
+		return from;
+	}
+
 	public List<NodeUrn> getNodeUrns() {
 		return nodeUrns;
+	}
+
+	public List<KeyValuePair> getOptions() {
+		return options;
+	}
+
+	public List<SecretAuthenticationKey> getSecretAuthenticationKeys() {
+		return secretAuthenticationKeys;
+	}
+
+	public DateTime getTo() {
+		return to;
 	}
 
 	@Override
