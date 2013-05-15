@@ -42,7 +42,7 @@ public class RsResource {
 	public Object listReservations(@QueryParam("from") final DateTime from,
 								   @QueryParam("to") final DateTime to,
 								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly)
-			throws RSFault_Exception {
+			throws RSFault_Exception, AuthorizationFault {
 
 		final Interval interval = new Interval(from, to);
 		return userOnly ?
@@ -75,11 +75,11 @@ public class RsResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
 	public void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault {
 
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-		rs.deleteReservation(secretReservationKeys.reservations);
+		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys.reservations);
 	}
 
 	@POST
@@ -94,7 +94,7 @@ public class RsResource {
 	private ConfidentialReservationDataList getConfidentialReservations(
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
 			final Interval interval)
-			throws RSFault_Exception {
+			throws RSFault_Exception, AuthorizationFault {
 
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(

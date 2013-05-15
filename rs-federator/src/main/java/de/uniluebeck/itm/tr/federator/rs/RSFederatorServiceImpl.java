@@ -33,8 +33,8 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.*;
-import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
+import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -50,7 +50,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 
 
 @WebService(
@@ -86,27 +85,22 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	@Override
-	public void deleteReservation(final List<SecretReservationKey> secretReservationKey)
+	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
-		assertNotNull(secretReservationKey, "secretReservationKey");
+		assertNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
+		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
-		Map<RS, List<SecretReservationKey>> map = constructEndpointToReservationKeyMap(
-				federationManager,
-				secretReservationKey
-		);
+		Map<RS, DeleteReservationCallable> map = map(secretAuthenticationKeys, secretReservationKeys);
 
 		// calling getReservation assures that every reservation exists
-		getReservation(secretReservationKey);
+		getReservation(secretReservationKeys);
 
 		// fork some processes to delete in parallel
-		List<Future<Void>> futures = newArrayList();
-		for (Map.Entry<RS, List<SecretReservationKey>> entry : map.entrySet()) {
-			DeleteReservationCallable deleteReservationCallable = new DeleteReservationCallable(
-					entry.getKey(),
-					entry.getValue()
-			);
-			futures.add(executorService.submit(deleteReservationCallable));
+		final List<Future<Void>> futures = newArrayList();
+		for (DeleteReservationCallable callable : map.values()) {
+			futures.add(executorService.submit(callable));
 		}
 
 		// join processes and check results
@@ -151,43 +145,13 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		}
 	}
 
-	private static class MakeReservationArguments {
-
-		public Set<SecretAuthenticationKey> secretAuthenticationKeys;
-
-		public Set<NodeUrn> nodeUrns;
-
-		public DateTime from;
-
-		public DateTime to;
-
-		public String description;
-
-		public List<KeyValuePair> options;
-
-		private MakeReservationArguments(final Set<SecretAuthenticationKey> secretAuthenticationKeys,
-										 final Set<NodeUrn> nodeUrns,
-										 final DateTime from,
-										 final DateTime to,
-										 final String description,
-										 final List<KeyValuePair> options) {
-
-			this.secretAuthenticationKeys = secretAuthenticationKeys;
-			this.nodeUrns = nodeUrns;
-			this.from = from;
-			this.to = to;
-			this.description = description;
-			this.options = options;
-		}
-	}
-
 	@Override
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to,
 													  final String description,
-													  final List<KeyValuePair> options)
+													  final List<KeyValuePair> opts)
 			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
 
 		try {
@@ -210,23 +174,21 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		// run a set of parallel jobs to make a reservation on the federated rs services
 
-		BiMap<RS, MakeReservationArguments> map = HashBiMap.create(federationManager.getEndpoints().size());
+		BiMap<RS, MakeReservationCallable> map = HashBiMap.create(federationManager.getEndpoints().size());
 
 		for (NodeUrn nodeUrn : nodeUrns) {
 
 			RS rs = federationManager.getEndpointByNodeUrn(nodeUrn);
 
 			final SecretAuthenticationKey sak = getSAKByNodeUrn(secretAuthenticationKeys, nodeUrn);
-			MakeReservationArguments args = map.get(rs);
-			if (args == null) {
-				args = new MakeReservationArguments(newHashSet(sak), newHashSet(nodeUrn), from, to, description,
-						options
-				);
-				map.put(rs, args);
-			} else {
-				args.secretAuthenticationKeys.add(sak);
-				args.nodeUrns.add(nodeUrn);
+			MakeReservationCallable callable = map.get(rs);
+			if (callable == null) {
+				callable = new MakeReservationCallable(rs, from, to, description, opts);
+				map.put(rs, callable);
 			}
+
+			callable.getSecretAuthenticationKeys().add(sak);
+			callable.getNodeUrns().add(nodeUrn);
 		}
 
 		// TODO fix check
@@ -235,20 +197,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		Map<Future<List<SecretReservationKey>>, MakeReservationCallable> futures = Maps.newHashMap();
 
 		// fork the parallel execution of reservations on federated services
-		for (Map.Entry<RS, MakeReservationArguments> entry : map.entrySet()) {
-
-			final MakeReservationArguments args = entry.getValue();
-			final RS rs = entry.getKey();
-			MakeReservationCallable callable = new MakeReservationCallable(
-					rs,
-					newArrayList(args.secretAuthenticationKeys),
-					newArrayList(args.nodeUrns),
-					args.from,
-					args.to,
-					args.description,
-					args.options
-			);
-
+		for (MakeReservationCallable callable : map.values()) {
 			futures.put(executorService.submit(callable), callable);
 		}
 
@@ -278,7 +227,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			// since this could also fail, add the according message
 			try {
 				undoReservations(succeeded);
-			} catch(RSFault_Exception e){
+			} catch (RSFault_Exception e) {
 				failMessages.add(e.getMessage());
 			}
 
@@ -381,15 +330,12 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKey)
+	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
-		assertNotNull(secretReservationKey, "secretReservationKey");
+		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
-		Map<RS, List<SecretReservationKey>> map = constructEndpointToReservationKeyMap(
-				federationManager,
-				secretReservationKey
-		);
+		Map<RS, List<SecretReservationKey>> map = constructEndpointToReservationKeyMap(secretReservationKeys);
 
 		// fork some processes to fetch the individual reservation data
 		List<Future<List<ConfidentialReservationData>>> futures = newArrayList();
@@ -510,18 +456,22 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		throw new RSFault_Exception(msg, exception, e);
 	}
 
-	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded) throws RSFault_Exception {
-		RS rs;
-		List<SecretReservationKey> reservationKeys;
+	private void undoReservations(Map<MakeReservationCallable, List<SecretReservationKey>> succeeded)
+			throws RSFault_Exception {
+
 		List<Future> futures = new ArrayList<Future>(succeeded.size());
 
 		// fork processes to delete reservations
 		for (Map.Entry<MakeReservationCallable, List<SecretReservationKey>> entry : succeeded.entrySet()) {
 
-			rs = entry.getKey().getRs();
-			reservationKeys = entry.getValue();
+			final RS rs = entry.getKey().getRs();
+			final List<SecretAuthenticationKey> secretAuthenticationKeys = entry.getKey().getSecretAuthenticationKeys();
+			final List<SecretReservationKey> secretReservationKeys = entry.getValue();
 
-			DeleteReservationCallable callable = new DeleteReservationCallable(rs, reservationKeys);
+			final DeleteReservationCallable callable = new DeleteReservationCallable(rs);
+			callable.getSecretAuthenticationKeys().addAll(secretAuthenticationKeys);
+			callable.getSecretReservationKeys().addAll(secretReservationKeys);
+
 			futures.add(executorService.submit(callable));
 		}
 
@@ -532,14 +482,13 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			} catch (InterruptedException e) {
 				final String msg = "InterruptedException while trying to delete reservation!";
 				log.error(msg, e);
-				throwRSFault(msg,e);
+				throwRSFault(msg, e);
 			} catch (ExecutionException e) {
 				final String msg = "Exception occurred while deleting reservation!";
 				log.warn(msg, e);
-				throwRSFault(msg,e);
+				throwRSFault(msg, e);
 			}
 		}
-
 	}
 
 	private static Map<RS, List<SecretAuthenticationKey>> constructEndpointToAuthenticationMap(
@@ -572,8 +521,52 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		return map;
 	}
 
-	private static Map<RS, List<SecretReservationKey>> constructEndpointToReservationKeyMap(
-			final FederationManager<RS> federationManager,
+	private Map<RS, DeleteReservationCallable> map(
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
+			final List<SecretReservationKey> secretReservationKeys) throws RSFault_Exception {
+
+		final Map<RS, DeleteReservationCallable> map = newHashMap();
+
+		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+
+			final NodeUrnPrefix urnPrefix = secretAuthenticationKey.getUrnPrefix();
+			final RS rs = assertServed(federationManager.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
+
+			addOrGetDeleteReservationCallable(map, rs).addSecretAuthenticationKey(secretAuthenticationKey);
+		}
+
+		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
+
+			final NodeUrnPrefix urnPrefix = secretReservationKey.getUrnPrefix();
+			final RS rs = assertServed(federationManager.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
+
+			addOrGetDeleteReservationCallable(map, rs).addSecretReservationKey(secretReservationKey);
+		}
+
+		return map;
+	}
+
+	private DeleteReservationCallable addOrGetDeleteReservationCallable(final Map<RS, DeleteReservationCallable> map,
+																		final RS rs) {
+		DeleteReservationCallable callable = map.get(rs);
+		if (callable == null) {
+			callable = new DeleteReservationCallable(rs);
+			map.put(rs, callable);
+		}
+		return callable;
+	}
+
+	private RS assertServed(final RS rs, final NodeUrnPrefix urnPrefix) throws RSFault_Exception {
+		if (rs == null) {
+			String msg = "The node URN prefix " + urnPrefix + " is not served by this RS instance!";
+			RSFault exception = new RSFault();
+			exception.setMessage(msg);
+			throw new RSFault_Exception(msg, exception);
+		}
+		return rs;
+	}
+
+	private Map<RS, List<SecretReservationKey>> constructEndpointToReservationKeyMap(
 			final List<SecretReservationKey> secretReservationKey) throws RSFault_Exception {
 
 		Map<RS, List<SecretReservationKey>> map = newHashMap();
