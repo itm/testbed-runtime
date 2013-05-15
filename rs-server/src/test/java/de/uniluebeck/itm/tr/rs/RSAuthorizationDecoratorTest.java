@@ -77,7 +77,7 @@ public class RSAuthorizationDecoratorTest {
 	public void testDeleteReservationGranted()
 			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault {
 
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_DELETE_RESERVATION))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_DELETE_RESERVATION)))
 				.thenReturn(GRANTED_RESPONSE);
 
 		rs.deleteReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
@@ -92,7 +92,7 @@ public class RSAuthorizationDecoratorTest {
 	public void testDeleteReservationDenied()
 			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault {
 
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_DELETE_RESERVATION))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_DELETE_RESERVATION)))
 				.thenReturn(DENIED_RESPONSE);
 
 		try {
@@ -105,7 +105,7 @@ public class RSAuthorizationDecoratorTest {
 
 	@Test
 	public void testGetReservationsGranted() throws SNAAFault_Exception, RSFault_Exception {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_GET_RESERVATIONS))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_RESERVATIONS)))
 				.thenReturn(GRANTED_RESPONSE);
 		rs.getReservations(NOW, THEN);
 		verify(rsImpl).getReservations(NOW, THEN);
@@ -114,16 +114,16 @@ public class RSAuthorizationDecoratorTest {
 	@Test
 	public void testGetConfidentialReservationsGranted()
 			throws RSFault_Exception, SNAAFault_Exception, AuthorizationFault {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_GET_CONFIDENTIAL_RESERVATIONS))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_CONFIDENTIAL_RESERVATIONS)))
 				.thenReturn(GRANTED_RESPONSE);
 		rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN);
-		verify(rsImpl).getConfidentialReservations(Matchers.<List<SecretAuthenticationKey>>any(), NOW, THEN);
+		verify(rsImpl).getConfidentialReservations(Matchers.<List<SecretAuthenticationKey>>any(), eq(NOW), eq(THEN));
 	}
 
 	@Test
 	public void testGetConfidentialReservationsDenied()
 			throws RSFault_Exception, SNAAFault_Exception {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_GET_CONFIDENTIAL_RESERVATIONS))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_CONFIDENTIAL_RESERVATIONS)))
 				.thenReturn(DENIED_RESPONSE);
 		try {
 			rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN);
@@ -136,7 +136,7 @@ public class RSAuthorizationDecoratorTest {
 	@Test
 	public void testGetReservationGranted()
 			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_GET_RESERVATION))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_RESERVATION)))
 				.thenReturn(GRANTED_RESPONSE);
 		rs.getReservation(EMPTY_SRK_LIST);
 		verify(rsImpl).getReservation(EMPTY_SRK_LIST);
@@ -146,7 +146,7 @@ public class RSAuthorizationDecoratorTest {
 	public void testMakeReservationGranted()
 			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception,
 			UnknownSecretReservationKeyFault, SNAAFault_Exception {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_MAKE_RESERVATION))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_MAKE_RESERVATION)))
 				.thenReturn(GRANTED_RESPONSE);
 		rs.makeReservation(EMPTY_SAK_LIST, NODE_URNS, NOW, THEN, DESCRIPTION, OPTIONS);
 		verify(rsImpl).makeReservation(EMPTY_SAK_LIST, NODE_URNS, NOW, THEN, DESCRIPTION, OPTIONS);
@@ -156,7 +156,7 @@ public class RSAuthorizationDecoratorTest {
 	public void testMakeReservationDenied()
 			throws RSFault_Exception, ReservationConflictFault_Exception,
 			UnknownSecretReservationKeyFault, SNAAFault_Exception {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), Action.RS_MAKE_RESERVATION))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_MAKE_RESERVATION)))
 				.thenReturn(DENIED_RESPONSE);
 		try {
 			rs.makeReservation(EMPTY_SAK_LIST, NODE_URNS, NOW, THEN, DESCRIPTION, OPTIONS);
