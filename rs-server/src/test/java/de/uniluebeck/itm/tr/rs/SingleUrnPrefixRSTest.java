@@ -28,11 +28,11 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static eu.wisebed.api.v3.util.WisebedConversionHelper.convert;
 import static eu.wisebed.api.v3.util.WisebedConversionHelper.convertToUsernameNodeUrnsMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -55,6 +55,55 @@ public class SingleUrnPrefixRSTest {
 	private static final String USER1_USERNAME = "user1@domain.tld";
 
 	private static final String USER2_USERNAME = "user2@otherdomain.tld";
+
+	private static final String USER1_DESCRIPTION = "Hello, World";
+
+	private static final SecretAuthenticationKey USER1_SAK;
+
+	private static final List<SecretAuthenticationKey> USER1_SAKS;
+
+	static {
+		USER1_SAK = new SecretAuthenticationKey();
+		USER1_SAK.setKey(USER1_SECRET_AUTHENTICATION_KEY);
+		USER1_SAK.setUrnPrefix(URN_PREFIX);
+		USER1_SAK.setUsername(USER1_USERNAME);
+		USER1_SAKS = Lists.newArrayList(USER1_SAK);
+	}
+
+	private static final SecretAuthenticationKey USER2_SAK;
+
+	private static final List<SecretAuthenticationKey> USER2_SAKS;
+
+	static {
+		USER2_SAK = new SecretAuthenticationKey();
+		USER2_SAK.setKey(USER2_SECRET_AUTHENTICATION_KEY);
+		USER2_SAK.setUrnPrefix(URN_PREFIX);
+		USER2_SAK.setUsername(USER2_USERNAME);
+		USER2_SAKS = Lists.newArrayList(USER2_SAK);
+	}
+
+	private static final SecretReservationKey USER1_SRK;
+
+	private static final List<SecretReservationKey> USER1_SRKS;
+
+	static {
+		USER1_SRK = new SecretReservationKey();
+		USER1_SRK.setKey(USER1_SECRET_RESERVATION_KEY);
+		USER1_SRK.setUrnPrefix(URN_PREFIX);
+		USER1_SRKS = Lists.newArrayList(USER1_SRK);
+	}
+
+	private static final SecretReservationKey USER2_SRK;
+
+	@SuppressWarnings("UnusedDeclaration")
+	private static final List<SecretReservationKey> USER2_SRKS;
+
+	static {
+		USER2_SRK = new SecretReservationKey();
+		USER2_SRK.setKey(USER2_SECRET_RESERVATION_KEY);
+		USER2_SRK.setUrnPrefix(URN_PREFIX);
+		USER2_SRKS = Lists.newArrayList(USER2_SRK);
+	}
 
 	@Mock
 	private RSPersistence persistence;
@@ -82,26 +131,6 @@ public class SingleUrnPrefixRSTest {
 
 	private RS rs;
 
-	@SuppressWarnings("FieldCanBeLocal")
-	private SecretAuthenticationKey user1Sak;
-
-	@SuppressWarnings("FieldCanBeLocal")
-	private SecretAuthenticationKey user2Sak;
-
-	private List<SecretAuthenticationKey> user1Saks;
-
-	private List<SecretAuthenticationKey> user2Saks;
-
-	private SecretReservationKey user1Srk;
-
-	@SuppressWarnings("FieldCanBeLocal")
-	private SecretReservationKey user2Srk;
-
-	private List<SecretReservationKey> user1Srks;
-
-	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
-	private List<SecretReservationKey> user2Srks;
-
 	@Before
 	public void setUp() {
 
@@ -128,28 +157,6 @@ public class SingleUrnPrefixRSTest {
 		);
 
 		rs = injector.getInstance(RS.class);
-
-		user1Sak = new SecretAuthenticationKey();
-		user1Sak.setKey(USER1_SECRET_AUTHENTICATION_KEY);
-		user1Sak.setUrnPrefix(URN_PREFIX);
-		user1Sak.setUsername(USER1_USERNAME);
-		user1Saks = Lists.newArrayList(user1Sak);
-
-		user2Sak = new SecretAuthenticationKey();
-		user2Sak.setKey(USER2_SECRET_AUTHENTICATION_KEY);
-		user2Sak.setUrnPrefix(URN_PREFIX);
-		user2Sak.setUsername(USER2_USERNAME);
-		user2Saks = Lists.newArrayList(user2Sak);
-
-		user1Srk = new SecretReservationKey();
-		user1Srk.setKey(USER1_SECRET_RESERVATION_KEY);
-		user1Srk.setUrnPrefix(URN_PREFIX);
-		user1Srks = Lists.newArrayList(user1Srk);
-
-		user2Srk = new SecretReservationKey();
-		user2Srk.setKey(USER2_SECRET_RESERVATION_KEY);
-		user2Srk.setUrnPrefix(URN_PREFIX);
-		user2Srks = Lists.newArrayList(user2Srk);
 	}
 
 	@Test
@@ -163,15 +170,15 @@ public class SingleUrnPrefixRSTest {
 		authorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
+				USER1_SAKS,
 				Lists.<NodeUrn>newArrayList()
 		);
 
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(authorizationResponse);
-		when(persistence.getReservation(user1Srk)).thenReturn(crd);
+		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
 
 		try {
-			rs.deleteReservation(user1Saks, user1Srks);
+			rs.deleteReservation(USER1_SAKS, USER1_SRKS);
 			fail();
 		} catch (RSFault_Exception e) {
 			// this should be thrown
@@ -179,9 +186,9 @@ public class SingleUrnPrefixRSTest {
 
 		// TODO https://github.com/itm/testbed-runtime/issues/47
 		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
-		verify(persistence).getReservation(user1Srk);
+		verify(persistence).getReservation(USER1_SRK);
 
-		verify(persistence, never()).deleteReservation(user1Srk);
+		verify(persistence, never()).deleteReservation(USER1_SRK);
 	}
 
 	@Test
@@ -195,25 +202,25 @@ public class SingleUrnPrefixRSTest {
 		successfulAuthorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
+				USER1_SAKS,
 				Lists.<NodeUrn>newArrayList()
 		);
 
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
 				.thenReturn(successfulAuthorizationResponse);
-		when(persistence.getReservation(user1Srk)).thenReturn(crd);
+		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
 
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
-		when(persistence.deleteReservation(user1Srk)).thenReturn(crd);
+		when(persistence.deleteReservation(USER1_SRK)).thenReturn(crd);
 
-		rs.deleteReservation(user1Saks, user1Srks);
+		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
 
 		// TODO https://github.com/itm/testbed-runtime/issues/47
 		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
 
-		verify(persistence).getReservation(user1Srk);
-		verify(persistence).deleteReservation(user1Srk);
+		verify(persistence).getReservation(USER1_SRK);
+		verify(persistence).deleteReservation(USER1_SRK);
 	}
 
 	@Test
@@ -222,47 +229,50 @@ public class SingleUrnPrefixRSTest {
 		final DateTime from = new DateTime().plusHours(1);
 		final DateTime to = from.plusHours(1);
 
-		final SecretReservationKey srk = new SecretReservationKey();
-		srk.setKey("abc123");
+		final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
+		confidentialReservationData.getNodeUrns().add(new NodeUrn("urn:local:0xcbe4"));
+		confidentialReservationData.setFrom(from);
+		confidentialReservationData.setTo(to);
+		confidentialReservationData.setUsername(USER1_USERNAME);
+		confidentialReservationData.setDescription(USER1_DESCRIPTION);
+		confidentialReservationData.setSecretReservationKey(USER1_SRK);
 
 		final List<ConfidentialReservationData> reservedNodes = newArrayList();
-		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
-		persistenceCrd.getNodeUrns().add(new NodeUrn("urn:local:0xcbe4"));
-		reservedNodes.add(persistenceCrd);
+		reservedNodes.add(confidentialReservationData);
 
 		AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
 		successfulAuthorizationResponse.setAuthorized(true);
 
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
-				newArrayList(new NodeUrn("urn:local:0xCBE4"))
-		);
-
-
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
-				newArrayList(new NodeUrn("urn:local:0xcbe4"))
-		);
+		final ArrayList<NodeUrn> urnsLow = newArrayList(new NodeUrn("urn:local:0xCBE4"));
+		final ArrayList<NodeUrn> urnsUp = newArrayList(new NodeUrn("urn:local:0xcbe4"));
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMapUpperCase = convertToUsernameNodeUrnsMap(USER1_SAKS, urnsLow);
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMapLowerCase = convertToUsernameNodeUrnsMap(USER1_SAKS, urnsUp);
 
 		when(snaa.isAuthorized(usernameNodeUrnsMapUpperCase, Action.RS_MAKE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
-
 		when(snaa.isAuthorized(usernameNodeUrnsMapLowerCase, Action.RS_MAKE_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
+
 		when(servedNodeUrnsProvider.get())
 				.thenReturn(newHashSet(new NodeUrn("urn:local:0xcbe4")));
+
 		when(persistence.addReservation(
-				Matchers.<ConfidentialReservationData>any(),
-				eq(new NodeUrnPrefix("urn:local:"))
+				Matchers.<List<NodeUrn>>any(),
+				eq(from),
+				eq(to),
+				eq(USER1_USERNAME),
+				eq(URN_PREFIX),
+				eq("Hello, World"),
+				Matchers.<List<KeyValuePair>>any()
 		)
-		).thenReturn(srk);
+		).thenReturn(confidentialReservationData);
 
 		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
 		try {
 
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
+			rs.makeReservation(USER1_SAKS, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
 		} catch (AuthorizationFault e) {
@@ -274,7 +284,7 @@ public class SingleUrnPrefixRSTest {
 
 		// try to reserve in lowercase
 		try {
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xcbe4")), from, to, null, null);
+			rs.makeReservation(USER1_SAKS, newArrayList(new NodeUrn("urn:local:0xcbe4")), from, to, null, null);
 			fail();
 		} catch (AuthorizationFault e) {
 			fail();
@@ -306,7 +316,7 @@ public class SingleUrnPrefixRSTest {
 		successfulAuthorizationResponse.setAuthorized(true);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
+				USER1_SAKS,
 				Lists.<NodeUrn>newArrayList()
 		);
 
@@ -317,8 +327,8 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
 				.thenReturn(successfulAuthorizationResponse);
-		when(snaa.isValid(user1Saks)).thenReturn(newArrayList(validationResult));
-		when(snaa.isValid(user2Saks)).thenReturn(newArrayList(validationResult));
+		when(snaa.isValid(USER1_SAKS)).thenReturn(newArrayList(validationResult));
+		when(snaa.isValid(USER2_SAKS)).thenReturn(newArrayList(validationResult));
 		when(servedNodeUrnsProvider.get()).thenReturn(newHashSet(user1Node, user2Node));
 
 		final ConfidentialReservationData reservation1 =
@@ -329,13 +339,15 @@ public class SingleUrnPrefixRSTest {
 				newArrayList(reservation1, reservation2)
 		);
 
-		final List<ConfidentialReservationData> user1Reservations = rs.getConfidentialReservations(user1Saks, from, to);
+		final List<ConfidentialReservationData> user1Reservations =
+				rs.getConfidentialReservations(USER1_SAKS, from, to);
 
 		assertEquals(1, user1Reservations.size());
 		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
 		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
-		final List<ConfidentialReservationData> user2Reservations = rs.getConfidentialReservations(user2Saks, from, to);
+		final List<ConfidentialReservationData> user2Reservations =
+				rs.getConfidentialReservations(USER2_SAKS, from, to);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
@@ -360,7 +372,7 @@ public class SingleUrnPrefixRSTest {
 		unsuccessfulAuthorizationResponse.setAuthorized(false);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				convert(user1Saks),
+				USER1_SAKS,
 				newArrayList(new NodeUrn("urn:local:0xcbe4"))
 		);
 
@@ -370,7 +382,7 @@ public class SingleUrnPrefixRSTest {
 		// try to reserve
 		try {
 
-			rs.makeReservation(user1Saks, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
+			rs.makeReservation(USER1_SAKS, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
 
 			fail();
 		} catch (AuthorizationFault e) {
@@ -379,8 +391,16 @@ public class SingleUrnPrefixRSTest {
 		} catch (ReservationConflictFault_Exception expected) {
 			expected.printStackTrace();
 		}
-		verify(persistence, never()).addReservation(any(ConfidentialReservationData.class), any(NodeUrnPrefix.class));
 
+		verify(persistence, never()).addReservation(
+				Matchers.<List<NodeUrn>>any(),
+				Matchers.<DateTime>any(),
+				Matchers.<DateTime>any(),
+				Matchers.<String>any(),
+				Matchers.<NodeUrnPrefix>any(),
+				Matchers.<String>any(),
+				Matchers.<List<KeyValuePair>>any()
+		);
 	}
 
 
@@ -397,13 +417,11 @@ public class SingleUrnPrefixRSTest {
 			crd.getNodeUrns().add(nodeUrn);
 		}
 
-		ConfidentialReservationDataKey key = new ConfidentialReservationDataKey();
-
-		key.setKey(secretReservationKey);
-		key.setUrnPrefix(URN_PREFIX);
-		key.setUsername(username);
-
-		crd.getKeys().add(key);
+		final SecretReservationKey srk = new SecretReservationKey();
+		srk.setKey(secretReservationKey);
+		srk.setUrnPrefix(URN_PREFIX);
+		crd.setSecretReservationKey(srk);
+		crd.setUsername(username);
 
 		return crd;
 	}

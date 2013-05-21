@@ -34,7 +34,7 @@ public class ShiroSNAATest {
 	static {
 		Logging.setLoggingDefaults(Level.WARN);
 	}
-	
+
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATest.class);
 
 	private static final String EXPERIMENTER1_PASS = "Exp1Pass";
@@ -394,7 +394,7 @@ public class ShiroSNAATest {
 		assertTrue(nodeGroupsForNodeURNs.size() == 1);
 		assertEquals("EXPERIMENT_ONLY_NODES", nodeGroupsForNodeURNs.iterator().next());
 	}
-	
+
 	@Test
 	public void testGetNodeGroupsForNodeURNsForMultipleURNs() {
 		Set<String> nodeGroupsForNodeURNs = null;
@@ -420,7 +420,7 @@ public class ShiroSNAATest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void testIsAuthorizedForAdministrator1OnExperimentNodeFromWrongNetwork() {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefixes.get(0), "urn:wisebed:ulanc:0x1211");
@@ -454,7 +454,7 @@ public class ShiroSNAATest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void testIsFlashingAuthorizedForServiceProvider1OnServiceNode() {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2311");
@@ -465,7 +465,7 @@ public class ShiroSNAATest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void testIsAuthorizedForServiceProvider1OnServiceNode() {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2311");
@@ -485,12 +485,11 @@ public class ShiroSNAATest {
 	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix, String... nodeUrnStrings){
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = new LinkedList<UsernameNodeUrnsMap>();
 		UsernameNodeUrnsMap map = new UsernameNodeUrnsMap();
-		UsernameUrnPrefixPair usernameUrnPrefixPair = new UsernameUrnPrefixPair();
-		usernameUrnPrefixPair.setUrnPrefix(nodeUrnPrefix);
-		usernameUrnPrefixPair.setUsername(username);
-		map.setUsername(usernameUrnPrefixPair);
+		map.setUrnPrefix(nodeUrnPrefix);
+		map.setUsername(username);
+
 		List<NodeUrn> nodeUrns = map.getNodeUrns();
-		
+
 		for (String nodeUrnString : nodeUrnStrings) {
 			nodeUrns.add(new NodeUrn(nodeUrnString));
 		}
@@ -498,8 +497,8 @@ public class ShiroSNAATest {
 		usernameNodeUrnsMaps.add(map);
 		return usernameNodeUrnsMaps;
 	}
-	
-	
+
+
 	private List<AuthenticationTriple> getAuthenticationTripleListForExperimenter1() {
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(EXPERIMENTER1);
@@ -540,7 +539,7 @@ public class ShiroSNAATest {
 		role.setPermissions(Sets.newHashSet(getPermissionsObject(Action.WSN_FLASH_PROGRAMS, "EXPERIMENT_ONLY_NODES")));
 		return new User(EXPERIMENTER1, EXPERIMENTER1_PASS_HASHED, EXPERIMENTER1_SALT, Sets.newHashSet(role));
 	}
-	
+
 	/**
 	 * Mocks returning a user which has the role "SERVICE_PROVIDER" from the data base.
 	 * @return a user which has the role "Experimenter" from the data base.
@@ -550,7 +549,7 @@ public class ShiroSNAATest {
 		role.setPermissions(Sets.newHashSet(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES")));
 		return new User(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS_HASHED, SERVICE_PROVIDER1_SALT, Sets.newHashSet(role));
 	}
-	
+
 	/**
 	 * Mocks returning a user which has the role "ADMINISTRATOR" from the data base.
 	 * @return a user which has the role "Experimenter" from the data base.
@@ -571,7 +570,7 @@ public class ShiroSNAATest {
 		permission.setResourceGroup(new ResourceGroup(resourceGroupsName));
 		return permission;
 	}
-	
+
 	private List<UrnResourceGroup> getUrnResourceGroup(){
 		List<UrnResourceGroup> UrnResourceGroupList = new LinkedList<UrnResourceGroup>();
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:ulanc1:0x1211", "EXPERIMENT_ONLY_NODES"), null));
@@ -582,14 +581,14 @@ public class ShiroSNAATest {
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:ulanc1:0x1311", "SERVICE_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:ulanc1:0x1312", "SERVICE_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:ulanc1:0x1313", "SERVICE_ONLY_NODES"), null));
-		
+
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2211", "EXPERIMENT_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2212", "EXPERIMENT_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2213", "EXPERIMENT_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2311", "SERVICE_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2312", "SERVICE_ONLY_NODES"), null));
 		UrnResourceGroupList.add(new UrnResourceGroup(new UrnResourceGroupId("urn:wisebed:uzl2:0x2313", "SERVICE_ONLY_NODES"), null));
-		
+
 		return UrnResourceGroupList;
 	}
 }

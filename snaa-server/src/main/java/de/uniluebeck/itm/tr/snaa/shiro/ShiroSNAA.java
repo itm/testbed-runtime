@@ -202,15 +202,13 @@ public class ShiroSNAA implements SNAA {
 		Preconditions.checkArgument(usernameNodeUrnsMaps.size() == 1,"The number of username and node urn mappings must be 1 but is "+usernameNodeUrnsMaps.size());
 		
 		UsernameNodeUrnsMap usernameNodeUrnsMapping = usernameNodeUrnsMaps.get(0);
-		
-		UsernameUrnPrefixPair usernameUrnPrefixPair = usernameNodeUrnsMapping.getUsername();
-		String userName = usernameUrnPrefixPair.getUsername();		
+		String userName = usernameNodeUrnsMapping.getUsername();
 
-		Preconditions.checkArgument(nodeUrnPrefixes.contains(usernameUrnPrefixPair.getUrnPrefix()), "The prefix provided along with the user is not served!");
+		Preconditions.checkArgument(nodeUrnPrefixes.contains(usernameNodeUrnsMapping.getUrnPrefix()), "The prefix provided along with the user is not served!");
 
 		SNAAHelper.assertAllNodeUrnPrefixesServed(nodeUrnPrefixes, usernameNodeUrnsMapping.getNodeUrns());
 		
-		PrincipalCollection principals = new SimplePrincipalCollection(usernameUrnPrefixPair.getUsername(), realm.getName());
+		PrincipalCollection principals = new SimplePrincipalCollection(userName, realm.getName());
 		Subject subject = new Subject.Builder().principals(principals).buildSubject();
 
 		Set<String> nodeGroups = getNodeGroupsForNodeURNs(usernameNodeUrnsMapping.getNodeUrns());

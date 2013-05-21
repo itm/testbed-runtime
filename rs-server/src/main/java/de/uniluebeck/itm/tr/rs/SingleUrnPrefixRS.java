@@ -13,13 +13,15 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -72,7 +74,6 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("RS_DELETE_RESERVATION")
 	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
@@ -94,7 +95,6 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("RS_MAKE_RESERVATION")
 	public List<SecretReservationKey> makeReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 													  final List<NodeUrn> nodeUrns,
 													  final DateTime from,
@@ -107,7 +107,18 @@ public class SingleUrnPrefixRS implements RS {
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkNodesServed(nodeUrns);
 		checkNodesAvailable(newHashSet(nodeUrns), from, to);
-		return makeReservationInternal(secretAuthenticationKeys, nodeUrns, from, to, description, options);
+
+		final ConfidentialReservationData confidentialReservationData = persistence.addReservation(
+				nodeUrns,
+				from,
+				to,
+				secretAuthenticationKeys.get(0).getUsername(),
+				secretAuthenticationKeys.get(0).getUrnPrefix(),
+				description,
+				options
+		);
+
+		return newArrayList(confidentialReservationData.getSecretReservationKey());
 	}
 
 	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
@@ -136,7 +147,6 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	@AuthorizationRequired("RS_GET_RESERVATIONS")
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			DateTime from,
@@ -160,7 +170,7 @@ public class SingleUrnPrefixRS implements RS {
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
-			boolean sameUser = crd.getKeys().get(0).getUsername().equals(key.getUsername());
+			boolean sameUser = crd.getUsername().equals(key.getUsername());
 			if (sameUser) {
 				reservationsOfAuthenticatedUserInInterval.add(crd);
 			}
@@ -339,41 +349,5 @@ public class SingleUrnPrefixRS implements RS {
 			publicReservationDataList.add(convertToPublic(confidentialReservationData));
 		}
 		return publicReservationDataList;
-	}
-
-	private List<SecretReservationKey> makeReservationInternal(
-			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final List<NodeUrn> nodeUrns,
-			final DateTime from,
-			final DateTime to,
-			final String description,
-			final List<KeyValuePair> options) throws RSFault_Exception {
-
-		ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(from);
-		crd.setTo(to);
-		crd.getNodeUrns().addAll(nodeUrns);
-		crd.setDescription(description);
-		crd.getOptions().addAll(options);
-
-		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
-		data.setUrnPrefix(secretAuthenticationKeys.get(0).getUrnPrefix());
-		data.setUsername(secretAuthenticationKeys.get(0).getUsername());
-
-		crd.getKeys().add(data);
-
-		try {
-
-			SecretReservationKey secretReservationKey = persistence.addReservation(crd, config.getUrnPrefix());
-
-			data.setKey(secretReservationKey.getKey());
-
-			List<SecretReservationKey> keys = new ArrayList<SecretReservationKey>();
-			keys.add(secretReservationKey);
-			return keys;
-
-		} catch (Exception e) {
-			throw createRSFault_Exception(e.getMessage());
-		}
 	}
 }

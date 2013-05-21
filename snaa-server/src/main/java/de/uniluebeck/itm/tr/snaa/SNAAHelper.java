@@ -26,12 +26,13 @@ package de.uniluebeck.itm.tr.snaa;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.snaa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
@@ -153,30 +154,4 @@ public class SNAAHelper {
 		exception.setMessage(msg);
 		return new AuthenticationFault_Exception(msg, exception);
 	}
-
-
-	// ------------------------------------------------------------------------
-
-	/**
-	 * Converts a list of secret authentication keys to a list of tuples comprising user names and
-	 * urn prefixes and returns the result.
-	 *
-	 * @param secretAuthenticationKeys
-	 * 		A list of secret authentication keys
-	 *
-	 * @return A list of tuples comprising user names and urn prefixes
-	 */
-	public static List<UsernameUrnPrefixPair> convert(final List<SecretAuthenticationKey> secretAuthenticationKeys) {
-		List<UsernameUrnPrefixPair> usernamePrefixPairs = new LinkedList<UsernameUrnPrefixPair>();
-		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
-			UsernameUrnPrefixPair upp = new UsernameUrnPrefixPair();
-			upp.setUsername(secretAuthenticationKey.getUsername());
-			upp.setUrnPrefix(secretAuthenticationKey.getUrnPrefix());
-			usernamePrefixPairs.add(upp);
-		}
-		return usernamePrefixPairs;
-	}
-
-	
-
 }

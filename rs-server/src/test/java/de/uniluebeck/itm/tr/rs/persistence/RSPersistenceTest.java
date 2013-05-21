@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.rs.persistence;
 
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
@@ -64,8 +63,6 @@ public abstract class RSPersistenceTest {
 	protected static DateTime reservationEndingTime = reservationStartingTime.plusMinutes(30);
 
 	protected static final int RESERVATION_COUNT = 5;
-
-	private static final NodeUrnPrefix URN_PREFIX = new NodeUrnPrefix("urn:unittest:testbed1:");
 
 	protected static class IntervalData {
 
@@ -200,7 +197,19 @@ public abstract class RSPersistenceTest {
 	 */
 	protected void makeReservations() throws Exception {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
-			reservationKeyMap.put(i, persistence.addReservation(reservationDataMap.get(i), URN_PREFIX));
+			final ConfidentialReservationData crd = reservationDataMap.get(i);
+			reservationKeyMap.put(
+					i,
+					persistence.addReservation(
+							crd.getNodeUrns(),
+							crd.getFrom(),
+							crd.getTo(),
+							crd.getUsername(),
+							crd.getSecretReservationKey().getUrnPrefix(),
+							crd.getDescription(),
+							crd.getOptions()
+					).getSecretReservationKey()
+			);
 		}
 	}
 

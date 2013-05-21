@@ -111,33 +111,33 @@ public class ReservationManagerImplTest {
 		crd1.setFrom(RESERVATION_INTERVAL_1.getStart());
 		crd1.setTo(RESERVATION_INTERVAL_1.getEnd());
 		crd1.getNodeUrns().addAll(RESERVATION_NODE_URNS_1);
-		final ConfidentialReservationDataKey key1 = new ConfidentialReservationDataKey();
-		key1.setKey(KNOWN_SECRET_RESERVATION_KEY_1);
-		key1.setUrnPrefix(NODE_URN_PREFIX);
-		key1.setUsername(USERNAME);
-		crd1.getKeys().add(key1);
+		crd1.setUsername(USERNAME);
+		final SecretReservationKey srk1 = new SecretReservationKey();
+		srk1.setKey(KNOWN_SECRET_RESERVATION_KEY_1);
+		srk1.setUrnPrefix(NODE_URN_PREFIX);
+		crd1.setSecretReservationKey(srk1);
 		RESERVATION_DATA_1.add(crd1);
 
 		final ConfidentialReservationData crd2 = new ConfidentialReservationData();
 		crd2.setFrom(RESERVATION_INTERVAL_2.getStart());
 		crd2.setTo(RESERVATION_INTERVAL_2.getEnd());
 		crd2.getNodeUrns().addAll(RESERVATION_NODE_URNS_2);
-		final ConfidentialReservationDataKey key2 = new ConfidentialReservationDataKey();
-		key2.setKey(KNOWN_SECRET_RESERVATION_KEY_2);
-		key2.setUrnPrefix(NODE_URN_PREFIX);
-		key2.setUsername(USERNAME);
-		crd2.getKeys().add(key2);
+		crd2.setUsername(USERNAME);
+		final SecretReservationKey srk2 = new SecretReservationKey();
+		srk2.setKey(KNOWN_SECRET_RESERVATION_KEY_2);
+		srk2.setUrnPrefix(NODE_URN_PREFIX);
+		crd2.setSecretReservationKey(srk2);
 		RESERVATION_DATA_2.add(crd2);
 
 		final ConfidentialReservationData crd3 = new ConfidentialReservationData();
 		crd3.setFrom(RESERVATION_INTERVAL_3.getStart());
 		crd3.setTo(RESERVATION_INTERVAL_3.getEnd());
 		crd3.getNodeUrns().addAll(RESERVATION_NODE_URNS_3);
-		final ConfidentialReservationDataKey key3 = new ConfidentialReservationDataKey();
-		key3.setKey(KNOWN_SECRET_RESERVATION_KEY_3);
-		key3.setUrnPrefix(NODE_URN_PREFIX);
-		key3.setUsername(USERNAME);
-		crd3.getKeys().add(key3);
+		crd3.setUsername(USERNAME);
+		final SecretReservationKey srk3 = new SecretReservationKey();
+		srk3.setKey(KNOWN_SECRET_RESERVATION_KEY_3);
+		srk3.setUrnPrefix(NODE_URN_PREFIX);
+		crd3.setSecretReservationKey(srk3);
 		RESERVATION_DATA_3.add(crd3);
 	}
 

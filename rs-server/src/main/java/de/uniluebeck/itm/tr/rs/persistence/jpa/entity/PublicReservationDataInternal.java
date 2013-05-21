@@ -42,15 +42,12 @@ public class PublicReservationDataInternal implements Serializable {
 	@Column(nullable = false)
 	protected long toDate;
 
-	private String userData;
-
 	public PublicReservationDataInternal() {
 	}
 
-	public PublicReservationDataInternal(long fromDate, long toDate, String userData, List<String> nodeUrns) {
+	public PublicReservationDataInternal(long fromDate, long toDate, List<String> nodeUrns) {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
-		this.userData = userData;
 		this.nodeUrns = nodeUrns;
 	}
 
@@ -62,16 +59,9 @@ public class PublicReservationDataInternal implements Serializable {
 		this.id = id;
 	}
 
-	@ElementCollection(
-			targetClass = java.lang.String.class
-	)
-	@JoinTable(
-			name = "reservationdata_urns",
-			joinColumns = @JoinColumn(name = "urn_id")
-	)
-	@OrderColumn(
-			name = "POSITION"
-	)
+	@ElementCollection(targetClass = java.lang.String.class)
+	@JoinTable(name = "reservationdata_urns", joinColumns = @JoinColumn(name = "urn_id"))
+	@OrderColumn(name = "POSITION")
 	@Column(name = "urns", nullable = false)
 	private List<String> nodeUrns;
 
@@ -98,24 +88,4 @@ public class PublicReservationDataInternal implements Serializable {
 	public void setToDate(long value) {
 		this.toDate = value;
 	}
-
-	public String getUserData() {
-		return userData;
-	}
-
-	public void setUserData(String userData) {
-		this.userData = userData;
-	}
-
-	@Override
-	public String toString() {
-		return "PublicReservationDataInternal{" +
-				"id=" + id +
-				", fromDate=" + fromDate +
-				", toDate=" + toDate +
-				", userData=" + userData +
-				", nodeUrns=" + nodeUrns +
-				'}';
-	}
-
 }

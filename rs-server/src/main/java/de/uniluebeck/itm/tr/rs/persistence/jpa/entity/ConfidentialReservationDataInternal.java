@@ -25,15 +25,20 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 @Entity
 public class ConfidentialReservationDataInternal extends PublicReservationDataInternal implements Serializable {
 
-	@OneToMany(cascade = javax.persistence.CascadeType.ALL)
-	protected List<DataInternal> data;
+	@Column
+	protected String urnPrefix;
+
+	@Column
+	protected String username;
+
+	@Column
+	private String key;
 
 	@Column
 	private String description;
@@ -45,15 +50,16 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		super();
 	}
 
-	public List<DataInternal> getData() {
-		if (data == null) {
-			data = new LinkedList<DataInternal>();
-		}
-		return data;
-	}
-
-	public void setData(List<DataInternal> data) {
-		this.data = data;
+	public ConfidentialReservationDataInternal(final long fromDate, final long toDate, final List<String> nodeUrns,
+											   final String description, final String key,
+											   final Map<String, String> options, final String urnPrefix,
+											   final String username) {
+		super(fromDate, toDate, nodeUrns);
+		this.description = description;
+		this.key = key;
+		this.options = options;
+		this.urnPrefix = urnPrefix;
+		this.username = username;
 	}
 
 	public String getDescription() {
@@ -72,12 +78,38 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		this.options = options;
 	}
 
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(final String key) {
+		this.key = key;
+	}
+
+	public String getUrnPrefix() {
+		return urnPrefix;
+	}
+
+	public void setUrnPrefix(final String urnPrefix) {
+		this.urnPrefix = urnPrefix;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(final String username) {
+		this.username = username;
+	}
+
 	@Override
 	public String toString() {
 		return "ConfidentialReservationDataInternal{" +
-				"data=" + data +
-				", description='" + description + '\'' +
+				"username='" + username + '\'' +
+				", urnPrefix='" + urnPrefix + '\'' +
+				", secretReservationKey='" + key + '\'' +
 				", options=" + options +
+				", description='" + description + '\'' +
 				"} " + super.toString();
 	}
 }

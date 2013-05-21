@@ -28,7 +28,6 @@ import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.v3.common.UsernameUrnPrefixPair;
 import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
@@ -171,33 +170,6 @@ public class FederatorSNAA implements SNAA {
 		return intersectionPrefixSet;
 	}
 
-	protected Map<SNAA, Set<UsernameUrnPrefixPair>> getIntersectionPrefixSetUPP(
-			List<UsernameUrnPrefixPair> usernameURNPrefixPairs) throws SNAAFault_Exception {
-
-		// WS Endpoint URL -> Set<URN Prefixes> for intersection of
-		// authenticationData
-		Map<SNAA, Set<UsernameUrnPrefixPair>> intersectionPrefixSet = newHashMap();
-
-		for (UsernameUrnPrefixPair pair : usernameURNPrefixPairs) {
-
-			// check if federator federates the urn prefix found in the authentication triple
-			if (!federationManager.servesUrnPrefix(pair.getUrnPrefix())) {
-				throw createSNAAFault("No endpoint known for URN prefix " + pair.getUrnPrefix());
-			}
-
-			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(pair.getUrnPrefix());
-
-			Set<UsernameUrnPrefixPair> set = intersectionPrefixSet.get(endpoint);
-			if (set == null) {
-				set = newHashSet();
-				intersectionPrefixSet.put(endpoint, set);
-			}
-			set.add(pair);
-		}
-
-		return intersectionPrefixSet;
-	}
-
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
@@ -240,14 +212,11 @@ public class FederatorSNAA implements SNAA {
 		response.setAuthorized(true);
 		response.setMessage("");
 
-//		Map<String, Set<UsernameUrnPrefixPair>> intersectionPrefixSet =
-//				getIntersectionPrefixSetUPP(usernames);
-
 		Set<Future<AuthorizationResponse>> futures = new HashSet<Future<AuthorizationResponse>>();
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 
-			final NodeUrnPrefix urnPrefix = usernameNodeUrnsMap.getUsername().getUrnPrefix();
+			final NodeUrnPrefix urnPrefix = usernameNodeUrnsMap.getUrnPrefix();
 			final SNAA snaa = federationManager.getEndpointByUrnPrefix(urnPrefix);
 
 			IsAuthorizedCallable callable = new IsAuthorizedCallable(snaa, newArrayList(usernameNodeUrnsMap), action);

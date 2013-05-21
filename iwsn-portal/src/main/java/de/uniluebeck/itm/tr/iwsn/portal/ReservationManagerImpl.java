@@ -123,8 +123,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 			assertNodesInTestbed(reservedNodes);
 
 			final Reservation reservation = reservationFactory.create(
-					data.getKeys().get(0).getKey(),
-					data.getKeys().get(0).getUsername(),
+					data.getSecretReservationKey().getKey(),
+					data.getUsername(),
 					reservedNodes,
 					new Interval(data.getFrom(), data.getTo())
 			);

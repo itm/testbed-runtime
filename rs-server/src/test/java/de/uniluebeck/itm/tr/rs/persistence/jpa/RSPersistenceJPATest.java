@@ -24,22 +24,21 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.ConfidentialReservationDataKey;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class RSPersistenceJPATest extends RSPersistenceTest {
 
@@ -58,6 +57,42 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		// configure time zone
 		put("timezone", "GMT");
 	}};
+
+	private static final DateTime CRD_FROM = DateTime.now();
+
+	private static final DateTime CRD_TO = CRD_FROM.plusMinutes(30);
+
+	private static final String CRD_SRK_KEY = "SECRET12345";
+
+	private static final NodeUrnPrefix CRD_SRK_URN_PREFIX = new NodeUrnPrefix("urn:smartsantander:testbed:");
+
+	private static final NodeUrn CRD_NODE_URN_1 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x1234");
+
+	private static final NodeUrn CRD_NODE_URN_2 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x2345");
+
+	private static final String CRD_USERNAME = "test-user";
+
+	private static final String CRD_DESCRIPTION = "hello, world!";
+
+	private static final SecretReservationKey CRD_SRK;
+
+	private static final ConfidentialReservationData CRD;
+
+	static {
+
+		CRD_SRK = new SecretReservationKey();
+		CRD_SRK.setKey(CRD_SRK_KEY);
+		CRD_SRK.setUrnPrefix(CRD_SRK_URN_PREFIX);
+
+		CRD = new ConfidentialReservationData();
+		CRD.setFrom(CRD_FROM);
+		CRD.setTo(CRD_TO);
+		CRD.setSecretReservationKey(CRD_SRK);
+		CRD.setUsername(CRD_USERNAME);
+		CRD.setDescription(CRD_DESCRIPTION);
+		CRD.getNodeUrns().add(CRD_NODE_URN_1);
+		CRD.getNodeUrns().add(CRD_NODE_URN_2);
+	}
 
 	@Before
 	public void setUp() throws RSFault_Exception {
@@ -82,40 +117,18 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 	@Test
 	public void testGetReservations() throws Exception {
-		final ConfidentialReservationData confidentialReservationData
-				= createConfidentialReservationData();
 
-		final SecretReservationKey secretReservationKey = persistence.addReservation(
-				confidentialReservationData,
-				new NodeUrnPrefix("urn:smartsantander:testbed:")
+		final ConfidentialReservationData inserted = persistence.addReservation(
+				CRD.getNodeUrns(),
+				CRD.getFrom(),
+				CRD.getTo(),
+				CRD.getUsername(),
+				CRD.getSecretReservationKey().getUrnPrefix(),
+				CRD.getDescription(),
+				CRD.getOptions()
 		);
 
-		final ConfidentialReservationData result = persistence.getReservation(secretReservationKey);
-
-		assertNotNull(result);
-		assertNotNull(result.getKeys().get(0));
-
-		final String resultReservationKey = result.getKeys().get(0).getKey();
-
-		assertNotNull(resultReservationKey);
-		assertFalse(resultReservationKey.isEmpty());
-		assertEquals(resultReservationKey, confidentialReservationData.getKeys().get(0).getKey());
-
-		System.out.println(resultReservationKey);
-	}
-
-	private ConfidentialReservationData createConfidentialReservationData() throws DatatypeConfigurationException {
-
-		final ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-		confidentialReservationData.setFrom(DateTime.now());
-		confidentialReservationData.setTo(DateTime.now().plusMinutes(30));
-
-		ConfidentialReservationDataKey data = new ConfidentialReservationDataKey();
-		data.setKey("SECRET12345");
-		data.setUrnPrefix(new NodeUrnPrefix("urn:smartsantander:testbed:"));
-		data.setUsername("test-user");
-		confidentialReservationData.getKeys().add(data);
-
-		return confidentialReservationData;
+		final ConfidentialReservationData retrieved = persistence.getReservation(inserted.getSecretReservationKey());
+		assertEquals(inserted, retrieved);
 	}
 }

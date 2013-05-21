@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.rs;
 
-import com.google.inject.Provider;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
@@ -54,9 +53,6 @@ public class RSAuthorizationDecoratorTest {
 	private static final List<KeyValuePair> OPTIONS = newArrayList();
 
 	@Mock
-	private Provider<SNAA> snaaProvider;
-
-	@Mock
 	private SNAA snaa;
 
 	@Mock
@@ -69,8 +65,7 @@ public class RSAuthorizationDecoratorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when(snaaProvider.get()).thenReturn(snaa);
-		rs = new RSAuthorizationDecorator(rsImpl);
+		rs = new RSAuthorizationDecorator(rsImpl, snaa);
 	}
 
 	@Test

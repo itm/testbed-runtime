@@ -1,10 +1,12 @@
 package de.uniluebeck.itm.tr.rs;
 
-import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.DecoratedImpl;
+import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
+import eu.wisebed.api.v3.snaa.*;
 import org.joda.time.DateTime;
 
 import javax.jws.WebMethod;
@@ -14,46 +16,79 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class RSAuthorizationDecorator implements RS {
 
 	private final RS rs;
 
-	public RSAuthorizationDecorator(final RS rs) {
+	private final SNAA snaa;
+
+	@Inject
+	public RSAuthorizationDecorator(@DecoratedImpl final RS rs, final SNAA snaa) {
 		this.rs = rs;
+		this.snaa = snaa;
 	}
 
 	@Override
 	@WebMethod
-	@RequestWrapper(localName = "deleteReservation", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.DeleteReservation")
-	@ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.DeleteReservationResponse")
+	@RequestWrapper(localName = "deleteReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.DeleteReservation")
+	@ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.DeleteReservationResponse")
 	public void deleteReservation(
 			@WebParam(name = "secretAuthenticationKeys", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
 			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
+		assertAuthorized(Action.RS_DELETE_RESERVATION, secretReservationKey);
 		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
 	}
 
 	@Override
 	@WebMethod
 	@WebResult(name = "reservationData", targetNamespace = "")
-	@RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservations")
-	@ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservationsResponse")
+	@RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetConfidentialReservations")
+	@ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetConfidentialReservationsResponse")
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "from", targetNamespace = "") final DateTime from,
 			@WebParam(name = "to", targetNamespace = "") final DateTime to)
 			throws AuthorizationFault, RSFault_Exception {
+
+		try {
+
+			final List<ValidationResult> validationResults = snaa.isValid(secretAuthenticationKey);
+			for (ValidationResult validationResult : validationResults) {
+				if (!validationResult.isValid()) {
+					final eu.wisebed.api.v3.common.AuthorizationFault faultInfo =
+							new eu.wisebed.api.v3.common.AuthorizationFault();
+					faultInfo.setMessage(validationResult.getMessage());
+					throw new AuthorizationFault(validationResult.getMessage(), faultInfo);
+				}
+			}
+
+		} catch (SNAAFault_Exception e) {
+
+			final RSFault faultInfo = new RSFault();
+			faultInfo.setMessage(e.getMessage());
+			throw new RSFault_Exception(e.getMessage(), faultInfo);
+		}
+
 		return rs.getConfidentialReservations(secretAuthenticationKey, from, to);
 	}
 
 	@Override
 	@WebMethod
 	@WebResult(name = "reservationData", targetNamespace = "")
-	@RequestWrapper(localName = "getReservation", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservation")
-	@ResponseWrapper(localName = "getReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservationResponse")
+	@RequestWrapper(localName = "getReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetReservation")
+	@ResponseWrapper(localName = "getReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetReservationResponse")
 	public List<ConfidentialReservationData> getReservation(
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
@@ -64,8 +99,10 @@ public class RSAuthorizationDecorator implements RS {
 	@Override
 	@WebMethod
 	@WebResult(name = "reservations", targetNamespace = "")
-	@RequestWrapper(localName = "getReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservations")
-	@ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservationsResponse")
+	@RequestWrapper(localName = "getReservations", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetReservations")
+	@ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.GetReservationsResponse")
 	public List<PublicReservationData> getReservations(
 			@WebParam(name = "from", targetNamespace = "") final DateTime from,
 			@WebParam(name = "to", targetNamespace = "") final DateTime to) throws RSFault_Exception {
@@ -75,8 +112,10 @@ public class RSAuthorizationDecorator implements RS {
 	@Override
 	@WebMethod
 	@WebResult(name = "secretReservationKey", targetNamespace = "")
-	@RequestWrapper(localName = "makeReservation", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.MakeReservation")
-	@ResponseWrapper(localName = "makeReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.MakeReservationResponse")
+	@RequestWrapper(localName = "makeReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.MakeReservation")
+	@ResponseWrapper(localName = "makeReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.MakeReservationResponse")
 	public List<SecretReservationKey> makeReservation(
 			@WebParam(name = "secretAuthenticationKeys", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
@@ -89,5 +128,36 @@ public class RSAuthorizationDecorator implements RS {
 			List<KeyValuePair> options)
 			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
 		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
+	}
+
+	private void assertAuthorized(final Action action, final List<SecretReservationKey> secretReservationKeys)
+			throws AuthorizationFault, UnknownSecretReservationKeyFault, RSFault_Exception {
+
+		final List<ConfidentialReservationData> reservation = rs.getReservation(secretReservationKeys);
+		final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList = newArrayList();
+
+		for (ConfidentialReservationData confidentialReservationData : reservation) {
+			final UsernameNodeUrnsMap usernameNodeUrnsMap = new UsernameNodeUrnsMap();
+			usernameNodeUrnsMap.setUsername(confidentialReservationData.getUsername());
+			usernameNodeUrnsMap.setUrnPrefix(confidentialReservationData.getSecretReservationKey().getUrnPrefix());
+			usernameNodeUrnsMap.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
+		}
+
+		final AuthorizationResponse response;
+		try {
+			response = snaa.isAuthorized(usernameNodeUrnsMapList, action);
+		} catch (SNAAFault_Exception e) {
+			final RSFault faultInfo = new RSFault();
+			faultInfo.setMessage(e.getMessage());
+			throw new RSFault_Exception(e.getMessage(), faultInfo, e);
+		}
+
+		if (!response.isAuthorized()) {
+			String message = "You are not response to execute the " + action + " operation!";
+			final eu.wisebed.api.v3.common.AuthorizationFault faultInfo =
+					new eu.wisebed.api.v3.common.AuthorizationFault();
+			faultInfo.setMessage(message);
+			throw new AuthorizationFault(message, faultInfo);
+		}
 	}
 }

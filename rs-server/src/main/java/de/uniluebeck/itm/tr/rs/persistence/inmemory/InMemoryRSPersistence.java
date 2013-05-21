@@ -26,9 +26,12 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -80,18 +83,32 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public SecretReservationKey addReservation(ConfidentialReservationData reservationData, NodeUrnPrefix urnPrefix) {
+	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to,
+													  final String username,
+													  final NodeUrnPrefix urnPrefix,
+													  final String description,
+													  final List<KeyValuePair> options) throws RSFault_Exception {
 
-		// construct the return object
-		SecretReservationKey secretReservationKey = new SecretReservationKey();
+		final ConfidentialReservationData crd = new ConfidentialReservationData();
+		crd.setFrom(from);
+		crd.setTo(to);
+		crd.getNodeUrns().addAll(nodeUrns);
+		crd.setDescription(description);
+		crd.getOptions().addAll(options);
+		crd.setUsername(username);
+
+		final SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
 		secretReservationKey.setKey(secureIdGenerator.getNextId());
 
+		crd.setSecretReservationKey(secretReservationKey);
+
 		// remember in the HashMap (aka In-Memory-Storage)
-		reservations.put(secretReservationKey, reservationData);
+		reservations.put(secretReservationKey, crd);
 
-		return secretReservationKey;
-
+		return crd;
 	}
 
 	@Override

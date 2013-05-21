@@ -38,9 +38,14 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.Tuple;
 import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RSFault;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,25 +96,39 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
-											   NodeUrnPrefix urnPrefix)
-			throws RSFault_Exception {
+	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
+													  final org.joda.time.DateTime from,
+													  final org.joda.time.DateTime to,
+													  final String username,
+													  final NodeUrnPrefix urnPrefix,
+													  final String description,
+													  final List<KeyValuePair> options) throws RSFault_Exception {
 		try {
 
-			String secretReservationKeyString = secureIdGenerator.getNextId();
+			final String secretReservationKeyString = secureIdGenerator.getNextId();
 
-			for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
-				data.setKey(secretReservationKeyString);
-			}
+			final ConfidentialReservationData crd = new ConfidentialReservationData();
+			crd.setFrom(from);
+			crd.setTo(to);
+			crd.getNodeUrns().addAll(nodeUrns);
+			crd.setDescription(description);
+			crd.getOptions().addAll(options);
+			crd.setUsername(username);
 
-			ReservationData reservationData = new ReservationData(
-					confidentialReservationData,
+			final SecretReservationKey secretReservationKey = new SecretReservationKey();
+			secretReservationKey.setKey(secretReservationKeyString);
+			secretReservationKey.setUrnPrefix(urnPrefix);
+
+			crd.setSecretReservationKey(secretReservationKey);
+
+			final ReservationData reservationData = new ReservationData(
+					crd,
 					urnPrefix.toString(),
 					secretReservationKeyString
 			);
 
 			String reservationDataXml = marshall(reservationData);
-			String eventTitle = confidentialReservationData.getNodeUrns().size() + " Node(s)";
+			String eventTitle = crd.getNodeUrns().size() + " Node(s)";
 
 			// Create a new calendar entry
 			CalendarEventEntry myEntry = new CalendarEventEntry();
@@ -120,12 +139,12 @@ public class GCalRSPersistence implements RSPersistence {
 				myEntry.setQuickAdd(false);
 				myEntry.setWebContent(null);
 
-				GregorianCalendar gregorianCalendarFrom = confidentialReservationData.getFrom().toGregorianCalendar();
+				GregorianCalendar gregorianCalendarFrom = crd.getFrom().toGregorianCalendar();
 				DateTime gDataDateTimeFrom = new DateTime(gregorianCalendarFrom.getTime(), gregorianCalendarFrom
 						.getTimeZone()
 				);
 
-				GregorianCalendar gregorianCalendarTo = confidentialReservationData.getTo().toGregorianCalendar();
+				GregorianCalendar gregorianCalendarTo = crd.getTo().toGregorianCalendar();
 				DateTime gDataDateTimeTo = new DateTime(gregorianCalendarTo.getTime(), gregorianCalendarTo
 						.getTimeZone()
 				);
@@ -161,10 +180,7 @@ public class GCalRSPersistence implements RSPersistence {
 				throw createRSFault("Internal Server Error");
 			}
 
-			SecretReservationKey key = new SecretReservationKey();
-			key.setKey(secretReservationKeyString);
-			key.setUrnPrefix(urnPrefix);
-			return key;
+			return crd;
 
 		} catch (JAXBException e) {
 			log.error("Error: " + e, e);

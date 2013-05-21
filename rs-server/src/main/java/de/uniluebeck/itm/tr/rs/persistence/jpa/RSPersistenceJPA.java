@@ -29,9 +29,12 @@ import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +67,19 @@ public class RSPersistenceJPA implements RSPersistence {
 		this.localTimeZone = checkNotNull(config.getTimeZone());
 	}
 
-	public SecretReservationKey addReservation(ConfidentialReservationData confidentialReservationData,
-											   NodeUrnPrefix urnPrefix)
-			throws RSFault_Exception {
 
-		SecretReservationKeyInternal secretReservationKey = null;
+
+
+	@Override
+	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
+													  final DateTime from,
+													  final DateTime to,
+													  final String username,
+													  final NodeUrnPrefix urnPrefix,
+													  final String description,
+													  final List<KeyValuePair> options) throws RSFault_Exception {
+
+		SecretReservationKeyInternal secretReservationKeyInternal = null;
 		String generatedSecretReservationKey = null;
 
 		boolean created = false;
@@ -76,14 +87,14 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			generatedSecretReservationKey = secureIdGenerator.getNextId();
 
-			secretReservationKey = new SecretReservationKeyInternal();
-			secretReservationKey.setSecretReservationKey(generatedSecretReservationKey);
-			secretReservationKey.setUrnPrefix(urnPrefix.toString());
+			secretReservationKeyInternal = new SecretReservationKeyInternal();
+			secretReservationKeyInternal.setSecretReservationKey(generatedSecretReservationKey);
+			secretReservationKeyInternal.setUrnPrefix(urnPrefix.toString());
 
 			try {
 
 				em.getTransaction().begin();
-				em.persist(secretReservationKey);
+				em.persist(secretReservationKeyInternal);
 				em.getTransaction().commit();
 
 				created = true;
@@ -98,13 +109,22 @@ public class RSPersistenceJPA implements RSPersistence {
 			}
 		}
 
-		for (ConfidentialReservationDataKey data : confidentialReservationData.getKeys()) {
-			data.setKey(generatedSecretReservationKey);
-		}
+		final SecretReservationKey secretReservationKey = new SecretReservationKey();
+		secretReservationKey.setUrnPrefix(urnPrefix);
+		secretReservationKey.setKey(generatedSecretReservationKey);
+
+		final ConfidentialReservationData crd = new ConfidentialReservationData();
+		crd.setFrom(from);
+		crd.setTo(to);
+		crd.getNodeUrns().addAll(nodeUrns);
+		crd.setDescription(description);
+		crd.getOptions().addAll(options);
+		crd.setUsername(username);
+		crd.setSecretReservationKey(secretReservationKey);
 
 		ReservationDataInternal reservationData = new ReservationDataInternal(
-				secretReservationKey,
-				TypeConverter.convert(confidentialReservationData, localTimeZone),
+				secretReservationKeyInternal,
+				TypeConverter.convert(crd, localTimeZone),
 				urnPrefix.toString()
 		);
 
@@ -114,12 +134,12 @@ public class RSPersistenceJPA implements RSPersistence {
 			em.persist(reservationData);
 			em.getTransaction().commit();
 
-			return TypeConverter.convert(secretReservationKey);
+			return TypeConverter.convert(reservationData.getConfidentialReservationData(), localTimeZone);
 
 		} catch (Exception e) {
 
 			em.getTransaction().begin();
-			em.remove(secretReservationKey);
+			em.remove(secretReservationKeyInternal);
 			em.getTransaction().commit();
 
 			String msg = "Could not add Reservation because of: " + e.getMessage();

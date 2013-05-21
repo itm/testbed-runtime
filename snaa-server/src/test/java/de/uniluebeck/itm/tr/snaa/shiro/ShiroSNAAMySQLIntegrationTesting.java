@@ -388,10 +388,8 @@ public class ShiroSNAAMySQLIntegrationTesting {
 	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix, String... nodeUrnStrings){
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = new LinkedList<UsernameNodeUrnsMap>();
 		UsernameNodeUrnsMap map = new UsernameNodeUrnsMap();
-		UsernameUrnPrefixPair usernameUrnPrefixPair = new UsernameUrnPrefixPair();
-		usernameUrnPrefixPair.setUrnPrefix(nodeUrnPrefix);
-		usernameUrnPrefixPair.setUsername(username);
-		map.setUsername(usernameUrnPrefixPair);
+		map.setUrnPrefix(nodeUrnPrefix);
+		map.setUsername(username);
 		List<NodeUrn> nodeUrns = map.getNodeUrns();
 
 		for (String nodeUrnString : nodeUrnStrings) {
