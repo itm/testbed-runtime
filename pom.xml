@@ -47,28 +47,6 @@
 		<module>federator-utils</module>
 	</modules>
 
-	<profiles>
-		<profile>
-			<id>assemblies</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<modules>
-				<module>assemblies</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>release-profile</id>
-			<modules>
-				<module>assemblies</module>
-			</modules>
-		</profile>
-	</profiles>
-
 	<dependencyManagement>
 		<dependencies>
 
@@ -452,7 +430,6 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.2.2</version>
 				<configuration>
-					<arguments>-P assemblies</arguments>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>

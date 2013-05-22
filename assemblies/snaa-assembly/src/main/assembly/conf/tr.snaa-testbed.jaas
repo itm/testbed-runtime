@@ -1,4 +1,0 @@
-HtpasswdFile {
-	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
-	htpasswdFile = "../conf/tr.snaa-testbed.htpasswd";
-};
