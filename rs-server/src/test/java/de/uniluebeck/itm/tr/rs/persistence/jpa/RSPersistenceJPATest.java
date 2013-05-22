@@ -37,6 +37,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 
@@ -97,7 +98,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	@Before
 	public void setUp() throws RSFault_Exception {
 		super.setUp();
-		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(mapToProperties());
+		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(mapToProperties(), TimeZone.getDefault());
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
 		super.setPersistence(rsPersistence);
 	}

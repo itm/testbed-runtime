@@ -4,10 +4,7 @@ import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.AuthorizationResponse;
-import eu.wisebed.api.v3.snaa.SNAA;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import eu.wisebed.api.v3.snaa.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +31,19 @@ public class RSAuthorizationDecoratorTest {
 		GRANTED_RESPONSE.setAuthorized(true);
 		DENIED_RESPONSE.setAuthorized(false);
 	}
+
+	private static final ValidationResult VALIDATION_RESULT_VALID = new ValidationResult();
+
+	private static final ValidationResult VALIDATION_RESULT_INVALID = new ValidationResult();
+
+	static {
+		VALIDATION_RESULT_VALID.setValid(true);
+		VALIDATION_RESULT_INVALID.setValid(false);
+	}
+
+	private static final List<ValidationResult> VALIDATION_RESULTS_VALID = newArrayList(VALIDATION_RESULT_VALID);
+
+	private static final List<ValidationResult> VALIDATION_RESULTS_INVALID = newArrayList(VALIDATION_RESULT_INVALID);
 
 	private static final ArrayList<SecretAuthenticationKey> EMPTY_SAK_LIST = newArrayList();
 
@@ -85,7 +95,7 @@ public class RSAuthorizationDecoratorTest {
 
 	@Test
 	public void testDeleteReservationDenied()
-			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault {
 
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_DELETE_RESERVATION)))
 				.thenReturn(DENIED_RESPONSE);
@@ -94,7 +104,10 @@ public class RSAuthorizationDecoratorTest {
 			rs.deleteReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
 			fail("Exception should have been thrown");
 		} catch (AuthorizationFault expected) {
-			verifyZeroInteractions(rsImpl);
+			verify(rsImpl, never()).deleteReservation(
+					Matchers.<List<SecretAuthenticationKey>>any(),
+					Matchers.<List<SecretReservationKey>>any()
+			);
 		}
 	}
 
@@ -109,8 +122,7 @@ public class RSAuthorizationDecoratorTest {
 	@Test
 	public void testGetConfidentialReservationsGranted()
 			throws RSFault_Exception, SNAAFault_Exception, AuthorizationFault {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_CONFIDENTIAL_RESERVATIONS)))
-				.thenReturn(GRANTED_RESPONSE);
+		when(snaa.isValid(EMPTY_SAK_LIST)).thenReturn(VALIDATION_RESULTS_VALID);
 		rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN);
 		verify(rsImpl).getConfidentialReservations(Matchers.<List<SecretAuthenticationKey>>any(), eq(NOW), eq(THEN));
 	}
@@ -118,8 +130,7 @@ public class RSAuthorizationDecoratorTest {
 	@Test
 	public void testGetConfidentialReservationsDenied()
 			throws RSFault_Exception, SNAAFault_Exception {
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_CONFIDENTIAL_RESERVATIONS)))
-				.thenReturn(DENIED_RESPONSE);
+		when(snaa.isValid(EMPTY_SAK_LIST)).thenReturn(VALIDATION_RESULTS_INVALID);
 		try {
 			rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN);
 			fail("Exception should have been thrown");

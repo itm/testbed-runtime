@@ -39,7 +39,7 @@ public class RSModule extends PrivateModule {
 				install(new InMemoryRSPersistenceModule());
 				break;
 			case JPA:
-				install(new RSPersistenceJPAModule(config.getRsPersistenceConfig()));
+				install(new RSPersistenceJPAModule(config.getRsPersistenceConfig(), config.getTimeZone()));
 				break;
 			default:
 				throw new RuntimeException("Unknown RS persistence type: \"" + config.getRsPersistenceType() + "\"");

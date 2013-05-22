@@ -68,7 +68,7 @@ public class TypeConverter {
 		}
 		internal.setNodeUrns(nodeUrnStringList);
 		internal.setUrnPrefix(external.getSecretReservationKey().getUrnPrefix().toString());
-		internal.setKey(external.getSecretReservationKey().getKey());
+		internal.setSecretReservationKey(external.getSecretReservationKey().getKey());
 		internal.setUsername(external.getUsername());
 		internal.setDescription(external.getDescription());
 
@@ -93,7 +93,7 @@ public class TypeConverter {
 													  TimeZone localTimeZone) throws DatatypeConfigurationException {
 
 		SecretReservationKey secretReservationKey = new SecretReservationKey();
-		secretReservationKey.setKey(internal.getKey());
+		secretReservationKey.setKey(internal.getSecretReservationKey());
 		secretReservationKey.setUrnPrefix(new NodeUrnPrefix(internal.getUrnPrefix()));
 
 		ConfidentialReservationData external = new ConfidentialReservationData();

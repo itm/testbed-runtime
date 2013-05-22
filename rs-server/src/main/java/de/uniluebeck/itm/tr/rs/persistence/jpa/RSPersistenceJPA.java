@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.rs.RSConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
@@ -33,7 +32,10 @@ import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RSFault;
+import eu.wisebed.api.v3.rs.RSFault_Exception;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -62,13 +64,10 @@ public class RSPersistenceJPA implements RSPersistence {
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPA(final EntityManager em, final RSConfig config) {
+	public RSPersistenceJPA(final EntityManager em, final TimeZone timeZone) {
 		this.em = checkNotNull(em);
-		this.localTimeZone = checkNotNull(config.getTimeZone());
+		this.localTimeZone = checkNotNull(timeZone);
 	}
-
-
-
 
 	@Override
 	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,

@@ -38,7 +38,7 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 	protected String username;
 
 	@Column
-	private String key;
+	private String secretReservationKey;
 
 	@Column
 	private String description;
@@ -50,13 +50,17 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		super();
 	}
 
-	public ConfidentialReservationDataInternal(final long fromDate, final long toDate, final List<String> nodeUrns,
-											   final String description, final String key,
-											   final Map<String, String> options, final String urnPrefix,
+	public ConfidentialReservationDataInternal(final long fromDate,
+											   final long toDate,
+											   final List<String> nodeUrns,
+											   final String description,
+											   final String secretReservationKey,
+											   final Map<String, String> options,
+											   final String urnPrefix,
 											   final String username) {
 		super(fromDate, toDate, nodeUrns);
 		this.description = description;
-		this.key = key;
+		this.secretReservationKey = secretReservationKey;
 		this.options = options;
 		this.urnPrefix = urnPrefix;
 		this.username = username;
@@ -78,12 +82,12 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		this.options = options;
 	}
 
-	public String getKey() {
-		return key;
+	public String getSecretReservationKey() {
+		return secretReservationKey;
 	}
 
-	public void setKey(final String key) {
-		this.key = key;
+	public void setSecretReservationKey(final String key) {
+		this.secretReservationKey = key;
 	}
 
 	public String getUrnPrefix() {
@@ -107,7 +111,7 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 		return "ConfidentialReservationDataInternal{" +
 				"username='" + username + '\'' +
 				", urnPrefix='" + urnPrefix + '\'' +
-				", secretReservationKey='" + key + '\'' +
+				", secretReservationKey='" + secretReservationKey + '\'' +
 				", options=" + options +
 				", description='" + description + '\'' +
 				"} " + super.toString();
