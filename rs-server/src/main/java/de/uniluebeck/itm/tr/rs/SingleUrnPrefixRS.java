@@ -322,7 +322,7 @@ public class SingleUrnPrefixRS implements RS {
 		if (!intersection.isEmpty()) {
 			final String reservedNodesString = Arrays.toString(intersection.toArray());
 			final String msg = "Some of the nodes are reserved during the requested time (" + reservedNodesString + ")";
-			log.warn(msg);
+			log.debug(msg);
 			ReservationConflictFault exception = new ReservationConflictFault();
 			exception.setMessage(msg);
 			exception.getReservedNodeUrns().addAll(intersection);

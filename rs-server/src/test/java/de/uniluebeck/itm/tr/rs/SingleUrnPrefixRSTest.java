@@ -3,9 +3,6 @@ package de.uniluebeck.itm.tr.rs;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.TimeLimiter;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.EndpointManager;
@@ -138,25 +135,8 @@ public class SingleUrnPrefixRSTest {
 
 		final RSStandaloneConfigImpl config = new RSStandaloneConfigImpl();
 		config.setUrnPrefix(URN_PREFIX);
-		config.setRsPersistenceType(RSPersistenceType.IN_MEMORY);
 
-		final Injector injector = Guice.createInjector(new AbstractModule() {
-			@Override
-			public void configure() {
-
-				bind(ServicePublisher.class).toInstance(servicePublisher);
-				bind(SNAA.class).toInstance(snaa);
-				bind(SessionManagement.class).toInstance(sessionManagement);
-				bind(EndpointManager.class).toInstance(endpointManager);
-				bind(TimeLimiter.class).toInstance(timeLimiter);
-				bind(ServedNodeUrnsProvider.class).toInstance(servedNodeUrnsProvider);
-
-				install(new RSModule(config));
-			}
-		}
-		);
-
-		rs = injector.getInstance(RS.class);
+		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider);
 	}
 
 	@Test
@@ -184,10 +164,7 @@ public class SingleUrnPrefixRSTest {
 			// this should be thrown
 		}
 
-		// TODO https://github.com/itm/testbed-runtime/issues/47
-		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
 		verify(persistence).getReservation(USER1_SRK);
-
 		verify(persistence, never()).deleteReservation(USER1_SRK);
 	}
 
@@ -215,9 +192,6 @@ public class SingleUrnPrefixRSTest {
 		when(persistence.deleteReservation(USER1_SRK)).thenReturn(crd);
 
 		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
-
-		// TODO https://github.com/itm/testbed-runtime/issues/47
-		//verify(snaa).isAuthorized(user1SaksSnaa, Actions.DELETE_RESERVATION);
 
 		verify(persistence).getReservation(USER1_SRK);
 		verify(persistence).deleteReservation(USER1_SRK);
@@ -353,56 +327,6 @@ public class SingleUrnPrefixRSTest {
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
 	}
-
-	@Test
-	public void verifyNoReservationIsPerformedIfSNAARefusesAuthorization() throws Exception {
-
-		final DateTime from = new DateTime().plusHours(1);
-		final DateTime to = from.plusHours(1);
-
-		final SecretReservationKey srk = new SecretReservationKey();
-		srk.setKey("abc123");
-
-		final List<ConfidentialReservationData> reservedNodes = newArrayList();
-		ConfidentialReservationData persistenceCrd = new ConfidentialReservationData();
-		persistenceCrd.getNodeUrns().add(new NodeUrn("urn:local:0xcbe4"));
-		reservedNodes.add(persistenceCrd);
-
-		AuthorizationResponse unsuccessfulAuthorizationResponse = new AuthorizationResponse();
-		unsuccessfulAuthorizationResponse.setAuthorized(false);
-
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				USER1_SAKS,
-				newArrayList(new NodeUrn("urn:local:0xcbe4"))
-		);
-
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_MAKE_RESERVATION))
-				.thenReturn(unsuccessfulAuthorizationResponse);
-
-		// try to reserve
-		try {
-
-			rs.makeReservation(USER1_SAKS, newArrayList(new NodeUrn("urn:local:0xCBE4")), from, to, null, null);
-
-			fail();
-		} catch (AuthorizationFault e) {
-			fail();
-		} catch (RSFault_Exception expected) {
-		} catch (ReservationConflictFault_Exception expected) {
-			expected.printStackTrace();
-		}
-
-		verify(persistence, never()).addReservation(
-				Matchers.<List<NodeUrn>>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<String>any(),
-				Matchers.<NodeUrnPrefix>any(),
-				Matchers.<String>any(),
-				Matchers.<List<KeyValuePair>>any()
-		);
-	}
-
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,
 																		 final String username,
