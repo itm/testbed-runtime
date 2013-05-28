@@ -45,12 +45,29 @@
 		</dependency>
 
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>
 			<artifactId>itmutils</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.federator-utils</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 
 		<dependency>
@@ -156,7 +173,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.snaa.SNAAServer</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.snaa.SNAAServerOld</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

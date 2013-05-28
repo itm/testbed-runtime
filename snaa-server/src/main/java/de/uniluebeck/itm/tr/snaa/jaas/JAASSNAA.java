@@ -23,14 +23,16 @@
 
 package de.uniluebeck.itm.tr.snaa.jaas;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import de.uniluebeck.itm.tr.snaa.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 @WebService(
 		name = "SNAA",
@@ -52,17 +54,34 @@ import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class JAASSNAA implements SNAA {
+public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
 	private static final Logger log = LoggerFactory.getLogger(JAASSNAA.class);
 
-	private NodeUrnPrefix urnPrefix;
+	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+
+	private final SNAAConfig config;
 
 	private String jaasLoginModuleName;
 
 	private IUserAuthorization authorization;
 
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+	@Inject
+	public JAASSNAA(final SNAAConfig config, final IUserAuthorization authorization) {
+		this.config = config;
+		this.jaasLoginModuleName = config.getSnaaAuthorizationConfig().getProperty("jaas.loginmodule.name");
+		this.authorization = authorization;
+	}
+
+	@Override
+	protected void doStart() {
+		// TODO implement
+	}
+
+	@Override
+	protected void doStop() {
+		// TODO implement
+	}
 
 	static class AuthData {
 
@@ -87,18 +106,12 @@ public class JAASSNAA implements SNAA {
 	 */
 	private TimedCache<String, AuthData> authenticatedSessions = new TimedCache<String, AuthData>(30, TimeUnit.MINUTES);
 
-	public JAASSNAA(NodeUrnPrefix urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
-		this.urnPrefix = urnPrefix;
-		this.jaasLoginModuleName = jaasLoginModuleName;
-		this.authorization = authorization;
-	}
-
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
-		assertUrnPrefixServed(urnPrefix, authenticationData);
+		assertUrnPrefixServed(config.getUrnPrefix(), authenticationData);
 		AuthenticationTriple authenticationTriple = authenticationData.get(0);
 
 		try {
@@ -163,7 +176,7 @@ public class JAASSNAA implements SNAA {
 			throws SNAAFault_Exception {
 
 		// Check the supplied authentication keys
-		assertSAKUrnPrefixServed(urnPrefix, secretAuthenticationKeys);
+		assertSAKUrnPrefixServed(config.getUrnPrefix(), secretAuthenticationKeys);
 
 		final SecretAuthenticationKey secretAuthenticationKey = secretAuthenticationKeys.get(0);
 

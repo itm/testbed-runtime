@@ -21,8 +21,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.wisebed;
+package de.uniluebeck.itm.tr.federator.snaa;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
@@ -37,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import javax.jws.WebService;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @WebService(
 		name = "SNAA",
 		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
@@ -44,16 +48,22 @@ import java.util.List;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class WisebedSnaaFederator implements SNAA {
+public class WisebedSNAAFederatorServiceImpl extends AbstractService implements SNAAFederatorService {
 
-	private static final Logger log = LoggerFactory.getLogger(WisebedSnaaFederator.class);
+	private static final Logger log = LoggerFactory.getLogger(WisebedSNAAFederatorServiceImpl.class);
 
-	private FederatorSNAA authorizationFederator;
+	private final SNAAFederatorService snaaFederatorService;
+
+	private SNAAFederatorService authorizationFederator;
 
 	private ShibbolethSNAAImpl authenticationSnaa;
 
-	public WisebedSnaaFederator(FederationManager<SNAA> federationManager, String secretAuthenticationKeyUrl,
-								Injector injector, ShibbolethProxy shibbolethProxy) {
+	@Inject
+	public WisebedSNAAFederatorServiceImpl(final FederationManager<SNAA> federationManager,
+										   final String secretAuthenticationKeyUrl,
+										   final ShibbolethProxy shibbolethProxy,
+										   final SNAAFederatorService snaaFederatorService) {
+		this.snaaFederatorService = checkNotNull(snaaFederatorService);
 
 		authenticationSnaa = new ShibbolethSNAAImpl(
 				federationManager.getUrnPrefixes(),
@@ -71,7 +81,7 @@ public class WisebedSnaaFederator implements SNAA {
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
-		log.debug("WisebedSnaaFederator::authenticate delegating to internal ShibbolethSNAA instance");
+		log.debug("WisebedSNAAFederatorServiceImpl::authenticate delegating to internal ShibbolethSNAA instance");
 		return authenticationSnaa.authenticate(authenticationData);
 	}
 
@@ -79,7 +89,7 @@ public class WisebedSnaaFederator implements SNAA {
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
-		log.debug("WisebedSnaaFederator::isAuthorized delegating to internal FederatorSNAA instance");
+		log.debug("WisebedSNAAFederatorServiceImpl::isAuthorized delegating to internal FederatorSNAA instance");
 		return authorizationFederator.isAuthorized(usernameNodeUrnsMapList, action);
 	}
 
@@ -87,8 +97,17 @@ public class WisebedSnaaFederator implements SNAA {
 	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
 			throws SNAAFault_Exception {
 
-		log.debug("WisebedSnaaFederator::isValid delegating to internal FederatorSNAA instance");
+		log.debug("WisebedSNAAFederatorServiceImpl::isValid delegating to internal FederatorSNAA instance");
 		return authorizationFederator.isValid(secretAuthenticationKeys);
 	}
 
+	@Override
+	protected void doStart() {
+		// TODO implement
+	}
+
+	@Override
+	protected void doStop() {
+		// TODO implement
+	}
 }

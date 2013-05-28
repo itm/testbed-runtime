@@ -53,7 +53,7 @@ public class RSMain extends AbstractService {
 
 	@Inject
 	public RSMain(final ServicePublisher servicePublisher,
-			  final RSService rsService) {
+				  final RSService rsService) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.rsService = checkNotNull(rsService);
 	}
@@ -85,7 +85,7 @@ public class RSMain extends AbstractService {
 		Thread.currentThread().setName("RS-Main");
 
 		final RSStandaloneConfig config = setLogLevel(
-				parseOrExit(new RSStandaloneConfigImpl(), RS.class, args),
+				parseOrExit(new RSStandaloneConfigImpl(), RSMain.class, args),
 				"de.uniluebeck.itm"
 		);
 

@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federator.rs;
+package de.uniluebeck.itm.tr.common.config;
 
 import com.google.common.base.Splitter;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;

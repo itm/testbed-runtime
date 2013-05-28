@@ -6,7 +6,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
-import de.uniluebeck.itm.tr.snaa.SNAAServer;
+import de.uniluebeck.itm.tr.snaa.SNAAServerOld;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.common.*;
@@ -113,7 +113,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 
 		Properties properties = new Properties();
 		try {
-			properties.load(SNAAServer.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
+			properties.load(SNAAServerOld.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 
@@ -121,8 +121,8 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("ShiroSNAATest").properties(properties));
 		jpaInjector.getInstance(PersistService.class).start();
 
-		MyShiroModule myShiroModule = new MyShiroModule();
-		Injector shiroInjector = jpaInjector.createChildInjector(myShiroModule);
+		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule();
+		Injector shiroInjector = jpaInjector.createChildInjector(shiroSNAAModule);
 
 		SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
 		ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.federator.rs;
 
 import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
+import de.uniluebeck.itm.tr.common.config.UriToNodeUrnPrefixSetMapOptionHandler;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.kohsuke.args4j.Option;
 
@@ -23,8 +24,4 @@ public class RSFederatorConfig extends ConfigWithLogging {
 	@Option(name = "--contextPath",
 			usage = "Context path on which to run the RS federator (default: \"/federator/soap/v3.0/rs\")")
 	public String contextPath = "/federator/soap/v3.0/rs";
-
-
-
-
 }

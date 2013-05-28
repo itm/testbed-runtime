@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.snaa.SNAAHelper;
+import de.uniluebeck.itm.tr.snaa.common.SNAAHelper;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.*;
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 /**
  * This authentication and authorization component is responsible for

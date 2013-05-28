@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa;
+package de.uniluebeck.itm.tr.snaa.common;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinCount;
-import static de.uniluebeck.itm.tr.util.Preconditions.assertCollectionMinMaxCount;
 
 public class SNAAHelper {
 
@@ -153,5 +151,19 @@ public class SNAAHelper {
 		AuthenticationFault exception = new AuthenticationFault();
 		exception.setMessage(msg);
 		return new AuthenticationFault_Exception(msg, exception);
+	}
+
+	public static void assertCollectionMinMaxCount(Collection<?> collection, int minInclusive, int maxInclusive)
+			throws Exception {
+
+		if (collection == null || collection.size() < minInclusive || collection.size() > maxInclusive) {
+			throw new Exception("Invalid amount authentication data supplied (min: " + minInclusive + ", max: "
+					+ maxInclusive + ")");
+		}
+
+	}
+
+	public static void assertCollectionMinCount(Collection<?> collection, int minCountInclusive) throws Exception {
+		assertCollectionMinMaxCount(collection, minCountInclusive, Integer.MAX_VALUE);
 	}
 }

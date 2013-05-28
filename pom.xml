@@ -42,7 +42,9 @@
 		<module>iwsn-gateway</module>
 		<module>rs-federator</module>
 		<module>rs-server</module>
+		<module>snaa-common</module>
 		<module>snaa-client</module>
+		<module>snaa-federator</module>
 		<module>snaa-server</module>
 		<module>federator-utils</module>
 	</modules>
@@ -100,6 +102,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.federator-utils</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.snaa-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

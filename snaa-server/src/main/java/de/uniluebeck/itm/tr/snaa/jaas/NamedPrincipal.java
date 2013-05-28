@@ -43,12 +43,8 @@ public class NamedPrincipal implements Principal {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-
 		NamedPrincipal that = (NamedPrincipal) o;
-
-		if (!name.equals(that.name)) return false;
-
-		return true;
+		return name.equals(that.name);
 	}
 
 	@Override

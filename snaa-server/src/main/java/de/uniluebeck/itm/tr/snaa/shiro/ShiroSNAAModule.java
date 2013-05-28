@@ -14,7 +14,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
  * Extension of the abstract {@link ShiroModule} to configure Apache Shiro and to bind dependencies
  * for {@link ShiroSNAA}
  */
-public class MyShiroModule extends ShiroModule {
+public class ShiroSNAAModule extends ShiroModule {
 
 	/** The name of the hash algorithm to be used for hashing a user's password . */
 	private String hashAlgorithmName;
@@ -26,7 +26,7 @@ public class MyShiroModule extends ShiroModule {
 	 * Constructor setting up the default credential matcher which hashes a provided password 1000
 	 * times using sha512 hash algorithm.
 	 */
-	public MyShiroModule() {
+	public ShiroSNAAModule() {
 		hashAlgorithmName = Sha512Hash.ALGORITHM_NAME;
 		iterations = 1000;
 	}
@@ -37,7 +37,7 @@ public class MyShiroModule extends ShiroModule {
 	 * @param hashAlgorithm
 	 *            The hash algorithm to be used for hashing a user's password
 	 */
-	public MyShiroModule(SimpleHash hashAlgorithm) {
+	public ShiroSNAAModule(SimpleHash hashAlgorithm) {
 		hashAlgorithmName = hashAlgorithm.getAlgorithmName();
 		this.iterations = hashAlgorithm.getIterations();
 	}

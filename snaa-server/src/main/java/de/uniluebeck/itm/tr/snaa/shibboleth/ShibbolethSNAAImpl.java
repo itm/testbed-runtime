@@ -31,7 +31,7 @@ import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
 import eu.wisebed.shibboauth.IShibbolethAuthenticator;
 import eu.wisebed.shibboauth.SSAKSerialization;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
+import de.uniluebeck.itm.tr.snaa.IUserAuthorization;
 import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import javax.jws.WebService;
 import java.util.*;
 
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 @WebService(
 		name = "SNAA",

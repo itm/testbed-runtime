@@ -83,8 +83,8 @@ public class ShiroSNAATest {
             }
         });
 
-		MyShiroModule myShiroModule = new MyShiroModule();
-		Injector shiroInjector = mockedEntityManagerInjector.createChildInjector(myShiroModule);
+		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule();
+		Injector shiroInjector = mockedEntityManagerInjector.createChildInjector(shiroSNAAModule);
 		SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
 
 		ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);

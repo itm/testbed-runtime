@@ -1,29 +1,9 @@
-/**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
- * All rights reserved.                                                                                               *
- *                                                                                                                    *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
- * following conditions are met:                                                                                      *
- *                                                                                                                    *
- * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
- *   disclaimer.                                                                                                      *
- * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
- *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
- *                                                                                                                    *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
- **********************************************************************************************************************/
+package de.uniluebeck.itm.tr.federator.snaa;
 
-package de.uniluebeck.itm.tr.snaa.federator;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -32,13 +12,16 @@ import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAFault;
+import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.createSNAAFault;
 
 @WebService(
 		name = "SNAA",
@@ -47,7 +30,7 @@ import static de.uniluebeck.itm.tr.snaa.SNAAHelper.createSNAAFault;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class FederatorSNAA implements SNAA {
+public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFederatorService {
 
 	protected static class AuthenticationCallable implements Callable<List<SecretAuthenticationKey>> {
 
@@ -64,6 +47,7 @@ public class FederatorSNAA implements SNAA {
 		public List<SecretAuthenticationKey> call() throws Exception {
 			return snaa.authenticate(authenticationTriples);
 		}
+
 	}
 
 	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
@@ -86,6 +70,7 @@ public class FederatorSNAA implements SNAA {
 		public AuthorizationResponse call() throws Exception {
 			return snaa.isAuthorized(userNamesNodeUrnsMaps, action);
 		}
+
 	}
 
 	protected static class IsValidCallable implements Callable<List<ValidationResult>> {
@@ -103,71 +88,52 @@ public class FederatorSNAA implements SNAA {
 		public List<ValidationResult> call() throws Exception {
 			return snaa.isValid(secretAuthenticationKeys);
 		}
+
 	}
 
-	private final FederationManager<SNAA> federationManager;
+	protected final SNAAFederatorConfig config;
 
-	protected final ExecutorService executorService = Executors
-			.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("FederatorSNAA-Thread %d").build());
+	protected final FederationManager<SNAA> federationManager;
 
-	public FederatorSNAA(final FederationManager<SNAA> federationManager) {
-		this.federationManager = federationManager;
+	protected final ExecutorService executorService;
+
+	protected final ServicePublisher servicePublisher;
+
+	protected ServicePublisherService jaxWsService;
+
+
+	@Inject
+	public SNAAFederatorServiceImpl(final SNAAFederatorConfig config,
+									final FederationManager<SNAA> federationManager,
+									final ServicePublisher servicePublisher,
+									final ExecutorService executorService) {
+		this.config = checkNotNull(config);
+		this.federationManager = checkNotNull(federationManager);
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.executorService = checkNotNull(executorService);
 	}
 
-	protected Map<SNAA, Set<AuthenticationTriple>> getIntersectionPrefixSetAT(
-			List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
-
-		checkNotNull(authenticationData, "Parameter authenticationData must not be null!");
-
-		// SNAA Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
-		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = newHashMap();
-
-		for (AuthenticationTriple at : authenticationData) {
-
-			// check if federator federates the urn prefix found in the authentication triple
-			if (!federationManager.servesUrnPrefix(at.getUrnPrefix())) {
-				throw createSNAAFault("No endpoint known for URN prefix " + at.getUrnPrefix());
-			}
-
-			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(at.getUrnPrefix());
-
-			Set<AuthenticationTriple> set = intersectionPrefixSet.get(endpoint);
-			if (set == null) {
-				set = newHashSet();
-				intersectionPrefixSet.put(endpoint, set);
-			}
-			set.add(at);
+	@Override
+	protected void doStart() {
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-
-		return intersectionPrefixSet;
 	}
 
-	protected Map<SNAA, Set<SecretAuthenticationKey>> getIntersectionPrefixSetSAK(
-			List<SecretAuthenticationKey> authenticationKeys) throws SNAAFault_Exception {
-
-		checkNotNull(authenticationKeys, "Parameter authenticationKeys must not be null!");
-
-		// WS Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
-		Map<SNAA, Set<SecretAuthenticationKey>> intersectionPrefixSet = newHashMap();
-
-		for (SecretAuthenticationKey sak : authenticationKeys) {
-
-			// check if federator federates the urn prefix found in the authentication triple
-			if (!federationManager.servesUrnPrefix(sak.getUrnPrefix())) {
-				throw createSNAAFault("No endpoint known for URN prefix " + sak.getUrnPrefix());
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
 			}
-
-			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(sak.getUrnPrefix());
-
-			Set<SecretAuthenticationKey> set = intersectionPrefixSet.get(endpoint);
-			if (set == null) {
-				set = newHashSet();
-				intersectionPrefixSet.put(endpoint, set);
-			}
-			set.add(sak);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
 		}
-
-		return intersectionPrefixSet;
 	}
 
 	@Override
@@ -274,4 +240,33 @@ public class FederatorSNAA implements SNAA {
 			throw createSNAAFault(e.getMessage());
 		}
 	}
+
+	protected Map<SNAA, Set<AuthenticationTriple>> getIntersectionPrefixSetAT(
+			List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
+
+		checkNotNull(authenticationData, "Parameter authenticationData must not be null!");
+
+		// SNAA Endpoint URL -> Set<URN Prefixes> for intersection of authenticationData
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = newHashMap();
+
+		for (AuthenticationTriple at : authenticationData) {
+
+			// check if federator federates the urn prefix found in the authentication triple
+			if (!federationManager.servesUrnPrefix(at.getUrnPrefix())) {
+				throw createSNAAFault("No endpoint known for URN prefix " + at.getUrnPrefix());
+			}
+
+			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(at.getUrnPrefix());
+
+			Set<AuthenticationTriple> set = intersectionPrefixSet.get(endpoint);
+			if (set == null) {
+				set = newHashSet();
+				intersectionPrefixSet.put(endpoint, set);
+			}
+			set.add(at);
+		}
+
+		return intersectionPrefixSet;
+	}
+
 }

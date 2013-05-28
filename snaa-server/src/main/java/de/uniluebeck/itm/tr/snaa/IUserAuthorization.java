@@ -1,5 +1,5 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+ * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                  *
  * All rights reserved.                                                                                               *
  *                                                                                                                    *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
@@ -9,7 +9,7 @@
  *   disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
  *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+ * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
  *   products derived from this software without specific prior written permission.                                   *
  *                                                                                                                    *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
@@ -21,81 +21,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.jaas.modules;
+package de.uniluebeck.itm.tr.snaa;
 
-import de.uniluebeck.itm.tr.snaa.jaas.NamedPrincipal;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.io.IOException;
-import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class AlwaysTrueLoginModule implements LoginModule {
+public interface IUserAuthorization {
 
-	private Subject subject;
+	public static class UserDetails {
 
-	private CallbackHandler callbackHandler;
+		private String username;
 
-	/**
-	 * A principal that is not null means that {@link AlwaysTrueLoginModule#login()} succeeded.
-	 */
-	private Principal principal;
+		private Map<String, List<Object>> userDetails;
 
-	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-		this.subject = subject;
-		this.callbackHandler = callbackHandler;
-	}
-
-	@Override
-	public boolean login() throws LoginException {
-
-		Callback[] callbacks = new Callback[]{new NameCallback("")};
-
-		try {
-
-			callbackHandler.handle(callbacks);
-			principal = new NamedPrincipal(((NameCallback) callbacks[0]).getName());
-
-		} catch (IOException e) {
-			return false;
-		} catch (UnsupportedCallbackException e) {
-			return false;
+		public String getUsername() {
+			return username;
 		}
 
-		return true;
-	}
+		public void setUsername(String username) {
+			this.username = username;
+		}
 
-	@Override
-	public boolean commit() throws LoginException {
-
-		if (principal != null) {
-			if (!subject.getPrincipals().contains(principal)) {
-				subject.getPrincipals().add(principal);
-			} else {
-				throw new LoginException("Login attempt was not successful.");
+		public Map<String, List<Object>> getUserDetails() {
+			if (userDetails == null) {
+				userDetails = new HashMap<String, List<Object>>();
 			}
+			return userDetails;
 		}
 
-		return true;
+		public void setUserDetails(Map<String, List<Object>> userDetails) {
+			this.userDetails = userDetails;
+		}
+
+
 	}
 
-	@Override
-	public boolean abort() throws LoginException {
-		principal = null;
-		return true;
-	}
-
-	@Override
-	public boolean logout() throws LoginException {
-		principal = null;
-		return true;
-	}
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
 
 }
