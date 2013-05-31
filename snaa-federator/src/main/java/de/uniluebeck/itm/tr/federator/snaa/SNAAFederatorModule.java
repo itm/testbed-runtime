@@ -6,11 +6,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.snaa.SNAAService;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -32,13 +37,31 @@ public class SNAAFederatorModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
+
 		install(new ServicePublisherCxfModule());
+
+		switch (config.getSnaaFederatorType()) {
+			case API:
+				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
+				break;
+			case SHIBBOLETH:
+				install(new ShibbolethSNAAModule(config.getSnaaFederatorProperties(), config.getSnaaContextPath()));
+				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				bind(SNAAService.class)
+						.annotatedWith(Names.named("authorizationSnaa"))
+						.to(SNAAFederatorServiceImpl.class);
+				bind(SNAAService.class)
+						.annotatedWith(Names.named("authenticationSnaa"))
+						.to(ShibbolethSNAAImpl.class);
+				break;
+			default:
+				throw new RuntimeException("Unknown SNAA federator type: " + config.getSnaaFederatorType());
+		}
 	}
 
 	@Provides
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.port));
+		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
 	}
 
 	@Provides
@@ -57,13 +80,10 @@ public class SNAAFederatorModule extends AbstractModule {
 		};
 
 		final ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> mapBuilder = ImmutableMap.builder();
-		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.federates.entrySet()) {
+		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.getFederates().entrySet()) {
 			mapBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
 		}
 
-		return new FederationManager<SNAA>(
-				uriToRSEndpointFunction,
-				mapBuilder.build()
-		);
+		return new FederationManager<SNAA>(uriToRSEndpointFunction, mapBuilder.build());
 	}
 }

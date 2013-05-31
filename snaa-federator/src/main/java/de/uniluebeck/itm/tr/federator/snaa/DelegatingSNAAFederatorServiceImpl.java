@@ -25,11 +25,7 @@ package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import com.google.inject.name.Named;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -48,40 +44,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class WisebedSNAAFederatorServiceImpl extends AbstractService implements SNAAFederatorService {
+public class DelegatingSNAAFederatorServiceImpl extends AbstractService implements SNAAFederatorService {
 
-	private static final Logger log = LoggerFactory.getLogger(WisebedSNAAFederatorServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatingSNAAFederatorServiceImpl.class);
 
-	private final SNAAFederatorService snaaFederatorService;
+	private final de.uniluebeck.itm.tr.snaa.SNAAService authorizationSnaa;
 
-	private SNAAFederatorService authorizationFederator;
-
-	private ShibbolethSNAAImpl authenticationSnaa;
+	private final de.uniluebeck.itm.tr.snaa.SNAAService authenticationSnaa;
 
 	@Inject
-	public WisebedSNAAFederatorServiceImpl(final FederationManager<SNAA> federationManager,
-										   final String secretAuthenticationKeyUrl,
-										   final ShibbolethProxy shibbolethProxy,
-										   final SNAAFederatorService snaaFederatorService) {
-		this.snaaFederatorService = checkNotNull(snaaFederatorService);
-
-		authenticationSnaa = new ShibbolethSNAAImpl(
-				federationManager.getUrnPrefixes(),
-				secretAuthenticationKeyUrl,
-				null,
-				injector,
-				shibbolethProxy
-		);
-
-		// authorization is delegated to the corresponding backend-SNAA using a FederatorSNAA
-		authorizationFederator = new FederatorSNAA(federationManager);
+	public DelegatingSNAAFederatorServiceImpl(
+			@Named("authorizationSnaa") final de.uniluebeck.itm.tr.snaa.SNAAService authorizationSnaa,
+			@Named("authenticationSnaa") final de.uniluebeck.itm.tr.snaa.SNAAService authenticationSnaa) {
+		this.authenticationSnaa = checkNotNull(authenticationSnaa);
+		this.authorizationSnaa = checkNotNull(authorizationSnaa);
 	}
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
-		log.debug("WisebedSNAAFederatorServiceImpl::authenticate delegating to internal ShibbolethSNAA instance");
+		log.debug("DelegatingSNAAFederatorServiceImpl::authenticate delegating to internal ShibbolethSNAA instance");
 		return authenticationSnaa.authenticate(authenticationData);
 	}
 
@@ -89,25 +72,37 @@ public class WisebedSNAAFederatorServiceImpl extends AbstractService implements 
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
-		log.debug("WisebedSNAAFederatorServiceImpl::isAuthorized delegating to internal FederatorSNAA instance");
-		return authorizationFederator.isAuthorized(usernameNodeUrnsMapList, action);
+		log.debug("DelegatingSNAAFederatorServiceImpl::isAuthorized delegating to internal FederatorSNAA instance");
+		return authorizationSnaa.isAuthorized(usernameNodeUrnsMapList, action);
 	}
 
 	@Override
 	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
 			throws SNAAFault_Exception {
 
-		log.debug("WisebedSNAAFederatorServiceImpl::isValid delegating to internal FederatorSNAA instance");
-		return authorizationFederator.isValid(secretAuthenticationKeys);
+		log.debug("DelegatingSNAAFederatorServiceImpl::isValid delegating to internal FederatorSNAA instance");
+		return authorizationSnaa.isValid(secretAuthenticationKeys);
 	}
 
 	@Override
 	protected void doStart() {
-		// TODO implement
+		try {
+			authenticationSnaa.startAndWait();
+			authorizationSnaa.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
 	protected void doStop() {
-		// TODO implement
+		try {
+			authorizationSnaa.stopAndWait();
+			authenticationSnaa.stopAndWait();
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 }

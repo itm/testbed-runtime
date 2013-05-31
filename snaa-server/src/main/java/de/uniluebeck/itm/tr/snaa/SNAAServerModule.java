@@ -8,6 +8,8 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
+import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 
 public class SNAAServerModule extends AbstractModule {
 
@@ -27,9 +29,11 @@ public class SNAAServerModule extends AbstractModule {
 				install(new DummySNAAModule(config));
 				break;
 			case JAAS:
-				throw new RuntimeException("Implement me!");
+				install(new JAASSNAAModule(config));
+				break;
 			case SHIBBOLETH:
-				throw new RuntimeException("Implement me!");
+				install(new ShibbolethSNAAModule(config));
+				break;
 			case SHIRO:
 				throw new RuntimeException("Implement me!");
 			default:

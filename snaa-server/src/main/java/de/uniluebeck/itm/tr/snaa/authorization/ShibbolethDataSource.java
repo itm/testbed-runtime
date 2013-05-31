@@ -21,16 +21,86 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa;
+package de.uniluebeck.itm.tr.snaa.authorization;
 
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
-public class AlwaysDenyAuthorization implements IUserAuthorization {
+import java.sql.SQLException;
 
-	@Override
-	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
-		return false;
+public class ShibbolethDataSource implements AuthorizationDataSource {
+
+	private static final Logger log = LoggerFactory.getLogger(ShibbolethDataSource.class);
+
+	private MySQLConnection connection;
+
+	private String dbUser;
+
+	private String dbPwd;
+
+	private String dbUrl;
+
+	private static final String USER_ID_QUERY = "SELECT user_id FROM User WHERE user_uid = '{}'";
+
+	private static final String ACTION_ID_QUERY = "SELECT action_id from Action WHERE action_name = '{}'";
+
+	private static final String SUBSCRIPTION_ROLE =
+			"SELECT subscription_role FROM Subscription, ActionManager WHERE Subscription.subscription_role = ActionManager.role_id " +
+					" AND Subscription.subscription_user = '{}' AND Subscription.subscription_state ='1' AND ActionManager.action_id = '{}'";
+
+	private int getUserId(String user_uid) throws SQLException {
+		return connection.getSingleInt(MessageFormatter.format(USER_ID_QUERY, user_uid.trim()).getMessage(), "user_id");
 	}
 
+	private int getActionId(String action) throws SQLException {
+		return connection.getSingleInt(
+				MessageFormatter.format(ACTION_ID_QUERY, action.trim()).getMessage(),
+				"action_id"
+		);
+	}
+
+	private int getSubscriptionRole(int userId, int actionId) throws Exception {
+		return connection.getSingleInt(
+				MessageFormatter.format(SUBSCRIPTION_ROLE, userId, actionId).getMessage(),
+				"subscription_role"
+		);
+	}
+
+	@Override
+	public void setUsername(String username) {
+		this.dbUser = username;
+	}
+
+	@Override
+	public void setPassword(String password) {
+		this.dbPwd = password;
+	}
+
+	@Override
+	public void setUrl(String url) {
+		this.dbUrl = url;
+	}
+
+	@Override
+	public boolean isAuthorized(String puid, String action) throws Exception {
+		try {
+
+			connection = new MySQLConnection(dbUrl, dbUser, dbPwd);
+
+			int user_id = getUserId(puid);
+			int action_id = getActionId(action);
+
+			//get role for user and action
+			//if no role found for user and action a NullPointerException is thrown
+			getSubscriptionRole(user_id, action_id);
+
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		} finally {
+			connection.disconnect();
+		}
+	}
 }

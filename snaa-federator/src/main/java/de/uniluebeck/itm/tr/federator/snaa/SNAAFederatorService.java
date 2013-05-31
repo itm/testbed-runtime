@@ -1,8 +1,7 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
-import com.google.common.util.concurrent.Service;
-import eu.wisebed.api.v3.snaa.SNAA;
+import de.uniluebeck.itm.tr.snaa.SNAAService;
 
-public interface SNAAFederatorService extends Service, SNAA {
+public interface SNAAFederatorService extends SNAAService {
 
 }

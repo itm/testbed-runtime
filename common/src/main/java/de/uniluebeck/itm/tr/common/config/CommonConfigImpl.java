@@ -8,7 +8,7 @@ import java.util.TimeZone;
 public class CommonConfigImpl extends ConfigWithLogging implements CommonConfig {
 
 	@Option(name = "--port",
-			usage = "Port to provide all user services on (default: 8888)")
+			usage = "Port to run all services on (default: 8888)")
 	protected int port = 8888;
 
 	@Option(name = "--urnPrefix",

@@ -8,10 +8,10 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import eu.wisebed.api.v3.snaa.SNAA;
-import de.uniluebeck.itm.tr.snaa.AttributeBasedAuthorization;
-import de.uniluebeck.itm.tr.snaa.IUserAuthorization;
-import eu.wisebed.testbed.api.snaa.authorization.datasource.AuthorizationDataSource;
-import eu.wisebed.testbed.api.snaa.authorization.datasource.ShibbolethDataSource;
+import de.uniluebeck.itm.tr.snaa.authorization.AttributeBasedAuthorization;
+import de.uniluebeck.itm.tr.snaa.authorization.IUserAuthorization;
+import de.uniluebeck.itm.tr.snaa.authorization.AuthorizationDataSource;
+import de.uniluebeck.itm.tr.snaa.authorization.ShibbolethDataSource;
 
 import java.util.*;
 
@@ -59,7 +59,7 @@ public class JAASSNAAModule extends PrivateModule {
 	IUserAuthorization provideUserAuthorization() {
 
 		try {
-			final String authorizationClassName = config.getSnaaAuthorizationConfig().getProperty("jaas.authorization_class");
+			final String authorizationClassName = config.getSnaaProperties().getProperty("jaas.authorization_class");
 			final IUserAuthorization authorization = (IUserAuthorization) Class.forName(authorizationClassName).newInstance();
 
 			if (AttributeBasedAuthorization.class.getCanonicalName().equals(authorizationClassName)) {
@@ -78,7 +78,7 @@ public class JAASSNAAModule extends PrivateModule {
 	private AuthorizationDataSource getAuthorizationDataSource()
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 
-		final Properties authorizationConfig = config.getSnaaAuthorizationConfig();
+		final Properties authorizationConfig = config.getSnaaProperties();
 
 		for (String key : authorizationConfig.stringPropertyNames()) {
 
@@ -119,7 +119,7 @@ public class JAASSNAAModule extends PrivateModule {
 		final List<String> keys = new LinkedList<String>();
 
 		//getting keys from properties
-		for (String key : config.getSnaaAuthorizationConfig().stringPropertyNames()) {
+		for (String key : config.getSnaaProperties().stringPropertyNames()) {
 			if (key.startsWith(AUTHORIZATION_ATT) && key.endsWith(AUTHORIZATION_KEY_ATT)) {
 				keys.add(key);
 			}
@@ -127,14 +127,14 @@ public class JAASSNAAModule extends PrivateModule {
 
 		for (String k : keys) {
 
-			String key = config.getSnaaAuthorizationConfig().getProperty(k);
+			String key = config.getSnaaProperties().getProperty(k);
 
 			//getting plain key-number from properties
 			String plainKeyProperty = k.replaceAll(AUTHORIZATION_ATT + ".", "").replaceAll(AUTHORIZATION_KEY_ATT, "");
 			String keyPrefix = AUTHORIZATION_ATT + "." + plainKeyProperty;
 
 			//building value-property-string
-			String value = config.getSnaaAuthorizationConfig().getProperty(keyPrefix + AUTHORIZATION_VAL_ATT);
+			String value = config.getSnaaProperties().getProperty(keyPrefix + AUTHORIZATION_VAL_ATT);
 
 			//finally put key and values
 			attributes.put(key, value);

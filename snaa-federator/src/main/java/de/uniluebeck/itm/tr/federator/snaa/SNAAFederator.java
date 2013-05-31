@@ -36,8 +36,8 @@ public class SNAAFederator extends AbstractService {
 
 		Thread.currentThread().setName("SNAAFederator-Main");
 
-		final SNAAFederatorConfig config = setLogLevel(
-				parseOrExit(new SNAAFederatorConfig(), SNAAFederator.class, args),
+		final SNAAFederatorConfigImpl config = setLogLevel(
+				parseOrExit(new SNAAFederatorConfigImpl(), SNAAFederator.class, args),
 				"de.uniluebeck.itm"
 		);
 

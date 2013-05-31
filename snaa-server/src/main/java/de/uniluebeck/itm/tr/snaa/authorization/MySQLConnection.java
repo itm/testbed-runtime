@@ -21,16 +21,42 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa;
+package de.uniluebeck.itm.tr.snaa.authorization;
 
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import java.sql.*;
 
-public class AlwaysAllowAuthorization implements IUserAuthorization {
+public class MySQLConnection {
 
-	@Override
-	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
-		return true;
+	Connection connection = null;
+
+	public MySQLConnection(String url, String user, String passwd) throws ClassNotFoundException, SQLException {
+		Class.forName("com.mysql.jdbc.Driver");
+		connection = DriverManager.getConnection(url, user, passwd);
 	}
 
+	public ResultSet getQuery(String s) throws SQLException {
+		Statement statement = connection.createStatement();
+		return statement.executeQuery(s);
+	}
+
+	/**
+	 * Returns integer-value for query. If result is empty a NullPointerException is thrown.
+	 *
+	 * @param query query to execute
+	 * @param column column to read int from
+	 * @return an integer value
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 */
+	public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
+		ResultSet rs = getQuery(query);
+		if (rs.next()) {
+			return rs.getInt(column);
+		}
+		throw new NullPointerException("Warning: Result of query: " + query + " is empty");
+	}
+
+	public void disconnect() throws SQLException {
+		connection.close();
+	}
 }

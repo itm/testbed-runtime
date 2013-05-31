@@ -1,25 +1,25 @@
 /**********************************************************************************************************************
- * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
- * All rights reserved.                                                                                               *
- *                                                                                                                    *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
- * following conditions are met:                                                                                      *
- *                                                                                                                    *
- * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
- *   disclaimer.                                                                                                      *
- * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
- *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
- * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
- *                                                                                                                    *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
- **********************************************************************************************************************/
+* Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
+* All rights reserved.                                                                                               *
+*                                                                                                                    *
+* Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
+* following conditions are met:                                                                                      *
+*                                                                                                                    *
+* - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
+*   disclaimer.                                                                                                      *
+* - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
+*   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+* - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
+*   products derived from this software without specific prior written permission.                                   *
+*                                                                                                                    *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
+* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE *
+* GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
+* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
+* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
+**********************************************************************************************************************/
 
 package de.uniluebeck.itm.tr.snaa;
 
@@ -36,14 +36,17 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.snaa.authorization.AlwaysAllowAuthorization;
+import de.uniluebeck.itm.tr.snaa.authorization.AttributeBasedAuthorization;
+import de.uniluebeck.itm.tr.snaa.authorization.IUserAuthorization;
 import de.uniluebeck.itm.tr.snaa.federator.FederatorSNAA;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethProxy;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
-import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAA;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAFactory;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
 import de.uniluebeck.itm.tr.snaa.wisebed.WisebedSnaaFederator;
 import de.uniluebeck.itm.tr.util.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -60,7 +63,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -357,22 +361,22 @@ public class SNAAServerOld {
 			properties.load(SNAAServerOld.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-			
+
 		}
 		Injector jpaInjector = Guice.createInjector(new JpaPersistModule("Default").properties(properties));
 		jpaInjector.getInstance(PersistService.class).start();
-		
+
 		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule();
 		Injector shiroInjector = jpaInjector.createChildInjector(shiroSNAAModule);
     	SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
-    	
+
     	ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
         ShiroSNAA shiroSNAA = factory.create(newHashSet(nodeUrnPrefix));
-        
+
         HttpContext context = server.createContext(path);
         Endpoint endpoint = Endpoint.create(shiroSNAA);
      	endpoint.publish(context);
-     	
+
      	log.info("Started Shiro SNAA on " + server.getAddress() + path);
     }
 

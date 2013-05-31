@@ -21,76 +21,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package eu.wisebed.testbed.api.snaa.authorization.datasource;
+package de.uniluebeck.itm.tr.snaa.authorization;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
-import java.sql.SQLException;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
-public class ShibbolethDataSource implements AuthorizationDataSource {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    private static final Logger log = LoggerFactory.getLogger(ShibbolethDataSource.class);
+public interface IUserAuthorization {
 
-    private MySQLConnection connection;
-    private String dbUser;
-    private String dbPwd;
-    private String dbUrl;
+	public static class UserDetails {
 
-    private static String userIDQuery = "SELECT user_id FROM User WHERE user_uid = '{}'";
-    private static String actionIDQuery = "SELECT action_id from Action WHERE action_name = '{}'";
-    private static String subscriptionRole = "SELECT subscription_role FROM Subscription, ActionManager WHERE Subscription.subscription_role = ActionManager.role_id " +
-            " AND Subscription.subscription_user = '{}' AND Subscription.subscription_state ='1' AND ActionManager.action_id = '{}'";
+		private String username;
 
-    //sql-connects
+		private Map<String, List<Object>> userDetails;
 
-    private int getUserId(String user_uid) throws SQLException {
-        return connection.getSingleInt(MessageFormatter.format(userIDQuery, user_uid.trim()).getMessage(), "user_id");
-    }
+		public String getUsername() {
+			return username;
+		}
 
-    private int getActionId(String action) throws SQLException {
-        return connection.getSingleInt(MessageFormatter.format(actionIDQuery, action.trim()).getMessage(), "action_id");
-    }
+		public void setUsername(String username) {
+			this.username = username;
+		}
 
-    private int getSubscriptionRole(int userId, int actionId) throws Exception {
-        return connection.getSingleInt(MessageFormatter.format(subscriptionRole, userId, actionId).getMessage(), "subscription_role");
-    }
+		public Map<String, List<Object>> getUserDetails() {
+			if (userDetails == null) {
+				userDetails = new HashMap<String, List<Object>>();
+			}
+			return userDetails;
+		}
 
-    @Override
-    public void setUsername(String username) {
-        this.dbUser = username;
-    }
+		public void setUserDetails(Map<String, List<Object>> userDetails) {
+			this.userDetails = userDetails;
+		}
 
-    @Override
-    public void setPassword(String password) {
-        this.dbPwd = password;
-    }
 
-    @Override
-    public void setUrl(String url) {
-        this.dbUrl = url;
-    }
+	}
 
-    @Override
-    public boolean isAuthorized(String puid, String action) throws Exception {
-        try {
-            connection = new MySQLConnection(dbUrl, dbUser, dbPwd);
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
 
-            int user_id = getUserId(puid);
-            int action_id = getActionId(action);
-
-            //get role for user and action
-            //if no role found for user and action a NullPointerException is thrown
-            getSubscriptionRole(user_id, action_id);
-
-            return true;
-        }
-        catch (Exception e) {
-            log.warn(e.getMessage());
-            return false;
-        }
-        finally {
-            connection.disconnect();
-        }
-    }
 }

@@ -22,15 +22,10 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 			required = true)
 	protected SNAAAuthorizationType snaaAuthorizationType;
 
-	@Option(name = "--snaaAuthorizationConfig",
-			usage = "The properties file containing the configuration for the authorization backend",
+	@Option(name = "--snaaProperties",
+			usage = "The properties file containing the configuration for the SNAA",
 			handler = PropertiesOptionHandler.class)
-	protected Properties snaaAuthorizationConfig;
-
-	@Option(name = "--snaaAuthenticationConfig",
-			usage = "The properties file containing the configuration for the authentication backend",
-			handler = PropertiesOptionHandler.class)
-	protected Properties snaaAuthenticationConfig;
+	protected Properties snaaProperties;
 
 	@Override
 	public String getSnaaContextPath() {
@@ -43,13 +38,8 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 	}
 
 	@Override
-	public Properties getSnaaAuthenticationConfig() {
-		return snaaAuthenticationConfig;
-	}
-
-	@Override
-	public Properties getSnaaAuthorizationConfig() {
-		return snaaAuthorizationConfig;
+	public Properties getSnaaProperties() {
+		return snaaProperties;
 	}
 
 	@Override
@@ -58,13 +48,8 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 	}
 
 	@SuppressWarnings("unused")
-	public void setSnaaAuthenticationConfig(final Properties snaaAuthenticationConfig) {
-		this.snaaAuthenticationConfig = snaaAuthenticationConfig;
-	}
-
-	@SuppressWarnings("unused")
-	public void setSnaaAuthorizationConfig(final Properties snaaAuthorizationConfig) {
-		this.snaaAuthorizationConfig = snaaAuthorizationConfig;
+	public void setSnaaProperties(final Properties snaaProperties) {
+		this.snaaProperties = snaaProperties;
 	}
 
 	@SuppressWarnings("unused")

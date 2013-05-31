@@ -12,8 +12,6 @@ public interface SNAAConfig extends CommonConfig {
 
 	SNAAAuthorizationType getSnaaAuthorizationType();
 
-	Properties getSnaaAuthorizationConfig();
-
-	Properties getSnaaAuthenticationConfig();
+	Properties getSnaaProperties();
 
 }

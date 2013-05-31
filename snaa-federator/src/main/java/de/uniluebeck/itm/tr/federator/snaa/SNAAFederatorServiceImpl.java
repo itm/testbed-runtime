@@ -116,7 +116,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

@@ -6,10 +6,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
-import de.uniluebeck.itm.tr.snaa.SNAAServerOld;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
@@ -42,15 +44,17 @@ public class ShiroSNAAMySQLIntegrationTesting {
 	static {
 		Logging.setLoggingDefaults(Level.WARN);
 	}
-	
+
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATest.class);
 
 	private static final String EXPERIMENTER1_PASS = "Exp1Pass";
+
 	private static final String EXPERIMENTER1 = "Experimenter1";
 
 	private static final String EXPERIMENTER2_PASS = "Exp2Pass";
 
 	private static final String SERVICE_PROVIDER1_PASS = "SP1Pass";
+
 	private static final String SERVICE_PROVIDER1 = "ServiceProvider1";
 
 	private static final String ADMINISTRATOR1 = "Administrator1";
@@ -59,33 +63,35 @@ public class ShiroSNAAMySQLIntegrationTesting {
 
 	private ShiroSNAA shiroSNAA;
 
-    @Mock
-    private EntityManager em;
+	@Mock
+	private EntityManager em;
 
-    @Mock
-    private UrnResourceGroupDao UrnResourceGroupDao;
+	@Mock
+	private UrnResourceGroupDao UrnResourceGroupDao;
 
 
 	@BeforeClass
-	public static void setDBForEntities(){
+	public static void setDBForEntities() {
 
-		Class[] entities = {de.uniluebeck.itm.tr.snaa.shiro.entity.Action.class,
+		Class[] entities = {
+				de.uniluebeck.itm.tr.snaa.shiro.entity.Action.class,
 				Permission.class,
 				ResourceGroup.class,
 				Role.class,
 				UrnResourceGroup.class,
-				User.class};
+				User.class
+		};
 
 		for (Class entity : entities) {
 			final Annotation[] declaredAnnotations = entity.getDeclaredAnnotations();
 			for (Annotation declaredAnnotation : declaredAnnotations) {
-				if (declaredAnnotation instanceof Table){
+				if (declaredAnnotation instanceof Table) {
 					final Table tableAnnotation = (Table) declaredAnnotation;
 					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("catalog","trauthsampledb");
+					map.put("catalog", "trauthsampledb");
 					map.put("name", tableAnnotation.name());
 					map.put("uniqueConstraints", tableAnnotation.uniqueConstraints());
-					map.put("schema",tableAnnotation.schema());
+					map.put("schema", tableAnnotation.schema());
 					replaceAnnotations(tableAnnotation, map);
 					break;
 				}
@@ -103,7 +109,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 				field.setAccessible(true);
 				field.set(invocationHandler, newValues);
 			} catch (Exception e) {
-				log.error(e.getMessage(),e);
+				log.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -113,7 +119,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 
 		Properties properties = new Properties();
 		try {
-			properties.load(SNAAServerOld.class.getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
+			properties.load(this.getClass().getClassLoader().getResourceAsStream("META-INF/hibernate.properties"));
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 
@@ -140,10 +146,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 			assertEquals(nodeUrnPrefix.get(0), sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 
@@ -179,10 +185,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 			assertEquals(nodeUrnPrefix.get(0), sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
@@ -195,10 +201,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 
@@ -218,10 +224,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 		sakList.get(0).setUsername(ADMINISTRATOR1);
@@ -241,10 +247,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 		sakList.get(0).setUsername("Trudy");
@@ -264,10 +270,10 @@ public class ShiroSNAAMySQLIntegrationTesting {
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
 		} catch (AuthenticationFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 		sakList.get(0).setUrnPrefix(new NodeUrnPrefix("urn:wisebed:uzl88:"));
@@ -279,7 +285,7 @@ public class ShiroSNAAMySQLIntegrationTesting {
 			assertEquals("Not serving node URN prefix urn:wisebed:uzl88:", e.getMessage());
 			return;
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 		fail();
@@ -289,7 +295,8 @@ public class ShiroSNAAMySQLIntegrationTesting {
 	public void testGetNodeGroupsForNodeURNsForSingleURN() {
 		Set<String> nodeGroupsForNodeURNs = null;
 		try {
-			nodeGroupsForNodeURNs = shiroSNAA.getNodeGroupsForNodeURNs(Lists.newArrayList(new NodeUrn("urn:wisebed:uzl2:0x2211")));
+			nodeGroupsForNodeURNs =
+					shiroSNAA.getNodeGroupsForNodeURNs(Lists.newArrayList(new NodeUrn("urn:wisebed:uzl2:0x2211")));
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -302,31 +309,36 @@ public class ShiroSNAAMySQLIntegrationTesting {
 	public void testGetNodeGroupsForNodeURNsForMultipleURNs() {
 		Set<String> nodeGroupsForNodeURNs = null;
 		try {
-			nodeGroupsForNodeURNs = shiroSNAA.getNodeGroupsForNodeURNs(Lists.newArrayList(new NodeUrn("urn:wisebed:uzl2:0x2211"), new NodeUrn("urn:wisebed:uzl2:0x2311")));
+			nodeGroupsForNodeURNs = shiroSNAA.getNodeGroupsForNodeURNs(
+					Lists.newArrayList(new NodeUrn("urn:wisebed:uzl2:0x2211"), new NodeUrn("urn:wisebed:uzl2:0x2311"))
+			);
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
 		}
 		assertTrue(nodeGroupsForNodeURNs.size() == 2);
 		SortedSet<String> actual = new TreeSet<String>(nodeGroupsForNodeURNs);
-		SortedSet<String> expected = new TreeSet<String>(Lists.newArrayList("EXPERIMENT_ONLY_NODES","SERVICE_ONLY_NODES"));
-		assertEquals(expected,actual);
+		SortedSet<String> expected =
+				new TreeSet<String>(Lists.newArrayList("EXPERIMENT_ONLY_NODES", "SERVICE_ONLY_NODES"));
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testIsAuthorizedForAdministrator1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
 
 	@Test
 	public void testIsAuthorizedForAdministrator1OnExperimentNodeFromWrongNetwork() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefix.get(0), "urn:wisebed:ulanc:0x1211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefix.get(0), "urn:wisebed:ulanc:0x1211");
 		try {
 			shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized();
 			fail();
@@ -338,44 +350,48 @@ public class ShiroSNAAMySQLIntegrationTesting {
 
 	@Test
 	public void testIsAuthorizedForExperimenter1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(EXPERIMENTER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(EXPERIMENTER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
 
 	@Test
 	public void testIsAuthorizedForServiceProvider1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2211");
 		try {
 			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
 
 	@Test
 	public void testIsFlashingAuthorizedForServiceProvider1OnServiceNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2311");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2311");
 		try {
 			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
 
 	@Test
 	public void testIsAuthorizedForServiceProvider1OnServiceNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2311");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps =
+				createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefix.get(0), "urn:wisebed:uzl2:0x2311");
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 			fail();
 		}
 	}
@@ -385,7 +401,8 @@ public class ShiroSNAAMySQLIntegrationTesting {
 
 	/* ------------------------------ Helpers ----------------------------------- */
 
-	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix, String... nodeUrnStrings){
+	private List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix,
+																	String... nodeUrnStrings) {
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = new LinkedList<UsernameNodeUrnsMap>();
 		UsernameNodeUrnsMap map = new UsernameNodeUrnsMap();
 		map.setUrnPrefix(nodeUrnPrefix);

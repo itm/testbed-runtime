@@ -1,8 +1,9 @@
-package eu.wisebed.shibboauth;
+package de.uniluebeck.itm.tr.snaa.shibboleth;
 
+import com.google.common.net.HostAndPort;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -14,19 +15,23 @@ import java.net.URL;
  * terms of the BSD License. Refer to the licence.txt file in the root of the source tree for further details.
  */
 
-public class Main {
+public class ShibbolethAuthenticatorMain {
 
 	static {
 		Logging.setLoggingDefaults();
 	}
 
-	private static Logger log = Logger.getLogger(Main.class);
+	private static Logger log = Logger.getLogger(ShibbolethAuthenticatorMain.class);
 
 	public static void main(String[] args) throws Exception {
+
 		String url = "https://gridlab23.unibe.ch/portal/SNA/secretUserKey";
 		boolean listIdps = false;
 		boolean recheckAuth = false;
-		ShibbolethAuthenticator sa = new ShibbolethAuthenticator();
+		HostAndPort proxy = null;
+		String username = null;
+		String idpDomain = null;
+		String password = null;
 
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -57,7 +62,7 @@ public class Main {
 			}
 
 			if (line.hasOption('q') && line.hasOption('w')) {
-				sa.setProxy(line.getOptionValue('q'), Integer.parseInt(line.getOptionValue('w')));
+				proxy = HostAndPort.fromParts(line.getOptionValue('q'), Integer.parseInt(line.getOptionValue('w')));
 			}
 
 			if (line.hasOption("z")) {
@@ -80,12 +85,12 @@ public class Main {
 						throw new Exception("Username must be in like username@idphost");
 					}
 
-					sa.setUsername(user.substring(0, atIndex));
-					sa.setIdpDomain(user.substring(atIndex + 1));
+					username = user.substring(0, atIndex);
+					idpDomain = user.substring(atIndex + 1);
 				}
 
 				if (line.hasOption('p')) {
-					sa.setPassword(line.getOptionValue('p'));
+					password = line.getOptionValue('p');
 				}
 			}
 
@@ -94,7 +99,11 @@ public class Main {
 			usage(options);
 		}
 
-		sa.setUrl(url);
+
+		final ShibbolethAuthenticatorConfig config = new ShibbolethAuthenticatorConfig(idpDomain, url, proxy);
+		final ShibbolethAuthenticatorFactory factory = Guice.createInjector(new ShibbolethAuthenticatorModule(config))
+				.getInstance(ShibbolethAuthenticatorFactory.class);
+		final ShibbolethAuthenticator sa = factory.create(username, password);
 
 		if (listIdps) {
 			System.out.println("-----------------------------------------------");
@@ -106,7 +115,7 @@ public class Main {
 
 		} else {
 			sa.authenticate();
-			System.err.println("Authentication " + (sa.isAuthenticated() ? "suceeded" : "failed"));
+			System.err.println("Authentication " + (sa.isAuthenticated() ? "succeeded" : "failed"));
 			if (sa.isAuthenticated()) {
 				System.err.println("Secret user key: " + sa.getAuthenticationPageContent());
 			}
@@ -115,19 +124,18 @@ public class Main {
 			while (recheckAuth && sa.isAuthenticated()) {
 				Thread.sleep(60 * 1000);
 				sa.checkForTimeout();
-				if (sa.isAuthenticated()) {
-					System.err.println("Still authenticated after " + time.m() + " mins.");
-				} else {
-					System.err.println("Authentication invalid after " + time.m() + " mins.");
-				}
+				System.err.println("Still authenticated after " + time.m() + " minutes.");
 			}
 
+			if (!sa.isAuthenticated()) {
+				System.err.println("Authentication invalid after " + time.m() + " minutes.");
+			}
 		}
 	}
 
 	private static void usage(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(120, Main.class.getCanonicalName(), null, options, null);
+		formatter.printHelp(120, ShibbolethAuthenticatorMain.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 

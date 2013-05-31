@@ -25,14 +25,16 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAProperties;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import de.uniluebeck.itm.tr.snaa.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,27 +62,42 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
+	private final ServicePublisher servicePublisher;
+
 	private final SNAAConfig config;
 
 	private String jaasLoginModuleName;
 
-	private IUserAuthorization authorization;
+	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public JAASSNAA(final SNAAConfig config, final IUserAuthorization authorization) {
+	public JAASSNAA(final ServicePublisher servicePublisher, final SNAAConfig config) {
+		this.servicePublisher = servicePublisher;
 		this.config = config;
-		this.jaasLoginModuleName = config.getSnaaAuthorizationConfig().getProperty("jaas.loginmodule.name");
-		this.authorization = authorization;
+		this.jaasLoginModuleName = config.getSnaaProperties().getProperty(SNAAProperties.JAAS_LOGINMODULE_NAME);
 	}
 
 	@Override
 	protected void doStart() {
-		// TODO implement
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
 	protected void doStop() {
-		// TODO implement
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	static class AuthData {
@@ -152,7 +169,6 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	@Override
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
-
 
 		AuthorizationResponse authorized = new AuthorizationResponse();
 

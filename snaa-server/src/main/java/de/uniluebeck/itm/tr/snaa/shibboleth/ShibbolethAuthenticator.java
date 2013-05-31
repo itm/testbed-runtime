@@ -1,22 +1,18 @@
-package eu.wisebed.shibboauth;
+package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 
+import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface IShibbolethAuthenticator {
+public interface ShibbolethAuthenticator {
     
     void authenticate() throws Exception;
 
     Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception;
-
-    void setUrl(String secretAuthenticationKeyUrl);
-
-    void setUsernameAtIdpDomain(String username) throws Exception;
-
-    void setPassword(String password);
 
     boolean isAuthenticated();
 
@@ -24,6 +20,7 @@ public interface IShibbolethAuthenticator {
 
     CookieStore getCookieStore();
 
-    public void setProxy(String host, int port);
+	Collection<URL> getIDPs() throws Exception;
 
+	void checkForTimeout() throws Exception;
 }

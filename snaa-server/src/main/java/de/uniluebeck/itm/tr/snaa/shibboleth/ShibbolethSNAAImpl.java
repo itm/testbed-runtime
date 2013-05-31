@@ -23,22 +23,28 @@
 
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
-import com.google.inject.Injector;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.snaa.authorization.IUserAuthorization;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.shibboauth.IShibbolethAuthenticator;
-import eu.wisebed.shibboauth.SSAKSerialization;
-import de.uniluebeck.itm.tr.snaa.IUserAuthorization;
 import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 @WebService(
@@ -48,27 +54,33 @@ import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class ShibbolethSNAAImpl implements SNAA {
+public class ShibbolethSNAAImpl extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
 	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
 
-	protected Set<NodeUrnPrefix> urnPrefixes;
+	protected final ServicePublisher servicePublisher;
 
-	protected String secretAuthenticationKeyUrl;
+	protected final ServedNodeUrnPrefixesProvider urnPrefixes;
 
-	protected IUserAuthorization authorization;
+	protected final IUserAuthorization authorization;
 
-	private Injector injector;
+	protected final ShibbolethAuthenticator authenticator;
 
-	private ShibbolethProxy proxy;
+	protected final String snaaContextPath;
 
-	public ShibbolethSNAAImpl(Set<NodeUrnPrefix> urnPrefixes, String secretAuthenticationKeyUrl,
-							  IUserAuthorization authorization, Injector injector, ShibbolethProxy proxy) {
-		this.urnPrefixes = urnPrefixes;
-		this.secretAuthenticationKeyUrl = secretAuthenticationKeyUrl;
-		this.authorization = authorization;
-		this.injector = injector;
-		this.proxy = proxy;
+	private ServicePublisherService jaxWsService;
+
+	@Inject
+	public ShibbolethSNAAImpl(final ServicePublisher servicePublisher,
+							  @Named("snaaContextPath") final String snaaContextPath,
+							  final ServedNodeUrnPrefixesProvider urnPrefixes,
+							  final IUserAuthorization authorization,
+							  final ShibbolethAuthenticator authenticator) {
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.snaaContextPath = checkNotNull(snaaContextPath);
+		this.urnPrefixes = checkNotNull(urnPrefixes);
+		this.authorization = checkNotNull(authorization);
+		this.authenticator = checkNotNull(authenticator);
 	}
 
 	@Override
@@ -79,29 +91,21 @@ public class ShibbolethSNAAImpl implements SNAA {
 		log.debug("Starting for " + authenticationData.size() + " urns.");
 
 		assertMinAuthenticationCount(authenticationData, 1);
-		assertAllUrnPrefixesServed(urnPrefixes, authenticationData);
+		assertAllUrnPrefixesServed(urnPrefixes.get(), authenticationData);
 
 		for (AuthenticationTriple triple : authenticationData) {
-			IShibbolethAuthenticator sa = injector.getInstance(IShibbolethAuthenticator.class);
 			NodeUrnPrefix urn = triple.getUrnPrefix();
 
 			try {
 
-				sa.setUsernameAtIdpDomain(triple.getUsername());
-				sa.setPassword(triple.getPassword());
-				sa.setUrl(secretAuthenticationKeyUrl);
-				if (proxy != null) {
-					sa.setProxy(proxy.getProxyHost(), proxy.getProxyPort());
-				}
-
 				try {
-					sa.authenticate();
+					authenticator.authenticate();
 				} catch (ClientProtocolException e) {
 					// catch this exception as it usually means that the shibboleth server had a problem
 					// wait a short amount of time and try again
 					Thread.sleep(1000);
 					try {
-						sa.authenticate();
+						authenticator.authenticate();
 					} catch (Exception e1) {
 						throw createSNAAFault("Authentication failed: the authentication system has problems "
 								+ "contacting the Shibboleth server. Please try again later!"
@@ -109,9 +113,10 @@ public class ShibbolethSNAAImpl implements SNAA {
 					}
 				}
 
-				if (sa.isAuthenticated()) {
+				if (authenticator.isAuthenticated()) {
 					SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-					secretAuthKey.setKey(SSAKSerialization.serialize(sa.getCookieStore().getCookies()));
+					secretAuthKey.setKey(
+							ShibbolethAuthenticatorSerialization.serialize(authenticator.getCookieStore().getCookies()));
 					secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
 					secretAuthKey.setUsername(triple.getUsername());
 					keys.add(secretAuthKey);
@@ -159,10 +164,32 @@ public class ShibbolethSNAAImpl implements SNAA {
 			throws SNAAFault_Exception {
 
 		// Check if we serve all URNs
-		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes, secretAuthenticationKeys);
+		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes.get(), secretAuthenticationKeys);
 
 		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
 		return null;
 	}
 
+	@Override
+	protected void doStart() {
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 }

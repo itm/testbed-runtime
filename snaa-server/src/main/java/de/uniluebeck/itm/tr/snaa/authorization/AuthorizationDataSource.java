@@ -21,35 +21,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package eu.wisebed.testbed.api.snaa.authorization.datasource;
+package de.uniluebeck.itm.tr.snaa.authorization;
 
-import java.sql.*;
-
-public class MySQLConnection {
-
-    Connection connection = null;
-
-    public MySQLConnection(String url, String user, String passwd) throws ClassNotFoundException, SQLException {
-        Class.forName( "com.mysql.jdbc.Driver" );
-        connection = DriverManager.getConnection(url, user, passwd);
-    }
-
-    public ResultSet getQuery(String s) throws SQLException {
-        Statement statement = connection.createStatement();
-        return statement.executeQuery(s);
-    }
-
-    //returns integer-value for query
-    //if result is empty a NullPointerException is thrown
-    public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
-        ResultSet rs = getQuery(query);
-        while (rs.next()){
-            return rs.getInt(column);
-        }
-        throw new NullPointerException("Warning: Result of query: " + query + " is empty");
-    }
-
-    public void disconnect() throws SQLException {
-        connection.close();
-    }
+public interface AuthorizationDataSource {
+    public void setUsername(String username);
+    public void setPassword(String password);
+    public void setUrl(String url);
+    public boolean isAuthorized(String puid, String action) throws Exception;
 }

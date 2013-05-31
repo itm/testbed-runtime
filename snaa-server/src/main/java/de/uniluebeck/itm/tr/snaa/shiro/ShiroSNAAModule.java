@@ -47,7 +47,7 @@ public class ShiroSNAAModule extends ShiroModule {
 
 		try {
 			bind(CredentialsMatcher.class).to(HashedCredentialsMatcher.class);
-			bindRealm().to(TRJPARealm.class).in(Singleton.class);
+			bindRealm().to(ShiroSNAAJPARealm.class).in(Singleton.class);
 			install(new FactoryModuleBuilder().build(ShiroSNAAFactory.class));
 			expose(ShiroSNAAFactory.class);
 

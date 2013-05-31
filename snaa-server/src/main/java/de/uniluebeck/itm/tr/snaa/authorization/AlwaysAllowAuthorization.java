@@ -21,45 +21,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa;
+package de.uniluebeck.itm.tr.snaa.authorization;
 
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class AlwaysAllowAuthorization implements IUserAuthorization {
 
-public interface IUserAuthorization {
-
-	public static class UserDetails {
-
-		private String username;
-
-		private Map<String, List<Object>> userDetails;
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public Map<String, List<Object>> getUserDetails() {
-			if (userDetails == null) {
-				userDetails = new HashMap<String, List<Object>>();
-			}
-			return userDetails;
-		}
-
-		public void setUserDetails(Map<String, List<Object>> userDetails) {
-			this.userDetails = userDetails;
-		}
-
-
+	@Override
+	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
+		return true;
 	}
-
-	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
 
 }

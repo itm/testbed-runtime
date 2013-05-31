@@ -1,8 +1,9 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
@@ -14,16 +15,13 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.SimpleByteSource;
 
-import com.google.inject.Inject;
-
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * JPA based authorization realm used by Apache Shiro
  */
-public class TRJPARealm extends AuthorizingRealm {
+public class ShiroSNAAJPARealm extends AuthorizingRealm {
 
 	/**
 	 * Object use to access persisted user information
@@ -40,7 +38,7 @@ public class TRJPARealm extends AuthorizingRealm {
 	 *            The credentials matcher to be used
 	 */
 	@Inject
-	public TRJPARealm(final HashedCredentialsMatcher hashedCredentialsMatcher) {
+	public ShiroSNAAJPARealm(final HashedCredentialsMatcher hashedCredentialsMatcher) {
 		setCredentialsMatcher(hashedCredentialsMatcher);
 	}
 
