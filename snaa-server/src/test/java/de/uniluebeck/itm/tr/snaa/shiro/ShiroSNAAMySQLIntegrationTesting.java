@@ -42,7 +42,7 @@
 //		Logging.setLoggingDefaults(Level.WARN);
 //	}
 //
-//	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATest.class);
+//	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATestBase.class);
 //
 //	private static final String EXPERIMENTER1_PASS = "Exp1Pass";
 //
