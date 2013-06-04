@@ -35,6 +35,6 @@ public class ShibbolethSNAAModule extends AbstractModule {
 		install(new ShibbolethAuthenticatorModule(authenticatorConfig));
 
 		bind(String.class).annotatedWith(Names.named("snaaContextPath")).toInstance(snaaContextPath);
-		bind(SNAAService.class).to(ShibbolethSNAAImpl.class).in(Scopes.SINGLETON);
+		bind(SNAAService.class).to(ShibbolethSNAA.class).in(Scopes.SINGLETON);
 	}
 }

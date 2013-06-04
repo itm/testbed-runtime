@@ -21,45 +21,42 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.authorization;
+package de.uniluebeck.itm.tr.snaa.shibboleth.authorization;
 
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import java.sql.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class MySQLConnection {
 
-public interface IUserAuthorization {
+	Connection connection = null;
 
-	public static class UserDetails {
-
-		private String username;
-
-		private Map<String, List<Object>> userDetails;
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public Map<String, List<Object>> getUserDetails() {
-			if (userDetails == null) {
-				userDetails = new HashMap<String, List<Object>>();
-			}
-			return userDetails;
-		}
-
-		public void setUserDetails(Map<String, List<Object>> userDetails) {
-			this.userDetails = userDetails;
-		}
-
-
+	public MySQLConnection(String url, String user, String passwd) throws ClassNotFoundException, SQLException {
+		Class.forName("com.mysql.jdbc.Driver");
+		connection = DriverManager.getConnection(url, user, passwd);
 	}
 
-	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
+	public ResultSet getQuery(String s) throws SQLException {
+		Statement statement = connection.createStatement();
+		return statement.executeQuery(s);
+	}
 
+	/**
+	 * Returns integer-value for query. If result is empty a NullPointerException is thrown.
+	 *
+	 * @param query query to execute
+	 * @param column column to read int from
+	 * @return an integer value
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 */
+	public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
+		ResultSet rs = getQuery(query);
+		if (rs.next()) {
+			return rs.getInt(column);
+		}
+		throw new NullPointerException("Warning: Result of query: " + query + " is empty");
+	}
+
+	public void disconnect() throws SQLException {
+		connection.close();
+	}
 }

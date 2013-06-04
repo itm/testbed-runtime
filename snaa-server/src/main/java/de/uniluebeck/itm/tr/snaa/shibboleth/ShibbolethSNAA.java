@@ -29,7 +29,7 @@ import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.authorization.IUserAuthorization;
+import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.IUserAuthorization;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -54,9 +54,9 @@ import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class ShibbolethSNAAImpl extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
+public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
-	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAAImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ShibbolethSNAA.class);
 
 	protected final ServicePublisher servicePublisher;
 
@@ -71,11 +71,11 @@ public class ShibbolethSNAAImpl extends AbstractService implements de.uniluebeck
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public ShibbolethSNAAImpl(final ServicePublisher servicePublisher,
-							  @Named("snaaContextPath") final String snaaContextPath,
-							  final ServedNodeUrnPrefixesProvider urnPrefixes,
-							  final IUserAuthorization authorization,
-							  final ShibbolethAuthenticator authenticator) {
+	public ShibbolethSNAA(final ServicePublisher servicePublisher,
+						  @Named("snaaContextPath") final String snaaContextPath,
+						  final ServedNodeUrnPrefixesProvider urnPrefixes,
+						  final IUserAuthorization authorization,
+						  final ShibbolethAuthenticator authenticator) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.snaaContextPath = checkNotNull(snaaContextPath);
 		this.urnPrefixes = checkNotNull(urnPrefixes);
@@ -144,7 +144,7 @@ public class ShibbolethSNAAImpl extends AbstractService implements de.uniluebeck
 		AuthorizationResponse authorized = new AuthorizationResponse();
 
 		authorized.setAuthorized(true);
-		authorized.setMessage("ShibbolethSNAAImpl is used for authentication only and always return 'true'");
+		authorized.setMessage("ShibbolethSNAA is used for authentication only and always return 'true'");
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
@@ -166,7 +166,7 @@ public class ShibbolethSNAAImpl extends AbstractService implements de.uniluebeck
 		// Check if we serve all URNs
 		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes.get(), secretAuthenticationKeys);
 
-		// TODO Auto-generated method stub ShibbolethSNAAImpl#isValid(SecretAuthenticationKey)
+		// TODO Auto-generated method stub ShibbolethSNAA#isValid(SecretAuthenticationKey)
 		return null;
 	}
 

@@ -1,19 +1,23 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.log4j.Level;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import java.util.*;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,9 +61,11 @@ public class ShiroSNAATest {
 	private static final String ADMINISTRATOR1_PASS_HASHED = new Sha512Hash(ADMINISTRATOR1_PASS,ADMINISTRATOR1_SALT,1000).toHex();
 	private static final String ADMINISTRATOR1 = "Administrator1";
 
-	private List<NodeUrnPrefix> nodeUrnPrefixes =  Lists.newArrayList(new NodeUrnPrefix("urn:wisebed:uzl2:"),new NodeUrnPrefix("urn:wisebed:uzl3:"));
+	private static final NodeUrnPrefix NODE_URN_PREFIX_1 = new NodeUrnPrefix("urn:wisebed:uzl2:");
 
-	private ShiroSNAA shiroSNAA;
+	private static final NodeUrnPrefix NODE_URN_PREFIX_2 = new NodeUrnPrefix("urn:wisebed:uzl3:");
+
+	private static final Set<NodeUrnPrefix> NODE_URN_PREFIXES =  newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2);
 
     @Mock
     private EntityManager em;
@@ -65,30 +74,44 @@ public class ShiroSNAATest {
     private UserDao usersDao;
 
     @Mock
-    private UrnResourceGroupDao UrnResourceGroupDao;
+    private UrnResourceGroupDao urnResourceGroupDao;
+
+	@Mock
+	private SNAAConfig config;
+
+	@Mock
+	private ServicePublisher servicePublisher;
+
+	@Mock
+	private ServicePublisherService servicePublisherService;
+
+	private ShiroSNAA shiroSNAA;
 
 	@Before
 	public void setUp() {
+
 		when(usersDao.find(EXPERIMENTER1)).thenReturn(getExperimenter1());
 		when(usersDao.find(SERVICE_PROVIDER1)).thenReturn(getServiceProvider1());
 		when(usersDao.find(ADMINISTRATOR1)).thenReturn(getAdministrator1());
-		when(UrnResourceGroupDao.find()).thenReturn(getUrnResourceGroup());
+		when(urnResourceGroupDao.find()).thenReturn(getUrnResourceGroup());
+		when(config.getSnaaContextPath()).thenReturn("/bla");
+		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 
-        Injector mockedEntityManagerInjector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-               bind(EntityManager.class).toInstance(em);
-               bind(UserDao.class).toInstance(usersDao);
-               bind(UrnResourceGroupDao.class).toInstance(UrnResourceGroupDao);
-            }
-        });
+		final AbstractModule mocksModule = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(EntityManager.class).toInstance(em);
+				bind(UserDao.class).toInstance(usersDao);
+				bind(UrnResourceGroupDao.class).toInstance(urnResourceGroupDao);
+				bind(ServicePublisher.class).toInstance(servicePublisher);
+			}
+		};
 
-		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule();
-		Injector shiroInjector = mockedEntityManagerInjector.createChildInjector(shiroSNAAModule);
-		SecurityUtils.setSecurityManager(shiroInjector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
+		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule("/bla", NODE_URN_PREFIXES);
+		Injector injector = Guice.createInjector(mocksModule, shiroSNAAModule);
 
-		ShiroSNAAFactory factory = shiroInjector.getInstance(ShiroSNAAFactory.class);
-		shiroSNAA = factory.create(Sets.newHashSet(nodeUrnPrefixes));
+		shiroSNAA = injector.getInstance(ShiroSNAA.class);
+		shiroSNAA.startAndWait();
 	}
 
 	@Test
@@ -99,7 +122,7 @@ public class ShiroSNAATest {
 			List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
 			assertNotNull(sakList);
 			assertEquals(EXPERIMENTER1, sakList.get(0).getUsername());
-			assertEquals(nodeUrnPrefixes.get(0), sakList.get(0).getUrnPrefix());
+			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
 			log.error(e.getMessage(),e);
@@ -112,12 +135,12 @@ public class ShiroSNAATest {
 	}
 
 	@Test
-	public void testAuthenticationFailForExperimenter1DueToWrongPasswd() {
+	public void testAuthenticationFailForExperimenter1DueToWrongPassword() {
 
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(EXPERIMENTER1);
 		authTriple.setPassword(EXPERIMENTER2_PASS);
-		authTriple.setUrnPrefix(nodeUrnPrefixes.get(0));
+		authTriple.setUrnPrefix(NODE_URN_PREFIX_1);
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		try {
@@ -138,7 +161,7 @@ public class ShiroSNAATest {
 			List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
 			assertNotNull(sakList);
 			assertEquals(SERVICE_PROVIDER1, sakList.get(0).getUsername());
-			assertEquals(nodeUrnPrefixes.get(0), sakList.get(0).getUrnPrefix());
+			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
 		} catch (AuthenticationFault_Exception e) {
 			log.error(e.getMessage(),e);
@@ -156,10 +179,10 @@ public class ShiroSNAATest {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListWithEmptyUserName();
 		try {
 			shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
-			assertEquals("The user could not be authenticated: Wrong username and/or password.", e.getMessage());
+		} catch (NullPointerException e) {
+			assertEquals("The user could not be authenticated: username is null.", e.getMessage());
 			return;
-		} catch (SNAAFault_Exception e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(),e);
 			fail();
 		}
@@ -412,7 +435,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsAuthorizedForAdministrator1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1,
+				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
+		);
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
@@ -423,7 +448,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsAuthorizedForAdministrator1OnExperimentNodeFromWrongNetwork() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1, nodeUrnPrefixes.get(0), "urn:wisebed:ulanc:0x1211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(ADMINISTRATOR1,
+				NODE_URN_PREFIX_1, "urn:wisebed:ulanc:0x1211"
+		);
 		try {
 			shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized();
 			fail();
@@ -435,7 +462,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsAuthorizedForExperimenter1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(EXPERIMENTER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(EXPERIMENTER1,
+				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
+		);
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
@@ -446,7 +475,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsAuthorizedForServiceProvider1OnExperimentNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2211");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1,
+				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
+		);
 		try {
 			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
@@ -457,7 +488,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsFlashingAuthorizedForServiceProvider1OnServiceNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2311");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1,
+				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2311"
+		);
 		try {
 			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
@@ -468,7 +501,9 @@ public class ShiroSNAATest {
 
 	@Test
 	public void testIsAuthorizedForServiceProvider1OnServiceNode() {
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1, nodeUrnPrefixes.get(0), "urn:wisebed:uzl2:0x2311");
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMaps = createUsernameNodeUrnsMapList(SERVICE_PROVIDER1,
+				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2311"
+		);
 		try {
 			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
@@ -503,7 +538,7 @@ public class ShiroSNAATest {
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(EXPERIMENTER1);
 		authTriple.setPassword(EXPERIMENTER1_PASS);
-		authTriple.setUrnPrefix(nodeUrnPrefixes.get(0));
+		authTriple.setUrnPrefix(NODE_URN_PREFIX_1);
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		return authenticationData;
@@ -513,7 +548,7 @@ public class ShiroSNAATest {
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(SERVICE_PROVIDER1);
 		authTriple.setPassword(SERVICE_PROVIDER1_PASS);
-		authTriple.setUrnPrefix(nodeUrnPrefixes.get(0));
+		authTriple.setUrnPrefix(NODE_URN_PREFIX_1);
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		return authenticationData;
@@ -523,7 +558,7 @@ public class ShiroSNAATest {
 		AuthenticationTriple authTriple = new AuthenticationTriple();
 		authTriple.setUsername(null);
 		authTriple.setPassword(EXPERIMENTER1_PASS);
-		authTriple.setUrnPrefix(nodeUrnPrefixes.get(0));
+		authTriple.setUrnPrefix(NODE_URN_PREFIX_1);
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		return authenticationData;
@@ -536,8 +571,8 @@ public class ShiroSNAATest {
 	 */
 	private User getExperimenter1(){
 		Role role = new Role("EXPERIMENTER");
-		role.setPermissions(Sets.newHashSet(getPermissionsObject(Action.WSN_FLASH_PROGRAMS, "EXPERIMENT_ONLY_NODES")));
-		return new User(EXPERIMENTER1, EXPERIMENTER1_PASS_HASHED, EXPERIMENTER1_SALT, Sets.newHashSet(role));
+		role.setPermissions(newHashSet(getPermissionsObject(Action.WSN_FLASH_PROGRAMS, "EXPERIMENT_ONLY_NODES")));
+		return new User(EXPERIMENTER1, EXPERIMENTER1_PASS_HASHED, EXPERIMENTER1_SALT, newHashSet(role));
 	}
 
 	/**
@@ -546,8 +581,8 @@ public class ShiroSNAATest {
 	 */
 	private User getServiceProvider1(){
 		Role role = new Role("SERVICE_PROVIDER");
-		role.setPermissions(Sets.newHashSet(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES")));
-		return new User(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS_HASHED, SERVICE_PROVIDER1_SALT, Sets.newHashSet(role));
+		role.setPermissions(newHashSet(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES")));
+		return new User(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS_HASHED, SERVICE_PROVIDER1_SALT, newHashSet(role));
 	}
 
 	/**
@@ -560,7 +595,7 @@ public class ShiroSNAATest {
 		role.setPermissions(permissionsSet);
 		permissionsSet.add(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES"));
 		permissionsSet.add(getPermissionsObject(Action.SM_ARE_NODES_ALIVE, "EXPERIMENT_ONLY_NODES"));
-		return new User(ADMINISTRATOR1, ADMINISTRATOR1_PASS_HASHED, ADMINISTRATOR1_SALT, Sets.newHashSet(role));
+		return new User(ADMINISTRATOR1, ADMINISTRATOR1_PASS_HASHED, ADMINISTRATOR1_SALT, newHashSet(role));
 	}
 
 

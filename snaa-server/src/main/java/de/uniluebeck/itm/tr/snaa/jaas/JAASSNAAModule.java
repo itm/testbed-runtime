@@ -8,10 +8,10 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import eu.wisebed.api.v3.snaa.SNAA;
-import de.uniluebeck.itm.tr.snaa.authorization.AttributeBasedAuthorization;
-import de.uniluebeck.itm.tr.snaa.authorization.IUserAuthorization;
-import de.uniluebeck.itm.tr.snaa.authorization.AuthorizationDataSource;
-import de.uniluebeck.itm.tr.snaa.authorization.ShibbolethDataSource;
+import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.AttributeBasedAuthorization;
+import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.IUserAuthorization;
+import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.AuthorizationDataSource;
+import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.ShibbolethDataSource;
 
 import java.util.*;
 
@@ -59,6 +59,7 @@ public class JAASSNAAModule extends PrivateModule {
 	IUserAuthorization provideUserAuthorization() {
 
 		try {
+
 			final String authorizationClassName = config.getSnaaProperties().getProperty("jaas.authorization_class");
 			final IUserAuthorization authorization = (IUserAuthorization) Class.forName(authorizationClassName).newInstance();
 

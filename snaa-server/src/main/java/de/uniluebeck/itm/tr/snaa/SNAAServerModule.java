@@ -10,6 +10,15 @@ import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
+import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
+import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+
+import static com.google.common.base.Throwables.propagate;
 
 public class SNAAServerModule extends AbstractModule {
 
@@ -35,7 +44,8 @@ public class SNAAServerModule extends AbstractModule {
 				install(new ShibbolethSNAAModule(config));
 				break;
 			case SHIRO:
-				throw new RuntimeException("Implement me!");
+				install(new JpaModule("ShiroSNAA", loadHibernateProperties(config)));
+				install(new ShiroSNAAModule(config));
 			default:
 				throw new IllegalArgumentException("Unknown authentication type " + config.getSnaaAuthenticationType());
 		}
@@ -50,6 +60,20 @@ public class SNAAServerModule extends AbstractModule {
 			default:
 				throw new IllegalArgumentException("Unknown authorization type " + config.getSnaaAuthorizationType());
 		}
+	}
+
+	private Properties loadHibernateProperties(final SNAAConfig config) {
+		final String hibernatePropertiesFileName =
+				config.getSnaaProperties().getProperty(SNAAProperties.SHIRO_HIBERNATE_PROPERTIES);
+		final File hibernatePropertiesFile = new File(hibernatePropertiesFileName);
+
+		final Properties hibernateProperties = new Properties();
+		try {
+			hibernateProperties.load(new FileReader(hibernatePropertiesFile));
+		} catch (IOException e) {
+			throw propagate(e);
+		}
+		return hibernateProperties;
 	}
 
 	@Provides

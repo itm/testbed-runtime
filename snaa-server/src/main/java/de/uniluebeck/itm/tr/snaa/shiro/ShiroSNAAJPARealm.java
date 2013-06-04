@@ -43,8 +43,8 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 	}
 
 	@Override
-	protected SimpleAuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {
-		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
+	protected SimpleAuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken) throws AuthenticationException {
+		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
 		User user = usersDao.find(token.getUsername());
 		if (user != null && user.getSalt() != null && !user.getSalt().equals("")) {
 			return new SimpleAuthenticationInfo(user.getName(), user.getPassword(), new SimpleByteSource(user.getSalt()), getName());
@@ -78,16 +78,16 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 	/**
 	 * Converts a set of {@link Permission} objects into a set of Strings and returns the result.
 	 * 
-	 * @param permissionses
+	 * @param permissions
 	 *            A set of persisted permission objects which indicate which action is allowed for
 	 *            which resource groups
 	 * @return A set of permission stings which indicate which action is allowed for which resource
 	 *         groups
 	 */
-	private Set<String> toString(final Set<Permission> permissionses) {
+	private Set<String> toString(final Set<Permission> permissions) {
 		Set<String> result = new HashSet<String>();
-		for (Permission permissions : permissionses) {
-			result.add(permissions.getAction().getName() + ":" + permissions.getResourceGroup().getName());
+		for (Permission permission : permissions) {
+			result.add(permission.getAction().getName() + ":" + permission.getResourceGroup().getName());
 		}
 		return result;
 	}

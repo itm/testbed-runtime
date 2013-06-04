@@ -21,11 +21,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.authorization;
+package de.uniluebeck.itm.tr.snaa.shibboleth.authorization;
 
-public interface AuthorizationDataSource {
-    public void setUsername(String username);
-    public void setPassword(String password);
-    public void setUrl(String url);
-    public boolean isAuthorized(String puid, String action) throws Exception;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+
+public class AlwaysDenyAuthorization implements IUserAuthorization {
+
+	@Override
+	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
+		return false;
+	}
+
 }

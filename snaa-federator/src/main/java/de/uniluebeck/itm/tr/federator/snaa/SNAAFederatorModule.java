@@ -14,7 +14,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAImpl;
+import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -52,7 +52,7 @@ public class SNAAFederatorModule extends AbstractModule {
 						.to(SNAAFederatorServiceImpl.class);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authenticationSnaa"))
-						.to(ShibbolethSNAAImpl.class);
+						.to(ShibbolethSNAA.class);
 				break;
 			default:
 				throw new RuntimeException("Unknown SNAA federator type: " + config.getSnaaFederatorType());

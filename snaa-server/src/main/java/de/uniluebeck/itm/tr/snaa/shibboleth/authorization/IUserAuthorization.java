@@ -21,85 +21,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.authorization;
+package de.uniluebeck.itm.tr.snaa.shibboleth.authorization;
 
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AttributeBasedAuthorization implements IUserAuthorization {
+public interface IUserAuthorization {
 
-    private Map<String, String> attributes;
+	public static class UserDetails {
 
-    private static final Logger log = LoggerFactory.getLogger(AttributeBasedAuthorization.class);
+		private String username;
 
-    private AuthorizationDataSource dataSource;
+		private Map<String, List<Object>> userDetails;
 
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
-    }
+		public String getUsername() {
+			return username;
+		}
 
-    public void setDataSource(AuthorizationDataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+		public void setUsername(String username) {
+			this.username = username;
+		}
 
-    @Override
-    public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
-        String puid = null;
-        //check if user is authorised in datasource
-        try {
-            //get uid
+		public Map<String, List<Object>> getUserDetails() {
+			if (userDetails == null) {
+				userDetails = new HashMap<String, List<Object>>();
+			}
+			return userDetails;
+		}
 
-            List<Object> uidList = details.getUserDetails().get("personUniqueID");
-            if (uidList == null) return false;
-
-            puid = (String) uidList.get(0);
-
-            //check authorization for attribute-Map
-            for (Object key : details.getUserDetails().keySet()) {
-                String regex = getRegex(key);
-                if (regex != null) {
-                    if (!compareValues(regex, details.getUserDetails().get(key))) throw new Exception();
-                }
-            }
-
-            //check datasource
-            return dataSource.isAuthorized(puid, action.toString());
-        }
-        catch (Exception e) {
-            log.warn(e.getMessage());
-            return false;
-        }
-    }
+		public void setUserDetails(Map<String, List<Object>> userDetails) {
+			this.userDetails = userDetails;
+		}
 
 
-    private String getRegex(Object key) {
-        if (attributes == null) return null;
-        for (Object keyRegex : attributes.keySet()) {
-            String keyRegexString = (String) keyRegex;
-            if (((String) key).matches(keyRegexString)) {
-                return keyRegexString;
-            }
-        }
-        return null;
-    }
+	}
 
-    private boolean compareValues(String regex, List<Object> cmpValues) {
-        for (Object value : cmpValues) {
-            if (!compareValue(regex, value)) {
-                log.warn("no matching of: " + regex + " on " + value);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean compareValue(String regex, Object value) {
-        return (((String) value).matches(attributes.get(regex)));
-    }
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
 
 }
