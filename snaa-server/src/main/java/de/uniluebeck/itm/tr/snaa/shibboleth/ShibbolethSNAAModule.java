@@ -86,7 +86,7 @@ public class ShibbolethSNAAModule extends AbstractModule {
 				String attributeKeyNumber =
 						key.substring(SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_KEY_PREFIX.length());
 				String attributeValue = snaaProperties
-						.getProperty(SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_KEY_PREFIX + attributeKeyNumber);
+						.getProperty(SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_VALUE_PREFIX + attributeKeyNumber);
 
 				attributes.put(attributeKey, attributeValue);
 			}

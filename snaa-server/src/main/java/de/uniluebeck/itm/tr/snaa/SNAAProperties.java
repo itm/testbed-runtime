@@ -6,7 +6,7 @@ public interface SNAAProperties {
 
 	String JAAS_LOGINMODULE = "snaa.jaas.loginmodule";
 
-	String JAAS_HTPASSWD_FILE = "snaa.jaas.htpasswd.file";
+	String JAAS_CONFIG = "snaa.jaas.config";
 
 	String SHIBBOLETH_IDPDOMAIN = "snaa.shibboleth.idpdomain";
 
@@ -15,8 +15,6 @@ public interface SNAAProperties {
 	String SHIBBOLETH_PROXY = "snaa.shibboleth.proxy";
 
 	String SHIBBOLETH_AUTHORIZATION_TYPE = "snaa.shibboleth.authorization.type";
-
-	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_URL = "snaa.shibboleth.authorization.attributebased.url";
 
 	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_DATASOURCE_USERNAME = "snaa.shibboleth.authorization.datasource.username";
 

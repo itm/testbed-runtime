@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class AlwaysTrueLoginModule implements LoginModule {
 
 	private Subject subject;
@@ -54,7 +55,7 @@ public class AlwaysTrueLoginModule implements LoginModule {
 	@Override
 	public boolean login() throws LoginException {
 
-		Callback[] callbacks = new Callback[]{new NameCallback("")};
+		Callback[] callbacks = new Callback[]{new NameCallback("bla")};
 
 		try {
 
