@@ -12,15 +12,10 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 			usage = "Context path on which to run the SNAA service (default: \"/soap/v3/snaa\")")
 	protected String snaaContextPath = "/soap/v3/snaa";
 
-	@Option(name = "--snaaAuthenticationType",
+	@Option(name = "--snaaType",
 			usage = "The authentication backend of the SNAA service",
 			required = true)
-	protected SNAAAuthenticationType snaaAuthenticationType;
-
-	@Option(name = "--snaaAuthorizationType",
-			usage = "The authorization backend of the SNAA service",
-			required = true)
-	protected SNAAAuthorizationType snaaAuthorizationType;
+	protected SNAAType snaaType;
 
 	@Option(name = "--snaaProperties",
 			usage = "The properties file containing the configuration for the SNAA",
@@ -33,18 +28,13 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 	}
 
 	@Override
-	public SNAAAuthenticationType getSnaaAuthenticationType() {
-		return snaaAuthenticationType;
+	public SNAAType getSnaaType() {
+		return snaaType;
 	}
 
 	@Override
 	public Properties getSnaaProperties() {
 		return snaaProperties;
-	}
-
-	@Override
-	public SNAAAuthorizationType getSnaaAuthorizationType() {
-		return snaaAuthorizationType;
 	}
 
 	@SuppressWarnings("unused")
@@ -53,13 +43,8 @@ public class SNAAConfigImpl extends CommonConfigImpl implements SNAAConfig {
 	}
 
 	@SuppressWarnings("unused")
-	public void setSnaaAuthenticationType(final SNAAAuthenticationType snaaAuthenticationType) {
-		this.snaaAuthenticationType = snaaAuthenticationType;
-	}
-
-	@SuppressWarnings("unused")
-	public void setSnaaAuthorizationType(final SNAAAuthorizationType snaaAuthorizationType) {
-		this.snaaAuthorizationType = snaaAuthorizationType;
+	public void setSnaaType(final SNAAType snaaType) {
+		this.snaaType = snaaType;
 	}
 
 	@SuppressWarnings("unused")

@@ -82,10 +82,25 @@ public class SNAAHelper {
 		}
 	}
 
+	public static void assertUrnPrefixServed(Set<NodeUrnPrefix> servedURNPrefixes,
+											 List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
+		for (NodeUrnPrefix servedURNPrefix : servedURNPrefixes) {
+			assertUrnPrefixServed(servedURNPrefix, authenticationData);
+		}
+	}
+
 	public static void assertUrnPrefixServed(NodeUrnPrefix servedURNPrefix,
 											 List<AuthenticationTriple> authenticationData) throws SNAAFault_Exception {
 		assertAuthenticationCount(authenticationData, 1, 1);
 		assertAllUrnPrefixesServed(newHashSet(servedURNPrefix), authenticationData);
+	}
+
+	public static void assertSAKUrnPrefixServed(Set<NodeUrnPrefix> urnPrefixes,
+												List<SecretAuthenticationKey> authenticationData)
+			throws SNAAFault_Exception {
+		for (NodeUrnPrefix urnPrefix : urnPrefixes) {
+			assertSAKUrnPrefixServed(urnPrefix, authenticationData);
+		}
 	}
 
 	public static void assertSAKUrnPrefixServed(NodeUrnPrefix urnPrefixes,

@@ -1,37 +1,20 @@
 package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
+import edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule;
 import eu.wisebed.api.v3.snaa.SNAA;
-import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.AttributeBasedAuthorization;
-import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.IUserAuthorization;
-import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.AuthorizationDataSource;
-import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.ShibbolethDataSource;
 
-import java.util.*;
+import javax.security.auth.spi.LoginModule;
 
-import static com.google.common.base.Throwables.propagate;
+import static de.uniluebeck.itm.tr.snaa.SNAAProperties.CONTEXT_PATH;
+import static de.uniluebeck.itm.tr.snaa.SNAAProperties.JAAS_LOGINMODULE;
 
 public class JAASSNAAModule extends PrivateModule {
-
-	private static final String AUTHORIZATION_ATT = ".authorization";
-
-	private static final String AUTHORIZATION_KEY_ATT = ".key";
-
-	private static final String AUTHORIZATION_VAL_ATT = ".value";
-
-	private static final String AUTHORIZATION_DATA_SOURCE = ".datasource";
-
-	private static final String AUTHORIZATION_DATA_SOURCE_USERNAME = ".username";
-
-	private static final String AUTHORIZATION_DATA_SOURCE_PASSWORD = ".password";
-
-	private static final String AUTHORIZATION_DATA_SOURCE_URL = ".url";
 
 	private final SNAAConfig config;
 
@@ -44,7 +27,21 @@ public class JAASSNAAModule extends PrivateModule {
 
 		requireBinding(ServicePublisher.class);
 
+		bind(String.class).annotatedWith(Names.named(CONTEXT_PATH)).toInstance(config.getSnaaContextPath());
 		bind(SNAAConfig.class).toInstance(config);
+
+		final JAASSNAALoginModule loginModule = JAASSNAALoginModule.valueOf(
+				config.getSnaaProperties().getProperty(JAAS_LOGINMODULE)
+		);
+
+		switch (loginModule) {
+			case ALWAYS_TRUE:
+				bind(LoginModule.class).to(AlwaysTrueLoginModule.class).in(Scopes.SINGLETON);
+				break;
+			case HTPASSWD:
+				bind(LoginModule.class).to(HtpasswdLoginModule.class);
+				break;
+		}
 
 		bind(JAASSNAA.class).in(Scopes.SINGLETON);
 		bind(SNAA.class).to(JAASSNAA.class);
@@ -52,95 +49,5 @@ public class JAASSNAAModule extends PrivateModule {
 
 		expose(SNAA.class);
 		expose(SNAAService.class);
-	}
-
-	@Provides
-	@Singleton
-	IUserAuthorization provideUserAuthorization() {
-
-		try {
-
-			final String authorizationClassName = config.getSnaaProperties().getProperty("jaas.authorization_class");
-			final IUserAuthorization authorization = (IUserAuthorization) Class.forName(authorizationClassName).newInstance();
-
-			if (AttributeBasedAuthorization.class.getCanonicalName().equals(authorizationClassName)) {
-				Map<String, String> attributes = createAuthorizationAttributeMap();
-				((AttributeBasedAuthorization) authorization).setAttributes(attributes);
-				((AttributeBasedAuthorization) authorization).setDataSource(getAuthorizationDataSource());
-			}
-
-			return authorization;
-
-		} catch (Exception e) {
-			throw propagate(e);
-		}
-	}
-
-	private AuthorizationDataSource getAuthorizationDataSource()
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-
-		final Properties authorizationConfig = config.getSnaaProperties();
-
-		for (String key : authorizationConfig.stringPropertyNames()) {
-
-			String dataSourceName = AUTHORIZATION_ATT + AUTHORIZATION_DATA_SOURCE;
-
-			if (key.equals(dataSourceName)) {
-
-				final Class<?> clazz = Class.forName(authorizationConfig.getProperty(key));
-				AuthorizationDataSource dataSource = (AuthorizationDataSource) clazz.newInstance();
-
-				String dataSourceUsername = authorizationConfig.getProperty(dataSourceName + AUTHORIZATION_DATA_SOURCE_USERNAME);
-				String dataSourcePassword = authorizationConfig.getProperty(dataSourceName + AUTHORIZATION_DATA_SOURCE_PASSWORD);
-				String dataSourceUrl = authorizationConfig.getProperty(dataSourceName + AUTHORIZATION_DATA_SOURCE_URL);
-
-				if (dataSourceUsername != null) {
-					dataSource.setUsername(dataSourceUsername);
-				}
-
-				if (dataSourcePassword != null) {
-					dataSource.setPassword(dataSourcePassword);
-				}
-
-				if (dataSourceUrl != null) {
-					dataSource.setUrl(dataSourceUrl);
-				}
-
-				return dataSource;
-			}
-		}
-
-		//set default
-		return new ShibbolethDataSource();
-	}
-
-	private Map<String, String> createAuthorizationAttributeMap() {
-
-		final Map<String, String> attributes = new HashMap<String, String>();
-		final List<String> keys = new LinkedList<String>();
-
-		//getting keys from properties
-		for (String key : config.getSnaaProperties().stringPropertyNames()) {
-			if (key.startsWith(AUTHORIZATION_ATT) && key.endsWith(AUTHORIZATION_KEY_ATT)) {
-				keys.add(key);
-			}
-		}
-
-		for (String k : keys) {
-
-			String key = config.getSnaaProperties().getProperty(k);
-
-			//getting plain key-number from properties
-			String plainKeyProperty = k.replaceAll(AUTHORIZATION_ATT + ".", "").replaceAll(AUTHORIZATION_KEY_ATT, "");
-			String keyPrefix = AUTHORIZATION_ATT + "." + plainKeyProperty;
-
-			//building value-property-string
-			String value = config.getSnaaProperties().getProperty(keyPrefix + AUTHORIZATION_VAL_ATT);
-
-			//finally put key and values
-			attributes.put(key, value);
-		}
-
-		return attributes;
 	}
 }

@@ -33,7 +33,7 @@ public class SNAAServerModule extends AbstractModule {
 
 		install(new ServicePublisherCxfModule());
 
-		switch (config.getSnaaAuthenticationType()) {
+		switch (config.getSnaaType()) {
 			case DUMMY:
 				install(new DummySNAAModule(config));
 				break;
@@ -47,18 +47,7 @@ public class SNAAServerModule extends AbstractModule {
 				install(new JpaModule("ShiroSNAA", loadHibernateProperties(config)));
 				install(new ShiroSNAAModule(config));
 			default:
-				throw new IllegalArgumentException("Unknown authentication type " + config.getSnaaAuthenticationType());
-		}
-
-		switch (config.getSnaaAuthorizationType()) {
-			case ALWAYS_ALLOW:
-				throw new RuntimeException("Implement me!");
-			case ALWAYS_DENY:
-				throw new RuntimeException("Implement me!");
-			case ATTRIBUTE_BASED:
-				throw new RuntimeException("Implement me!");
-			default:
-				throw new IllegalArgumentException("Unknown authorization type " + config.getSnaaAuthorizationType());
+				throw new IllegalArgumentException("Unknown authentication type " + config.getSnaaType());
 		}
 	}
 

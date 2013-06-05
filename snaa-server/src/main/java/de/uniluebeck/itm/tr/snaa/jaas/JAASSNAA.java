@@ -25,9 +25,10 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAProperties;
 import de.uniluebeck.itm.tr.util.SecureIdGenerator;
 import de.uniluebeck.itm.tr.util.TimedCache;
@@ -64,23 +65,29 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 	private final ServicePublisher servicePublisher;
 
-	private final SNAAConfig config;
+	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
-	private String jaasLoginModuleName;
+	private final LoginContextFactory loginContextFactory;
+
+	private final String snaaContextPath;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public JAASSNAA(final ServicePublisher servicePublisher, final SNAAConfig config) {
+	public JAASSNAA(final ServicePublisher servicePublisher,
+					final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+					final LoginContextFactory loginContextFactory,
+					@Named(SNAAProperties.CONTEXT_PATH) final String snaaContextPath) {
 		this.servicePublisher = servicePublisher;
-		this.config = config;
-		this.jaasLoginModuleName = config.getSnaaProperties().getProperty(SNAAProperties.JAAS_LOGINMODULE_NAME);
+		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
+		this.loginContextFactory = loginContextFactory;
+		this.snaaContextPath = snaaContextPath;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -128,17 +135,17 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 			throws AuthenticationFault_Exception, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
-		assertUrnPrefixServed(config.getUrnPrefix(), authenticationData);
+		assertUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), authenticationData);
 		AuthenticationTriple authenticationTriple = authenticationData.get(0);
 
 		try {
 			String username = authenticationTriple.getUsername();
 			String password = authenticationTriple.getPassword();
 
-			log.debug("Login for user[{}] with module [{}]", username, jaasLoginModuleName);
 
+			LoginContext lc = loginContextFactory.create(new CredentialsCallbackHandler(username, password));
 
-			LoginContext lc = new LoginContext(jaasLoginModuleName, new CredentialsCallbackHandler(username, password));
+			log.debug("Login for user[{}] with LoginContext [{}]", username, lc);
 
 			lc.login();
 
@@ -192,7 +199,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 			throws SNAAFault_Exception {
 
 		// Check the supplied authentication keys
-		assertSAKUrnPrefixServed(config.getUrnPrefix(), secretAuthenticationKeys);
+		assertSAKUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), secretAuthenticationKeys);
 
 		final SecretAuthenticationKey secretAuthenticationKey = secretAuthenticationKeys.get(0);
 

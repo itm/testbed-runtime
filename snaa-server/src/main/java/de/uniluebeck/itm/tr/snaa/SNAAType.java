@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.snaa;
 
-public enum SNAAAuthenticationType {
+public enum SNAAType {
 
 	DUMMY,
 	JAAS,

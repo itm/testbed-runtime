@@ -29,7 +29,6 @@ import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.shibboleth.authorization.IUserAuthorization;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -62,7 +61,7 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 
 	protected final ServedNodeUrnPrefixesProvider urnPrefixes;
 
-	protected final IUserAuthorization authorization;
+	protected final ShibbolethAuthorization authorization;
 
 	protected final ShibbolethAuthenticator authenticator;
 
@@ -74,7 +73,7 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	public ShibbolethSNAA(final ServicePublisher servicePublisher,
 						  @Named("snaaContextPath") final String snaaContextPath,
 						  final ServedNodeUrnPrefixesProvider urnPrefixes,
-						  final IUserAuthorization authorization,
+						  final ShibbolethAuthorization authorization,
 						  final ShibbolethAuthenticator authenticator) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.snaaContextPath = checkNotNull(snaaContextPath);

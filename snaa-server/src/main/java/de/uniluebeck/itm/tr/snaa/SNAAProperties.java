@@ -4,9 +4,9 @@ public interface SNAAProperties {
 
 	String CONTEXT_PATH = "snaa.context.path";
 
-	String JAAS_LOGINMODULE_NAME = "snaa.jaas.loginmodule.name";
+	String JAAS_LOGINMODULE = "snaa.jaas.loginmodule";
 
-	String SHIBBOLETH_AUTHORIZATION_URL = "snaa.shibboleth.authorization.url";
+	String JAAS_HTPASSWD_FILE = "snaa.jaas.htpasswd.file";
 
 	String SHIBBOLETH_IDPDOMAIN = "snaa.shibboleth.idpdomain";
 
@@ -14,14 +14,19 @@ public interface SNAAProperties {
 
 	String SHIBBOLETH_PROXY = "snaa.shibboleth.proxy";
 
-	String SHIBBOLETH_AUTHORIZATION_DATASOURCE_CLASS = "snaa.shibboleth.authorization.datasource.class";
+	String SHIBBOLETH_AUTHORIZATION_TYPE = "snaa.shibboleth.authorization.type";
 
-	String SHIBBOLETH_AUTHORIZATION_DATASOURCE_USERNAME = "snaa.shibboleth.authorization.datasource.username";
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_URL = "snaa.shibboleth.authorization.attributebased.url";
 
-	String SHIBBOLETH_AUTHORIZATION_DATASOURCE_PASSWORD = "snaa.shibboleth.authorization.datasource.password";
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_DATASOURCE_USERNAME = "snaa.shibboleth.authorization.datasource.username";
 
-	String SHIBBOLETH_AUTHORIZATION_DATASOURCE_URL = "snaa.shibboleth.authorization.datasource.url";
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_DATASOURCE_PASSWORD = "snaa.shibboleth.authorization.datasource.password";
+
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_DATASOURCE_URL = "snaa.shibboleth.authorization.datasource.url";
+
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_KEY_PREFIX = "snaa.shibboleth.authorization.key.";
+
+	String SHIBBOLETH_AUTHORIZATION_ATTRIBUTEBASED_VALUE_PREFIX = "snaa.shibboleth.authorization.value.";
 
 	String SHIRO_HIBERNATE_PROPERTIES = "snaa.shiro.hibernate.properties";
-
 }

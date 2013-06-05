@@ -21,42 +21,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.shibboleth.authorization;
+package de.uniluebeck.itm.tr.snaa.shibboleth;
 
-import java.sql.*;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
-public class MySQLConnection {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-	Connection connection = null;
+public interface ShibbolethAuthorization {
 
-	public MySQLConnection(String url, String user, String passwd) throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
-		connection = DriverManager.getConnection(url, user, passwd);
-	}
+	public static class UserDetails {
 
-	public ResultSet getQuery(String s) throws SQLException {
-		Statement statement = connection.createStatement();
-		return statement.executeQuery(s);
-	}
+		private String username;
 
-	/**
-	 * Returns integer-value for query. If result is empty a NullPointerException is thrown.
-	 *
-	 * @param query query to execute
-	 * @param column column to read int from
-	 * @return an integer value
-	 * @throws SQLException
-	 * @throws NullPointerException
-	 */
-	public int getSingleInt(String query, String column) throws SQLException, NullPointerException {
-		ResultSet rs = getQuery(query);
-		if (rs.next()) {
-			return rs.getInt(column);
+		private Map<String, List<Object>> userDetails;
+
+		public String getUsername() {
+			return username;
 		}
-		throw new NullPointerException("Warning: Result of query: " + query + " is empty");
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public Map<String, List<Object>> getUserDetails() {
+			if (userDetails == null) {
+				userDetails = new HashMap<String, List<Object>>();
+			}
+			return userDetails;
+		}
+
+		public void setUserDetails(Map<String, List<Object>> userDetails) {
+			this.userDetails = userDetails;
+		}
+
+
 	}
 
-	public void disconnect() throws SQLException {
-		connection.close();
-	}
+	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
+
 }

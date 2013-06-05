@@ -8,9 +8,7 @@ public interface SNAAConfig extends CommonConfig {
 
 	String getSnaaContextPath();
 
-	SNAAAuthenticationType getSnaaAuthenticationType();
-
-	SNAAAuthorizationType getSnaaAuthorizationType();
+	SNAAType getSnaaType();
 
 	Properties getSnaaProperties();
 
