@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.shiro;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
@@ -162,6 +162,30 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	}
 
 	@Override
+	protected void doStart() {
+		try {
+			SecurityUtils.setSecurityManager(securityManager);
+			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
 	public List<SecretAuthenticationKey> authenticate(
 			@WebParam(name = "authenticationData", targetNamespace = "")
 			List<AuthenticationTriple> authenticationTriples)
@@ -255,7 +279,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			Action action)
 			throws SNAAFault_Exception {
 
-		Preconditions.checkArgument(usernameNodeUrnsMaps.size() == 1,
+		checkNotNull(action, "action parameter must be non-null (one of " + Joiner.on(", ").join(Action.values()) + ")");
+		checkArgument(usernameNodeUrnsMaps.size() == 1,
 				"The number of username and node urn mappings must be 1 but is " + usernameNodeUrnsMaps.size()
 		);
 
@@ -331,29 +356,5 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		}
 
 		return nodeGroups;
-	}
-
-	@Override
-	protected void doStart() {
-		try {
-			SecurityUtils.setSecurityManager(securityManager);
-			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
-			jaxWsService.startAndWait();
-			notifyStarted();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
-
-	@Override
-	protected void doStop() {
-		try {
-			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
-			}
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
 	}
 }

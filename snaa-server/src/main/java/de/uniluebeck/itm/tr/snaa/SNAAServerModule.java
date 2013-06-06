@@ -46,6 +46,7 @@ public class SNAAServerModule extends AbstractModule {
 			case SHIRO:
 				install(new JpaModule("ShiroSNAA", loadHibernateProperties(config)));
 				install(new ShiroSNAAModule(config));
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown authentication type " + config.getSnaaType());
 		}

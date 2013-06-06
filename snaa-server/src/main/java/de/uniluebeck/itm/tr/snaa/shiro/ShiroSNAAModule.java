@@ -30,9 +30,9 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class ShiroSNAAModule extends ShiroModule {
 
-	private static final String DEFAULT_HASH_ALGORITHM_NAME = Sha512Hash.ALGORITHM_NAME;
+	public static final String DEFAULT_HASH_ALGORITHM_NAME = Sha512Hash.ALGORITHM_NAME;
 
-	private static final int DEFAULT_HASH_ITERATIONS = 1000;
+	public static final int DEFAULT_HASH_ITERATIONS = 1000;
 
 	/**
 	 * The name of the hash algorithm to be used for hashing a user's password .
@@ -90,6 +90,10 @@ public class ShiroSNAAModule extends ShiroModule {
 			);
 
 			bind(CredentialsMatcher.class).to(HashedCredentialsMatcher.class);
+			bind(HashedCredentialsMatcher.class); // needs to be bound explicitly to have the shiro TypeListener work
+			bindConstant().annotatedWith(Names.named("shiro.hashAlgorithmName")).to(hashAlgorithmName);
+			bindConstant().annotatedWith(Names.named("shiro.hashIterations")).to(hashIterations);
+
 			bindRealm().to(ShiroSNAAJPARealm.class).in(Singleton.class);
 
 			bind(ShiroSNAA.class).in(Scopes.SINGLETON);
@@ -103,18 +107,6 @@ public class ShiroSNAAModule extends ShiroModule {
 		} catch (Exception e) {
 			addError(e);
 		}
-	}
-
-	/**
-	 * Provides a credentials matcher which hashes a user's password a configurable number of times.
-	 *
-	 * @return A credentials matcher which hashes a user's password a configurable number of times.
-	 */
-	@Provides
-	private HashedCredentialsMatcher provideHashedCredentialsMatcher() {
-		HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher(hashAlgorithmName);
-		hashedCredentialsMatcher.setHashIterations(hashIterations);
-		return hashedCredentialsMatcher;
 	}
 
 	@Provides
