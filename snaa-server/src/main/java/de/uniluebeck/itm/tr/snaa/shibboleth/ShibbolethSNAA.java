@@ -198,10 +198,14 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
-		AuthorizationResponse authorized = new AuthorizationResponse();
+		// TODO implement authorization against ShibbolethAuthorization interface
+		log.warn("TODO implement authorization against ShibbolethAuthorization interface");
 
+		final AuthorizationResponse authorized = new AuthorizationResponse();
 		authorized.setAuthorized(true);
-		authorized.setMessage("ShibbolethSNAA is used for authentication only and always return 'true'");
+		authorized.setMessage(
+				"ShibbolethSNAA is currently used for authentication only and always returns 'true' for authorization"
+		);
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {

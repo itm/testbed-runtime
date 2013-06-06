@@ -26,10 +26,13 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
+import java.util.List;
+import java.util.Map;
+
 public class AlwaysAllowShibbolethAuthorization implements ShibbolethAuthorization {
 
 	@Override
-	public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
+	public boolean isAuthorized(Action action, String username, Map<String, List<Object>> userDetails) throws SNAAFault_Exception {
 		return true;
 	}
 

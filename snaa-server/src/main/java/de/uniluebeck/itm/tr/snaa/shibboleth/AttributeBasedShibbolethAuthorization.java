@@ -30,14 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class AttributeBasedShibbolethAuthorization implements ShibbolethAuthorization {
 
-    private static final Logger log = LoggerFactory.getLogger(AttributeBasedShibbolethAuthorization.class);
+	private static final Logger log = LoggerFactory.getLogger(AttributeBasedShibbolethAuthorization.class);
 
 	private final AttributeBasedShibbolethAuthorizationAttributes attributes;
 
-    private final AttributeBasedShibbolethAuthorizationDataSource dataSource;
+	private final AttributeBasedShibbolethAuthorizationDataSource dataSource;
 
 	@Inject
 	public AttributeBasedShibbolethAuthorization(
@@ -47,60 +48,66 @@ public class AttributeBasedShibbolethAuthorization implements ShibbolethAuthoriz
 		this.dataSource = dataSource;
 	}
 
-    @Override
-    public boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception {
+	@Override
+	public boolean isAuthorized(final Action action, final String username, final Map<String, List<Object>> userDetails)
+			throws SNAAFault_Exception {
 
-        String puid;
-        //check if user is authorised in datasource
-        try {
-            //get uid
+		String personUniqueId;
+		//check if user is authorised in datasource
+		try {
+			//get uid
 
-            List<Object> uidList = details.getUserDetails().get("personUniqueID");
-            if (uidList == null) return false;
+			List<Object> uidList = userDetails.get("personUniqueID");
+			if (uidList == null) {
+				return false;
+			}
 
-            puid = (String) uidList.get(0);
+			personUniqueId = (String) uidList.get(0);
 
-            //check authorization for attribute-Map
-            for (Object key : details.getUserDetails().keySet()) {
-                String regex = getRegex(key);
-                if (regex != null) {
-                    if (!compareValues(regex, details.getUserDetails().get(key))) throw new Exception();
-                }
-            }
+			//check authorization for attribute-Map
+			for (String key : userDetails.keySet()) {
+				String regex = getRegex(key);
+				if (regex != null) {
+					if (!compareValues(regex, userDetails.get(key))) {
+						throw new Exception();
+					}
+				}
+			}
 
-            //check datasource
-            return dataSource.isAuthorized(puid, action.toString());
-        }
-        catch (Exception e) {
-            log.warn(e.getMessage());
-            return false;
-        }
-    }
+			//check datasource
+			return dataSource.isAuthorized(personUniqueId, action.toString());
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
 
 
-    private String getRegex(Object key) {
-        if (attributes == null) return null;
-        for (Object keyRegex : attributes.keySet()) {
-            String keyRegexString = (String) keyRegex;
-            if (((String) key).matches(keyRegexString)) {
-                return keyRegexString;
-            }
-        }
-        return null;
-    }
+	private String getRegex(Object key) {
+		if (attributes == null) {
+			return null;
+		}
+		for (Object keyRegex : attributes.keySet()) {
+			String keyRegexString = (String) keyRegex;
+			if (((String) key).matches(keyRegexString)) {
+				return keyRegexString;
+			}
+		}
+		return null;
+	}
 
-    private boolean compareValues(String regex, List<Object> cmpValues) {
-        for (Object value : cmpValues) {
-            if (!compareValue(regex, value)) {
-                log.warn("no matching of: " + regex + " on " + value);
-                return false;
-            }
-        }
-        return true;
-    }
+	private boolean compareValues(String regex, List<Object> cmpValues) {
+		for (Object value : cmpValues) {
+			if (!compareValue(regex, value)) {
+				log.warn("no matching of: " + regex + " on " + value);
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private boolean compareValue(String regex, Object value) {
-        return (((String) value).matches(attributes.get(regex)));
-    }
+	private boolean compareValue(String regex, Object value) {
+		return (((String) value).matches(attributes.get(regex)));
+	}
 
 }

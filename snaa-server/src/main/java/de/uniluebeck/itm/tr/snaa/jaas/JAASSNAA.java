@@ -180,7 +180,9 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 		AuthorizationResponse authorized = new AuthorizationResponse();
 
 		authorized.setAuthorized(true);
-		authorized.setMessage("JAASSNAA is used for authentication only and always return 'true'");
+		authorized.setMessage(
+				"JAASSNAA is currently used for authentication only and always returns 'true' for authorization"
+		);
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {

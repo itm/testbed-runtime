@@ -26,40 +26,11 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public interface ShibbolethAuthorization {
 
-	public static class UserDetails {
-
-		private String username;
-
-		private Map<String, List<Object>> userDetails;
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public Map<String, List<Object>> getUserDetails() {
-			if (userDetails == null) {
-				userDetails = new HashMap<String, List<Object>>();
-			}
-			return userDetails;
-		}
-
-		public void setUserDetails(Map<String, List<Object>> userDetails) {
-			this.userDetails = userDetails;
-		}
-
-
-	}
-
-	boolean isAuthorized(Action action, UserDetails details) throws SNAAFault_Exception;
+	boolean isAuthorized(Action action, String username, Map<String, List<Object>> userDetails) throws SNAAFault_Exception;
 
 }
