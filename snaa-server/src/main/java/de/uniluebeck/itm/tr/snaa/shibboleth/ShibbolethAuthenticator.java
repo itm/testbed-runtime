@@ -14,6 +14,8 @@ public interface ShibbolethAuthenticator {
 
     Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception;
 
+	boolean areCookiesValid(List<Cookie> cookies) throws Exception;
+
     boolean isAuthenticated();
 
     String getAuthenticationPageContent();
@@ -23,4 +25,8 @@ public interface ShibbolethAuthenticator {
 	Collection<URL> getIDPs() throws Exception;
 
 	void checkForTimeout() throws Exception;
+
+	void setUserAtIdpDomain(String userAtIdpDomain);
+
+	void setPassword(String password);
 }

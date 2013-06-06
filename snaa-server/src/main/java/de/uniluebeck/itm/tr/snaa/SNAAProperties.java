@@ -8,8 +8,6 @@ public interface SNAAProperties {
 
 	String JAAS_CONFIG = "snaa.jaas.config";
 
-	String SHIBBOLETH_IDPDOMAIN = "snaa.shibboleth.idpdomain";
-
 	String SHIBBOLETH_URL = "snaa.shibboleth.url";
 
 	String SHIBBOLETH_PROXY = "snaa.shibboleth.proxy";

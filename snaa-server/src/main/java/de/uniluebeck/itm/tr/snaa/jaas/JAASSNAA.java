@@ -210,7 +210,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 		if (auth == null) {
 			result.setValid(false);
-			result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
+			result.setMessage("The provided secret authentication key is not found. It is either invalid or expired.");
 		} else if (secretAuthenticationKey.getUsername() == null) {
 			result.setValid(false);
 			result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");

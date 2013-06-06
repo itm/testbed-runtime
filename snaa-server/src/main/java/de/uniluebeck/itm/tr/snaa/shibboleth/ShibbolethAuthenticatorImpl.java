@@ -6,7 +6,6 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -46,11 +45,17 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	private static final String SAML_REQUEST = "";
 
+	private static final String OPEN_HTML_TAG = "&lt;";
+
+	private static final String CLOSE_HTML_TAG = "&gt;";
+
 	private final ShibbolethAuthenticatorConfig config;
 
-	private final String username;
+	private String username;
 
-	private final String password;
+	private String idpDomain;
+
+	private String password;
 
 	private DefaultHttpClient httpClient;
 
@@ -76,16 +81,25 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	private List<Cookie> cookies;
 
-	private static final String openHtmlTag = "&lt;";
-
-	private static final String closeHtmlTag = "&gt;";
-
 	@Inject
-	public ShibbolethAuthenticatorImpl(final ShibbolethAuthenticatorConfig config,
-									   @Assisted("username") final String username,
-									   @Assisted("password") final String password) {
+	public ShibbolethAuthenticatorImpl(final ShibbolethAuthenticatorConfig config) {
 		this.config = config;
-		this.username = username;
+	}
+
+	@Override
+	public void setUserAtIdpDomain(final String userAtIdpDomain) {
+
+		int atIndex = userAtIdpDomain.indexOf('@');
+		if (atIndex == -1) {
+			throw new IllegalArgumentException("Username must be like \"username@idphost\"");
+		}
+
+		this.username = userAtIdpDomain.substring(0, atIndex);
+		this.idpDomain = userAtIdpDomain.substring(atIndex + 1);
+	}
+
+	@Override
+	public void setPassword(final String password) {
 		this.password = password;
 	}
 
@@ -138,7 +152,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 				sb.append("User is empty or null. ");
 				ok = false;
 			}
-			if (config.getIdpDomain() == null || config.getIdpDomain().length() == 0) {
+			if (idpDomain == null || idpDomain.length() == 0) {
 				sb.append("IDP domain is empty or null. ");
 				ok = false;
 			}
@@ -276,6 +290,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	@Override
 	public Map<String, List<Object>> isAuthorized(List<Cookie> cookies) throws Exception {
+
 		resetState();
 
 		this.cookies = cookies;
@@ -323,9 +338,9 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 	}
 
 	private String extractPlainText(String escapedHtml) {
-		while (escapedHtml.lastIndexOf(openHtmlTag) != -1) {
-			int begin = escapedHtml.lastIndexOf(openHtmlTag);
-			int end = escapedHtml.lastIndexOf(closeHtmlTag) + (closeHtmlTag.length() - 1);
+		while (escapedHtml.lastIndexOf(OPEN_HTML_TAG) != -1) {
+			int begin = escapedHtml.lastIndexOf(OPEN_HTML_TAG);
+			int end = escapedHtml.lastIndexOf(CLOSE_HTML_TAG) + (CLOSE_HTML_TAG.length() - 1);
 
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < escapedHtml.length(); i++) {
@@ -366,6 +381,13 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 			log.error("Not authenticated yet, please invoke authenticate() first.");
 			throw new Exception("Not authenticated yet, please invoke authenticate() first.");
 		}
+		setAuthenticated(areCookiesValid(cookies));
+	}
+
+	public boolean areCookiesValid(List<Cookie> cookies) throws Exception {
+
+		resetState();
+		this.cookies = cookies;
 
 		URL finalURL = doGet(config.getUrl(), false);
 		//responseHtml = SNAAHelper.readBody(response);
@@ -374,12 +396,12 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		// Finally check, if we have arrived on the desired page
 		if (finalURL.equals(new URL(config.getUrl()))) {
 			log.info("Authentication still valid, got the final page {}", config.getUrl());
-			setAuthenticated(true);
+			return true;
 		} else {
 			log.debug("Authentication invalidated, did not read the final page {} but ended up at ", config.getUrl(),
 					finalURL
 			);
-			setAuthenticated(false);
+			return false;
 		}
 	}
 
@@ -489,15 +511,15 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 		URL chosenIDP = null;
 		for (URL url : idps) {
-			if (url.getHost().equalsIgnoreCase(config.getIdpDomain().trim())) {
+			if (url.getHost().equalsIgnoreCase(idpDomain.trim())) {
 				log.info("Using idp: " + url);
 				chosenIDP = url;
 			}
 		}
 
 		if (chosenIDP == null) {
-			log.error("No IDP available for idp domain: {}", config.getIdpDomain());
-			throw new Exception("No IDP available for idp domain: " + config.getIdpDomain());
+			log.error("No IDP available for idp domain: {}", idpDomain);
+			throw new Exception("No IDP available for idp domain: " + idpDomain);
 		}
 
 		log.info("Selected IDP for user {}  is {}", username, chosenIDP);

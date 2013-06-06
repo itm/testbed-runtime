@@ -29,8 +29,7 @@ public class ShibbolethAuthenticatorMain {
 		boolean listIdps = false;
 		boolean recheckAuth = false;
 		HostAndPort proxy = null;
-		String username = null;
-		String idpDomain = null;
+		String userAtIdpDomain = null;
 		String password = null;
 
 		// create the command line parser
@@ -72,21 +71,13 @@ public class ShibbolethAuthenticatorMain {
 			if (line.hasOption('x')) {
 				listIdps = true;
 			} else {
+
 				if (!line.hasOption('u') || !line.hasOption('p')) {
 					throw new Exception("Please supply username/password");
 				}
 
 				if (line.hasOption('u')) {
-					String user = line.getOptionValue('u');
-
-					int atIndex = user.indexOf('@');
-					if (atIndex == -1) {
-						log.fatal("Username must be like username@idphost");
-						throw new Exception("Username must be in like username@idphost");
-					}
-
-					username = user.substring(0, atIndex);
-					idpDomain = user.substring(atIndex + 1);
+					userAtIdpDomain = line.getOptionValue('u');
 				}
 
 				if (line.hasOption('p')) {
@@ -100,10 +91,12 @@ public class ShibbolethAuthenticatorMain {
 		}
 
 
-		final ShibbolethAuthenticatorConfig config = new ShibbolethAuthenticatorConfig(idpDomain, url, proxy);
-		final ShibbolethAuthenticatorFactory factory = Guice.createInjector(new ShibbolethAuthenticatorModule(config))
-				.getInstance(ShibbolethAuthenticatorFactory.class);
-		final ShibbolethAuthenticator sa = factory.create(username, password);
+		final ShibbolethAuthenticatorConfig config = new ShibbolethAuthenticatorConfig(url, proxy);
+		final ShibbolethAuthenticator sa = Guice
+				.createInjector(new ShibbolethAuthenticatorModule(config))
+				.getInstance(ShibbolethAuthenticator.class);
+		sa.setUserAtIdpDomain(userAtIdpDomain);
+		sa.setPassword(password);
 
 		if (listIdps) {
 			System.out.println("-----------------------------------------------");

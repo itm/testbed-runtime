@@ -25,16 +25,20 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.cookie.Cookie;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +48,11 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethAuthenticatorSerialization.deserialize;
+import static de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethAuthenticatorSerialization.serialize;
 
 @WebService(
 		name = "SNAA",
@@ -63,9 +71,12 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 
 	protected final ShibbolethAuthorization authorization;
 
-	protected final ShibbolethAuthenticator authenticator;
+	protected final Provider<ShibbolethAuthenticator> authenticatorProvider;
 
 	protected final String snaaContextPath;
+
+	protected final TimedCache<SecretAuthenticationKey, List<Cookie>> cookieCache =
+			new TimedCache<SecretAuthenticationKey, List<Cookie>>();
 
 	private ServicePublisherService jaxWsService;
 
@@ -74,12 +85,35 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 						  @Named("snaaContextPath") final String snaaContextPath,
 						  final ServedNodeUrnPrefixesProvider urnPrefixes,
 						  final ShibbolethAuthorization authorization,
-						  final ShibbolethAuthenticator authenticator) {
+						  final Provider<ShibbolethAuthenticator> authenticatorProvider) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.snaaContextPath = checkNotNull(snaaContextPath);
 		this.urnPrefixes = checkNotNull(urnPrefixes);
 		this.authorization = checkNotNull(authorization);
-		this.authenticator = checkNotNull(authenticator);
+		this.authenticatorProvider = checkNotNull(authenticatorProvider);
+	}
+
+	@Override
+	protected void doStart() {
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
 	}
 
 	@Override
@@ -93,13 +127,23 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 		assertAllUrnPrefixesServed(urnPrefixes.get(), authenticationData);
 
 		for (AuthenticationTriple triple : authenticationData) {
+
 			NodeUrnPrefix urn = triple.getUrnPrefix();
 
 			try {
 
+				final String userAtIdpDomain = triple.getUsername();
+				final String password = triple.getPassword();
+				final ShibbolethAuthenticator authenticator = authenticatorProvider.get();
+				authenticator.setUserAtIdpDomain(userAtIdpDomain);
+				authenticator.setPassword(password);
+
 				try {
+
 					authenticator.authenticate();
+
 				} catch (ClientProtocolException e) {
+
 					// catch this exception as it usually means that the shibboleth server had a problem
 					// wait a short amount of time and try again
 					Thread.sleep(1000);
@@ -113,15 +157,29 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 				}
 
 				if (authenticator.isAuthenticated()) {
+
+					DateTime youngestCookieExpiration = null;
+
+					final List<Cookie> cookies = authenticator.getCookieStore().getCookies();
+					for (Cookie cookie : cookies) {
+						final DateTime cookieExpiration = new DateTime(cookie.getExpiryDate());
+						if (youngestCookieExpiration == null || cookieExpiration.isBefore(youngestCookieExpiration)) {
+							youngestCookieExpiration = cookieExpiration;
+						}
+					}
+
+
 					SecretAuthenticationKey secretAuthKey = new SecretAuthenticationKey();
-					secretAuthKey.setKey(
-							ShibbolethAuthenticatorSerialization.serialize(authenticator.getCookieStore().getCookies()));
+					secretAuthKey.setKey(serialize(cookies));
 					secretAuthKey.setUrnPrefix(triple.getUrnPrefix());
-					secretAuthKey.setUsername(triple.getUsername());
+					secretAuthKey.setUsername(userAtIdpDomain);
 					keys.add(secretAuthKey);
+
+					cookieCache.put(secretAuthKey, cookies);
+
 				} else {
 					throw createAuthenticationFault_Exception("Authentication for urn[" + urn + "] and user["
-							+ triple.getUsername() + " failed."
+							+ userAtIdpDomain + " failed."
 					);
 				}
 
@@ -162,33 +220,48 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
 			throws SNAAFault_Exception {
 
-		// Check if we serve all URNs
 		assertAllUrnPrefixesInSAKsAreServed(urnPrefixes.get(), secretAuthenticationKeys);
 
-		// TODO Auto-generated method stub ShibbolethSNAA#isValid(SecretAuthenticationKey)
-		return null;
-	}
+		final List<ValidationResult> results = newArrayList();
 
-	@Override
-	protected void doStart() {
-		try {
-			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
-			jaxWsService.startAndWait();
-			notifyStarted();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+		for (SecretAuthenticationKey key : secretAuthenticationKeys) {
 
-	@Override
-	protected void doStop() {
-		try {
-			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
+			try {
+
+				ValidationResult result = new ValidationResult();
+				result.setUrnPrefix(key.getUrnPrefix());
+
+				if (cookieCache.containsKey(key)) {
+
+					result.setValid(true);
+
+				} else {
+
+					final List<Cookie> cookies;
+					try {
+						cookies = deserialize(key.getKey());
+					} catch (Exception e) {
+						throw propagate(e);
+					}
+
+					final ShibbolethAuthenticator sa = authenticatorProvider.get();
+					sa.setUserAtIdpDomain(key.getUsername());
+					result.setValid(sa.areCookiesValid(cookies));
+				}
+
+				results.add(result);
+
+			} catch (Exception e) {
+
+				log.error(e.getMessage());
+
+				ValidationResult result = new ValidationResult();
+				result.setValid(false);
+				result.setUrnPrefix(key.getUrnPrefix());
+				results.add(result);
 			}
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
 		}
+
+		return results;
 	}
 }

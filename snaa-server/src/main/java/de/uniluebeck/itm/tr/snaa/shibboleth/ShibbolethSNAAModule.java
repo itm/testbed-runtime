@@ -1,29 +1,39 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAProperties;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import java.util.Properties;
+import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.snaa.SNAAProperties.*;
 
 public class ShibbolethSNAAModule extends AbstractModule {
+
+	private final Set<NodeUrnPrefix> servedNodeUrnPrefixes;
 
 	private final Properties snaaProperties;
 
 	private final String snaaContextPath;
 
 	public ShibbolethSNAAModule(final SNAAConfig config) {
+		this.servedNodeUrnPrefixes = newHashSet(config.getUrnPrefix());
 		this.snaaProperties = config.getSnaaProperties();
 		this.snaaContextPath = config.getSnaaContextPath();
 	}
 
-	public ShibbolethSNAAModule(final Properties snaaProperties, final String snaaContextPath) {
+	public ShibbolethSNAAModule(final Set<NodeUrnPrefix> servedNodeUrnPrefixes,
+								final Properties snaaProperties,
+								final String snaaContextPath) {
+		this.servedNodeUrnPrefixes = servedNodeUrnPrefixes;
 		this.snaaProperties = snaaProperties;
 		this.snaaContextPath = snaaContextPath;
 	}
@@ -71,6 +81,16 @@ public class ShibbolethSNAAModule extends AbstractModule {
 
 		bind(String.class).annotatedWith(Names.named("snaaContextPath")).toInstance(snaaContextPath);
 		bind(SNAAService.class).to(ShibbolethSNAA.class).in(Scopes.SINGLETON);
+	}
+
+	@Provides
+	ServedNodeUrnPrefixesProvider provideServedNodeUrnPrefixesProvider() {
+		return new ServedNodeUrnPrefixesProvider() {
+			@Override
+			public Set<NodeUrnPrefix> get() {
+				return servedNodeUrnPrefixes;
+			}
+		};
 	}
 
 	private AttributeBasedShibbolethAuthorizationAttributes parseAttributesFromProperties() {

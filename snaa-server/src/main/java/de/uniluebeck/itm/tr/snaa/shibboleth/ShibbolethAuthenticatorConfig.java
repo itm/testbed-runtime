@@ -12,29 +12,21 @@ public class ShibbolethAuthenticatorConfig {
 
 	private final String url;
 
-	private final String idpDomain;
-
 	@Nullable
 	private final HostAndPort proxy;
 
 	public ShibbolethAuthenticatorConfig(final Properties properties) {
 		this.url = properties.getProperty(SNAAProperties.SHIBBOLETH_URL);
-		this.idpDomain = properties.getProperty(SNAAProperties.SHIBBOLETH_IDPDOMAIN);
-		this.proxy = properties.getProperty(SNAAProperties.SHIBBOLETH_PROXY) == null ?
-				null :
-				HostAndPort.fromString(properties.getProperty(SNAAProperties.SHIBBOLETH_PROXY));
+		final String proxyProperty = properties.getProperty(SNAAProperties.SHIBBOLETH_PROXY);
+		this.proxy = proxyProperty != null && proxyProperty.length() > 0 ?
+				HostAndPort.fromString(proxyProperty) :
+				null;
 	}
 
-	public ShibbolethAuthenticatorConfig(final String idpDomain,
-										 final String url,
+	public ShibbolethAuthenticatorConfig(final String url,
 										 @Nullable final HostAndPort proxy) {
-		this.idpDomain = checkNotNull(idpDomain);
 		this.url = checkNotNull(url);
-		this.proxy = checkNotNull(proxy);
-	}
-
-	public String getIdpDomain() {
-		return idpDomain;
+		this.proxy = proxy;
 	}
 
 	@Nullable
@@ -49,8 +41,7 @@ public class ShibbolethAuthenticatorConfig {
 	@Override
 	public String toString() {
 		return "ShibbolethAuthenticatorConfig{" +
-				"idpDomain='" + idpDomain + '\'' +
-				", url='" + url + '\'' +
+				"url='" + url + '\'' +
 				", proxy=" + proxy +
 				"} " + super.toString();
 	}

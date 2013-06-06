@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class SNAAFederatorModule extends AbstractModule {
@@ -45,7 +46,11 @@ public class SNAAFederatorModule extends AbstractModule {
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(config.getSnaaFederatorProperties(), config.getSnaaContextPath()));
+				install(new ShibbolethSNAAModule(
+						newHashSet(config.getUrnPrefix()),
+						config.getSnaaFederatorProperties(),
+						config.getSnaaContextPath()
+				));
 				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authorizationSnaa"))
