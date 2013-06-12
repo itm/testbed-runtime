@@ -47,6 +47,7 @@ import de.uniluebeck.itm.tr.util.*;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
+import de.uniluebeck.itm.wsn.drivers.core.exception.MacAddressBrokenException;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
@@ -222,10 +223,9 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 	@Subscribe
 	public synchronized void onDeviceObserverEvent(DeviceEvent deviceEvent) {
 
-		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
-		MacAddress nodeMacAddress = new MacAddress(nodeMacAddressString);
+		final MacAddress nodeMacAddress = getMacAddressFromConfiguration();
+		final MacAddress macAddress = deviceEvent.getDeviceInfo().getMacAddress();
 
-		final MacAddress macAddress = (MacAddress) deviceEvent.getDeviceInfo().getMacAddress();
 		boolean eventHasSameMac = nodeMacAddress.equals(macAddress);
 		final String nodeUSBChipID = configuration.getNodeUSBChipID();
 		boolean eventHasSameUSBChipId = nodeUSBChipID != null &&
@@ -252,6 +252,11 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 			}
 		}
 
+	}
+
+	private MacAddress getMacAddressFromConfiguration() {
+		String nodeMacAddressString = StringUtils.getUrnSuffix(configuration.getNodeUrn());
+		return new MacAddress(nodeMacAddressString);
 	}
 
 	private void sendNotification(final String notificationMessage) {
@@ -534,6 +539,12 @@ class WSNDeviceAppConnectorImpl extends AbstractService implements WSNDeviceAppC
 
 									if (throwable instanceof ProgramChipMismatchException) {
 										msg = "Error reading binary image: " + throwable;
+									} else if (throwable instanceof MacAddressBrokenException) {
+										final MacAddress macAddressFromConfiguration = getMacAddressFromConfiguration();
+										msg = "MAC address was broken during flashing. Rewriting node MAC "
+												+ "address to configured address: " + macAddressFromConfiguration.toHexString();
+										log.warn(msg);
+										device.writeMac(macAddressFromConfiguration, 2000, null);
 									} else {
 										msg = "Failed flashing node. Reason: " + throwable;
 									}
