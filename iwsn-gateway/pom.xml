@@ -83,8 +83,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>concurrent</artifactId>
 		</dependency>
 
 		<dependency>

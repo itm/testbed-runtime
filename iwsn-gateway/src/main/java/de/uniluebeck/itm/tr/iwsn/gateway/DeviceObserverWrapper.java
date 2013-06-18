@@ -6,7 +6,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
 import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
@@ -24,6 +23,7 @@ import java.util.concurrent.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
 
 public class DeviceObserverWrapper extends AbstractService implements DeviceObserverListener {
 
@@ -96,9 +96,10 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 			deviceObserver.removeListener(this);
 			deviceObserverSchedule.cancel(false);
-			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
-			ExecutorUtils.shutdown(deviceObserverExecutor, 1, TimeUnit.SECONDS);
-			ExecutorUtils.shutdown(deviceDriverExecutorService, 10, TimeUnit.SECONDS);
+
+			shutdown(scheduler, 1, TimeUnit.SECONDS);
+			shutdown(deviceObserverExecutor, 1, TimeUnit.SECONDS);
+			shutdown(deviceDriverExecutorService, 10, TimeUnit.SECONDS);
 
 		} catch (Exception e) {
 			notifyFailed(e);

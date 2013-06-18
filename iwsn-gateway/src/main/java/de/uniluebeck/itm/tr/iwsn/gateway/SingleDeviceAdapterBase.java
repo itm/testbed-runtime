@@ -25,16 +25,14 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.util.concurrent.*;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
-import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

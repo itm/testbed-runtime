@@ -10,8 +10,8 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.rs.RSService;
-import de.uniluebeck.itm.tr.util.Logging;
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 public class Portal extends AbstractService {
 
 	static {
-		Logging.setLoggingDefaults(Level.WARN);
+		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Portal.class);

@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.common.config;
 
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.util.logging.LogLevel;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
@@ -8,15 +8,15 @@ import org.kohsuke.args4j.spi.OptionHandler;
 import org.kohsuke.args4j.spi.Parameters;
 import org.kohsuke.args4j.spi.Setter;
 
-public class Log4JLevelOptionHandler extends OptionHandler<Level> {
+public class LogLevelOptionHandler extends OptionHandler<LogLevel> {
 
-	public Log4JLevelOptionHandler(CmdLineParser parser, OptionDef option, Setter<? super Level> setter) {
+	public LogLevelOptionHandler(CmdLineParser parser, OptionDef option, Setter<? super LogLevel> setter) {
 		super(parser, option, setter);
 	}
 
 	@Override
 	public int parseArguments(final Parameters parameters) throws CmdLineException {
-		setter.addValue(Level.toLevel(parameters.getParameter(0)));
+		setter.addValue(LogLevel.toLevel(parameters.getParameter(0)));
 		return 1;
 	}
 

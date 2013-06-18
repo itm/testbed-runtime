@@ -25,7 +25,7 @@ package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;

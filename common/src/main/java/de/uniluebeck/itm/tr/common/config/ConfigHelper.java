@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.common.config;
 
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -36,17 +37,15 @@ public class ConfigHelper {
 		System.exit(1);
 	}
 
-	public static <T extends ConfigWithLogging> T setLogLevel(final T config, @Nullable final String... pkgs) {
+	public static <T extends ConfigWithLogging> T setLogLevel(final T config, @Nullable final String... packages) {
 
-		Level level = config.logLevel != null ? config.logLevel : config.verbose ? Level.DEBUG : null;
+		LogLevel logLevel = config.logLevel != null ? config.logLevel : config.verbose ? LogLevel.DEBUG : null;
 
-		if (level != null) {
-			if (config.logLibs || null == pkgs) {
-				org.apache.log4j.Logger.getRootLogger().setLevel(level);
+		if (logLevel != null) {
+			if (config.logLibs || null == packages) {
+				Logging.setRootLogLevel(logLevel);
 			} else {
-				for (String pkg : pkgs) {
-					org.apache.log4j.Logger.getLogger(pkg).setLevel(level);
-				}
+				Logging.setLogLevel(logLevel, packages);
 			}
 		}
 

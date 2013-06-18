@@ -4,8 +4,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.ForwardingScheduledExecutorService;
+import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
+import de.uniluebeck.itm.util.concurrent.ForwardingScheduledExecutorService;
 
 import java.util.Collection;
 import java.util.List;

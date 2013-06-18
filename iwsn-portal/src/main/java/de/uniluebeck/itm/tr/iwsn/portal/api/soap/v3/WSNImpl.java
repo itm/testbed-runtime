@@ -6,11 +6,12 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.util.NetworkUtils;
-import de.uniluebeck.itm.tr.util.SettableFutureMap;
+import de.uniluebeck.itm.util.NetworkUtils;
+import de.uniluebeck.itm.util.concurrent.SettableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
@@ -175,7 +176,7 @@ public class WSNImpl implements WSN {
 		for (NodeUrn nodeUrn : nodeUrns) {
 			map.put(nodeUrn, SettableFuture.<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>create());
 		}
-		final SettableFutureMap<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>
+		final SettableFutureMap<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse>
 				future =
 				new SettableFutureMap<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>(map);
 

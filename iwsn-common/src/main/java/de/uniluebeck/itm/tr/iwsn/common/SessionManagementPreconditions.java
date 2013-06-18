@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import de.uniluebeck.itm.tr.util.NetworkUtils;
+import de.uniluebeck.itm.util.NetworkUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;

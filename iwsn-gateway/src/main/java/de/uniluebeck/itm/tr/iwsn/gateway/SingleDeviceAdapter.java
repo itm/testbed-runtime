@@ -40,10 +40,9 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
-import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
+import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -75,7 +74,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import static de.uniluebeck.itm.util.StringUtils.toPrintableString;
+import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
@@ -256,7 +256,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			shutdownDeviceChannel();
 			device.close();
 			nodeApi.stop();
-			ExecutorUtils.shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
+
+			shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
 
 		} catch (Exception e) {
 			notifyFailed(e);

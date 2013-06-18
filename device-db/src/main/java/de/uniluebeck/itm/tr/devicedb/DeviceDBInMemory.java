@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.util.StringUtils.parseHexOrDecLong;
+import static de.uniluebeck.itm.util.StringUtils.parseHexOrDecLong;
 
 public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 

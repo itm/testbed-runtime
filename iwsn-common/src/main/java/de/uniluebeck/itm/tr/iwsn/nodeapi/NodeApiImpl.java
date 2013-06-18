@@ -45,7 +45,7 @@ import static de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiPackets.LinkControl.*;
 import static de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiPackets.NetworkDescription.newGetNeighborhoodPacket;
 import static de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiPackets.NetworkDescription.newGetPropertyValuePacket;
 import static de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiPackets.NodeControl.*;
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import static de.uniluebeck.itm.util.StringUtils.toPrintableString;
 
 
 class NodeApiImpl extends AbstractService implements NodeApi {

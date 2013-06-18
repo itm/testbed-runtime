@@ -5,9 +5,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.NetworkUtils;
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.util.NetworkUtils;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,7 +18,7 @@ import java.net.URI;
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	static {
-		Logging.setLoggingDefaults(Level.WARN);
+		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
 	private static int port = NetworkUtils.findFreePort();

@@ -28,7 +28,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
@@ -59,6 +59,7 @@ public class FederationManager<V> {
 		}
 
 	}
+
 	/**
 	 * The function that builds the endpoint from an endpoint URL
 	 */

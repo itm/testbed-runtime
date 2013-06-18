@@ -9,7 +9,8 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -18,7 +19,6 @@ import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
-import org.apache.log4j.Level;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public abstract class ShiroSNAATestBase {
 
 	static {
-		Logging.setLoggingDefaults(Level.WARN);
+		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
 	protected static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATestBase.class);

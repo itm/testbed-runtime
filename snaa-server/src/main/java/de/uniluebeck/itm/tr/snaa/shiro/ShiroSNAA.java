@@ -34,7 +34,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAProperties;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;

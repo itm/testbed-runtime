@@ -71,10 +71,6 @@
 			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
 		</dependency>

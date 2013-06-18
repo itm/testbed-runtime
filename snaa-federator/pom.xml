@@ -62,9 +62,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
@@ -107,79 +108,39 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-					<archive>
-						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.snaa.SNAAServerOld</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
 				<executions>
 					<execution>
-						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>de.uniluebeck.itm.tr.federator.snaa.SNAAFederator</mainClass>
+								</transformer>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.txt</resource>
+								</transformer>
+							</transformers>
+						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>hibernate3-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<components>
-						<component>
-							<name>hbm2cfgxml</name>
-							<outputDirectory>src/main/resources</outputDirectory>
-							<implementation>jdbcconfiguration</implementation>
-						</component>
-						<component>
-							<name>hbm2java</name>
-							<outputDirectory>src/main/java</outputDirectory>
-							<implementation>jdbcconfiguration</implementation>
-						</component>
-						<component>
-							<name>hbm2dao</name>
-							<implementation>jdbcconfiguration</implementation>
-							<outputDirectory>src/main/java</outputDirectory>
-						</component>
-						<component>
-							<name>hbm2ddl</name>
-							<implementation>jpaconfiguration</implementation>
-						</component>
-					</components>
-					<componentProperties>
-						<revengfile>/src/main/resources/hibernate.reveng.xml</revengfile>
-						<persistenceunit>Default</persistenceunit>
-						<propertyfile>/src/main/resources/META-INF/hibernate.properties</propertyfile>
-						<jdk5>true</jdk5>
-						<ejb3>true</ejb3>
-						<!-- properties for hbm2ddl -->
-						<drop>true</drop>
-						<create>true</create>
-						<export>true</export>
-						<outputfilename>myapp.sql</outputfilename>
-					</componentProperties>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>mysql</groupId>
-						<artifactId>mysql-connector-java</artifactId>
-						<version>5.1.9</version>
-					</dependency>
-					<dependency>
-						<groupId>cglib</groupId>
-						<artifactId>cglib-nodep</artifactId>
-						<version>2.2.2</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

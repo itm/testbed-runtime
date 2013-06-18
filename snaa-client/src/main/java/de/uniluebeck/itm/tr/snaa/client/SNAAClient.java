@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.snaa.client;
 
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -52,7 +52,7 @@ public class SNAAClient {
 	private static final Logger log = LoggerFactory.getLogger(SNAAClient.class);
 
 	enum Operation {
-		authenticate, authorize;
+		authenticate, authorize
 	}
 
 	private static final String defaultSnaaUrl = "http://127.0.0.1:8080/snaa/dummy1";
@@ -86,7 +86,7 @@ public class SNAAClient {
 		options.addOption("a", "action", true, "Action string for authorization operation, defaults to: "
 				+ defaultAction
 		);
-		options.addOption("s", "secretauthkey", true, "Secret auth key for authorization option, defauls to "
+		options.addOption("s", "secretauthkey", true, "Secret auth key for authorization option, defaults to "
 				+ defaultSecretAuthenticationKey
 		);
 		options.addOption("x", "urnprefix", true, "URN Prefix, defaults to " + defaultUrnPrefix);
@@ -118,7 +118,7 @@ public class SNAAClient {
 			printUsageAndExit(options);
 		}
 
-		SNAA port = WisebedServiceHelper.getSNAAService(url.toString());
+		SNAA port = WisebedServiceHelper.getSNAAService(url != null ? url.toString() : null);
 
 		if (operation == Operation.authenticate) {
 			AuthenticationTriple auth1 = new AuthenticationTriple();
@@ -136,7 +136,7 @@ public class SNAAClient {
 			try {
 				List<SecretAuthenticationKey> list = port.authenticate(authTriples);
 
-				System.out.println("Authentication suceeded, secret authentication key(s): ");
+				System.out.println("Authentication succeeded, secret authentication key(s): ");
 				for (SecretAuthenticationKey sak : list) {
 					System.out.println("\tuser[" + sak.getUsername() + "], urnprefix[" + sak.getUrnPrefix() + "], key["
 							+ sak.getKey() + "]"
@@ -166,7 +166,7 @@ public class SNAAClient {
 				);
 
 				AuthorizationResponse response = port.isAuthorized(usernameNodeUrnsMapList, actionObj);
-				System.out.println("Authorization " + (response.isAuthorized() ? "suceeded" : "failed"));
+				System.out.println("Authorization " + (response.isAuthorized() ? "succeeded" : "failed"));
 
 			} catch (SNAAFault_Exception e) {
 				System.out.println("Authorization failed, server reported error [" + e + "]");

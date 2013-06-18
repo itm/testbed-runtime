@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.nodeapi;
 
 import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

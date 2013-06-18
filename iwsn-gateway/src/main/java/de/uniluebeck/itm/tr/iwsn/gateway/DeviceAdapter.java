@@ -26,8 +26,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.ListenableFutureMap;
-import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.Map;
