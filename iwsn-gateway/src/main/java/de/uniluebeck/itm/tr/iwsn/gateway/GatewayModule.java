@@ -19,16 +19,13 @@ import javax.inject.Singleton;
 
 public class GatewayModule extends AbstractModule {
 
-	private final GatewayConfig gatewayConfig;
-
-	public GatewayModule(final GatewayConfig gatewayConfig) {
-		this.gatewayConfig = gatewayConfig;
-	}
-
 	@Override
 	protected void configure() {
 
+		final GatewayConfig gatewayConfig = new GatewayConfig();
+		requestInjection(gatewayConfig);
 		bind(GatewayConfig.class).toInstance(gatewayConfig);
+
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(EventIdProvider.class).to(IncrementalEventIdProvider.class).in(Scopes.SINGLETON);
@@ -42,7 +39,7 @@ public class GatewayModule extends AbstractModule {
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
-		install(new RemoteDeviceDBModule(new RemoteDeviceDBConfig(gatewayConfig.deviceDBUri)));
+		install(new RemoteDeviceDBModule());
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
@@ -56,7 +53,14 @@ public class GatewayModule extends AbstractModule {
 	}
 
 	@Provides
-	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(gatewayConfig.restAPIPort);
+	@Singleton
+	ServicePublisherConfig provideServicePublisherConfig(final GatewayConfig config) {
+		return new ServicePublisherConfig(config.getRestAPIPort());
+	}
+
+	@Provides
+	@Singleton
+	RemoteDeviceDBConfig provideRemoteDeviceDBConfig(final GatewayConfig config) {
+		return new RemoteDeviceDBConfig(config.getDeviceDBUri());
 	}
 }

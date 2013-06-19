@@ -100,8 +100,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		log.debug("Trying to connect to portal server...");
 
 		final InetSocketAddress portalAddress = new InetSocketAddress(
-				config.portalOverlayAddress.getHostText(),
-				config.portalOverlayAddress.getPort()
+				config.getPortalAddress().getHostText(),
+				config.getPortalAddress().getPort()
 		);
 
 		nettyClient = nettyClientFactory.create(

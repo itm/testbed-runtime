@@ -7,9 +7,11 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +76,7 @@ public class Gateway extends AbstractService {
 			deviceManager.startAndWait();
 			deviceObserverWrapper.startAndWait();
 
-			if (gatewayConfig.restAPI) {
+			if (gatewayConfig.isRestAPI()) {
 
 				servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
 				servicePublisher.createJaxRsService("/devices", restApplication);
@@ -95,7 +97,7 @@ public class Gateway extends AbstractService {
 
 		try {
 
-			if (gatewayConfig.restAPI && servicePublisher != null) {
+			if (gatewayConfig.isRestAPI() && servicePublisher != null) {
 				servicePublisher.stopAndWait();
 			}
 
@@ -115,12 +117,14 @@ public class Gateway extends AbstractService {
 
 		Thread.currentThread().setName("Gateway-Main");
 
-		final GatewayConfig config = setLogLevel(
-				parseOrExit(new GatewayConfig(), Gateway.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), Gateway.class, args),
 				"de.uniluebeck.itm"
 		);
-		final GatewayModule gatewayModule = new GatewayModule(config);
-		final Injector injector = Guice.createInjector(gatewayModule);
+
+		final PropConfModule propConfModule = new PropConfModule<GatewayConfig>(GatewayConfig.class, config.config);
+		final GatewayModule gatewayModule = new GatewayModule();
+		final Injector injector = Guice.createInjector(propConfModule, gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);
 
 		gateway.startAndWait();

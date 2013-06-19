@@ -53,6 +53,11 @@
 			<artifactId>logging</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>

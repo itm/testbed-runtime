@@ -1,38 +1,74 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.net.HostAndPort;
-import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.common.config.HostAndPortOptionHandler;
-import org.kohsuke.args4j.Option;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.tr.common.config.HostAndPortTypeConverter;
+import de.uniluebeck.itm.tr.common.config.URITypeConverter;
+import de.uniluebeck.itm.util.propconf.PropConf;
 
 import java.net.URI;
 
-public class GatewayConfig extends ConfigWithLogging {
+public class GatewayConfig {
 
-	@Option(name = "--portalOverlayAddress",
-			usage = "Hostname and port on which the portal server listens for the internal overlay network "
-					+ "(usually $PORTAL_HOSTNAME:8880)",
+	@PropConf(
+			usage = "Hostname and port on which the portal server listens for the internal network "
+					+ "(e.g. $PORTAL_HOSTNAME:8880)",
 			required = true,
-			handler = HostAndPortOptionHandler.class
+			typeConverter = HostAndPortTypeConverter.class
 	)
-	public HostAndPort portalOverlayAddress;
+	public static final String PORTAL_ADDRESS = "gateway.portaladdress";
 
-	@Option(name = "--restAPI",
-			usage = "If set a REST API is started (default: false)",
-			required = false
+	@PropConf(
+			usage = "If set to true, a REST API is started",
+			required = false,
+			defaultValue = "false"
 	)
-	public boolean restAPI = false;
+	public static final String REST_API_START = "gateway.restapi.start";
 
-	@Option(name = "--restAPIPort",
-			usage = "The port for the REST API to run on (only used when --restAPI is set, default: 8080)",
-			required = false
+	@PropConf(
+			usage = "The port for the REST API to run on (only used when --restAPI is set)",
+			required = false,
+			defaultValue = "8080"
 	)
-	public int restAPIPort = 8080;
+	public static final String REST_API_PORT = "gateway.restapi.port";
 
-	@Option(name = "--deviceDBUri",
+	@PropConf(
 			usage = "The URI on which the DeviceDB runs",
-			required = true
+			required = true,
+			typeConverter = URITypeConverter.class
 	)
-	public URI deviceDBUri = null;
+	public static final String DEVICE_DB_URI = "gateway.devicedb.uri";
 
+	@Inject
+	@Named(PORTAL_ADDRESS)
+	private HostAndPort portalAddress;
+
+	@Inject
+	@Named(REST_API_START)
+	private boolean restAPI;
+
+	@Inject
+	@Named(REST_API_PORT)
+	private int restAPIPort;
+
+	@Inject
+	@Named(DEVICE_DB_URI)
+	private URI deviceDBUri;
+
+	public URI getDeviceDBUri() {
+		return deviceDBUri;
+	}
+
+	public HostAndPort getPortalAddress() {
+		return portalAddress;
+	}
+
+	public boolean isRestAPI() {
+		return restAPI;
+	}
+
+	public int getRestAPIPort() {
+		return restAPIPort;
+	}
 }

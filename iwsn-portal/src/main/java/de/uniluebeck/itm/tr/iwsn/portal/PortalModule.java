@@ -12,7 +12,6 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.devicedb.*;
@@ -21,7 +20,6 @@ import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
-import de.uniluebeck.itm.tr.rs.RSConfig;
 import de.uniluebeck.itm.tr.rs.RSModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.rs.RS;
@@ -87,7 +85,7 @@ public class PortalModule extends AbstractModule {
 		if (config.getDeviceDBProperties() != null) {
 			install(new DeviceDBJpaModule(config.getDeviceDBProperties()));
 		} else if (config.getDeviceDBUri() != null) {
-			install(new RemoteDeviceDBModule(new RemoteDeviceDBConfig(config.getDeviceDBUri())));
+			install(new RemoteDeviceDBModule());
 		} else {
 			throw new RuntimeException(
 					"Either the URI of a remote DeviceDB or the JPA properties file for a local DeviceDB must be set!"
@@ -96,6 +94,12 @@ public class PortalModule extends AbstractModule {
 		install(new DeviceDBServiceModule());
 		install(new SoapApiModule());
 		install(new RestApiModule());
+	}
+
+	@Provides
+	@Singleton
+	RemoteDeviceDBConfig provideRemoteDeviceDBConfig(final PortalConfig config) {
+		return new RemoteDeviceDBConfig(config.getDeviceDBUri());
 	}
 
 	@Provides

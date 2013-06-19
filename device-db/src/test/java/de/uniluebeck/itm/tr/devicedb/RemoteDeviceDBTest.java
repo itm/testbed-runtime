@@ -55,7 +55,16 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	public void setUp() throws Exception {
 		final URI remoteDeviceDBUri = URI.create("http://localhost:" + port + "/rest");
 		final RemoteDeviceDBConfig remoteDeviceDBConfig = new RemoteDeviceDBConfig(remoteDeviceDBUri);
-		super.setUp(Guice.createInjector(new RemoteDeviceDBModule(remoteDeviceDBConfig)).getInstance(DeviceDB.class));
+		final DeviceDB deviceDB = Guice.createInjector(
+				new RemoteDeviceDBModule(),
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(RemoteDeviceDBConfig.class).toInstance(remoteDeviceDBConfig);
+					}
+				}
+		).getInstance(DeviceDB.class);
+		super.setUp(deviceDB);
 	}
 
 	@After
