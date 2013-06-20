@@ -1,22 +1,21 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractService;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.smartsantander.rd.rd3api.IRD3API;
 import eu.smartsantander.rd.rd3api.RD3APIImpl;
 import eu.smartsantander.rd.rd3api.RDAPIException;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
-import rd3.model.RDNode;
 import rd3.model.RDNodeValueType;
 import rd3.model.RDResource;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -160,55 +159,10 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
         notifyStopped();
     }
 
-    private Set<Capability> getCapabilities(RDResource rdResource) {
-        Set<Capability> capabilities = new HashSet<Capability>();
-        for (RDNode rdNode : rdResource.getChildren()) {
-            if (rdNode.getName().equals("capability")) {
-                String capabilityName = rdNode.getChild("phenomenon").getValue().toString();
-                Dtypes dtype;
-                if (rdNode.getChild("type").getValue().toString().equals("float"))
-                    dtype = Dtypes.fromValue("decimal");
-                else
-                    dtype = Dtypes.fromValue("integer");
-                Units unit;
-                try {
-                    unit = Units.fromValue(rdNode.getChild("type").getValue().toString());
-                } catch (Exception e) {
-                    unit = null;
-                }
-                System.out.println(capabilityName + "," + dtype + "," + unit);
-                Capability cap = new Capability()
-                        .withName(capabilityName)
-                        .withDatatype(dtype)
-                        .withUnit(unit);
-                capabilities.add(cap);
-            }
-        }
-        return capabilities;
-    }
 
-
-    private Long[] getTimeouts(RDResource rdResource) {
-        Long[] timeouts = new Long[4];
-        for (RDNode rdNode : rdResource.getChildren()) {
-            if (rdNode.getName().equals("timeout_ms_reset")) {
-                timeouts[0] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_flash")) {
-                timeouts[1] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_nodeapi")) {
-                timeouts[2] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_checkalive")) {
-                timeouts[3] = Long.parseLong(rdNode.getValue().toString());
-            }
-        }
-        return timeouts;
-    }
 
 
     DeviceConfig deviceConfigFromRDResource(RDResource rdResource) {
-        Multimap<String, String> handlerProps = ImmutableMultimap.of("Key1", "Val1", "Key1", "Val2", "Key2", "Val3");
-        ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps);
-        ChannelHandlerConfigList defaultChannelPipeline1 = new ChannelHandlerConfigList(ImmutableList.of(handler1));
 
         Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
                 .put("a", "b")
@@ -218,8 +172,8 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
         urn.setNodeUrn(rdResource.getUid());
 
         RDNodeValueType type = rdResource.getType();
-        Set<Capability> capabilities = getCapabilities(rdResource);
-        Long[] timeouts = getTimeouts(rdResource);
+        Set<Capability> capabilities = DeviceDBRDManager.getCapabilities(rdResource);
+        Long[] timeouts = DeviceDBRDManager.getTimeouts(rdResource);
         DeviceConfig devConfig = new DeviceConfig(
                 urn,
                 type.toString(),
@@ -228,7 +182,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
                 rdResource.toString(),
                 null,
                 nodeConfig1,
-                defaultChannelPipeline1,
+                null,
                 timeouts[3],
                 timeouts[1],
                 timeouts[2],
@@ -236,6 +190,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
                 null,
                 capabilities
         );
+
         return devConfig;
     }
 
