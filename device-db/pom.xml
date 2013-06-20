@@ -134,7 +134,11 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+        <dependency>
+            <groupId>rd3api</groupId>
+            <artifactId>rd3api</artifactId>
+            <version>1.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
