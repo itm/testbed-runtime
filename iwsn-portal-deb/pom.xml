@@ -96,14 +96,14 @@
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/usr/share/jdeb/lib</prefix>
+										<prefix>/usr/share/testbed-runtime/iwsn-portal</prefix>
 										<user>root</user>
 										<group>root</group>
 									</mapper>
 								</data>
 
 								<data>
-									<src>${basedir}/src/deb/bin/jdeb-test</src>
+									<src>${basedir}/src/deb/bin/tr.iwsn-portal</src>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
@@ -117,7 +117,7 @@
 								<data>
 									<type>link</type>
 									<symlink>true</symlink>
-									<linkName>/usr/share/jdeb/lib/jdeb.jar</linkName>
+									<linkName>/usr/share/testbed-runtime/iwsn-portal/tr.iwsn-portal.jar</linkName>
 									<linkTarget>/usr/share/jdeb/lib/${project.build.finalName}.jar</linkTarget>
 								</data>
 
