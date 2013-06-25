@@ -1,0 +1,6 @@
+#! /bin/bash 
+
+# Remove log files
+set -e 
+cd /var/log/[[name]]
+rm -f *.log* 

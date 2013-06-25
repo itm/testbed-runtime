@@ -1,0 +1,8 @@
+Package: [[artifactId]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: java7-runtime
+Description: [[description]]
+Maintainer: tcurdt@vafer.org
