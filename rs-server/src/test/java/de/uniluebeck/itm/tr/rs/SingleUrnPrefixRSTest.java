@@ -7,6 +7,7 @@ import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
@@ -126,15 +127,16 @@ public class SingleUrnPrefixRSTest {
 	@Mock
 	private TimeLimiter timeLimiter;
 
+	@Mock
+	private CommonConfig config;
+
 	private RS rs;
 
 	@Before
 	public void setUp() {
 
 		when(snaaProvider.get()).thenReturn(snaa);
-
-		final RSStandaloneConfigImpl config = new RSStandaloneConfigImpl();
-		config.setUrnPrefix(URN_PREFIX);
+		when(config.getUrnPrefix()).thenReturn(URN_PREFIX);
 
 		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider);
 	}

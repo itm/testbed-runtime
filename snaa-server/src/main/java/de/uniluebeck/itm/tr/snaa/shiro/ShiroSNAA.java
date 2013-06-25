@@ -28,11 +28,10 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.SNAAProperties;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -114,13 +113,13 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	 */
 	private final UrnResourceGroupDao urnResourceGroupsDAO;
 
-	private final String snaaContextPath;
-
 	private final ServicePublisher servicePublisher;
 
 	private final SecurityManager securityManager;
 
 	private final Provider<Subject> currentUserProvider;
+
+	private final SNAAConfig snaaConfig;
 
 	private ServicePublisherService jaxWsService;
 
@@ -146,18 +145,18 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 					 final SecurityManager securityManager,
 					 final UrnResourceGroupDao urnResourceGroupsDAO,
 					 final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-					 @Named(SNAAProperties.CONTEXT_PATH) final String snaaContextPath,
+					 final SNAAConfig snaaConfig,
 					 final Provider<Subject> currentUserProvider) {
 
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
 		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
 
-		this.snaaContextPath = snaaContextPath;
 		this.currentUserProvider = currentUserProvider;
 		this.servicePublisher = servicePublisher;
 		this.securityManager = securityManager;
 		this.realm = realms.iterator().next();
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
+		this.snaaConfig = snaaConfig;
 		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
 	}
 
@@ -165,7 +164,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStart() {
 		try {
 			SecurityUtils.setSecurityManager(securityManager);
-			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

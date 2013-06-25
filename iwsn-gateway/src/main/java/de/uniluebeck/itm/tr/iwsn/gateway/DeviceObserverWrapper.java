@@ -5,7 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
@@ -31,7 +31,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private final Map<String, DeviceAdapter> connectedDevices = newHashMap();
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final Set<DeviceAdapterFactory> deviceAdapterFactories;
 
@@ -46,11 +46,11 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	private ExecutorService deviceDriverExecutorService;
 
 	@Inject
-	public DeviceObserverWrapper(final DeviceDB deviceDB,
+	public DeviceObserverWrapper(final DeviceDBService deviceDBService,
 								 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
 		checkArgument(deviceAdapterFactories != null && !deviceAdapterFactories.isEmpty());
 		this.deviceAdapterFactories = deviceAdapterFactories;
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 	}
 
 	@Override
@@ -189,9 +189,9 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	@Nullable
 	private DeviceConfig getDeviceConfigFromDeviceDB(final DeviceInfo deviceInfo) {
 		if (deviceInfo.getMacAddress() != null) {
-			return deviceDB.getConfigByMacAddress(deviceInfo.getMacAddress().toLong());
+			return deviceDBService.getConfigByMacAddress(deviceInfo.getMacAddress().toLong());
 		} else if (deviceInfo.getReference() != null) {
-			return deviceDB.getConfigByUsbChipId(deviceInfo.getReference());
+			return deviceDBService.getConfigByUsbChipId(deviceInfo.getReference());
 		}
 		return null;
 	}

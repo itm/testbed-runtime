@@ -27,15 +27,16 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 
 import javax.jws.WebService;
+import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -60,17 +61,20 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	 */
 	private final eu.wisebed.api.v3.rs.RS reservationSystem;
 
-	private final RSConfig config;
+	private final RSServiceConfig rsServiceConfig;
 
 	private final ServicePublisher servicePublisher;
+
+	private final CommonConfig commonConfig;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs, final RSConfig config) {
+	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final CommonConfig commonConfig, final RS rs, final RSServiceConfig rsServiceConfig) {
+		this.commonConfig = commonConfig;
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.reservationSystem = checkNotNull(rs);
-		this.config = checkNotNull(config);
+		this.rsServiceConfig = checkNotNull(rsServiceConfig);
 	}
 
 	@Override
@@ -121,7 +125,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getRsContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

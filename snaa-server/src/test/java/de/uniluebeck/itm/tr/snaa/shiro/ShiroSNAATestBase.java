@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.util.logging.LogLevel;
@@ -76,7 +77,10 @@ public abstract class ShiroSNAATestBase {
 	protected static final Set<NodeUrnPrefix> NODE_URN_PREFIXES = newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2);
 
 	@Mock
-	protected SNAAConfig config;
+	protected CommonConfig commonConfig;
+
+	@Mock
+	protected SNAAConfig snaaConfig;
 
 	@Mock
 	protected ServicePublisher servicePublisher;
@@ -88,7 +92,6 @@ public abstract class ShiroSNAATestBase {
 
 	public void setUp(final Module jpaModule) throws Exception {
 
-		when(config.getSnaaContextPath()).thenReturn("/bla");
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 
 		final AbstractModule mocksModule = new AbstractModule() {
@@ -98,7 +101,7 @@ public abstract class ShiroSNAATestBase {
 			}
 		};
 
-		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule("/bla", NODE_URN_PREFIXES);
+		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule(commonConfig, snaaConfig);
 		Injector injector = Guice.createInjector(jpaModule, mocksModule, shiroSNAAModule);
 
 		shiroSNAA = injector.getInstance(ShiroSNAA.class);

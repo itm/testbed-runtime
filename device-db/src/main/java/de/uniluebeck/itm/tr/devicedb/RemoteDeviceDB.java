@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -13,6 +14,7 @@ import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class RemoteDeviceDB extends AbstractService implements DeviceDB {
+public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	private static final Function<DeviceConfigDto, DeviceConfig> DTO_TO_CONFIG_FUNCTION =
 			new Function<DeviceConfigDto, DeviceConfig>() {
@@ -32,11 +34,11 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 				}
 			};
 
-	private final RemoteDeviceDBConfig config;
+	private final URI remoteDeviceDBUri;
 
 	@Inject
-	public RemoteDeviceDB(final RemoteDeviceDBConfig config) {
-		this.config = config;
+	public RemoteDeviceDB(@Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri) {
+		this.remoteDeviceDBUri = remoteDeviceDBUri;
 	}
 
 	@Override
@@ -190,6 +192,10 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 		jsonProvider.setDropCollectionWrapperElement(true);
 		jsonProvider.setSerializeAsArray(true);
 
-		return JAXRSClientFactory.create(config.uri.toString(), DeviceDBRestResource.class, newArrayList(jsonProvider));
+		return JAXRSClientFactory.create(
+				remoteDeviceDBUri.toString(),
+				DeviceDBRestResource.class,
+				newArrayList(jsonProvider)
+		);
 	}
 }

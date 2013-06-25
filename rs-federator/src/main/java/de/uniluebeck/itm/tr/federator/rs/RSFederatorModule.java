@@ -17,28 +17,35 @@ import eu.wisebed.api.v3.rs.RS;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class RSFederatorModule extends AbstractModule {
 
-	private final RSFederatorConfig config;
+	private final Properties properties;
 
-	public RSFederatorModule(final RSFederatorConfig config) {
-		this.config = config;
+	public RSFederatorModule(final Properties properties) {
+		this.properties = properties;
 	}
 
 	@Override
 	protected void configure() {
+
+		final RSFederatorConfig rsFederatorConfig = buildConfig(RSFederatorConfig.class, properties);
+
+		bind(RSFederatorConfig.class).toInstance(rsFederatorConfig);
 		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class);
+
 		install(new ServicePublisherCxfModule());
 	}
 
 	@Provides
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.port));
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory, final RSFederatorConfig config) {
+		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
 	}
 
 	@Provides
@@ -47,7 +54,7 @@ public class RSFederatorModule extends AbstractModule {
 	}
 
 	@Provides
-	public FederationManager<RS> provideRsFederationManager() {
+	public FederationManager<RS> provideRsFederationManager(final RSFederatorConfig config) {
 
 		final Function<URI, RS> uriToRSEndpointFunction = new Function<URI, RS>() {
 			@Override
@@ -57,7 +64,7 @@ public class RSFederatorModule extends AbstractModule {
 		};
 
 		final ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> mapBuilder = ImmutableMap.builder();
-		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.federates.entrySet()) {
+		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.getFederates().entrySet()) {
 			mapBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
 		}
 

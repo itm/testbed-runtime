@@ -1,7 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.inject.Provider;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -151,7 +152,7 @@ public class ReservationManagerImplTest {
 	private RS rs;
 
 	@Mock
-	private DeviceDB deviceDB;
+	private DeviceDBService deviceDBService;
 
 	@Mock
 	private ReservationFactory reservationFactory;
@@ -172,19 +173,19 @@ public class ReservationManagerImplTest {
 	private SchedulerService schedulerService;
 
 	@Mock
-	private PortalConfig portalConfig;
+	private CommonConfig commonConfig;
 
 	private ReservationManagerImpl reservationManager;
 
 	@Before
 	public void setUp() throws Exception {
-		when(portalConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
+		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
 		reservationManager = new ReservationManagerImpl(
-				portalConfig,
+				commonConfig,
 				rsProvider,
-				deviceDB,
+				deviceDBService,
 				reservationFactory,
 				schedulerServiceFactory
 		);
@@ -219,7 +220,7 @@ public class ReservationManagerImplTest {
 		try {
 			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_1);
 		} catch (ReservationUnknownException e) {
-			verifyZeroInteractions(deviceDB);
+			verifyZeroInteractions(deviceDBService);
 			verifyZeroInteractions(reservationFactory);
 		}
 	}

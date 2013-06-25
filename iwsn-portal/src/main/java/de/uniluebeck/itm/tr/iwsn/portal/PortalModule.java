@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -14,51 +15,68 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.devicedb.*;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBRestServiceModule;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
-import de.uniluebeck.itm.tr.rs.RSModule;
-import eu.wisebed.api.v3.WisebedServiceHelper;
-import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.snaa.SNAA;
+import de.uniluebeck.itm.tr.rs.RSServiceConfig;
+import de.uniluebeck.itm.tr.rs.RSServiceModule;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceModule;
 
 import java.net.URI;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
+import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
 
-	private final PortalConfig config;
+	private final DeviceDBConfig deviceDBConfig;
 
-	public PortalModule(final PortalConfig config) {
-		this.config = config;
+	private final PortalConfig portalConfig;
+
+	private final CommonConfig commonConfig;
+
+	private final RSServiceConfig rsServiceConfig;
+
+	private final SNAAConfig snaaConfig;
+
+	@Inject
+	public PortalModule(final CommonConfig commonConfig,
+						final DeviceDBConfig deviceDBConfig,
+						final PortalConfig portalConfig,
+						final RSServiceConfig rsServiceConfig,
+						final SNAAConfig snaaConfig) {
+		this.commonConfig = commonConfig;
+		this.deviceDBConfig = deviceDBConfig;
+		this.portalConfig = portalConfig;
+		this.rsServiceConfig = rsServiceConfig;
+		this.snaaConfig = snaaConfig;
 	}
 
 	@Override
 	protected void configure() {
 
-		// either RS and/or SNAA are started remotely as a separate process or embedded into the portal
-		if (config.getRsEndpointUri() != null) {
-			bind(RS.class).toInstance(WisebedServiceHelper.getRSService(config.getRsEndpointUri().toString()));
-		} else {
-			bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
-			install(new RSModule(config));
-		}
+		bind(CommonConfig.class).toProvider(of(commonConfig));
+		bind(PortalConfig.class).toProvider(of(portalConfig));
+		bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
+		bind(RSServiceConfig.class).toProvider(of(rsServiceConfig));
+		bind(SNAAConfig.class).toProvider(of(snaaConfig));
 
-		if (config.getSnaaEndpointUri() != null) {
-			bind(SNAA.class).toInstance(WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUri().toString()));
-		} else {
-			// TODO
-			throw new RuntimeException("TODO");
-		}
+		install(new SNAAServiceModule(commonConfig, snaaConfig));
+		install(new RSServiceModule(commonConfig, rsServiceConfig));
+		install(new DeviceDBServiceModule(deviceDBConfig));
 
+		bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
 		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
-		bind(PortalConfig.class).toInstance(config);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
 
@@ -82,36 +100,16 @@ public class PortalModule extends AbstractModule {
 		install(new ServicePublisherCxfModule());
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
-		if (config.getDeviceDBProperties() != null) {
-			install(new DeviceDBJpaModule(config.getDeviceDBProperties()));
-		} else if (config.getDeviceDBUri() != null) {
-			install(new RemoteDeviceDBModule());
-		} else {
-			throw new RuntimeException(
-					"Either the URI of a remote DeviceDB or the JPA properties file for a local DeviceDB must be set!"
-			);
-		}
-		install(new DeviceDBServiceModule());
+
+		install(new DeviceDBRestServiceModule());
 		install(new SoapApiModule());
 		install(new RestApiModule());
 	}
 
 	@Provides
 	@Singleton
-	RemoteDeviceDBConfig provideRemoteDeviceDBConfig(final PortalConfig config) {
-		return new RemoteDeviceDBConfig(config.getDeviceDBUri());
-	}
-
-	@Provides
-	@Singleton
-	DeviceDBService provideDeviceDBService(final DeviceDBServiceFactory factory) {
-		return factory.create("/devicedb/rest", "/devicedb");
-	}
-
-	@Provides
-	@Singleton
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(config.getPort()));
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory, final CommonConfig commonConfig) {
+		return factory.create(new ServicePublisherConfig(commonConfig.getPort()));
 	}
 
 	@Provides
@@ -120,31 +118,31 @@ public class PortalModule extends AbstractModule {
 	}
 
 	@Provides
-	EndpointManager provideEndpointManager() {
+	EndpointManager provideEndpointManager(final CommonConfig commonConfig, final PortalConfig portalConfig) {
 		return new EndpointManager() {
 
 			@Override
 			public URI getSnaaEndpointUri() {
-				return config.getSnaaEndpointUri() != null ?
-						config.getSnaaEndpointUri() :
-						URI.create("http://localhost:" + config.getPort() + "/soap/v3/snaa");
+				return portalConfig.getSnaaEndpointUri() != null ?
+						portalConfig.getSnaaEndpointUri() :
+						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/snaa");
 			}
 
 			@Override
 			public URI getRsEndpointUri() {
-				return config.getRsEndpointUri() != null ?
-						config.getRsEndpointUri() :
-						URI.create("http://localhost:" + config.getPort() + "/soap/v3/rs");
+				return portalConfig.getRsEndpointUri() != null ?
+						portalConfig.getRsEndpointUri() :
+						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/rs");
 			}
 
 			@Override
 			public URI getSmEndpointUri() {
-				return URI.create("http://localhost:" + config.getPort() + "/soap/v3/sm");
+				return URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/sm");
 			}
 
 			@Override
 			public URI getWsnEndpointUriBase() {
-				return URI.create("http://localhost:" + config.getPort() + "/soap/v3/wsn/");
+				return URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/wsn/");
 			}
 		};
 	}

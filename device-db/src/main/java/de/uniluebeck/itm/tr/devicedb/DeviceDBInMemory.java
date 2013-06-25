@@ -13,7 +13,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.util.StringUtils.parseHexOrDecLong;
 
-public class DeviceDBInMemory extends AbstractService implements DeviceDB {
+public class DeviceDBInMemory extends AbstractService implements DeviceDBService {
 
 	private final List<DeviceConfig> configs = newArrayList();
 

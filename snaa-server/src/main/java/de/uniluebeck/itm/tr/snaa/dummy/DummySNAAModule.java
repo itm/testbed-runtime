@@ -9,18 +9,17 @@ import eu.wisebed.api.v3.snaa.SNAA;
 
 public class DummySNAAModule extends PrivateModule {
 
-	private final SNAAConfig config;
+	private final SNAAConfig snaaConfig;
 
-	public DummySNAAModule(final SNAAConfig config) {
-		this.config = config;
+	public DummySNAAModule(final SNAAConfig snaaConfig) {
+		this.snaaConfig = snaaConfig;
 	}
 
 	@Override
 	protected void configure() {
 
+		requireBinding(SNAAConfig.class);
 		requireBinding(ServicePublisher.class);
-
-		bind(SNAAConfig.class).toInstance(config);
 
 		bind(DummySNAA.class).in(Scopes.SINGLETON);
 		bind(SNAA.class).to(DummySNAA.class);

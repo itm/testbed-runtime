@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.EndpointManagerImpl;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.SmServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -18,19 +19,25 @@ import eu.wisebed.api.v3.snaa.SNAA;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
+import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class RSStandaloneModule extends RSModule {
+public class RSServerServiceModule extends RSServiceModule {
 
-	private final RSStandaloneConfig config;
+	private final RSServerConfig rsServerConfig;
 
-	public RSStandaloneModule(final RSStandaloneConfig config) {
-		super(config);
-		this.config = config;
+	public RSServerServiceModule(final CommonConfig commonConfig,
+								 final RSServiceConfig rsServiceConfig,
+								 final RSServerConfig rsServerConfig) {
+		super(commonConfig, rsServiceConfig);
+		this.rsServerConfig = rsServerConfig;
 	}
 
 	@Override
 	protected void configure() {
+
+		bind(RSServerConfig.class).toProvider(of(rsServerConfig));
+
 		install(new ServicePublisherCxfModule());
 		bind(ServedNodeUrnsProvider.class).to(SmServedNodeUrnsProvider.class);
 		super.configure();
@@ -42,12 +49,13 @@ public class RSStandaloneModule extends RSModule {
 	}
 
 	@Provides
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory) {
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
+											 final CommonConfig config) {
 		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
 	}
 
 	@Provides
-	EndpointManager provideEndpointManager() {
+	EndpointManager provideEndpointManager(final RSServerConfig config) {
 		return new EndpointManagerImpl(
 				null,
 				config.getSnaaEndpointUri(),
@@ -57,12 +65,12 @@ public class RSStandaloneModule extends RSModule {
 	}
 
 	@Provides
-	SessionManagement provideSessionManagement() {
+	SessionManagement provideSessionManagement(final RSServerConfig config) {
 		return WisebedServiceHelper.getSessionManagementService(config.getSmEndpointUri().toString());
 	}
 
 	@Provides
-	SNAA provideSnaa() {
+	SNAA provideSnaa(final RSServerConfig config) {
 		return WisebedServiceHelper.getSNAAService(config.getSnaaEndpointUri().toString());
 	}
 }

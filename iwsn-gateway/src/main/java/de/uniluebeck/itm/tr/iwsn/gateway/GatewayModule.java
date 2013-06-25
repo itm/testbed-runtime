@@ -8,7 +8,7 @@ import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBConfig;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
@@ -17,14 +17,24 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
 
+import static com.google.inject.util.Providers.of;
+
 public class GatewayModule extends AbstractModule {
+
+	private final CommonConfig commonConfig;
+
+	private final GatewayConfig gatewayConfig;
+
+	public GatewayModule(final CommonConfig commonConfig, final GatewayConfig gatewayConfig) {
+		this.commonConfig = commonConfig;
+		this.gatewayConfig = gatewayConfig;
+	}
 
 	@Override
 	protected void configure() {
 
-		final GatewayConfig gatewayConfig = new GatewayConfig();
-		requestInjection(gatewayConfig);
-		bind(GatewayConfig.class).toInstance(gatewayConfig);
+		bind(CommonConfig.class).toProvider(of(commonConfig));
+		bind(GatewayConfig.class).toProvider(of(gatewayConfig));
 
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
@@ -39,7 +49,8 @@ public class GatewayModule extends AbstractModule {
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
-		install(new RemoteDeviceDBModule());
+
+		install(new RemoteDeviceDBModule(gatewayConfig.getDeviceDBUri()));
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
@@ -56,11 +67,5 @@ public class GatewayModule extends AbstractModule {
 	@Singleton
 	ServicePublisherConfig provideServicePublisherConfig(final GatewayConfig config) {
 		return new ServicePublisherConfig(config.getRestAPIPort());
-	}
-
-	@Provides
-	@Singleton
-	RemoteDeviceDBConfig provideRemoteDeviceDBConfig(final GatewayConfig config) {
-		return new RemoteDeviceDBConfig(config.getDeviceDBUri());
 	}
 }

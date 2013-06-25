@@ -3,8 +3,8 @@ package de.uniluebeck.itm.tr.federator.snaa;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import org.slf4j.Logger;
@@ -36,13 +36,13 @@ public class SNAAFederator extends AbstractService {
 
 		Thread.currentThread().setName("SNAAFederator-Main");
 
-		final SNAAFederatorConfigImpl config = setLogLevel(
-				parseOrExit(new SNAAFederatorConfigImpl(), SNAAFederator.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), SNAAFederator.class, args),
 				"de.uniluebeck.itm"
 		);
 
-		final Injector injector = Guice.createInjector(new SNAAFederatorModule(config));
-		final SNAAFederator snaaFederator = injector.getInstance(SNAAFederator.class);
+		final SNAAFederatorModule snaaFederatorModule = new SNAAFederatorModule(config.config);
+		final SNAAFederator snaaFederator = Guice.createInjector(snaaFederatorModule).getInstance(SNAAFederator.class);
 
 		try {
 			snaaFederator.start().get();

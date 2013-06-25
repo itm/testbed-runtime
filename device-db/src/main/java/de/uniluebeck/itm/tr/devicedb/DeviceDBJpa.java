@@ -24,7 +24,7 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 
-public class DeviceDBJpa extends AbstractService implements DeviceDB {
+public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
@@ -36,7 +36,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 					return config.getNodeUrn();
 				}
 			};
-			
+
 	private static final Function<DeviceConfigEntity,DeviceConfig> ENTITY_TO_CONFIG_FUNCTION =
 			new Function<DeviceConfigEntity,DeviceConfig>() {
 				@Override
@@ -136,7 +136,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	public void add(final DeviceConfig deviceConfig) {
 		entityManager.get().persist(new DeviceConfigEntity(deviceConfig));
 	}
-	
+
 	@Override
 	@Transactional
 	public void update(DeviceConfig deviceConfig) {
@@ -146,7 +146,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
-		
+
 		try {
 			DeviceConfigEntity config = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
@@ -169,13 +169,13 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 		entityManager.get()
 		    .createNativeQuery("DELETE FROM DeviceConfigEntity_NODECONFIGURATION")
 		    .executeUpdate();
-		
+
 		entityManager.get()
 				.createQuery("DELETE FROM DeviceConfig")
 				.executeUpdate();
-		
+
 	}
-	
+
 	protected EntityManager getEntityManager() {
 		return entityManager.get();
 	}

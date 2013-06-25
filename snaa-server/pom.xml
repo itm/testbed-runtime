@@ -61,6 +61,10 @@
 			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>logging</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>

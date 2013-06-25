@@ -21,13 +21,14 @@ public class DeviceDBJpaTest extends DeviceDBTestBase {
 
 		DriverManager.getConnection("jdbc:derby:memory:device-db-unit-test;create=true").close();
 
+		final DeviceDBConfig deviceDBConfig = new DeviceDBConfig();
 		final Injector injector = Guice.createInjector(new DeviceDBJpaModule(JPA_PROPERTIES));
-		final DeviceDB deviceDB = injector.getInstance(DeviceDB.class);
+		final DeviceDBService deviceDBService = injector.getInstance(DeviceDBService.class);
 
 		/*entityManagerFactory = injector.getInstance(EntityManagerFactory.class);
 		entityManager = injector.getInstance(EntityManager.class);*/
 
-		super.setUp(deviceDB);
+		super.setUp(deviceDBService);
 	}
 
 	@After

@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -38,17 +39,17 @@ public class SingleUrnPrefixRS implements RS {
 
 	private static final Logger log = LoggerFactory.getLogger(SingleUrnPrefixRS.class);
 
-	private final RSConfig config;
+	private final CommonConfig commonConfig;
 
 	private final RSPersistence persistence;
 
 	private final Provider<Set<NodeUrn>> servedNodeUrnsProvider;
 
 	@Inject
-	public SingleUrnPrefixRS(final RSConfig config,
+	public SingleUrnPrefixRS(final CommonConfig commonConfig,
 							 final RSPersistence persistence,
 							 final ServedNodeUrnsProvider servedNodeUrnsProvider) {
-		this.config = checkNotNull(config);
+		this.commonConfig = checkNotNull(commonConfig);
 		this.persistence = checkNotNull(persistence);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
 	}
@@ -192,7 +193,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 
 		SecretAuthenticationKey sak = authenticationData.get(0);
-		if (!config.getUrnPrefix().equals(sak.getUrnPrefix())) {
+		if (!commonConfig.getUrnPrefix().equals(sak.getUrnPrefix())) {
 			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
 			log.warn(msg);
 			RSFault exception = new RSFault();
@@ -219,9 +220,9 @@ public class SingleUrnPrefixRS implements RS {
 
 		// Check if we serve all node urns by urnPrefix
 		for (NodeUrn nodeUrn : nodeUrns) {
-			if (!nodeUrn.belongsTo(config.getUrnPrefix())) {
+			if (!nodeUrn.belongsTo(commonConfig.getUrnPrefix())) {
 				throw createRSFault_Exception(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + config.getUrnPrefix()
+						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + commonConfig.getUrnPrefix()
 				);
 			}
 		}
@@ -294,7 +295,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		} else {
 			srk = secretReservationKeys.get(0);
-			if (!config.getUrnPrefix().equals(srk.getUrnPrefix())) {
+			if (!commonConfig.getUrnPrefix().equals(srk.getUrnPrefix())) {
 				msg = "Not serving urn prefix " + srk.getUrnPrefix();
 			}
 		}

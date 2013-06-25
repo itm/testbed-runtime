@@ -19,19 +19,19 @@ import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public DeviceDBRestResourceImpl(final DeviceDB deviceDB) {
-		this.deviceDB = deviceDB;
+	public DeviceDBRestResourceImpl(final DeviceDBService deviceDBService) {
+		this.deviceDBService = deviceDBService;
 	}
 
 	@Override
 	public Response getByNodeUrn(final String nodeUrnString) {
-		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
+		final DeviceConfig config = deviceDBService.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
 				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
@@ -41,7 +41,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 	public DeviceConfigListDto list() {
 
 		final List<DeviceConfigDto> list = newArrayList();
-		for (DeviceConfig deviceConfig : deviceDB.getAll()) {
+		for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
 			list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
 		}
 
@@ -54,7 +54,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		if (nodeUrnStrings.isEmpty()) {
 
 			final List<DeviceConfigDto> list = newArrayList();
-			for (DeviceConfig deviceConfig : deviceDB.getAll()) {
+			for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
 				list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
 			}
 
@@ -63,7 +63,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		} else {
 
 			final Iterable<NodeUrn> nodeUrns = transform(nodeUrnStrings, STRING_TO_NODE_URN);
-			final Iterable<DeviceConfig> configs = deviceDB.getConfigsByNodeUrns(nodeUrns).values();
+			final Iterable<DeviceConfig> configs = deviceDBService.getConfigsByNodeUrns(nodeUrns).values();
 			final Iterable<DeviceConfigDto> retList = transform(configs, new Function<DeviceConfig, DeviceConfigDto>() {
 				@Override
 				public DeviceConfigDto apply(final DeviceConfig config) {
@@ -79,7 +79,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 	@Override
 	public Response getByUsbChipId(final String usbChipIds) {
-		final DeviceConfig config = deviceDB.getConfigByUsbChipId(usbChipIds);
+		final DeviceConfig config = deviceDBService.getConfigByUsbChipId(usbChipIds);
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
 				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
@@ -87,7 +87,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 	@Override
 	public Response getByMacAddress(final long macAddress) {
-		final DeviceConfig config = deviceDB.getConfigByMacAddress(macAddress);
+		final DeviceConfig config = deviceDBService.getConfigByMacAddress(macAddress);
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
 				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
@@ -106,7 +106,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		try {
-			deviceDB.add(deviceConfig.toDeviceConfig());
+			deviceDBService.add(deviceConfig.toDeviceConfig());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.serverError().entity(e.getMessage()).build();
@@ -123,8 +123,8 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		// check if Entity to update already exists
-		if (deviceDB.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
-			deviceDB.update(deviceConfig.toDeviceConfig());
+		if (deviceDBService.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
+			deviceDBService.update(deviceConfig.toDeviceConfig());
 		} else {
 			return Response.notModified().build();
 		}
@@ -135,7 +135,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 	@Override
 	public Response delete(final String nodeUrnString) {
 
-		boolean ok = deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+		boolean ok = deviceDBService.removeByNodeUrn(new NodeUrn(nodeUrnString));
 
 		return ok ? Response.ok("true").build() : Response.notModified().build();
 	}
@@ -145,12 +145,12 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		if (nodeUrnStrings.isEmpty()) {
 
-			deviceDB.removeAll();
+			deviceDBService.removeAll();
 
 		} else {
 
 			for (String nodeUrnString : nodeUrnStrings) {
-				deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+				deviceDBService.removeByNodeUrn(new NodeUrn(nodeUrnString));
 			}
 
 		}

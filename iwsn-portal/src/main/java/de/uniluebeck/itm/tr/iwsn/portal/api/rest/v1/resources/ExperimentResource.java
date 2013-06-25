@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
@@ -66,7 +66,7 @@ public class ExperimentResource {
 
 	private final TimedCache<Long, List<Long>> flashResponseTrackers;
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final ReservationManager reservationManager;
 
@@ -76,11 +76,11 @@ public class ExperimentResource {
 	private UriInfo uriInfo;
 
 	@Inject
-	public ExperimentResource(final DeviceDB deviceDB,
+	public ExperimentResource(final DeviceDBService deviceDBService,
 							  final ReservationManager reservationManager,
 							  final RequestIdProvider requestIdProvider,
 							  final TimedCache<Long, List<Long>> flashResponseTrackers) {
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
@@ -91,7 +91,7 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getNetwork() {
 		log.trace("ExperimentResource.getNetwork()");
-		return Response.ok(convertToWiseML(deviceDB.getAll())).build();
+		return Response.ok(convertToWiseML(deviceDBService.getAll())).build();
 	}
 
 	@GET
@@ -108,7 +108,7 @@ public class ExperimentResource {
 	public NodeUrnList getNodes(@QueryParam("filter") final String filter,
 								@QueryParam("capability") final String capability) {
 
-		final Wiseml wiseml = convertToWiseML(deviceDB.getAll());
+		final Wiseml wiseml = convertToWiseML(deviceDBService.getAll());
 
 		NodeUrnList nodeList = new NodeUrnList();
 		nodeList.nodeUrns = new LinkedList<String>();
@@ -176,13 +176,12 @@ public class ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	public Response getInstance(SecretReservationKeyListRs reservationKey) {
+	public Response getInstance(List<SecretReservationKey> secretReservationKeys) {
 
-		if (reservationKey == null || reservationKey.reservations == null || reservationKey.reservations.size() == 0) {
+		if (secretReservationKeys == null || secretReservationKeys.size() == 0) {
 			return Response.status(Status.BAD_REQUEST).entity("No secret reservation keys were given.").build();
 		}
 
-		final List<SecretReservationKey> secretReservationKeys = reservationKey.reservations;
 		final SecretReservationKey secretReservationKey = secretReservationKeys.get(0);
 
 		try {
@@ -444,7 +443,7 @@ public class ExperimentResource {
 
 	private Wiseml getWiseml(final String secretReservationKeyBase64) throws Base64Exception {
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		return convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
+		return convertToWiseML(deviceDBService.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
 	}
 
 	private Reservation getReservationOrThrow(final String secretReservationKeyBase64) throws Base64Exception {

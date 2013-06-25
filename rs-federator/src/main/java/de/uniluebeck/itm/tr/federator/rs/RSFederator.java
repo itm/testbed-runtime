@@ -3,8 +3,8 @@ package de.uniluebeck.itm.tr.federator.rs;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import org.slf4j.Logger;
@@ -37,13 +37,13 @@ public class RSFederator extends AbstractService {
 
 		Thread.currentThread().setName("RSFederator-Main");
 
-		final RSFederatorConfig config = setLogLevel(
-				parseOrExit(new RSFederatorConfig(), RSFederator.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), RSFederator.class, args),
 				"de.uniluebeck.itm"
 		);
 
-		final Injector injector = Guice.createInjector(new RSFederatorModule(config));
-		final RSFederator rsFederator = injector.getInstance(RSFederator.class);
+		final RSFederatorModule rsFederatorModule = new RSFederatorModule(config.config);
+		final RSFederator rsFederator = Guice.createInjector(rsFederatorModule).getInstance(RSFederator.class);
 
 		try {
 			rsFederator.start().get();

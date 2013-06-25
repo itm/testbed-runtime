@@ -3,8 +3,9 @@ package de.uniluebeck.itm.tr.snaa;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 public class SNAAServer extends AbstractService {
 
@@ -57,14 +59,15 @@ public class SNAAServer extends AbstractService {
 
 		Thread.currentThread().setName("SNAA-Main");
 
-		final SNAAConfig config = setLogLevel(
-				parseOrExit(new SNAAConfigImpl(), SNAAServer.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), SNAAServer.class, args),
 				"de.uniluebeck.itm"
 		);
 
-		final SNAAServerModule module = new SNAAServerModule(config);
-		final Injector injector = Guice.createInjector(module);
-		final SNAAServer snaa = injector.getInstance(SNAAServer.class);
+		final CommonConfig commonConfig = buildConfig(CommonConfig.class, config.config);
+		final SNAAConfig snaaConfig = buildConfig(SNAAConfig.class, config.config);
+		final SNAAServerModule module = new SNAAServerModule(commonConfig, snaaConfig);
+		final SNAAServer snaa = Guice.createInjector(module).getInstance(SNAAServer.class);
 
 		try {
 			snaa.start().get();

@@ -6,6 +6,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -49,7 +50,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	private static final String CLOSE_HTML_TAG = "&gt;";
 
-	private final ShibbolethAuthenticatorConfig config;
+	private final SNAAConfig config;
 
 	private String username;
 
@@ -73,7 +74,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	private HttpUriRequest req = null;
 
-	private URL finalURL;
+	private URI finalURI;
 
 	private boolean authenticated;
 
@@ -82,7 +83,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 	private List<Cookie> cookies;
 
 	@Inject
-	public ShibbolethAuthenticatorImpl(final ShibbolethAuthenticatorConfig config) {
+	public ShibbolethAuthenticatorImpl(final SNAAConfig config) {
 		this.config = config;
 	}
 
@@ -111,9 +112,9 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		httpClient = ShibbolethAuthenticatorHelper.getFakeSSLTolerantClient();
 		localContext = new BasicHttpContext();
 
-		if (config.getProxy() != null) {
-			log.debug("Using proxy: " + config.getProxy());
-			HttpHost proxy = new HttpHost(config.getProxy().getHostText(), config.getProxy().getPort());
+		if (config.getShibbolethProxy() != null) {
+			log.debug("Using proxy: " + config.getShibbolethProxy());
+			HttpHost proxy = new HttpHost(config.getShibbolethProxy().getHostText(), config.getShibbolethProxy().getPort());
 			httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
 
@@ -123,7 +124,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		response = null;
 		target = null;
 		req = null;
-		finalURL = null;
+		finalURI = null;
 		cookies = null;
 
 		setAuthenticated(false);
@@ -144,7 +145,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 			StringBuilder sb = new StringBuilder("The following conditions are not satisfied: ");
 			boolean ok = true;
 
-			if (config.getUrl() == null || config.getUrl().length() == 0) {
+			if (config.getShibbolethUrl() == null || config.getShibbolethUrl().toString().length() == 0) {
 				sb.append("Url is empty or null. ");
 				ok = false;
 			}
@@ -168,15 +169,15 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 		// Check if this session is already authenticated (e.g., because the correct cookies were set)
 		{
-			URL finalURL = doGet(config.getUrl(), true);
-			if (finalURL.equals(new URL(config.getUrl()))) {
-				log.debug("Authentication succeeded, got the final page " + finalURL);
+			URI finalURI = doGet(config.getShibbolethUrl(), true);
+			if (finalURI.equals(config.getShibbolethUrl())) {
+				log.debug("Authentication succeeded, got the final page " + finalURI);
 				log.info("Authentication succeeded");
 				setAuthenticated(true);
 			}
 		}
 
-		Collection<URL> wayfURLs = getWayfUrls();
+		Collection<URL> wayfURLs = getWhereAreYouFromUrls();
 		URL idp = getBestIdp(wayfURLs);
 
 		// Post form to be redirected to IDP
@@ -244,7 +245,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 			doPost(actionUrl.toURI(), formParams, true);
 		}
 
-		// Now submit the onLoad Form with all the SAML data
+		// Now submit the onLoad Form with all the "SAML data
 		{
 			List<NameValuePair> formParams = ShibbolethAuthenticatorHelper.extractFormValues(responseHtml, null);
 			URL currentPage = new URL("" + target + req.getRequestLine().getUri());
@@ -255,13 +256,15 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		authenticationPageContent = responseHtml;
 
 		// Finally check, if we have arrived on the desired page
-		if (finalURL.equals(new URL(config.getUrl()))) {
-			log.debug("Authentication succeeded, got the final page {}", config.getUrl());
+		if (finalURI.equals(config.getShibbolethUrl())) {
+			log.debug("Authentication succeeded, got the final page {}", config.getShibbolethUrl());
 			log.info("Authentication succeeded");
 			setAuthenticated(true);
 		} else {
-			log.debug("Authentication failed, did not read the desired page {} but ended up at {}", config.getUrl(),
-					finalURL
+			log.debug(
+					"Authentication failed, did not read the desired page {} but ended up at {}",
+					config.getShibbolethUrl(),
+					finalURI
 			);
 			log.error("Authentication failed");
 			setAuthenticated(false);
@@ -296,17 +299,17 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		this.cookies = cookies;
 
 		Map<String, List<Object>> authorizeMap = null;
-		if (config.getUrl() == null) {
+		if (config.getShibbolethUrl() == null) {
 			return authorizeMap;
 		}
 
 		// Check if this session is already authenticated
 		{
-			finalURL = doGet(config.getUrl(), true);
+			finalURI = doGet(config.getShibbolethUrl(), true);
 			//check if final url is the url to be redirected
-/*            if (!finalURL.equals(new URL(this.url))) {
+/*            if (!finalURI.equals(new URL(this.url))) {
 				//if not get IdpRequest
-                Collection<URL> wayfURLs = getWayfUrls();
+                Collection<URL> wayfURLs = getWhereAreYouFromUrls();
                 URL idp = getBestIdp(wayfURLs);
 
                 // Post form to be redirected to IDP
@@ -317,16 +320,16 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 			//check again if final url is the url to be redirected
 			//if not there is no valid authorization
-			if (!finalURL.equals(new URL(config.getUrl()))) {
+			if (!finalURI.equals(config.getShibbolethUrl())) {
 				return authorizeMap;
 			}
 		}
 
-		final String sessionURL = finalURL.getProtocol() + "://" + finalURL.getHost() + "/Shibboleth.sso/Session";
+		final URI sessionURL = URI.create(finalURI.toURL().getProtocol() + "://" + finalURI.getHost() + "/Shibboleth.sso/Session");
 
 		//get Session values from Sibboleth.sso/Session
 		{
-			finalURL = doGet(sessionURL, true);
+			finalURI = doGet(sessionURL, true);
 			//transform Html-tags to escape-sequences
 			String escapedHtml = StringEscapeUtils.escapeHtml(responseHtml);
 			//filter out html-tags as escapedHtml-sequence
@@ -389,23 +392,25 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		resetState();
 		this.cookies = cookies;
 
-		URL finalURL = doGet(config.getUrl(), false);
+		URI finalURI = doGet(config.getShibbolethUrl(), false);
 		//responseHtml = SNAAHelper.readBody(response);
 		log.debug("Status line: " + response.getStatusLine());
 
 		// Finally check, if we have arrived on the desired page
-		if (finalURL.equals(new URL(config.getUrl()))) {
-			log.info("Authentication still valid, got the final page {}", config.getUrl());
+		if (finalURI.equals(config.getShibbolethUrl())) {
+			log.info("Authentication still valid, got the final page {}", config.getShibbolethUrl());
 			return true;
 		} else {
-			log.debug("Authentication invalidated, did not read the final page {} but ended up at ", config.getUrl(),
-					finalURL
+			log.debug(
+					"Authentication invalidated, did not read the final page ({}) but ended up at {}",
+					config.getShibbolethUrl(),
+					finalURI
 			);
 			return false;
 		}
 	}
 
-	private URL doGet(String url, boolean followRedirects)
+	private URI doGet(URI url, boolean followRedirects)
 			throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
 		log.debug("Fetching " + url);
 		httpget = new HttpGet(url);
@@ -423,7 +428,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 			followAllRedirects();
 		}
 
-		URL finalURL = new URL("" + target + req.getRequestLine().getUri());
+		URI finalURL = URI.create("" + target + req.getRequestLine().getUri());
 		log.debug("Final URL: " + finalURL);
 		responseHtml = ShibbolethAuthenticatorHelper.readBody(response);
 
@@ -449,11 +454,11 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 		target = (HttpHost) localContext.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
 		req = (HttpUriRequest) localContext.getAttribute(ExecutionContext.HTTP_REQUEST);
 
-		finalURL = new URL("" + target + req.getRequestLine().getUri());
+		finalURI = URI.create("" + target + req.getRequestLine().getUri());
 		responseHtml = ShibbolethAuthenticatorHelper.readBody(response);
 
 		log.debug("POST: Posting to " + uri);
-		log.debug("POST: Final URL: " + finalURL);
+		log.debug("POST: Final URL: " + finalURI);
 		log.debug("POST: Status line: " + response.getStatusLine());
 		log.debug("POST: Response: " + responseHtml);
 
@@ -464,14 +469,14 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	}
 
-	private Collection<URL> getWayfUrls() throws Exception {
+	private Collection<URL> getWhereAreYouFromUrls() throws Exception {
 
 		// Sanity checks
 		{
 			StringBuilder sb = new StringBuilder("The following conditions are not satisfied: ");
 			boolean ok = true;
 
-			if (config.getUrl() == null || config.getUrl().length() == 0) {
+			if (config.getShibbolethUrl() == null || config.getShibbolethUrl().toString().length() == 0) {
 				sb.append("Url is empty or null. ");
 				ok = false;
 			}
@@ -483,7 +488,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 		// Get IDPs and next Form from WAYF
 		{
-			URL finalURL = doGet(config.getUrl(), false);
+			URI finalURL = doGet(config.getShibbolethUrl(), false);
 			log.debug("WAYF: Fetching URLs from " + finalURL);
 			log.debug("WAYF: Status line: " + response.getStatusLine());
 			log.debug("WAYF, response html: " + response.getStatusLine());
@@ -535,7 +540,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 			log.debug("Redirect header: " + loc.getValue());
 			log.debug("Redirect URI   : " + u);
 
-			finalURL = doGet(u.toString(), false);
+			finalURI = doGet(u, false);
 			loc = response.getFirstHeader("Location");
 		}
 	}
@@ -546,7 +551,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	public Collection<URL> getIDPs() throws Exception {
 		resetState();
-		return getWayfUrls();
+		return getWhereAreYouFromUrls();
 	}
 
 	public boolean isAuthenticated() {

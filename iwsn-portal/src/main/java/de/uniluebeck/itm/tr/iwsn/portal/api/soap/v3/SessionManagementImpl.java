@@ -5,8 +5,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
@@ -68,7 +69,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Set<HandlerFactory> handlerFactories;
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final ReservationManager reservationManager;
 
@@ -88,12 +89,15 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final AuthorizingWSNFactory authorizingWSNFactory;
 
+	private final CommonConfig commonConfig;
+
 	@Inject
-	public SessionManagementImpl(final PortalEventBus portalEventBus,
-								 final ResponseTrackerFactory responseTrackerFactory,
+	public SessionManagementImpl(final CommonConfig commonConfig,
 								 final PortalConfig portalConfig,
+								 final PortalEventBus portalEventBus,
+								 final ResponseTrackerFactory responseTrackerFactory,
 								 final Set<HandlerFactory> handlerFactories,
-								 final DeviceDB deviceDB,
+								 final DeviceDBService deviceDBService,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
 								 final AuthorizingWSNFactory authorizingWSNFactory,
@@ -101,11 +105,12 @@ public class SessionManagementImpl implements SessionManagement {
 								 final DeliveryManagerFactory deliveryManagerFactory,
 								 final RequestIdProvider requestIdProvider) {
 
+		this.commonConfig = checkNotNull(commonConfig);
+		this.portalConfig = checkNotNull(portalConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
-		this.portalConfig = checkNotNull(portalConfig);
 		this.handlerFactories = checkNotNull(handlerFactories);
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.authorizingWSNFactory = checkNotNull(authorizingWSNFactory);
@@ -114,8 +119,8 @@ public class SessionManagementImpl implements SessionManagement {
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 
 		this.preconditions = new SessionManagementPreconditions();
-		this.preconditions.addServedUrnPrefixes(portalConfig.getUrnPrefix());
-		this.preconditions.addKnownNodeUrns(transform(deviceDB.getAll(), DeviceConfig.TO_NODE_URN_FUNCTION));
+		this.preconditions.addServedUrnPrefixes(commonConfig.getUrnPrefix());
+		this.preconditions.addKnownNodeUrns(transform(deviceDBService.getAll(), DeviceConfig.TO_NODE_URN_FUNCTION));
 	}
 
 	@Override
@@ -181,7 +186,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		rsEndpointUrl.value = portalConfig.getRsEndpointUri().toString();
 		snaaEndpointUrl.value = portalConfig.getSnaaEndpointUri().toString();
-		servedUrnPrefixes.value = newArrayList(portalConfig.getUrnPrefix());
+		servedUrnPrefixes.value = newArrayList(commonConfig.getUrnPrefix());
 
 		final List<KeyValuePair> optionsList = Lists.newArrayList();
 		for (String key : portalConfig.getSmConfiguration().keySet()) {
@@ -317,7 +322,7 @@ public class SessionManagementImpl implements SessionManagement {
 			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
 	)
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDB.getAll()));
+		return serialize(convertToWiseML(deviceDBService.getAll()));
 	}
 
 	@Override

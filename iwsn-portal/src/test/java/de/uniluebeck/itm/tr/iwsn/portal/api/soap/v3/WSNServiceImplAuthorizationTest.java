@@ -5,9 +5,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -40,7 +43,7 @@ public class WSNServiceImplAuthorizationTest {
 	private SNAA snaa;
 
 	@Mock
-	private DeviceDB deviceDB;
+	private DeviceDBService deviceDBService;
 
 	@Mock
 	private DeliveryManager deliveryManager;
@@ -49,7 +52,7 @@ public class WSNServiceImplAuthorizationTest {
 	private Reservation reservation;
 
 	@Mock
-	private PortalConfig portalConfig;
+	private CommonConfig commonConfig;
 
 	private AuthorizingWSN authorizingWsn;
 
@@ -63,7 +66,7 @@ public class WSNServiceImplAuthorizationTest {
 	@Before
 	public void setUp() throws Exception {
 
-		when(portalConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
+		when(commonConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
 		authorizationDeniedResponse = new AuthorizationResponse();
 		authorizationDeniedResponse.setAuthorized(false);
@@ -85,8 +88,8 @@ public class WSNServiceImplAuthorizationTest {
 				);
 
 				bind(SNAA.class).toInstance(snaa);
-				bind(DeviceDB.class).toInstance(deviceDB);
-				bind(PortalConfig.class).toInstance(portalConfig);
+				bind(DeviceDBService.class).toInstance(deviceDBService);
+				bind(CommonConfig.class).toInstance(commonConfig);
 				bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 			}
 		});
@@ -129,7 +132,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.addController("ABC");
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).addController("ABC");
 	}
@@ -157,7 +160,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.areNodesAlive(1L, nodeUrns);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).areNodesAlive(1L, nodeUrns);
 	}
@@ -185,7 +188,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.disableVirtualLinks(0L,links);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
@@ -213,7 +216,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.disableNodes(1L, nodeUrns);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).disableNodes(1L, nodeUrns);
 	}
@@ -241,7 +244,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.disablePhysicalLinks(0L, links);
 		}catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).disableVirtualLinks(0L, links);
 	}
@@ -267,7 +270,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.disableVirtualization();
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).disableVirtualization();
 	}
@@ -293,7 +296,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.enableVirtualization();
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).enableVirtualization();
 	}
@@ -321,7 +324,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.enableNodes(1L, nodeUrns);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).enableNodes(1L, nodeUrns);
 	}
@@ -349,7 +352,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.enablePhysicalLinks(0L, links);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).enablePhysicalLinks(0L, links);
 	}
@@ -377,7 +380,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.flashPrograms(0L, configs);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).flashPrograms(0L, configs);
 	}
@@ -405,7 +408,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.getChannelPipelines(nodeUrns);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).getChannelPipelines(nodeUrns);
 	}
@@ -431,7 +434,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.getNetwork();
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).getNetwork();
 	}
@@ -457,7 +460,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.removeController("ABC");
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).removeController("ABC");
 	}
@@ -485,7 +488,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.resetNodes(0L,nodeUrns);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).resetNodes(0L, nodeUrns);
 
@@ -516,7 +519,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.send(0L, nodeUrns, bytes);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).send(0L, nodeUrns, bytes);
 	}
@@ -546,7 +549,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).setChannelPipeline(0L,nodeUrns, channelHandlerConfigurations);
 	}
@@ -576,7 +579,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.setSerialPortParameters(nodeUrns,serialPortParameters);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).setSerialPortParameters(nodeUrns,serialPortParameters);
 	}
@@ -604,7 +607,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.enableVirtualLinks(0L,virtualLinks);
 		} catch (AuthorizationFault e){
-			// expected exception was catched
+			// expected exception was caught
 		}
 		verify(wsnDelegate,never()).enableVirtualLinks(0L,virtualLinks);
 	}

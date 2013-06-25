@@ -65,6 +65,10 @@
 			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>util</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
@@ -97,11 +101,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-persist</artifactId>
+			<artifactId>guice-assistedinject</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-assistedinject</artifactId>
+			<groupId>com.github.sclassen</groupId>
+			<artifactId>guice-jpa</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
@@ -148,7 +153,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDBServiceImpl</mainClass>
+							<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDBRestRestServiceImpl</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

@@ -12,7 +12,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
@@ -22,36 +24,44 @@ import eu.wisebed.api.v3.snaa.SNAA;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class SNAAFederatorModule extends AbstractModule {
 
-	private final SNAAFederatorConfig config;
+	private final Properties properties;
 
-	public SNAAFederatorModule(final SNAAFederatorConfig config) {
-		this.config = config;
+	public SNAAFederatorModule(final Properties properties) {
+		this.properties = properties;
 	}
 
 	@Override
 	protected void configure() {
 
+		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
+		final SNAAConfig snaaConfig = buildConfig(SNAAConfig.class, properties);
+		final SNAAFederatorConfig snaaFederatorConfig = buildConfig(SNAAFederatorConfig.class, properties);
+
+		bind(CommonConfig.class).toInstance(commonConfig);
+		bind(SNAAConfig.class).toInstance(snaaConfig);
+		bind(SNAAFederatorConfig.class).toInstance(snaaFederatorConfig);
+
 		install(new ServicePublisherCxfModule());
 
-		switch (config.getSnaaFederatorType()) {
+		switch (snaaFederatorConfig.getSnaaFederatorType()) {
+
 			case API:
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(
-						newHashSet(config.getUrnPrefix()),
-						config.getSnaaFederatorProperties(),
-						config.getSnaaContextPath()
-				));
-				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				install(new ShibbolethSNAAModule(commonConfig, snaaConfig));
+				bind(SNAAFederatorService.class)
+						.to(DelegatingSNAAFederatorServiceImpl.class)
+						.in(Scopes.SINGLETON);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authorizationSnaa"))
 						.to(SNAAFederatorServiceImpl.class);
@@ -60,13 +70,14 @@ public class SNAAFederatorModule extends AbstractModule {
 						.to(ShibbolethSNAA.class);
 				break;
 			default:
-				throw new RuntimeException("Unknown SNAA federator type: " + config.getSnaaFederatorType());
+				throw new RuntimeException("Unknown SNAA federator type: " + snaaFederatorConfig.getSnaaFederatorType());
 		}
 	}
 
 	@Provides
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
+											 final CommonConfig commonConfig) {
+		return servicePublisherFactory.create(new ServicePublisherConfig(commonConfig.getPort()));
 	}
 
 	@Provides
@@ -75,7 +86,7 @@ public class SNAAFederatorModule extends AbstractModule {
 	}
 
 	@Provides
-	public FederationManager<SNAA> provideSnaaFederationManager() {
+	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorConfig config) {
 
 		final Function<URI, SNAA> uriToRSEndpointFunction = new Function<URI, SNAA>() {
 			@Override

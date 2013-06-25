@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -49,7 +49,7 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	 */
 	private final SNAA snaa;
 
-	private final PortalConfig portalConfig;
+	private final CommonConfig commonConfig;
 
 
 	/**
@@ -57,8 +57,8 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	 *
 	 * @param snaa
 	 * 		The component used to check whether a certain action is authorized for a certain user
-	 * @param portalConfig
-	 * 		The portal servers configuration parameters
+	 * @param commonConfig
+	 * 		The servers configuration parameters
 	 * @param reservation
 	 * 		A user's reservation
 	 * @param wsnDelegate
@@ -66,13 +66,13 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	 */
 	@Inject
 	public AuthorizingWSNImpl(final SNAA snaa,
-							  final PortalConfig portalConfig,
+							  final CommonConfig commonConfig,
 							  @Assisted final Reservation reservation,
 							  @Assisted final WSN wsnDelegate) {
 		this.snaa = snaa;
+		this.commonConfig = commonConfig;
 		this.delegate = wsnDelegate;
 		this.reservation = reservation;
-		this.portalConfig = portalConfig;
 	}
 
 	@Override
@@ -240,7 +240,7 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 
 		UsernameNodeUrnsMap usernameNodeUrnsMap = new UsernameNodeUrnsMap();
 		usernameNodeUrnsMap.setUsername(reservation.getUsername());
-		usernameNodeUrnsMap.setUrnPrefix(portalConfig.getUrnPrefix());
+		usernameNodeUrnsMap.setUrnPrefix(commonConfig.getUrnPrefix());
 		usernameNodeUrnsMap.getNodeUrns().addAll(nodeUrnCollection);
 
 		List<UsernameNodeUrnsMap> usernameNodeUrnsMapList = newArrayList(usernameNodeUrnsMap);

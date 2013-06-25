@@ -65,6 +65,19 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.rs-server</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
@@ -163,7 +176,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.uniluebeck.itm.tr.iwsn.portal.Portal</mainClass>
+									<mainClass>de.uniluebeck.itm.tr.iwsn.portal.PortalServer</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

@@ -26,8 +26,9 @@ package de.uniluebeck.itm.tr.rs;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.rs.RS;
@@ -37,9 +38,10 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 @SuppressWarnings("restriction")
-public class RSMain extends AbstractService {
+public class RSServer extends AbstractService {
 
 	static {
 		Logging.setLoggingDefaults(LogLevel.WARN);
@@ -52,8 +54,8 @@ public class RSMain extends AbstractService {
 	private final RSService rsService;
 
 	@Inject
-	public RSMain(final ServicePublisher servicePublisher,
-				  final RSService rsService) {
+	public RSServer(final ServicePublisher servicePublisher,
+					final RSService rsService) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.rsService = checkNotNull(rsService);
 	}
@@ -84,17 +86,20 @@ public class RSMain extends AbstractService {
 
 		Thread.currentThread().setName("RS-Main");
 
-		final RSStandaloneConfig config = setLogLevel(
-				parseOrExit(new RSStandaloneConfigImpl(), RSMain.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), RSServer.class, args),
 				"de.uniluebeck.itm"
 		);
 
-		final RSStandaloneModule module = new RSStandaloneModule(config);
-		final Injector injector = Guice.createInjector(module);
-		final RSMain rs = injector.getInstance(RSMain.class);
+		final CommonConfig commonConfig = buildConfig(CommonConfig.class, config.config);
+		final RSServiceConfig rsServiceConfig = buildConfig(RSServiceConfig.class, config.config);
+		final RSServerConfig rsServerConfig = buildConfig(RSServerConfig.class, config.config);
+		final RSServerServiceModule
+				rsServerModule = new RSServerServiceModule(commonConfig, rsServiceConfig, rsServerConfig);
+		final RSServer rsServer = Guice.createInjector(rsServerModule).getInstance(RSServer.class);
 
 		try {
-			rs.start().get();
+			rsServer.start().get();
 		} catch (Exception e) {
 			log.error("Could not start RS: {}", e.getMessage());
 			System.exit(1);
@@ -104,7 +109,7 @@ public class RSMain extends AbstractService {
 			@Override
 			public void run() {
 				log.info("Received KILL signal. Shutting down RS...");
-				rs.stopAndWait();
+				rsServer.stopAndWait();
 				log.info("Over and out.");
 			}
 		}

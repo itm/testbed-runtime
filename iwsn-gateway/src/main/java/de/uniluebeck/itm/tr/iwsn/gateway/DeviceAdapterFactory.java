@@ -7,7 +7,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
  * DeviceAdapterFactory implementation that is registered with the Testbed Runtime gateway implementation. If a device
  * gets attached to the gateway host (either by getting serially attached or e.g., by coming into communication range)
  * the gateway implementation will retrieve the corresponding {@link DeviceConfig} instance from the {@link
- * de.uniluebeck.itm.tr.devicedb.DeviceDB} and ask each registered DeviceAdapterFactory if it can handle this type of
+ * de.uniluebeck.itm.tr.devicedb.DeviceDBService} and ask each registered DeviceAdapterFactory if it can handle this type of
  * node (configuration). If true, a new DeviceAdapter instance will then be retrieved or created by calling {@link
  * DeviceAdapterFactory#create(String, de.uniluebeck.itm.tr.devicedb.DeviceConfig)}.
  */

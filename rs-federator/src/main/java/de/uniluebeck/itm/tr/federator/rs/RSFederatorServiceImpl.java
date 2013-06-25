@@ -125,7 +125,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

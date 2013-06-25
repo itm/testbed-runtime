@@ -66,9 +66,9 @@ public abstract class DeviceDBTestBase {
 
 	private DeviceConfig config3;
 
-	private DeviceDB db;
+	private DeviceDBService db;
 
-	public void setUp(DeviceDB db) throws Exception {
+	public void setUp(DeviceDBService db) throws Exception {
 
 		this.db = db;
 		

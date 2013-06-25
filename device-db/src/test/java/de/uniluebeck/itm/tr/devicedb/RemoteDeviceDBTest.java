@@ -1,10 +1,7 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.inject.*;
-import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import com.google.inject.Guice;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -12,9 +9,16 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
+import java.util.Properties;
 
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
+
+@RunWith(MockitoJUnitRunner.class)
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	static {
@@ -23,53 +27,51 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	private static int port = NetworkUtils.findFreePort();
 
-	private static DeviceDBService service;
+	private static DeviceDBRestService service;
 
-	private static DeviceDB deviceDB;
+	private static DeviceDBService deviceDBService;
+
+	@Mock
+	private DeviceDBConfig remoteDeviceDBConfig;
 
 	@BeforeClass
-	public static void startServer() {
+	public static void startRemoteServer() {
 
-		Injector injector = Guice.createInjector(new AbstractModule() {
-			@Override
-			protected void configure() {
-				install(new ServicePublisherCxfModule());
-				install(new DeviceDBInMemoryModule());
-				install(new DeviceDBServiceModule());
-			}
+		final Properties properties = new Properties();
+		properties.put(CommonConfig.URN_PREFIX, "urn:wisebed:uzl1:");
+		properties.put(CommonConfig.PORT, Integer.toString(port));
+		properties.put(DeviceDBConfig.DEVICEDB_TYPE, DeviceDBType.IN_MEMORY.toString());
+		properties.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, "/rest");
+		properties.put(DeviceDBConfig.DEVICEDB_JPA_PROPERTIES, "");
 
-			@Provides
-			@Singleton
-			ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-				return factory.create(new ServicePublisherConfig(port));
-			}
-		}
-		);
+		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
+		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
 
-		deviceDB = injector.getInstance(DeviceDB.class);
-		service = injector.getInstance(DeviceDBServiceFactory.class).create("/rest", "/");
+		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig);
+		service = Guice.createInjector(module).getInstance(DeviceDBRestService.class);
 		service.startAndWait();
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		final URI remoteDeviceDBUri = URI.create("http://localhost:" + port + "/rest");
-		final RemoteDeviceDBConfig remoteDeviceDBConfig = new RemoteDeviceDBConfig(remoteDeviceDBUri);
-		final DeviceDB deviceDB = Guice.createInjector(
-				new RemoteDeviceDBModule(),
-				new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(RemoteDeviceDBConfig.class).toInstance(remoteDeviceDBConfig);
-					}
-				}
-		).getInstance(DeviceDB.class);
-		super.setUp(deviceDB);
+
+		final Properties properties = new Properties();
+		properties.put(DeviceDBConfig.DEVICEDB_TYPE, DeviceDBType.REMOTE.toString());
+		properties.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, "/rest");
+		properties.put(DeviceDBConfig.DEVICEDB_REMOTE_URI, URI.create("http://localhost:" + port + "/rest").toString());
+
+		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
+
+		final DeviceDBService deviceDBService = Guice
+				.createInjector(new RemoteDeviceDBModule(deviceDBConfig))
+				.getInstance(DeviceDBService.class);
+
+		super.setUp(deviceDBService);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		deviceDB.removeAll();
+		deviceDBService.removeAll();
 	}
 
 	@AfterClass

@@ -25,11 +25,10 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.SNAAProperties;
+import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -47,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
@@ -63,31 +63,31 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
+	private final SNAAConfig snaaConfig;
+
 	private final ServicePublisher servicePublisher;
 
 	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
 	private final LoginContextFactory loginContextFactory;
 
-	private final String snaaContextPath;
-
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public JAASSNAA(final ServicePublisher servicePublisher,
+	public JAASSNAA(final SNAAConfig snaaConfig,
+					final ServicePublisher servicePublisher,
 					final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-					final LoginContextFactory loginContextFactory,
-					@Named(SNAAProperties.CONTEXT_PATH) final String snaaContextPath) {
-		this.servicePublisher = servicePublisher;
-		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
-		this.loginContextFactory = loginContextFactory;
-		this.snaaContextPath = snaaContextPath;
+					final LoginContextFactory loginContextFactory) {
+		this.snaaConfig = checkNotNull(snaaConfig);
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
+		this.loginContextFactory = checkNotNull(loginContextFactory);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(snaaContextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
