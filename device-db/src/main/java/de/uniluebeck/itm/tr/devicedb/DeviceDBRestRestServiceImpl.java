@@ -19,6 +19,10 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 
 	private final ServicePublisher servicePublisher;
 
+	private ServicePublisherService webApp;
+
+	private ServicePublisherService jaxRsService;
+
 	@Inject
 	public DeviceDBRestRestServiceImpl(final DeviceDBConfig config,
 									   final ServicePublisher servicePublisher,
@@ -35,11 +39,12 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 
 		try {
 
-			servicePublisher.createJaxRsService(config.getDeviceDBRestApiContextPath(), restApplication);
+			jaxRsService = servicePublisher.createJaxRsService(config.getDeviceDBRestApiContextPath(), restApplication);
+			jaxRsService.startAndWait();
+
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
-			ServicePublisherService ss = servicePublisher.createServletService(config.getDeviceDBWebappContextPath(), webAppResourceBase);
-			servicePublisher.startAndWait();
-			ss.startAndWait();
+			webApp = servicePublisher.createServletService(config.getDeviceDBWebappContextPath(), webAppResourceBase);
+			webApp.startAndWait();
 
 			notifyStarted();
 
@@ -56,8 +61,12 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 
 		try {
 
-			if (servicePublisher != null && servicePublisher.isRunning()) {
-				servicePublisher.stopAndWait();
+			if (webApp != null && webApp.isRunning()) {
+				webApp.stopAndWait();
+			}
+
+			if (jaxRsService != null && jaxRsService.isRunning()) {
+				jaxRsService.stopAndWait();
 			}
 
 			notifyStopped();

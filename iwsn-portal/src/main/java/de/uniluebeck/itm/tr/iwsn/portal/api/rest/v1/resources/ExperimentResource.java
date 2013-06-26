@@ -5,8 +5,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
@@ -176,13 +176,17 @@ public class ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	public Response getInstance(List<SecretReservationKey> secretReservationKeys) {
+	public Response getInstance(SecretReservationKeyListRs secretReservationKeyList) {
 
-		if (secretReservationKeys == null || secretReservationKeys.size() == 0) {
+		final boolean emptyList = secretReservationKeyList == null ||
+				secretReservationKeyList.reservations == null ||
+				secretReservationKeyList.reservations.size() == 0;
+
+		if (emptyList) {
 			return Response.status(Status.BAD_REQUEST).entity("No secret reservation keys were given.").build();
 		}
 
-		final SecretReservationKey secretReservationKey = secretReservationKeys.get(0);
+		final SecretReservationKey secretReservationKey = secretReservationKeyList.reservations.get(0);
 
 		try {
 
