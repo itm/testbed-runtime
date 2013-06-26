@@ -1,0 +1,5 @@
+#! /bin/bash 
+
+# Remove log files
+set -e 
+rm -f /var/log/[[artifactId]]/* || true
