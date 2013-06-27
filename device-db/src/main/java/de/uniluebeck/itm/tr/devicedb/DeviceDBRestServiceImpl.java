@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DeviceDBRestRestServiceImpl extends AbstractService implements DeviceDBRestService {
+public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDBRestService {
 
-	private static final Logger log = LoggerFactory.getLogger(DeviceDBRestRestServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DeviceDBRestServiceImpl.class);
 
 	private final DeviceDBRestApplication restApplication;
 
@@ -24,9 +24,9 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 	private ServicePublisherService jaxRsService;
 
 	@Inject
-	public DeviceDBRestRestServiceImpl(final DeviceDBConfig config,
-									   final ServicePublisher servicePublisher,
-									   final DeviceDBRestApplication restApplication) {
+	public DeviceDBRestServiceImpl(final DeviceDBConfig config,
+								   final ServicePublisher servicePublisher,
+								   final DeviceDBRestApplication restApplication) {
 		this.config = checkNotNull(config);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.restApplication = checkNotNull(restApplication);
@@ -35,7 +35,7 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 	@Override
 	protected void doStart() {
 
-		log.trace("DeviceDBRestRestServiceImpl.doStart()");
+		log.trace("DeviceDBRestServiceImpl.doStart()");
 
 		try {
 
@@ -57,7 +57,7 @@ public class DeviceDBRestRestServiceImpl extends AbstractService implements Devi
 	@Override
 	protected void doStop() {
 
-		log.trace("DeviceDBRestRestServiceImpl.doStop()");
+		log.trace("DeviceDBRestServiceImpl.doStop()");
 
 		try {
 

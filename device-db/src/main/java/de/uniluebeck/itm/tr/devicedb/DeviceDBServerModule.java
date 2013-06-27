@@ -27,9 +27,9 @@ public class DeviceDBServerModule extends PrivateModule {
 		bind(CommonConfig.class).toProvider(Providers.of(commonConfig));
 		bind(DeviceDBConfig.class).toProvider(Providers.of(deviceDBConfig));
 
-		install(new DeviceDBServiceModule(deviceDBConfig));
 		install(new ServicePublisherCxfModule());
 		install(new DeviceDBRestServiceModule());
+		install(new DeviceDBServiceModule(deviceDBConfig));
 
 		expose(DeviceDBService.class);
 	}
