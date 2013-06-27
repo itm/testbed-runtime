@@ -104,11 +104,6 @@
 			<artifactId>guice-assistedinject</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.github.sclassen</groupId>
-			<artifactId>guice-jpa</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 		</dependency>
