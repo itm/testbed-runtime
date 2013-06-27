@@ -93,6 +93,10 @@ public abstract class ShiroSNAATestBase {
 	public void setUp(final Module jpaModule) throws Exception {
 
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
+		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
+		when(snaaConfig.getShiroJpaProperties()).thenReturn(new Properties());
+		when(snaaConfig.getShiroHashAlgorithmName()).thenReturn(Sha512Hash.ALGORITHM_NAME);
+		when(snaaConfig.getShiroHashAlgorithmIterations()).thenReturn(1000);
 
 		final AbstractModule mocksModule = new AbstractModule() {
 			@Override
@@ -393,7 +397,7 @@ public abstract class ShiroSNAATestBase {
 		} catch (SNAAFault_Exception e) {
 			// expected exception if one is thrown:
 			assertEquals(
-					"The urn prefix which was provided by the original authentication does not match the one in the secret authentication key.",
+					"Not serving node URN prefix urn:wisebed:uzl3:",
 					e.getMessage()
 			);
 			return;

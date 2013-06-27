@@ -45,8 +45,6 @@ public class ShiroSNAAModule extends ShiroModule {
 			bind(CommonConfig.class).toProvider(of(commonConfig));
 			bind(SNAAConfig.class).toProvider(of(snaaConfig));
 
-			install(new JpaModule("ShiroSNAA", snaaConfig.getShiroJpaProperties()));
-
 			requireBinding(EntityManager.class);
 			requireBinding(ServicePublisher.class);
 
@@ -71,6 +69,7 @@ public class ShiroSNAAModule extends ShiroModule {
 			bind(SNAA.class).to(ShiroSNAA.class);
 			bind(SNAAService.class).to(ShiroSNAA.class);
 
+			expose(ShiroSNAA.class);
 			expose(SNAA.class);
 			expose(SNAAService.class);
 

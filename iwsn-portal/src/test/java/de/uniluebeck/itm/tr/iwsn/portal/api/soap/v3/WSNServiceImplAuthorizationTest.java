@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.util.NetworkUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -30,6 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import static com.google.inject.util.Providers.of;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -38,6 +40,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WSNServiceImplAuthorizationTest {
 
+	private final int port = NetworkUtils.findFreePort();
 
 	@Mock
 	private SNAA snaa;
@@ -66,6 +69,7 @@ public class WSNServiceImplAuthorizationTest {
 	@Before
 	public void setUp() throws Exception {
 
+		when(commonConfig.getPort()).thenReturn(port);
 		when(commonConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
 		authorizationDeniedResponse = new AuthorizationResponse();
@@ -88,23 +92,24 @@ public class WSNServiceImplAuthorizationTest {
 				);
 
 				bind(SNAA.class).toInstance(snaa);
-				bind(DeviceDBService.class).toInstance(deviceDBService);
-				bind(CommonConfig.class).toInstance(commonConfig);
+				bind(DeviceDBService.class).toProvider(of(deviceDBService));
+				bind(CommonConfig.class).toProvider(of(commonConfig));
 				bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 			}
-		});
+		}
+		);
 
 
 		// get a reservation which starts in the future
 		final long time = new DateTime().getMillis();
-		Interval interval = new Interval(time*2,time*3);
+		Interval interval = new Interval(time * 2, time * 3);
 		when(reservation.getInterval()).thenReturn(interval);
 
 
 		WSNFactory wsnFactory = injector.getInstance(WSNFactory.class);
 		wsnDelegate = spy(wsnFactory.create("", reservation, deliveryManager));
 		AuthorizingWSNFactory authorizingWSNFactory = injector.getInstance(AuthorizingWSNFactory.class);
-		authorizingWsn = authorizingWSNFactory.create(reservation,wsnDelegate);
+		authorizingWsn = authorizingWSNFactory.create(reservation, wsnDelegate);
 
 	}
 
