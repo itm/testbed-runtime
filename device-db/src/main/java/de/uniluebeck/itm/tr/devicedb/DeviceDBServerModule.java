@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.inject.PrivateModule;
+import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Providers;
@@ -10,7 +10,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 
-public class DeviceDBServerModule extends PrivateModule {
+public class DeviceDBServerModule extends AbstractModule {
 
 	private final CommonConfig commonConfig;
 
@@ -28,10 +28,8 @@ public class DeviceDBServerModule extends PrivateModule {
 		bind(DeviceDBConfig.class).toProvider(Providers.of(deviceDBConfig));
 
 		install(new ServicePublisherCxfModule());
-		install(new DeviceDBRestServiceModule());
 		install(new DeviceDBServiceModule(deviceDBConfig));
-
-		expose(DeviceDBService.class);
+		install(new DeviceDBRestServiceModule());
 	}
 
 	@Provides

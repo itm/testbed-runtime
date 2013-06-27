@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.logging.LogLevel;
@@ -27,12 +28,14 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	private static int port = NetworkUtils.findFreePort();
 
-	private static DeviceDBRestService service;
+	private static DeviceDBServer deviceDBServer;
 
 	private static DeviceDBService deviceDBService;
 
 	@Mock
 	private DeviceDBConfig remoteDeviceDBConfig;
+
+	private DeviceDBService remoteDeviceDBService;
 
 	@BeforeClass
 	public static void startRemoteServer() {
@@ -48,25 +51,20 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
 
 		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig);
-		service = Guice.createInjector(module).getInstance(DeviceDBRestService.class);
-		service.startAndWait();
+		final Injector injector = Guice.createInjector(module);
+		deviceDBServer = injector.getInstance(DeviceDBServer.class);
+		deviceDBServer.startAndWait();
+		deviceDBService = injector.getInstance(DeviceDBService.class);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 
-		final Properties properties = new Properties();
-		properties.put(DeviceDBConfig.DEVICEDB_TYPE, DeviceDBType.REMOTE.toString());
-		properties.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, "/rest");
-		properties.put(DeviceDBConfig.DEVICEDB_REMOTE_URI, URI.create("http://localhost:" + port + "/rest").toString());
-
-		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
-
-		final DeviceDBService deviceDBService = Guice
-				.createInjector(new RemoteDeviceDBModule(deviceDBConfig))
+		remoteDeviceDBService = Guice
+				.createInjector(new RemoteDeviceDBModule(URI.create("http://localhost:" + port + "/rest")))
 				.getInstance(DeviceDBService.class);
 
-		super.setUp(deviceDBService);
+		super.setUp(remoteDeviceDBService);
 	}
 
 	@After
@@ -76,6 +74,6 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	@AfterClass
 	public static void stopServer() {
-		service.stopAndWait();
+		deviceDBServer.stopAndWait();
 	}
 }
