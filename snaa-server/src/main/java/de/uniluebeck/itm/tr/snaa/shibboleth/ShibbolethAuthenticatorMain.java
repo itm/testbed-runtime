@@ -5,14 +5,13 @@ import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.util.TimeDiff;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
 import java.util.Properties;
-
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 /*
  * Copyright (C) 2010 by Dennis Pfisterer. This is free software; you can redistribute it and/or modify it under the
@@ -101,8 +100,10 @@ public class ShibbolethAuthenticatorMain {
 		properties.put(SNAAConfig.SHIBBOLETH_URL, finalUrl);
 		properties.put(SNAAConfig.SHIBBOLETH_PROXY, finalProxy == null ? "" : finalProxy.toString());
 		final ShibbolethAuthenticator sa = Guice
-				.createInjector(new ShibbolethAuthenticatorModule(buildConfig(SNAAConfig.class, properties)))
-				.getInstance(ShibbolethAuthenticator.class);
+				.createInjector(
+						new PropConfModule(properties, SNAAConfig.class),
+						new ShibbolethAuthenticatorModule()
+				).getInstance(ShibbolethAuthenticator.class);
 		sa.setUserAtIdpDomain(userAtIdpDomain);
 		sa.setPassword(password);
 

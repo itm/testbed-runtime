@@ -14,7 +14,6 @@ import eu.wisebed.api.v3.snaa.SNAA;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.google.inject.util.Providers.of;
 
 public class ShibbolethSNAAModule extends PrivateModule {
 
@@ -30,8 +29,8 @@ public class ShibbolethSNAAModule extends PrivateModule {
 	@Override
 	protected void configure() {
 
-		bind(CommonConfig.class).toProvider(of(commonConfig));
-		bind(SNAAConfig.class).toProvider(of(snaaConfig));
+		requireBinding(CommonConfig.class);
+		requireBinding(SNAAConfig.class);
 
 		switch (snaaConfig.getShibbolethAuthorizationType()) {
 			case ALWAYS_ALLOW:
@@ -51,9 +50,11 @@ public class ShibbolethSNAAModule extends PrivateModule {
 				);
 		}
 
-		install(new ShibbolethAuthenticatorModule(snaaConfig));
+		install(new ShibbolethAuthenticatorModule());
 
-		bind(SNAAService.class).to(ShibbolethSNAA.class).in(Scopes.SINGLETON);
+		bind(ShibbolethSNAA.class).in(Scopes.SINGLETON);
+		bind(SNAA.class).to(ShibbolethSNAA.class);
+		bind(SNAAService.class).to(ShibbolethSNAA.class);
 
 		expose(SNAA.class);
 		expose(SNAAService.class);

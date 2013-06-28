@@ -170,7 +170,7 @@ public class SNAAConfig {
 	)
 	public static final String SHIRO_HASH_ALGORITHM_ITERATIONS = "snaa.shiro.hash_algorithm.iterations";
 
-	@Inject(optional=true)
+	@Inject
 	@Named(SHIRO_HASH_ALGORITHM_ITERATIONS)
 	private int shiroHashAlgorithmIterations;
 
