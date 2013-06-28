@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.snaa.jaas;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.util.Providers;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -30,9 +29,8 @@ public class JAASSNAAModule extends PrivateModule {
 	@Override
 	protected void configure() {
 
-		bind(CommonConfig.class).toProvider(Providers.of(commonConfig));
-		bind(SNAAConfig.class).toProvider(Providers.of(snaaConfig));
-
+		requireBinding(CommonConfig.class);
+		requireBinding(SNAAConfig.class);
 		requireBinding(ServicePublisher.class);
 
 		bind(LoginContextFactory.class).to(LoginContextFactoryImpl.class);

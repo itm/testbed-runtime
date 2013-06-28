@@ -87,6 +87,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	@Override
 	protected void doStart() {
 		try {
+			System.setProperty("java.security.auth.login.config", snaaConfig.getJaasConfigFile());
 			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
@@ -101,6 +102,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 			if (jaxWsService != null) {
 				jaxWsService.stopAndWait();
 			}
+			System.setProperty("java.security.auth.login.config", "");
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -141,7 +143,6 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 		try {
 			String username = authenticationTriple.getUsername();
 			String password = authenticationTriple.getPassword();
-
 
 			LoginContext lc = loginContextFactory.create(new CredentialsCallbackHandler(username, password));
 
