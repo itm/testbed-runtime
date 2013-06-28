@@ -3,17 +3,18 @@ package de.uniluebeck.itm.tr.snaa;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 public class SNAAServer extends AbstractService {
 
@@ -64,8 +65,12 @@ public class SNAAServer extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final CommonConfig commonConfig = buildConfig(CommonConfig.class, config.config);
-		final SNAAConfig snaaConfig = buildConfig(SNAAConfig.class, config.config);
+		final PropConfModule propConfModule = new PropConfModule(config.config, CommonConfig.class, SNAAConfig.class);
+		final Injector propConfInjector = Guice.createInjector(propConfModule);
+
+		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);
+		final SNAAConfig snaaConfig = propConfInjector.getInstance(SNAAConfig.class);
+
 		final SNAAServerModule module = new SNAAServerModule(commonConfig, snaaConfig);
 		final SNAAServer snaa = Guice.createInjector(module).getInstance(SNAAServer.class);
 
@@ -86,6 +91,9 @@ public class SNAAServer extends AbstractService {
 		}
 		);
 
-		log.info("SNAA started!");
+		log.info(
+				"SNAA started (SOAP API at {})",
+				"http://localhost:" + commonConfig.getPort() + snaaConfig.getSnaaContextPath()
+		);
 	}
 }

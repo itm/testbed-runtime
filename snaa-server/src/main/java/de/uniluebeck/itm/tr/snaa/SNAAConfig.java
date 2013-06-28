@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.config.HostAndPortTypeConverter;
 import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
+import de.uniluebeck.itm.tr.common.config.URITypeConverter;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethAuthorizationType;
 import de.uniluebeck.itm.util.propconf.PropConf;
 import org.apache.shiro.crypto.hash.Sha512Hash;
@@ -42,7 +43,7 @@ public class SNAAConfig {
 	)
 	public static final String JAAS_LOGINMODULE = "snaa.jaas.loginmodule";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(JAAS_LOGINMODULE)
 	private String jaasLoginModule;
 
@@ -82,33 +83,37 @@ public class SNAAConfig {
 	)
 	public static final String SHIBBOLETH_AUTHORIZATION_TYPE = "snaa.shibboleth.authorization.type";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(SHIBBOLETH_AUTHORIZATION_TYPE)
 	private ShibbolethAuthorizationType shibbolethAuthorizationType;
 
 	@PropConf(
 			usage = "The username for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)"
 	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_USERNAME = "snaa.shibboleth.authorization.attribute_based.username";
+	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_USERNAME =
+			"snaa.shibboleth.authorization.attribute_based.username";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_USERNAME)
 	private String shibbolethAuthorizationAttributeBasedDatasourceUsername;
 
 	@PropConf(
 			usage = "The password for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)"
 	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_PASSWORD = "snaa.shibboleth.authorization.attribute_based.password";
+	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_PASSWORD =
+			"snaa.shibboleth.authorization.attribute_based.password";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_PASSWORD)
 	private String shibbolethAuthorizationAttributeBasedDatasourcePassword;
 
 	@PropConf(
 			usage = "The URL for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)",
-			example = "jdbc:mysql://localhost:3306/snaportal"
+			example = "jdbc:mysql://localhost:3306/snaportal",
+			typeConverter = URITypeConverter.class
 	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_URL = "snaa.shibboleth.authorization.attribute_based.datasource.url";
+	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_URL =
+			"snaa.shibboleth.authorization.attribute_based.datasource.url";
 
 	@Inject(optional = true)
 	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_URL)
@@ -119,9 +124,10 @@ public class SNAAConfig {
 			example = "homeOrganization",
 			defaultValue = "homeOrganization"
 	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_KEY = "snaa.shibboleth.authorization.attribute_based.key";
+	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_KEY =
+			"snaa.shibboleth.authorization.attribute_based.key";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_KEY)
 	private String shibbolethAuthorizationAttributeBasedKey;
 
@@ -129,9 +135,10 @@ public class SNAAConfig {
 			usage = "The value for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)",
 			example = "wisebed1.itm.uni-luebeck.de"
 	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_VALUE = "snaa.shibboleth.authorization.attribute_based.value";
+	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_VALUE =
+			"snaa.shibboleth.authorization.attribute_based.value";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_VALUE)
 	private String shibbolethAuthorizationAttributeBasedValue;
 
@@ -141,7 +148,7 @@ public class SNAAConfig {
 	)
 	public static final String SHIRO_JPA_PROPERTIES_FILE = "snaa.shiro.jpa.properties_file";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIRO_JPA_PROPERTIES_FILE)
 	private Properties shiroJpaProperties;
 
@@ -152,7 +159,7 @@ public class SNAAConfig {
 	)
 	public static final String SHIRO_HASH_ALGORITHM_NAME = "snaa.shiro.hash_algorithm.name";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIRO_HASH_ALGORITHM_NAME)
 	private String shiroHashAlgorithmName;
 
@@ -163,7 +170,7 @@ public class SNAAConfig {
 	)
 	public static final String SHIRO_HASH_ALGORITHM_ITERATIONS = "snaa.shiro.hash_algorithm.iterations";
 
-	@Inject
+	@Inject(optional=true)
 	@Named(SHIRO_HASH_ALGORITHM_ITERATIONS)
 	private int shiroHashAlgorithmIterations;
 
