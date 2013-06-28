@@ -6,16 +6,21 @@ import com.google.inject.name.Names;
 
 import java.net.URI;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class RemoteDeviceDBModule extends PrivateModule {
+
+	private static final String ERROR_MESSAGE =
+			"URI for remote DeviceDB REST API is null. Did you forget to configure it?";
 
 	private final URI remoteDeviceDBUri;
 
 	public RemoteDeviceDBModule(final DeviceDBConfig deviceDBConfig) {
-		this.remoteDeviceDBUri = deviceDBConfig.getDeviceDBRemoteUri();
+		this.remoteDeviceDBUri = checkNotNull(deviceDBConfig.getDeviceDBRemoteUri(), ERROR_MESSAGE);
 	}
 
 	public RemoteDeviceDBModule(final URI remoteDeviceDBUri) {
-		this.remoteDeviceDBUri = remoteDeviceDBUri;
+		this.remoteDeviceDBUri = checkNotNull(remoteDeviceDBUri, ERROR_MESSAGE);
 	}
 
 	@Override

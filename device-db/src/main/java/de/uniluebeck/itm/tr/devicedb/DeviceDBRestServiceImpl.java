@@ -7,7 +7,10 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDBRestService {
 
@@ -43,7 +46,16 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 			jaxRsService.startAndWait();
 
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
-			webApp = servicePublisher.createServletService(config.getDeviceDBWebappContextPath(), webAppResourceBase);
+
+			final Map<String, String> webAppInitParams = newHashMap();
+			webAppInitParams.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, config.getDeviceDBRestApiContextPath());
+			webAppInitParams.put(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH, config.getDeviceDBWebappContextPath());
+
+			webApp = servicePublisher.createServletService(
+					config.getDeviceDBWebappContextPath(),
+					webAppResourceBase,
+					webAppInitParams
+			);
 			webApp.startAndWait();
 
 			notifyStarted();

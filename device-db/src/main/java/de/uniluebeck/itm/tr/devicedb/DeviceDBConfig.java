@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
+import de.uniluebeck.itm.tr.common.config.URITypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
 
 import javax.annotation.Nullable;
@@ -55,7 +56,8 @@ public class DeviceDBConfig {
 	private DeviceDBType deviceDBType;
 
 	@PropConf(
-			usage = "The URI the DeviceDB REST service runs on"
+			usage = "The URI the DeviceDB REST service runs on",
+			typeConverter = URITypeConverter.class
 	)
 	public static final String DEVICEDB_REMOTE_URI = "devicedb.remote.uri";
 

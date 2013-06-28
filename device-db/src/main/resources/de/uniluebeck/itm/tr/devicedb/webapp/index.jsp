@@ -1,3 +1,4 @@
+<%@ page import="de.uniluebeck.itm.tr.devicedb.DeviceDBConfig" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,18 +17,23 @@
     <script src="js/views.js"></script>
     <script src="js/templates.js"></script>   
     <script>
-        $(document).ready(function() {
-            'use strict';
 
-            new app.TableView({ el: $("#table_configs") });
+		var deviceDBRestApiContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH) %>";
+		var deviceDBWebappContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH) %>";
 
-            $('#btnAdd').click(function() {
-                new app.DetailView({
-                    el:     jQuery("#edit-view"),
-                    model: new app.NodeModel()
-                });
-            });
-        });
+		$(document).ready(function() {
+			'use strict';
+
+			new app.TableView({ el: $("#table_configs") });
+
+			$('#btnAdd').click(function() {
+				new app.DetailView({
+					el:     jQuery("#edit-view"),
+					model: new app.NodeModel()
+				});
+			});
+		});
+
     </script>
 </head>
 <body>
