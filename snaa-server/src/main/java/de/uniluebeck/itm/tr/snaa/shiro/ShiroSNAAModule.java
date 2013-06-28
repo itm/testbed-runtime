@@ -21,7 +21,6 @@ import javax.persistence.EntityManager;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.google.inject.util.Providers.of;
 
 /**
  * Extension of the abstract {@link ShiroModule} to configure Apache Shiro and to bind dependencies
@@ -42,9 +41,8 @@ public class ShiroSNAAModule extends ShiroModule {
 	protected void configureShiro() {
 		try {
 
-			bind(CommonConfig.class).toProvider(of(commonConfig));
-			bind(SNAAConfig.class).toProvider(of(snaaConfig));
-
+			requireBinding(CommonConfig.class);
+			requireBinding(SNAAConfig.class);
 			requireBinding(EntityManager.class);
 			requireBinding(ServicePublisher.class);
 
