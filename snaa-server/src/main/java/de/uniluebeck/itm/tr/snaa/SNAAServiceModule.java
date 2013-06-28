@@ -26,8 +26,6 @@ public class SNAAServiceModule extends PrivateModule {
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAConfig.class);
 
-		install(new JpaModule("ShiroSNAA", snaaConfig.getShiroJpaProperties()));
-
 		switch (snaaConfig.getSnaaType()) {
 			case DUMMY:
 				install(new DummySNAAModule(snaaConfig));
@@ -39,6 +37,7 @@ public class SNAAServiceModule extends PrivateModule {
 				install(new ShibbolethSNAAModule(commonConfig, snaaConfig));
 				break;
 			case SHIRO:
+				install(new JpaModule("ShiroSNAA", snaaConfig.getShiroJpaProperties()));
 				install(new ShiroSNAAModule(commonConfig, snaaConfig));
 				break;
 			default:
